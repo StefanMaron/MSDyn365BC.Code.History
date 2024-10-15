@@ -116,7 +116,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Social Security Code on Vendor - using Lookup and select Contribution code.
 
         // Setup: Create Contribution code with Type INPS and create Vendor.
-        Initialize;
+        Initialize();
         CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INPS);
         LibraryVariableStorage.Enqueue(ContributionCode.Code);
         LibraryPurchase.CreateVendor(Vendor);
@@ -139,7 +139,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Social Security Code on Vendor - using Lookup and create new Contribution code.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise: Lookup on Social Security code on Vendor Card and create new in Page Handler - NewContributionCodesINPSModalPageHandler.
@@ -161,7 +161,7 @@ codeunit 144090 "ERM Withhold"
         // Verify INAIL Code on Vendor - using Lookup and select Contribution code.
 
         // Setup: Create Contribution code with Type INAIL and create Vendor.
-        Initialize;
+        Initialize();
         CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INAIL);
         LibraryVariableStorage.Enqueue(ContributionCode.Code);
         LibraryPurchase.CreateVendor(Vendor);
@@ -184,7 +184,7 @@ codeunit 144090 "ERM Withhold"
         // Verify INAIL Code on Vendor - using Lookup and create new Contribution code.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // Exercise: Lookup on INAIL code on Vendor Card and create new in Page Handler - NewContributionCodesINAILModalPageHandler.
@@ -207,7 +207,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Payable Amount on Withh. Taxes-Contribution Card window after creating purchase credit memo.
 
         // Setup: Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", CreateVendor('', ''), false);  // Blank Social Security Code,INAIL Code and Prices Including VAT - FALSE.
         WithholdingTaxAmount := CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
 
@@ -231,7 +231,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Payable Amount on Withh. Taxes-Contribution Card window after creating purchase invoice.
 
         // Setup: Create Purchase Invoice.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor('', ''), false);  // Blank Social Security Code, INAIL Code and Prices Including VAT - FALSE.
         WithholdingTaxAmount := CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."Line Amount", TaxableBase);
 
@@ -256,7 +256,7 @@ codeunit 144090 "ERM Withhold"
         // Verify withholding tax is calculated correctly when using Base Excluded Amount after creating purchase invoice.
 
         // Setup: Create Purchase Invoice and Calculate Withhold Taxes Contribution.
-        Initialize;
+        Initialize();
         BaseExcludedAmount := LibraryRandom.RandDec(10, 2);
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor('', ''), false);  // Blank Social Security Code, INAIL Code and Prices Including VAT - FALSE..
         WithholdingTaxAmount :=
@@ -449,7 +449,7 @@ codeunit 144090 "ERM Withhold"
         // Verify no error message on Posting of Purchase Credit memo with apply Posted Purchase Invoice with withhold Tax and verify Amount in Vendor Ledger Entry.
 
         // Setup: Create and post Purchase Invoice and create Purchase Credit Memo and apply with Posted Purchase Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.", false);  // Prices Including VAT - FALSE.
         UpdateAppliesToDocOnPurchaseHeader(PurchaseHeader, PurchaseLine."Document No.", PostedDocumentNo);
@@ -528,7 +528,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Gross Amount same as Total Amount on Withh. Taxes-Contribution Card after creating Purchase Invoice.
 
         // Setup: Create Contribution Code with Type INPS and Create Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateContributionCodeWithLine(ContributionCodeLine, ContributionCodeLine."Contribution Type"::INPS);
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor(ContributionCodeLine.Code, ''), false);  // Blank for INAIL Code  and Prices Including VAT - FALSE.
 
@@ -549,7 +549,7 @@ codeunit 144090 "ERM Withhold"
         WithhTaxesContributionCard: TestPage "Withh. Taxes-Contribution Card";
     begin
         // Verify Gross Amount same as Total Amount after update Total Amount on Withh. Taxes-Contribution Card after creating Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateContributionCodeWithLine(ContributionCodeLine, ContributionCodeLine."Contribution Type"::INPS);
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor(ContributionCodeLine.Code, ''), false);  // Blank for INAIL Code and Prices Including VAT - FALSE.
         CalculateWithholdTaxesContributionOnPurchInvoice(WithhTaxesContributionCard, PurchaseLine."Document No.");
@@ -573,7 +573,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Error message on Posting of Payment Journal with apply Posted Purchase Invoice without Calculate Withhold Taxes Contribution.
 
         // Setup: Create and Post Purchase Invoice and create and apply General Journal line.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         UpdateBlankPaymentMethodCodeOnVendor(PurchaseLine."Buy-from Vendor No.");
         CreateAndApplyGeneralJnlLine(
@@ -597,7 +597,7 @@ codeunit 144090 "ERM Withhold"
         // Verify no error message when posting a credit memo without withholding tax which is linked to an invoice with withholding tax and verify Amount in Vendor Ledger Entry.
 
         // Setup: Create and Post Purchase Invoice and Create Payment Journal with Document Type Credit Memo and apply to Posted Purchase Invoice.
-        Initialize;
+        Initialize();
         PostedDocumentNo := CreateAndPostPurchaseInvoice(PurchaseLine, '', '');  // Blank for Social Security Code and INAIL Code.
         UpdateBlankPaymentMethodCodeOnVendor(PurchaseLine."Buy-from Vendor No.");
         CreateAndApplyGeneralJnlLine(
@@ -649,7 +649,7 @@ codeunit 144090 "ERM Withhold"
         // Verify INAIL Free-Lance Amount on Withh. Taxes-Contribution Card after creating Purchase Invoice.
 
         // Setup: Create Contribution code with Type as INAIL and create Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateContributionCodeWithLine(ContributionCodeLine, ContributionCodeLine."Contribution Type"::INAIL);
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor('', ContributionCodeLine.Code), false);  // Blank for Social Security Code and Prices Including VAT - FALSE.
         INAILTotalAmount :=
@@ -751,7 +751,7 @@ codeunit 144090 "ERM Withhold"
         RunWithholdingTaxesReport(PurchaseLine."Buy-from Vendor No.");
         FindWithholdingTax(WithholdingTax, PurchaseLine."Buy-from Vendor No.");
         Paid := WithholdingTax.Paid;
-        WithholdingTaxPayment.FindFirst;
+        WithholdingTaxPayment.FindFirst();
 
         // Exercise.
         WithholdingTaxPayment.Delete(true);
@@ -776,7 +776,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Withholding Tax Amount On Sub form Vendor Bill Lines after Insert Line from Manual Vendor Payment Line Page.
 
         // Setup: Set Total Amount and Tax Base Amount on Page - Manual Vendor Payment Line.
-        Initialize;
+        Initialize();
         SetValuesOnManualVendorPaymentLinePage(ManualVendorPaymentLine);
         Vendor.Get(ManualVendorPaymentLine.VendorNo.Value);
         WithholdingTaxAmount :=
@@ -802,7 +802,7 @@ codeunit 144090 "ERM Withhold"
         // Verify Taxable Base and Withholding Tax Amount on Withh. Taxes-Contribution Card while purchase invoice having Prices Including VAT Boolean - TRUE.
 
         // Setup: Create Purchase Invoice with Calculating Withhold Taxes Contribution.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor('', ''), true);  // Blank Social Security Code, INAIL Code and Prices Including VAT - TRUE.
         WithholdingTaxAmount :=
           CalculateWithholdTaxes(PurchaseLine."Buy-from Vendor No.", PurchaseLine."VAT Base Amount", TaxableBase);
@@ -827,7 +827,7 @@ codeunit 144090 "ERM Withhold"
         // Verify VAT Base Amount and VAT Amount on G/L Entry while purchase invoice having Prices Including VAT Boolean - TRUE.
 
         // Setup: Create Purchase Invoice with Calculating Withhold Taxes Contribution.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseLine, PurchaseLine."Document Type"::Invoice, CreateVendor('', ''), true);  // Blank Social Security Code, INAIL Code and Prices Including VAT - TRUE.
         CalculateWithholdTaxesContributionOnPurchInvoice(WithhTaxesContributionCard, PurchaseLine."Document No.");
         VATPostingSetup.Get(PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
@@ -936,7 +936,7 @@ codeunit 144090 "ERM Withhold"
 
         // [THEN] Withholding Tax is generated for the Payment with Non Taxable Amount = "A"
         WithholdingTax.SetRange("Document No.", GenJournalLine."Document No.");
-        WithholdingTax.FindFirst;
+        WithholdingTax.FindFirst();
         WithholdingTax.TestField("Non Taxable Amount", PurchaseLine.Amount);
 
         LibraryVariableStorage.AssertEmpty();
@@ -951,12 +951,12 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 376436] Field "Residence County" of Page "Vendor Card" should refer to field "Residence County" of Vendor Table
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Residence County" = "X"
         Vendor.Init();
-        Vendor."No." := LibraryUtility.GenerateGUID;
-        Vendor."Residence County" := LibraryUtility.GenerateGUID;
+        Vendor."No." := LibraryUtility.GenerateGUID();
+        Vendor."Residence County" := LibraryUtility.GenerateGUID();
         Vendor.Insert(true);
 
         // [WHEN] Open Vendor Card Page
@@ -977,7 +977,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT] [Social Security]
         // [SCENARIO 213698] Social Security fields are recalculated on validating Withholding Contribution's "Gross Amount" field in case of empty "INAIL Code"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding Contribution with typed "Social Security Code" having:
         // [GIVEN] "INAIL Code" = "", "Social Security %" = 10, "Free-Lance %" = 33.33, ContributionBracketLine."Taxable Base %" = 5
@@ -1012,7 +1012,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [Social Security]
         // [SCENARIO 214315] TAB 12112 "Computed Contribution"."Remaining Gross Amount" is considered when Social Security fields are recalculated
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "INPS" Social Security Withholding Contribution having following ContributionBracketLine setup:
         // [GIVEN] Line1: Amount = 6410, "Taxable Base %" = 0
@@ -1059,7 +1059,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [Social Security]
         // [SCENARIO 251046] TAB 12112 "Computed Contribution"."Remaining Gross Amount" is considered when Social Security on Purchase Invoice Page is recalculated.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Social Security Contribution having Contribution Brackets.
         // [GIVEN] First Contribution Brackets Line with Amount = 6410 and "Taxable Base %" = 0.
@@ -1094,7 +1094,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 251046] COD 12101 "Withholding - Contribution".GetCompContribRemGrossAmtForVendorInPeriod() returns remaining gross amount for the given vendor in specified period.
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         RemainingGrossAmount := LibraryRandom.RandDecInRange(0, 10000, 2);
 
         // [GIVEN] Computed Contribution for Vendor "V1" with Posting Date = 28-11-2017 and Remaining Gross Amount = 100.
@@ -1130,7 +1130,7 @@ codeunit 144090 "ERM Withhold"
         VendorNo: Code[20];
     begin
         // [SCENARIO 253610] When "Buy-from Vendor No." is validated and then Purchase Invoice is inserted, then Purch. With Contribution is created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with Withholding Tax Code = "T"
         VendorNo := CreateVendor('', '');
@@ -1159,7 +1159,7 @@ codeunit 144090 "ERM Withhold"
         VendorNo: Code[20];
     begin
         // [SCENARIO 253610] When "Buy-from Vendor No." is validated after Purchase Invoice is inserted, then Purch. With Contribution is created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with Withholding Tax Code = "T"
         VendorNo := CreateVendor('', '');
@@ -1186,7 +1186,7 @@ codeunit 144090 "ERM Withhold"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 253610] When modify "Document Date" in Purchase Invoice, then Purch. With Contribution "Date Related" equals to "Document Date" from Purchase Invoice.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with "Document Date" = 1/24/2019 and "Pay-to Vendor No." = Vendor with Withholding Tax Code
         PurchaseHeader.Init();
@@ -1211,7 +1211,7 @@ codeunit 144090 "ERM Withhold"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 253610] When Validate Vendor with non-blank Withholding Tax Code for Purchase Invoice with blank "No.", then Purch. With Contribution is not created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with blank "No."
         PurchaseHeader.Init();
@@ -1234,7 +1234,7 @@ codeunit 144090 "ERM Withhold"
         PurchaseHeader: Record "Purchase Header";
     begin
         // [SCENARIO 253610] When Purchase Invoice is deleted, then associated Purch. With Contribution is deleted as well.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice for Vendor with Withholding Tax Code
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor('', ''));
@@ -1260,7 +1260,7 @@ codeunit 144090 "ERM Withhold"
         // [FEATURE] [UT]
         // [SCENARIO 259516] Withholding tax has reason code "K"
 
-        Initialize;
+        Initialize();
         VerifyOptionInOptionString(DATABASE::"Withholding Tax", WithholdingTax.FieldNo(Reason), 'K');
     end;
 
@@ -1273,7 +1273,7 @@ codeunit 144090 "ERM Withhold"
         // [FEATURE] [UT]
         // [SCENARIO 259516] Tmp Withholding Contribution has reason code "K"
 
-        Initialize;
+        Initialize();
         VerifyOptionInOptionString(DATABASE::"Tmp Withholding Contribution", TmpWithholdingContribution.FieldNo(Reason), 'K');
     end;
 
@@ -1301,7 +1301,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT] [WHT Amount Manual] [Purch. Withh. Contribution]
         // [SCENARIO 266126] When validate "WHT Amount Manual" = "X" <> "Withholding Tax Amount" and "Withholding Tax Amount" <> 0 then "WHT Amount Manual" = "X" in Purch. Withh. Contribution
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, LibraryPurchase.CreateVendorNo);
         PurchWithhContribution.Init();
@@ -1322,7 +1322,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT] [WHT Amount Manual] [Purch. Withh. Contribution]
         // [SCENARIO 266126] When validate "WHT Amount Manual" = "Withholding Tax Amount" <> 0 then error is displayed 'WHT Amount Manual must not be equal to Withholding Tax Amount in Purch. Withh. Contribution.'
-        Initialize;
+        Initialize();
 
         PurchWithhContribution.Init();
         PurchWithhContribution.Validate("Withholding Tax Amount", LibraryRandom.RandDecInRange(10, 20, 2));
@@ -1342,7 +1342,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT] [WHT Amount Manual] [Purch. Withh. Contribution]
         // [SCENARIO 266126] When "Withholding Tax Amount" = 0 and "WHT Amount Manual" is validated then error is displayed 'Withholding Tax Amount must have a value in Purch. Withh. Contribution...'
-        Initialize;
+        Initialize();
 
         PurchWithhContribution.Init();
         asserterror PurchWithhContribution.Validate("WHT Amount Manual");
@@ -1363,7 +1363,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [WHT Amount Manual] [Computed Withholding Tax]
         // [SCENARIO 266126] When Purchase Invoice is posted with "WHT Amount Manual" = "X" then Computed Withholding Tax has "WHT Amount Manual" = "X"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Amount = 1000.0 for Vendor, having Withholding Tax = 10%
         CreatePurchaseInvoiceWithAmount(
@@ -1395,7 +1395,7 @@ codeunit 144090 "ERM Withhold"
         // [FEATURE] [Withholding Tax Amount] [Tmp Withholding Contribution] [WHT Amount Manual]
         // [SCENARIO 266126] When Purchase Invoice is posted with "WHT Amount Manual" = "X" <> 0 and Tmp Withholding Contribution is created for Payment Journal Line
         // [SCENARIO 266126] Then Tmp Withholding Contribution has "Withholding Tax Amount" = "X"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Invoice with Amount = 1000.0 for Vendor, having Withholding Tax = 10%
         CreatePurchaseInvoiceWithAmount(
@@ -1432,7 +1432,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [Suggest Vendor Bills] [Purch. Withh. Contribution]
         // [SCENARIO 283001] Suggested Vendor Bill Line has proper Amounts in case Soc. Sec. Non Taxable Amount was not changed in Purch. Withh Contribution
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding Tax and Social Security were set up as follows:
         // [GIVEN] Contribution Bracket with Taxable Base = 80 %
@@ -1475,7 +1475,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [Suggest Vendor Bills] [Purch. Withh. Contribution]
         // [SCENARIO 283001] Suggested Vendor Bill Line has proper Amounts in case Soc. Sec. Non Taxable Amount was changed in Purch. Withh Contribution
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding Tax and Social Security were set up as follows:
         // [GIVEN] Contribution Bracket with Taxable Base = 80 %
@@ -1663,7 +1663,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [SCENARIO 361963] External Document No. is not updated on Withholding Tax and Contribution (Social Security) records
         // [SCENARIO 361963] in case of Invoice to Payment application where payment had external doc. no. value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with Withholding Tax and Social Security setup
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
@@ -1747,7 +1747,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 369203] When deleting Gen. Journal Line that is related to Withholding contribution via "Payment Line-Withholding" field, it is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] A journal batch
         CreateGenJournalBatch(GenJournalBatch);
@@ -1778,7 +1778,7 @@ codeunit 144090 "ERM Withhold"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 369203] When deleting Gen. Journal Line that is related to Withholding contribution via "Payment Line-Soc. Sec." field, it is cleared
-        Initialize;
+        Initialize();
 
         // [GIVEN] A journal batch
         CreateGenJournalBatch(GenJournalBatch);
@@ -2175,7 +2175,7 @@ codeunit 144090 "ERM Withhold"
         WithholdingTaxAmount: Decimal;
     begin
         WithholdCodeLine.SetRange("Withhold Code", WithholdCode);
-        WithholdCodeLine.FindFirst;
+        WithholdCodeLine.FindFirst();
         WithholdingTaxAmount := ((TaxBaseAmount * WithholdCodeLine."Taxable Base %" / 100) * WithholdCodeLine."Withholding Tax %") / 100;
         exit(WithholdingTaxAmount);
     end;
@@ -2589,13 +2589,13 @@ codeunit 144090 "ERM Withhold"
     begin
         Vendor.Get(VendorNo);
         WithholdCodeLine.SetRange("Withhold Code", Vendor."Withholding Tax Code");
-        WithholdCodeLine.FindFirst;
+        WithholdCodeLine.FindFirst();
     end;
 
     local procedure FindWithholdingTax(var WithholdingTax: Record "Withholding Tax"; VendorNo: Code[20])
     begin
         WithholdingTax.SetRange("Vendor No.", VendorNo);
-        WithholdingTax.FindFirst;
+        WithholdingTax.FindFirst();
     end;
 
     local procedure FindContributions(var Contributions: Record Contributions; VendorNo: Code[20]);
@@ -2611,7 +2611,7 @@ codeunit 144090 "ERM Withhold"
             SetRange("Journal Batch Name", JournalBatchName);
             SetRange("Bal. Account Type", BalAccountType);
             SetRange("Bal. Account No.", BalAccountNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -2697,7 +2697,7 @@ codeunit 144090 "ERM Withhold"
         Clear(Certifications);
         Vendor.SetRange("No.", No);
         Certifications.SetTableView(Vendor);
-        Certifications.Run;
+        Certifications.Run();
     end;
 
     local procedure RunWithholdingTaxesReport(VendorNo: Code[20])
@@ -2708,7 +2708,7 @@ codeunit 144090 "ERM Withhold"
         Clear(WithholdingTaxes);
         WithholdingTax.SetRange("Vendor No.", VendorNo);
         WithholdingTaxes.SetTableView(WithholdingTax);
-        WithholdingTaxes.Run;
+        WithholdingTaxes.Run();
     end;
 
     local procedure RunSuggestVendorBillsForVendorNo(VendorBillHeader: Record "Vendor Bill Header"; VendorNo: Code[20])
@@ -2720,7 +2720,7 @@ codeunit 144090 "ERM Withhold"
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         SuggestVendorBills.SetTableView(VendorLedgerEntry);
         SuggestVendorBills.UseRequestPage(false);
-        SuggestVendorBills.RunModal;
+        SuggestVendorBills.RunModal();
     end;
 
     local procedure RunCreatePayment(var VendorLedgerEntry: Record "Vendor Ledger Entry"; GenJournalBatch: Record "Gen. Journal Batch")
@@ -2937,7 +2937,7 @@ codeunit 144090 "ERM Withhold"
             SetRange("Vendor No.", VendorNo);
             SetRange("Bal. Account Type", BalAccType);
             SetRange("Bal. Account No.", BalAccNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount);
             TestField(Amount, ExpectedAmount);
         end;
@@ -3017,7 +3017,7 @@ codeunit 144090 "ERM Withhold"
             SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             SetRange("System-Created Entry", true);
             SetRange("Applies-to Doc. No.", GenJournalLine."Applies-to Doc. No.");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(0, Amount, 'Amount in this line must be 0');
         end;
     end;
@@ -3070,7 +3070,7 @@ codeunit 144090 "ERM Withhold"
     procedure NewContributionCodesINAILModalPageHandler(var ContributionCodesINAIL: TestPage "Contribution Codes-INAIL")
     begin
         ContributionCodesINAIL.New;
-        ContributionCodesINAIL.Code.SetValue(LibraryUtility.GenerateGUID);
+        ContributionCodesINAIL.Code.SetValue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(ContributionCodesINAIL.Code.Value);
         ContributionCodesINAIL.OK.Invoke;
     end;
@@ -3080,7 +3080,7 @@ codeunit 144090 "ERM Withhold"
     procedure NewContributionCodesINPSModalPageHandler(var ContributionCodesINPS: TestPage "Contribution Codes-INPS")
     begin
         ContributionCodesINPS.New;
-        ContributionCodesINPS.Code.SetValue(LibraryUtility.GenerateGUID);
+        ContributionCodesINPS.Code.SetValue(LibraryUtility.GenerateGUID());
         LibraryVariableStorage.Enqueue(ContributionCodesINPS.Code.Value);
         ContributionCodesINPS.OK.Invoke;
     end;

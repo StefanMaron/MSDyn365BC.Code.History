@@ -111,7 +111,7 @@ page 12127 "Annual VAT Comm. Preview"
         ActivityCode: Code[6];
         DateFilter: Text;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Scope('OnPrem')]
     procedure UpdateSubForm()
     begin
         CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, false, '');

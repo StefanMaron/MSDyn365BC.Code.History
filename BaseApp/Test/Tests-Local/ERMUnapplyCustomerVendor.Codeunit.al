@@ -57,7 +57,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Vendor Ledger Entry with Document Type Invoice after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyVendorAfterPostingVATSettlement(
           PurchaseLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Invoice,
           -LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -72,7 +72,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Vendor Ledger Entry with Document Type Refund after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyVendorAfterPostingVATSettlement(
           PurchaseLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund,
           -LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -87,7 +87,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Vendor Ledger Entry with Document Type blank after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyVendorAfterPostingVATSettlement(
           PurchaseLine."Document Type"::Invoice, GenJournalLine."Document Type"::" ",
           LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -102,7 +102,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Vendor Ledger Entry with Document Type Credit Memo after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyVendorAfterPostingVATSettlement(
           PurchaseLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo",
           LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -117,7 +117,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Vendor Ledger Entry with Document Type Payment after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyVendorAfterPostingVATSettlement(
           PurchaseLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
           LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -132,7 +132,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Vendor Ledger Entry with Document Type Payment after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyVendorAfterPostingVATSettlement(
           PurchaseLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
           LibraryRandom.RandDec(10, 2), false);  // Taken random Amount.
@@ -197,7 +197,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Customer Ledger Entry with Document Type Invoice after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyCustomerAfterPostingVATSettlement(
           SalesLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Invoice,
           LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -212,7 +212,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Customer Ledger Entry with Document Type Refund after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyCustomerAfterPostingVATSettlement(
           SalesLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund,
           LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -227,7 +227,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Customer Ledger Entry with Document Type blank after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyCustomerAfterPostingVATSettlement(
           SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::" ",
           -LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -242,7 +242,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Customer Ledger Entry with Document Type Credit Memo after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyCustomerAfterPostingVATSettlement(
           SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo",
           -LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -257,7 +257,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Customer Ledger Entry with Document Type Payment after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyCustomerAfterPostingVATSettlement(
           SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
           -LibraryRandom.RandDec(10, 2), true);  // Taken random Amount.
@@ -272,7 +272,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Test to verify unapply Customer Ledger Entry with Document Type Payment after posting VAT Settlement.
-        Initialize;
+        Initialize();
         UnapplyCustomerAfterPostingVATSettlement(
           SalesLine."Document Type"::Invoice, GenJournalLine."Document Type"::Payment,
           -LibraryRandom.RandDec(10, 2), false);  // Taken random Amount.
@@ -331,8 +331,8 @@ codeunit 144158 "ERM Unapply Customer Vendor"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -444,7 +444,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
     begin
         PeriodicSettlementVATEntry.SetRange(
           "VAT Period", StrSubstNo(VATPeriodTxt, Date2DMY(PeriodDate, 3), ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0')));  // Value Zero required for VAT Period.
-        PeriodicSettlementVATEntry.FindFirst;
+        PeriodicSettlementVATEntry.FindFirst();
     end;
 
     local procedure GetStartingDate(): Date

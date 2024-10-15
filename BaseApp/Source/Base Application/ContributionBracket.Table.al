@@ -43,7 +43,7 @@ table 12108 "Contribution Bracket"
         SocialSecurityBracketLine.Reset();
         SocialSecurityBracketLine.SetRange(Code, Code);
 
-        if SocialSecurityBracketLine.FindFirst then
+        if SocialSecurityBracketLine.FindFirst() then
             SocialSecurityBracketLine.DeleteAll();
     end;
 

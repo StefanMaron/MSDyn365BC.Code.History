@@ -35,7 +35,7 @@ codeunit 131303 "Library - Pmt Disc Setup"
         PaymentLines: Record "Payment Lines";
     begin
         PaymentLines.SetRange(Code, PaymentTermsCode);
-        PaymentLines.FindFirst;
+        PaymentLines.FindFirst();
         exit(PaymentLines."Discount %");
     end;
 
@@ -44,7 +44,7 @@ codeunit 131303 "Library - Pmt Disc Setup"
         PaymentLines: Record "Payment Lines";
     begin
         PaymentLines.SetRange(Code, PaymentTermsCode);
-        PaymentLines.FindFirst;
+        PaymentLines.FindFirst();
         exit(CalcDate(PaymentLines."Discount Date Calculation", WorkDate));
     end;
 

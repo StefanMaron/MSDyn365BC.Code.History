@@ -51,7 +51,7 @@ codeunit 12132 "Withholding Tax Export"
 
         CalculateWithholdingTaxPerVendor(TempWithholdingTaxPrevYears, TempContributions, 0, Year - 1);
 
-        FlatFileManagement.Initialize;
+        FlatFileManagement.Initialize();
         FlatFileManagement.SetEstimatedNumberOfRecords(TempWithholdingTax.Count);
 
         RecordDCount := TempWithholdingTax.Count();
@@ -152,7 +152,7 @@ codeunit 12132 "Withholding Tax Export"
                 TempContributions.Insert();
             end;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempContributions."Company Amount" += "Company Amount";
                     TempContributions."Free-Lance Amount" += "Free-Lance Amount";
@@ -166,7 +166,7 @@ codeunit 12132 "Withholding Tax Export"
         EntryNumber: Integer;
     begin
         EntryNumber := 0;
-        if TempWithholdingTax.FindSet then
+        if TempWithholdingTax.FindSet() then
             repeat
                 TempContributions.Get(TempWithholdingTax."Entry No.");
                 FindWithholdingTaxEntry(TempWithholdingTaxPrevYears, TempWithholdingTax."Vendor No.", TempWithholdingTax.Reason);
@@ -501,7 +501,7 @@ codeunit 12132 "Withholding Tax Export"
     begin
         TempWithholdingTax.SetRange("Vendor No.", VendorNo);
         TempWithholdingTax.SetRange(Reason, Reason);
-        if not TempWithholdingTax.FindFirst then
+        if not TempWithholdingTax.FindFirst() then
             Clear(TempWithholdingTax);
     end;
 

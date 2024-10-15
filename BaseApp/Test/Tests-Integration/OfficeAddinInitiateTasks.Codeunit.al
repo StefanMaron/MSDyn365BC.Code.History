@@ -12,7 +12,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
     var
         LibraryMarketing: Codeunit "Library - Marketing";
         LibrarySales: Codeunit "Library - Sales";
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -93,8 +93,6 @@ codeunit 139052 "Office Addin Initiate Tasks"
     begin
         // [FEATURE] [Contact] [Customer] [Invoice]
         // [SCENARIO 156492] Stan initiates task Post & Send but default sending profile is not email with PDF
-
-        SetupSMTPMail;
 
         // [GIVEN] New contact with email is created and assigned to customer
         UpdateCustomerDocSendingProfile(CreateOfficeAddinContext(OfficeAddinContext), DefaultDocSendingProfileTxt);
@@ -665,6 +663,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         OfficeAddin: Record "Office Add-in";
         AddinManifestManagement: Codeunit "Add-in Manifest Management";
         OfficeAttachmentManager: Codeunit "Office Attachment Manager";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         OfficeHostType: DotNet OfficeHostType;
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Office Addin Initiate Tasks");
@@ -687,11 +686,13 @@ codeunit 139052 "Office Addin Initiate Tasks"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         LibrarySales.SetStockoutWarning(false);
         SetupCompanyPaymentInfo();
         SetupMarketing();
         LibrarySetupStorage.Save(DATABASE::"Marketing Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
 
         CreateDefaultDocSendingProfile();
@@ -771,7 +772,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         Customer.SetRecFilter;
         CreateContsFromCustomers.UseRequestPage(false);
         CreateContsFromCustomers.SetTableView(Customer);
-        CreateContsFromCustomers.Run;
+        CreateContsFromCustomers.Run();
 
         ContactNo := UpdateContactEmail(BusinessRelation.Code, ContactBusinessRelation."Link to Table"::Customer, Customer."No.", Email);
         exit(Customer."No.");
@@ -807,7 +808,7 @@ codeunit 139052 "Office Addin Initiate Tasks"
         ContactBusinessRelation.SetRange("Business Relation Code", BusinessRelationCode);
         ContactBusinessRelation.SetRange("Link to Table", LinkToTable);
         ContactBusinessRelation.SetRange("No.", LinkNo);
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         exit(ContactBusinessRelation."Contact No.");
     end;
 
@@ -1032,22 +1033,6 @@ codeunit 139052 "Office Addin Initiate Tasks"
         CompanyInformation.Get();
         CompanyInformation.Validate("Allow Blank Payment Info.", true);
         CompanyInformation.Modify(true);
-    end;
-
-    [Scope('OnPrem')]
-    procedure SetupSMTPMail()
-    var
-        SMTPMailSetup: Record "SMTP Mail Setup";
-    begin
-        with SMTPMailSetup do begin
-            DeleteAll();
-            Init;
-            "SMTP Server" := 'localhost';
-            "SMTP Server Port" := 9999;
-            "User ID" := 'person@mycompany.org';
-            Authentication := Authentication::Anonymous;
-            Insert;
-        end;
     end;
 
     [Normal]

@@ -36,7 +36,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         // [Include in VAT Transac. Rep.] = Yes in VAT Posting Setup.
         // Starting Date = WORKDATE, [Threshold Amount Incl. VAT.] = 0, Line Amount > 0.
         // Expected Result: [Include in VAT Transac. Rep.] = Yes in Gen. Journal Line.
-        Initialize;
+        Initialize();
 
         // Setup.
         DocumentType := GenJournalLine."Document Type"::Invoice;
@@ -118,7 +118,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         AccountType: Enum "Gen. Journal Account Type";
         Delta: DateFormula;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         DocumentType := GenJournalLine."Document Type"::Invoice;
@@ -238,7 +238,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Amount: Decimal;
         GenPostingType: Enum "General Posting Type";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -306,7 +306,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         AccountNo: Code[20];
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -498,7 +498,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -752,7 +752,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         RecordRef: RecordRef;
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -886,7 +886,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         Amount: Decimal;
         AccountNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -915,7 +915,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
     local procedure Initialize()
     begin
         TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -1205,7 +1205,7 @@ codeunit 144006 "IT - VAT Reporting - Gen. Jnl."
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.SetFilter("Starting Date", '<=%1', StartingDate);
-        VATTransactionReportAmount.FindLast;
+        VATTransactionReportAmount.FindLast();
 
         if InclVAT then
             Amount := VATTransactionReportAmount."Threshold Amount Incl. VAT"

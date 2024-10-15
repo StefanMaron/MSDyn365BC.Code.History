@@ -115,7 +115,7 @@ report 12152 "Create Subcontr.Transf. Order"
         TransferHeader.SetRange("Transfer-from Code", FromLocationCode);
         TransferHeader.SetRange("Transfer-to Code", "Purchase Header"."Subcontracting Location Code");
         TransferHeader.SetRange("Return Order", false);
-        if not TransferHeader.FindFirst then begin
+        if not TransferHeader.FindFirst() then begin
             TransferHeader.Init();
             TransferHeader."No." := '';
             TransferHeader.Insert(true);
@@ -137,7 +137,7 @@ report 12152 "Create Subcontr.Transf. Order"
             LineNum := 0;
         end else begin
             TransferLine.SetRange("Document No.", TransferHeader."No.");
-            if TransferLine.FindLast then
+            if TransferLine.FindLast() then
                 LineNum := TransferLine."Line No."
             else
                 LineNum := 0;
@@ -157,7 +157,7 @@ report 12152 "Create Subcontr.Transf. Order"
         PurchLine.SetFilter("Prod. Order No.", '<>''''');
         PurchLine.SetFilter("Prod. Order Line No.", '<>0');
         PurchLine.SetFilter("Operation No.", '<>0');
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 if CheckPurchLine(PurchLine, false, QtyToPost) then
                     exit(true);
@@ -202,7 +202,7 @@ report 12152 "Create Subcontr.Transf. Order"
         ProdOrderComponent.SetRange("Prod. Order Line No.", PurchLine."Prod. Order Line No.");
         ProdOrderComponent.SetRange("Routing Link Code", ProdOrderRoutingLine."Routing Link Code");
         ProdOrderComponent.SetRange("Purchase Order Filter", PurchLine."Document No.");
-        if ProdOrderComponent.FindSet then
+        if ProdOrderComponent.FindSet() then
             repeat
                 Item.Get(ProdOrderComponent."Item No.");
                 QtyToPost := CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComponent,
@@ -272,7 +272,7 @@ report 12152 "Create Subcontr.Transf. Order"
         TransferHeader.SetRecFilter;
         TransfOrderForm.SetTableView(TransferHeader);
         TransfOrderForm.Editable(false);
-        TransfOrderForm.RunModal;
+        TransfOrderForm.RunModal();
     end;
 
     [IntegrationEvent(false, false)]

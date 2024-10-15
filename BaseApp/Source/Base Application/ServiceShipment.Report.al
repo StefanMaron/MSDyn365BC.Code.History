@@ -71,10 +71,10 @@ report 5913 "Service - Shipment"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(CustNo_ServShptHeader; "Service Shipment Header"."Customer No.")
@@ -586,6 +586,9 @@ report 5913 "Service - Shipment"
 
                 FormatAddressFields("Service Shipment Header");
                 FormatDocumentFields("Service Shipment Header");
+
+                if not CompanyBankAccount.Get("Service Shipment Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
             end;
         }
     }
@@ -667,6 +670,7 @@ report 5913 "Service - Shipment"
         Text002: Label 'Service - Shipment %1';
         Text003: Label 'Page %1';
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -748,7 +752,7 @@ report 5913 "Service - Shipment"
         DimTxtArrLength := 0;
         for i := 1 to ArrayLen(DimTxtArr) do
             DimTxtArr[i] := '';
-        if not DimSetEntry.FindSet then
+        if not DimSetEntry.FindSet() then
             exit;
         Separation := '; ';
         repeat

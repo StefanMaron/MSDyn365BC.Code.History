@@ -1,4 +1,4 @@
-page 6630 "Sales Return Order"
+﻿page 6630 "Sales Return Order"
 {
     Caption = 'Sales Return Order';
     PageType = Document;
@@ -318,6 +318,12 @@ page 6630 "Sales Return Order"
                         CurrPage.Update();
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Prices Including VAT"; "Prices Including VAT")
                 {
                     ApplicationArea = VAT;
@@ -337,6 +343,13 @@ page 6630 "Sales Return Order"
                     begin
                         CurrPage.Update();
                     end;
+                }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = IsPostingGroupEditable;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
                 }
                 field("Refers to Period"; "Refers to Period")
                 {
@@ -364,6 +377,7 @@ page 6630 "Sales Return Order"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
@@ -407,6 +421,12 @@ page 6630 "Sales Return Order"
                 {
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the ID of entries that will be applied to when you choose the Apply Entries action.';
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = SalesReturnOrder;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -713,6 +733,14 @@ page 6630 "Sales Return Order"
         }
         area(factboxes)
         {
+            part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Check Document';
+                Visible = SalesDocCheckFactboxVisible;
+                SubPageLink = "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part("Attached Documents"; "Document Attachment Factbox")
             {
                 ApplicationArea = All;
@@ -942,7 +970,9 @@ page 6630 "Sales Return Order"
                     Image = ReceiptLines;
                     RunObject = Page "Whse. Receipt Lines";
                     RunPageLink = "Source Type" = CONST(37),
+#pragma warning disable
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore
                                   "Source No." = FIELD("No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse receipts for the document, in advanced warehouse configurations.';
@@ -1162,7 +1192,7 @@ page 6630 "Sales Return Order"
                     begin
                         Clear(CreateRetRelDocs);
                         CreateRetRelDocs.SetSalesHeader(Rec);
-                        CreateRetRelDocs.RunModal;
+                        CreateRetRelDocs.RunModal();
                         CreateRetRelDocs.ShowDocuments;
                     end;
                 }
@@ -1196,7 +1226,7 @@ page 6630 "Sales Return Order"
                     begin
                         Clear(MoveNegSalesLines);
                         MoveNegSalesLines.SetSalesHeader(Rec);
-                        MoveNegSalesLines.RunModal;
+                        MoveNegSalesLines.RunModal();
                         MoveNegSalesLines.ShowDocument;
                     end;
                 }
@@ -1323,7 +1353,7 @@ page 6630 "Sales Return Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1470,6 +1500,8 @@ page 6630 "Sales Return Order"
         SetControlAppearance;
         SellToContact.GetOrClear("Sell-to Contact No.");
         BillToContact.GetOrClear("Bill-to Contact No.");
+
+        OnAfterOnAfterGetRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1479,10 +1511,8 @@ page 6630 "Sales Return Order"
     end;
 
     trigger OnInit()
-    var
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        JobQueueUsed := SalesReceivablesSetup.JobQueueActive;
+        JobQueueUsed := SalesSetup.JobQueueActive();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -1502,11 +1532,14 @@ page 6630 "Sales Return Order"
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        ActivateFields;
+        ActivateFields();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
         if ("No." <> '') and ("Sell-to Customer No." = '') then
             DocumentIsPosted := (not Get("Document Type", "No."));
+
+        SetPostingGroupEditable();
+        CheckShowBackgrValidationNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -1518,6 +1551,8 @@ page 6630 "Sales Return Order"
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        SalesSetup: Record "Sales & Receivables Setup";
+        GLSetup: Record "General Ledger Setup";
         MoveNegSalesLines: Report "Move Negative Sales Lines";
         CreateRetRelDocs: Report "Create Ret.-Related Documents";
         ReportPrint: Codeunit "Test Report-Print";
@@ -1544,12 +1579,21 @@ page 6630 "Sales Return Order"
         IsBillToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+        SalesDocCheckFactboxVisible: Boolean;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
+        IsPostingGroupEditable: Boolean;
 
     local procedure ActivateFields()
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     procedure CallPostDocument(PostingCodeunitID: Integer)
@@ -1561,8 +1605,10 @@ page 6630 "Sales Return Order"
     var
         SalesHeader: Record "Sales Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         IsHandled: Boolean;
     begin
+        LinesInstructionMgt.SalesCheckAllLinesHaveQuantityAssigned(Rec);
         SendToPosting(PostingCodeunitID);
 
         DocumentIsPosted := not SalesHeader.Get("Document Type", "No.");
@@ -1636,6 +1682,12 @@ page 6630 "Sales Return Order"
         DocNoVisible := DocumentNoVisibility.SalesDocumentNoIsVisible(DocType::"Return Order", "No.");
     end;
 
+    procedure SetPostingGroupEditable()
+    begin
+        SalesSetup.Get();
+        IsPostingGroupEditable := SalesSetup."Allow Multiple Posting Groups";
+    end;
+
     procedure ShowPreview()
     var
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
@@ -1646,6 +1698,7 @@ page 6630 "Sales Return Order"
     local procedure SetControlAppearance()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
 
@@ -1653,6 +1706,20 @@ page 6630 "Sales Return Order"
         OpenApprovalEntriesExist := ApprovalsMgmt.HasOpenApprovalEntries(RecordId);
         CanCancelApprovalForRecord := ApprovalsMgmt.CanCancelApprovalForRecord(RecordId);
         IsCustomerOrContactNotEmpty := ("Sell-to Customer No." <> '') or ("Sell-to Contact No." <> '');
+        SalesDocCheckFactboxVisible := DocumentErrorsMgt.BackgroundValidationEnabled();
+    end;
+
+    procedure RunBackgroundCheck()
+    begin
+        CurrPage.SalesDocCheckFactbox.Page.CheckErrorsInBackground(Rec);
+    end;
+
+    local procedure CheckShowBackgrValidationNotification()
+    var
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
+    begin
+        if DocumentErrorsMgt.CheckShowEnableBackgrValidationNotification() then
+            SetControlAppearance();
     end;
 
     local procedure ShowPostedConfirmationMessage()
@@ -1663,12 +1730,17 @@ page 6630 "Sales Return Order"
     begin
         if not ReturnOrderSalesHeader.Get("Document Type", "No.") then begin
             SalesCrMemoHeader.SetRange("No.", "Last Posting No.");
-            if SalesCrMemoHeader.FindFirst then
+            if SalesCrMemoHeader.FindFirst() then
                 if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedSalesReturnOrderQst, SalesCrMemoHeader."No."),
                      InstructionMgt.ShowPostedConfirmationMessageCode)
                 then
-                    PAGE.Run(PAGE::"Posted Sales Credit Memo", SalesCrMemoHeader);
+                    InstructionMgt.ShowPostedDocument(SalesCrMemoHeader, Page::"Sales Return Order");
         end;
+    end;
+ 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterOnAfterGetRecord(var SalesHeader: Record "Sales Header")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

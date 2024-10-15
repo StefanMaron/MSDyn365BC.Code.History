@@ -1,4 +1,4 @@
-﻿table 5093 "Opportunity Entry"
+table 5093 "Opportunity Entry"
 {
     Caption = 'Opportunity Entry';
     DrillDownPageID = "Opportunity Entries";
@@ -22,7 +22,7 @@
                 OppEntry.SetCurrentKey(Active, "Opportunity No.");
                 OppEntry.SetRange(Active, true);
                 OppEntry.SetRange("Opportunity No.", "Opportunity No.");
-                if OppEntry.FindFirst then begin
+                if OppEntry.FindFirst() then begin
                     "Estimated Value (LCY)" := OppEntry."Estimated Value (LCY)";
                     "Chances of Success %" := OppEntry."Chances of Success %";
                     "Date of Change" := OppEntry."Date of Change";
@@ -259,12 +259,6 @@
 
     var
         Text000: Label 'You can not create a Customer from contact %1 before you assign a Contact Company No. to the contact.';
-        TempSalesCycleStageFirst: Record "Sales Cycle Stage" temporary;
-        TempSalesCycleStageNext: Record "Sales Cycle Stage" temporary;
-        TempSalesCycleStagePrevious: Record "Sales Cycle Stage" temporary;
-        TempSalesCycleStageSkip: Record "Sales Cycle Stage" temporary;
-        TempSalesCycleStageUpdate: Record "Sales Cycle Stage" temporary;
-        TempSalesCycleStageJump: Record "Sales Cycle Stage" temporary;
         OppEntry: Record "Opportunity Entry";
         SalesCycleStage: Record "Sales Cycle Stage";
         PreviousDateOfChange: Date;
@@ -277,6 +271,14 @@
         Text011: Label 'You must select either Won or Lost.';
         Text012: Label 'Sales (LCY) must be greater than 0.';
         Text013: Label 'You must fill in the %1 field.';
+
+    protected var
+        TempSalesCycleStageFirst: Record "Sales Cycle Stage" temporary;
+        TempSalesCycleStageNext: Record "Sales Cycle Stage" temporary;
+        TempSalesCycleStagePrevious: Record "Sales Cycle Stage" temporary;
+        TempSalesCycleStageSkip: Record "Sales Cycle Stage" temporary;
+        TempSalesCycleStageUpdate: Record "Sales Cycle Stage" temporary;
+        TempSalesCycleStageJump: Record "Sales Cycle Stage" temporary;
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -292,14 +294,14 @@
         EntryNo: Integer;
     begin
         OppEntry2.Reset();
-        if OppEntry2.FindLast then
+        if OppEntry2.FindLast() then
             EntryNo := OppEntry2."Entry No."
         else
             EntryNo := 0;
         OppEntry2.SetCurrentKey(Active, "Opportunity No.");
         OppEntry2.SetRange(Active, true);
         OppEntry2.SetRange("Opportunity No.", OppEntry."Opportunity No.");
-        if OppEntry2.FindFirst then begin
+        if OppEntry2.FindFirst() then begin
             OppEntry2.Active := false;
             OppEntry2."Days Open" := OppEntry."Date of Change" - OppEntry2."Date of Change";
             OppEntry2.Modify();
@@ -440,7 +442,7 @@
         ContBusRel.SetRange("Contact No.", Cont."No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
 
-        if not ContBusRel.FindFirst then
+        if not ContBusRel.FindFirst() then
             Cont.CreateCustomerFromTemplate('');
     end;
 
@@ -595,7 +597,7 @@
         case "Action Type" of
             "Action Type"::First:
                 begin
-                    TempSalesCycleStageFirst.FindFirst;
+                    TempSalesCycleStageFirst.FindFirst();
                     "Sales Cycle Stage" := TempSalesCycleStageFirst.Stage;
                     "Sales Cycle Stage Description" := TempSalesCycleStageFirst.Description;
                     "Action Taken" := "Action Taken"::" ";
@@ -603,28 +605,28 @@
                 end;
             "Action Type"::Next:
                 begin
-                    TempSalesCycleStageNext.FindFirst;
+                    TempSalesCycleStageNext.FindFirst();
                     "Sales Cycle Stage" := TempSalesCycleStageNext.Stage;
                     "Sales Cycle Stage Description" := TempSalesCycleStageNext.Description;
                     "Action Taken" := "Action Taken"::Next;
                 end;
             "Action Type"::Previous:
                 begin
-                    TempSalesCycleStagePrevious.FindFirst;
+                    TempSalesCycleStagePrevious.FindFirst();
                     "Sales Cycle Stage" := TempSalesCycleStagePrevious.Stage;
                     "Sales Cycle Stage Description" := TempSalesCycleStagePrevious.Description;
                     "Action Taken" := "Action Taken"::Previous;
                 end;
             "Action Type"::Skip:
                 begin
-                    TempSalesCycleStageSkip.FindFirst;
+                    TempSalesCycleStageSkip.FindFirst();
                     "Sales Cycle Stage" := TempSalesCycleStageSkip.Stage;
                     "Sales Cycle Stage Description" := TempSalesCycleStageSkip.Description;
                     "Action Taken" := "Action Taken"::Jumped;
                 end;
             "Action Type"::Update:
                 begin
-                    TempSalesCycleStageUpdate.FindFirst;
+                    TempSalesCycleStageUpdate.FindFirst();
                     "Sales Cycle Stage" := TempSalesCycleStageUpdate.Stage;
                     "Sales Cycle Stage Description" := TempSalesCycleStageUpdate.Description;
                     "Action Taken" := "Action Taken"::Updated;
@@ -632,7 +634,7 @@
                 end;
             "Action Type"::Jump:
                 begin
-                    TempSalesCycleStageJump.FindLast;
+                    TempSalesCycleStageJump.FindLast();
                     "Sales Cycle Stage" := TempSalesCycleStageJump.Stage;
                     "Sales Cycle Stage Description" := TempSalesCycleStageJump.Description;
                     "Action Taken" := "Action Taken"::Jumped;
@@ -641,7 +643,7 @@
         Task.Reset();
         Task.SetCurrentKey("Opportunity No.");
         Task.SetRange("Opportunity No.", "Opportunity No.");
-        if Task.FindFirst then
+        if Task.FindFirst() then
             "Cancel Old To Do" := false;
         Modify;
     end;

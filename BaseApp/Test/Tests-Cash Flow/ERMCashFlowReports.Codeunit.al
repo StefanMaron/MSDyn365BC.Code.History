@@ -51,7 +51,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         SourceTypeValues: array[16] of Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CreateDocumentsOnDate('<0D>', SalesHeader, PurchHeader, SourceTypeValues[10], CustomDateFormula);
         SourceTypeValues[1] := CreateCustLedgEntry(SalesHeader);
@@ -76,14 +76,14 @@ codeunit 134989 "ERM Cash Flow - Reports"
         SourceTypeValues[6] := GetSalesAmountIncVAT(SalesHeader);
         SourceTypeValues[7] := GetPurchaseAmountIncVAT(PurchHeader);
         TotalAmount :=
-          CashFlowForecast.CalcAmountFromSource(SourceType::"Liquid Funds") +
+          CashFlowForecast.CalcSourceTypeAmount("Cash Flow Source Type"::"Liquid Funds") +
           SourceTypeValues[6] + SourceTypeValues[10] - SourceTypeValues[7] + SourceTypeValues[1] +
           SourceTypeValues[2] + CFManualRevenue.Amount - CFManualExpense2.Amount - SourceTypeValues[8] + SourceTypeValues[9];
 
         for SourceType := 1 to ArrayLen(ConsiderSource) do
             ConsiderSource[SourceType] := true;
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         ConsiderSource[SourceType::"Liquid Funds"] := false;
         ConsiderSource[SourceType::"G/L Budget"] := false;
@@ -115,15 +115,15 @@ codeunit 134989 "ERM Cash Flow - Reports"
         SourceTypeValues: array[16] of Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         CreateDocumentsOnDate('<1D>', SalesHeader, PurchHeader, SourceTypeValues[10], CustomDateFormula);
         SourceTypeValues[1] := CreateCustLedgEntry(SalesHeader);
         SourceTypeValues[2] := CreateVendLedgEntry(PurchHeader);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         TotalAmountPeriod1 :=
-          CashFlowForecast.CalcAmountFromSource(SourceType::"Liquid Funds") + SourceTypeValues[1] + SourceTypeValues[2];
+          CashFlowForecast.CalcSourceTypeAmount("Cash Flow Source Type"::"Liquid Funds") + SourceTypeValues[1] + SourceTypeValues[2];
         TotalAmountPeriod2 :=
           TotalAmountPeriod1 + GetSalesAmountIncVAT(SalesHeader) + SourceTypeValues[10] - GetPurchaseAmountIncVAT(PurchHeader);
         ConsiderSalesPurchSources(ConsiderSource);
@@ -160,7 +160,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         SouceTypeValuesAfter: array[16] of Decimal;
     begin
         // Setup
-        Initialize;
+        Initialize();
         LibraryCFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
         // Sales and purchase order source - before date list period
         CreateDocumentsOnDate('<-1D>', SalesHeader, PurchHeader, SouceTypeValuesBefore[10], CustomDateFormula);
@@ -173,13 +173,13 @@ codeunit 134989 "ERM Cash Flow - Reports"
         SouceTypeValuesAfter[6] := GetSalesAmountIncVAT(SalesHeader2);
         SouceTypeValuesAfter[7] := GetPurchaseAmountIncVAT(PurchHeader2);
         TotalAmountBefore :=
-          CashFlowForecast.CalcAmountFromSource(SourceType::"Liquid Funds") +
+          CashFlowForecast.CalcSourceTypeAmount("Cash Flow Source Type"::"Liquid Funds") +
           SouceTypeValuesBefore[6] + SouceTypeValuesBefore[10] - SouceTypeValuesBefore[7];
         TotalAmountPeriod := SouceTypeValuesBefore[1] + SouceTypeValuesBefore[2] + TotalAmountBefore;
         TotalAmountAfter := SouceTypeValuesAfter[6] + SouceTypeValuesAfter[10] - SouceTypeValuesAfter[7] + TotalAmountPeriod;
 
         // Fill and post journal
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         ConsiderSalesPurchSources(ConsiderSource);
         FillAndPostCFJournal(ConsiderSource, CashFlowForecast."No.", DocumentNoFilterText, CalcDate('<-1D>', WorkDate));
 
@@ -234,9 +234,9 @@ codeunit 134989 "ERM Cash Flow - Reports"
         CashFlowForecastEntry.SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Date");
         CashFlowForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CashFlowForecastEntry.SetFilter("Dimension Set ID", '<>%1', 0);
-        CashFlowForecastEntry.FindFirst;
+        CashFlowForecastEntry.FindFirst();
         CashFlowStartDate := CashFlowForecastEntry."Cash Flow Date";
-        CashFlowForecastEntry.FindLast;
+        CashFlowForecastEntry.FindLast();
         CashFlowEndDate := CashFlowForecastEntry."Cash Flow Date";
         CashFlowForecastEntry.SetRange("Cash Flow Date", CashFlowStartDate, CashFlowEndDate);
         DateFilter := Format(CashFlowStartDate) + '..' + Format(CashFlowEndDate);
@@ -244,7 +244,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         // Exercise
         CashFlowDimensionsDetail.InitializeRequest(AnalysisView.Code, CashFlowForecast."No.", DateFilter, false);
         Commit();
-        CashFlowDimensionsDetail.Run;
+        CashFlowDimensionsDetail.Run();
 
         // Verify
         // Check that all CF LEs are included in the report
@@ -331,7 +331,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
         exit(CustLedgEntry."Posting Date");
     end;
 
@@ -344,7 +344,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         CFDateList.SetTableView(CashFlowForecast);
         CFDateList.InitializeRequest(FromDate, NumberOfIntervals, IntervalLength);
         Commit();
-        CFDateList.Run;
+        CFDateList.Run();
     end;
 
     local procedure VerifyExpDateListSourceLine(SourceValues: array[16] of Decimal; NeutrRevenues: Decimal; NeutrExpenses: Decimal; CFInterference: Decimal; ElementName: Text; FilterValue: Date)
@@ -399,7 +399,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
     begin
         // Bug 279751 - To check Liquidity and G/L budget columns on Cash Flow Date List report Using CashFlowDateListReportHandler.
         // Setup : Create Cash Flow card and insert Cash Flow Forecast Entry.
-        Initialize;
+        Initialize();
         LibraryCF.CreateCashFlowCard(CFForecast);
         CFForecastNo := CFForecast."No.";
         Amount := LibraryRandom.RandDec(100, 2);
@@ -473,9 +473,9 @@ codeunit 134989 "ERM Cash Flow - Reports"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cash Flow - Reports");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Flow - Reports");

@@ -10,8 +10,6 @@ codeunit 9170 "Conf./Personalization Mgt."
         CannotDisableDefaultUserProfileErr: Label 'You cannot disable this profile because it is set up as a default profile for one or more users or user groups.';
         AllProfileCustomizationsDeletedSuccessfullyMsg: Label 'All customizations for profile "%1" have been deleted successfully.', Comment = '%1 = profile caption';
         ThereAreProfilesWithDuplicateIdMsg: Label 'Another profile has the same ID as this one. This can cause ambiguity in the system. Give this or the other profile another ID before you customize them. Contact your Microsoft partner for further assistance.';
-        CultureInfo: DotNet CultureInfo;
-        InstalledLanguages: DotNet StringCollection;
         NoCurrentProfileErr: Label 'Could not find a profile for the current user.';
         FileDoesNotExistErr: Label 'The file %1 does not exist.', Comment = '%1 File Path';
         UrlConfigureParameterTxt: Label 'customize', Locked = true;
@@ -25,7 +23,6 @@ codeunit 9170 "Conf./Personalization Mgt."
     procedure DefaultRoleCenterID(): Integer
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        AzureADUserManagement: Codeunit "Azure AD User Management";
         RoleCenterID: Integer;
         AzureADPlan: Codeunit "Azure AD Plan";
     begin
@@ -239,22 +236,6 @@ codeunit 9170 "Conf./Personalization Mgt."
         WindowsLanguage.FindSet();
     end;
 
-    local procedure IsLanguageInstalled(LanguageName: Text): Boolean
-    var
-        WindowsLanguage: Record "Windows Language";
-    begin
-        if InstalledLanguages.Count = 0 then begin
-            FilterToInstalledLanguages(WindowsLanguage);
-            if WindowsLanguage.FindSet then begin
-                repeat
-                    InstalledLanguages.Add(CultureInfo.GetCultureInfo(WindowsLanguage."Language ID").Name);
-                until WindowsLanguage.Next() = 0
-            end;
-        end;
-
-        exit(InstalledLanguages.Contains(LanguageName));
-    end;
-
 #if not CLEAN19
 #pragma warning disable AA0139
     [Obsolete('Please use the method "ValidateTimeZone" from codeunit "Time Zone Selection".', '19.0')]
@@ -316,7 +297,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         then begin
             TenantProfilePageMetadata.SetRange("Profile ID", OldAllProfile."Profile ID");
             TenantProfilePageMetadata.SetRange("App ID", OldAllProfile."App ID");
-            if TenantProfilePageMetadata.FindSet then
+            if TenantProfilePageMetadata.FindSet() then
                 repeat
                     TenantProfilePageMetadata.CalcFields("Page Metadata", "Page AL");
 
@@ -376,7 +357,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         OtherAllProfile.SetFilter(Scope, '<>%1', NewDefaultAllProfile.Scope);
 
         // Also, AllProfile does not support ModifyAll
-        if OtherAllProfile.FindSet then
+        if OtherAllProfile.FindSet() then
             repeat
                 OtherAllProfile."Default Role Center" := false;
                 OtherAllProfile.Modify();
@@ -390,7 +371,7 @@ codeunit 9170 "Conf./Personalization Mgt."
         UserPersonalization: Record "User Personalization";
     begin
         UserGroupMember.SetRange("User Group Code", UserGroupCode);
-        if UserGroupMember.FindSet then begin
+        if UserGroupMember.FindSet() then begin
             repeat
                 UserPersonalization.Get(UserGroupMember."User Security ID");
                 if (UserPersonalization."Profile ID" = OldProfileID) and
@@ -410,7 +391,7 @@ codeunit 9170 "Conf./Personalization Mgt."
     begin
         UserGroupMember.SetRange("User Security ID", UserSecurityID);
         UserGroupMember.SetFilter("User Group Code", '<>%1', UserGroupCode);
-        if UserGroupMember.FindSet then begin
+        if UserGroupMember.FindSet() then begin
             repeat
                 if UserGroup.Get(UserGroupMember."User Group Code") and
                    (UserGroup."Default Profile ID" = ProfileID)
@@ -472,9 +453,6 @@ codeunit 9170 "Conf./Personalization Mgt."
     end;
 
     procedure OpenProfileCustomizationUrl(AllProfile: Record "All Profile")
-    var
-        OtherAllProfile: Record "All Profile";
-        EmptyGuid: Guid;
     begin
         if IsProfileIdAmbiguous(AllProfile) then
             Error(ThereAreProfilesWithDuplicateIdMsg);

@@ -30,7 +30,7 @@ codeunit 134910 "ERM Suggest Reminder"
         // Check that Reminder Lines will be created after Running Suggest Reminder Lines Report.
 
         // Create Reminder and suggest Reminder Lines. Take random no. of days to calculate Document Date after Due Date.
-        Initialize;
+        Initialize();
         ReminderHeaderNo := CreateAndSuggestReminderLine(LibraryRandom.RandInt(10), CreateCustomer);
 
         // Verify: Verify the Creation of Reminder Lines.
@@ -48,7 +48,7 @@ codeunit 134910 "ERM Suggest Reminder"
         // Check that no Reminder Line exist while creating and suggesting Reminder through Page Testability and Document Date is before Due Date.
 
         // Create Reminder and suggest Reminder Lines. Take Negative random no. of days to calculate Document Date before Due Date.
-        Initialize;
+        Initialize();
         ReminderNo := CreateAndSuggestReminderLine(-LibraryRandom.RandInt(10), CreateCustomer);
 
         // Verify: Check that no Reminder Line exists when Document Date is before Due Date.
@@ -71,7 +71,7 @@ codeunit 134910 "ERM Suggest Reminder"
         // Check Reminder Text Page's caption updated according to Reminder Terms.
 
         // Setup: Create Reminder Terms with Reminder Level and Beginning Text.
-        Initialize;
+        Initialize();
         ReminderTermsCode := CreateReminderTerms(true);
         BeginningText := ReminderTermsCode + Format(LibraryRandom.RandInt(10));  // Create any Beginning Text using Random.
         FindReminderLevel(ReminderLevel, ReminderTermsCode);
@@ -104,7 +104,7 @@ codeunit 134910 "ERM Suggest Reminder"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [SCENARIO 290183] When Gen. Product Posting Group has blank Default VAT Product Posting Group Sugessting Reminder Lines results in error
-        Initialize;
+        Initialize();
 
         // [GIVEN] No VAT Posting Setup with blank VAT Prod. Posting Group.
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
@@ -135,7 +135,7 @@ codeunit 134910 "ERM Suggest Reminder"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         // [SCENARIO 290183] When Gen. Product Posting Group has blank Default VAT Product Posting Group Sugessting Reminder Lines results in error
-        Initialize;
+        Initialize();
 
         // [GIVEN] No VAT Posting Setup with blank VAT Prod. Posting Group.
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
@@ -163,7 +163,7 @@ codeunit 134910 "ERM Suggest Reminder"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 329294] Report "Suggest Reminder Lines" creates Reminder Lines for multiple Reminders.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Reminders.
         CreateAndPostSalesInvoice(SalesHeader, CreateCustomer);
@@ -189,8 +189,8 @@ codeunit 134910 "ERM Suggest Reminder"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
@@ -343,14 +343,14 @@ codeunit 134910 "ERM Suggest Reminder"
         ReminderHeader.SetRange("No.", ReminderHeader."No.");
         SuggestReminderLines.SetTableView(ReminderHeader);
         SuggestReminderLines.UseRequestPage(false);
-        SuggestReminderLines.Run;
+        SuggestReminderLines.Run();
         exit(ReminderHeader."No.");
     end;
 
     local procedure FindReminderLevel(var ReminderLevel: Record "Reminder Level"; ReminderTermsCode: Code[10])
     begin
         ReminderLevel.SetRange("Reminder Terms Code", ReminderTermsCode);
-        ReminderLevel.FindFirst;
+        ReminderLevel.FindFirst();
     end;
 
     local procedure OpenReminderTextPage(var ReminderLevels: TestPage "Reminder Levels"; "Code": Code[10]; No: Integer)
@@ -369,7 +369,7 @@ codeunit 134910 "ERM Suggest Reminder"
         ReminderLine: Record "Reminder Line";
     begin
         ReminderLine.SetRange("Reminder No.", ReminderNo);
-        ReminderLine.FindFirst;
+        ReminderLine.FindFirst();
     end;
 }
 

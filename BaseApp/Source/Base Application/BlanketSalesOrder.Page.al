@@ -1,4 +1,4 @@
-page 507 "Blanket Sales Order"
+﻿page 507 "Blanket Sales Order"
 {
     Caption = 'Blanket Sales Order';
     PageType = Document;
@@ -261,6 +261,11 @@ page 507 "Blanket Sales Order"
                         CurrPage.Update();
                     end;
                 }
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
                 field("Shipment Date"; "Shipment Date")
                 {
                     ApplicationArea = Suite;
@@ -280,6 +285,7 @@ page 507 "Blanket Sales Order"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                    Visible = IsPaymentMethodCodeVisible;
                 }
                 field("Bank Account"; "Bank Account")
                 {
@@ -315,6 +321,12 @@ page 507 "Blanket Sales Order"
                     begin
                         ShortcutDimension2CodeOnAfterV;
                     end;
+                }
+                field("Journal Templ. Name"; Rec."Journal Templ. Name")
+                {
+                    ApplicationArea = BasicBE;
+                    ToolTip = 'Specifies the name of the journal template in which the sales header is to be posted.';
+                    Visible = IsJournalTemplNameVisible;
                 }
                 field("Tax Liable"; "Tax Liable")
                 {
@@ -828,7 +840,7 @@ page 507 "Blanket Sales Order"
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1154,12 +1166,17 @@ page 507 "Blanket Sales Order"
     begin
         Rec.SetSecurityFilterOnRespCenter();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
+
+        GLSetup.Get();
+        IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        IsPaymentMethodCodeVisible := not GLSetup."Hide Payment Method Code";
     end;
 
     var
         SellToContact: Record Contact;
         BillToContact: Record Contact;
+        GLSetup: Record "General Ledger Setup";
         DocPrint: Codeunit "Document-Print";
         UserMgt: Codeunit "User Setup Management";
         ArchiveManagement: Codeunit ArchiveManagement;
@@ -1173,6 +1190,10 @@ page 507 "Blanket Sales Order"
         CanCancelApprovalForRecord: Boolean;
         [InDataSet]
         StatusStyleTxt: Text;
+        [InDataSet]
+        IsJournalTemplNameVisible: Boolean;
+        [InDataSet]
+        IsPaymentMethodCodeVisible: Boolean;
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
 
     protected var

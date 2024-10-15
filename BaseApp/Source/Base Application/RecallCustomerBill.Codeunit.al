@@ -24,7 +24,7 @@ codeunit 12170 "Recall Customer Bill"
         else
             CustomerBillLine.SetRange("Recalled by", '***');
 
-        if not CustomerBillLine.FindFirst then
+        if not CustomerBillLine.FindFirst() then
             Error(Text1130006);
 
         Window.Open(Text1130007 +
@@ -51,7 +51,7 @@ codeunit 12170 "Recall Customer Bill"
             CustLedgEntry.SetRange("Document No. to Close", CustLedgEntry2."Document No.");
             CustLedgEntry.SetRange("Document Occurrence to Close", CustLedgEntry2."Document Occurrence");
 
-            if not CustLedgEntry.FindFirst then
+            if not CustLedgEntry.FindFirst() then
                 Error(Text1130015);
 
             if not CustLedgEntry.Open then
@@ -173,7 +173,7 @@ codeunit 12170 "Recall Customer Bill"
         else
             IssuedCustomerBillLine.SetRange("Recalled by", '***');
 
-        if IssuedCustomerBillLine.FindFirst then begin
+        if IssuedCustomerBillLine.FindFirst() then begin
             Window.Open(Text1130007 +
               Text1130008 +
               Text1130009 +
@@ -208,11 +208,11 @@ codeunit 12170 "Recall Customer Bill"
                 CustLedgEntry.SetFilter("Document No. to Close", CustLedgEntry2."Document No.");
                 CustLedgEntry.SetRange("Document Occurrence to Close", CustLedgEntry2."Document Occurrence");
                 CustLedgEntry.SetRange(Open, false);
-                if CustLedgEntry.FindFirst then
+                if CustLedgEntry.FindFirst() then
                     Error(Text1130026, CustLedgEntry."Entry No.");
 
                 CustLedgEntry.SetRange(Open, true);
-                CustLedgEntry.FindFirst;
+                CustLedgEntry.FindFirst();
 
                 Window.Update(1, CustLedgEntry."Customer No.");
                 Window.Update(2, CustLedgEntry."Document No.");

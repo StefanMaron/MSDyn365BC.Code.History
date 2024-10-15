@@ -378,7 +378,7 @@ page 5508 "Sales Credit Memo Line Entity"
             DocumentIdFilter := GetFilter("Document Id");
             GraphMgtSalCrMemoBuf.LoadLines(Rec, DocumentIdFilter);
             SetView(FilterView);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(false);
             LinesLoaded := true;
         end;
@@ -436,7 +436,7 @@ page 5508 "Sales Credit Memo Line Entity"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);

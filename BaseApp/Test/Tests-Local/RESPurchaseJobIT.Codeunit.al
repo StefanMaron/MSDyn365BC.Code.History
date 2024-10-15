@@ -40,10 +40,10 @@ codeunit 144188 "RES Purchase Job IT"
 
         // Verify: Verify Unit Price in Job Ledger Entry.
         PurchaseInvLine.SetRange("Document No.", DocumentNo);
-        PurchaseInvLine.FindFirst;
+        PurchaseInvLine.FindFirst();
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("Job No.", PurchaseInvLine."Job No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchaseInvLine."Job Unit Price", JobLedgerEntry."Unit Price", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(UnitPriceErr, JobLedgerEntry.FieldCaption("Unit Price"), PurchaseInvLine."Job Unit Price", JobLedgerEntry.TableCaption));

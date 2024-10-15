@@ -134,7 +134,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         AppointmentCode: Record "Appointment Code";
     begin
         // Verify 'Appointment Code' in exported Annual VAT Communication file.
-        if not AppointmentCode.FindFirst then
+        if not AppointmentCode.FindFirst() then
             CreateAppointmentCode(AppointmentCode);
         ExportAnnualVATCommunicationWithVariousDetails(AppointmentCode.Code, 2, 235, 2, true, true, true);
     end;
@@ -253,7 +253,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify Company VAT Registration No in exported Annual VAT Communication file.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -450,7 +450,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Run report 'Exp. Annual VAT Communication' and verify the three record types A,B and Z in the exported text file.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -504,7 +504,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify the number of records of type B in exported Annual VAT Communication file.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -570,7 +570,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify 'Supplier Type' in exported Annual VAT Communication file when Tax Representative is blank.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
         CompanyInformation.Get();
         CompanyInformation.Validate("Tax Representative No.", '');
@@ -599,7 +599,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify 'Tax Code Of Declaration Company' when Tax Representative in not blank.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -624,7 +624,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify if field 'VAT Stat. Export Report ID' is available on VAT Statement Template page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Open VAT Statement Template page.
         VATStatementTemplatesPage.OpenView;
@@ -651,7 +651,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify 'Tax Code' in exported Annual VAT Communication file when Tax Representative is not blank.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -678,7 +678,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify if fiscal code of vendor set as Tax Representative appears in the report preview.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report Annual VAT Communication.
@@ -706,7 +706,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify Vendor VAT Registration No in exported Annual VAT Communication file when Tax Representative in not blank.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -733,7 +733,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         // Verify if VAT Registration No of vendor set as Tax Representative appear in report preview.
 
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report Annual VAT Communication.
@@ -755,7 +755,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         if IsInitialized then
             exit;
 
-        if not AppointmentCode.FindFirst then
+        if not AppointmentCode.FindFirst() then
             CreateAppointmentCode(AppointmentCode);
         IsInitialized := true;
         Commit();
@@ -821,7 +821,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         Amount: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Amount := SetupTransactionData(VATStatementName, AnnualVATCommField);
 
         // Exercise: Run report and save the exported file.
@@ -844,7 +844,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         ExportedFileName: Text;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -865,7 +865,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         ExportedFileName: Text;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         SetupTransactionData(VATStatementName, VATStatementLine."Annual VAT Comm. Field"::"CD1 - EU sales");
 
         // Exercise: Run report and save the exported file.
@@ -894,7 +894,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         Amount: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Amount := SetupTransactionData(VATStatementName, NewOption);
 
         // Exercise: Run report Annual VAT Communication.
@@ -913,7 +913,7 @@ codeunit 144190 "IT - Annual VAT Communication"
         AppointmentCode: Record "Appointment Code";
         AnnualVATComm2010: Report "Annual VAT Comm. - 2010";
     begin
-        AppointmentCode.FindFirst;
+        AppointmentCode.FindFirst();
         Clear(AnnualVATComm2010);
         AnnualVATComm2010.UseRequestPage(false);
         AnnualVATComm2010.InitializeRequest(
@@ -930,13 +930,13 @@ codeunit 144190 "IT - Annual VAT Communication"
         ExpAnnualVATComm2010: Report "Exp.Annual VAT Comm. - 2010";
     begin
         VATStatementName.SetRange(Name, StatementName);
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatementName.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(WorkDate, 3)), DMY2Date(31, 12, Date2DMY(WorkDate, 3)));
-        AppointmentCode.FindFirst;
+        AppointmentCode.FindFirst();
         ExpAnnualVATComm2010.SetTableView(VATStatementName);
         ExpAnnualVATComm2010.UseRequestPage(false);
         ExpAnnualVATComm2010.InitializeRequest('', AppointmentCode.Code, SeparateLedger, GroupSettlement, ExceptionalEvent, true);
-        ExpAnnualVATComm2010.RunModal;
+        ExpAnnualVATComm2010.RunModal();
         ExportedFileName := ExpAnnualVATComm2010.GetServerFileName;
     end;
 
@@ -962,7 +962,7 @@ codeunit 144190 "IT - Annual VAT Communication"
     begin
         // Delete VAT Statement Template.
         VATStatementTemplate.SetRange(Name, VATStatementTemplateName);
-        VATStatementTemplate.FindFirst;
+        VATStatementTemplate.FindFirst();
         VATStatementTemplate.Delete(true);
     end;
 

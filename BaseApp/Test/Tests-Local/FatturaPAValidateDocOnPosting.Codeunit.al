@@ -29,9 +29,9 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [UI] [Sales] [DEMO]
         // [SCENARIO 259342] Page 459 "Sales & Receivables Setup" has fields "Fattura PA Electronic Format", "Validate Document On Posting"
-        Initialize;
+        Initialize();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
         SalesReceivablesSetupPage.OpenEdit;
         Assert.IsTrue(SalesReceivablesSetupPage."Fattura PA Electronic Format".Editable, '');
         Assert.IsTrue(SalesReceivablesSetupPage."Fattura PA Electronic Format".Visible, '');
@@ -52,7 +52,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [UI] [Service]
         // [SCENARIO 259342] Page 5919 "Service Mgt. Setup" has field "Validate Document On Posting"
-        Initialize;
+        Initialize();
 
         LibraryApplicationArea.EnableServiceManagementSetup;
         ServiceMgtSetup.OpenEdit;
@@ -72,7 +72,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 259342] Enabling checkbox TAB 311 "Sales & Receivables Setup"."Validate Document On Posting" performs TESTFIELD on "Fattura PA Electronic Format"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingSales(false, '');
 
         SalesReceivablesSetup.Get();
@@ -89,7 +89,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 259342] Enabling checkbox TAB 311 "Sales & Receivables Setup"."Validate Document On Posting" verifies existing "Fattura PA Electronic Format" with Usage="Sales Validation"
-        Initialize;
+        Initialize();
         LibrarySales.SetFatturaPAElectronicFormat(FatturaPATxt);
 
         // Remove ElectronicDocumentFormat for Usage="Sales Validation" (but leave for Usage="Sales Invoice")
@@ -110,7 +110,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 259342] Mark\UnMark checkbox TAB 311 "Sales & Receivables Setup"."Validate Document On Posting"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingSales(false, FatturaPATxt);
 
         SalesReceivablesSetup.Get();
@@ -126,7 +126,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 259342] Blanked TAB 311 "Sales & Receivables Setup"."Fattura PA Electronic Format" doesn't UnMark "Validate Document On Posting"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
 
         LibrarySales.SetFatturaPAElectronicFormat('');
@@ -143,7 +143,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Sales]
         // [SCENARIO 259342] UnMark checkbox TAB 311 "Sales & Receivables Setup"."Validate Document On Posting" after blanked "Fattura PA Electronic Format"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
         LibrarySales.SetFatturaPAElectronicFormat('');
 
@@ -161,7 +161,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 259342] Enabling checkbox TAB 5911 "Service Mgt. Setup"."Validate Document On Posting" performs TESTFIELD on "Fattura PA Electronic Format"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingService(false, '');
 
         ServiceMgtSetup.Get();
@@ -178,7 +178,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 259342] Enabling checkbox TAB 5911 "Service Mgt. Setup"."Validate Document On Posting" verifies existing "Fattura PA Electronic Format" with Usage="Service Validation"
-        Initialize;
+        Initialize();
         LibrarySales.SetFatturaPAElectronicFormat(FatturaPATxt);
 
         // Remove ElectronicDocumentFormat for Usage="Service Validation" (but leave for Usage="Sales Invoice")
@@ -199,7 +199,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 259342] Mark\UnMark checkbox TAB 5911 "Service Mgt. Setup"."Validate Document On Posting"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingService(false, FatturaPATxt);
 
         ServiceMgtSetup.Get();
@@ -215,7 +215,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 259342] Blanked TAB 311 "Sales & Receivables Setup"."Fattura PA Electronic Format" doesn't UnMark "Validate Document On Posting"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
 
         LibrarySales.SetFatturaPAElectronicFormat('');
@@ -232,7 +232,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
     begin
         // [FEATURE] [UT] [Service]
         // [SCENARIO 259342] UnMark checkbox TAB 5911 "Service Mgt. Setup"."Validate Document On Posting" after blanked "Fattura PA Electronic Format"
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
         LibrarySales.SetFatturaPAElectronicFormat('');
 
@@ -253,7 +253,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -278,7 +278,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] An Error Message Log is shown trying to post sales invoice with typed PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -305,7 +305,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with blanked PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -331,7 +331,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with blanked PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -355,7 +355,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] TestField error is shown trying to post sales invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE, blanked "Fattura PA Electronic Format"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE, "Fattura PA Electronic Format" = ""
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -381,7 +381,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] Record Not Found error is shown trying to post sales invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE, "Fattura PA Electronic Format" is not setup for Usage="Sales Validation"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE, "Fattura PA Electronic Format" is typed but not setup for Usage="Sales Validation"
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -412,7 +412,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = FALSE
         LibrarySales.SetValidateDocumentOnPosting(false);
@@ -438,7 +438,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with typed PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = FALSE
         LibrarySales.SetValidateDocumentOnPosting(false);
@@ -464,7 +464,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with blanked PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = FALSE
         LibrarySales.SetValidateDocumentOnPosting(false);
@@ -490,7 +490,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] No errors on posting sales invoice with blanked PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = FALSE
         LibrarySales.SetValidateDocumentOnPosting(false);
@@ -516,7 +516,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 259342] No errors on posting sales credit memo with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -541,7 +541,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 259342] An Error Message Log is shown trying to post sales credit memo with typed PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingSales(true, FatturaPATxt);
@@ -566,7 +566,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No errors on posting service invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -591,7 +591,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] An Error Message Log is shown trying to post service invoice with typed PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -616,7 +616,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No errors on posting service invoice with blanked PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -640,7 +640,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No errors on posting service invoice with blanked PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -664,7 +664,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] TestField error is shown trying to post service invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE, blanked "Fattura PA Electronic Format"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE, "Fattura PA Electronic Format" = ""
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -690,7 +690,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] Record Not Found error is shown trying to post service invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE, "Fattura PA Electronic Format" is not setup for Usage="Service Validation"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE, "Fattura PA Electronic Format" is typed but not setup for Usage = "Service Validation"
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -719,7 +719,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No errors on posting service invoice with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = FALSE
         LibraryService.SetValidateDocumentOnPosting(false);
@@ -743,7 +743,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No error on posting service invoice with typed PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = FALSE
         LibraryService.SetValidateDocumentOnPosting(false);
@@ -767,7 +767,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No errors on posting service invoice with blanked PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = FALSE
         LibraryService.SetValidateDocumentOnPosting(false);
@@ -791,7 +791,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 259342] No errors on posting service invoice with blanked PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = FALSE
         LibraryService.SetValidateDocumentOnPosting(false);
@@ -815,7 +815,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 259342] No errors on posting service credit memo with typed PA Code, typed Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -841,7 +841,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 259342] An Error Message Log is shown trying to post service credit memo with typed PA Code, blanked Payment Method
         // [SCENARIO 259342] in case of "Validate Document On Posting" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Setup "Validate Document On Posting" = TRUE
         LibraryITLocalization.SetValidateDocumentOnPostingService(true, FatturaPATxt);
@@ -859,7 +859,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;

@@ -56,7 +56,7 @@ codeunit 144168 "ERM Company Information"
         GLAccountNo: Code[20];
     begin
         // Setup: Create G/L Account. Create and post General Journal Line.
-        Initialize;
+        Initialize();
         GLAccountNo := CreateGLAccount(IncomeBalance);
         CreateAndPostGeneralJournalLine(GLAccountNo);
         EnqueueValuesForRequestPageHandler(GLAccountNo, WorkDate);  // Enqueue values for AccountBookPrintRequestPageHandler.
@@ -77,7 +77,7 @@ codeunit 144168 "ERM Company Information"
     begin
         // Test to verify Company Information on the Report - Account Book Print when Date Filter applied.
         // Setup: Enqueue values for AccountBookPrintRequestPageHandler.
-        Initialize;
+        Initialize();
         EnqueueValuesForRequestPageHandler('', WorkDate);  // G/L Account No. as blank.
 
         // Exercise.
@@ -95,7 +95,7 @@ codeunit 144168 "ERM Company Information"
     begin
         // Test is to verify error message on Report - Account Book Print when Date Filter is blank.
         // Setup: Enqueue value for AccountBookPrintRequestPageHandler.
-        Initialize;
+        Initialize();
         EnqueueValuesForRequestPageHandler('', 0D);  // G/L Account No. and Date Filter as blank.
 
         // Exercise.
@@ -145,7 +145,7 @@ codeunit 144168 "ERM Company Information"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         DeleteObjectOptionsIfNeeded;
 
         // Needed to close any write transactions before running report.

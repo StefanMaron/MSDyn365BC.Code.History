@@ -111,7 +111,7 @@ table 570 "G/L Account Category"
         if "System Generated" then
             Error(CannotDeleteSystemGeneratedErr, Description);
         GLAccount.SetRange("Account Subcategory Entry No.", "Entry No.");
-        if GLAccount.FindFirst then
+        if GLAccount.FindFirst() then
             Error(CategoryUsedOnAccountErr, TableCaption, Description, GLAccount.TableCaption, GLAccount."No.");
         DeleteChildren("Entry No.");
         ShowNotificationAccSchedUpdateNeeded();
@@ -259,7 +259,7 @@ table 570 "G/L Account Category"
             exit;
 
         GLAccountCategory.SetRange("Parent Entry No.", ParentGLAccountCategory."Entry No.");
-        if GLAccountCategory.FindSet then
+        if GLAccountCategory.FindSet() then
             repeat
                 GLAccountCategory."Income/Balance" := ParentGLAccountCategory."Income/Balance";
                 GLAccountCategory."Account Category" := ParentGLAccountCategory."Account Category";
@@ -291,7 +291,7 @@ table 570 "G/L Account Category"
         GLAccountCategory: Record "G/L Account Category";
     begin
         GLAccountCategory.SetRange("Parent Entry No.", ParentEntryNo);
-        if GLAccountCategory.FindSet then
+        if GLAccountCategory.FindSet() then
             repeat
                 GLAccountCategory.DeleteRow;
             until GLAccountCategory.Next() = 0;
@@ -319,7 +319,7 @@ table 570 "G/L Account Category"
             GLAccount.SetFilter("No.", NewTotaling);
             GLAccount.SetRange("Income/Balance", "Income/Balance");
             GLAccount.LockTable();
-            if not GLAccount.FindSet then
+            if not GLAccount.FindSet() then
                 Error(NoAccountsInFilterErr, "Income/Balance");
             if OldTotaling <> '' then
                 ClearGLAccountSubcategoryEntryNo(OldTotaling, "Income/Balance");
@@ -352,7 +352,7 @@ table 570 "G/L Account Category"
         OldTotaling := GetTotaling;
         if OldTotaling <> '' then begin
             GLAccount.SetFilter("No.", OldTotaling);
-            if GLAccount.FindFirst then
+            if GLAccount.FindFirst() then
                 GLAccList.SetRecord(GLAccount);
             GLAccount.SetRange("No.");
         end;
@@ -380,7 +380,7 @@ table 570 "G/L Account Category"
             OnGetBalanceOnBeforeProcessChildren(Rec, Balance, IsHandled);
             if not IsHandled then begin
                 GLAccountCategory.SetRange("Parent Entry No.", "Entry No.");
-                if GLAccountCategory.FindSet then
+                if GLAccountCategory.FindSet() then
                     repeat
                         Balance += GLAccountCategory.GetBalance;
                     until GLAccountCategory.Next() = 0;

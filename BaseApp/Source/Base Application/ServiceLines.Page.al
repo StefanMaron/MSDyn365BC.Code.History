@@ -654,7 +654,9 @@ page 5905 "Service Lines"
                     Image = ShipmentLines;
                     RunObject = Page "Whse. Shipment Lines";
                     RunPageLink = "Source Type" = CONST(5902),
+#pragma warning disable AL0603
                                   "Source Subtype" = FIELD("Document Type"),
+#pragma warning restore AL0603
                                   "Source No." = FIELD("Document No.");
                     RunPageView = SORTING("Source Type", "Source Subtype", "Source No.", "Source Line No.");
                     ToolTip = 'View ongoing warehouse shipments for the document, in advanced warehouse configurations.';
@@ -778,7 +780,7 @@ page 5905 "Service Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -1067,7 +1069,7 @@ page 5905 "Service Lines"
                         CurrPage.SaveRecord();
                         CurrPage.SetSelectionFilter(ServLine);
 
-                        if ServLine.FindFirst then
+                        if ServLine.FindFirst() then
                             repeat
                                 TempServLine.Init();
                                 TempServLine := ServLine;
@@ -1106,7 +1108,7 @@ page 5905 "Service Lines"
                         CurrPage.SaveRecord();
                         CurrPage.SetSelectionFilter(ServLine);
 
-                        if ServLine.FindFirst then
+                        if ServLine.FindFirst() then
                             repeat
                                 TempServLine.Init();
                                 TempServLine := ServLine;
@@ -1210,7 +1212,6 @@ page 5905 "Service Lines"
         ServItemLine: Record "Service Item Line";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         ServItemLineNo: Integer;
-        SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
         Text011: Label 'This will reset all price adjusted lines to default values. Do you want to continue?';
         Text012: Label 'Do you want to create service lines from time sheets?';
         AddExtendedText: Boolean;
@@ -1226,6 +1227,7 @@ page 5905 "Service Lines"
         FaultCodeVisible: Boolean;
         [InDataSet]
         ResolutionCodeVisible: Boolean;
+        SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
 
     procedure CalcInvDisc(var ServLine: Record "Service Line")
     begin
@@ -1302,7 +1304,7 @@ page 5905 "Service Lines"
         Clear(FaultResolutionRelation);
         FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", ServItemLine."Service Item Group Code");
-        FaultResolutionRelation.RunModal;
+        FaultResolutionRelation.RunModal();
         CurrPage.Update(false);
     end;
 

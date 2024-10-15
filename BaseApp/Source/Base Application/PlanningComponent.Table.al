@@ -50,7 +50,7 @@ table 99000829 "Planning Component"
                 OnItemNoOnValidateOnAfterInitFromItem(Rec, Item);
                 Validate("Unit of Measure Code", Item."Base Unit of Measure");
                 GetUpdateFromSKU;
-                CreateDim(DATABASE::Item, "Item No.");
+                CreateDimFromDefaultDim();
 
                 OnAfterValidateItemNo(Rec, Item);
             end;
@@ -69,7 +69,7 @@ table 99000829 "Planning Component"
                 TestField("Item No.");
 
                 GetItem;
-                GetGLSetup;
+                GetGLSetup();
 
                 "Unit Cost" := Item."Unit Cost";
 
@@ -134,7 +134,10 @@ table 99000829 "Planning Component"
                 Subcontracting: Boolean;
                 LicensePermission: Record "License Permission";
             begin
-                Validate("Expected Quantity", Quantity * PlanningNeeds);
+                if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
+                    Validate("Expected Quantity", Quantity)
+                else
+                    Validate("Expected Quantity", Quantity * PlanningNeeds);
 
                 "Due Date" := ReqLine."Starting Date";
                 "Due Time" := ReqLine."Starting Time";
@@ -143,7 +146,7 @@ table 99000829 "Planning Component"
                     PlanningRtngLine.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
                     PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
                     PlanningRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-                    if PlanningRtngLine.FindFirst then begin
+                    if PlanningRtngLine.FindFirst() then begin
                         "Due Date" := PlanningRtngLine."Starting Date";
                         "Due Time" := PlanningRtngLine."Starting Time";
                         if (PlanningRtngLine.Type = PlanningRtngLine.Type::"Work Center") then
@@ -227,11 +230,30 @@ table 99000829 "Planning Component"
             Editable = false;
 
             trigger OnValidate()
+            var
+                ItemUnitOfMeasure: Record "Item Unit of Measure";
+                UnroundedExpectedQuantity: Decimal;
+                ItemPrecRoundedExpectedQuantity: Decimal;
+                BaseUOMPrecRoundedExpectedQuantity: Decimal;
             begin
+                UnroundedExpectedQuantity := "Expected Quantity";
+
                 if Item.Get("Item No.") and ("Ref. Order Type" <> "Ref. Order Type"::Assembly) then
                     if Item."Rounding Precision" > 0 then
                         "Expected Quantity" := UOMMgt.RoundToItemRndPrecision("Expected Quantity", Item."Rounding Precision");
+
+                ItemPrecRoundedExpectedQuantity := "Expected Quantity";
+                BaseUOMPrecRoundedExpectedQuantity := UOMMgt.RoundQty("Expected Quantity", "Qty. Rounding Precision");
+
+                if ("Qty. Rounding Precision" > 0) and (BaseUOMPrecRoundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity) then
+                    if UnroundedExpectedQuantity <> ItemPrecRoundedExpectedQuantity then
+                        Error(WrongPrecisionItemAndUOMExpectedQtyErr, Item.FieldCaption("Rounding Precision"), Item.TableCaption, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"))
+                    else
+                        Error(WrongPrecOnUOMExpectedQtyErr, ItemUnitOfMeasure.FieldCaption("Qty. Rounding Precision"), ItemUnitOfMeasure.TableCaption, Rec.FieldCaption("Expected Quantity"));
+
+                "Expected Quantity" := BaseUOMPrecRoundedExpectedQuantity;
                 "Expected Quantity (Base)" := CalcBaseQty("Expected Quantity", FieldCaption("Expected Quantity"), FieldCaption("Expected Quantity (Base)"));
+
                 "Net Quantity (Base)" := "Expected Quantity (Base)" - "Original Expected Qty. (Base)";
 
                 ReservePlanningComponent.VerifyQuantity(Rec, xRec);
@@ -258,6 +280,7 @@ table 99000829 "Planning Component"
                 ReservePlanningComponent.VerifyChange(Rec, xRec);
                 GetUpdateFromSKU;
                 GetDefaultBin;
+                CreateDimFromDefaultDim();
             end;
         }
         field(31; "Shortcut Dimension 1 Code"; Code[20])
@@ -377,6 +400,8 @@ table 99000829 "Planning Component"
                         Quantity := Round(Length * Width * Depth * "Quantity per", UOMMgt.QtyRndPrecision);
                     "Calculation Formula"::Weight:
                         Quantity := Round(Weight * "Quantity per", UOMMgt.QtyRndPrecision);
+                    "Calculation Formula"::"Fixed Quantity":
+                        Quantity := "Quantity per";
                     else
                         OnValidateCalculationFormulaEnumExtension(Rec);
                 end;
@@ -385,7 +410,10 @@ table 99000829 "Planning Component"
 
                 OnValidateCalculationFormulaOnAfterSetQuantity(Rec);
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
-                Validate("Expected Quantity", Quantity * PlanningNeeds);
+                if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then
+                    Validate("Expected Quantity", "Quantity per")
+                else
+                    Validate("Expected Quantity", Quantity * PlanningNeeds);
             end;
         }
         field(45; "Quantity per"; Decimal)
@@ -415,7 +443,7 @@ table 99000829 "Planning Component"
                 TestField("Item No.");
 
                 GetItem;
-                GetGLSetup;
+                GetGLSetup();
 
                 if Item."Costing Method" = Item."Costing Method"::Standard then begin
                     if CurrFieldNo = FieldNo("Unit Cost") then
@@ -677,6 +705,9 @@ table 99000829 "Planning Component"
         Reservation: Page Reservation;
         GLSetupRead: Boolean;
         LocationCodeMustBeBlankErr: Label 'The Location Code field must be blank for items of type Non-Inventory.';
+        WrongPrecisionItemAndUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page, and %3 field on the %4 page, are causing the rounding precision for the %5 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption, %4 = table caption, %5 = field caption';
+        WrongPrecOnUOMExpectedQtyErr: Label 'The value in the %1 field on the %2 page is causing the rounding precision for the %3 field to be incorrect.', Comment = '%1 = field caption, %2 = table caption, %3 field caption';
+
 
     procedure Caption(): Text
     var
@@ -718,7 +749,7 @@ table 99000829 "Planning Component"
         PlanningRtngLine.SetRange("Worksheet Line No.", "Worksheet Line No.");
         if "Routing Link Code" <> '' then
             PlanningRtngLine.SetRange("Routing Link Code", "Routing Link Code");
-        if PlanningRtngLine.FindFirst then
+        if PlanningRtngLine.FindFirst() then
             NeededQty :=
               ReqLine.Quantity * (1 + ReqLine."Scrap %" / 100) *
               (1 + PlanningRtngLine."Scrap Factor % (Accumulated)") * (1 + "Scrap %" / 100) +
@@ -862,21 +893,44 @@ table 99000829 "Planning Component"
             ReservePlanningComponent.CallItemTracking(Rec);
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
         DimensionSetIDArr: array[10] of Integer;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         GetReqLine;
         DimensionSetIDArr[1] :=
-          DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+          DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+        DimensionSetIDArr[2] := ReqLine."Dimension Set ID";
+        "Dimension Set ID" :=
+          DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimensionSetIDArr: array[10] of Integer;
+    begin
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        GetReqLine;
+        DimensionSetIDArr[1] :=
+          DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
         DimensionSetIDArr[2] := ReqLine."Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetCombinedDimensionSetID(DimensionSetIDArr, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
@@ -1051,7 +1105,7 @@ table 99000829 "Planning Component"
         UntrackedPlngElement.SetRange("Worksheet Batch Name", "Worksheet Batch Name");
         UntrackedPlngElement.SetRange("Item No.", "Item No.");
         UntrackedPlngElement.SetRange("Source Type", DATABASE::"Production Forecast Entry");
-        if UntrackedPlngElement.FindFirst then begin
+        if UntrackedPlngElement.FindFirst() then begin
             ForecastName := CopyStr(UntrackedPlngElement."Source ID", 1, 10);
             exit(true);
         end;
@@ -1149,11 +1203,76 @@ table 99000829 "Planning Component"
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Item, Rec."Item No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Planning Component", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Planning Component", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Planning Component") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var PlanningComponent: Record "Planning Component"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var PlanningComponent: Record "Planning Component"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PlanningComponent: Record "Planning Component"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var PlanningComponent: Record "Planning Component"; var Item: Record Item)
     begin

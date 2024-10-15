@@ -93,7 +93,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate code of OnAction TransferFloppy trigger of Page - 12190 Vendor Bill List Sent Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeaderWithLine(VendorBillLine, false, 0);  // FALSE for manual Line, 0 for Dimension Set ID.
         VendorBillListSentCard.OpenEdit;
         VendorBillListSentCard.FILTER.SetFilter("No.", VendorBillLine."Vendor Bill List No.");
@@ -116,7 +116,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Invoice Card of Page - 12193 Subform Posted Vend Bill Lines with Manual Line FALSE.
 
         // Setup: Create Posted Vendor Bill Header and Purchase Invoice Header.
-        Initialize;
+        Initialize();
         CreatePostedVendorBill(PostedVendorBillLine, false);  // FALSE for Manual Line.
         CreatePurchaseInvoiceHeader(PostedVendorBillLine."Document No.", PostedVendorBillLine."Vendor No.");
 
@@ -140,7 +140,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Invoice Card of Page - 12193 Subform Posted Vend Bill Lines with Manual Line TRUE.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedVendorBill(PostedVendorBillLine, true);  // TRUE for Manual Line.
 
         // Exercise.
@@ -178,7 +178,7 @@ codeunit 144055 "UT PAG Auto Payment"
         VendorBillCard: TestPage "Vendor Bill Card";
     begin
         // Setup: Create Dimension Set Entry, Create Vendor Bill.
-        Initialize;
+        Initialize();
         CreateDimensionSetEntry(DimensionSetEntry);
         CreateVendorBillHeaderWithLine(VendorBillLine, ManualLine, DimensionSetEntry."Dimension Set ID");
         LibraryVariableStorage.Enqueue(DimensionSetEntry."Dimension Code");  // Enqueue for DimensionSetEntriesModalPageHandler and EditDimensionSetEntriesModalPageHandler.
@@ -205,7 +205,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Invoice card of Page - 12186 Subform Vendor Bill Lines with Manual Line FALSE.
 
         // Setup: Create vendor Bill and Purchase Invoice Header.
-        Initialize;
+        Initialize();
         CreateVendorBillHeaderWithLine(VendorBillLine, false, 0);  // FALSE for Manual Line, 0 for Dimension Set Id.
         CreatePurchaseInvoiceHeader(VendorBillLine."Document No.", VendorBillLine."Vendor No.");
 
@@ -229,7 +229,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Invoice Card of Page - 12186 Subform Vendor Bill Lines with Manual Line TRUE.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeaderWithLine(VendorBillLine, true, 0);  // TRUE for Manual Line, 0 for Dimension Set Id.
 
         // Exercise.
@@ -249,7 +249,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate CalcBalance function of Page - 12175 Customer Bill Card without Bank Account No.
 
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, '', CreatePaymentMethod);  // Using blank value for Bank Account No.
 
         // Verify.
@@ -289,7 +289,7 @@ codeunit 144055 "UT PAG Auto Payment"
         CustomerBillCard: TestPage "Customer Bill Card";
     begin
         // Setup: Create Customer Bill Header and Bill Posting Group.
-        Initialize;
+        Initialize();
         CreateGLAccount(GLAccount);
         CreateGLEntry(GLAccount."No.");
         GLAccount.CalcFields(Balance);
@@ -311,7 +311,7 @@ codeunit 144055 "UT PAG Auto Payment"
     procedure OnActionSugCustBillBlankPmtMethodCustBillCardError()
     begin
         // Purpose of the test is to validate OnAction SuggestCustomerBill trigger of Page - 12175 Customer Bill Card without Payment Method Code.
-        Initialize;
+        Initialize();
         SuggestCustomerBillOnCustomerBillCard('');  // Using blank value for Payment Method Code.
     end;
 
@@ -321,7 +321,7 @@ codeunit 144055 "UT PAG Auto Payment"
     procedure OnActionSugCustBillBlankBankAccNoCustBillCardError()
     begin
         // Purpose of the test is to validate OnAction SuggestCustomerBill trigger of Page - 12175 Customer Bill Card without Bank Account No.
-        Initialize;
+        Initialize();
         SuggestCustomerBillOnCustomerBillCard(CreatePaymentMethod);
     end;
 
@@ -351,7 +351,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction SuggestCustomerBill trigger of Page - 12175 Customer Bill Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
 
         // Exercise.
@@ -374,7 +374,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction BRFloppy trigger of Page - 12175 Customer Bill Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
 
         // Exercise.
@@ -399,7 +399,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Test Report trigger of Page - 12175 Customer Bill Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
 
         // Exercise.
@@ -421,8 +421,8 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAssistEdit - No. trigger of Page - 12175 Customer Bill Card.
 
         // Setup.
-        Initialize;
-        CustomerBillCard.OpenNew;
+        Initialize();
+        CustomerBillCard.OpenNew();
 
         // Exercise.
         CustomerBillCard."No.".AssistEdit;
@@ -441,7 +441,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction SelectBillToRecall trigger of Page - 12176 Subform Customer Bill Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustBillHeaderAndOpenCustBillCard(CustomerBillCard, CreateBankAccount, CreatePaymentMethod);
 
         // Exercise.
@@ -463,7 +463,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Print trigger of Page - 12190 Vendor Bill List Sent Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillListSentCard.OpenEdit;
         VendorBillListSentCard."No.".AssistEdit;
 
@@ -485,7 +485,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Cancel List trigger of Page - 12190 Vendor Bill List Sent Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillListSentCard.OpenEdit;
 
         // Exercise.
@@ -506,7 +506,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Print trigger of Page - 12185 Vendor Bill Card.
 
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillCard.OpenEdit;
         VendorBillCard."No.".AssistEdit;
 
@@ -527,7 +527,7 @@ codeunit 144055 "UT PAG Auto Payment"
         // Purpose of the test is to validate OnAction Select Bill To Recall of Page - 12181 Subform Issued Customer Bill Lines with blank Recalled By.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedCustomerBill(IssuedCustomerBillLine, WorkDate, '');  // Blank for Recalled By.
 
         // Exercise.
@@ -560,7 +560,7 @@ codeunit 144055 "UT PAG Auto Payment"
         IssuedCustomerBillLine: Record "Issued Customer Bill Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedCustomerBill(IssuedCustomerBillLine, 0D, RecalledBy);  // 0D for Recall Date.
 
         // Exercise.
@@ -573,7 +573,7 @@ codeunit 144055 "UT PAG Auto Payment"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -646,7 +646,7 @@ codeunit 144055 "UT PAG Auto Payment"
         DimensionValue."Dimension Code" := LibraryUTUtility.GetNewCode;
         DimensionValue.Code := LibraryUTUtility.GetNewCode;
         DimensionValue.Insert();
-        DimensionSetEntry2.FindLast;
+        DimensionSetEntry2.FindLast();
         DimensionSetEntry."Dimension Set ID" := DimensionSetEntry2."Dimension Set ID" + LibraryRandom.RandInt(10);
         DimensionSetEntry."Dimension Code" := DimensionValue."Dimension Code";
         DimensionSetEntry."Dimension Value ID" := LibraryRandom.RandInt(10);

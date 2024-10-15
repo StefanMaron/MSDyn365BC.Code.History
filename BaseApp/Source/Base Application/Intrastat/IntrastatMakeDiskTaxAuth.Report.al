@@ -13,8 +13,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
             {
                 DataItemLink = "Journal Template Name" = FIELD("Journal Template Name"), "Journal Batch Name" = FIELD(Name);
                 DataItemLinkReference = "Intrastat Jnl. Batch";
+#if CLEAN18
+                DataItemTableView = SORTING(Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
+#else
                 DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry") ORDER(Ascending);
-
+#endif
                 trigger OnAfterGetRecord()
                 var
                     EU3PartyTrade: Boolean;

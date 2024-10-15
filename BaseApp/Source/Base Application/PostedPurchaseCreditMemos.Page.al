@@ -254,6 +254,13 @@ page 147 "Posted Purchase Credit Memos"
                 ShowFilter = false;
                 Visible = NOT IsOfficeAddin;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -379,7 +386,7 @@ page 147 "Posted Purchase Credit Memos"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category7;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
                 Visible = NOT IsOfficeAddin;
 

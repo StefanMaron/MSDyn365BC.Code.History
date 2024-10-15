@@ -14,8 +14,8 @@ codeunit 426 "Payment Tolerance Management"
         IncludeWHT: Boolean;
         CurrExchRate: Record "Currency Exchange Rate";
         AccTypeOrBalAccTypeIsIncorrectErr: Label 'The value in either the Account Type field or the Bal. Account Type field is wrong.\\ The value must be %1.', Comment = '%1 = Customer or Vendor';
-        RefAccountType: Option Customer,Vendor;
         SuppressCommit: Boolean;
+        SuppressWarning: Boolean;
 
     procedure PmtTolCust(var CustLedgEntry: Record "Cust. Ledger Entry"): Boolean
     var
@@ -44,7 +44,7 @@ codeunit 426 "Payment Tolerance Management"
 
         GLSetup.Get();
 
-        CustEntryApplId := UserId;
+        CustEntryApplId := UserId();
         if CustEntryApplId = '' then
             CustEntryApplId := '***';
         OnPmtTolCustOnAfterSetCustEntryApplId(CustLedgEntry, CustEntryApplId);
@@ -73,7 +73,7 @@ codeunit 426 "Payment Tolerance Management"
                 if GLSetup."Payment Tolerance Warning" then begin
                     if CallPmtTolWarning(
                          CustLedgEntry."Posting Date", CustLedgEntry."Customer No.", CustLedgEntry."Document No.",
-                         CustLedgEntry."Currency Code", ApplyingAmount, OriginalAppliedAmount, RefAccountType::Customer)
+                         CustLedgEntry."Currency Code", ApplyingAmount, OriginalAppliedAmount, "Payment Tolerance Account Type"::Customer)
                     then begin
                         if ApplyingAmount <> 0 then
                             PutCustPmtTolAmount(CustLedgEntry, ApplyingAmount, AppliedAmount, CustEntryApplId)
@@ -113,7 +113,7 @@ codeunit 426 "Payment Tolerance Management"
             exit(false);
 
         GLSetup.Get();
-        VendEntryApplID := UserId;
+        VendEntryApplID := UserId();
         if VendEntryApplID = '' then
             VendEntryApplID := '***';
         OnPmtTolVendOnAfterSetVendEntryApplId(VendLedgEntry, VendEntryApplID);
@@ -142,7 +142,7 @@ codeunit 426 "Payment Tolerance Management"
                 if GLSetup."Payment Tolerance Warning" then begin
                     if CallPmtTolWarning(
                          VendLedgEntry."Posting Date", VendLedgEntry."Vendor No.", VendLedgEntry."Document No.",
-                         VendLedgEntry."Currency Code", ApplyingAmount, OriginalAppliedAmount, RefAccountType::Vendor)
+                         VendLedgEntry."Currency Code", ApplyingAmount, OriginalAppliedAmount, "Payment Tolerance Account Type"::Vendor)
                     then begin
                         if ApplyingAmount <> 0 then
                             PutVendPmtTolAmount(VendLedgEntry, ApplyingAmount, AppliedAmount, VendEntryApplID)
@@ -201,7 +201,7 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry."Currency Code" := GenJnlLine."Currency Code";
         if GenJnlLine."Applies-to Doc. No." <> '' then
             NewCustLedgEntry."Applies-to Doc. No." := GenJnlLine."Applies-to Doc. No.";
-        if not GenJnlPostPreview.IsActive then
+        if not GenJnlPostPreview.IsActive() then
             DelCustPmtTolAcc(NewCustLedgEntry, GenJnlLineApplID);
         NewCustLedgEntry.Amount := GenJnlLine.Amount;
         NewCustLedgEntry."Remaining Amount" := GenJnlLine.Amount;
@@ -271,7 +271,7 @@ codeunit 426 "Payment Tolerance Management"
         NewCustLedgEntry."Posting Date" := BankAccReconciliationLine."Transaction Date";
         NewCustLedgEntry."Document No." := BankAccReconciliationLine."Document No.";
         NewCustLedgEntry."Customer No." := BankAccReconciliationLine."Account No.";
-        DelCustPmtTolAcc(NewCustLedgEntry, BankAccReconciliationLine.GetAppliesToID);
+        DelCustPmtTolAcc(NewCustLedgEntry, BankAccReconciliationLine.GetAppliesToID());
         NewCustLedgEntry.Amount := -BankAccReconciliationLine."Statement Amount";
         NewCustLedgEntry."Remaining Amount" := -BankAccReconciliationLine."Statement Amount";
         NewCustLedgEntry."Document Type" := NewCustLedgEntry."Document Type"::Payment;
@@ -279,7 +279,7 @@ codeunit 426 "Payment Tolerance Management"
         exit(
           PmtTolCustLedgEntry(
             NewCustLedgEntry, BankAccReconciliationLine."Account No.", BankAccReconciliationLine."Transaction Date",
-            BankAccReconciliationLine."Statement No.", BankAccReconciliationLine.GetAppliesToID, '',
+            BankAccReconciliationLine."Statement No.", BankAccReconciliationLine.GetAppliesToID(), '',
             ''));
     end;
 
@@ -295,7 +295,7 @@ codeunit 426 "Payment Tolerance Management"
         NewVendLedgEntry."Posting Date" := BankAccReconciliationLine."Transaction Date";
         NewVendLedgEntry."Document No." := BankAccReconciliationLine."Document No.";
         NewVendLedgEntry."Vendor No." := BankAccReconciliationLine."Account No.";
-        DelVendPmtTolAcc(NewVendLedgEntry, BankAccReconciliationLine.GetAppliesToID);
+        DelVendPmtTolAcc(NewVendLedgEntry, BankAccReconciliationLine.GetAppliesToID());
         NewVendLedgEntry.Amount := -BankAccReconciliationLine."Statement Amount";
         NewVendLedgEntry."Remaining Amount" := -BankAccReconciliationLine."Statement Amount";
         NewVendLedgEntry."Document Type" := NewVendLedgEntry."Document Type"::Payment;
@@ -304,7 +304,7 @@ codeunit 426 "Payment Tolerance Management"
         exit(
           PmtTolVendLedgEntry(
             NewVendLedgEntry, BankAccReconciliationLine."Account No.", BankAccReconciliationLine."Transaction Date",
-            BankAccReconciliationLine."Statement No.", BankAccReconciliationLine.GetAppliesToID, '',
+            BankAccReconciliationLine."Statement No.", BankAccReconciliationLine.GetAppliesToID(), '',
             ''));
     end;
 
@@ -342,7 +342,7 @@ codeunit 426 "Payment Tolerance Management"
                 if GLSetup."Payment Tolerance Warning" then
                     if CallPmtTolWarning(
                          PostingDate, AccountNo, DocNo,
-                         CurrencyCode, ApplyingAmount, OriginalAppliedAmount, RefAccountType::Customer)
+                         CurrencyCode, ApplyingAmount, OriginalAppliedAmount, "Payment Tolerance Account Type"::Customer)
                     then begin
                         if ApplyingAmount <> 0 then
                             PutCustPmtTolAmount(NewCustLedgEntry, ApplyingAmount, AppliedAmount, AppliesToID)
@@ -391,7 +391,7 @@ codeunit 426 "Payment Tolerance Management"
             then
                 if GLSetup."Payment Tolerance Warning" then
                     if CallPmtTolWarning(
-                         PostingDate, AccountNo, DocNo, CurrencyCode, ApplyingAmount, OriginalAppliedAmount, RefAccountType::Vendor)
+                         PostingDate, AccountNo, DocNo, CurrencyCode, ApplyingAmount, OriginalAppliedAmount, "Payment Tolerance Account Type"::Vendor)
                     then begin
                         if ApplyingAmount <> 0 then
                             PutVendPmtTolAmount(NewVendLedgEntry, ApplyingAmount, AppliedAmount, AppliesToID)
@@ -870,7 +870,7 @@ codeunit 426 "Payment Tolerance Management"
         exit(false);
     end;
 
-    local procedure CallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Option Customer,Vendor) Result: Boolean
+    procedure CallPmtDiscTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal; AppliedAmount: Decimal; PmtDiscAmount: Decimal; var RemainingAmountTest: Boolean; AccountType: Enum "Payment Tolerance Account Type") Result: Boolean
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtDiscTolWarning: Page "Payment Disc Tolerance Warning";
@@ -878,7 +878,8 @@ codeunit 426 "Payment Tolerance Management"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCallPmtDiscTolWarning(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount, RemainingAmountTest, AccountType, ActionType, Result, IsHandled);
+        OnBeforeCallPmtDiscTolWarning(
+            PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount, RemainingAmountTest, AccountType.AsInteger(), ActionType, Result, IsHandled);
         if IsHandled then
             exit(Result);
 
@@ -891,6 +892,9 @@ codeunit 426 "Payment Tolerance Management"
             exit(true);
 
         if SuppressCommit then
+            exit(true);
+
+        if SuppressWarning then
             exit(true);
 
         PmtDiscTolWarning.SetValues(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount);
@@ -907,7 +911,7 @@ codeunit 426 "Payment Tolerance Management"
         exit(true);
     end;
 
-    local procedure CallPmtTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; var Amount: Decimal; AppliedAmount: Decimal; AccountType: Option Customer,Vendor): Boolean
+    procedure CallPmtTolWarning(PostingDate: Date; No: Code[20]; DocNo: Code[20]; CurrencyCode: Code[10]; var Amount: Decimal; AppliedAmount: Decimal; AccountType: Enum "Payment Tolerance Account Type"): Boolean
     var
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         PmtTolWarning: Page "Payment Tolerance Warning";
@@ -920,9 +924,12 @@ codeunit 426 "Payment Tolerance Management"
         if SuppressCommit then
             exit(true);
 
+        if SuppressWarning then
+            exit(true);
 
         IsHandled := false;
-        OnBeforeRunModalPmtTolWarningCallPmtTolWarning(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, AccountType, ActionType, IsHandled);
+        OnBeforeRunModalPmtTolWarningCallPmtTolWarning(
+            PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, AccountType.AsInteger(), ActionType, IsHandled);
         if IsHandled then
             exit(ActionType = 2);
 
@@ -990,7 +997,7 @@ codeunit 426 "Payment Tolerance Management"
                 if AppliedCustLedgEntry."Currency Code" = '' then begin
                     Currency.Init();
                     Currency.Code := '';
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                 end else
                     if AppliedCustLedgEntry."Currency Code" <> Currency.Code then
                         Currency.Get(AppliedCustLedgEntry."Currency Code");
@@ -1075,7 +1082,7 @@ codeunit 426 "Payment Tolerance Management"
                 if AppliedVendLedgEntry."Currency Code" = '' then begin
                     Currency.Init();
                     Currency.Code := '';
-                    Currency.InitRoundingPrecision;
+                    Currency.InitRoundingPrecision();
                 end else
                     if AppliedVendLedgEntry."Currency Code" <> Currency.Code then
                         Currency.Get(AppliedVendLedgEntry."Currency Code");
@@ -1161,7 +1168,7 @@ codeunit 426 "Payment Tolerance Management"
             AppliedVendLedgEntry.SetRange(Open, true);
             AppliedVendLedgEntry.SetRange("Document No.", VendLedgEntry."Applies-to Doc. No.");
             AppliedVendLedgEntry.LockTable();
-            if AppliedVendLedgEntry.FindFirst then begin
+            if AppliedVendLedgEntry.FindFirst() then begin
                 AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
                 AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                 AppliedVendLedgEntry.Modify();
@@ -1436,7 +1443,7 @@ codeunit 426 "Payment Tolerance Management"
             AppliedCustLedgEntry.SetRange(Open, true);
             AppliedCustLedgEntry.SetRange("Document No.", DocumentNo);
             AppliedCustLedgEntry.LockTable();
-            if AppliedCustLedgEntry.FindSet then begin
+            if AppliedCustLedgEntry.FindSet() then begin
                 repeat
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
                     AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
@@ -1452,7 +1459,7 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedVendLedgEntry.SetRange(Open, true);
                 AppliedVendLedgEntry.SetRange("Document No.", DocumentNo);
                 AppliedVendLedgEntry.LockTable();
-                if AppliedVendLedgEntry.FindSet then begin
+                if AppliedVendLedgEntry.FindSet() then begin
                     repeat
                         AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
                         AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
@@ -1466,7 +1473,7 @@ codeunit 426 "Payment Tolerance Management"
         OnAfterDelPmtTolApllnDocNo(GenJnlLine, DocumentNo, SuppressCommit);
     end;
 
-    local procedure ABSMinTol(Decimal1: Decimal; Decimal2: Decimal; Decimal1Tolerance: Decimal): Decimal
+    procedure ABSMinTol(Decimal1: Decimal; Decimal2: Decimal; Decimal1Tolerance: Decimal): Decimal
     begin
         if Abs(Decimal1) - Abs(Decimal1Tolerance) < Abs(Decimal2) then
             exit(Decimal1);
@@ -1489,7 +1496,7 @@ codeunit 426 "Payment Tolerance Management"
 
             AppliedCustLedgEntry.LockTable();
 
-            if AppliedCustLedgEntry.FindLast then begin
+            if AppliedCustLedgEntry.FindLast() then begin
                 AppliedCustLedgEntry."Accepted Payment Tolerance" := 0;
                 AppliedCustLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                 AppliedCustLedgEntry.Modify();
@@ -1515,7 +1522,7 @@ codeunit 426 "Payment Tolerance Management"
 
             AppliedVendLedgEntry.LockTable();
 
-            if AppliedVendLedgEntry.FindLast then begin
+            if AppliedVendLedgEntry.FindLast() then begin
                 AppliedVendLedgEntry."Accepted Payment Tolerance" := 0;
                 AppliedVendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
                 AppliedVendLedgEntry.Modify();
@@ -1568,14 +1575,14 @@ codeunit 426 "Payment Tolerance Management"
         GetAmountRoundingPrecision(ApplnRoundingPrecision, AmountRoundingPrecision, ApplnInMultiCurrency, ApplnCurrencyCode);
     end;
 
-    local procedure GetApplicationRoundingPrecisionForAppliesToDoc(AppliedEntryCurrencyCode: Code[10]; var ApplnRoundingPrecision: Decimal; var AmountRoundingPrecision: Decimal; ApplnCurrencyCode: Code[20])
+    procedure GetApplicationRoundingPrecisionForAppliesToDoc(AppliedEntryCurrencyCode: Code[10]; var ApplnRoundingPrecision: Decimal; var AmountRoundingPrecision: Decimal; ApplnCurrencyCode: Code[20])
     var
         Currency: Record Currency;
     begin
         if ApplnCurrencyCode = '' then begin
             Currency.Init();
             Currency.Code := '';
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
             if AppliedEntryCurrencyCode = '' then
                 ApplnRoundingPrecision := 0;
         end else begin
@@ -1818,14 +1825,14 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedVendLedgEntry."Remaining Pmt. Disc. Possible" - MaxPmtTolAmount)));
     end;
 
-    local procedure GetAmountRoundingPrecision(var ApplnRoundingPrecision: Decimal; var AmountRoundingPrecision: Decimal; ApplnInMultiCurrency: Boolean; ApplnCurrencyCode: Code[20])
+    procedure GetAmountRoundingPrecision(var ApplnRoundingPrecision: Decimal; var AmountRoundingPrecision: Decimal; ApplnInMultiCurrency: Boolean; ApplnCurrencyCode: Code[20])
     var
         Currency: Record Currency;
     begin
         if ApplnCurrencyCode = '' then begin
             Currency.Init();
             Currency.Code := '';
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
         end else begin
             if ApplnInMultiCurrency then
                 Currency.Get(ApplnCurrencyCode)
@@ -2073,14 +2080,14 @@ codeunit 426 "Payment Tolerance Management"
                 SetRange("Applies-to ID", GenJnlLineApplID);
             SetRange(Open, true);
             SetRange("Accepted Pmt. Disc. Tolerance", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("Remaining Amount");
                     if CallPmtDiscTolWarning(
                          "Posting Date", "Customer No.",
                          "Document No.", "Currency Code",
                          "Remaining Amount", 0,
-                         "Remaining Pmt. Disc. Possible", RemainingAmountTest, RefAccountType::Customer)
+                         "Remaining Pmt. Disc. Possible", RemainingAmountTest, "Payment Tolerance Account Type"::Customer)
                     then begin
                         if RemainingAmountTest then begin
                             "Accepted Pmt. Disc. Tolerance" := false;
@@ -2121,14 +2128,14 @@ codeunit 426 "Payment Tolerance Management"
                 SetRange("Applies-to ID", GenJnlLineApplID);
             SetRange(Open, true);
             SetRange("Accepted Pmt. Disc. Tolerance", true);
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields("Remaining Amount");
                     if CallPmtDiscTolWarning(
                          "Posting Date", "Vendor No.",
                          "Document No.", "Currency Code",
                          "Remaining Amount", 0,
-                         "Remaining Pmt. Disc. Possible", RemainingAmountTest, RefAccountType::Vendor)
+                         "Remaining Pmt. Disc. Possible", RemainingAmountTest, "Payment Tolerance Account Type"::Vendor)
                     then begin
                         if RemainingAmountTest then begin
                             "Accepted Pmt. Disc. Tolerance" := false;
@@ -2157,6 +2164,11 @@ codeunit 426 "Payment Tolerance Management"
     procedure SetSuppressCommit(NewSuppressCommit: Boolean)
     begin
         SuppressCommit := NewSuppressCommit;
+    end;
+
+    procedure SetSuppressWarning(NewSuppressWarning: Boolean)
+    begin
+        SuppressWarning := NewSuppressWarning;
     end;
 
     local procedure IsCustBlockPmtToleranceInGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"): Boolean
@@ -2201,7 +2213,7 @@ codeunit 426 "Payment Tolerance Management"
         exit(false);
     end;
 
-    local procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")
+    procedure CheckAccountType(GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type")
     var
         DummyGenJnlLine: Record "Gen. Journal Line";
     begin
@@ -2210,17 +2222,18 @@ codeunit 426 "Payment Tolerance Management"
             Error(AccTypeOrBalAccTypeIsIncorrectErr, DummyGenJnlLine."Account Type");
     end;
 
-    local procedure GetAppliesToID(GenJnlLine: Record "Gen. Journal Line"): Code[50]
+    procedure GetAppliesToID(GenJnlLine: Record "Gen. Journal Line"): Code[50]
     begin
         if GenJnlLine."Applies-to Doc. No." = '' then
             if GenJnlLine."Applies-to ID" <> '' then
                 exit(GenJnlLine."Applies-to ID");
     end;
 
-    local procedure GetAccountName(AccountType: Option Customer,Vendor; AccountNo: Code[20]): Text
+    local procedure GetAccountName(AccountType: Enum "Payment Tolerance Account Type"; AccountNo: Code[20]): Text
     var
         Customer: Record Customer;
         Vendor: Record Vendor;
+        Result: Text;
     begin
         case AccountType of
             AccountType::Customer:
@@ -2229,6 +2242,10 @@ codeunit 426 "Payment Tolerance Management"
             AccountType::Vendor:
                 if Vendor.Get(AccountNo) then
                     exit(Vendor.Name);
+            else begin
+                    OnGetAccountNameOnCaseElse(AccountType, AccountNo, Result);
+                    exit(Result);
+                end;
         end;
     end;
 
@@ -2340,6 +2357,11 @@ codeunit 426 "Payment Tolerance Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTolCustLedgEntryOnCustLedgEntryLoopIterationStart(CustLedgerEntry: Record "Cust. Ledger Entry"; GeneralLedgerSetup: Record "General Ledger Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetAccountNameOnCaseElse(AccountType: Enum "Payment Tolerance Account Type"; AccountNo: Code[20]; var Result: text)
     begin
     end;
 

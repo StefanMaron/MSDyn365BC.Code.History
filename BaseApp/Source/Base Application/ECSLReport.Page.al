@@ -278,7 +278,7 @@ page 321 "ECSL Report"
     var
         VATStatementName: Record "VAT Statement Name";
     begin
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatementName.SetFilter("Date Filter", DateFilter);
         // CurrPage.VATReportLines.PAGE.UpdateForm(VATStatementName,Selection,PeriodSelection,UseAmtsInAddCurr);
         CurrPage.ECSLReportLines.PAGE.UpdateForm;
@@ -308,7 +308,7 @@ page 321 "ECSL Report"
         ErrorMessage: Record "Error Message";
     begin
         ErrorMessage.SetRange("Context Record ID", DummyCompanyInformation.RecordId);
-        if ErrorMessage.FindFirst then
+        if ErrorMessage.FindFirst() then
             ErrorMessage.DeleteAll(true);
         Commit();
     end;

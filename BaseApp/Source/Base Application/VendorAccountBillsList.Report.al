@@ -333,13 +333,13 @@ report 12116 "Vendor Account Bills List"
                             DetailedVendorLedgEntryApplication.SetRange("Document Type", TempDetailedVendorLedgEntryApplied."Document Type");
                             DetailedVendorLedgEntryApplication.SetRange("Applied Vend. Ledger Entry No.", VendLedgEntry3."Entry No.");
                             DetailedVendorLedgEntryApplication.SetRange("Vendor Ledger Entry No.", VendLedgEntry1."Entry No.");
-                            if DetailedVendorLedgEntryApplication.FindFirst then
+                            if DetailedVendorLedgEntryApplication.FindFirst() then
                                 AmountLCY := DetailedVendorLedgEntryApplication."Amount (LCY)"
                             else begin
                                 DetailedVendorLedgEntryApplication.SetRange("Document Type", "Document Type"::Invoice);
                                 DetailedVendorLedgEntryApplication.SetRange("Applied Vend. Ledger Entry No.", VendLedgEntry1."Entry No.");
                                 DetailedVendorLedgEntryApplication.SetRange("Vendor Ledger Entry No.", VendLedgEntry3."Entry No.");
-                                if DetailedVendorLedgEntryApplication.FindFirst then
+                                if DetailedVendorLedgEntryApplication.FindFirst() then
                                     AmountLCY := -DetailedVendorLedgEntryApplication."Amount (LCY)";
                             end;
                         end;
@@ -371,7 +371,7 @@ report 12116 "Vendor Account Bills List"
                     if "Vendor Bill No." <> '' then begin
                         VendorBillLine.Reset();
                         VendorBillLine.SetRange("Vendor Entry No.", "Entry No.");
-                        if VendorBillLine.FindFirst then
+                        if VendorBillLine.FindFirst() then
                             VendorBillAmnt := VendorBillLine."Amount to Pay";
                     end;
 
@@ -500,7 +500,7 @@ report 12116 "Vendor Account Bills List"
         DetailedVendorLedgEntryApplied.SetRange(
           "Entry Type", DetailedVendorLedgEntryApplied."Entry Type"::Application);
 
-        if DetailedVendorLedgEntry.FindSet then
+        if DetailedVendorLedgEntry.FindSet() then
             repeat
                 if (DetailedVendorLedgEntry."Transaction No." <> 0) or (DetailedVendorLedgEntry."Application No." <> 0) then begin
                     DetailedVendorLedgEntryApplied.SetRange(
@@ -513,7 +513,7 @@ report 12116 "Vendor Account Bills List"
                       "Application No.", DetailedVendorLedgEntry."Application No.");
                     DetailedVendorLedgEntryApplied.SetRange(
                       "Transaction No.", DetailedVendorLedgEntry."Transaction No.");
-                    if DetailedVendorLedgEntryApplied.FindSet then
+                    if DetailedVendorLedgEntryApplied.FindSet() then
                         repeat
                             VendorLedgerEntryApplied.Get(DetailedVendorLedgEntryApplied."Vendor Ledger Entry No.");
                             if IsPaymentDocumentType(VendorLedgerEntryApplied) then begin

@@ -145,7 +145,7 @@ codeunit 396 NoSeriesManagement
     begin
         NoSeries.Reset();
         NoSeriesRelationship.SetRange(Code, NoSeriesCode);
-        if NoSeriesRelationship.FindSet then
+        if NoSeriesRelationship.FindSet() then
             repeat
                 NoSeries.Code := NoSeriesRelationship."Series Code";
                 NoSeries.Mark := true;
@@ -202,7 +202,7 @@ codeunit 396 NoSeriesManagement
                         SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
                         if ModifySeries and not NoSeriesLine."Allow Gaps in Nos." then
                             NoSeriesLine.LockTable();
-                        if not NoSeriesLine.FindFirst then begin
+                        if not NoSeriesLine.FindFirst() then begin
                             if NoErrorsOrWarnings then
                                 exit('');
                             NoSeriesLine.SetRange("Starting Date");
@@ -224,7 +224,7 @@ codeunit 396 NoSeriesManagement
                           Text006,
                           NoSeries.Code, NoSeriesLine."Last Date Used");
                     end;
-                    if NoSeriesLine."Allow Gaps in Nos." then
+                    if NoSeriesLine."Allow Gaps in Nos." and (LastNoSeriesLine."Series Code" = '') then
                         NoSeriesLine."Last No. Used" := NoSeriesLine.GetNextSequenceNo(ModifySeries)
                     else begin
                         NoSeriesLine."Last Date Used" := SeriesDate;
@@ -263,10 +263,10 @@ codeunit 396 NoSeriesManagement
                     end;
                     NoSeriesLine.Validate(Open);
 
-                    if ModifySeries and (not NoSeriesLine."Allow Gaps in Nos." or not NoSeriesLine.Open) then
-                        ModifyNoSeriesLine(NoSeriesLine)
-                    else
-                        LastNoSeriesLine := NoSeriesLine;
+        if ModifySeries and NoSeriesLine.Open and not NoSeriesLine."Allow Gaps in Nos." then
+            ModifyNoSeriesLine(NoSeriesLine);
+        if Not ModifySeries then
+            LastNoSeriesLine := NoSeriesLine;
 
                     OnAfterGetNextNo3(NoSeriesLine, ModifySeries);
                     exit(NoSeriesLine."Last No. Used");
@@ -483,8 +483,18 @@ codeunit 396 NoSeriesManagement
     begin
         case NoSeries."No. Series Type" of
             NoSeries."No. Series Type"::Normal:
-                if (LastNoSeriesLine."Series Code" <> '') and not LastNoSeriesLine."Allow Gaps in Nos." then begin
-                    LastNoSeriesLine.Modify();
+                begin
+                    if LastNoSeriesLine."Allow Gaps in Nos." then begin
+                        if (LastNoSeriesLine."Last No. Used" <> '') and (LastNoSeriesLine."Last No. Used" > LastNoSeriesLine.GetLastNoUsed()) then begin
+                            LastNoSeriesLine.testfield("Sequence Name");
+                            if NumberSequence.Exists(LastNoSeriesLine."Sequence Name") then
+                                NumberSequence.Delete(LastNoSeriesLine."Sequence Name");
+                            NumberSequence.Insert(LastNoSeriesLine."Sequence Name", LastNoSeriesLine.ExtractNoFromCode(LastNoSeriesLine."Last No. Used"), LastNoSeriesLine."Increment-by No.");
+                            if NumberSequence.Next(LastNoSeriesLine."Sequence Name") > 0 then;
+                        end;
+                    end else
+                        if LastNoSeriesLine."Series Code" <> '' then
+                            LastNoSeriesLine.Modify();
                     OnAfterSaveNoSeries(LastNoSeriesLine);
                 end;
             NoSeries."No. Series Type"::Sales:
@@ -759,7 +769,7 @@ codeunit 396 NoSeriesManagement
         SalesHeader.SetFilter("Posting No.", '<>%1', '');
         if MaxDate <> 0D then
             SalesHeader.SetFilter("Posting Date", '<=%1', MaxDate);
-        if SalesHeader.FindFirst then
+        if SalesHeader.FindFirst() then
             Error(Text1130000, SalesHeader.FieldCaption("Document Type"), SalesHeader."Document Type", SalesHeader.FieldCaption("No."),
               SalesHeader."No.", SalesHeader.FieldCaption("Posting No."), SalesHeader."Posting No.");
     end;
@@ -771,7 +781,7 @@ codeunit 396 NoSeriesManagement
         PurchHeader.SetFilter("Posting No.", '<>%1', '');
         if MaxDate <> 0D then
             PurchHeader.SetFilter("Posting Date", '<=%1', MaxDate);
-        if PurchHeader.FindFirst then
+        if PurchHeader.FindFirst() then
             Error(Text1130001, PurchHeader.FieldCaption("Document Type"), PurchHeader."Document Type", PurchHeader.FieldCaption("No."),
               PurchHeader."No.", PurchHeader.FieldCaption("Posting No."), PurchHeader."Posting No.");
     end;

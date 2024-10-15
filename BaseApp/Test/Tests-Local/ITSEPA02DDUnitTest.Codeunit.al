@@ -43,7 +43,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustLedgerEntry3: Record "Cust. Ledger Entry";
         SuggestCustomerBills: Report "Suggest Customer Bills";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -65,7 +65,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SuggestCustomerBills.UseRequestPage(false);
         SuggestCustomerBills.SetTableView(CustLedgerEntry1);
         Commit();
-        SuggestCustomerBills.Run;
+        SuggestCustomerBills.Run();
 
         // Verify.
         CustLedgerEntry1.TestField("Direct Debit Mandate ID", GenJournalLine1."Direct Debit Mandate ID");
@@ -85,7 +85,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SuggestCustomerBills: Report "Suggest Customer Bills";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateCustomerWithEntry(Customer1, CustLedgerEntry, "Partner Type"::" ");
@@ -104,7 +104,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SuggestCustomerBills.InitValues(CustomerBillHeader, false);
         SuggestCustomerBills.SetTableView(CustLedgerEntry);
         Commit();
-        SuggestCustomerBills.Run;
+        SuggestCustomerBills.Run();
 
         // Verify.
         VerifyBillLines(CustomerBillHeader, Customer1."No.", BlankLineCount);
@@ -140,7 +140,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine: Record "Customer Bill Line";
         DirectDebitCollection: Record "Direct Debit Collection";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -155,7 +155,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
 
         // Verify.
         DirectDebitCollection.SetRange(Identifier, CustomerBillHeader."No.");
-        asserterror DirectDebitCollection.FindFirst;
+        asserterror DirectDebitCollection.FindFirst();
         VerifyPaymentErrors(DATABASE::"Customer Bill Header", CustomerBillHeader."No.", CustomerBillLine."Line No.", FieldBlankErr, 1);
     end;
 
@@ -167,7 +167,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillHeader: Record "Customer Bill Header";
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -179,7 +179,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         asserterror CustomerBillHeader.ExportToFile;
 
         // Verify.
-        TempCustomerBillLine.FindFirst;
+        TempCustomerBillLine.FindFirst();
         VerifyPaymentErrors(DATABASE::"Customer Bill Header", CustomerBillHeader."No.", TempCustomerBillLine."Line No.",
           StrSubstNo(PartnerTypeErr, CustomerBillHeader.FieldCaption("Partner Type"), CustomerBillHeader."Partner Type"::Company,
             CustomerBillHeader."Partner Type"), 1);
@@ -194,7 +194,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
         CustomerBillLine: Record "Customer Bill Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -223,7 +223,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         DirectDebitCollection: Record "Direct Debit Collection";
         BankAccount: Record "Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -247,7 +247,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
 
         // Verify.
         DirectDebitCollection.SetRange(Identifier, CustomerBillHeader."No.");
-        asserterror DirectDebitCollection.FindFirst;
+        asserterror DirectDebitCollection.FindFirst();
         VerifyPaymentErrors(DATABASE::"Customer Bill Header", CustomerBillHeader."No.", CustomerBillLine."Line No.", FieldBlankErr, 0);
     end;
 
@@ -260,7 +260,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
         PaymentExportData: Record "Payment Export Data";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -284,7 +284,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
         CustomerBillLine: Record "Customer Bill Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -309,7 +309,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine: Record "Customer Bill Line";
         DDMandateId: Code[35];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -338,7 +338,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine: Record "Customer Bill Line";
         CustomerBankAccount: Record "Customer Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -364,7 +364,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
         Bill: Record Bill;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
@@ -385,7 +385,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillHeader: Record "Customer Bill Header";
         TempCustomerBillLine: Record "Customer Bill Line" temporary;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
@@ -412,7 +412,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         PaymentExportData: Record "Payment Export Data";
         CustomerBillPostPrint: Codeunit "Customer Bill - Post + Print";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -443,7 +443,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine: Record "Customer Bill Line";
         CustomerBillPostPrint: Codeunit "Customer Bill - Post + Print";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"SEPA DD-Export File", XMLPORT::"SEPA DD pain.008.001.02");
@@ -464,7 +464,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         VerifyPaymentErrors(DATABASE::"Issued Customer Bill Header", IssuedCustomerBillHeader."No.",
           CustomerBillLine."Line No.", FieldBlankErr, 1);
         DirectDebitCollection.SetRange(Identifier, IssuedCustomerBillHeader."No.");
-        asserterror DirectDebitCollection.FindFirst;
+        asserterror DirectDebitCollection.FindFirst();
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Cust Bills Floppy" should contain value "VAT Registration No." of Company Information if "Fiscal Code" blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '123456789'
@@ -497,7 +497,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Cust Bills Floppy" should contain value "Fiscal Code" of Company Information if "VAT Registration No." blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = ''
@@ -519,7 +519,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Cust Bills Floppy" should contain value "Fiscal Code" of Company Information if "VAT Registration No." filled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '987654321'
@@ -541,7 +541,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Cust Bills Floppy" should contain blank value if Company Information "VAT Registration No." and "Fiscal Code" blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = ''
@@ -564,7 +564,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Issued Cust Bills Floppy" should contains value "VAT Registration No." of Company Information if "Fiscal Code" blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '123456789'
@@ -588,7 +588,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Issued Cust Bills Floppy" should contain value "Fiscal Code" of Company Information if "VAT Registration No." blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = ''
@@ -612,7 +612,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Issued Cust Bills Floppy" should contain value "Fiscal Code" of Company Information if "VAT Registration No." filled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = '987654321'
@@ -636,7 +636,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 376664] Output file of report "Issued Cust Bills Floppy" should contain blank value if Company Information "VAT Registration No." and "Fiscal Code" blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] "Company Information"."VAT Registration No." = ''
@@ -663,7 +663,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Issued Cust Bills Floppy" should contain value "Fiscal Code" of Customer if "VAT Registration No." filled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = '987654321'
@@ -692,7 +692,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Issued Cust Bills Floppy" should contain value "Fiscal Code" of Customer if "VAT Registration No." is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = '987654321'
@@ -721,7 +721,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Issued Cust Bills Floppy" should contain value "VAT Registration No." of Customer if "Fiscal Code" is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = '123456789'
@@ -750,7 +750,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Issued Cust Bills Floppy" should contain blank value if "VAT Registration No." and "Fiscal Code" of Customer are blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = ''
@@ -777,7 +777,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Cust Bills Floppy" should contain value "Fiscal Code" of Customer if "VAT Registration No." filled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = '987654321'
@@ -804,7 +804,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Cust Bills Floppy" should contain value "Fiscal Code" of Customer if "VAT Registration No." is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = '987654321'
@@ -831,7 +831,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Cust Bills Floppy" should contain value "VAT Registration No." of Customer if "Fiscal Code" is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = '123456789'
@@ -858,7 +858,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     begin
         // [SCENARIO 377542] Output file of report "Cust Bills Floppy" should contain blank value if "VAT Registration No." and "Fiscal Code" of Customer are blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Bill Card
         // [GIVEN] Customer."VAT Registration No." = ''
@@ -916,7 +916,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 334092] Output file of report "Cust Bills Floppy" should contain numeric values for "Temporary Cust. Bill No." field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued customer bill with line "Temporary Cust. Bill No." = 'ABC12345'
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
@@ -941,7 +941,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         FileName: Text[1024];
     begin
         // [SCENARIO 334092] Output file of report "Issued Cust Bills Floppy" should contain numeric values for "Final Cust. Bill No." field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issued customer bill with line "Final Cust. Bill No." = 'ABC12345'
         CreateBankExportImportSetup(BankExportImportSetup, CODEUNIT::"Customer Bills Floppy", 0);
@@ -1138,7 +1138,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CustLedgerEntry.SetRange("Customer No.", GenJournalLine."Account No.");
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
     end;
 
     local procedure CreateCustomerWithEntry(var Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; PartnerType: Enum "Partner Type")
@@ -1190,7 +1190,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillHeader.SetRange("No.", CustomerBillHeader."No.");
         CustBillsFloppy.SetTableView(CustomerBillHeader);
         CustBillsFloppy.UseRequestPage(false);
-        CustBillsFloppy.Run;
+        CustBillsFloppy.Run();
     end;
 
     local procedure RunIssuedCustBillsFloppyReport(var FileName: Text[1024]; IssuedCustomerBillHeader: Record "Issued Customer Bill Header")
@@ -1204,7 +1204,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         IssuedCustomerBillHeader.SetRange("No.", IssuedCustomerBillHeader."No.");
         IssuedCustBillsFloppy.SetTableView(IssuedCustomerBillHeader);
         IssuedCustBillsFloppy.UseRequestPage(false);
-        IssuedCustBillsFloppy.Run;
+        IssuedCustBillsFloppy.Run();
     end;
 
     local procedure FindIssuedCustBillLines(var TempIssuedCustomerBillLine: Record "Issued Customer Bill Line" temporary; var IssuedCustomerBillHeader: Record "Issued Customer Bill Header"; CustomerBillHeader: Record "Customer Bill Header")
@@ -1212,7 +1212,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         IssuedCustomerBillLine: Record "Issued Customer Bill Line";
     begin
         IssuedCustomerBillHeader.SetRange("Bank Account No.", CustomerBillHeader."Bank Account No.");
-        IssuedCustomerBillHeader.FindLast;
+        IssuedCustomerBillHeader.FindLast();
         IssuedCustomerBillLine.SetRange("Customer Bill No.", IssuedCustomerBillHeader."No.");
         IssuedCustomerBillLine.FindSet();
         repeat
@@ -1356,7 +1356,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
         CustomerBillLine.SetRange("Customer No.", CustomerNo);
         Assert.AreEqual(ExpectedCustBillsNo, CustomerBillLine.Count, 'Wrong no. of bill lines.');
-        if CustomerBillLine.FindSet then
+        if CustomerBillLine.FindSet() then
             repeat
                 CustLedgerEntry.Get(CustomerBillLine."Customer Entry No.");
                 CustomerBillLine.TestField("Direct Debit Mandate ID", CustLedgerEntry."Direct Debit Mandate ID");

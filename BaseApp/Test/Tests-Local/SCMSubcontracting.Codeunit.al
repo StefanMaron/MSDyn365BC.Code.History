@@ -110,7 +110,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify calculate consumption after calculate planning worksheet without Procurement on Subcontracting Vendor.
 
         // Setup: Create Subcontracting Location with Transfer Route, Vendor and Item with BOM & Routing.
-        Initialize;
+        Initialize();
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingVendorWithProcurement(TransferRoute."Transfer-to Code", false);  // False for Subcontractor Procurement.
         CreateItemWithProdBOMAndRouting(Item, CreateSubcontractingWorkCenter(VendorNo), TransferRoute."Transfer-from Code", '', false);  // Using blank for Routing Link Code.
@@ -143,7 +143,7 @@ codeunit 144081 "SCM Subcontracting"
         VendorNo: Code[20];
     begin
         // Setup: Create Subcontracting Location with Transfer Route, Vendor and Item with BOM & Routing.
-        Initialize;
+        Initialize();
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingVendorWithProcurement(TransferRoute."Transfer-to Code", Procurement);
         CreateItemWithProdBOMAndRouting(Item, CreateSubcontractingWorkCenter(VendorNo), TransferRoute."Transfer-from Code", '', false);  // Using blank for Routing Link Code.
@@ -186,7 +186,7 @@ codeunit 144081 "SCM Subcontracting"
         VendorNo: Code[20];
     begin
         // Setup: Create Location and Subcontracting Order.
-        Initialize;
+        Initialize();
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingOrderWithSetup(TransferRoute."Transfer-to Code", TransferRoute."Transfer-from Code", false);
 
@@ -209,7 +209,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify Location changed successfully on Subcontracting Order.
 
         // Setup: Create Subcontracting Location and Order.
-        Initialize;
+        Initialize();
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingOrderWithSetup(TransferRoute."Transfer-to Code", TransferRoute."Transfer-from Code", false);
 
@@ -234,7 +234,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify Warehouse Location and Bin on Subcontracting Transfer Order.
 
         // Setup: Create Subcontracting Order with Warehouse location and Bin.
-        Initialize;
+        Initialize();
         CreateSubcontractingOrderWithWIPItemOnWMSLocation(VendorNo, LocationCode, BinCode, false, false);
 
         // Exercise.
@@ -242,7 +242,7 @@ codeunit 144081 "SCM Subcontracting"
 
         // Verify: Verify Warehouse Location and Bin on Subcontracting Transfer Order.
         TransferLine.SetRange("Transfer-from Code", LocationCode);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
         TransferLine.TestField("Transfer-from Bin Code", BinCode);
     end;
 
@@ -260,7 +260,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify multiple Subcontracting Order against single Released Production Order.
 
         // Setup: Create Subcontracting Location, Order and post.
-        Initialize;
+        Initialize();
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingVendorWithProcurement(TransferRoute."Transfer-to Code", true);  // Using True for Procurement.
         WorkCenterNo := CreateSubcontractingWorkCenter(VendorNo);
@@ -288,7 +288,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify error when change the status of Released Prod. Order.
 
         // Setup: Create Location and Subcontracting Order.
-        Initialize;
+        Initialize();
         CreateSubconLocationWithTransferRoute(TransferRoute);
         VendorNo := CreateSubcontractingOrderWithSetup(TransferRoute."Transfer-to Code", TransferRoute."Transfer-from Code", false);
         ProductionOrderNo := FindSubcontractingProdOrderNo(VendorNo);
@@ -311,7 +311,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify error when Subcontracting Location is blank on Vendor.
 
         // Setup: Create Subcontracting Location and Order.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateRoutingLink(RoutingLink);
         VendorNo := CreateSubcontractingVendorWithProcurement('', false);  // Using blank for Location.
         CreateItemWithProdBOMAndRouting(Item, CreateSubcontractingWorkCenter(VendorNo), '', RoutingLink.Code, false);  // Using blank for Location.
@@ -339,7 +339,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify error when vendor deleted after Subcontracting Work Center.
 
         // Setup: Create Subcontracting Location, Vendor, Work Center.
-        Initialize;
+        Initialize();
         LibraryManufacturing.CreateRoutingLink(RoutingLink);
         VendorNo := CreateSubcontractingVendorWithProcurement('', false);  // Using blank for Location.
         WorkCenterNo := CreateSubcontractingWorkCenter(VendorNo);
@@ -376,7 +376,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [Subcontracting] [WIP Item]
         // [SCENARIO] No. and No. Series on Posted Transfer Shipments Header should use the Posted Shpt. Nos. from the Transport Reason Code after posted the WIP subcontracting transfer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create Subcontracting Location and Subcontracting Order
         CreateSubconLocationWithTransferRoute(TransferRoute);
@@ -415,7 +415,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify Return Subcontracting Transfer Order can be created after posting Subcontracting Transfer Order.
 
         // Setup: Create a Subcontracting Order and post Subcontracting Transfer
-        Initialize;
+        Initialize();
         CreateSubcontractingOrderAndPostSubcontractingTransfer(TransferRoute, VendorNo);
 
         // Exercise: Create Return Subcontracting Transfer Order
@@ -425,7 +425,7 @@ codeunit 144081 "SCM Subcontracting"
 
         // Verify: Return Subcontracting Transfer Order created successfully and Location is correct.
         TransferHeader.SetRange("Transfer-from Code", TransferRoute."Transfer-to Code");
-        TransferHeader.FindFirst;
+        TransferHeader.FindFirst();
         TransferHeader.TestField("Transfer-to Code", TransferRoute."Transfer-from Code");
     end;
 
@@ -441,7 +441,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify Return Subcontracting Transfer Order cannot be created after posting Subcontracting Transfer Order and all goods has been returned.
 
         // Setup: Create a Subcontracting Order and post Subcontracting Transfer
-        Initialize;
+        Initialize();
         CreateSubcontractingOrderAndPostSubcontractingTransfer(TransferRoute, VendorNo);
 
         // Create Return Subcontracting Transfer Order
@@ -468,7 +468,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify: Subcontracting Transfer Order cannot be created after posting Subcontracting Transfer Order
 
         // Setup: Create a Subcontracting Order and post Subcontracting Transfer
-        Initialize;
+        Initialize();
         CreateSubcontractingOrderAndPostSubcontractingTransfer(TransferRoute, VendorNo);
 
         // Exercise: Create Subcontracting Transfer Order
@@ -493,7 +493,7 @@ codeunit 144081 "SCM Subcontracting"
         // Verify Return Subcontracting Transfer Order can be created after post Subcontracting Transfer Order and partial post Subcontracting Order
 
         // Setup: Create a Subcontracting Order and post Subcontracting Transfer
-        Initialize;
+        Initialize();
         CreateSubcontractingOrderAndPostSubcontractingTransfer(TransferRoute, VendorNo);
 
         // Post Partial Receive Subcontracting Order
@@ -523,7 +523,7 @@ codeunit 144081 "SCM Subcontracting"
         // [FEATURE] [Subcontracting] [Transfer Order]
         // [SCENARIO 362377] Only transfer orders without subcontracting are shown in the Transfer List page
 
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateTransferLocations(FromLocation, ToLocation, InTransitLocation);
 
         // [GIVEN] Transfer order without subcontracting "T1"
@@ -557,7 +557,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [Subcontracting] [Transfer Order] [WIP Item]
         // [SCENARIO 380156] Subcontracting Transfer Order with WIP Item does not require warehouse handling to be shipped.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Subcontracting Order for a WIP Item on Location with Bin and Shipment required.
         // [GIVEN] Transfer Order to the subcontractor's location.
@@ -591,7 +591,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [Subcontracting] [Transfer Order] [Prod. Order Component] [Reservation]
         // [SCENARIO 380412] Prod. Order Component which is reserved from Item Ledger Entry is become reserved from the inbound Subcontracting Transfer Order when the Transfer Order is created.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Main manufacturing location "LP", subcontractor's location "LS".
         // [GIVEN] Subcontracting Order.
@@ -633,7 +633,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [Subcontracting] [Transfer Order] [Prod. Order Component] [Reservation]
         // [SCENARIO 380412] When Subcontracting Transfer Order is posted, the corresponding Prod. Order Component is become reserved from the inbound transfer Item Legder Entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Main manufacturing location "LP", subcontractor's location "LS".
         // [GIVEN] Subcontracting Order.
@@ -655,7 +655,7 @@ codeunit 144081 "SCM Subcontracting"
         FindItemLedgerEntry(
           ItemLedgerEntry, ItemLedgerEntry."Entry Type"::Transfer, ProdOrderComponent."Item No.", LocationToCode, true);
         ItemLedgerEntryReserve.FilterReservFor(ReservationEntry, ItemLedgerEntry);
-        ReservationEntry.FindFirst;
+        ReservationEntry.FindFirst();
         ReservationEntry.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
     end;
 
@@ -676,7 +676,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [Subcontracting] [Transfer Order] [WIP Item] [Item] [Warehouse]
         // [SCENARIO 218610] Posting subcontracting transfer order with both WIP and ordinary item from WMS location should generate warehouse entries for the ordinary item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Own location "L1" with mandatory bin.
         LibraryWarehouse.CreateLocationWMS(MfgLocation, true, false, false, false, false);
@@ -720,7 +720,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [Subcontracting] [Transfer Order] [WIP Item] [Item]
         // [SCENARIO 218610] Subcontracting transfer order with both WIP and ordinary item cannot be shipped if there is not enough inventory of the ordinary item.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Own location "L1".
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(MfgLocation);
@@ -755,14 +755,14 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 201737] Subcontracting Order is not shown in Purchase Order List
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Order with SubcontractingOrder = TRUE
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
           LibraryInventory.CreateItemNo, LibraryRandom.RandInt(10));
-        PurchaseLine."Prod. Order No." := LibraryUtility.GenerateGUID;
+        PurchaseLine."Prod. Order No." := LibraryUtility.GenerateGUID();
         PurchaseLine."Prod. Order Line No." := LibraryRandom.RandInt(10);
         PurchaseLine.Modify();
 
@@ -821,7 +821,7 @@ codeunit 144081 "SCM Subcontracting"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
         CreateVATPostingSetup;
@@ -955,7 +955,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         ProductionBOMLine.SetRange("Production BOM No.", ProductionBOMNo);
         ProductionBOMLine.SetRange(Type, ProductionBOMLine.Type::Item);
-        ProductionBOMLine.FindFirst;
+        ProductionBOMLine.FindFirst();
         Item.Get(ProductionBOMLine."No.");
         CreateBinContent(Bin, Item, LocationCode);
         exit(Bin.Code);
@@ -1207,7 +1207,7 @@ codeunit 144081 "SCM Subcontracting"
         VendorNo := CreateSubcontractingOrderWithSetup(LocationToCode, LocationFromCode, false);
 
         ProdOrderComponent.SetRange("Prod. Order No.", FindSubcontractingProdOrderNo(VendorNo));
-        ProdOrderComponent.FindFirst;
+        ProdOrderComponent.FindFirst();
         Item.Get(ProdOrderComponent."Item No.");
         Item.Validate(Reserve, Item.Reserve::Always);
         Item.Modify(true);
@@ -1394,7 +1394,7 @@ codeunit 144081 "SCM Subcontracting"
             SetRange("Item No.", ItemNo);
             SetRange("Location Code", LocationCode);
             SetRange(Positive, IsPositive);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1404,14 +1404,14 @@ codeunit 144081 "SCM Subcontracting"
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         PurchaseHeader.SetRange("Subcontracting Order", SubcontractingOrder);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Order);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSubcontractingProdOrderNo(VendorNo: Code[20]): Code[20]
@@ -1426,7 +1426,7 @@ codeunit 144081 "SCM Subcontracting"
     local procedure FindTransferHeader(var TransferHeader: Record "Transfer Header"; TransferFromCode: Code[20])
     begin
         TransferHeader.SetRange("Transfer-from Code", TransferFromCode);
-        TransferHeader.FindFirst;
+        TransferHeader.FindFirst();
     end;
 
     local procedure FindTransferLine(var TransferLine: Record "Transfer Line"; VendorNo: Code[20])
@@ -1434,16 +1434,16 @@ codeunit 144081 "SCM Subcontracting"
         TransferHeader: Record "Transfer Header";
     begin
         TransferHeader.SetRange("Source No.", VendorNo);
-        TransferHeader.FindFirst;
+        TransferHeader.FindFirst();
         TransferLine.SetRange("Document No.", TransferHeader."No.");
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
     end;
 
     local procedure FindTransferLineByItemNo(var TransferLine: Record "Transfer Line"; TransferHeaderNo: Code[20]; ItemNo: Code[20])
     begin
         TransferLine.SetRange("Document No.", TransferHeaderNo);
         TransferLine.SetRange("Item No.", ItemNo);
-        TransferLine.FindFirst;
+        TransferLine.FindFirst();
     end;
 
     local procedure GetProductionOrderNo(Status: Enum "Production Order Status"; SourceNo: Code[20]): Code[20]
@@ -1453,7 +1453,7 @@ codeunit 144081 "SCM Subcontracting"
         ProductionOrder.SetRange(Status, Status);
         ProductionOrder.SetRange("Source Type", ProductionOrder."Source Type"::Item);
         ProductionOrder.SetRange("Source No.", SourceNo);
-        ProductionOrder.FindFirst;
+        ProductionOrder.FindFirst();
         exit(ProductionOrder."No.");
     end;
 
@@ -1471,7 +1471,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         LibraryInventory.CreateTransferHeader(TransferHeader, FromLocationCode, ToLocationCode, InTransitCode);
         LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, ItemNo, LibraryRandom.RandDec(100, 2));
-        TransferLine."Prod. Order No." := LibraryUtility.GenerateGUID;
+        TransferLine."Prod. Order No." := LibraryUtility.GenerateGUID();
         TransferLine.Modify(true);
     end;
 
@@ -1537,7 +1537,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         // Update child item only.
         ItemVendor.SetFilter("Item No.", ItemNo);
-        ItemVendor.FindFirst;
+        ItemVendor.FindFirst();
         RequisitionLine.SetFilter("Ref. Order Type", RefOrderTypeTxt);  // Required for update child item only.
         RequisitionLine.FindSet();
         repeat
@@ -1618,7 +1618,7 @@ codeunit 144081 "SCM Subcontracting"
         with SubcontractingTransferHeader do begin
             SetRange("Transfer-from Code", TransferFromCode);
             SetRange("Transfer-to Code", TransferToCode);
-            FindFirst;
+            FindFirst();
             Validate("Transport Reason Code", TransportReasonCode);
             Modify(true);
         end;
@@ -1631,7 +1631,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Consumption);
         ItemLedgerEntry.SetRange("Location Code", LocationCode);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.TestField("Order Type", ItemLedgerEntry."Order Type"::Production);
         ItemLedgerEntry.TestField("Order No.", GetProductionOrderNo(ProductionOrder.Status::Released, ItemNo));
     end;
@@ -1642,7 +1642,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         with TransferShipmentHeader do begin
             SetRange("Transfer Order No.", TransferOrderNo);
-            FindFirst;
+            FindFirst();
             TestField("No.", TransferShipmentHeaderNo);
             TestField("No. Series", TransferShipmentHeaderNoSeries);
         end;
@@ -1654,7 +1654,7 @@ codeunit 144081 "SCM Subcontracting"
     begin
         with TransferReceiptHeader do begin
             SetRange("Transfer Order No.", TransferOrderNo);
-            FindFirst;
+            FindFirst();
             TestField("No.", TransferReceiptHeaderNo);
             TestField("No. Series", TransferReceiptHeaderNoSeries);
         end;

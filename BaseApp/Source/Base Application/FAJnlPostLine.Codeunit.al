@@ -418,7 +418,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             end;
     end;
 
-    local procedure PostReverseType(FALedgEntry: Record "FA Ledger Entry")
+    procedure PostReverseType(FALedgEntry: Record "FA Ledger Entry")
     var
         EntryAmounts: array[4] of Decimal;
         i: Integer;
@@ -436,7 +436,7 @@ codeunit 5632 "FA Jnl.-Post Line"
             end;
     end;
 
-    local procedure PostGLBalAcc(FALedgEntry: Record "FA Ledger Entry"; AllocatedPct: Decimal)
+    procedure PostGLBalAcc(FALedgEntry: Record "FA Ledger Entry"; AllocatedPct: Decimal)
     begin
         if AllocatedPct > 0 then begin
             FALedgEntry."Entry No." := 0;
@@ -501,7 +501,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         exit(DepreciationCalc.FAName(FA, DeprBookCode));
     end;
 
-    local procedure SetResultOnDisposal(var FALedgEntry: Record "FA Ledger Entry")
+    procedure SetResultOnDisposal(var FALedgEntry: Record "FA Ledger Entry")
     var
         FADeprBook: Record "FA Depreciation Book";
     begin
@@ -537,7 +537,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         OldMaintenanceLedgEntry.SetRange("FA No.", MaintenanceLedgEntry."FA No.");
         OldMaintenanceLedgEntry.SetRange("Depreciation Book Code", MaintenanceLedgEntry."Depreciation Book Code");
         OldMaintenanceLedgEntry.SetRange("Document No.", MaintenanceLedgEntry."Document No.");
-        if OldMaintenanceLedgEntry.FindFirst then begin
+        if OldMaintenanceLedgEntry.FindFirst() then begin
             FAJnlLine2."FA Posting Type" := FAJnlLine2."FA Posting Type"::Maintenance;
             Error(
               Text003,
@@ -553,7 +553,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     var
         FAReg: Record "FA Register";
     begin
-        if FAReg.FindLast then begin
+        if FAReg.FindLast() then begin
             FAReg."G/L Register No." := GLRegNo;
             FAReg.Modify();
         end;

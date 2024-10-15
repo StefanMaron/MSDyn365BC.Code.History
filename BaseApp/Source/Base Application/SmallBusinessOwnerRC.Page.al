@@ -660,6 +660,13 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Issued Fin. Charge Memo List";
                     ToolTip = 'View the list of issued finance charge memos.';
                 }
+                action("Posted Bank Deposits")
+                {
+                    Caption = 'Posted Bank Deposits';
+                    Image = PostedDeposit;
+                    RunObject = codeunit "Open P. Bank Deposits L. Page";
+                    ToolTip = 'View the posted bank deposit header, bank deposit header lines, bank deposit comments, and bank deposit dimensions.';
+                }
             }
             group(Finance)
             {
@@ -752,6 +759,16 @@ page 9020 "Small Business Owner RC"
                     Caption = 'INAIL & Social Security Payments';
                     RunObject = Page "Contribution Payment List";
                     ToolTip = 'View the INAIL and social security tax payments.';
+                }
+            }
+            group("Cash Management")
+            {
+                Caption = 'Cash Management';
+                action("Deposits to Post")
+                {
+                    Caption = 'Bank Deposits to Post';
+                    RunObject = codeunit "Open Deposits Page";
+                    ToolTip = 'View the list of bank deposits that are ready to post.';
                 }
             }
             group(Marketing)
@@ -1006,6 +1023,13 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page Reminder;
                 RunPageMode = Create;
                 ToolTip = 'Create a reminder to remind a customer of overdue payment.';
+            }
+            action(Deposit)
+            {
+                Caption = 'Bank Deposit';
+                Image = DepositSlip;
+                RunObject = codeunit "Open Deposit Page";
+                ToolTip = 'Create a new bank deposit. ';
             }
             separator(Action5)
             {
@@ -1272,7 +1296,7 @@ page 9020 "Small Business Owner RC"
                 Caption = 'Find entries...';
                 Image = Navigate;
                 RunObject = Page Navigate;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
             }
         }

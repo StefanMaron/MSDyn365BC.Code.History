@@ -53,7 +53,7 @@ codeunit 144082 "UT Subcontracting"
         // Purpose of the test is to validate Prod. Order Component - OnPreDataItem Trigger of Report - 12155 Subcontr. Dispatching List.
 
         // Setup: Create Purchase Line with Production Order Routing Line.
-        Initialize;
+        Initialize();
         CreatePurchaseLine(PurchaseLine, CreateVendor);
         CreateProdOrderRoutingLine(PurchaseLine);
         LibraryVariableStorage.Enqueue(PurchaseLine."Buy-from Vendor No.");  // Enqueue for SubcontrDispatchingListRequestPageHandler.
@@ -82,7 +82,7 @@ codeunit 144082 "UT Subcontracting"
         // Purpose of the test is to validate Transfer Shipment Header - OnPreDataItem Trigger of Report - 12154 Subcontract. Transfer Shipment.
 
         // Setup: Create Transfer Shipment Line and Update Company Information.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
         ProdOrderNo := LibraryUTUtility.GetNewCode;
         No := CreateTransferShipmentLine(TransferShipmentHeader."Source Type"::Vendor, ProdOrderNo, LibraryUTUtility.GetNewCode);
@@ -114,7 +114,7 @@ codeunit 144082 "UT Subcontracting"
         // Purpose of the test is to validate Transfer Shipment Header - OnAfterGetRecord Trigger of Report - 12154 Subcontract. Transfer Shipment.
 
         // Setup: Create Transfer Shipment Line and Update Company Information.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
         No := CreateTransferShipmentLine(TransferShipmentHeader."Source Type", '', '');  // SubcontrPurchOrderNo and ProdOrderNo as blank.
         LibraryVariableStorage.Enqueue(No);  // Enqueue for SubcontractTransferShipmentRequestPageHandler.
@@ -159,7 +159,7 @@ codeunit 144082 "UT Subcontracting"
         Item: Record Item;
     begin
         // Setup: Create Item and Production BOM Line.
-        Initialize;
+        Initialize();
         CreateItem(Item);
         CreateProductionBOMLine(Item."No.", Item."Production BOM No.", Type);
         LibraryVariableStorage.Enqueue(Item."No.");  // Enqueue for DetailedCalculationRequestPageHandler.
@@ -174,7 +174,7 @@ codeunit 144082 "UT Subcontracting"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(var Item: Record Item)

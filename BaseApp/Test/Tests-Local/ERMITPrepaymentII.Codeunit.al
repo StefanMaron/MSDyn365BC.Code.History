@@ -191,7 +191,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Verify: Verify values on GL Book Entry.
         GLBookEntry.SetRange("Document No.", DocumentNo);
-        GLBookEntry.FindFirst;
+        GLBookEntry.FindFirst();
         Assert.AreEqual(0, GLBookEntry.Amount, AmountErr);  // Value 0 required for GL Book Entry Amount.
     end;
 
@@ -884,7 +884,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Verify: Verify values on VAT Entry.
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Amount, 0);
 
         // Tear Down.
@@ -917,7 +917,7 @@ codeunit 144173 "ERM IT Prepayment II"
 
         // Verify.
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField(Amount, Round(PurchaseLine."VAT Base Amount" * PurchaseLine."VAT %" / 100));
     end;
 
@@ -1281,7 +1281,7 @@ codeunit 144173 "ERM IT Prepayment II"
         VATPostingSetup.Validate(
           "Purch. Prepayments Account", CreateGLAccountWithProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
         VATPostingSetup.Validate("Purchase VAT Account", CreateGLAccountWithProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
-        VATIdentifier.FindFirst;
+        VATIdentifier.FindFirst();
         VATPostingSetup.Validate("VAT Identifier", VATIdentifier.Code);
         VATPostingSetup.Modify(true);
     end;
@@ -1317,7 +1317,7 @@ codeunit 144173 "ERM IT Prepayment II"
     local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure GetLastNoUsed(NoSeriesCode: Code[20]): Code[20]
@@ -1326,7 +1326,7 @@ codeunit 144173 "ERM IT Prepayment II"
     begin
         NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
         NoSeriesLineSales.SetRange("Last Date Used", WorkDate);
-        NoSeriesLineSales.FindFirst;
+        NoSeriesLineSales.FindFirst();
         exit(NoSeriesLineSales."Last No. Used");
     end;
 
@@ -1336,7 +1336,7 @@ codeunit 144173 "ERM IT Prepayment II"
     begin
         NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
         NoSeriesLinePurchase.SetRange("Last Date Used", WorkDate);
-        NoSeriesLinePurchase.FindFirst;
+        NoSeriesLinePurchase.FindFirst();
         exit(NoSeriesLinePurchase."Last No. Used");
     end;
 
@@ -1389,7 +1389,7 @@ codeunit 144173 "ERM IT Prepayment II"
     begin
         GLBookEntry.SetRange("Document No.", DocumentNo);
         GLBookEntry.SetRange(Positive, Positive);
-        GLBookEntry.FindFirst;
+        GLBookEntry.FindFirst();
         GLBookEntry.CalcFields("Debit Amount");
         GLBookEntry.TestField("Debit Amount", DebitAmount);
     end;
@@ -1399,7 +1399,7 @@ codeunit 144173 "ERM IT Prepayment II"
         GLBookEntry: Record "GL Book Entry";
     begin
         GLBookEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLBookEntry.FindFirst;
+        GLBookEntry.FindFirst();
         Assert.AreEqual(0, GLBookEntry.Amount, AmountErr);  // Value 0 required for GL Book Entry Amount.
     end;
 
@@ -1408,7 +1408,7 @@ codeunit 144173 "ERM IT Prepayment II"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.TestField("No.", GetLastNoUsedPurchase(PurchaseHeader."Operation Type"));
         PurchInvHeader.TestField("Operation Type", PurchaseHeader."Operation Type");
         PurchInvHeader.TestField("Prepayment Invoice", PrepaymentInvoice);
@@ -1419,7 +1419,7 @@ codeunit 144173 "ERM IT Prepayment II"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         PurchCrMemoHdr.TestField("No.", GetLastNoUsedPurchase(PurchaseHeader."Operation Type"));
         PurchCrMemoHdr.TestField("Operation Type", PurchaseHeader."Operation Type");
         PurchCrMemoHdr.TestField("Prepayment Credit Memo", true);
@@ -1430,7 +1430,7 @@ codeunit 144173 "ERM IT Prepayment II"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("No.", GetLastNoUsed(SalesHeader."Operation Type"));
         SalesCrMemoHeader.TestField("Operation Type", SalesHeader."Operation Type");
         SalesCrMemoHeader.TestField("Prepayment Credit Memo", true);
@@ -1441,7 +1441,7 @@ codeunit 144173 "ERM IT Prepayment II"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("No.", GetLastNoUsed(SalesHeader."Operation Type"));
         SalesInvoiceHeader.TestField("Operation Type", SalesHeader."Operation Type");
         SalesInvoiceHeader.TestField("Prepayment Invoice", PrepaymentInvoice);
@@ -1453,7 +1453,7 @@ codeunit 144173 "ERM IT Prepayment II"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(-Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountErr);
         Assert.AreNearlyEqual(-Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountErr);
         Assert.AreNearlyEqual(-UnrealizedAmount, VATEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, AmountErr);

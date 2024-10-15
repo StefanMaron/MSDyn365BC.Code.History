@@ -73,7 +73,7 @@ page 12146 "No. Series Lines Purchase"
     begin
         if NoSeriesLine.Get("Series Code", "Line No.") then begin
             NoSeriesLine.SetRange("Series Code", "Series Code");
-            if NoSeriesLine.FindLast then;
+            if NoSeriesLine.FindLast() then;
             "Line No." := NoSeriesLine."Line No." + 10000;
         end;
         exit(true);

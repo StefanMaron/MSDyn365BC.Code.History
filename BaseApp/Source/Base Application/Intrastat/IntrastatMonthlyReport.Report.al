@@ -242,9 +242,15 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code_Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No__Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No__Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130016Caption; RoundAmount_Control1130016CaptionLbl)
                 {
                 }
@@ -272,9 +278,15 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130121Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130123Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130123Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130125Caption; RoundAmount_Control1130125CaptionLbl)
                 {
                 }
@@ -317,9 +329,15 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130153Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130155Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130155Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130157Caption; RoundAmount_Control1130157CaptionLbl)
                 {
                 }
@@ -359,9 +377,15 @@
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130181Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130183Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130183Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130185Caption; RoundAmount_Control1130185CaptionLbl)
                 {
                 }

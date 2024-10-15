@@ -42,7 +42,7 @@ report 12177 "Suggest Vendor Bills"
                 VendorBillLine.LockTable();
                 VendorBillLine.Reset();
                 VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
-                if not VendorBillLine.FindLast then
+                if not VendorBillLine.FindLast() then
                     NextLineNo := 10000
                 else
                     NextLineNo := VendorBillLine."Line No." + 10000;
@@ -104,13 +104,13 @@ report 12177 "Suggest Vendor Bills"
         VendBillLine2.Reset();
         VendBillLine2.SetRange("Vendor Entry No.", "Vendor Ledger Entry"."Entry No.");
 
-        if not VendBillLine2.FindFirst then begin
+        if not VendBillLine2.FindFirst() then begin
             VendBillLine2.Reset();
             VendBillLine2.SetRange("Vendor No.", "Vendor Ledger Entry"."Vendor No.");
             VendBillLine2.SetRange("Document No.", "Vendor Ledger Entry"."Document No.");
             VendBillLine2.SetRange("Document Occurrence", "Vendor Ledger Entry"."Document Occurrence");
             VendBillLine2.SetRange("Document Date", "Vendor Ledger Entry"."Document Date");
-            if not VendBillLine2.FindFirst then begin
+            if not VendBillLine2.FindFirst() then begin
                 VendorBillLine.Init();
                 VendorBillLine."Vendor Bill List No." := VendorBillHeader."No.";
                 VendorBillLine."Line No." := NextLineNo;

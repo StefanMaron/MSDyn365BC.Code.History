@@ -31,7 +31,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 302532] Posted sales invoice without attachment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice (without any attachment)
         CreatePostSalesInvoice(RecRef);
@@ -59,7 +59,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 302532] Posted sales invoice with a single attachment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice
         CreatePostSalesInvoice(RecRef);
@@ -87,7 +87,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 302532] Posted sales invoice with a single attachment having > 1000 text chars length
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice
         CreatePostSalesInvoice(RecRef);
@@ -116,7 +116,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 302532] Posted sales invoice with two attachments
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice
         CreatePostSalesInvoice(RecRef);
@@ -147,7 +147,7 @@ codeunit 144205 "FatturaPA Attachments"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 302532] Posted sales credit memo with a single attachment
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales credit memo
         CreatePostSalesCrMemo(RecRef);
@@ -200,7 +200,7 @@ codeunit 144205 "FatturaPA Attachments"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -229,8 +229,8 @@ codeunit 144205 "FatturaPA Attachments"
         FullFileName: Text;
         OriginalPlainText: Text;
     begin
-        FileNameWithoutExtension := LibraryUtility.GenerateGUID;
-        FileNameExtension := LibraryUtility.GenerateGUID;
+        FileNameWithoutExtension := LibraryUtility.GenerateGUID();
+        FileNameExtension := LibraryUtility.GenerateGUID();
         OriginalPlainText := LibraryUtility.GenerateRandomXMLText(TextLength);
         Base64String := Base64Convert.ToBase64(OriginalPlainText);
         FullFileName := LibraryUtility.GenerateGUID + '\' + FileNameWithoutExtension + '.' + FileNameExtension;

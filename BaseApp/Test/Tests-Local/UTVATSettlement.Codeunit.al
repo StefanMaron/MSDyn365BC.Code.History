@@ -58,7 +58,7 @@ codeunit 144186 "UT VAT Settlement"
         InitialDate: Date;
     begin
         // Initialize
-        Initialize;
+        Initialize();
         InitialDate := DMY2Date(1, 1, Date2DMY(WorkDate, 3) - 1); // 1/1/Y-1
         InitLastSettlementDate(CalcDate('<1M-1D>', InitialDate)); // 31/1/Y-1
         InitVATPlafondPeriod(InitialDate, 0); // 1/1/CY-1 (Year will be used)
@@ -71,7 +71,7 @@ codeunit 144186 "UT VAT Settlement"
           CalcDate('<2M-1D>', InitialDate),
           '',// DocNo is not used in test
           GLAccount."No.", GLAccount."No.", GLAccount."No.", true, false);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // Verify and Tear down
@@ -84,7 +84,7 @@ codeunit 144186 "UT VAT Settlement"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
     end;
@@ -119,7 +119,7 @@ codeunit 144186 "UT VAT Settlement"
         PeriodicVATSettlementCard: TestPage "Periodic VAT Settlement Card";
     begin
         // Setup.
-        PeriodicVATSettlementCard.OpenNew;
+        PeriodicVATSettlementCard.OpenNew();
 
         // Exercise.
         asserterror PeriodicVATSettlementCard."VAT Period".SetValue(VATPeriod);

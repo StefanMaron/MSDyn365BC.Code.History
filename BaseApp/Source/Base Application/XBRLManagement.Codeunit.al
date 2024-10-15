@@ -1,5 +1,9 @@
+#if not CLEAN20
 codeunit 420 "XBRL Management"
 {
+    ObsoleteReason = 'XBRL feature will be discontinued';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     trigger OnRun()
     begin
@@ -49,7 +53,7 @@ codeunit 420 "XBRL Management"
             SetRange("XBRL Taxonomy Name", XBRLTaxonomyLine."XBRL Taxonomy Name");
             SetRange("XBRL Taxonomy Line No.", XBRLTaxonomyLine."Line No.");
             SetRange("Starting Date", 0D, PeriodEndDate);
-            if FindLast then
+            if FindLast() then
                 exit("Constant Amount");
 
             exit(XBRLTaxonomyLine."Constant Amount");
@@ -218,7 +222,7 @@ codeunit 420 "XBRL Management"
         AccountingPeriodRec.SetRange("Starting Date", 0D, EndDate);
         if PeriodOption = PeriodOption::"Fiscal Year" then
             AccountingPeriodRec.SetRange("New Fiscal Year", true);
-        AccountingPeriodRec.FindLast;
+        AccountingPeriodRec.FindLast();
         exit(AccountingPeriodRec."Starting Date");
     end;
 
@@ -312,3 +316,5 @@ codeunit 420 "XBRL Management"
     end;
 }
 
+
+#endif

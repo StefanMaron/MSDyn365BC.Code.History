@@ -269,7 +269,7 @@ table 12117 Contributions
     begin
         SocialSecurity.LockTable();
         SocialSecurity.Reset();
-        if SocialSecurity.FindLast then
+        if SocialSecurity.FindLast() then
             "Entry No." := SocialSecurity."Entry No." + 1
         else
             "Entry No." := 1;
@@ -311,7 +311,7 @@ table 12117 Contributions
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "Document No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [Scope('OnPrem')]

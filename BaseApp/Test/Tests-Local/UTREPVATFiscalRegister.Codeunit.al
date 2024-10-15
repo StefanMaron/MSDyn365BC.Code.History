@@ -54,7 +54,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12120 VAT Register - Print when Ending Date is earlier than Starting Date.
         // Setup.
-        Initialize;
+        Initialize();
         UpdateCompanyInformationRegisterCompanyNumber;
         CreateNumberSeries(NoSeries);
         EnqueueValuesForVATRegisterPrintRequestPageHandler(
@@ -77,7 +77,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     begin
         // Purpose of the test is to validate Unrealized VAT - OnAfterGetRecord Trigger of Report - 12120 VAT Register Print for Purchase.
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         VATPrintRegisterWithVATBookEntry(
           VATBookEntry, CreateVendor, VATBookEntry.Type::Purchase, VATBookEntry."VAT Calculation Type"::"Normal VAT",
           VATBookEntry."Document Type"::Invoice);
@@ -97,7 +97,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
     begin
         // Purpose of the test is to validate Unrealized VAT - OnAfterGetRecord Trigger of Report - 12120 VAT Register Print for Sales.
         // Setup & Exercise.
-        Initialize;
+        Initialize();
         VATPrintRegisterWithVATBookEntry(
           VATBookEntry, CreateCustomer, VATBookEntry.Type::Sale, VATBookEntry."VAT Calculation Type"::"Reverse Charge VAT",
           VATBookEntry."Document Type"::"Credit Memo");
@@ -120,7 +120,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         // Purpose of the test is to validate VAT Registration No. and Customer Name in Unrealized VAT section of Report - 12120 VAT Register Print for Sales.
 
         // Setup: Create a VAT Book Entry of Payment Document Type with Unrealized VAT for Sales.
-        Initialize;
+        Initialize();
         UpdateCompanyInformationRegisterCompanyNumber;
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(
@@ -145,7 +145,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         // Purpose of the test is to validate VAT Registration No. and Vendor Name in Unrealized VAT section of Report - 12120 VAT Register Print for Purchase.
 
         // Setup: Create a VAT Book Entry of Payment Document Type with Unrealized VAT for Purchase.
-        Initialize;
+        Initialize();
         UpdateCompanyInformationRegisterCompanyNumber;
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(
@@ -159,14 +159,14 @@ codeunit 144160 "UT REP VAT Fiscal Register"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeries: Code[20]; Type: Option; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
-        VATBookEntry2.FindLast;
+        VATBookEntry2.FindLast();
         VATBookEntry."Entry No." := VATBookEntry2."Entry No." + 1;
         VATBookEntry.Type := Type;
         VATBookEntry."No. Series" := NoSeries;
@@ -187,7 +187,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATBookEntry.Type;
         VATEntry."No. Series" := VATBookEntry."No. Series";

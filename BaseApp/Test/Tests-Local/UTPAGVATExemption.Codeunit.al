@@ -30,7 +30,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         SalesNoSeriesNextNo: Code[10];
     begin
         // [SCENARIO 371988] VAT Exemptions being called by Action of Page - 21 Customer Card should contain correct values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created VAT Exemption and opened page - Customer Card.
         SalesNoSeriesNextNo := SetNoSeriesForSales;
@@ -61,7 +61,7 @@ codeunit 144071 "UT PAG VAT Exemption"
         PurchasesNoSeriesNextNo: Code[10];
     begin
         // [SCENARIO 371988] VAT Exemptions being called by Action of Page - 26 Vendor Card should contain correct values
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created VAT Exemption and opened page - Vendor Card.
         PurchasesNoSeriesNextNo := SetNoSeriesForPurchase;
@@ -82,7 +82,7 @@ codeunit 144071 "UT PAG VAT Exemption"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;

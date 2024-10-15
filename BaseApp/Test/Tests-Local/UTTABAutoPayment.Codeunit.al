@@ -96,7 +96,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate code of OnModify trigger of table 288 - Vendor Bank Account.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(IBANMandatoryMsg);  // Enqueue for ConfirmHandler.
         CreateVendorBankAccount(VendorBankAccount);
         VendorBankAccount.Name := LibraryUTUtility.GetNewCode;
@@ -118,7 +118,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate code of OnModify trigger of table 270 - Bank Account.
 
         // Setup.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(IBANMandatoryMsg);  // Enqueue for ConfirmHandler.
         BankAccount.Get(CreateBankAccount(false));  // FALSE for Blocked.
         BankAccount.Name := LibraryUTUtility.GetNewCode;
@@ -140,7 +140,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnDelete trigger of table 12177 - Issued Customer Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedCustomerBill(IssuedCustomerBillHeader);
 
         // Exercise.
@@ -161,7 +161,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnRename trigger of table 12177 - Issued Customer Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedCustomerBill(IssuedCustomerBillHeader);
 
         // Exercise.
@@ -182,7 +182,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Navigate function of table 12177 - Issued Customer Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateIssuedCustomerBill(IssuedCustomerBillHeader);
         LibraryVariableStorage.Enqueue(DATABASE::"Issued Customer Bill Header");  // Enqueue for NavigatePageHandler.
 
@@ -202,7 +202,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnDelete trigger of table 12180 - Bill.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateBillWithPaymentMethod(Bill);
 
         // Exercise.
@@ -222,7 +222,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnRename trigger of table 12183 - Posted Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedVendorBillHeader(PostedVendorBillHeader);
 
         // Exercise.
@@ -244,7 +244,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Navigate function of table 12183 - Posted Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostedVendorBillHeader(PostedVendorBillHeader);
         CreatePostedVendorBillLine(PostedVendorBillLine, PostedVendorBillHeader."No.");
         CreateVendorLedgerEntry(PostedVendorBillLine."Vendor No.", PostedVendorBillHeader."No.");
@@ -268,7 +268,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate GetCurrCode function of table 12184 - Posted Vendor Bill Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, CreateCurrency, WorkDate);
         CreatePostedVendorBillLine(PostedVendorBillLine, VendorBillHeader."No.");
 
@@ -290,7 +290,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate AssistEdit trigger of table 12174 - Customer Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateCustomerBill(CustomerBillHeader);
@@ -311,7 +311,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnDelete trigger of table 12174 - Customer Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerBill(CustomerBillHeader);
 
         // Exercise.
@@ -332,7 +332,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnRename trigger of table 12174 - Customer Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerBill(CustomerBillHeader);
 
         // Exercise.
@@ -353,7 +353,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate AssistEdit trigger of table 12181 - Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
@@ -372,7 +372,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate OnRename trigger of table 12181 - Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
 
         // Exercise.
@@ -392,7 +392,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Bank Account No. - OnValidate trigger of table 12181 - Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
 
         // Exercise.
@@ -412,7 +412,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Beneficiary Value Date - OnValidate trigger of table 12181 - Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBill(VendorBillHeader, '');  // Blank value for Currency Code.
 
         // Exercise.
@@ -433,7 +433,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Currency Code - OnValidate trigger of table 12181 - Vendor Bill Header with new Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBill(VendorBillHeader, CreateCurrencyExchangeRate);
 
         // Exercise.
@@ -453,7 +453,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate List Date - OnValidate trigger of table 12181 - Vendor Bill Header with List Date greater than Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank for Currency Code.
 
         // Exercise.
@@ -474,7 +474,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate List Date - OnValidate trigger of table 12181 - Vendor Bill Header with blank Posting Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, '', 0D);  // Blank value for Currency Code and 0D for Posting Date.
 
         // Exercise.
@@ -494,7 +494,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Payment Method Code - OnValidate trigger of table 12181 - Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBill(VendorBillHeader, '');  // Blank value for Currency Code.
 
         // Exercise.
@@ -515,7 +515,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate UpdateCurrencyFactor function of table 12181 - Vendor Bill Header.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, '', WorkDate);  // Blank value for Currency Code.
 
         // Exercise.
@@ -536,7 +536,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate UpdateCurrencyFactor function of table 12181 - Vendor Bill Header without Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillHeader(VendorBillHeader, CreateCurrencyExchangeRate, WorkDate);
 
         // Exercise.
@@ -556,7 +556,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate Amount To Pay - OnValidate trigger of table 12182 - Vendor Bill Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillLine(VendorBillLine, LibraryUTUtility.GetNewCode);
 
         // Exercise.
@@ -577,7 +577,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate GetVendBillWithhTax function of table 12182 - Vendor Bill Line with different Vendor Bill Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillLine(VendorBillLine, LibraryUTUtility.GetNewCode);
 
         // Exercise.
@@ -598,7 +598,7 @@ codeunit 144054 "UT TAB Auto Payment"
         // Purpose of the test is to validate GetVendBillWithhTax function of table 12182 - Vendor Bill Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorBillLine(VendorBillLine, LibraryUTUtility.GetNewCode);
 
         // Exercise.
@@ -611,7 +611,7 @@ codeunit 144054 "UT TAB Auto Payment"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryUTUtility.Clear;
     end;
 
@@ -759,7 +759,7 @@ codeunit 144054 "UT TAB Auto Payment"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document No." := DocumentNo;

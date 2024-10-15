@@ -59,7 +59,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenerateDummyVATReport(VATReportHeader);
@@ -85,7 +85,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
 
         // Create VAt Report Header.
         LibraryVATUtils.CreateVATReportHeader(
@@ -159,7 +159,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportHeader: Record "VAT Report Header";
         VATReportSetup: Record "VAT Report Setup";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenerateDummyVATReport(VATReportHeader);
@@ -209,7 +209,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenerateDummyVATReport(VATReportHeader);
@@ -232,7 +232,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportHeader: Record "VAT Report Header";
         VATReportLine: Record "VAT Report Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenerateDummyVATReport(VATReportHeader);
@@ -242,7 +242,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         // Modify VAT Report line and verify error
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
         VATReportLine.Validate("Incl. in Report", false);
         asserterror VATReportLine.Modify(true);
         Assert.ExpectedError(ErrorEditingIsNotAllowed);
@@ -258,10 +258,10 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReport: TestPage "VAT Report";
     begin
-        Initialize;
+        Initialize();
 
         // Create VAT Report.
-        VATReport.OpenNew;
+        VATReport.OpenNew();
         VATReport."No.".AssistEdit;
         Assert.AreNotEqual('', VATReport."No.".Value, ErrorShouldNotBeEmpty);
 
@@ -277,11 +277,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReport: TestPage "VAT Report";
         No: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Create VAT Report.
-        No := LibraryUtility.GenerateGUID;
-        VATReport.OpenNew;
+        No := LibraryUtility.GenerateGUID();
+        VATReport.OpenNew();
         VATReport."No.".SetValue(No);
         VATReport.OK.Invoke;
         VATReportHeader.Get(No);
@@ -299,7 +299,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportHeader2: Record "VAT Report Header";
         VATReport: TestPage "VAT Report";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenerateDummyVATReport(VATReportHeader);
@@ -314,7 +314,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryVariableStorage.Enqueue(VATReportHeader."No.");
 
         // Create VAT Report.
-        VATReport.OpenNew;
+        VATReport.OpenNew();
         VATReport."VAT Report Config. Code".Activate;
         VATReport."VAT Report Type".SetValue(VATReportHeader."VAT Report Type"::"Cancellation ");
         VATReport."Original Report No.".Lookup;
@@ -337,7 +337,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportHeader: Record "VAT Report Header";
         VATReportHeader2: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         GenerateDummyVATReport(VATReportHeader);
@@ -367,7 +367,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
 
         // Create VAT Report.
         LibraryVATUtils.CreateVATReportHeader(
@@ -386,7 +386,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     var
         VATReportHeader: Record "VAT Report Header";
     begin
-        Initialize;
+        Initialize();
 
         // Create Cancellation VAT Report.
         LibraryVATUtils.CreateVATReportHeader(
@@ -620,7 +620,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
     local procedure VerifyGetLine(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     begin
-        Initialize;
+        Initialize();
 
         // Setup + Verify
         LibraryVATUtils.VerifyGetLn(AccountType, DocumentType, GenPostingType, IndividualPerson, Resident, true, UsingFiscalCode);
@@ -719,7 +719,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LineAmount: Decimal;
         ExpectedLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -818,7 +818,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         OrderAmount: Decimal;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -908,7 +908,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         ActualLineCount: Integer;
         ExpectedLineCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -1176,7 +1176,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         CrMemoAmount: Decimal;
         StartDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         if (not InvoiceAboveThreshold) and CreditMemoAboveThreshold then
             Assert.Fail('You cannot apply a credit memo to a smaller invoice');
@@ -1314,7 +1314,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         InvoiceAmount: Decimal;
         PaymentAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
@@ -1446,7 +1446,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         PaymentAmount: Decimal;
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
@@ -1535,7 +1535,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         InvoiceAmount: Decimal;
         CrMemoAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
@@ -1625,7 +1625,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenPostingType: Enum "General Posting Type";
         EndDate: Date;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
@@ -1806,7 +1806,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         AmountInclVAT: Decimal;
         UseIndividual: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
@@ -1951,7 +1951,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         DocumentNo: Code[20];
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -2054,7 +2054,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LineAmount: Decimal;
         VATEntry: Record "VAT Entry";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -2130,7 +2130,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         CustNo: Code[20];
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -2172,7 +2172,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LineAmount: Decimal;
         DiscountPct: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -2216,7 +2216,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LineAmount: Decimal;
         VATProdPostingGroup: array[2] of Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         WorkDate(LibraryVATUtils.GetPostingDate);
@@ -2228,10 +2228,10 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.ModifyAll("Include in VAT Transac. Rep.", true);
         VATPostingSetup.SetRange("Deductible %", 100);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         VATProdPostingGroup[1] := VATPostingSetup."VAT Prod. Posting Group";
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', VATProdPostingGroup[1]);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         VATProdPostingGroup[2] := VATPostingSetup."VAT Prod. Posting Group";
 
         // Create a sales invoice with two lines, each with different VAT posting group
@@ -2270,7 +2270,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         // [FEATURE] [Sales] [VAT Report Suggest Lines]
         // [SCENARIO 376088] Sales Credit Memo posted without VAT Registration No. and Fiscal Code should be included into VAT Report
 
-        Initialize;
+        Initialize();
         WorkDate(LibraryVATUtils.GetPostingDate);
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
@@ -2299,7 +2299,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         // [FEATURE] [Purchase] [VAT Report Suggest Lines]
         // [SCENARIO 376088] Purchase Credit Memo posted without VAT Registration No. and Fiscal Code should be included into VAT Report
 
-        Initialize;
+        Initialize();
         WorkDate(LibraryVATUtils.GetPostingDate);
         LibraryVATUtils.SetupThresholdAmount(WorkDate, true);
         LibraryVATUtils.UpdateVATPostingSetup(true);
@@ -2328,7 +2328,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         // [FEATURE] [Purchase] [Invoice]
         // [SCENARIO 227272] "Vendor Invoice No." in Purchase Invoice must be used as "Document No." in VAT Report Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with "Vendor Invoice No." = "TEST001"
         CreatePostPurchaseDocumentInNextPeriod(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
@@ -2353,7 +2353,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         // [FEATURE] [Purchase] [Credit Memo]
         // [SCENARIO 227272] "Vendor Cr. Memo No." in Purchase Credit Memo must be used as "Document No." in VAT Report Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Credit Memo with "Vendor Cr. Memo No." = "TEST001"
         CreatePostPurchaseDocumentInNextPeriod(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
@@ -2379,7 +2379,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         // [FEATURE] [Purchase] [Invoice] [Reverse Charge VAT]
         // [SCENARIO 227270] Reverse charge Sales VAT Entry created after posting Puschase Invoice must be excluded from the VAT Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Posting Setup" with "VAT Calculation Type" = "Reverse Charge VAT"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -2412,7 +2412,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Reverse Charge VAT]
         // [SCENARIO 227270] Reverse charge Sales VAT Entry created after posting Puschase Credit Memo must be excluded from the VAT Report
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Posting Setup" with "VAT Calculation Type" = "Reverse Charge VAT"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -2445,7 +2445,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         // [FEATURE] [Purchase] [Non-deductible VAT]
         // [SCENARIO 227263] Non-deductible VAT Amount in Purchase Invoice must be included in amounts in VAT Report Line when "Deductible %" = 50
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Posting Setup" with "Deductible %" = 50, "VAT %" = 20
         CreateVATPostingSetupWithAccountsAndDeductible(
@@ -2476,7 +2476,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     begin
         // [FEATURE] [Purchase] [Non-deductible VAT]
         // [SCENARIO 227263] Non-deductible VAT Amount in Purchase Invoice must be included in amounts in VAT Report Line when "Deductible %" = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Posting Setup" with "Deductible %" = 0, "VAT %" = 20
         CreateVATPostingSetupWithAccountsAndDeductible(
@@ -2536,7 +2536,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     local procedure Initialize()
     begin
         LibraryVATUtils.TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -2703,7 +2703,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         DocumentNo := CreatePurchOrderLinkedBlOrd(PurchHeader, VendorNo, OrderAmount, LineAmount, PurchHeader."Document Type"::Invoice);
         PurchLine.SetRange("Document Type", PurchHeader."Document Type"::"Blanket Order");
         PurchLine.SetFilter("Document No.", DocumentNo);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
 
         // Post Purch Order.
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
@@ -2802,7 +2802,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         DocumentNo := CreateSalesOrderLinkedBlOrd(SalesHeader, CustomerNo, OrderAmount, LineAmount, SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::"Blanket Order");
         SalesLine.SetFilter("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         // Post Sales Order.
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2986,7 +2986,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetCurrentKey("Operation Occurred Date", Type, "Document Type", "Document No.", "Contract No.");
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Operation Occurred Date");
     end;
 
@@ -3018,7 +3018,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         with VATEntry do begin
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
-            FindLast;
+            FindLast();
             "Include in VAT Transac. Rep." := true;
             Modify(true);
         end;
@@ -3040,7 +3040,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
             SetRange("VAT Report No.", VATReportNo);
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             TestField(Amount, ExpectedAmount);
         end;
     end;
@@ -3048,7 +3048,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
     local procedure VerifyVATReportLine2(var VATReportLine: Record "VAT Report Line"; DocumentType: Enum "Gen. Journal Document Type"; AmountInclVAT: Decimal)
     begin
         VATReportLine.SetRange("Document Type", DocumentType);
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
         VATReportLine.TestField("Amount Incl. VAT", AmountInclVAT);
     end;
 
@@ -3086,7 +3086,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
 
         VATReportLine.SetRange("VAT Report No.", VATReportNo);
         Assert.RecordCount(VATReportLine, 1);
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
         VATReportLine.TestField("Document Type", DocumentType);
         VATReportLine.TestField(Type, VATReportLine.Type::Purchase);
     end;
@@ -3096,7 +3096,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportLine: Record "VAT Report Line";
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportNo);
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
         Assert.RecordCount(VATReportLine, 1);
         VATReportLine.TestField(Base, PurchaseHeader.Amount);
         VATReportLine.TestField(Amount, PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount);

@@ -14,14 +14,14 @@ codeunit 12176 "Customer Bills Floppy"
             DATABASE::"Customer Bill Header":
                 begin
                     CustomerBillHeader.SetRange("No.", DirectDebitCollection.Identifier);
-                    CustomerBillHeader.FindFirst;
+                    CustomerBillHeader.FindFirst();
                     SEPADDExportMgt.CheckBillHeader(CustomerBillHeader."Payment Method Code");
                     REPORT.Run(REPORT::"Cust Bills Floppy", false, false, CustomerBillHeader);
                 end;
             DATABASE::"Issued Customer Bill Header":
                 begin
                     IssuedCustomerBillHeader.SetRange("No.", DirectDebitCollection.Identifier);
-                    IssuedCustomerBillHeader.FindFirst;
+                    IssuedCustomerBillHeader.FindFirst();
                     SEPADDExportMgt.CheckBillHeader(IssuedCustomerBillHeader."Payment Method Code");
                     REPORT.Run(REPORT::"Issued Cust Bills Floppy", false, false, IssuedCustomerBillHeader);
                 end;

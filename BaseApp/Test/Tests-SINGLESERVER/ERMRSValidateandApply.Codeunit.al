@@ -19,7 +19,6 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-        LibraryManufacturing: Codeunit "Library - Manufacturing";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -48,7 +47,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -71,7 +70,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -94,7 +93,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -121,7 +120,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         KeyValueWithRelation: Code[10];
         KeyValueWithoutRelation: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithPKRelation(
           ConfigPackage,
@@ -151,7 +150,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         KeyValueWithRelation: Code[10];
     begin
         // To check that record not inserted if it has error in PK
-        Initialize;
+        Initialize();
 
         // Prerequisite: Test requires that table do not generates error on insert
         KeyValueWithRelation := CreateAndApplyPackageDataForTableWithoutPKCheckOnInsert(ConfigPackage, false);
@@ -171,7 +170,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -194,7 +193,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -217,7 +216,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -240,7 +239,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackage: Record "Config. Package";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -267,7 +266,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         KeyValueWithRelation: Code[10];
         KeyValueWithoutRelation: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithPKRelation(
           ConfigPackage,
@@ -298,7 +297,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         KeyValueWithRelation: Code[10];
         KeyValueWithoutRelation: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithPKRelation(
           ConfigPackage,
@@ -327,7 +326,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName: Code[10];
         ItemJournalTemplateName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithoutRelation(ConfigPackage, GenJournalTemplateName, ItemJournalTemplateName);
 
@@ -345,7 +344,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName: Code[10];
         ReasonCodeCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithNonPKRelation(ConfigPackage, 1, 0, GenJournalTemplateName, ReasonCodeCode);
 
@@ -363,7 +362,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName: Code[10];
         ReasonCodeCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithNonPKRelation(ConfigPackage, 0, 1, GenJournalTemplateName, ReasonCodeCode);
 
@@ -382,7 +381,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName: Code[10];
         ItemJournalTemplateName: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithoutRelation(ConfigPackage, GenJournalTemplateName, ItemJournalTemplateName);
 
@@ -402,7 +401,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName: Code[10];
         ReasonCodeCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithNonPKRelation(ConfigPackage, 1, 0, GenJournalTemplateName, ReasonCodeCode);
 
@@ -422,7 +421,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         GenJournalTemplateName: Code[10];
         ReasonCodeCode: Code[10];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithNonPKRelation(ConfigPackage, 0, 1, GenJournalTemplateName, ReasonCodeCode);
 
@@ -454,7 +453,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         Customer: Record Customer;
         CustomerName: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageForTableWithSeriesNo(ConfigPackage, CustomerName, true);
 
@@ -475,21 +474,31 @@ codeunit 136608 "ERM RS Validate and Apply"
         NoSeriesManagement: Codeunit NoSeriesManagement;
         CustomerName: Text[50];
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageForTableWithSeriesNo(ConfigPackage, CustomerName, true);
-
-        ApplyPackageAndSetupProcessingOrder(ConfigPackage);
-
-        Customer.SetRange(Name, CustomerName);
-        Customer.FindFirst;
 
         SalesSetup.Get();
 
         NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, SalesSetup."Customer Nos.", 0D);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
+        NoSeriesLine."Allow Gaps in Nos." := false;
+        NoSeriesLine."Last No. Used" := 'C00020';
+        NoSeriesLine.Modify();
+
+        ApplyPackageAndSetupProcessingOrder(ConfigPackage);
+
+        Customer.SetRange(Name, CustomerName);
+        Customer.FindFirst();
+
+        SalesSetup.Get();
+
+        NoSeriesManagement.SetNoSeriesLineFilter(NoSeriesLine, SalesSetup."Customer Nos.", 0D);
+        NoSeriesLine.FindFirst();
 
         Assert.IsTrue(Customer."No." = NoSeriesLine."Last No. Used", SeriesNoNotAssigned);
+        NoSeriesLine."Allow Gaps in Nos." := true;
+        NoSeriesLine.Modify();
     end;
 
     [Test]
@@ -504,7 +513,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         KeyValueWithoutRelation: Code[10];
         TableDescription: Text[20];
     begin
-        Initialize;
+        Initialize();
 
         CreatePackageDataPairWithPKRelation(
           ConfigPackage,
@@ -548,7 +557,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // Test to verify that answers are applied correctly to option fields
 
-        Initialize;
+        Initialize();
 
         // Create a new package with a question on Customer.Blocked field. The answer value is Blocked::Invoice
         CreatePackageWithQuestion(ConfigPackage, ConfigQuestion, Format(Customer.Blocked::Invoice));
@@ -582,7 +591,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         RelatedTableID: Integer;
     begin
         // Mapping for table 332 Currency Total Buffer field 1 Currency Code (type Code)
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateCurrency(Currency);
 
@@ -620,7 +629,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // Mapping for the Currency Code in table 332 Currency Total Buffer
         // is defined in the Currency table
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateCurrency(Currency);
 
@@ -662,7 +671,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         // For table 332 Currency Total Buffer:
         // Mapping for the Currency Code '1' is defined in the Currency table
         // Mapping for the Currency Code '2' is defined for the Currency Code field
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateCurrency(Currency2);
@@ -702,7 +711,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         OptionText: Text[250];
         TableID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // create new package with table 5870
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -735,7 +744,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         MasterTableID: Integer;
         RelatedTableID: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // create new package with table 332
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -769,7 +778,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         TableID: Integer;
     begin
         // [FEATURE] [Config. Package - Process]
-        Initialize;
+        Initialize();
 
         // [GIVEN] create new package with table Customer, where Name is 'Mister James'
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -788,7 +797,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageData.SetRange("Package Code", ConfigPackage.Code);
         ConfigPackageData.SetRange("Table ID", TableID);
         ConfigPackageData.SetRange("Field ID", Customer.FieldNo(Name));
-        ConfigPackageData.FindFirst;
+        ConfigPackageData.FindFirst();
 
         ExpectedTextValue := TransformedTestCustomerNameTxt;
         Assert.AreEqual(ExpectedTextValue, ConfigPackageData.Value, 'incorrect value');
@@ -807,7 +816,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         TableID: Integer;
     begin
         // [FEATURE] [Config. Package - Process]
-        Initialize;
+        Initialize();
 
         // [GIVEN] create new package with table Bank Account
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -855,9 +864,9 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [Error] [UI]
         // [SCENARIO] Drilldown on "Record ID" opens the record page with columns for: fields of PK and the failing field.
-        Initialize;
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Package 'A', where is 1 error for table 'Sales Header'.
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::"Sales Header");
@@ -870,9 +879,9 @@ codeunit 136608 "ERM RS Validate and Apply"
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         LibraryRapidStart.CreatePackageFieldData(
           ConfigPackageRecord, SalesHeader.FieldNo("Document Type"), Format(SalesHeader."Document Type"));
-        SalesHeader."No." := LibraryUtility.GenerateGUID;
+        SalesHeader."No." := LibraryUtility.GenerateGUID();
         LibraryRapidStart.CreatePackageFieldData(ConfigPackageRecord, SalesHeader.FieldNo("No."), SalesHeader."No.");
-        SalesHeader."Bill-to Customer No." := LibraryUtility.GenerateGUID;
+        SalesHeader."Bill-to Customer No." := LibraryUtility.GenerateGUID();
         LibraryRapidStart.CreatePackageFieldData(
           ConfigPackageRecord, SalesHeader.FieldNo("Bill-to Customer No."), SalesHeader."Bill-to Customer No.");
         // [GIVEN] Open "Package Errors" page
@@ -912,7 +921,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [Error] [UI]
         // [SCENARIO] "No. of Errors" and action "Show Error" are invisible if there are no errors for the package.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Package 'A'
         LibraryRapidStart.CreatePackage(ConfigPackage);
@@ -939,8 +948,8 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [Error] [UI]
         // [SCENARIO] "No. of Errors" and action "Show Error" are visible if there are errors for the package.
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Package 'A'
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Currency);
@@ -971,8 +980,8 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [Error] [UI]
         // [SCENARIO] Action "Show Error" opens the list of all errors for the package.
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         // [GIVEN] Package 'A', where are 1 error for table 4 and 2 errors for table 9.
         LibraryRapidStart.CreatePackage(ConfigPackage);
         LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, DATABASE::Currency);
@@ -1015,7 +1024,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -1043,7 +1052,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         ConfigPackageCard: TestPage "Config. Package Card";
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -1070,7 +1079,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         RelatedConfigPackage: Record "Config. Package";
         ConfigPackageError: Record "Config. Package Error";
     begin
-        Initialize;
+        Initialize();
 
         CreateTwoPackagesWithRelationBetweenTables(MasterConfigPackage, RelatedConfigPackage);
 
@@ -1090,7 +1099,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         RelatedConfigPackage: Record "Config. Package";
         ConfigPackageError: Record "Config. Package Error";
     begin
-        Initialize;
+        Initialize();
         CreateTwoPackagesWithRelationBetweenTables(MasterConfigPackage, RelatedConfigPackage);
         ApplyPackageAndSetupProcessingOrder(RelatedConfigPackage);
         ApplyPackageAndSetupProcessingOrder(MasterConfigPackage);
@@ -1110,14 +1119,14 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        Initialize;
+        Initialize();
         CreateTwoPackagesWithRelationBetweenTables(MasterConfigPackage, RelatedConfigPackage);
         ApplyPackageAndSetupProcessingOrder(RelatedConfigPackage);
 
         RunApplyFromPackageRecords(RelatedConfigPackage);
 
         ConfigPackageError.SetRange("Package Code", RelatedConfigPackage.Code);
-        ConfigPackageError.FindFirst;
+        ConfigPackageError.FindFirst();
         ConfigPackageError.TestField("Field ID", GenJournalTemplate.FieldNo(Name));
     end;
 
@@ -1131,7 +1140,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageMgt: Codeunit "Config. Package Management";
         ErrorText: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         CreateRelatedPackageData(
           ConfigPackage,
@@ -1147,13 +1156,13 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageTable.SetRange("Table ID", DATABASE::"Gen. Journal Batch");
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, true);
 
-        ConfigPackageError.FindFirst;
+        ConfigPackageError.FindFirst();
         ErrorText := ConfigPackageError."Error Text";
 
         ConfigPackageTable.SetRange("Table ID", DATABASE::"Gen. Journal Template");
         ConfigPackageMgt.ApplyPackage(ConfigPackage, ConfigPackageTable, true);
 
-        ConfigPackageError.FindFirst;
+        ConfigPackageError.FindFirst();
         Assert.AreEqual(ErrorText, ConfigPackageError."Error Text", TableFilterApplyErr);
     end;
 
@@ -1167,7 +1176,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError: Record "Config. Package Error";
         RecNo: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateTwoPackagesWithRelationBetweenTables(MasterConfigPackage, RelatedConfigPackage);
 
         RecNo := 2;
@@ -1255,7 +1264,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ContactNo: Code[20];
     begin
         // [SCENARIO 376810] Validate Package for Customer Table with Contact does not create new Contact
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "X"
         LibrarySales.CreateCustomer(Customer);
@@ -1287,7 +1296,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ContactNo: Code[20];
     begin
         // [SCENARIO 376810] Validate Package for Vendor Table with Contact does not create new Contact
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "X"
         LibraryPurchase.CreateVendor(Vendor);
@@ -1319,7 +1328,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         UnitOfMeasure: Record "Unit of Measure";
     begin
         // [SCENARIO 376810] Validate Package for Item Table with Base Unit of Measure does not create new Item Unit of Measure
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "X", Unit of Measure "Y"
         LibraryInventory.CreateItem(Item);
@@ -1356,7 +1365,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 376810] Validate Package for Item Table with Base Unit of Measure does not create new Item Unit of Measure
-        Initialize;
+        Initialize();
 
         // [WHEN] Run function "ValidateException" from of "Config Package Management" codeunit for fields Customer/Vendor "Contact", Item "Base Unit of Measure"
         // [THEN] "ValidateException" returns TRUE to show that fields are exceptions and should not be validated
@@ -1395,7 +1404,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         TableID: Integer;
     begin
         // [SCENARIO 381053] Delayed insert with not-"Skip Table Triggers" option for the table where OnInsert trigger fails while non-PK fields are not filled yet
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config Package for new Production Forecast Entry with "Skip Table Triggers" = No
         ProdForecastName := CreateProductionForecastName;
@@ -1408,7 +1417,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageTable.Modify(true);
 
         // [GIVEN] Mandatory fields are filled in: "Production Forecast Name" = "N", "Forecast Date" = WORKDATE
-        if not ProductionForecastEntry.FindLast then
+        if not ProductionForecastEntry.FindLast() then
             ProductionForecastEntry.Init();
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
@@ -1425,7 +1434,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.RecordIsEmpty(ConfigPackageError);
         // [THEN] Production Forecast Entry is created with "Production Forecast Name" = "N", "Forecast Date" = WORKDATE
-        ProductionForecastEntry.FindLast;
+        ProductionForecastEntry.FindLast();
         ProductionForecastEntry.TestField("Production Forecast Name", ProdForecastName);
         ProductionForecastEntry.TestField("Forecast Date", WorkDate);
     end;
@@ -1441,7 +1450,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         TableID: Integer;
     begin
         // [SCENARIO 381053] Delayed insert with not-"Skip Table Triggers" option gives an error when not all mandatory non-PK field are filled in.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config Package for new Production Forecast Entry with "Skip Table Triggers" = No
         TableID := DATABASE::"Production Forecast Entry";
@@ -1452,7 +1461,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigPackageTable.Modify(true);
 
         // [GIVEN] Only one mandatory field is filled in: "Forecast Date" = WORKDATE
-        if not ProductionForecastEntry.FindLast then
+        if not ProductionForecastEntry.FindLast() then
             ProductionForecastEntry.Init();
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
@@ -1465,7 +1474,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [THEN] Error for Config. Package is created for "Production Forecast Name" field
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
-        ConfigPackageError.FindFirst;
+        ConfigPackageError.FindFirst();
         Assert.ExpectedMessage(ProductionForecastEntry.FieldCaption("Production Forecast Name"), ConfigPackageError."Error Text");
     end;
 
@@ -1482,7 +1491,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ForecastQty: Decimal;
     begin
         // [SCENARIO 220748] Fields that are not part of the primary key should be validated with delayed insert
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with the base unit of measure "M"
         LibraryInventory.CreateItem(Item);
@@ -1497,7 +1506,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [GIVEN] Forecast entry refers to the item "I", "Forecast Quantity (Base)" = "X"
         // [GIVEN] Config package record includes the field "Forecast Quantity (Base)", but "Forecast Quantity" and "Unit of Measure Code" are blank
-        if not ProductionForecastEntry.FindLast then
+        if not ProductionForecastEntry.FindLast() then
             ProductionForecastEntry.Init();
         LibraryRapidStart.CreatePackageData(
           ConfigPackage.Code, TableID, 1, ProductionForecastEntry.FieldNo("Entry No."), Format(ProductionForecastEntry."Entry No." + 1));
@@ -1515,7 +1524,7 @@ codeunit 136608 "ERM RS Validate and Apply"
 
         // [THEN] New forecast entry is inserted. "Forecast Quantity" = "X", "Unit of Measure Code" = "M"
         ProductionForecastEntry.SetRange("Production Forecast Name", ProdForecastName);
-        ProductionForecastEntry.FindLast;
+        ProductionForecastEntry.FindLast();
         ProductionForecastEntry.TestField("Unit of Measure Code", Item."Base Unit of Measure");
         ProductionForecastEntry.TestField("Forecast Quantity", ForecastQty);
     end;
@@ -1530,7 +1539,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 286354] Record has been inserted during an Applying package if the record has wrong relation and "Delayed Insert" = FALSE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. package with customer
         LibrarySales.CreateCustomer(Customer);
@@ -1566,7 +1575,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         CustomerNo: Code[20];
     begin
         // [SCENARIO 286354] Record has not been inserted during an Applying package if the record has wrong relation and "Delayed Insert" = TRUE.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config. package with customer
         LibrarySales.CreateCustomer(Customer);
@@ -1599,8 +1608,8 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 286354] Config. Package Table has visible field: "Delayed Insert"
-        LibraryApplicationArea.EnableFoundationSetup;
-        ConfigPackageSubform.OpenNew;
+        LibraryApplicationArea.EnableFoundationSetup();
+        ConfigPackageSubform.OpenNew();
         Assert.IsTrue(ConfigPackageSubform."Delayed Insert".Visible, 'The field "Delayed Insert" should be visible');
     end;
 
@@ -1622,7 +1631,7 @@ codeunit 136608 "ERM RS Validate and Apply"
     begin
         // [FEATURE] [Config Package] [Relation Table]
         // [SCENARIO 317356] Config package can create missing codes for related table with composite primary key from multiple config package fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Config line contains a record with fields of the table Customer:
         // [GIVEN] "No." = "CU01", "City" = "TESTCITY", "Post Code" = "TS-77777"
@@ -1779,46 +1788,6 @@ codeunit 136608 "ERM RS Validate and Apply"
         Assert.RecordIsEmpty(ConfigPackageError);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ValidatePackageNoModifyItemOnValidatePackage();
-    var
-        ConfigPackage: Record "Config. Package";
-        Contact: Record Contact;
-        ConfigPackageTable: Record "Config. Package Table";
-        Item: Record Item;
-        ProductionBOMHeader: Record "Production BOM Header";
-        VATProductPostingGroup: Record "VAT Product Posting Group";
-        ContactNo: Code[20];
-    BEGIN
-        // [SCENARIO 419198] Validate Package for Item Table does not update Item record fields
-        Initialize;
-
-        // [GIVEN] Item "X" with "VAT Prod. Posting Group" = VPPG
-        LibraryInventory.CreateItem(Item);
-        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item."No.", 1);
-        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
-        Item."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
-        Item.Modify(false);
-
-        // [GIVEN] Rapid Start Package with Item Table
-        // [GIVEN] Package Data has Customer "No." = "X", "Production BOM No." = "X"
-        LibraryRapidStart.CreatePackage(ConfigPackage);
-        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, Database::Item);
-
-        LibraryRapidStart.CreatePackageData(
-            ConfigPackage.Code, Database::Item, 1, Item.FIELDNO("No."), Item."No.");
-        LibraryRapidStart.CreatePackageData(
-            ConfigPackage.Code, Database::Item, 1, Item.FIELDNO("Production BOM No."), ProductionBOMHeader."No.");
-
-        // [WHEN] Run Validate Package
-        LibraryRapidStart.ValidatePackage(ConfigPackage, false);
-
-        // [THEN] Item "X" field "VAT Prod. Posting Group" = VPPG
-        Item.Get(Item."No.");
-        Item.TESTFIELD("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-    END;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1829,7 +1798,7 @@ codeunit 136608 "ERM RS Validate and Apply"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM RS Validate and Apply");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryRapidStart.SetAPIServicesEnabled(false);
         isInitialized := true;
         Commit();
@@ -2008,7 +1977,7 @@ codeunit 136608 "ERM RS Validate and Apply"
             ConfigPackageError.Insert(true);
         end;
         // adding an error for another package
-        ConfigPackageError."Package Code" := LibraryUtility.GenerateGUID;
+        ConfigPackageError."Package Code" := LibraryUtility.GenerateGUID();
         ConfigPackageError.Insert(true);
     end;
 
@@ -2093,7 +2062,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         ConfigQuestion.SetRange("Question Area Code", ConfigQuestionAreaCode);
         ConfigQuestion.SetRange("Table ID", TableID);
         ConfigQuestion.SetRange("Field ID", FieldID);
-        ConfigQuestion.FindFirst;
+        ConfigQuestion.FindFirst();
 
         exit(ConfigQuestion."No.");
     end;
@@ -2211,7 +2180,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         CustomerName: Text[50];
         CustomersCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         GeneratePackageForTableWithSeriesNo(ConfigPackage, CustomerName, BlankPK);
 
@@ -2265,9 +2234,9 @@ codeunit 136608 "ERM RS Validate and Apply"
           0); // Related table priority
 
         MasterConfigPackageData.SetRange("Package Code", MasterConfigPackage.Code);
-        MasterConfigPackageData.FindFirst;
+        MasterConfigPackageData.FindFirst();
         RelatedConfigPackageData.SetRange("Package Code", RelatedConfigPackage.Code);
-        RelatedConfigPackageData.FindFirst;
+        RelatedConfigPackageData.FindFirst();
         RelatedConfigPackageData.Value := MasterConfigPackageData.Value;
         RelatedConfigPackageData.Modify();
     end;
@@ -2306,7 +2275,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         RecRef: RecordRef;
     begin
         MasterConfigPackageData.SetRange("Package Code", MasterConfigPackage.Code);
-        MasterConfigPackageData.FindFirst;
+        MasterConfigPackageData.FindFirst();
 
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);

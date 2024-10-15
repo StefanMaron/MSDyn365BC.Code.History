@@ -43,7 +43,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [FEATURE] [Deferral Code]
         // [SCENARIO 127732] Annie can apply a deferral template to a Sales Order
         // Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
@@ -406,7 +406,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [SCENARIO 127732] Annie can copy a document and the deferrals are copied
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
-        Initialize;
+        Initialize();
         PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
 
         // [GIVEN] Creating Sales Line for Item should default deferral code - then modify the amounts
@@ -426,7 +426,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [THEN] The deferral schedule was copied from the existing line
         SalesLineDest.SetRange("Document Type", SalesHeaderDest."Document Type");
         SalesLineDest.SetRange("Document No.", SalesHeaderDest."No.");
-        SalesLineDest.FindFirst;
+        SalesLineDest.FindFirst();
         SalesLineDest.TestField("Deferral Code", DeferralTemplateCode);
         SalesLineDest.TestField("Returns Deferral Start Date", 0D);
         VerifyDeferralsAreEqual(SalesLine, SalesLineDest);
@@ -476,7 +476,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", LocalStartDate, 2);
-        Initialize;
+        Initialize();
         PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
 
         // [GIVEN] Create and post the sales invoice with the default deferral
@@ -492,7 +492,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         // [THEN] The deferral schedule was copied from the existing line
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
-        SalesInvLine.FindFirst;
+        SalesInvLine.FindFirst();
 
         SalesLineDest.SetRange("Document Type", SalesHeaderDest."Document Type");
         SalesLineDest.SetRange("Document No.", SalesHeaderDest."No.");
@@ -528,7 +528,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [SCENARIO 127732] Copy an order with deferrals to a quote does not default the deferrals on a quote
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
-        Initialize;
+        Initialize();
         PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
 
         // [GIVEN] Creating Sales Line for Item should default deferral code
@@ -543,7 +543,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [THEN] The Deferral Code was not assigned to the Quote sales line
         SalesLineDest.SetRange("Document Type", SalesHeaderDest."Document Type");
         SalesLineDest.SetRange("Document No.", SalesHeaderDest."No.");
-        SalesLineDest.FindFirst;
+        SalesLineDest.FindFirst();
         SalesLineDest.TestField("Deferral Code", '');
         SalesLineDest.TestField("Returns Deferral Start Date", 0D);
 
@@ -572,7 +572,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [SCENARIO 127732] Annie can copy a Quote to a different type and the deferrals are defaulted from the item
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 3);
-        Initialize;
+        Initialize();
         PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
 
         // [GIVEN] Creating Sales Line for Item on Quote does not default the deferral
@@ -587,7 +587,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [THEN] The Deferral Code was assigned to the Order sales line
         SalesLineDest.SetRange("Document Type", SalesHeaderDest."Document Type");
         SalesLineDest.SetRange("Document No.", SalesHeaderDest."No.");
-        SalesLineDest.FindFirst;
+        SalesLineDest.FindFirst();
         SalesLineDest.TestField("Deferral Code", DeferralTemplateCode);
         SalesLineDest.TestField("Returns Deferral Start Date", 0D);
 
@@ -615,7 +615,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo,
           CalcMethod::"Straight-Line", StartDate::"End of Period", 3);
-        Initialize;
+        Initialize();
         PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
 
         // [GIVEN] Creating Sales Line for Item should default deferral code - order uses day = 1
@@ -630,7 +630,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [THEN] The Deferral Code was assigned to the Return Order sales line
         SalesLineDest.SetRange("Document Type", SalesHeaderDest."Document Type");
         SalesLineDest.SetRange("Document No.", SalesHeaderDest."No.");
-        SalesLineDest.FindFirst;
+        SalesLineDest.FindFirst();
         SalesLineDest.TestField("Deferral Code", DeferralTemplateCode);
 
         // [THEN] The Returns Deferral Start Date was assigned a start date based on header posting date
@@ -660,7 +660,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [GIVEN] User has assigned a default deferral code to an Item
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo,
           CalcMethod::"Straight-Line", StartDate::"Beginning of Next Period", 3);
-        Initialize;
+        Initialize();
         PrepareSalesReceivableSetup(StockWarningSetup, CreditWarningSetup);
 
         // [GIVEN] Creating Sales Line for Item should default deferral code - order uses day = 1
@@ -668,7 +668,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeader."Document Type"::"Return Order", SalesLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         // [WHEN] Create New sales document and copy the existing one - Return uses day = 15
         CreateSalesHeaderForCustomer(SalesHeaderDest,
@@ -678,7 +678,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         // [THEN] The Deferral Code was assigned to the Return Order sales line
         SalesLineDest.SetRange("Document Type", SalesHeaderDest."Document Type");
         SalesLineDest.SetRange("Document No.", SalesHeaderDest."No.");
-        SalesLineDest.FindFirst;
+        SalesLineDest.FindFirst();
         SalesLineDest.TestField("Deferral Code", DeferralTemplateCode);
 
         // [THEN] The Returns Deferral Start Date was assigned from the date on the original return order line
@@ -871,7 +871,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Sales Invoices with updated Posting Date updates deferral schedule
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -918,7 +918,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Sales Orders with updated Posting Date updates deferral schedule
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -965,7 +965,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [Post Document] [Batch Posting]
         // [SCENARIO 382285] Batch Posting of Deferral Credit Memos with updated Posting Date updates deferral schedule
-        Initialize;
+        Initialize();
         LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
@@ -1278,7 +1278,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         FindDeferralHeader(SalesLine, DeferralHeader);
         RangeDeferralLines(DeferralHeader, DeferralLine);
-        if DeferralLine.FindFirst then begin
+        if DeferralLine.FindFirst() then begin
             DeferralLine.Amount := 0.0;
             DeferralLine."Amount (LCY)" := 0.0;
             DeferralLine.Modify();
@@ -1750,7 +1750,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127732] Updating Deferral Schedule period updates the deferral lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has created a Sales Document with one line item for Item that has a default deferral code
         CreateItemWithDefaultDeferralCode(DeferralTemplateCode, ItemNo, CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
@@ -1792,7 +1792,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 127732] Entering a Sales Order with GL Account allows editing of the deferral code and accessing schedule
-        Initialize;
+        Initialize();
 
         // [GIVEN] User has created a Sales Document with one line item for GL Account
         CreateGLAccount(GLAccount);
@@ -2278,17 +2278,17 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RED Test Unit for Sales Doc");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"RED Test Unit for Sales Doc");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         isInitialized := true;
         Commit();
@@ -2445,7 +2445,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralLineSetRange(DeferralLine, DocType, DocNo, LineNo);
         Clear(DeferralAmount);
         Period := 0;
-        if DeferralLine.FindSet then begin
+        if DeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -2468,7 +2468,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         asserterror DeferralHeader.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
 
         DeferralLineSetRange(DeferralLine, DocType, DocNo, LineNo);
-        asserterror DeferralLine.FindFirst;
+        asserterror DeferralLine.FindFirst();
     end;
 
     local procedure CopyDoc(SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean)
@@ -2479,7 +2479,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         CopySalesDoc.SetParameters(ConvertDocType(DocType), DocNo, IncludeHeader, RecalculateLines);
         CopySalesDoc.SetSalesHeader(SalesHeader);
         CopySalesDoc.UseRequestPage(false);
-        CopySalesDoc.RunModal;
+        CopySalesDoc.RunModal();
     end;
 
     local procedure ConvertDocType(DocType: Enum "Sales Document Type"): Enum "Sales Document Type From"
@@ -2761,7 +2761,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeaderArchive.SetRange("No.", No);
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
 #if not CLEAN19
@@ -2773,7 +2773,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         FindSalesOrderArchive(SalesHeaderArchive, No);
         DeleteSalesOrderVersions.UseRequestPage(false);
         DeleteSalesOrderVersions.SetTableView(SalesHeaderArchive);
-        DeleteSalesOrderVersions.Run;
+        DeleteSalesOrderVersions.Run();
     end;
 #endif
 
@@ -2783,7 +2783,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     begin
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type"::"Return Order");
         SalesHeaderArchive.SetRange("No.", No);
-        SalesHeaderArchive.FindFirst;
+        SalesHeaderArchive.FindFirst();
     end;
 
     local procedure ValidateDeferralArchiveScheduleDoesNotExist(DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer)
@@ -2797,7 +2797,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralLineArchive.SetRange("Document Type", DocType);
         DeferralLineArchive.SetRange("Document No.", DocNo);
         DeferralLineArchive.SetRange("Line No.", LineNo);
-        asserterror DeferralLineArchive.FindFirst;
+        asserterror DeferralLineArchive.FindFirst();
     end;
 
     local procedure ValidatePostedDeferralSchedule(DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; HeaderAmountToDeferLCY: Decimal; NoOfPeriods: Integer)
@@ -2818,7 +2818,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         RangePostedDeferralLines(PostedDeferralHeader, PostedDeferralLine);
         Clear(DeferralAmount);
         Period := 0;
-        if PostedDeferralLine.FindSet then begin
+        if PostedDeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -2836,13 +2836,13 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     local procedure FindSalesInvoiceLine(var SalesInvLine: Record "Sales Invoice Line"; No: Code[20])
     begin
         SalesInvLine.SetRange("Document No.", No);
-        SalesInvLine.FindFirst;
+        SalesInvLine.FindFirst();
     end;
 
     local procedure FindSalesCrMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; No: Code[20])
     begin
         SalesCrMemoLine.SetRange("Document No.", No);
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
     end;
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; AccNo: Code[20]; GenPostType: Enum "General Posting Type")
@@ -2907,7 +2907,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
                 SetRange("VAT Amount", 0);
                 Assert.RecordCount(GLEntry, 1);
             end;
-            FindFirst;
+            FindFirst();
             SetRange("VAT Amount");
             exit(Amount);
         end;
@@ -2922,7 +2922,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
         RecCount := GLEntry.Count();
-        if GLEntry.FindSet then
+        if GLEntry.FindSet() then
             repeat
                 AccAmt := AccAmt + GLEntry.Amount;
             until GLEntry.Next = 0;
@@ -2947,7 +2947,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         GLEntry.SetRange("G/L Account No.", AccNo);
         GLEntry.SetRange("Posting Date", StartPostDate, EndPostDate);
         RecCount := GLEntry.Count();
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             SalesAmt := GLEntry.Amount;
             repeat
                 AccAmt := AccAmt + GLEntry.Amount;
@@ -2970,7 +2970,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralLine.SetRange("Document No.", DocNo);
         DeferralLine.SetRange("Line No.", LineNo);
         Period := 0;
-        if DeferralLine.FindSet then begin
+        if DeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := RetDeferralStartDate
@@ -2996,19 +2996,19 @@ codeunit 134805 "RED Test Unit for Sales Doc"
             DeferralTemplate."Start Date"::"Beginning of Period":
                 begin
                     AccountingPeriod.SetRange("Starting Date", 0D, StartDate);
-                    if AccountingPeriod.FindLast then
+                    if AccountingPeriod.FindLast() then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
             DeferralTemplate."Start Date"::"End of Period":
                 begin
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-                    if AccountingPeriod.FindFirst then
+                    if AccountingPeriod.FindFirst() then
                         AdjustedStartDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");
                 end;
             DeferralTemplate."Start Date"::"Beginning of Next Period":
                 begin
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-                    if AccountingPeriod.FindFirst then
+                    if AccountingPeriod.FindFirst() then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
         end;
@@ -3192,7 +3192,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         repeat
             GLEntry.SetFilter(Amount, '>%1', 0);
             GLEntry.SetRange("Posting Date", TempPostedDeferralLine."Posting Date");
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
             GLEntry.TestField(Amount, TempPostedDeferralLine.Amount);
         until TempPostedDeferralLine.Next = 0;
     end;
@@ -3269,7 +3269,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
             SetFilter(Amount, '>%1', 0);
             FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummySalesInvoiceLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
+            FindFirst();
             TestField(Amount, -PairAmount);
         end;
     end;
@@ -3296,7 +3296,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
             SetFilter(Amount, '<%1', 0);
             FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummySalesCrMemoLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
+            FindFirst();
             TestField(Amount, -PairAmount);
         end;
     end;

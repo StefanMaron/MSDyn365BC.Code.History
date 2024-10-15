@@ -135,7 +135,7 @@ page 379 "Bank Acc. Reconciliation"
                     begin
                         RecallEmptyListNotification();
                         SuggestBankAccStatement.SetStmt(Rec);
-                        SuggestBankAccStatement.RunModal;
+                        SuggestBankAccStatement.RunModal();
                         Clear(SuggestBankAccStatement);
                     end;
                 }
@@ -162,7 +162,7 @@ page 379 "Bank Acc. Reconciliation"
                             error(NoBankAccReconcilliationLineWithDiffSellectedErr);
                         TransferToGLJnl.SetBankAccReconLine(TempBankAccReconciliationLine);
                         TransferToGLJnl.SetBankAccRecon(Rec);
-                        TransferToGLJnl.Run;
+                        TransferToGLJnl.Run();
                     end;
                 }
                 action(ChangeStatementNo)

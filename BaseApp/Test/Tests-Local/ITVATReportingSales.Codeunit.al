@@ -105,7 +105,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         SalesLine: Record "Sales Line";
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -179,7 +179,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         LineAmount: Decimal;
         OrderAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -233,7 +233,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         Customer: Record Customer;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -366,7 +366,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         LineAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -414,7 +414,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         BlanketOrderNo: Code[20];
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -594,7 +594,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     begin
         // [Prices Including VAT] = No.
         // Line Amount > [Threshold Amount Excl. VAT.].
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -648,7 +648,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     begin
         // [Prices Including VAT] = No.
         // Line Amount > [Threshold Amount Excl. VAT.].
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -719,7 +719,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         TaxRepNo: Code[20];
         ExpectedTaxRepType: Option;
     begin
-        Initialize;
+        Initialize();
 
         // Create Customer.
         Customer.Get(CreateCustomer(false, Customer.Resident::"Non-Resident", false, false));
@@ -876,7 +876,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         LineAmount: Decimal;
         ExpectedError: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -959,7 +959,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         SalesLine: Record "Sales Line";
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -1028,7 +1028,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         LineAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -1051,7 +1051,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     local procedure Initialize()
     begin
         TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -1292,7 +1292,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, FieldName);
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."Field Caption");
     end;
 
@@ -1353,7 +1353,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.SetFilter("Starting Date", '<=%1', StartingDate);
-        VATTransactionReportAmount.FindLast;
+        VATTransactionReportAmount.FindLast();
 
         if InclVAT then
             Amount := VATTransactionReportAmount."Threshold Amount Incl. VAT"
@@ -1365,7 +1365,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetFilter("Document No.", DocumentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1400,7 +1400,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
     begin
         SalesPostPrepayments.Invoice(SalesHeader);
         SalesInvHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
-        SalesInvHeader.FindFirst;
+        SalesInvHeader.FindFirst();
         exit(SalesInvHeader."No.");
     end;
 
@@ -1428,7 +1428,7 @@ codeunit 144007 "IT - VAT Reporting - Sales"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", true);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         VATPostingSetup.Validate("Sales Prepayments Account", CreateGLAccount("General Posting Type"::" "));
         VATPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccount("General Posting Type"::" "));
         VATPostingSetup.Modify(true);
@@ -1479,13 +1479,13 @@ codeunit 144007 "IT - VAT Reporting - Sales"
             DATABASE::"Sales Cr.Memo Line":
                 begin
                     SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-                    SalesCrMemoLine.FindFirst;
+                    SalesCrMemoLine.FindFirst();
                     SalesCrMemoLine.TestField("Refers to Period", RefersToPeriod);
                 end;
             DATABASE::"Purch. Cr. Memo Line":
                 begin
                     PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-                    PurchCrMemoLine.FindFirst;
+                    PurchCrMemoLine.FindFirst();
                     PurchCrMemoLine.TestField("Refers to Period", RefersToPeriod);
                 end;
         end;

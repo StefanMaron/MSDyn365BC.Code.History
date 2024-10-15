@@ -510,15 +510,6 @@ table 99000764 "Routing Line"
         exit(FindSet);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by CheckIfRoutingCertified().', '17.0')]
-    [Scope('OnPrem')]
-    procedure CheckCertifiedRouting(RoutingLineType: Option; No: Code[20])
-    begin
-        CheckIfRoutingCertified("Capacity Type Routing".FromInteger(RoutingLineType), No);
-    end;
-#endif
-
     procedure CheckIfRoutingCertified(RoutingLineType: Enum "Capacity Type Routing"; No: Code[20])
     var
         RoutingHeader: Record "Routing Header";

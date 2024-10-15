@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 138890 "SmartList Designer Code Test"
 {
     Subtype = Test;
@@ -177,3 +178,4 @@ codeunit 138890 "SmartList Designer Code Test"
         LibraryPermissions: Codeunit "Library - Permissions";
         IsInitialized: Boolean;
 }
+#endif

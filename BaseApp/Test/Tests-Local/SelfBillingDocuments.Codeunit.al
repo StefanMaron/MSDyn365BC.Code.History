@@ -37,7 +37,7 @@ codeunit 144206 "Self-Billing Documents"
         // [FEATURE] [UI]
         // [SCENARIO 303491] A fields on Fattura Setup page are visible
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         LibraryLowerPermissions.SetLocal;
         FatturaSetup.OpenEdit;
@@ -55,7 +55,7 @@ codeunit 144206 "Self-Billing Documents"
         // [FEATURE] [UI]
         // [SCENARIO 373967] "Fattura Document Type" field is visible in the "Self-Billing Documents" page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         LibraryLowerPermissions.SetLocal;
         LibraryLowerPermissions.AddeRead;
@@ -75,7 +75,7 @@ codeunit 144206 "Self-Billing Documents"
         // [FEAUTURE] [UI]
         // [SCENARIO 303491] Stan shows confirmation to update Fattura Setup if it is missing when export Self-Billing Document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fattura Setup does not exist
         FatturaSetup.Get();
@@ -105,7 +105,7 @@ codeunit 144206 "Self-Billing Documents"
         // [FEAUTURE] [UI]
         // [SCENARIO 303491] Stan gets error message if he does not update Fattura Setup when export Self-Billing Document
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fattura Setup does not exist
         FatturaSetup.Get();
@@ -138,7 +138,7 @@ codeunit 144206 "Self-Billing Documents"
         // [FEAUTURE] [UI]
         // [SCENARIO 303491] Stan can see a Sales VAT Entry on Self-Billing Documents page posted from Purchase Document with Reverse Charge VAT
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Document with "Document No." = "X", "Reverse Charge VAT" and Amount = 100
         // [GIVEN] An additional Sales VAT Entry with "Document No." = "Y" was created
@@ -185,7 +185,7 @@ codeunit 144206 "Self-Billing Documents"
         // [FEAUTURE] [UI]
         // [SCENARIO 303491] Stan can see multiple Sales VAT Entries on Self-Billing Documents page posted from Purchase Document with Reverse Charge VAT and different VAT Posting Groups
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Document with "Document No." = "X", "Reverse Charge VAT" with different VAT Groups and Amouns = 100 and 200 accordingly
         // [GIVEN] A two additional Sales VAT Entries with "Document No." = "Y" and Amount = 100 and 200 were created
@@ -239,7 +239,7 @@ codeunit 144206 "Self-Billing Documents"
     begin
         // [SCENARIO 303491] Stan can export a single Self-Billing Document
 
-        Initialize;
+        Initialize();
 
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.");
@@ -282,7 +282,7 @@ codeunit 144206 "Self-Billing Documents"
     begin
         // [SCENARIO 303491] Stan can export a single Self-Billing Document contains multiple VAT Entries
 
-        Initialize;
+        Initialize();
 
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.");
@@ -329,7 +329,7 @@ codeunit 144206 "Self-Billing Documents"
     begin
         // [SCENARIO 303491] Stan can export multiple Self-Billing Documents
 
-        Initialize;
+        Initialize();
 
         SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.");
@@ -470,7 +470,7 @@ codeunit 144206 "Self-Billing Documents"
     begin
         // [SCENARIO 373967] Stan can update the value of the "Fattura Document Type" in the "Self-Billing Documents" page
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Self-Billing Document with VAT Entry with blank "Fattura Document Type"
         CreatePurchDocument(PurchaseHeader);
@@ -478,7 +478,7 @@ codeunit 144206 "Self-Billing Documents"
 
         LibraryApplicationArea.EnableBasicSetup;
         LibraryLowerPermissions.SetLocal;
-        LibraryLowerPermissions.AddO365Setup;
+        LibraryLowerPermissions.AddO365Setup();
 
         // [GIVEN] Opened Self-Billing Documents page filtered by posted VAT entry
         FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
@@ -563,7 +563,7 @@ codeunit 144206 "Self-Billing Documents"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -635,7 +635,7 @@ codeunit 144206 "Self-Billing Documents"
         VATEntry.SetRange(Type, VATEntry.Type::Purchase);
         VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Reverse Charge VAT");
         VATEntry.SetRange("Document No.", DocNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.SetRange(Type, VATEntry.Type::Sale);
         VATEntry.SetRange("Document No.");
         VATEntry.SetRange("Transaction No.", VATEntry."Transaction No.");

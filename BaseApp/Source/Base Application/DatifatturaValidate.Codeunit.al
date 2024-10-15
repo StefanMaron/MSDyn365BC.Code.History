@@ -49,7 +49,7 @@ codeunit 12183 "Datifattura Validate"
 
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Incl. in Report", true);
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             repeat
                 ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Posting Date"), ErrorMessage."Message Type"::Error);
                 ErrorMessage.LogIfEmpty(VATReportLine, VATReportLine.FieldNo("Document No."), ErrorMessage."Message Type"::Error);

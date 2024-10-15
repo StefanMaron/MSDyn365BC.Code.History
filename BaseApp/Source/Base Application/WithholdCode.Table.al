@@ -82,7 +82,7 @@ table 12104 "Withhold Code"
         WithholdCodeLine.Reset();
         WithholdCodeLine.SetRange("Withhold Code", Code);
 
-        if WithholdCodeLine.FindFirst then
+        if WithholdCodeLine.FindFirst() then
             WithholdCodeLine.DeleteAll();
     end;
 

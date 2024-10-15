@@ -107,7 +107,7 @@ table 12177 "Issued Customer Bill Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [Scope('OnPrem')]

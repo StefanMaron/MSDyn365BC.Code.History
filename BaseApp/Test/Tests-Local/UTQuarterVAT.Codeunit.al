@@ -40,7 +40,7 @@ codeunit 144174 "UT Quarter VAT"
     begin
         // Purpose of the test is to verify error on VAT Settlement Period on Table - 98 General Ledger Setup.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         asserterror UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
@@ -78,7 +78,7 @@ codeunit 144174 "UT Quarter VAT"
         EntryNo: Integer;
     begin
         // Setup: Run Calc. and Post VAT Settlement report, modify VAT Entries and Periodic Settlement VAT Entry.
-        Initialize;
+        Initialize();
         EntryNo := CreateVATEntry;
         UpdateVATEntries(false, true);  // Using False and True for Closed VAT Entry.
         LibraryVariableStorage.Enqueue(true);
@@ -107,7 +107,7 @@ codeunit 144174 "UT Quarter VAT"
     begin
         // Purpose of the test is to verify error on VAT Settlement Period on General Ledger Setup after running Calc. and Post VAT Settlement Report ID - 20.
         // Setup: Run Calc. and Post VAT Settlement report.
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue(true);
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");
 
@@ -130,7 +130,7 @@ codeunit 144174 "UT Quarter VAT"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 372230] Prior Period Input/Output VAT moved to the next period when new Periodic Settlement VAT Entry is inserted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set PeriodStartDate after existing last Periodic VAT Settlement Entry for "VAT Settlement Period" = Month
         UpdateVATSettlementPeriodGeneralLedgerSetup(GeneralLedgerSetup."VAT Settlement Period"::Month);
@@ -162,7 +162,7 @@ codeunit 144174 "UT Quarter VAT"
         PeriodStartDate: Date;
     begin
         // [SCENARIO 372230] Prior Period Input VAT moved to the next period after "Calc. and Post VAT Settlement" is running
-        Initialize;
+        Initialize();
 
         // [GIVEN] Closed all VAT Entries and Periodic Settlement VAT Entries
         UpdateVATEntries(false, true);
@@ -174,7 +174,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = "X", "Prior Period Output VAT" = 0
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
-        PeriodicSettlementVATEntry.FindLast;
+        PeriodicSettlementVATEntry.FindLast();
         UpdatePriorPeriodIOVAT(PeriodicSettlementVATEntry, LibraryRandom.RandDecInRange(100, 200, 2), 0);
 
         // [WHEN] Run "Calc. and Post VAT Settlement" report
@@ -197,7 +197,7 @@ codeunit 144174 "UT Quarter VAT"
         PeriodStartDate: Date;
     begin
         // [SCENARIO 372230] Prior Period Output VAT moved to the next period after "Calc. and Post VAT Settlement" is running
-        Initialize;
+        Initialize();
 
         // [GIVEN] Closed all VAT Entries and Periodic Settlement VAT Entries
         UpdateVATEntries(false, true);
@@ -209,7 +209,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = 0, "Prior Period Output VAT" = "Y"
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
-        PeriodicSettlementVATEntry.FindLast;
+        PeriodicSettlementVATEntry.FindLast();
         UpdatePriorPeriodIOVAT(PeriodicSettlementVATEntry, 0, LibraryRandom.RandDecInRange(100, 200, 2));
 
         // [WHEN] Run "Calc. and Post VAT Settlement" report
@@ -235,7 +235,7 @@ codeunit 144174 "UT Quarter VAT"
         SalesVATAmount: Decimal;
     begin
         // [SCENARIO 374916] Run "Calc. and Post VAT Settlement" when Output VAT Amount for the period is less than Prior Period Input VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Closed all VAT Entries and Periodic Settlement VAT Entries
         UpdateVATEntries(false, true);
@@ -281,7 +281,7 @@ codeunit 144174 "UT Quarter VAT"
         SalesVATAmount: Decimal;
     begin
         // [SCENARIO 374916] Run "Calc. and Post VAT Settlement" when Output VAT Amount for the period is greater than Prior Period Input VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Closed all VAT Entries and Periodic Settlement VAT Entries
         UpdateVATEntries(false, true);
@@ -333,7 +333,7 @@ codeunit 144174 "UT Quarter VAT"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 213601] Run "Calc. and Post VAT Settlement" at December 2019, January 2020, February 2020
-        Initialize;
+        Initialize();
 
         // [GIVEN] Closed all VAT Entries and Periodic Settlement VAT Entries until 10/2019
         UpdateVATEntries(false, true);
@@ -406,7 +406,7 @@ codeunit 144174 "UT Quarter VAT"
         PeriodStartDate: Date;
     begin
         // [SCENARIO 279074] Prior Period Input VAT moved to the next period after "Calc. and Post VAT Settlement" is running with Posting disabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Closed all VAT Entries and Periodic Settlement VAT Entries
         UpdateVATEntries(false, true);
@@ -418,7 +418,7 @@ codeunit 144174 "UT Quarter VAT"
 
         // [GIVEN] New empty Periodic Settlement VAT Entry with "Prior Period Input VAT" = "X", "Prior Period Output VAT" = 0
         LibraryITLocalization.CreatePeriodicVATSettlementEntry(PeriodicSettlementVATEntry, PeriodStartDate);
-        PeriodicSettlementVATEntry.FindLast;
+        PeriodicSettlementVATEntry.FindLast();
         UpdatePriorPeriodIOVAT(PeriodicSettlementVATEntry, LibraryRandom.RandDecInRange(100, 200, 2), 0);
 
         // [WHEN] Run "Calc. and Post VAT Settlement" report
@@ -432,7 +432,7 @@ codeunit 144174 "UT Quarter VAT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -449,7 +449,7 @@ codeunit 144174 "UT Quarter VAT"
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry.Closed := false;
@@ -521,7 +521,7 @@ codeunit 144174 "UT Quarter VAT"
         LibraryERM.CreateVATPostingSetupWithAccounts(
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
 
-        VATEntryLast.FindLast;
+        VATEntryLast.FindLast();
         VATEntry.Init();
         VATEntry."Entry No." := VATEntryLast."Entry No." + 1;
         VATEntry.Type := VATEntryType;
@@ -563,7 +563,7 @@ codeunit 144174 "UT Quarter VAT"
     var
         PeriodicSettlementVATEntryNext: Record "Periodic Settlement VAT Entry";
     begin
-        PeriodicSettlementVATEntryNext.FindLast;
+        PeriodicSettlementVATEntryNext.FindLast();
         PeriodicSettlementVATEntryNext.TestField("Prior Period Input VAT", ExpectedNextInputVAT);
         PeriodicSettlementVATEntryNext.TestField("Prior Period Output VAT", ExpectedNextOuputVAT);
 

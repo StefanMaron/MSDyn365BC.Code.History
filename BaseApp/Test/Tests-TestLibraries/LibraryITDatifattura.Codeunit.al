@@ -25,7 +25,7 @@ codeunit 143005 "Library - IT Datifattura"
         VATReportReleaseReopen.Release(VATReportHeader);
         DatifatturaExport.Run(VATReportHeader);
         UnbindSubscription(LibraryITDatifattura);
-        NameValueBuffer.FindLast;
+        NameValueBuffer.FindLast();
         exit(NameValueBuffer.Value);
     end;
 
@@ -77,7 +77,7 @@ codeunit 143005 "Library - IT Datifattura"
         PostCode: Record "Post Code";
     begin
         CompanyOfficials.Init();
-        CompanyOfficials."No." := LibraryUtility.GenerateGUID;
+        CompanyOfficials."No." := LibraryUtility.GenerateGUID();
         CompanyOfficials."First Name" :=
           LibraryUtility.GenerateRandomCode(CompanyOfficials.FieldNo("First Name"), DATABASE::"Company Officials");
         CompanyOfficials."Last Name" :=
@@ -112,7 +112,7 @@ codeunit 143005 "Library - IT Datifattura"
         NameValueBuffer: Record "Name/Value Buffer";
         FileManagement: Codeunit "File Management";
     begin
-        NameValueBuffer.Name := LibraryUtility.GenerateGUID;
+        NameValueBuffer.Name := LibraryUtility.GenerateGUID();
         NameValueBuffer.Value := CopyStr(FileManagement.ServerTempFileName('xml'), 1, MaxStrLen(NameValueBuffer.Value));
         NameValueBuffer.Insert(true);
 

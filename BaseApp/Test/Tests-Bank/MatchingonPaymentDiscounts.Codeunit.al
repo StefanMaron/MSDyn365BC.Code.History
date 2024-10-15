@@ -35,7 +35,7 @@ codeunit 134269 "Matching on Payment Discounts"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Matching on Payment Discounts");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         BankAccReconciliation.DeleteAll(true);
         BankAccReconciliationLine.DeleteAll(true);
         AppliedPaymentEntry.DeleteAll(true);
@@ -44,10 +44,10 @@ codeunit 134269 "Matching on Payment Discounts"
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Matching on Payment Discounts");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryERM.CreatePaymentTermsDiscount(PaymentTermsDiscount, false);
@@ -75,7 +75,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -130,7 +130,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -184,7 +184,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -239,7 +239,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -293,7 +293,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -349,7 +349,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -409,7 +409,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -464,7 +464,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -524,7 +524,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -596,7 +596,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -667,7 +667,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -737,7 +737,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -806,7 +806,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -893,7 +893,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -974,7 +974,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1050,7 +1050,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1106,7 +1106,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1160,7 +1160,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1215,7 +1215,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1269,7 +1269,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -1325,7 +1325,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -1385,7 +1385,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -1440,7 +1440,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Tolerance: Decimal;
         StatementAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 1000, 2);
@@ -1500,7 +1500,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1573,7 +1573,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1644,7 +1644,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1714,7 +1714,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1783,7 +1783,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1870,7 +1870,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1951,7 +1951,7 @@ codeunit 134269 "Matching on Payment Discounts"
         NoOfEntriesWithinRange: Integer;
         NoOfEntriesOutsideRange: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2081,7 +2081,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Clear(CustLedgerEntry);
         CustLedgerEntry.Init();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields("Remaining Amount");
     end;
 
@@ -2117,7 +2117,7 @@ codeunit 134269 "Matching on Payment Discounts"
         Clear(VendorLedgerEntry);
         VendorLedgerEntry.Init();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Remaining Amount");
     end;
 

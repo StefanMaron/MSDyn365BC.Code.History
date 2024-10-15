@@ -28,6 +28,7 @@
         UOMMgt: Codeunit "Unit of Measure Management";
         ErrorMessageMgt: Codeunit "Error Message Management";
         Window: Dialog;
+        HideProcessWindow: Boolean;
         WindowUpdateDateTime: DateTime;
         InsertCancellationLine: Boolean;
         ServDocType: Option Quote,Contract;
@@ -171,24 +172,6 @@
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetSalesDocumentType().', '17.0')]
-    procedure SalesHeaderDocType(DocType: Option): Integer
-    begin
-        exit(GetSalesDocumentType("Sales Document Type From".FromInteger(DocType)).AsInteger());
-    end;
-#endif
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetPurchaseDocumentType().', '17.0')]
-    procedure PurchHeaderDocType(DocType: Option): Integer
-    var
-        FromPurchHeader: Record "Purchase Header";
-    begin
-        exit(GetPurchaseDocumentType("Purchase Document Type From".FromInteger(DocType)).AsInteger());
-    end;
-#endif
-
     procedure CopySalesDocForInvoiceCancelling(FromDocNo: Code[20]; var ToSalesHeader: Record "Sales Header")
     begin
         CopyJobData := true;
@@ -266,7 +249,7 @@
                     end;
             end;
 
-            if ToSalesLine.FindLast then
+            if ToSalesLine.FindLast() then
                 NextLineNo := ToSalesLine."Line No."
             else
                 NextLineNo := 0;
@@ -598,12 +581,7 @@
             CopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader);
             OnAfterCopyFieldsFromOldSalesHeader(ToSalesHeader, OldSalesHeader, MoveNegLines, IncludeHeader);
             if RecalculateLines then
-                CreateDim(
-                    DATABASE::"Responsibility Center", "Responsibility Center",
-                    DATABASE::Customer, "Bill-to Customer No.",
-                    DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                    DATABASE::Campaign, "Campaign No.",
-                    DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+                CreateDimFromDefaultDim(0);
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
@@ -628,6 +606,11 @@
             if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
                 UpdateSalesCreditMemoHeader(ToSalesHeader);
 
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                if IsCreditDocType() <> IsCreditSalesFromDocType(FromDocType) then
+                    "Journal Templ. Name" := OldSalesHeader."Journal Templ. Name";
+
             OnBeforeModifySalesHeader(ToSalesHeader, FromDocType.AsInteger(), FromDocNo, IncludeHeader, FromDocOccurrenceNo, FromDocVersionNo, RecalculateLines);
 
             if CreateToHeader then begin
@@ -637,6 +620,11 @@
                 Modify;
             OnCopySalesDocWithHeader(FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader);
         end;
+    end;
+
+    local procedure IsCreditSalesFromDocType(FromDocType: Enum "Sales Document Type From"): Boolean
+    begin
+        exit(FromDocType in ["Sales Document Type From"::"Return Order", "Sales Document Type From"::"Credit Memo"]);
     end;
 
     local procedure ClearInvoiceAndShip(var ToSalesHeader: Record "Sales Header")
@@ -800,7 +788,7 @@
                 ToPurchLine.SetRange("Document Type", "Document Type");
                 ToPurchLine.SetRange("Document No.", "No.");
                 if IncludeHeader then
-                    if ToPurchLine.FindFirst then begin
+                    if ToPurchLine.FindFirst() then begin
                         Commit();
                         if not ConfirmManagement.GetResponseOrDefault(
                              StrSubstNo(DeleteLinesQst, "Document Type", "No."), true)
@@ -810,7 +798,7 @@
                     end;
             end;
 
-            if ToPurchLine.FindLast then
+            if ToPurchLine.FindLast() then
                 NextLineNo := ToPurchLine."Line No."
             else
                 NextLineNo := 0;
@@ -1081,11 +1069,7 @@
             CopyFieldsFromOldPurchHeader(ToPurchHeader, OldPurchHeader);
             OnAfterCopyFieldsFromOldPurchHeader(ToPurchHeader, OldPurchHeader, MoveNegLines, IncludeHeader);
             if RecalculateLines then
-                CreateDim(
-                    DATABASE::Vendor, "Pay-to Vendor No.",
-                    DATABASE::"Salesperson/Purchaser", "Purchaser Code",
-                    DATABASE::Campaign, "Campaign No.",
-                    DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(0);
             "No. Printed" := 0;
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::" ";
             "Applies-to Doc. No." := '';
@@ -1107,6 +1091,11 @@
             if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then
                 UpdatePurchCreditMemoHeader(ToPurchHeader);
 
+            GLSetup.Get();
+            if GLSetup."Journal Templ. Name Mandatory" then
+                if IsCreditDocType() <> IsCreditPurchFromDocType(FromDocType) then
+                    "Journal Templ. Name" := OldPurchHeader."Journal Templ. Name";
+
             OnBeforeModifyPurchHeader(ToPurchHeader, FromDocType.AsInteger(), FromDocNo, IncludeHeader, FromDocOccurrenceNo, FromDocVersionNo, RecalculateLines);
 
             if CreateToHeader then begin
@@ -1117,6 +1106,11 @@
 
             OnCopyPurchDocWithHeader(FromDocType.AsInteger(), FromDocNo, ToPurchHeader, FromDocOccurrenceNo, FromDocVersionNo);
         end;
+    end;
+
+    local procedure IsCreditPurchFromDocType(FromDocType: Enum "Purchase Document Type From"): Boolean
+    begin
+        exit(FromDocType in ["Purchase Document Type From"::"Return Order", "Purchase Document Type From"::"Credit Memo"]);
     end;
 
     local procedure CopyPurchHeaderFromPurchHeader(FromDocType: Enum "Purchase Document Type From"; FromPurchHeader: Record "Purchase Header"; OldPurchHeader: Record "Purchase Header"; var ToPurchHeader: Record "Purchase Header")
@@ -1223,7 +1217,7 @@
 
         if ErrorMessageMgt.GetErrors(TempErrorMessage) then begin
             TempErrorMessage.SetRange("Message Type", TempErrorMessage."Message Type"::Error);
-            if TempErrorMessage.FindFirst then begin
+            if TempErrorMessage.FindFirst() then begin
                 if SkipWarningNotification then
                     Error(TempErrorMessage.Description);
                 exit(true);
@@ -1368,17 +1362,6 @@
                 DeleteAll(true);
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by CopySalesDocLine().', '17.0')]
-    procedure CopySalesLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromSalesDocType: Option; var CopyPostedDeferral: Boolean; DocLineNo: Integer): Boolean
-    begin
-        exit(
-            CopySalesDocLine(
-                ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLine, NextLineNo, LinesNotCopied,
-                RecalculateAmount, "Sales Document Type From".FromInteger(FromSalesDocType), CopyPostedDeferral, DocLineNo));
-    end;
-#endif
 
     procedure CopySalesDocLine(var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromSalesDocType: Enum "Sales Document Type From"; var CopyPostedDeferral: Boolean; DocLineNo: Integer) Result: Boolean
     var
@@ -1763,17 +1746,6 @@
         OnAfterHandleAsmAttachedToSalesLine(ToSalesLine);
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by CopyPurchDocLine().', '17.0')]
-    procedure CopyPurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromPurchDocType: Option; var CopyPostedDeferral: Boolean; DocLineNo: Integer): Boolean
-    begin
-        exit(
-            CopyPurchDocLine(
-                ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine, NextLineNo, LinesNotCopied, RecalculateAmount,
-                "Purchase Document Type From".FromInteger(FromPurchDocType), CopyPostedDeferral, DocLineNo));
-    end;
-#endif
-
     procedure CopyPurchDocLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var NextLineNo: Integer; var LinesNotCopied: Integer; RecalculateAmount: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var CopyPostedDeferral: Boolean; DocLineNo: Integer) Result: Boolean
     var
         RoundingLineInserted: Boolean;
@@ -1833,32 +1805,12 @@
           ToPurchHeader, ToPurchLine, FromPurchHeader, FromPurchLine,
           CopyThisLine, RecalculateAmount, FromPurchDocType, CopyPostedDeferral);
 
-        ToPurchLine.CheckLocationOnWMS;
+        IsHandled := false;
+        OnCopyPurchDocLineOnBeforeCheckLocationOnWMS(ToPurchHeader, ToPurchLine, FromPurchLine, IsHandled);
+        if not IsHandled then
+            ToPurchLine.CheckLocationOnWMS;
 
-        if ExactCostRevMandatory and
-           (FromPurchLine.Type = FromPurchLine.Type::Item) and
-           (FromPurchLine."Appl.-to Item Entry" <> 0) and
-           not MoveNegLines
-        then begin
-            if RecalculateAmount then begin
-                ToPurchLine.Validate("Direct Unit Cost", FromPurchLine."Direct Unit Cost");
-                ToPurchLine.Validate("Line Discount %", FromPurchLine."Line Discount %");
-                ToPurchLine.Validate(
-                  "Line Discount Amount",
-                  Round(FromPurchLine."Line Discount Amount", Currency."Amount Rounding Precision"));
-                ToPurchLine.Validate(
-                  "Inv. Discount Amount",
-                  Round(FromPurchLine."Inv. Discount Amount", Currency."Amount Rounding Precision"));
-            end;
-            ToPurchLine.Validate("Appl.-to Item Entry", FromPurchLine."Appl.-to Item Entry");
-            if not CreateToHeader then
-                if ToPurchLine."Expected Receipt Date" = 0D then begin
-                    if ToPurchHeader."Expected Receipt Date" <> 0D then
-                        ToPurchLine."Expected Receipt Date" := ToPurchHeader."Expected Receipt Date"
-                    else
-                        ToPurchLine."Expected Receipt Date" := WorkDate;
-                end;
-        end;
+        RecalculateAndApplyPurchLine(ToPurchHeader, ToPurchLine, FromPurchLine, RecalculateAmount);
 
         OnCopyPurchLineOnBeforeValidateQuantity(ToPurchLine, RecalculateLines);
 
@@ -1895,6 +1847,42 @@
             LinesNotCopied := LinesNotCopied + 1;
 
         exit(CopyThisLine);
+    end;
+
+    local procedure RecalculateAndApplyPurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; RecalculateAmount: Boolean)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRecalculateAndApplyPurchLine(ToPurchHeader, ToPurchLine, FromPurchLine, Currency, RecalculateAmount, ExactCostRevMandatory, CreateToHeader, MoveNegLines, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ExactCostRevMandatory and
+           (FromPurchLine.Type = FromPurchLine.Type::Item) and
+           (FromPurchLine."Appl.-to Item Entry" <> 0) and
+           not MoveNegLines
+        then begin
+            if RecalculateAmount then begin
+                ToPurchLine.Validate("Direct Unit Cost", FromPurchLine."Direct Unit Cost");
+                ToPurchLine.Validate("Line Discount %", FromPurchLine."Line Discount %");
+                ToPurchLine.Validate(
+                  "Line Discount Amount",
+                  Round(FromPurchLine."Line Discount Amount", Currency."Amount Rounding Precision"));
+                ToPurchLine.Validate(
+                  "Inv. Discount Amount",
+                  Round(FromPurchLine."Inv. Discount Amount", Currency."Amount Rounding Precision"));
+            end;
+            ToPurchLine.Validate("Appl.-to Item Entry", FromPurchLine."Appl.-to Item Entry");
+            if not CreateToHeader then
+                if ToPurchLine."Expected Receipt Date" = 0D then begin
+                    if ToPurchHeader."Expected Receipt Date" <> 0D then
+                        ToPurchLine."Expected Receipt Date" := ToPurchHeader."Expected Receipt Date"
+                    else
+                        ToPurchLine."Expected Receipt Date" := WorkDate;
+                end;
+        end;
+
     end;
 
     local procedure ValidatePurchLineDiscountFields(FromPurchHeader: Record "Purchase Header"; ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line")
@@ -2274,7 +2262,7 @@
         ToItemChargeAssignmentSales."Item Charge No." := FromSalesLine."No.";
         ToItemChargeAssignmentSales."Unit Cost" := FromSalesLine."Unit Price";
 
-        if ValueEntry.FindSet then begin
+        if ValueEntry.FindSet() then begin
             repeat
                 if ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
                     if ItemLedgerEntry."Document Type" = ItemLedgerEntry."Document Type"::"Sales Shipment" then begin
@@ -2334,7 +2322,7 @@
         ItemChargeAssignmentSales.Modify(true);
     end;
 
-    local procedure WarnSalesInvoicePmtDisc(var ToSalesHeader: Record "Sales Header"; var FromSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20])
+    local procedure WarnSalesInvoicePmtDisc(var ToSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; FromDocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
@@ -2348,7 +2336,7 @@
             CustLedgEntry.SetCurrentKey("Document No.");
             CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
             CustLedgEntry.SetRange("Document No.", FromDocNo);
-            if CustLedgEntry.FindFirst then begin
+            if CustLedgEntry.FindFirst() then begin
                 if (CustLedgEntry."Pmt. Disc. Given (LCY)" <> 0) and
                    (CustLedgEntry."Journal Batch Name" = '')
                 then
@@ -2365,7 +2353,7 @@
             CustLedgEntry.SetCurrentKey("Document No.");
             CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
             CustLedgEntry.SetRange("Document No.", FromDocNo);
-            if CustLedgEntry.FindFirst then begin
+            if CustLedgEntry.FindFirst() then begin
                 if (CustLedgEntry."Pmt. Disc. Given (LCY)" <> 0) and
                    (CustLedgEntry."Journal Batch Name" = '')
                 then
@@ -2374,7 +2362,7 @@
         end;
     end;
 
-    local procedure WarnPurchInvoicePmtDisc(var ToPurchHeader: Record "Purchase Header"; var FromPurchHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20])
+    local procedure WarnPurchInvoicePmtDisc(var ToPurchHeader: Record "Purchase Header"; FromDocType: Enum "Purchase Document Type From"; FromDocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
@@ -2388,7 +2376,7 @@
             VendLedgEntry.SetCurrentKey("Document No.");
             VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
             VendLedgEntry.SetRange("Document No.", FromDocNo);
-            if VendLedgEntry.FindFirst then begin
+            if VendLedgEntry.FindFirst() then begin
                 if (VendLedgEntry."Pmt. Disc. Rcd.(LCY)" <> 0) and
                    (VendLedgEntry."Journal Batch Name" = '')
                 then
@@ -2405,7 +2393,7 @@
             VendLedgEntry.SetCurrentKey("Document No.");
             VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
             VendLedgEntry.SetRange("Document No.", FromDocNo);
-            if VendLedgEntry.FindFirst then begin
+            if VendLedgEntry.FindFirst() then begin
                 if (VendLedgEntry."Pmt. Disc. Rcd.(LCY)" <> 0) and
                    (VendLedgEntry."Journal Batch Name" = '')
                 then
@@ -2426,7 +2414,7 @@
                 FromSalesLine.SetRange(Type, FromSalesLine.Type::Item);
                 FromSalesLine.SetFilter("No.", '<>%1', '');
                 FromSalesLine.SetFilter(Quantity, '>0');
-                if FromSalesLine.FindSet then
+                if FromSalesLine.FindSet() then
                     repeat
                         if not IsItemBlocked(FromSalesLine."No.") then begin
                             ToSalesLine.CopyFromSalesLine(FromSalesLine);
@@ -2469,7 +2457,7 @@
             FromSalesShptLine.SetRange(Type, FromSalesShptLine.Type::Item);
             FromSalesShptLine.SetFilter("No.", '<>%1', '');
             FromSalesShptLine.SetFilter(Quantity, '>0');
-            if FromSalesShptLine.FindSet then
+            if FromSalesShptLine.FindSet() then
                 repeat
                     if not IsItemBlocked(FromSalesShptLine."No.") then begin
                         CopyFromSalesShptLine(FromSalesShptLine);
@@ -2510,7 +2498,7 @@
             FromSalesInvLine.SetFilter("No.", '<>%1', '');
             FromSalesInvLine.SetRange("Prepayment Line", false);
             FromSalesInvLine.SetFilter(Quantity, '>0');
-            if FromSalesInvLine.FindSet then
+            if FromSalesInvLine.FindSet() then
                 repeat
                     if not IsItemBlocked(FromSalesInvLine."No.") then begin
                         CopyFromSalesInvLine(FromSalesInvLine);
@@ -2536,7 +2524,7 @@
             FromReturnRcptLine.SetRange(Type, FromReturnRcptLine.Type::Item);
             FromReturnRcptLine.SetFilter("No.", '<>%1', '');
             FromReturnRcptLine.SetFilter(Quantity, '>0');
-            if FromReturnRcptLine.FindSet then
+            if FromReturnRcptLine.FindSet() then
                 repeat
                     if not IsItemBlocked(FromReturnRcptLine."No.") then begin
                         CopyFromReturnRcptLine(FromReturnRcptLine);
@@ -2562,7 +2550,7 @@
             FromSalesCrMemoLine.SetFilter("No.", '<>%1', '');
             FromSalesCrMemoLine.SetRange("Prepayment Line", false);
             FromSalesCrMemoLine.SetFilter(Quantity, '>0');
-            if FromSalesCrMemoLine.FindSet then
+            if FromSalesCrMemoLine.FindSet() then
                 repeat
                     if not IsItemBlocked(FromSalesCrMemoLine."No.") then begin
                         CopyFromSalesCrMemoLine(FromSalesCrMemoLine);
@@ -2698,7 +2686,7 @@
         ExistingServContractLine.Reset();
         ExistingServContractLine.SetRange("Contract Type", ToServContractHeader."Contract Type");
         ExistingServContractLine.SetRange("Contract No.", ToServContractHeader."Contract No.");
-        if ExistingServContractLine.FindLast then
+        if ExistingServContractLine.FindLast() then
             LineNo := ExistingServContractLine."Line No." + 10000
         else
             LineNo := 10000;
@@ -2802,11 +2790,11 @@
         OnBeforeCopySalesShptLinesToDoc(TempDocSalesLine, ToSalesHeader, FromSalesShptLine);
 
         with FromSalesShptLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromSalesShptHeader."No." <> "Document No." then begin
                         FromSalesShptHeader.Get("Document No.");
                         TransferOldExtLines.ClearLineNumbers;
@@ -2848,7 +2836,7 @@
 
                     OnCopySalesShptLinesToDocOnAfterSplitPstdSalesLinesPerILE(FromSalesLineBuf, FromSalesShptLine);
 
-                    Window.Update(1, FromLineCounter);
+                    UpdateWindow(1, FromLineCounter);
                     if CopyLine then begin
                         NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                         AsmHdrExistsForFromDocLine := AsmToShipmentExists(PostedAsmHeader);
@@ -2865,7 +2853,7 @@
                         repeat
                             ToLineCounter := ToLineCounter + 1;
                             if IsTimeForUpdate then
-                                Window.Update(2, ToLineCounter);
+                                UpdateWindow(2, ToLineCounter);
 
                             OnCopySalesShptLinesToDocOnBeforeCopySalesLine(ToSalesHeader, FromSalesLineBuf, FromSalesShptLine, CopyItemTrkg);
 
@@ -2893,7 +2881,7 @@
                     OnCopySalesShptLinesToDocOnAfterCopySalesShptLineToSalesLine(FromSalesShptLine, ToSalesLine);
                 until Next() = 0;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     local procedure CheckUpdateOldDocumentNoFromSalesShptLine(FromSalesShptLine: Record "Sales Shipment Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
@@ -2956,11 +2944,11 @@
         SalesInvLineCount := 0;
         FirstLineText := false;
         with FromSalesInvLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     SetTempSalesInvLine(FromSalesInvLine, TempSalesInvLine, SalesInvLineCount, NextLineNo, FirstLineText);
                     if FromSalesInvHeader."No." <> "Document No." then begin
                         FromSalesInvHeader.Get("Document No.");
@@ -3005,24 +2993,24 @@
                 until Next() = 0;
 
         // Create sales line from buffer
-        Window.Update(1, FromLineCounter);
+        UpdateWindow(1, FromLineCounter);
         BufferCount := 0;
         FirstLineShipped := true;
         with TempSalesLineBuf do begin
             // Sorting according to Sales Line Document No.,Line No.
             SetCurrentKey("Line No.");
             SalesLineCount := 0;
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Type = Type::Item then
                         SalesLineCount += 1;
                 until Next() = 0;
-            if FindSet then begin
+            if FindSet() then begin
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                 repeat
                     ToLineCounter := ToLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(2, ToLineCounter);
+                        UpdateWindow(2, ToLineCounter);
                     if "Shipment No." <> OldInvDocNo then begin
                         OldInvDocNo := "Shipment No.";
                         OldShptDocNo := '';
@@ -3092,7 +3080,7 @@
                 until Next() = 0;
             end;
         end;
-        Window.Close;
+        CloseWindow();
     end;
 
     procedure CopySalesCrMemoLinesToDoc(ToSalesHeader: Record "Sales Header"; var FromSalesCrMemoLine: Record "Sales Cr.Memo Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -3132,11 +3120,11 @@
 
         // Fill sales line buffer
         with FromSalesCrMemoLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromSalesCrMemoHeader."No." <> "Document No." then begin
                         FromSalesCrMemoHeader.Get("Document No.");
                         TransferOldExtLines.ClearLineNumbers;
@@ -3179,16 +3167,16 @@
                 until Next() = 0;
 
         // Create sales line from buffer
-        Window.Update(1, FromLineCounter);
+        UpdateWindow(1, FromLineCounter);
         with FromSalesLineBuf do begin
             // Sorting according to Sales Line Document No.,Line No.
             SetCurrentKey("Document Type", "Document No.", "Line No.");
-            if FindSet then begin
+            if FindSet() then begin
                 NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                 repeat
                     ToLineCounter := ToLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(2, ToLineCounter);
+                        UpdateWindow(2, ToLineCounter);
                     if "Shipment No." <> OldCrMemoDocNo then begin
                         OldCrMemoDocNo := "Shipment No.";
                         OldReturnRcptDocNo := '';
@@ -3254,7 +3242,7 @@
             end;
         end;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     procedure CopySalesReturnRcptLinesToDoc(ToSalesHeader: Record "Sales Header"; var FromReturnRcptLine: Record "Return Receipt Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -3287,11 +3275,11 @@
         OnBeforeCopySalesReturnRcptLinesToDoc(TempDocSalesLine, ToSalesHeader, FromReturnRcptLine);
 
         with FromReturnRcptLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromReturnRcptHeader."No." <> "Document No." then begin
                         FromReturnRcptHeader.Get("Document No.");
                         TransferOldExtLines.ClearLineNumbers;
@@ -3329,7 +3317,7 @@
                     end else
                         CopyLine := FromSalesLineBuf.FindSet and FillExactCostRevLink;
 
-                    Window.Update(1, FromLineCounter);
+                    UpdateWindow(1, FromLineCounter);
                     if CopyLine then begin
                         NextLineNo := GetLastToSalesLineNo(ToSalesHeader);
                         if InsertDocNoLine then begin
@@ -3339,7 +3327,7 @@
                         repeat
                             ToLineCounter := ToLineCounter + 1;
                             if IsTimeForUpdate then
-                                Window.Update(2, ToLineCounter);
+                                UpdateWindow(2, ToLineCounter);
                             OnCopySalesReturnRcptLinesToDocOnBeforeCopySalesDocLine(ToSalesHeader, FromSalesLineBuf);
                             if CopySalesDocLine(
                                  ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLineBuf, NextLineNo, LinesNotCopied, false,
@@ -3366,7 +3354,7 @@
                     OnCopySalesReturnRcptLinesToDocOnAfterCopySalesDocLine(FromReturnRcptLine, ToSalesLine);
                 until Next() = 0;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     local procedure CheckUpdateOldDocumentNoFromReturnRcptLine(FromReturnRcptLine: Record "Return Receipt Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
@@ -3678,11 +3666,11 @@
         OpenWindow;
 
         with FromPurchRcptLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromPurchRcptHeader."No." <> "Document No." then begin
                         FromPurchRcptHeader.Get("Document No.");
                         if OriginalPurchHeader.Get(OriginalPurchHeader."Document Type"::Order, FromPurchRcptHeader."Order No.") then
@@ -3720,7 +3708,7 @@
                     end else
                         CopyLine := FromPurchLineBuf.FindSet and FillExactCostRevLink;
 
-                    Window.Update(1, FromLineCounter);
+                    UpdateWindow(1, FromLineCounter);
                     if CopyLine then begin
                         NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
                         OnCopyPurchRcptLinesToDocOnBeforeCheckInsertDocNoLine(ToPurchHeader, FromPurchRcptLine, FromPurchHeader, NextLineNo, InsertDocNoLine);
@@ -3731,7 +3719,7 @@
                         repeat
                             ToLineCounter := ToLineCounter + 1;
                             if IsTimeForUpdate then
-                                Window.Update(2, ToLineCounter);
+                                UpdateWindow(2, ToLineCounter);
                             if FromPurchLine."Prod. Order No." <> '' then
                                 FromPurchLine."Quantity (Base)" := 0;
 
@@ -3762,7 +3750,7 @@
                     end;
                 until Next() = 0;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     local procedure CheckUpdateOldDocumentNoFromPurchRcptLine(FromPurchRcptLine: Record "Purch. Rcpt. Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
@@ -3817,11 +3805,11 @@
 
         // Fill purchase line buffer
         with FromPurchInvLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromPurchInvHeader."No." <> "Document No." then begin
                         FromPurchInvHeader.Get("Document No.");
                         FromPurchInvHeader.TestField("Prices Including VAT", ToPurchHeader."Prices Including VAT");
@@ -3862,16 +3850,16 @@
                 until Next() = 0;
 
         // Create purchase line from buffer
-        Window.Update(1, FromLineCounter);
+        UpdateWindow(1, FromLineCounter);
         with FromPurchLineBuf do begin
             // Sorting according to Purchase Line Document No.,Line No.
             SetCurrentKey("Line No.");
-            if FindSet then begin
+            if FindSet() then begin
                 NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
                 repeat
                     ToLineCounter := ToLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(2, ToLineCounter);
+                        UpdateWindow(2, ToLineCounter);
                     if "Receipt No." <> OldInvDocNo then begin
                         OldInvDocNo := "Receipt No.";
                         OldRcptDocNo := '';
@@ -3944,7 +3932,7 @@
             end;
         end;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     procedure CopyPurchCrMemoLinesToDoc(ToPurchHeader: Record "Purchase Header"; var FromPurchCrMemoLine: Record "Purch. Cr. Memo Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -3984,11 +3972,11 @@
 
         // Fill purchase line buffer
         with FromPurchCrMemoLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromPurchCrMemoHeader."No." <> "Document No." then begin
                         FromPurchCrMemoHeader.Get("Document No.");
                         FromPurchCrMemoHeader.TestField("Prices Including VAT", ToPurchHeader."Prices Including VAT");
@@ -4029,16 +4017,16 @@
                 until Next() = 0;
 
         // Create purchase line from buffer
-        Window.Update(1, FromLineCounter);
+        UpdateWindow(1, FromLineCounter);
         with FromPurchLineBuf do begin
             // Sorting according to Purchase Line Document No.,Line No.
             SetCurrentKey("Document Type", "Document No.", "Line No.");
-            if FindSet then begin
+            if FindSet() then begin
                 NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
                 repeat
                     ToLineCounter := ToLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(2, ToLineCounter);
+                        UpdateWindow(2, ToLineCounter);
                     if "Receipt No." <> OldCrMemoDocNo then begin
                         OldCrMemoDocNo := "Receipt No.";
                         OldReturnShptDocNo := '';
@@ -4108,7 +4096,7 @@
             end;
         end;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     procedure CopyPurchReturnShptLinesToDoc(ToPurchHeader: Record "Purchase Header"; var FromReturnShptLine: Record "Return Shipment Line"; var LinesNotCopied: Integer; var MissingExCostRevLink: Boolean)
@@ -4142,11 +4130,11 @@
         OnBeforeCopyPurchReturnShptLinesToDoc(TempDocPurchaseLine, ToPurchHeader, FromReturnShptLine);
 
         with FromReturnShptLine do
-            if FindSet then
+            if FindSet() then
                 repeat
                     FromLineCounter := FromLineCounter + 1;
                     if IsTimeForUpdate then
-                        Window.Update(1, FromLineCounter);
+                        UpdateWindow(1, FromLineCounter);
                     if FromReturnShptHeader."No." <> "Document No." then begin
                         FromReturnShptHeader.Get("Document No.");
                         if OriginalPurchHeader.Get(OriginalPurchHeader."Document Type"::"Return Order", FromReturnShptHeader."Return Order No.") then
@@ -4187,7 +4175,7 @@
                     end else
                         CopyLine := FromPurchLineBuf.FindSet and FillExactCostRevLink;
 
-                    Window.Update(1, FromLineCounter);
+                    UpdateWindow(1, FromLineCounter);
                     if CopyLine then begin
                         NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
                         if InsertDocNoLine then begin
@@ -4197,7 +4185,7 @@
                         repeat
                             ToLineCounter := ToLineCounter + 1;
                             if IsTimeForUpdate then
-                                Window.Update(2, ToLineCounter);
+                                UpdateWindow(2, ToLineCounter);
 
                             OnCopyPurchReturnShptLinesToDocOnBeforeCopyPurchLine(ToPurchHeader, FromPurchLineBuf);
 
@@ -4226,7 +4214,7 @@
                     OnAfterCopyReturnShptLine(FromReturnShptLine, ToPurchLine);
                 until Next() = 0;
 
-        Window.Close;
+        CloseWindow();
     end;
 
     local procedure CheckUpdateOldDocumentNoFromReturnShptLine(FromReturnShptLine: Record "Return Shipment Line"; var OldDocNo: Code[20]; var InsertDocNoLine: Boolean)
@@ -4279,7 +4267,7 @@
 
         JobPlanningLine.SetCurrentKey("Job Contract Entry No.");
         JobPlanningLine.SetRange("Job Contract Entry No.", JobContractEntryNo);
-        if JobPlanningLine.FindFirst then begin
+        if JobPlanningLine.FindFirst() then begin
             NewJobPlanningLine.InitFromJobPlanningLine(JobPlanningLine, SalesLine.Quantity);
 
             JobPlanningLineInvoice.InitFromJobPlanningLine(NewJobPlanningLine);
@@ -4558,7 +4546,6 @@
         FixedAsset: Record "Fixed Asset";
         Item: Record Item;
         Resource: Record Resource;
-        DummySalesLine: Record "Sales Line";
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
         MessageType: Option Error,Warning,Information;
         BlockedForSalesPurch: Boolean;
@@ -4715,7 +4702,7 @@
         ToSalesLine.LockTable();
         ToSalesLine.SetRange("Document Type", ToSalesHeader."Document Type");
         ToSalesLine.SetRange("Document No.", ToSalesHeader."No.");
-        if ToSalesLine.FindLast then
+        if ToSalesLine.FindLast() then
             exit(ToSalesLine."Line No.");
         exit(0);
     end;
@@ -4727,7 +4714,7 @@
         ToPurchLine.LockTable();
         ToPurchLine.SetRange("Document Type", ToPurchHeader."Document Type");
         ToPurchLine.SetRange("Document No.", ToPurchHeader."No.");
-        if ToPurchLine.FindLast then
+        if ToPurchLine.FindLast() then
             exit(ToPurchLine."Line No.");
         exit(0);
     end;
@@ -4781,14 +4768,14 @@
             ToSalesLine2.Description :=
               StrSubstNo(
                 Text018,
-                CopyStr(SelectStr(1, Text016) + OldDocNo, 1, 23),
-                CopyStr(SelectStr(2, Text016) + OldDocNo2, 1, 23))
+                CopyStr(SelectStr(1, Text016) + OldDocNo, 1, 48),
+                CopyStr(SelectStr(2, Text016) + OldDocNo2, 1, 48))
         else
             ToSalesLine2.Description :=
               StrSubstNo(
                 Text018,
-                CopyStr(SelectStr(3, Text016) + OldDocNo, 1, 23),
-                CopyStr(SelectStr(4, Text016) + OldDocNo2, 1, 23));
+                CopyStr(SelectStr(3, Text016) + OldDocNo, 1, 48),
+                CopyStr(SelectStr(4, Text016) + OldDocNo2, 1, 48));
         TranslationHelper.RestoreGlobalLanguage;
 
         IsHandled := false;
@@ -4839,14 +4826,14 @@
             ToPurchLine2.Description :=
               StrSubstNo(
                 Text018,
-                CopyStr(SelectStr(1, Text017) + OldDocNo, 1, 23),
-                CopyStr(SelectStr(2, Text017) + OldDocNo2, 1, 23))
+                CopyStr(SelectStr(1, Text017) + OldDocNo, 1, 48),
+                CopyStr(SelectStr(2, Text017) + OldDocNo2, 1, 48))
         else
             ToPurchLine2.Description :=
               StrSubstNo(
                 Text018,
-                CopyStr(SelectStr(3, Text017) + OldDocNo, 1, 23),
-                CopyStr(SelectStr(4, Text017) + OldDocNo2, 1, 23));
+                CopyStr(SelectStr(3, Text017) + OldDocNo, 1, 48),
+                CopyStr(SelectStr(4, Text017) + OldDocNo2, 1, 48));
         TranslationHelper.RestoreGlobalLanguage;
 
         OnBeforeInsertOldPurchCombDocNoLine(ToPurchHeader, ToPurchLine2, CopyFromInvoice, OldDocNo, OldDocNo2);
@@ -4908,8 +4895,6 @@
     end;
 
     local procedure GetSalesDocTypeForItemLedgEntry(ItemLedgEntry: Record "Item Ledger Entry"): Enum "Sales Document Type"
-    var
-        SalesLine: Record "Sales Line";
     begin
         with ItemLedgEntry do
             case "Document Type" of
@@ -5197,17 +5182,39 @@
         Currency.TestField("Amount Rounding Precision");
     end;
 
+    procedure SetHideProcessWindow(NewHideProcessWindow: Boolean)
+    begin
+        HideProcessWindow := NewHideProcessWindow;
+    end;
+
     local procedure OpenWindow()
     begin
-        Window.Open(
-          Text022 +
-          Text023 +
-          Text024);
-        WindowUpdateDateTime := CurrentDateTime;
+        if not HideProcessWindow then begin
+            Window.Open(
+                Text022 +
+                Text023 +
+                Text024);
+            WindowUpdateDateTime := CurrentDateTime;
+        end;
+    end;
+
+    local procedure CloseWindow()
+    begin
+        if not HideProcessWindow then
+            Window.Close();
+    end;
+
+    local procedure UpdateWindow(Number: Integer; CounterValue: Integer)
+    begin
+        if not HideProcessWindow then
+            Window.Update(Number, CounterValue);
     end;
 
     local procedure IsTimeForUpdate(): Boolean
     begin
+        if HideProcessWindow then
+            exit(false);
+
         if CurrentDateTime - WindowUpdateDateTime >= 1000 then begin
             WindowUpdateDateTime := CurrentDateTime;
             exit(true);
@@ -5263,7 +5270,7 @@
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         repeat
             JobPlanningLine.SetRange("Job Contract Entry No.", SalesLine."Job Contract Entry No.");
-            if JobPlanningLine.FindFirst then begin
+            if JobPlanningLine.FindFirst() then begin
                 JobPlanningLineInvoice."Job No." := JobPlanningLine."Job No.";
                 JobPlanningLineInvoice."Job Task No." := JobPlanningLine."Job Task No.";
                 JobPlanningLineInvoice."Job Planning Line No." := JobPlanningLine."Line No.";
@@ -5305,7 +5312,7 @@
             SetCurrentKey("Inbound Item Entry No.", "Outbound Item Entry No.");
             SetRange("Inbound Item Entry No.", ItemLedgerEntryNo);
             SetRange("Outbound Item Entry No.", 0);
-            if not FindFirst then
+            if not FindFirst() then
                 exit(QtyNotShipped);
             QtyNotShipped := Quantity;
             SetFilter("Outbound Item Entry No.", '<>0');
@@ -5416,7 +5423,7 @@
         TempAsmHeader.Insert();
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");
         AsmLine.SetRange("Document No.", AsmHeader."No.");
-        if AsmLine.FindSet then
+        if AsmLine.FindSet() then
             repeat
                 TempAsmLine := AsmLine;
                 TempAsmLine.Insert();
@@ -5433,7 +5440,7 @@
         TempAsmHeader."Document Type" := DocType;
         TempAsmHeader.Insert();
         PostedAsmLine.SetRange("Document No.", PostedAsmHeader."No.");
-        if PostedAsmLine.FindSet then
+        if PostedAsmLine.FindSet() then
             repeat
                 TempAsmLine.TransferFields(PostedAsmLine);
                 TempAsmLine."Document No." := TempAsmHeader."No.";
@@ -5457,7 +5464,7 @@
         ValueEntry.SetRange("Document No.", TempSalesInvLine."Document No.");
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Sales Invoice");
         ValueEntry.SetRange("Document Line No.", TempSalesInvLine."Line No.");
-        if not ValueEntry.FindFirst then
+        if not ValueEntry.FindFirst() then
             exit(false);
         if not ItemLedgerEntry.Get(ValueEntry."Item Ledger Entry No.") then
             exit(false);
@@ -5469,7 +5476,7 @@
         if ValueEntry.Count > 1 then begin
             ValueEntry2.Copy(ValueEntry);
             ValueEntry2.SetFilter("Item Ledger Entry No.", '<>%1', ValueEntry."Item Ledger Entry No.");
-            if ValueEntry2.FindSet then
+            if ValueEntry2.FindSet() then
                 repeat
                     ItemLedgerEntry2.Get(ValueEntry2."Item Ledger Entry No.");
                     if (ItemLedgerEntry2."Document Type" <> ItemLedgerEntry."Document Type") or
@@ -5570,7 +5577,7 @@
         AssemblyLineMgt: Codeunit "Assembly Line Management";
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
-        if FromAsmLine.FindSet then
+        if FromAsmLine.FindSet() then
             repeat
                 ToAssemblyLine.Init();
                 ToAssemblyLine."Document Type" := ToAsmHeader."Document Type";
@@ -5647,7 +5654,7 @@
         TempToAsmHeader := ToAsmHeader;
         TempToAsmHeader.Insert();
         CreateToAsmLines(TempToAsmHeader, FromAsmLine, TempToAsmLine, ToSalesLine, true, true);
-        if TempToAsmLine.FindLast then
+        if TempToAsmLine.FindLast() then
             LineNo := TempToAsmLine."Line No.";
         Clear(TempToAsmLine);
         with AsmLineOnDestinationOrder do begin
@@ -5655,7 +5662,7 @@
             SetRange("Document No.", ToAsmHeader."No.");
             SetRange(Type, Type::Item);
         end;
-        if AsmLineOnDestinationOrder.FindSet then
+        if AsmLineOnDestinationOrder.FindSet() then
             repeat
                 TempToAsmLine := AsmLineOnDestinationOrder;
                 LineNo += 10000;
@@ -5680,14 +5687,6 @@
         end;
     end;
 
-#if not CLEAN17
-    [Obsolete('Replaced by GetSalesDocumentType().', '17.0')]
-    procedure ArchSalesHeaderDocType(DocType: Option): Integer
-    begin
-        exit(GetSalesDocumentType("Sales Document Type From".FromInteger(DocType)).AsInteger());
-    end;
-#endif
-
     local procedure CopyFromArchSalesDocDimToHdr(var ToSalesHeader: Record "Sales Header"; FromSalesHeaderArchive: Record "Sales Header Archive")
     begin
         ToSalesHeader."Shortcut Dimension 1 Code" := FromSalesHeaderArchive."Shortcut Dimension 1 Code";
@@ -5703,14 +5702,6 @@
             ToSalesLine."Dimension Set ID" := FromSalesLineArchive."Dimension Set ID";
         end;
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by GetPurchaseDocumentType().', '17.0')]
-    procedure ArchPurchHeaderDocType(DocType: Option): Integer
-    begin
-        exit(GetPurchaseDocumentType("Purchase Document Type From".FromInteger(DocType)).AsInteger());
-    end;
-#endif
 
     local procedure CopyFromArchPurchDocDimToHdr(var ToPurchHeader: Record "Purchase Header"; FromPurchHeaderArchive: Record "Purchase Header Archive")
     begin
@@ -5866,7 +5857,7 @@
                 TransferExtendedText.InsertSalesExtText(ToSalesLine);
                 ToSalesLine2.SetRange("Document Type", ToSalesLine."Document Type");
                 ToSalesLine2.SetRange("Document No.", ToSalesLine."Document No.");
-                ToSalesLine2.FindLast;
+                ToSalesLine2.FindLast();
                 NextLineNo := ToSalesLine2."Line No.";
             end;
 
@@ -5994,7 +5985,7 @@
                     TransferExtendedText.InsertPurchExtText(ToPurchLine);
                     ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
                     ToPurchLine2.SetRange("Document No.", ToPurchLine."Document No.");
-                    ToPurchLine2.FindLast;
+                    ToPurchLine2.FindLast();
                     NextLineNo := ToPurchLine2."Line No.";
                 end;
 
@@ -6846,7 +6837,7 @@
         CustLedgEntry.SetRange("Document No.", FromDocNo);
         CustLedgEntry.SetRange("Customer No.", ToSalesHeader."Bill-to Customer No.");
         CustLedgEntry.SetRange(Open, true);
-        if CustLedgEntry.FindFirst then begin
+        if CustLedgEntry.FindFirst() then begin
             ToSalesHeader."Bal. Account No." := '';
             if FromDocType = "Sales Document Type From"::"Posted Invoice" then begin
                 ToSalesHeader."Applies-to Doc. Type" := ToSalesHeader."Applies-to Doc. Type"::Invoice;
@@ -6874,29 +6865,29 @@
         IsHandled := false;
         OnBeforeUpdateVendLedgEntry(ToPurchHeader, VendLedgEntry, IsHandled);
         if not IsHandled then begin
-            VendLedgEntry.SetCurrentKey("Document No.");
-            if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
-                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice)
-            else
-                VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
-            VendLedgEntry.SetRange("Document No.", FromDocNo);
-            VendLedgEntry.SetRange("Vendor No.", ToPurchHeader."Pay-to Vendor No.");
-            VendLedgEntry.SetRange(Open, true);
-            if VendLedgEntry.FindFirst() then begin
-                if FromDocType = "Purchase Document Type From"::"Posted Invoice" then begin
-                    ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::Invoice;
-                    ToPurchHeader."Applies-to Doc. No." := FromDocNo;
-                end else begin
-                    ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::"Credit Memo";
-                    ToPurchHeader."Applies-to Doc. No." := FromDocNo;
-                end;
-                ToPurchHeader."Applies-to Occurrence No." := VendLedgEntry."Document Occurrence";
-                VendLedgEntry.CalcFields("Remaining Amount");
-                VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
-                VendLedgEntry."Accepted Payment Tolerance" := 0;
-                VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
-                CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
-                end;
+        VendLedgEntry.SetCurrentKey("Document No.");
+        if FromDocType = "Purchase Document Type From"::"Posted Invoice" then
+            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice)
+        else
+            VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::"Credit Memo");
+        VendLedgEntry.SetRange("Document No.", FromDocNo);
+        VendLedgEntry.SetRange("Vendor No.", ToPurchHeader."Pay-to Vendor No.");
+        VendLedgEntry.SetRange(Open, true);
+        if VendLedgEntry.FindFirst() then begin
+            if FromDocType = "Purchase Document Type From"::"Posted Invoice" then begin
+                ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::Invoice;
+                ToPurchHeader."Applies-to Doc. No." := FromDocNo;
+            end else begin
+                ToPurchHeader."Applies-to Doc. Type" := ToPurchHeader."Applies-to Doc. Type"::"Credit Memo";
+                ToPurchHeader."Applies-to Doc. No." := FromDocNo;
+            end;
+            ToPurchHeader."Applies-to Occurrence No." := VendLedgEntry."Document Occurrence";
+            VendLedgEntry.CalcFields("Remaining Amount");
+            VendLedgEntry."Amount to Apply" := VendLedgEntry."Remaining Amount";
+            VendLedgEntry."Accepted Payment Tolerance" := 0;
+            VendLedgEntry."Accepted Pmt. Disc. Tolerance" := false;
+            CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", VendLedgEntry);
+            end;
         end;
 
         OnAfterUpdateVendLedgEntry(ToPurchHeader, FromDocNo);
@@ -7092,7 +7083,7 @@
                     begin
                         FromSalesInvoiceHeader.Get(FromDocNo);
                         FromSalesInvoiceHeader.TestField("Prepayment Invoice", false);
-                        WarnSalesInvoicePmtDisc(ToSalesHeader, FromSalesHeader, FromDocType2, FromDocNo);
+                        WarnSalesInvoicePmtDisc(ToSalesHeader, FromDocType2, FromDocNo);
                         if not CheckDateOrder(
                              "Posting No.", "Posting No. Series",
                              "Posting Date", FromSalesInvoiceHeader."Posting Date")
@@ -7127,7 +7118,7 @@
                     begin
                         FromSalesCrMemoHeader.Get(FromDocNo);
                         FromSalesCrMemoHeader.TestField("Prepayment Credit Memo", false);
-                        WarnSalesInvoicePmtDisc(ToSalesHeader, FromSalesHeader, FromDocType2, FromDocNo);
+                        WarnSalesInvoicePmtDisc(ToSalesHeader, FromDocType2, FromDocNo);
                         if not CheckDateOrder(
                              "Posting No.", "Posting No. Series",
                              "Posting Date", FromSalesCrMemoHeader."Posting Date")
@@ -7225,7 +7216,7 @@
                         then
                             exit(false);
                         FromPurchInvHeader.TestField("Prepayment Invoice", false);
-                        WarnPurchInvoicePmtDisc(ToPurchaseHeader, FromPurchaseHeader, FromDocType2, FromDocNo);
+                        WarnPurchInvoicePmtDisc(ToPurchaseHeader, FromDocType2, FromDocNo);
                         if not IncludeHeader and not RecalculateLines then
                             CheckFromPurchaseInvHeader(FromPurchInvHeader, ToPurchaseHeader);
                     end;
@@ -7249,7 +7240,7 @@
                         then
                             exit(false);
                         FromPurchCrMemoHdr.TestField("Prepayment Credit Memo", false);
-                        WarnPurchInvoicePmtDisc(ToPurchaseHeader, FromPurchaseHeader, FromDocType2, FromDocNo);
+                        WarnPurchInvoicePmtDisc(ToPurchaseHeader, FromDocType2, FromDocNo);
                         if not IncludeHeader and not RecalculateLines then
                             CheckFromPurchaseCrMemoHeader(FromPurchCrMemoHdr, ToPurchaseHeader);
                     end;
@@ -7430,7 +7421,7 @@
                 TransferExtendedText.InsertSalesExtText(ToSalesLine);
                 ToSalesLine2.SetRange("Document Type", ToSalesLine."Document Type");
                 ToSalesLine2.SetRange("Document No.", ToSalesLine."Document No.");
-                ToSalesLine2.FindLast;
+                ToSalesLine2.FindLast();
                 NextLineNo := ToSalesLine2."Line No.";
                 exit;
             end;
@@ -7492,7 +7483,7 @@
                 TransferExtendedText.InsertPurchExtText(ToPurchLine);
                 ToPurchLine2.SetRange("Document Type", ToPurchLine."Document Type");
                 ToPurchLine2.SetRange("Document No.", ToPurchLine."Document No.");
-                ToPurchLine2.FindLast;
+                ToPurchLine2.FindLast();
                 NextLineNo := ToPurchLine2."Line No.";
                 exit;
             end;
@@ -7629,7 +7620,7 @@
     local procedure GetSalesLineNo(var TempDocSalesLine: Record "Sales Line" temporary; BufferLineNo: Integer): Integer
     begin
         TempDocSalesLine.SetRange("Shipment Line No.", BufferLineNo);
-        if not TempDocSalesLine.FindFirst then
+        if not TempDocSalesLine.FindFirst() then
             exit(0);
         exit(TempDocSalesLine."Line No.");
     end;
@@ -7637,7 +7628,7 @@
     local procedure GetSalesDocNo(var TempDocSalesLine: Record "Sales Line" temporary; BufferLineNo: Integer): Code[20]
     begin
         TempDocSalesLine.SetRange("Shipment Line No.", BufferLineNo);
-        if not TempDocSalesLine.FindFirst then
+        if not TempDocSalesLine.FindFirst() then
             exit('');
         exit(TempDocSalesLine."Document No.");
     end;
@@ -7655,7 +7646,7 @@
     local procedure GetPurchLineNo(var TempDocPurchaseLine: Record "Purchase Line" temporary; BufferLineNo: Integer): Integer
     begin
         TempDocPurchaseLine.SetRange("Receipt Line No.", BufferLineNo);
-        if not TempDocPurchaseLine.FindFirst then
+        if not TempDocPurchaseLine.FindFirst() then
             exit(0);
         exit(TempDocPurchaseLine."Line No.");
     end;
@@ -7663,7 +7654,7 @@
     local procedure GetPurchDocNo(var TempDocPurchaseLine: Record "Purchase Line" temporary; BufferLineNo: Integer): Code[20]
     begin
         TempDocPurchaseLine.SetRange("Receipt Line No.", BufferLineNo);
-        if not TempDocPurchaseLine.FindFirst then
+        if not TempDocPurchaseLine.FindFirst() then
             exit('');
         exit(TempDocPurchaseLine."Document No.");
     end;
@@ -7686,13 +7677,13 @@
         ReservationEntry.SetRange("Source ID", AssemblyHeader."No.");
         ReservationEntry.SetRange("Source Ref. No.", 0);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
-        if ReservationEntry.FindSet then
+        if ReservationEntry.FindSet() then
             repeat
                 TempReservationEntry := ReservationEntry;
                 TempReservationEntry.Insert();
             until ReservationEntry.Next() = 0;
 
-        if TempItemLedgerEntry.FindSet then
+        if TempItemLedgerEntry.FindSet() then
             repeat
                 TempTrackingSpecification."Entry No." += 1;
                 TempTrackingSpecification."Item No." := TempItemLedgerEntry."Item No.";
@@ -7705,7 +7696,7 @@
                 TempTrackingSpecification.Insert();
             until TempItemLedgerEntry.Next() = 0;
 
-        if TempTrackingSpecification.FindSet then
+        if TempTrackingSpecification.FindSet() then
             repeat
                 if GetItemTrackingCode(ItemTrackingCode, TempTrackingSpecification."Item No.") then
                     ReservationEngineMgt.AddItemTrackingToTempRecSet(
@@ -8582,6 +8573,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecalculateAndApplyPurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; Currency: Record Currency; var ExactCostRevMandatory: Boolean; var RecalculateAmount: Boolean; var CreateToHeader: Boolean; MoveNegLines: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLineQtyBaseFromReversibleQtyBase(var FromSalesLine: Record "Sales Line"; var SalesLineBuffer: record "Sales Line"; ReversibleQtyBase: decimal; var IsHandled: Boolean)
     begin
     end;
@@ -9273,6 +9269,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyPurchDocLineOnBeforeCopyThisLine(var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; MoveNegLines: Boolean; FromPurchDocType: Enum "Purchase Document Type From"; var LinesNotCopied: Integer; var CopyThisLine: Boolean; var Result: Boolean; var IsHandled: Boolean; ToPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyPurchDocLineOnBeforeCheckLocationOnWMS(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

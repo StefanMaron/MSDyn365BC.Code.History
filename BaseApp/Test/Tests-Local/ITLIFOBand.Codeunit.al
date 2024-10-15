@@ -84,11 +84,11 @@ codeunit 144194 "IT - LIFO Band"
         // Verify: Verify the negative adjustment quantity is in second line with Competence Year = WORKDATE based on LIFO.
         LifoBand.SetRange("Item No.", Item."No.");
         LifoBand.SetRange("Competence Year", CalcDate('<CY-1Y>', WorkDate));
-        LifoBand.FindFirst;
+        LifoBand.FindFirst();
         LifoBand.TestField("Absorbed Quantity", 0);
 
         LifoBand.SetRange("Competence Year", CalcDate('<CY>', WorkDate));
-        LifoBand.FindFirst;
+        LifoBand.FindFirst();
         LifoBand.TestField("Absorbed Quantity", Quantity);
     end;
 
@@ -162,7 +162,7 @@ codeunit 144194 "IT - LIFO Band"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseOrder(PurchaseHeader, Item);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -197,7 +197,7 @@ codeunit 144194 "IT - LIFO Band"
         with PurchaseLine do begin
             SetRange("Document Type", "Document Type"::Order);
             SetRange("Document No.", PurchaseOrderNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -206,7 +206,7 @@ codeunit 144194 "IT - LIFO Band"
         PurchaseHeader: Record "Purchase Header";
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
 
         CreatePurchaseOrder(PurchaseHeader, Item);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, InvoiceOrder);
@@ -220,7 +220,7 @@ codeunit 144194 "IT - LIFO Band"
         ItemCostHistory: Record "Item Cost History";
     begin
         ItemCostHistory.SetRange("Item No.", Item."No.");
-        ItemCostHistory.FindLast;
+        ItemCostHistory.FindLast();
         Assert.AreEqual(Item."Unit Cost", ItemCostHistory."Year Average Cost", '');
     end;
 
@@ -229,7 +229,7 @@ codeunit 144194 "IT - LIFO Band"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)", "Cost Amount (Expected)");
         LibraryReportDataset.LoadDataSetFile;
 

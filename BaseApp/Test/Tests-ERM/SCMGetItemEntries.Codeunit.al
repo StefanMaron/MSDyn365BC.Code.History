@@ -34,7 +34,7 @@ codeunit 137209 "SCM Get Item Entries"
         NoOfLines: Integer;
     begin
         // Setup: Add country info and additional currency.
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         TempCompanyInformation := CompanyInformation;
         TempCompanyInformation.Insert(true);
@@ -102,8 +102,8 @@ codeunit 137209 "SCM Get Item Entries"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Get Item Entries");
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Get Item Entries");
@@ -148,9 +148,9 @@ codeunit 137209 "SCM Get Item Entries"
         LibraryInventory.CreateItem(Item);
         ItemNo := Item."No.";
         // Add a tariff to all items to insure all eligible lines are retrieved in the intrastat journal.
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 Item.Validate("Tariff No.", TariffNumber."No.");
                 Item.Modify(true);
@@ -247,7 +247,7 @@ codeunit 137209 "SCM Get Item Entries"
 
                     // Output shipment information.
                     SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
-                    SalesShipmentHeader.FindFirst;
+                    SalesShipmentHeader.FindFirst();
                     DocumentType := ItemLedgerEntry."Document Type"::"Sales Shipment";
                     DocumentNo := SalesShipmentHeader."No.";
                 end;
@@ -264,7 +264,7 @@ codeunit 137209 "SCM Get Item Entries"
 
                     // Output receipt information.
                     PurchRcptHeader.SetRange("Order No.", PurchaseHeader."No.");
-                    PurchRcptHeader.FindFirst;
+                    PurchRcptHeader.FindFirst();
                     DocumentType := ItemLedgerEntry."Document Type"::"Purchase Receipt";
                     DocumentNo := PurchRcptHeader."No.";
                 end;
@@ -314,7 +314,7 @@ codeunit 137209 "SCM Get Item Entries"
         GetItemLedgerEntries.InitializeRequest(StartDate, EndDate, 0);
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
         GetItemLedgerEntries.UseRequestPage(false);
-        GetItemLedgerEntries.RunModal;
+        GetItemLedgerEntries.RunModal();
     end;
 
     local procedure VerifyIntrastatLines(IntrastatJnlLine: Record "Intrastat Jnl. Line"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]) RetrievedLines: Integer
@@ -334,7 +334,7 @@ codeunit 137209 "SCM Get Item Entries"
             IntrastatJnlLine.SetRange("Document No.", DocumentNo);
             IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
             RetrievedLines += IntrastatJnlLine.Count();
-            if IntrastatJnlLine.FindFirst then begin
+            if IntrastatJnlLine.FindFirst() then begin
                 Assert.AreEqual(1, IntrastatJnlLine.Count, 'Too many intrastat entries for ' + Format(ItemLedgerEntry."Entry No."));
                 Item.Get(ItemLedgerEntry."Item No.");
                 IntrastatJnlLine.TestField("Tariff No.", Item."Tariff No.");

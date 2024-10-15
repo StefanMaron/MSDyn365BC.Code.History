@@ -46,7 +46,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
     begin
         // [FEATURE] [Full VAT] [Sales]
         // [SCENARIO 229708] Split Full VAT sales invoice can be declared with amounts and with 'S' in tag 'CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/EsigibilitaIVA'
-        Initialize;
+        Initialize();
 
         LibraryITDatifattura.CreateGeneralSetup;
         LibraryITDatifattura.CreateGeneralSetupDatifattura;
@@ -73,7 +73,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
 
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
 
         VATReportLine.TestField(Base, VATEntry.Base);
         VATReportLine.TestField(Amount, VATEntry.Amount);
@@ -107,7 +107,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [FEATURE] [CAP] [Purchase]
         // [SCENARIO 323987] Create Purchase Invoice for Italian vendor. After exporting VAT Report,
         // [SCENARIO 323987] There is Vendor."Post Code" value for vendor with (XML.Node = CAP)
-        Initialize;
+        Initialize();
 
         LibraryITDatifattura.CreateGeneralSetup;
         LibraryITDatifattura.CreateGeneralSetupDatifattura;
@@ -156,7 +156,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [FEATURE] [CAP] [Purchase]
         // [SCENARIO 323987] Create Purchase Invoice for Not Italian vendor. After exporting VAT Report,
         // [SCENARIO 323987] There is '00000' value for vendor with (XML.Node = CAP)
-        Initialize;
+        Initialize();
 
         LibraryITDatifattura.CreateGeneralSetup;
         LibraryITDatifattura.CreateGeneralSetupDatifattura;
@@ -201,7 +201,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
     begin
         // [FEATURE]
         // [SCENARIO 331749] Suggest Lines shows request page to filter entries when using 'Filter Datifattura Entries' option in setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Filter Datifattura Lines was enabled in VAT Reporting Setup
         LibraryITDatifattura.SetFilterDatifatturaLines(true);
@@ -278,7 +278,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -315,7 +315,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Document No.", DocumentNo);
         VATReportLine.SetRange("Document Type", DocumentType);
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
     end;
 
     local procedure TestCleanup()
@@ -354,7 +354,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Bill-to/Pay-to No.", VendorNo);
         VATReportLine.SetRange("Document Type", DocumentType);
-        VATReportLine.FindFirst;
+        VATReportLine.FindFirst();
     end;
 
     [MessageHandler]

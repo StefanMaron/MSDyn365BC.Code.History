@@ -423,7 +423,7 @@ report 402 "Purchase Document - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry1.FindSet then
+                            if not DimSetEntry1.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -692,7 +692,7 @@ report 402 "Purchase Document - Test"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindSet then
+                                    if not DimSetEntry2.FindSet() then
                                         CurrReport.Break();
                                 end else
                                     if not Continue then
@@ -833,7 +833,7 @@ report 402 "Purchase Document - Test"
                                     GenPostingSetup.Reset();
                                     GenPostingSetup.SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
                                     GenPostingSetup.SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
-                                    if not GenPostingSetup.FindLast then
+                                    if not GenPostingSetup.FindLast() then
                                         AddError(
                                           StrSubstNo(
                                             Text020,
@@ -931,7 +931,7 @@ report 402 "Purchase Document - Test"
                                     if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                         AddError(DimMgt.GetDimCombErr);
 
-                                    TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
+                                    TableID[1] := DimMgt.PurchLineTypeToTableID(Type);
                                     No[1] := "No.";
                                     TableID[2] := DATABASE::Job;
                                     No[2] := "Job No.";
@@ -945,7 +945,7 @@ report 402 "Purchase Document - Test"
                                 AllowInvDisctxt := Format("Allow Invoice Disc.");
 
                                 InclInVATReportErrorLogTemp.SetRange("Line No.", "Line No.");
-                                if InclInVATReportErrorLogTemp.FindSet then
+                                if InclInVATReportErrorLogTemp.FindSet() then
                                     repeat
                                         AddError(InclInVATReportErrorLogTemp."Error Message");
                                     until InclInVATReportErrorLogTemp.Next() = 0;
@@ -1531,7 +1531,7 @@ report 402 "Purchase Document - Test"
                 PurchLine.SetRange("Document No.", "No.");
                 PurchLine.SetFilter("Sales Order Line No.", '<>0');
                 if Receive then
-                    if PurchLine.FindSet then
+                    if PurchLine.FindSet() then
                         repeat
                             if SalesHeader."No." <> PurchLine."Sales Order No." then begin
                                 SalesHeader.Get(1, PurchLine."Sales Order No.");
@@ -1561,7 +1561,7 @@ report 402 "Purchase Document - Test"
                     VendLedgEntry.SetCurrentKey("External Document No.");
                     VendorMgt.SetFilterForExternalDocNo(
                       VendLedgEntry, "Document Type", "Vendor Invoice No.", "Pay-to Vendor No.", "Document Date");
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         AddError(
                           StrSubstNo(
                             Text017,
@@ -1587,7 +1587,7 @@ report 402 "Purchase Document - Test"
                     InclInVATReportErrorLogTemp.DeleteAll();
                     InclInVATReportValidation.ValidatePurchaseHeader("Purchase Header", InclInVATReportErrorLogTemp);
                     InclInVATReportErrorLogTemp.SetRange("Line No.", 0);
-                    if InclInVATReportErrorLogTemp.FindSet then
+                    if InclInVATReportErrorLogTemp.FindSet() then
                         repeat
                             AddError(InclInVATReportErrorLogTemp."Error Message");
                         until InclInVATReportErrorLogTemp.Next() = 0;
@@ -1602,7 +1602,7 @@ report 402 "Purchase Document - Test"
                 PurchHeader.Copy("Purchase Header");
                 PurchHeader.FilterGroup := 2;
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Order);
-                if PurchHeader.FindFirst then begin
+                if PurchHeader.FindFirst() then begin
                     case true of
                         ReceiveShipOnNextPostReq and InvOnNextPostReq:
                             ReceiveInvoiceText := Text000;
@@ -1614,7 +1614,7 @@ report 402 "Purchase Document - Test"
                     ReceiveInvoiceText := StrSubstNo(Text003, ReceiveInvoiceText);
                 end;
                 PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::"Return Order");
-                if PurchHeader.FindFirst then begin
+                if PurchHeader.FindFirst() then begin
                     case true of
                         ReceiveShipOnNextPostReq and InvOnNextPostReq:
                             ShipInvoiceText := Text028;
@@ -2225,24 +2225,20 @@ report 402 "Purchase Document - Test"
     procedure AddDimToTempLine(PurchLine: Record "Purchase Line")
     var
         SourceCodesetup: Record "Source Code Setup";
-        TableID: array[10] of Integer;
-        No: array[10] of Code[20];
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SourceCodesetup.Get();
 
         with PurchLine do begin
-            TableID[1] := DimMgt.TypeToTableID3(Type.AsInteger());
-            No[1] := "No.";
-            TableID[2] := DATABASE::Job;
-            No[2] := "Job No.";
-            TableID[3] := DATABASE::"Responsibility Center";
-            No[3] := "Responsibility Center";
+            DimMgt.AddDimSource(DefaultDimSource, DimMgt.PurchLineTypeToTableID(Type), "No.");
+            DimMgt.AddDimSource(DefaultDimSource, Database::Job, "Job No.");
+            DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", "Responsibility Center");
 
             "Shortcut Dimension 1 Code" := '';
             "Shortcut Dimension 2 Code" := '';
 
             "Dimension Set ID" :=
-              DimMgt.GetDefaultDimID(TableID, No, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
+              DimMgt.GetDefaultDimID(DefaultDimSource, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
                 "Dimension Set ID", DATABASE::Vendor);
         end;
     end;

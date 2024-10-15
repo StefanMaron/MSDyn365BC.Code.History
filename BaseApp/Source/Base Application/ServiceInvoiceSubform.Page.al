@@ -543,12 +543,46 @@ page 5934 "Service Invoice Subform"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
                         OpenItemTrackingLines();
+                    end;
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of service lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all service lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -586,8 +620,10 @@ page 5934 "Service Invoice Subform"
     trigger OnOpenPage()
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
         SetDimensionsVisibility;
     end;
 
@@ -597,6 +633,8 @@ page 5934 "Service Invoice Subform"
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         Text000: Label 'This service invoice was created from the service contract. If you want to get shipment lines, you must create another service invoice.';
         ExtendedPriceEnabled: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

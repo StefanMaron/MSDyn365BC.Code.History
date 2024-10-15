@@ -78,32 +78,6 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the identification number of the fixed asset that is being purchased.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Advanced;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        CrossReferenceNoLookUp;
-                        InsertExtendedText(false);
-                        NoOnAfterValidate();
-                        OnCrossReferenceNoOnLookup(Rec);
-                    end;
-
-                    trigger OnValidate()
-                    begin
-                        InsertExtendedText(false);
-                        NoOnAfterValidate();
-                        DeltaUpdateTotals();
-                    end;
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -118,6 +92,9 @@
                         ItemReferenceMgt.PurchaseReferenceNoLookUp(Rec, PurchaseHeader);
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+#if not CLEAN20                        
+                        OnCrossReferenceNoOnLookup(Rec);
+#endif                        
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 
@@ -203,6 +180,43 @@
                         ShowShortcutDimCode(ShortcutDimCode);
                         NoOnAfterValidate();
                         DeltaUpdateTotals();
+                    end;
+
+                    trigger OnAfterLookup(Selected: RecordRef)
+                    var
+                        GLAccount: record "G/L Account";
+                        Item: record Item;
+                        Resource: record Resource;
+                        FixedAsset: record "Fixed Asset";
+                        ItemCharge: record "Item Charge";
+                    begin
+                        case Rec.Type of
+                            Rec.Type::Item:
+                                begin
+                                    Selected.SetTable(Item);
+                                    Validate("No.", Item."No.");
+                                end;
+                            Rec.Type::"G/L Account":
+                                begin
+                                    Selected.SetTable(GLAccount);
+                                    Validate("No.", GLAccount."No.");
+                                end;
+                            Rec.Type::Resource:
+                                begin
+                                    Selected.SetTable(Resource);
+                                    Validate("No.", Resource."No.");
+                                end;
+                            Rec.Type::"Fixed Asset":
+                                begin
+                                    Selected.SetTable(FixedAsset);
+                                    Validate("No.", FixedAsset."No.");
+                                end;
+                            Rec.Type::"Charge (Item)":
+                                begin
+                                    Selected.SetTable(ItemCharge);
+                                    Validate("No.", ItemCharge."No.");
+                                end;
+                        end;
                     end;
                 }
                 field("Description 2"; "Description 2")
@@ -1092,7 +1106,7 @@
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     Enabled = Type = Type::Item;
                     ToolTip = 'View or edit serial and lot numbers for the selected item. This action is available only for lines that contain an item.';
 
@@ -1180,7 +1194,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -1301,8 +1315,42 @@
                         if not PurchaseHeader.IsEmpty() then begin
                             BlanketPurchaseOrder.SetTableView(PurchaseHeader);
                             BlanketPurchaseOrder.Editable := false;
-                            BlanketPurchaseOrder.Run;
+                            BlanketPurchaseOrder.Run();
                         end;
+                    end;
+                }
+            }
+            group(Errors)
+            {
+                Caption = 'Issues';
+                Image = ErrorLog;
+                Visible = BackgroundErrorCheck;
+                action(ShowLinesWithErrors)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show Lines with Issues';
+                    Image = Error;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = not ShowAllLinesEnabled;
+                    ToolTip = 'View a list of purchase lines that have issues before you post the document.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
+                    end;
+                }
+                action(ShowAllLines)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Show All Lines';
+                    Image = ExpandAll;
+                    Visible = BackgroundErrorCheck;
+                    Enabled = ShowAllLinesEnabled;
+                    ToolTip = 'View all purchase lines, including lines with and without issues.';
+
+                    trigger OnAction()
+                    begin
+                        SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
             }
@@ -1422,6 +1470,8 @@
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         InvDiscAmountEditable: Boolean;
+        BackgroundErrorCheck: Boolean;
+        ShowAllLinesEnabled: Boolean;
         IsFoundation: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
@@ -1452,11 +1502,13 @@
     local procedure SetOpenPage()
     var
         ServerSetting: Codeunit "Server Setting";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
     begin
         OnBeforeSetOpenPage();
 
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        BackgroundErrorCheck := DocumentErrorsMgt.BackgroundValidationEnabled();
     end;
 
     procedure ApproveCalcInvDisc()
@@ -1505,7 +1557,7 @@
         SalesHeader.SetRange("No.", "Sales Order No.");
         SalesOrder.SetTableView(SalesHeader);
         SalesOrder.Editable := false;
-        SalesOrder.Run;
+        SalesOrder.Run();
     end;
 
     procedure InsertExtendedText(Unconditionally: Boolean)
@@ -1530,7 +1582,7 @@
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetPurchLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     protected procedure OpenSpecOrderSalesOrderForm()
@@ -1548,7 +1600,7 @@
         SalesHeader.SetRange("No.", "Special Order Sales No.");
         SalesOrder.SetTableView(SalesHeader);
         SalesOrder.Editable := false;
-        SalesOrder.Run;
+        SalesOrder.Run();
     end;
 
     procedure UpdateForm(SetSaveRecord: Boolean)
@@ -1574,7 +1626,7 @@
     begin
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(1, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", '', 0);
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     procedure RedistributeTotalsOnAfterValidate()
@@ -1750,7 +1802,8 @@
     begin
     end;
 
-#if not CLEAN17
+#if not CLEAN20
+    [Obsolete('Replaced by event OnItemReferenceNoOnLookup()', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
     begin

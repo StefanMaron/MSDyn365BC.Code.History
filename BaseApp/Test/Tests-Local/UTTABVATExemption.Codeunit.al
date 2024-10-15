@@ -308,7 +308,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // Purpose of the test is to validate VAT Exempt. Starting Date - OnValidate Trigger of Table ID - 12186 VAT Exemption.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATExemption(VATExemption);
         UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
 
@@ -331,7 +331,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         // Purpose of the test is to validate VAT Exempt. Starting Date - OnValidate Trigger of Table ID - 12186 VAT Exemption.
 
         // Setup: Create VAT Exemption, assign VAT Exemption - Number to second VAT Exemption.
-        Initialize;
+        Initialize();
         CreateVATExemption(VATExemption);
         VATExemption2."No." := VATExemption."No.";
         UpdatePurchasesPayablesSetupVATExemptionNos(CreateNoSeries);
@@ -543,7 +543,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // [SCENARIO 337552] Create "VAT Exempt." without Pre-setup in Purchases & Payables Setup
         // [GIVEN] Removed data from PurchasesPayablesSetup."VAT Exemption Nos."
-        Initialize;
+        Initialize();
 
         UpdatePurchasesPayablesSetupVATExemptionNos('');
 
@@ -568,7 +568,7 @@ codeunit 144070 "UT TAB VAT Exemption"
     begin
         // [SCENARIO 337552] Create "VAT Exempt." without Pre-setup in Sales & Receivables Setup
         // [GIVEN] Removed data from SalesReceivablesSetup."VAT Exemption Nos."
-        Initialize;
+        Initialize();
 
         UpdateSalesReceivablesSetupVATExemptionNos('');
 
@@ -596,7 +596,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         VendorCard: TestPage "Vendor Card";
     begin
         // [SCENARIO 385036] Change "VAT Exempt. Int. Registry No." in page "VAT Exemptions" using assistedit with empty "VAT Exemption Nos." in Purchase Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Removed data from PurchasesPayablesSetup."VAT Exemption Nos."
         UpdatePurchasesPayablesSetupVATExemptionNos('');
@@ -623,7 +623,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         CustomerCard: TestPage "Customer Card";
     begin
         // [SCENARIO 385036] Change "VAT Exempt. Int. Registry No." in page "VAT Exemptions" unsing assistedit with empty "VAT Exemption Nos." in Sales Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Removed data from SalesReceivablesSetup."VAT Exemption Nos."
         UpdateSalesReceivablesSetupVATExemptionNos('');
@@ -644,7 +644,7 @@ codeunit 144070 "UT TAB VAT Exemption"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -782,7 +782,7 @@ codeunit 144070 "UT TAB VAT Exemption"
 
         NoSeriesLine.Reset();
         NoSeriesLine.SetRange("Series Code", SalesReceivablesSetup."VAT Exemption Nos.");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         exit(NoSeriesLine."Starting No.");
     end;
 

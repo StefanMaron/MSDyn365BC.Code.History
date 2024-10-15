@@ -50,7 +50,7 @@
             if not HasLinesToShip and not WipToShip then
                 Error(Text001);
 
-            WhseShip := TempWhseShptHeader.FindFirst;
+            WhseShip := TempWhseShptHeader.FindFirst();
             InvtPickPutaway := WhseReference <> 0;
             if HasLinesToShip then
                 CheckItemInInventoryAndWarehouse(TransLine, not (WhseShip or InvtPickPutaway));
@@ -131,7 +131,7 @@
             OnBeforeCopyTransLines(TransHeader);
 
             TransLine.SetFilter("WIP Qty. To Ship", '<>0');
-            if TransLine.FindFirst then begin
+            if TransLine.FindFirst() then begin
                 repeat
                     TransLine.Validate("WIP Qty. Shipped", TransLine."WIP Qty. Shipped" + TransLine."WIP Qty. To Ship");
                     TransLine.Modify();
@@ -226,7 +226,6 @@
         Text008: Label 'This order must be a complete shipment.';
         Text009: Label 'Item %1 is not in inventory.';
         SuppressCommit: Boolean;
-        TransferDirection: Enum "Transfer Direction";
         HideValidationDialog: Boolean;
 
     local procedure PostItem(var TransferLine: Record "Transfer Line"; TransShptHeader2: Record "Transfer Shipment Header"; TransShptLine2: Record "Transfer Shipment Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
@@ -322,7 +321,7 @@
               TransferLine, ItemJnlLine, WhseShptHeader2, ItemJnlLine."Quantity (Base)")
         else
             ReserveTransLine.TransferTransferToItemJnlLine(
-              TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", TransferDirection::Outbound);
+              TransferLine, ItemJnlLine, ItemJnlLine."Quantity (Base)", "Transfer Direction"::Outbound);
     end;
 
     local procedure CheckDim()
@@ -332,7 +331,7 @@
         CheckDimValuePosting(TransHeader, TransLine);
 
         TransLine.SetRange("Document No.", TransHeader."No.");
-        if TransLine.FindFirst then begin
+        if TransLine.FindFirst() then begin
             CheckDimComb(TransHeader, TransLine);
             CheckDimValuePosting(TransHeader, TransLine);
         end;
@@ -388,7 +387,7 @@
             TransHeader.DeleteOneTransferOrder(TransHeader, TransLine)
         else begin
             WhseTransferRelease.Release(TransHeader);
-            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, TransferDirection::Outbound);
+            ReserveTransLine.UpdateItemTrackingAfterPosting(TransHeader, "Transfer Direction"::Outbound);
         end;
     end;
 
@@ -402,7 +401,7 @@
         TransLine3: Record "Transfer Line";
     begin
         TransLine3.SetRange("Document No.", FromDocNo);
-        if TransLine3.FindLast then
+        if TransLine3.FindLast() then
             exit(TransLine3."Line No." + 10000);
     end;
 
@@ -535,7 +534,7 @@
                 WhseShptLine.SetRange("Source Type", DATABASE::"Transfer Line");
                 WhseShptLine.SetRange("Source No.", TransLine."Document No.");
                 WhseShptLine.SetRange("Source Line No.", TransLine."Line No.");
-                if WhseShptLine.FindFirst then
+                if WhseShptLine.FindFirst() then
                     CreatePostedShptLineFromWhseShptLine(TransShptLine);
             end;
             ShouldRunPosting := WhsePosting;
@@ -584,7 +583,7 @@
         if TempHandlingSpecification.Find('-') then begin
             repeat
                 ReserveTransLine.TransferTransferToTransfer(
-                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", TransferDirection::Inbound, TempHandlingSpecification);
+                  FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", "Transfer Direction"::Inbound, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
             until TempHandlingSpecification.Next() = 0;
             TempHandlingSpecification.DeleteAll();
@@ -592,7 +591,7 @@
 
         if TransferQty > 0 then
             ReserveTransLine.TransferTransferToTransfer(
-              FromTransLine, ToTransLine, TransferQty, TransferDirection::Inbound, DummySpecification);
+              FromTransLine, ToTransLine, TransferQty, "Transfer Direction"::Inbound, DummySpecification);
     end;
 
     local procedure CheckWarehouse(TransLine: Record "Transfer Line")
@@ -738,10 +737,10 @@
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeriesLine.LockTable();
-        if NoSeriesLine.FindLast then;
+        if NoSeriesLine.FindLast() then;
         if AutoCostPosting then begin
             GLEntry.LockTable();
-            if GLEntry.FindLast then;
+            if GLEntry.FindLast() then;
         end;
     end;
 

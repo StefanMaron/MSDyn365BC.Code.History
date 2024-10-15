@@ -29,7 +29,7 @@ codeunit 144137 "UT REP Free Invoice"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePostedSalesInvoice(PaymentMethodCode: Code[10]): Code[20]

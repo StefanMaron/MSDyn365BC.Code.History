@@ -86,5 +86,17 @@ codeunit 740 "VAT Report Mediator"
         VATReportSetup.Get();
         exit(VATReportSetup."Filter Datifattura Lines" and VATReportHeader.isDatifattura)
     end;
+
+    procedure GetVATReportConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    begin
+        VATReportsConfiguration.SetRange("VAT Report Type", VATReportHeader."VAT Report Config. Code");
+        OnGetVATReportConfigurationOnAfterVATReportsConfigurationSetFilters(VATReportsConfiguration, VATReportHeader);
+        VATReportsConfiguration.FindFirst();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetVATReportConfigurationOnAfterVATReportsConfigurationSetFilters(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    begin
+    end;
 }
 

@@ -81,39 +81,56 @@ page 372 "Bank Account Ledger Entries"
                 field(Amount; Amount)
                 {
                     ApplicationArea = Basic, Suite;
+                    Visible = AmountVisible;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry denominated in the applicable foreign currency.';
+                }
+                field("Debit Amount"; "Debit Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the total of the ledger entries that represent debits.';
+                    Visible = DebCredAmountVisible;
+                }
+                field("Credit Amount"; "Credit Amount")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the total of the ledger entries that represent credits.';
+                    Visible = DebCredAmountVisible;
+                }
+                field(RunningBalance; CalcRunningAccBalance.GetBankAccBalance(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance';
+                    ToolTip = 'Specifies the running balance.';
+                    AutoFormatExpression = Rec."Currency Code";
+                    AutoFormatType = 1;
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
-                    Visible = false;
-                }
-                field("Debit Amount"; "Debit Amount")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the ledger entries that represent debits.';
-                    Visible = false;
+                    Visible = AmountVisible and IsForeignCurrency;
                 }
                 field("Debit Amount (LCY)"; "Debit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent debits, expressed in LCY.';
-                    Visible = false;
-                }
-                field("Credit Amount"; "Credit Amount")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the total of the ledger entries that represent credits.';
-                    Visible = false;
+                    Visible = DebCredAmountVisible and IsForeignCurrency;
                 }
                 field("Credit Amount (LCY)"; "Credit Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total of the ledger entries that represent credits, expressed in LCY.';
-                    Visible = false;
+                    Visible = DebCredAmountVisible and IsForeignCurrency;
+                }
+                field(RunningBalanceLCY; CalcRunningAccBalance.GetBankAccBalanceLCY(Rec))
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Running Balance (LCY)';
+                    ToolTip = 'Specifies the running balance in LCY.';
+                    AutoFormatType = 1;
+                    Visible = IsForeignCurrency;
                 }
                 field("Remaining Amount"; "Remaining Amount")
                 {
@@ -256,6 +273,13 @@ page 372 "Bank Account Ledger Entries"
                 ApplicationArea = Notes;
                 Visible = false;
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
         }
     }
 
@@ -351,24 +375,36 @@ page 372 "Bank Account Ledger Entries"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }
     }
 
     trigger OnOpenPage()
+    var
+        GLSetup: Record "General Ledger Setup";
+        BankAccount: Record "Bank Account";
     begin
         SetDimVisibility();
+        BankAccount.SetLoadFields("Currency Code");
+        if Rec.GetFilter("Bank Account No.") <> '' then
+            if BankAccount.Get(Rec.GetRangeMin("Bank Account No.")) then
+                IsForeignCurrency := BankAccount."Currency Code" <> '';
+        GLSetup.SetLoadFields("Show Amounts");
+        GLSetup.Get();
+        AmountVisible := GLSetup."Show Amounts" in [GLSetup."Show Amounts"::"Amount Only", GLSetup."Show Amounts"::"All Amounts"];
+        DebCredAmountVisible := GLSetup."Show Amounts" in [GLSetup."Show Amounts"::"Debit/Credit Only", GLSetup."Show Amounts"::"All Amounts"];
     end;
 
     var
+        CalcRunningAccBalance: Codeunit "Calc. Running Acc. Balance";
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
 
@@ -381,6 +417,9 @@ page 372 "Bank Account Ledger Entries"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        AmountVisible: Boolean;
+        DebCredAmountVisible: Boolean;
+        IsForeignCurrency: Boolean;
 
     local procedure SetDimVisibility()
     var

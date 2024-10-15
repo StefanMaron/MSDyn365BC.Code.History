@@ -44,7 +44,7 @@
     begin
         // [FEATURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Sales Invoice
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Posted shipments "A" and "B" coming from separate Sales Orders where first sales order has one lines and second sales order has three lines
@@ -78,7 +78,7 @@
     begin
         // [FEATURE] [Service] [Invoice] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Service Invoice
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Posted shipments "A" and "B" coming from separate Service Orders where first service order has "X" lines and second sales order has "Y" lines
@@ -112,7 +112,7 @@
         // [FEATURE] [Sales] [Order] [Shipment]
         // [SCENARIO 288977] DatiGenerali has node DatiDDT with information about shipment lines after posting Sales Order
 
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Sales Order with "X" lines posted as Ship and Invoice
@@ -140,7 +140,7 @@
         // [FEATURE] [Service] [Order] [Shipment]
         // [SCENARIO 284632] DatiGenerali has node DatiDDT with information about shipment lines after posting Service Order
 
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Service Order with "X" lines posted as Ship and Invoice
@@ -168,7 +168,7 @@
         // [FEATURE] [Sales] [Order] [Shipment]
         // [SCENARIO 288977] DatiOrdineAcquisto node has information about first shipment after posting Sales Order
 
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Sales order with "X" lines shipped twice and invoice once
@@ -196,7 +196,7 @@
         // [FEATURE] [Service] [Order] [Shipment]
         // [SCENARIO 288977] DatiOrdineAcquisto node has information about first shipment after posting Service Order
 
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Service order with "X" lines shipped twice and invoice once
@@ -226,11 +226,11 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284632] IdCodice node has value of company information's fiscal code if it's specified
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fiscal Code is "A" in Company Information
         CompanyInformation.Get();
-        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID;
+        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify(true);
 
         // [GIVEN] Posted Sales Invoice
@@ -259,12 +259,12 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284632] IdCodice node has value of company information's VAT registration code if fiscal code is not specified
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fiscal Code is blank and "VAT Registration No" is "B" in Company Information
         CompanyInformation.Get();
         CompanyInformation."Fiscal Code" := '';
-        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID;
+        CompanyInformation."VAT Registration No." := LibraryUtility.GenerateGUID();
         CompanyInformation.Modify(true);
 
         // [GIVEN] Posted Sales Invoice
@@ -292,7 +292,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284632] Multiple DettaglioPagamento nodes to be exported for payment terms with split payment lines
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two customer ledger entries posted from one sales invoice with two payment terms lines, each 50%
         DocumentNo := PostSalesInvoice(CreatePaymentMethod, CreatePaymentTermsWithMultiplePmtLines);
@@ -323,7 +323,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] VAT Entries are grouped by VAT percent to be exported to Dati Riepilogo node
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with three lines
         // [GIVEN] Line 1 has "VAT %" = 10, "VAT Amount" = 20
@@ -367,7 +367,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] Natura node has value of "VAT Nature" of VAT Posting Setup associated with Sales Invoice Line in case of zero VAT percent
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0 and "VAT Nature" = "X"
         CustomerNo := LibraryITLocalization.CreateCustomer;
@@ -397,7 +397,7 @@
         // [FEAUTURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 286708] IDDocument is blank if "Customer Purchase Order No." is not specified in Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Order posted as shipment
         CustomerNo := LibraryITLocalization.CreateCustomer;
@@ -428,7 +428,7 @@
         // [FEAUTURE] [Sales] [Invoice] [Shipment]
         // [SCENARIO 286708] IDDocument is blank if "Customer Purchase Order No." is not specified in Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Order posted as shipment
         CustomerNo := LibraryITLocalization.CreateCustomer;
@@ -455,7 +455,7 @@
         // [FEATURE] [UI]
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Sales Order page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         SalesOrder.OpenView;
         Assert.IsTrue(SalesOrder."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
@@ -471,7 +471,7 @@
     begin
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Sales Invoice page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         SalesInvoice.OpenView;
         Assert.IsTrue(SalesInvoice."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
@@ -487,7 +487,7 @@
     begin
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Service Order page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableServiceManagementSetup;
         ServiceOrder.OpenView;
         Assert.IsTrue(ServiceOrder."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
@@ -503,7 +503,7 @@
     begin
         // [SCENARIO 286708] A field "Customer Purchase Order No." is visible on Service Invoice page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableServiceManagementSetup;
         ServiceInvoice.OpenView;
         Assert.IsTrue(ServiceInvoice."Customer Purchase Order No.".Visible, FieldIsNotVisibleErr);
@@ -520,7 +520,7 @@
         // [FEATURE] [UI]
         // [SCENARIO 287253] A field "Paid-In Capital" is visible on Company Information page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableServiceManagementSetup;
         CompanyInformation.OpenView;
         Assert.IsTrue(CompanyInformation."Paid-In Capital".Visible, FieldIsNotVisibleErr);
@@ -537,7 +537,7 @@
         // [FEATURE] [UI]
         // [SCENARIO 287428] A field "PEC E-mail Address" is visible on Customer Card
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableBasicSetup;
         CustomerCard.OpenView;
         Assert.IsTrue(CustomerCard."PEC E-Mail Address".Visible, FieldIsNotVisibleErr);
@@ -561,7 +561,7 @@
         // [FEAUTURE] [Sales] [Invoice] [Extended Text] [Standard Text]
         // [SCENARIO 287245] An extended and standard texts of Sales Invoice exports to XML file in node RiferimentoTesto under node AltriDatiGestionali
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "ITEM0123456789012345" with 3 extended texts, each text has length 100
         ItemNo := CreateItemWithMultipleExtendedText;
@@ -598,7 +598,7 @@
         // [FEAUTURE] [Sales] [Credit Memo] [Extended Text] [Standard Text]
         // [SCENARIO 287245] An extended and standard texts of Sales Credit Memo exports to XML file in node RiferimentoTesto under node AltriDatiGestionali
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
         ItemNo := CreateItemWithMultipleExtendedText;
@@ -634,7 +634,7 @@
         // [FEAUTURE] [Service] [Invoice] [Extended Text] [Standard Text]
         // [SCENARIO 287245] An extended and standard texts of Service Invoice exports to XML file in node RiferimentoTesto under node AltriDatiGestionali
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
         ItemNo := CreateItemWithMultipleExtendedText;
@@ -670,7 +670,7 @@
         // [FEAUTURE] [Service] [Credit Memo] [Extended Text] [Standard Text]
         // [SCENARIO 287245] An extended and standard texts of Service Credit Memo exports to XML file in node RiferimentoTesto under node AltriDatiGestionali
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with 3 extended texts, each text has length 100
         ItemNo := CreateItemWithMultipleExtendedText;
@@ -705,7 +705,7 @@
     begin
         // [SCENARIO 287253] A value of "Paid-In Capital" expors to CapitaleSociale node
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Paid-In Capital" is 100 in Company Information
         PaidInCapital := LibraryRandom.RandDec(100, 2);
@@ -740,7 +740,7 @@
         // [FEATURE] [Sales] [Invoice] [Prepayment]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD02" for sales prepayment invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Prepayment Invoice
         CustomerNo := CreateCustomerWithPmtSetup;
@@ -770,7 +770,7 @@
         // [FEATURE] [Sales] [Credit Memo] [Prepayment]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD02" for sales prepayment credit memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Prepayment Credit Memo
         CustomerNo := CreateCustomerWithPmtSetup;
@@ -801,7 +801,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD01" for sales  invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice
         CustomerNo := CreateCustomerWithPmtSetup;
@@ -831,7 +831,7 @@
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 287458] The node "TipoDocumento" has value "TD04" for sales credit memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo
         CustomerNo := CreateCustomerWithPmtSetup;
@@ -861,7 +861,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 298050] The node "TipoDocumento" has value "TD20" for self-billing sales invoice when "VAT Registration No." of Company Information matches to same number in customer card
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information with "VAT Registration No." = "X"
         // [GIVEN] Customer with "VAT Registration No." = "X"
@@ -895,7 +895,7 @@
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 298050] The node "TipoDocumento" has value "TD20" for self-billing sales credit memo when "VAT Registration No." of Company Information matches to same number in customer card
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company Information with "VAT Registration No." = "X"
         // [GIVEN] Customer with "VAT Registration No." = "X"
@@ -932,7 +932,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294603] RiferimentoNormativo node has value of VAT Identifier description
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0 and "VAT Identifier" with description "X"
         CustomerNo := LibraryITLocalization.CreateCustomer;
@@ -970,7 +970,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294603] RiferimentoNormativo node has value of VAT Identifier description and VAT Exemption No. and Date formatted to dd/mm/yyyy
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Validated the VAT Exemption Nos. in Purchases & Payables Setup
         UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
@@ -1021,7 +1021,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 341871] RiferimentoNormativo node has value of VAT Identifier description and VAT Exemption No. plus Progressive No. and Date formatted to dd/mm/yyyy
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Validated the VAT Exemption Nos. in Purchases & Payables Setup
         UpdatePurchasesPayablesSetupVATExemptionNos(LibraryERM.CreateNoSeriesCode);
@@ -1029,7 +1029,7 @@
         // [GIVEN] Posted Sales Invoice with VAT Posting Setup with "VAT %" = 0, "VAT Identifier" with description "X", "VAT Exemption No." = "Y", "Consecutive VAT Exempt. No." = "001" and "VAT Exemption Date" = 01.02.2019 (dd.mm.yyyy format)
         CustomerNo := LibraryITLocalization.CreateCustomer;
         CreateVATExemptionForCustomer(VATExemption, CustomerNo);
-        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID);
+        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID());
         VATExemption.Modify(true);
         CreateSalesDocWithVATTransNatureAndZeroVATRate(SalesHeader, SalesLine, VATPostingSetup, CustomerNo);
         SetVATIdentifierInSalesLine(SalesLine);
@@ -1069,7 +1069,7 @@
         // [FEAUTURE] [Sales] [Irder] [Extended Text] [Standard Text]
         // [SCENARIO 295046] No node AltriDatiGestionali exported when extended text removed from Sales Order before invoicing
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with multiple extended texts
         ItemNo := CreateItemWithMultipleExtendedText;
@@ -1108,7 +1108,7 @@
         // [FEAUTURE] [Service] [Order] [Extended Text] [Standard Text]
         // [SCENARIO 295046] No AltriDatiGestionali node exported when extended text removed from Service Order before invoicing
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with multiple extended texts
         CustomerNo := LibraryITLocalization.CreateCustomer;
@@ -1148,7 +1148,7 @@
         // [FEAUTURE] [Sales] [Invoice] [Extended Text] [Standard Text]
         // [SCENARIO 295878] No AltriDatiGestionali node in XML file when extended text value is blank
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with blank extended text
         ItemNo := CreateItemWithBlankExtendedText;
@@ -1179,7 +1179,7 @@
         // [FEATURE] [Sales] [Order] [Shipment]
         // [SCENARIO 295878] No DatiOrdineAcquisto node if only one shipment was posted
 
-        Initialize;
+        Initialize();
         CustomerNo := LibraryITLocalization.CreateCustomer;
 
         // [GIVEN] Sales order with one line shipped
@@ -1208,7 +1208,7 @@
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 297021] "DatiBeniServizi" (line details) is printed into XML in case of total document amount is zero
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with two lines with Amounts 100, -100 (total zero)
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
@@ -1247,7 +1247,7 @@
     begin
         // [FEAUTURE] [Sales] [Invoice] [Standard Text]
         // [SCENARIO 297997] Euro specical char replaced with EUR when exported to XML
-        Initialize;
+        Initialize();
 
         ItemNo := CreateItemWithMultipleExtendedText;
 
@@ -1286,7 +1286,7 @@
         // [FEATURE] [Sales] [Invoice] [Rounding]
         // [SCENARIO 297990] Imposta node has value of total VAT amount of the Sales Invoice coming from VAT entries which considers rounding
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with multiples lines, all with fixed values which finally leads to rounding
         CreateSalesDocWithRounding(SalesHeader, SalesHeader."Document Type"::Invoice);
@@ -1313,7 +1313,7 @@
         // [FEATURE] [Sales] [Credit Memo] [Rounding]
         // [SCENARIO 297990] Imposta node has value of total VAT amount of the Sales Credit Memo coming from VAT entries
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with multiples lines, all with fixed values which finally leads to rounding
         CreateSalesDocWithRounding(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
@@ -1340,7 +1340,7 @@
         // [FEATURE] [Service] [Invoice] [Rounding]
         // [SCENARIO 297990] Imposta node has value of total VAT amount of the Service Invoice coming from VAT entries which considers rounding
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with multiples lines, all with fixed values which finally leads to rounding
         CreateServiceDocWithRounding(ServiceHeader, ServiceHeader."Document Type"::Invoice);
@@ -1368,7 +1368,7 @@
         // [FEATURE] [Service] [Invoice] [Rounding]
         // [SCENARIO 297990] Imposta node has value of total VAT amount of the Service Credit Memo coming from VAT entries which considers rounding
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Credit Memo with multiples lines, all with fixed values which finally leads to rounding
         CreateServiceDocWithRounding(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo");
@@ -1396,7 +1396,7 @@
     begin
         // [SCENARIO 298038] A value in XML node for Quantity has five decimal places
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Quantity = 2.33333
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibraryITLocalization.CreateCustomer);
@@ -1428,7 +1428,7 @@
     begin
         // [SCENARIO 299242] A "CodiceFiscale" node used in exported XML file instead of "IDCodice" for Individual Person
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Customer as Individual Person. "Fiscal Code" of the customer is "X", "VAT Registration No." is blank
         CreateCustomerAsIndividualPerson(Customer);
@@ -1463,7 +1463,7 @@
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 310192] Multiple DatiRiepilogo nodes exported per each "VAT Transaction Nature"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with multiple lines, each has its own "VAT Transaction Nature" code and VAT amounts "X" and "Y" accordingly
         CreateSalesDocWithMultipleVATTransNatures(SalesHeader, SalesLine, VATPostingSetup);
@@ -1492,7 +1492,7 @@
     begin
         // [SCENARIO 311977] A liquidation status StatoLiqudazione has value "LS" if "Liquidation Status" is "In Liquidation"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Liquidation Status" is "In Liquidation" in Company Information
         CompanyInformation.Get();
@@ -1526,7 +1526,7 @@
         // [SCENARIO 314517] ImponibileImporto node has either positive or negative value depends on the sign of original sales invoice
         // [FEATURE] [Sales] [Invoice]
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales invoice with two lines
         // [GIVEN] First line has VAT Amount = 20
@@ -1559,7 +1559,7 @@
         // [SCENARIO 314517] ImponibileImporto node has either positive or negative value depends on the sign of original sales credit memo
         // [FEATURE] [Sales] [Invoice]
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales credit memo with two lines
         // [GIVEN] First line has VAT Amount = 20
@@ -1857,7 +1857,7 @@
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -2153,8 +2153,8 @@
     begin
         Customer.Get(CreateCustomerWithPmtSetup);
         Customer.Validate("Individual Person", true);
-        Customer.Validate("First Name", LibraryUtility.GenerateGUID);
-        Customer.Validate("Last Name", LibraryUtility.GenerateGUID);
+        Customer.Validate("First Name", LibraryUtility.GenerateGUID());
+        Customer.Validate("Last Name", LibraryUtility.GenerateGUID());
         Customer.Validate("VAT Registration No.", '');
         Customer.Modify(true);
     end;
@@ -2270,7 +2270,7 @@
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
 
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
     end;
 
     local procedure CreateSalesLineWithSalesVATPct(SalesHeader: Record "Sales Header"; CurrSalesLine: Record "Sales Line"; VATPct: Decimal): Decimal
@@ -2531,19 +2531,19 @@
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; InvoiceNo: Code[20])
     begin
         SalesInvoiceLine.SetRange("Document No.", InvoiceNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FindServiceInvoiceLine(var ServiceInvoiceLine: Record "Service Invoice Line"; CustNo: Code[20])
     begin
         ServiceInvoiceLine.SetRange("Bill-to Customer No.", CustNo);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
     end;
 
     local procedure RemoveSalesLinesAttachedToCurrentLine(SalesLine: Record "Sales Line")
@@ -2633,7 +2633,7 @@
         VATIdentifier.Init();
         VATIdentifier.Code :=
           LibraryUtility.GenerateRandomCode(VATIdentifier.FieldNo(Code), DATABASE::"VAT Identifier");
-        VATIdentifier.Description := LibraryUtility.GenerateGUID;
+        VATIdentifier.Description := LibraryUtility.GenerateGUID();
         VATIdentifier.Insert();
 
         SalesLine.Validate("VAT Identifier", VATIdentifier.Code);
@@ -2748,7 +2748,7 @@
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
         SalesShipmentLine.SetRange("Document No.", SalesShipmentLine."Document No.");
         SalesShipmentLine.FindSet();
         repeat
@@ -2766,7 +2766,7 @@
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentLine."Document No.");
         ServiceShipmentLine.FindSet();
         i := 1;
@@ -3142,7 +3142,7 @@
         Assert.RecordCount(TempXMLBuffer, ArrayLen(VATAmount));
         for i := 1 to ArrayLen(VATAmount) do begin
             TempXMLBuffer.SetRange(Value, FormatAmount(VATAmount[i]));
-            TempXMLBuffer.FindFirst;
+            TempXMLBuffer.FindFirst();
         end;
         DeleteServerFile(ServerFileName);
     end;
@@ -3160,7 +3160,7 @@
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup."VAT Exemption Nos." := VATExemptionNos;
         PurchasesPayablesSetup.Modify;
     end;

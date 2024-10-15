@@ -51,7 +51,7 @@ table 12173 "Deferring Due Dates"
         DefDueDates.Reset();
         DefDueDates.SetRange("No.", "No.");
 
-        if DefDueDates.FindSet then
+        if DefDueDates.FindSet() then
             repeat
                 if ("From-Date" >= DefDueDates."From-Date") and
                    ("From-Date" <= DefDueDates."To-Date")

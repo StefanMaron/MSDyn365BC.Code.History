@@ -92,7 +92,7 @@ page 12100 "VAT Exemptions"
                 begin
                     TestField(Type, Type::Vendor);
                     DeclarationOfIntentExport.Initialize(Rec);
-                    DeclarationOfIntentExport.Run;
+                    DeclarationOfIntentExport.Run();
                 end;
             }
         }

@@ -85,7 +85,7 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
                     VATRegNo := PadStr('', 11, '0');
                     AppCode := PadStr('', 2, '0');
                 end;
-                if VATStatementLine.FindSet then
+                if VATStatementLine.FindSet() then
                     repeat
                         ColumnValue := 0;
                         AnnualVATComm2010.InitializeVATStatement(

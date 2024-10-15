@@ -25,11 +25,14 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
         LineCount: Integer;
         NextOrderLineNo: Integer;
         NoOfOrderLines: Integer;
+        HideProgressWindow: Boolean;
 
     procedure "Code"()
     var
         IsHandled: Boolean;
     begin
+        OnBeforeCode(PhysInvtRecordHeader, HideProgressWindow);
+
         InvtSetup.Get();
         with PhysInvtRecordHeader do begin
             TestField("Order No.");
@@ -43,15 +46,17 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
             if not PhysInvtRecordLine.Find('-') then
                 Error(NoLinesRecordedErr);
 
-            Window.Open(
-              '#1#################################\\' + FinishingLinesMsg);
-            Window.Update(1, StrSubstNo('%1 %2', TableCaption, "Order No."));
+            if not HideProgressWindow then begin
+                Window.Open(
+                '#1#################################\\' + FinishingLinesMsg);
+                Window.Update(1, StrSubstNo('%1 %2', TableCaption, "Order No."));
+            end;
 
             PhysInvtOrderHeader.LockTable();
             PhysInvtOrderLine.LockTable();
             PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "Order No.");
-            if PhysInvtOrderLine.FindLast then
+            if PhysInvtOrderLine.FindLast() then
                 NextOrderLineNo := PhysInvtOrderLine."Line No." + 10000
             else
                 NextOrderLineNo := 10000;
@@ -65,7 +70,8 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
             if PhysInvtRecordLine.Find('-') then
                 repeat
                     LineCount := LineCount + 1;
-                    Window.Update(2, LineCount);
+                    if not HideProgressWindow then
+                        Window.Update(2, LineCount);
 
                     if not PhysInvtRecordLine.EmptyLine then begin
                         PhysInvtRecordLine.TestField("Item No.");
@@ -104,7 +110,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                             PhysInvtOrderLine.Validate("Bin Code", PhysInvtRecordLine."Bin Code");
                             PhysInvtOrderLine."Recorded Without Order" := true;
                             OnBeforePhysInvtOrderLineInsert(PhysInvtOrderLine, PhysInvtRecordLine);
-                            PhysInvtOrderLine.CreateDim(DATABASE::Item, PhysInvtOrderLine."Item No.");
+                            PhysInvtOrderLine.CreateDimFromDefaultDim();
                             PhysInvtOrderLine.Insert(true);
                             NextOrderLineNo := NextOrderLineNo + 10000;
                         end;
@@ -122,7 +128,7 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
                 until PhysInvtRecordLine.Next() = 0;
 
             Status := Status::Finished;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -138,6 +144,11 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
         Location.TestField("Directed Put-away and Pick", false);
     end;
 
+    procedure SetHideProgressWindow(NewHideProgressWindow: Boolean)
+    begin
+        HideProgressWindow := NewHideProgressWindow;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnRun(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header")
     begin
@@ -145,6 +156,11 @@ codeunit 5876 "Phys. Invt. Rec.-Finish"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLocationDirectedPutAwayAndPick(var PhysInvtRecordLine: Record "Phys. Invt. Record Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var PhysInvtRecordHeader: Record "Phys. Invt. Record Header"; var HideProgressWindow: Boolean)
     begin
     end;
 

@@ -17,7 +17,7 @@ codeunit 132470 "Bank Acc. Linking Mock Events"
         LastId: Integer;
     begin
         LastId := 0;
-        if TempNameValueBuffer.FindLast then
+        if TempNameValueBuffer.FindLast() then
             LastId := TempNameValueBuffer.ID;
 
         LastId += 1;

@@ -245,8 +245,8 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         BankExportImportSetup.Init();
-        BankExportImportSetup.Validate(Code, LibraryUtility.GenerateGUID);
-        BankExportImportSetup.Validate(Name, LibraryUtility.GenerateGUID);
+        BankExportImportSetup.Validate(Code, LibraryUtility.GenerateGUID());
+        BankExportImportSetup.Validate(Name, LibraryUtility.GenerateGUID());
         BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::Export);
         BankExportImportSetup.Validate("Processing Codeunit ID", CODEUNIT::"SEPA CT-Export File");
         BankExportImportSetup.Validate("Processing XMLport ID", XMLPORT::"CBI Payment Request.00.04.00");
@@ -342,7 +342,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         i: Integer;
     begin
         BankImportSetupCode := CreateBankExportImportFormat;
-        IBAN := LibraryUtility.GenerateGUID;
+        IBAN := LibraryUtility.GenerateGUID();
         LibraryERM.CreateBankAccount(BankAccount);
         UpdateBankAccount(BankAccount, IBAN, BankImportSetupCode);
         BankAccountNo := BankAccount."No.";
@@ -482,7 +482,7 @@ codeunit 144020 "IT - SEPA CBI CT Test"
         VerifyDebitor(VendorBillHeader."Bank Account No.", CompanyInformation);
         VerifyChrgBr;
 
-        VendorBillLine.FindFirst;
+        VendorBillLine.FindFirst();
         Counter := 1;
         repeat
             VerifyCdtTrxInf(VendorBillLine, Vendor, Counter);

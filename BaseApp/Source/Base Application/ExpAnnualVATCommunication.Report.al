@@ -66,7 +66,7 @@ report 12125 "Exp. Annual VAT Communication"
                 TaxYear := Date2DMY(StartDate, 3);
                 Signature := false;
 
-                if VATStatementLine.FindSet then
+                if VATStatementLine.FindSet() then
                     repeat
                         ColumnValue := 0;
                         AnnualVATComm2010.InitializeVATStatement(

@@ -40,8 +40,8 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemNoSeries: Text[20];
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Sales Totals Invoice/Cr.M");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
 
@@ -57,7 +57,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesSetup.Modify();
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         InventorySetup.Get();
         ItemNoSeries := LibraryUtility.GetGlobalNoSeriesCode;
@@ -77,7 +77,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ResLedgerEntry: Record "Res. Ledger Entry";
         WarehouseEntry: Record "Warehouse Entry";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::"Res. Ledger Entry":
                 ResLedgerEntry.DeleteAll();
@@ -97,7 +97,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -122,7 +122,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateInvoceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
@@ -145,7 +145,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         DiscPct: Decimal;
         NewLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateInvoceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
@@ -176,9 +176,9 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount := 0;
         CheckInvoiceDiscountTypePercentage(0, TotalAmount, SalesInvoice, false, '');
 
-        SalesLine.SetRange("Document Type",SalesLine."Document Type"::Invoice);
-        SalesLine.SetRange("Document No.",SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -195,7 +195,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateInvoceWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesInvoice);
@@ -228,9 +228,9 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         Assert.AreNotEqual(TotalAmount, SalesInvoice.SalesLines."Total Amount Incl. VAT".AsDEcimal,
           'The value should not be equal');
 
-        SalesLine.SetRange("Document Type",SalesLine."Document Type"::Invoice);
-        SalesLine.SetRange("Document No.",SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -247,7 +247,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -272,7 +272,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -298,7 +298,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -329,7 +329,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -358,7 +358,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         CreateCustomer(NewCustomer);
 
@@ -389,7 +389,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateCustomer(NewCustomer);
 
@@ -420,7 +420,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -450,7 +450,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         CreateCustomer(NewCustomer);
 
@@ -480,7 +480,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -493,7 +493,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckInvoiceDiscountTypePercentage(DiscPct, TotalAmount, SalesInvoice, true, SalesInvoice."Currency Code".Value);
@@ -514,7 +514,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -526,7 +526,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckInvoiceDiscountTypeAmount(0, TotalAmount, SalesInvoice, true, SalesInvoice."Currency Code".Value);
@@ -545,7 +545,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
@@ -584,7 +584,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -613,14 +613,14 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesInvoice: TestPage "Sales Invoice";
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
 
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
         InvoiceCheckCurrencyOnTotals(SalesInvoice, Customer."Currency Code");
@@ -642,7 +642,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -667,7 +667,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
@@ -691,7 +691,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         DiscPct: Decimal;
         NewLineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         ClearTable(DATABASE::"Warehouse Entry");
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
@@ -729,9 +729,9 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount := 0;
         CheckCreditMemoDiscountTypePercentage(0, TotalAmount, SalesCreditMemo, false, '');
 
-        SalesLine.SetRange("Document Type",SalesLine."Document Type"::"Credit Memo");
-        SalesLine.SetRange("Document No.",SalesCreditMemo."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+        SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -748,7 +748,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         InvoiceDiscountAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
@@ -797,9 +797,9 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
           InvoiceDiscountAmount, SalesCreditMemo.SalesLines."Invoice Discount Amount".AsDEcimal,
           'Invoice discount amount has been changed');
 
-        SalesLine.SetRange("Document Type",SalesLine."Document Type"::"Credit Memo");
-        SalesLine.SetRange("Document No.",SalesCreditMemo."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::"Credit Memo");
+        SalesLine.SetRange("Document No.", SalesCreditMemo."No.".Value);
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -816,7 +816,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -841,7 +841,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -867,7 +867,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableVATSetup;
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -897,7 +897,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -927,7 +927,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         NewCustDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustDiscPct := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustDiscPct, 0);
@@ -958,7 +958,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         CreateCustomer(NewCustomer);
 
@@ -989,7 +989,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -1019,7 +1019,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         NewCustomerDiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
         NewCustomerDiscPct := LibraryRandom.RandDecInRange(1, 99, 2);
         CreateCustomerWithDiscount(NewCustomer, NewCustomerDiscPct, 0);
@@ -1050,7 +1050,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         ItemQuantity: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1062,7 +1062,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckCreditMemoDiscountTypePercentage(DiscPct, TotalAmount, SalesCreditMemo, true, SalesCreditMemo."Currency Code".Value);
@@ -1083,7 +1083,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1095,7 +1095,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         TotalAmount := NumberOfLines * SalesLine."Line Amount";
         CheckCreditMemoDiscountTypeAmount(InvoiceDiscountAmount, TotalAmount, SalesCreditMemo, true, SalesCreditMemo."Currency Code".Value);
@@ -1114,7 +1114,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         InvoiceDiscountAmount: Decimal;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypeAmt(Item, ItemQuantity, Customer, InvoiceDiscountAmount);
 
         CreateCreditMemoWithOneLineThroughTestPage(Customer, Item, ItemQuantity, SalesCreditMemo);
@@ -1150,7 +1150,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         TotalAmount: Decimal;
         DiscPct: Decimal;
     begin
-        Initialize;
+        Initialize();
         SetupDataForDiscountTypePct(Item, ItemQuantity, Customer, DiscPct);
 
         CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, ItemQuantity, NumberOfLines);
@@ -1183,14 +1183,14 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesCreditMemo: TestPage "Sales Credit Memo";
         ItemUnitPrice: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
         CreateItem(Item, ItemUnitPrice);
         CreateCustomer(Customer);
         Customer."Currency Code" := GetDifferentCurrencyCode;
         Customer.Modify(true);
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
 
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
         CreditMemoCheckCurrencyOnTotals(SalesCreditMemo, Customer."Currency Code");
@@ -1213,7 +1213,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesInvoice: TestPage "Sales Invoice";
         SalesOrder: TestPage "Sales Order";
     begin
-        Initialize;
+        Initialize();
 
         CreateCustomer(Customer);
         CreateItem(Item, LibraryRandom.RandDec(100, 2));
@@ -1269,7 +1269,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Invoice "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice "SI01" with Sales Lines created for Customer "CU01" and no discount
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1280,7 +1280,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
         CreateCustomer(Customer);
-        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [WHEN] Set "Bill-to Name" to "CU02" on Sales Invoice Page for "SI01"
@@ -1305,7 +1305,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         // [FEATURE] [Intercompany]
         // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Credit Memo "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo "SC01" with Sales Lines created for Customer "CU01" and no discount
         ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -1316,7 +1316,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
         // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
         CreateCustomer(Customer);
-        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID();
         Customer.Modify(true);
 
         // [WHEN] Set "Bill-to Name" to "CU02" on Sales Credit Memo Page for "SC01"
@@ -1325,6 +1325,48 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SC01"
         SalesHeader.Find;
         SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure RecurringSalesLinesInvoiceDiscountCalculations()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        StandardSalesCode: Record "Standard Sales Code";
+        StandardSalesLine: Record "Standard Sales Line";
+        StandardCustomerSalesCode: Record "Standard Customer Sales Code";
+        SalesOrder: TestPage "Sales Order";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO] When automatic recurring sales lines are added to sales order, the discount is calculated properly.
+        Initialize();
+
+        // [GIVEN] Customer with 5 % discount for min. ammount of 10.
+        CreateCustomerWithDiscount(Customer, 5, 10);
+
+        // [GIVEN] A recurring sales line for customer with item costing 100 and quantity set to 1.
+        CreateItem(Item, 100);
+        LibrarySales.CreateStandardSalesCode(StandardSalesCode);
+        LibrarySales.CreateStandardSalesLine(StandardSalesLine, StandardSalesCode.Code);
+        StandardSalesLine.Validate(Type, StandardSalesLine.Type::Item);
+        StandardSalesLine.Validate("No.", Item."No.");
+        StandardSalesLine.Validate(Quantity, 1);
+        StandardSalesLine.Modify(true);
+        LibrarySmallBusiness.CreateCustomerSalesCode(StandardCustomerSalesCode, Customer."No.", StandardSalesCode.Code);
+        StandardCustomerSalesCode.Validate(
+            "Insert Rec. Lines On Orders", StandardCustomerSalesCode."Insert Rec. Lines On Orders"::Automatic
+        );
+        StandardCustomerSalesCode.Modify(true);
+
+        // [WHEN] Creating a new sales order for the customer and calculating discount amount.
+        SalesOrder.OpenNew();
+        SalesOrder."Sell-to Customer Name".SetValue(Customer."No.");
+        SalesOrder.CalculateInvoiceDiscount.Invoke();
+
+        // [THEN] The discount is applied to to the inserted sales line.
+        Assert.AreEqual(5, SalesOrder.SalesLines."Invoice Disc. Pct.".AsDecimal(), 'Expected discount to be applied.');
+        Assert.AreEqual(95, SalesOrder.SalesLines."Total Amount Excl. VAT".AsDecimal(), 'Expected discount to be applied.');
     end;
 
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; MinimumAmount: Decimal)
@@ -1353,7 +1395,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.SetFilter("Starting Date", '<=%1', WorkDate);
-        if not CurrencyExchangeRate.FindFirst then
+        if not CurrencyExchangeRate.FindFirst() then
             LibrarySmallBusiness.CreateCurrencyExchangeRate(CurrencyExchangeRate, CurrencyCode, WorkDate);
     end;
 
@@ -1519,7 +1561,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         Currency.Init();
         Currency.SetFilter(Code, '<>%1', LibraryERM.GetLCYCode);
-        Currency.FindFirst;
+        Currency.FindFirst();
         CheckExistOrAddCurrencyExchageRate(Currency.Code);
 
         exit(Currency.Code);
@@ -1527,7 +1569,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
     local procedure CreateInvoceWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesInvoice: TestPage "Sales Invoice")
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesInvoice.SalesLines.First;
@@ -1539,7 +1581,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
     local procedure CreateCreditMemoWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesCreditMemo: TestPage "Sales Credit Memo")
     begin
-        SalesCreditMemo.OpenNew;
+        SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
         SalesCreditMemo."Operation Type".SetValue(LibrarySmallBusiness.FindSalesOperationType);
 
@@ -1552,7 +1594,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
     local procedure CreateOrderWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesOrder: TestPage "Sales Order")
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesOrder.SalesLines.First;
@@ -1564,7 +1606,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
 
     local procedure CreateQuoteWithOneLineThroughTestPage(Customer: Record Customer; Item: Record Item; ItemQuantity: Integer; var SalesQuote: TestPage "Sales Quote")
     begin
-        SalesQuote.OpenNew;
+        SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
         SalesQuote.SalesLines.First;
@@ -1618,7 +1660,7 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
     begin
         if CurrencyCode = '' then begin
             Currency.SetFilter(Code, CurrencyCode);
-            Currency.FindFirst;
+            Currency.FindFirst();
             Amount := Round(Amount, Currency."Amount Rounding Precision");
         end else
             Amount := Round(Amount, LibraryERM.GetAmountRoundingPrecision);

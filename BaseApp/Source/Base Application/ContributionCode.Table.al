@@ -52,7 +52,7 @@ table 12106 "Contribution Code"
         SocialSecurityCodeLine.Reset();
         SocialSecurityCodeLine.SetRange(Code, Code);
 
-        if SocialSecurityCodeLine.FindFirst then
+        if SocialSecurityCodeLine.FindFirst() then
             SocialSecurityCodeLine.DeleteAll();
     end;
 

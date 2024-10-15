@@ -143,7 +143,7 @@ page 130013 Snapshots
     begin
         DeleteAll();
         SnapshotMgt.ListSnapshots(Rec);
-        if FindFirst then;
+        if FindFirst() then;
         CurrPage."Tainted Tables".PAGE.RefreshPage;
     end;
 

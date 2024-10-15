@@ -416,7 +416,7 @@ report 12109 "Account Book Sheet - Print"
                 AccPeriod.Reset();
                 AccPeriod.SetRange("New Fiscal Year", true);
                 AccPeriod.SetFilter("Starting Date", '<=%1', GetRangeMin("Date Filter"));
-                AccPeriod.FindLast;
+                AccPeriod.FindLast();
 
                 FiscalYearStartDate := AccPeriod."Starting Date";
             end;

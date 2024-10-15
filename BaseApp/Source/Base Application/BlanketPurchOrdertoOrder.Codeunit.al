@@ -34,7 +34,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         PurchBlanketOrderLine.SetRange("Document Type", "Document Type");
         PurchBlanketOrderLine.SetRange("Document No.", "No.");
         OnRunOnAfterPurchBlanketOrderLineSetFilters(PurchBlanketOrderLine);
-        if PurchBlanketOrderLine.FindSet then
+        if PurchBlanketOrderLine.FindSet() then
             repeat
                 if (PurchBlanketOrderLine.Type = PurchBlanketOrderLine.Type::" ") or
                    (PurchBlanketOrderLine."Qty. to Receive" <> 0)
@@ -144,7 +144,7 @@ codeunit 97 "Blanket Purch. Order to Order"
         PurchLine.SetRange("Blanket Order Line No.", PurchBlanketOrderLine."Line No.");
         OnCalcQuantityOnOrdersOnAfterPurchLineSetFilters(PurchLine);
         QuantityOnOrders := 0;
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 if (PurchLine."Document Type" = PurchLine."Document Type"::"Return Order") or
                    ((PurchLine."Document Type" = PurchLine."Document Type"::"Credit Memo") and
@@ -200,6 +200,8 @@ codeunit 97 "Blanket Purch. Order to Order"
     end;
 
     local procedure CreatePurchHeader(PurchHeader: Record "Purchase Header"; PrepmtPercent: Decimal)
+    var
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         OnBeforeCreatePurchHeader(PurchHeader);
 
@@ -213,6 +215,8 @@ codeunit 97 "Blanket Purch. Order to Order"
 
             PurchOrderLine.LockTable();
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
+            StandardCodesMgt.SetSkipRecurringLines(true);
+            PurchOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
             InsertPurchaseHeader(PurchOrderHeader);
 
             if "Order Date" = 0D then

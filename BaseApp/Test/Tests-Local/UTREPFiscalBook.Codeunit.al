@@ -89,7 +89,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnPreDataItemPrintCompInfoVATRegPrintAddressErr()
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Company Address.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithError(LibraryUTUtility.GetNewCode, '', '', '', '', '');  // Only Company Name is filled rest all blank Company Information Fields.
     end;
 
@@ -100,7 +100,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnPreDataItemPrintCompInfoVATRegPrintPostCodeErr()
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Company Post Code.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithError(LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', '', '', '');  // All blank Company Information Fields except Name and Address.
     end;
 
@@ -111,7 +111,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnPreDataItemPrintCompInfoVATRegPrintRegCompNoErr()
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Register Company Number.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithError(LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, '', '', '');  // All blank Company Information Fields except Name, Address, Post Code.
     end;
 
@@ -122,7 +122,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnPreDataItemPrintCompInfoVATRegPrintVATRegNoErr()
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank VAT Registration Number.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithError(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode, '', '');  // Blank VAT Registration, Fiscal Code.
     end;
@@ -134,7 +134,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnPreDataItemPrintCompInfoVATRegPrintFiscalCodeErr()
     begin
         // Purpose of the test is to validate OnPreDataItem Trigger of Report - 12120 [VAT Register - Print] with Blank Fiscal Code.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithError(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '');  // Blank Fiscal Code.
@@ -163,7 +163,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12121 G/L Book - Print for two different accounting periods.
         // Setup.
-        Initialize;
+        Initialize();
         StartingDate := CalcDate('<CY>', WorkDate);
         CreateAccountingPeriod(StartingDate);
 
@@ -188,7 +188,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12121 G/L Book - Print when Starting Date is equal to Fiscal Year Starting Date.
         // Setup.
-        Initialize;
+        Initialize();
         CreateAccountingPeriod(WorkDate);
         CreateGLBookEntry;
         EnqueueValuesInGLBookPrintRequestPageHandler(
@@ -212,7 +212,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to validate EndingDate - OnValidate Trigger of Report - 12121 G/L Book - Print when Ending Date is greater than Last Gen. Jour. Printing Date.
         // Setup.
-        Initialize;
+        Initialize();
         UpdateGLSetupLastGenJourPrintingDate(CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using a random date earlier than WORKDATE for Last Gen Jour. Printing Date.
         EnqueueValuesInGLBookPrintRequestPageHandler(ReportType::Reprint, WorkDate, WorkDate);  // Enqueue WORKDATE as Starting and Ending Date for GLBookPrintRequestPageHandler.
 
@@ -230,7 +230,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnAfterGetRecordBankSheetPrintDebitAmount()
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord Trigger of Report 12112 (Bank Sheet - Print).
-        Initialize;
+        Initialize();
         BankSheetPrintWithDebitAndCreditAmount(
           LibraryRandom.RandDec(50, 2), LibraryRandom.RandDecInRange(100, 500, 2), IncreasesAmtCap);  // Random Amounts. Credit Amount is lesser than Debit Amount.
     end;
@@ -242,7 +242,7 @@ codeunit 144074 "UT REP Fiscal Book"
     procedure OnAfterGetRecordBankSheetPrintCreditAmount()
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord Trigger of Report 12112 (Bank Sheet - Print).
-        Initialize;
+        Initialize();
         BankSheetPrintWithDebitAndCreditAmount(
           LibraryRandom.RandDecInRange(100, 500, 2), LibraryRandom.RandDec(50, 2), DecreasesAmtCap);  // Random Amounts. Debit Amount is lesser than Credit Amount.
     end;
@@ -258,7 +258,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // [FEATURE] [Bank Sheet - Print]
         // [SCENARIO 364571] Bank Sheet - Print report prints StartOnHand value if it has beginning balance and no entries on reporting period.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account Ledger Entry earlier than WORKDATE and Amount = "X"
         BankAccountNo := CreateBankAccount;
@@ -306,7 +306,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to verify that the page numbering works for the next period as well on Report 12121 (G/L Book - Print).
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesInGLBookPrintRequestPageHandler(
           ReportType::"Test Print", CalcDate('<-CY-1Y-CM>', WorkDate), CalcDate('<-CY-1Y+CM>', WorkDate));  // Enqueue values in GLBookPrintRequestPageHandler.
         REPORT.Run(REPORT::"G/L Book - Print");
@@ -337,7 +337,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         // Purpose of the test is to verify that the page numbering and the fields on table 98 General Ledger Setup (Generated by printing Report 12121 G/L Book  Print) are reset in case of a new fiscal year.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesInGLBookPrintRequestPageHandler(
           ReportType::"Test Print", CalcDate('<CY-1Y-CM>', WorkDate), CalcDate('<CY-1Y+CM>', WorkDate));  // Enqueue values in GLBookPrintRequestPageHandler.
         REPORT.Run(REPORT::"G/L Book - Print");
@@ -365,7 +365,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to verify that that the report header does not contains the company information on the first (front) page and on all following pages when option Print Company Information is set to false (unmarked)
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
@@ -391,7 +391,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to verify the amounts in Printed entries Total + Progressive Total and Printed Entries Total in the printed report are shown correctly with FCY Report - 12104 Customer Sheet - Print.
 
         // Setup: Create Sales Header with blank Posting Number and Detailed Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateCustomerEntries(
           DetailedCustLedgEntry, CreateSalesHeader(''), LibraryUTUtility.GetNewCode,
           DetailedCustLedgEntry."Entry Type"::"Initial Entry");  // Document Number, Blank Posting Number.
@@ -413,7 +413,7 @@ codeunit 144074 "UT REP Fiscal Book"
         // Purpose of the test is to verify that controls are properly showing on VAT Register Grouped report's Request Page.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise:
         REPORT.Run(REPORT::"VAT Register Grouped");  // Invoke VATRegisterGroupedReqPageHandler.
@@ -423,7 +423,7 @@ codeunit 144074 "UT REP Fiscal Book"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -477,7 +477,7 @@ codeunit 144074 "UT REP Fiscal Book"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Posting Date" := WorkDate;
@@ -487,7 +487,7 @@ codeunit 144074 "UT REP Fiscal Book"
         CustLedgerEntry."Amount (LCY)" := CustLedgerEntry.Amount + LibraryRandom.RandDec(10, 2);
         CustLedgerEntry.Insert();
 
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Customer No." := CustLedgerEntry."Customer No.";
         DetailedCustLedgEntry."Document No." := CustLedgerEntry."Document No.";
@@ -572,7 +572,7 @@ codeunit 144074 "UT REP Fiscal Book"
         LastPostingDate := GeneralLedgerSetup."Last Gen. Jour. Printing Date"; // G/L Book Entries are either Printed or Deleted.
         if LastPostingDate = 0D then begin
             GLEntry.SetCurrentKey("Official Date");
-            GLEntry.FindLast;
+            GLEntry.FindLast();
             LastPostingDate := GLEntry."Posting Date";
         end;
     end;
@@ -583,7 +583,7 @@ codeunit 144074 "UT REP Fiscal Book"
     begin
         AccPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate);
         AccPeriod.SetRange("New Fiscal Year", NewFiscalYear);
-        if not AccPeriod.FindFirst then
+        if not AccPeriod.FindFirst() then
             CreateAccountingPeriod(AccPeriod."Starting Date");
         StartDate := AccPeriod."Starting Date";
     end;

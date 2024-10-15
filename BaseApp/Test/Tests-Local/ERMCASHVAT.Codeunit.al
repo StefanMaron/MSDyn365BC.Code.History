@@ -191,7 +191,7 @@ codeunit 144110 "ERM CASHVAT"
         BuyFromVendorNo := CreateAndPostPurchaseInvoicePrepayment(
             VATPostingSetup."VAT Prod. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         Commit();  // Commit Required.
 
         // Exercise: Run Report Purchase - Invoice.
@@ -356,7 +356,7 @@ codeunit 144110 "ERM CASHVAT"
     begin
         NoSeries.SetRange("No. Series Type", NoSeriesType);
         NoSeries.SetRange("Date Order", true);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         exit(NoSeries.Code);
     end;
 
@@ -378,7 +378,7 @@ codeunit 144110 "ERM CASHVAT"
         Clear(PurchaseInvoice);
         PurchInvHeader.SetRange("No.", No);
         PurchaseInvoice.SetTableView(PurchInvHeader);
-        PurchaseInvoice.Run;
+        PurchaseInvoice.Run();
     end;
 
     local procedure RunReportPurchaseCreditMemo(No: Code[20])
@@ -389,7 +389,7 @@ codeunit 144110 "ERM CASHVAT"
         Clear(PurchaseCreditMemo);
         PurchCrMemoHdr.SetRange("No.", No);
         PurchaseCreditMemo.SetTableView(PurchCrMemoHdr);
-        PurchaseCreditMemo.Run;
+        PurchaseCreditMemo.Run();
     end;
 
     local procedure VerifyCashVATAndVATIdentifierOnReport(VATPostingSetup: Record "VAT Posting Setup"; VATIdentifierCap: Text[1024])

@@ -158,7 +158,7 @@ codeunit 5615 "Budget Depreciation"
     begin
         DefaultDim.SetRange("Table ID", DATABASE::"Fixed Asset");
         DefaultDim.SetRange("No.", FALedgerEntry."FA No.");
-        if DefaultDim.FindSet then
+        if DefaultDim.FindSet() then
             repeat
                 DimVal.Get(DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
                 TempDimSetEntry."Dimension Code" := DimVal."Dimension Code";

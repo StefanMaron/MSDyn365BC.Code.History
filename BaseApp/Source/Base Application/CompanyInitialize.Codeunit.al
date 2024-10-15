@@ -1,7 +1,7 @@
 ﻿codeunit 2 "Company-Initialize"
 {
     Permissions = TableData "Company Information" = i,
-                  TableData "General Ledger Setup" = i,
+                  TableData "General Ledger Setup" = ri,
                   TableData "Incoming Documents Setup" = i,
                   TableData "Sales & Receivables Setup" = i,
                   TableData "Purchases & Payables Setup" = i,
@@ -11,7 +11,6 @@
                   TableData "Tax Setup" = i,
                   TableData "VAT Report Setup" = i,
                   TableData "Cash Flow Setup" = i,
-                  TableData "Social Listening Setup" = i,
                   TableData "Assembly Setup" = i,
                   TableData "Job WIP Method" = i,
                   TableData "Cost Accounting Setup" = i,
@@ -40,29 +39,29 @@
     begin
         Window.Open(Text000);
 
-        OnBeforeOnRun;
+        OnBeforeOnRun();
 
-        InitSetupTables;
-        AddOnIntegrMgt.InitMfgSetup;
-        InitSourceCodeSetup;
-        InitStandardTexts;
-        InitReportSelection;
-        InitJobWIPMethods;
-        InitBankExportImportSetup;
-        InitDocExchServiceSetup;
-        BankPmtApplRule.InsertDefaultMatchingRules;
-        InsertClientAddIns;
-        VATRegistrationLogMgt.InitServiceSetup;
-        WorkflowSetup.InitWorkflow;
-        TransformationRule.CreateDefaultTransformations;
-        InitElectronicFormats;
-        InitApplicationAreasForSaaS;
-        SatisfactionSurveyMgt.ResetCache;
+        InitSetupTables();
+        AddOnIntegrMgt.InitMfgSetup();
+        InitSourceCodeSetup();
+        InitStandardTexts();
+        InitReportSelection();
+        InitJobWIPMethods();
+        InitBankExportImportSetup();
+        InitDocExchServiceSetup();
+        BankPmtApplRule.InsertDefaultMatchingRules();
+        InsertClientAddIns();
+        VATRegistrationLogMgt.InitServiceSetup();
+        WorkflowSetup.InitWorkflow();
+        TransformationRule.CreateDefaultTransformations();
+        InitElectronicFormats();
+        InitApplicationAreasForSaaS();
+        SatisfactionSurveyMgt.ResetCache();
         UpgradeTag.SetAllUpgradeTags();
 
-        OnCompanyInitialize;
+        OnCompanyInitialize();
 
-        Window.Close;
+        Window.Close();
 
         Commit();
     end;
@@ -198,6 +197,14 @@
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
         FatturaPA_ElectronicFormatDescriptionTxt: Label 'FatturaPA (Fattura elettronica)';
 
+    internal procedure InitializeCompany()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        if not GLSetup.Get() then
+            CODEUNIT.Run(CODEUNIT::"Company-Initialize");
+    end;
+
     procedure InitSetupTables()
     var
         GLSetup: Record "General Ledger Setup";
@@ -223,153 +230,152 @@
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         CompanyInfo: Record "Company Information";
         TrialBalanceSetup: Record "Trial Balance Setup";
-        SocialListeningSetup: Record "Social Listening Setup";
+        ICSetup: Record "IC Setup";
     begin
         with GLSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with SalesSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with MarketingSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with InteractionTemplateSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with ServiceMgtSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
-            end;
-
-        with SocialListeningSetup do
-            if not FindFirst then begin
-                Init;
-                Insert(true);
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with PurchSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with InvtSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with ResourcesSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with JobsSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with FASetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with HumanResourcesSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with WhseSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with NonstockItemSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with CashFlowSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with CostAccSetup do
             if WritePermission then
-                if not FindFirst then begin
-                    Init;
-                    Insert;
+                if not FindFirst() then begin
+                    Init();
+                    Insert();
                 end;
 
         with AssemblySetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with VATReportSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with TaxSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with ConfigSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with DataMigrationSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with IncomingDocumentsSetup do
-            if not FindFirst then begin
-                Init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with TrialBalanceSetup do
-            if not FindFirst then begin
-                init;
-                Insert;
+            if not FindFirst() then begin
+                Init();
+                Insert();
             end;
 
         with CompanyInfo do
-            if not FindFirst then begin
-                Init;
+            if not FindFirst() then begin
+                Init();
                 "Created DateTime" := CurrentDateTime;
-                Insert;
+                Insert();
             end;
+
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
     end;
 
     local procedure InitSourceCodeSetup()
@@ -377,14 +383,18 @@
         SourceCode: Record "Source Code";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        if not (SourceCodeSetup.FindFirst or SourceCode.FindFirst) then
+        if not (SourceCodeSetup.FindFirst or SourceCode.FindFirst()) then
             with SourceCodeSetup do begin
-                Init;
+                Init();
                 InsertSourceCode(Sales, Text001, Text002);
                 InsertSourceCode(Purchases, Text003, Text004);
                 InsertSourceCode("Deleted Document", Text005, CopyStr(FieldCaption("Deleted Document"), 1, 30));
                 InsertSourceCode("Inventory Post Cost", Text006, ReportName(REPORT::"Post Inventory Cost to G/L"));
+#if not CLEAN20
                 InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Adjust Exchange Rates"));
+#else
+                InsertSourceCode("Exchange Rate Adjmt.", Text007, ReportName(REPORT::"Exch. Rate Adjustment"));
+#endif
                 InsertSourceCode("Close Income Statement", Text010, ReportName(REPORT::"Close Income Statement"));
                 InsertSourceCode(Consolidation, Text011, Text012);
                 InsertSourceCode("General Journal", Text013, PageName(PAGE::"General Journal"));
@@ -462,7 +472,7 @@
     var
         StandardText: Record "Standard Text";
     begin
-        if not StandardText.FindFirst then begin
+        if not StandardText.FindFirst() then begin
             InsertStandardText(Text052, Text053);
             InsertStandardText(Text054, Text055);
             InsertStandardText(Text056, Text057);
@@ -482,21 +492,22 @@
         if GetExecutionContext() = ExecutionContext::Upgrade then
             exit;
 
-        ReportSelectionMgt.InitReportSelectionSales;
-        ReportSelectionMgt.InitReportSelectionPurch;
-        ReportSelectionMgt.InitReportSelectionBank;
-        ReportSelectionMgt.InitReportSelectionCust;
-        ReportSelectionMgt.InitReportSelectionInvt;
-        ReportSelectionMgt.InitReportSelectionProd;
-        ReportSelectionMgt.InitReportSelectionServ;
-        ReportSelectionMgt.InitReportSelectionWhse;
+        ReportSelectionMgt.InitReportSelectionSales();
+        ReportSelectionMgt.InitReportSelectionPurch();
+        ReportSelectionMgt.InitReportSelectionBank();
+        ReportSelectionMgt.InitReportSelectionCust();
+        ReportSelectionMgt.InitReportSelectionInvt();
+        ReportSelectionMgt.InitReportSelectionProd();
+        ReportSelectionMgt.InitReportSelectionServ();
+        ReportSelectionMgt.InitReportSelectionWhse();
+        ReportSelectionMgt.InitReportSelectionJob();
     end;
 
     local procedure InitJobWIPMethods()
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
-        if not JobWIPMethod.FindFirst then begin
+        if not JobWIPMethod.FindFirst() then begin
             InsertJobWIPMethod(Text101, Text101, JobWIPMethod."Recognized Costs"::"At Completion",
               JobWIPMethod."Recognized Sales"::"At Completion", 4);
             InsertJobWIPMethod(Text102, Text102, JobWIPMethod."Recognized Costs"::"Cost of Sales",
@@ -514,7 +525,7 @@
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        if not BankExportImportSetup.FindFirst then begin
+        if not BankExportImportSetup.FindFirst() then begin
             InsertBankExportImportSetup(SEPACTCodeTxt, SEPACTNameTxt, BankExportImportSetup.Direction::Export,
               CODEUNIT::"SEPA CT-Export File", XMLPORT::"SEPA CT pain.001.001.03", CODEUNIT::"SEPA CT-Check Line");
             InsertBankExportImportSetup(SEPADDCodeTxt, SEPADDNameTxt, BankExportImportSetup.Direction::Export,
@@ -532,9 +543,9 @@
     begin
         with DocExchServiceSetup do
             if not Get then begin
-                Init;
-                SetURLsToDefault;
-                Insert;
+                Init();
+                SetURLsToDefault();
+                Insert();
             end;
     end;
 
@@ -592,7 +603,7 @@
           CODEUNIT::"FatturaPA Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
     end;
 
-    local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[50])
+    local procedure InsertSourceCode(var SourceCodeDefCode: Code[10]; "Code": Code[10]; Description: Text[100])
     var
         SourceCode: Record "Source Code";
     begin
@@ -603,7 +614,7 @@
         SourceCode.Insert();
     end;
 
-    local procedure InsertStandardText("Code": Code[20]; Description: Text[50])
+    local procedure InsertStandardText("Code": Code[20]; Description: Text[100])
     var
         StandardText: Record "Standard Text";
     begin
@@ -613,18 +624,18 @@
         StandardText.Insert();
     end;
 
-    local procedure PageName(PageID: Integer): Text[50]
+    local procedure PageName(PageID: Integer): Text[100]
     var
         ObjectTranslation: Record "Object Translation";
     begin
-        exit(CopyStr(ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Page, PageID), 1, 30));
+        exit(CopyStr(ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Page, PageID), 1, 100));
     end;
 
-    local procedure ReportName(ReportID: Integer): Text[50]
+    local procedure ReportName(ReportID: Integer): Text[100]
     var
         ObjectTranslation: Record "Object Translation";
     begin
-        exit(CopyStr(ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Report, ReportID), 1, 30));
+        exit(CopyStr(ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Report, ReportID), 1, 100));
     end;
 
     local procedure InsertClientAddIns()
@@ -654,11 +665,6 @@
           ClientAddIn.Category::"JavaScript Control Add-in",
           'Microsoft Dynamics PageReady control add-in',
           ApplicationPath + 'Add-ins\PageReady\Microsoft.Dynamics.Nav.Client.PageReady.zip');
-        InsertClientAddIn(
-          'Microsoft.Dynamics.Nav.Client.SocialListening', '31bf3856ad364e35', '',
-          ClientAddIn.Category::"JavaScript Control Add-in",
-          'Microsoft Social Listening control add-in',
-          ApplicationPath + 'Add-ins\SocialListening\Microsoft.Dynamics.Nav.Client.SocialListening.zip');
         InsertClientAddIn(
           'Microsoft.Dynamics.Nav.Client.WebPageViewer', '31bf3856ad364e35', '',
           ClientAddIn.Category::"JavaScript Control Add-in",
@@ -709,7 +715,7 @@
         if ClientAddIn.Insert() then;
     end;
 
-    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[50]; RecognizedCosts: Option; RecognizedSales: Option; SystemDefinedIndex: Integer)
+    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Option; RecognizedSales: Option; SystemDefinedIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -731,7 +737,7 @@
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
         with BankExportImportSetup do begin
-            Init;
+            Init();
             Code := CodeTxt;
             Name := NameTxt;
             Direction := DirectionOpt;
@@ -739,7 +745,7 @@
             "Processing XMLport ID" := XMLPortID;
             "Check Export Codeunit" := CheckCodeunitID;
             "Preserve Non-Latin Characters" := false;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -754,7 +760,7 @@
     begin
         ApplicationAreaMgmtFacade.SetHideApplicationAreaError(true);
         if not ApplicationAreaMgmtFacade.GetExperienceTierCurrentCompany(ExperienceTier) then
-            if EnvironmentInfo.IsSaaS then begin
+            if EnvironmentInfo.IsSaaS() then begin
                 Company.Get(CompanyName);
 
                 if not (CompanyInformationMgt.IsDemoCompany or Company."Evaluation Company") then
@@ -765,7 +771,7 @@
             end;
 
         if ExperienceTier <> ExperienceTierSetup.FieldCaption(Custom) then
-            ApplicationAreaMgmtFacade.RefreshExperienceTierCurrentCompany;
+            ApplicationAreaMgmtFacade.RefreshExperienceTierCurrentCompany();
     end;
 
     [IntegrationEvent(false, false)]
@@ -807,6 +813,15 @@
 
         if ExperienceTierSetup.Get(Rec.Name) then
             ExperienceTierSetup.Delete();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Initialization", 'OnAfterLogin', '', false, false)]
+    local procedure CompanyInitializeOnAfterLogin()
+    var
+        GLSetup: Record "General Ledger Setup";
+    begin
+        if not GLSetup.Get then
+            Codeunit.Run(Codeunit::"Company-Initialize");
     end;
 }
 

@@ -42,7 +42,7 @@ codeunit 12153 SubcontractingPricesMgt
         SubcontractorPrices.SetFilter("Item No.", '%1|%2', InSubcPrices."Item No.", '');
         SubcontractorPrices.SetRange("Start Date", 0D, InSubcPrices."Start Date");
         SubcontractorPrices.SetFilter("End Date", '>=%1|%2', InSubcPrices."Start Date", 0D);
-        if SubcontractorPrices.FindLast then begin
+        if SubcontractorPrices.FindLast() then begin
             if SubcontractorPrices."Unit of Measure Code" = InSubcPrices."Unit of Measure Code" then begin
                 PricelistQtyPerUOM := ProdQtyPerUom;
                 PricelistQty := QtyUoM;
@@ -86,7 +86,7 @@ codeunit 12153 SubcontractingPricesMgt
         with SubcontractorPrices do begin
             SetRange("Minimum Quantity", 0, PricelistQty);
             SetRange("Unit of Measure Code", "Unit of Measure Code");
-            if FindLast then begin
+            if FindLast() then begin
                 PricelistCost := "Direct Unit Cost";
                 if PricelistCost <> 0 then
                     if (PricelistCost * PricelistQty) < "Minimum Amount" then
@@ -158,7 +158,7 @@ codeunit 12153 SubcontractingPricesMgt
             if FixedUOM <> '' then
                 SubcontractorPrices.SetRange("Unit of Measure Code", FixedUOM);
 
-            if SubcontractorPrices.FindLast then begin
+            if SubcontractorPrices.FindLast() then begin
                 if SubcontractorPrices."Unit of Measure Code" = "Unit of Measure Code" then begin
                     PricelistQtyPerUOM := GetQtyForUOM;
                     PricelistQty := Quantity;

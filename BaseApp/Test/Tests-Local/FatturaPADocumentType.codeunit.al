@@ -58,7 +58,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [FEATURE] [DEMO] [UT]
         // [SCENARIO 352458] A list of the Fattura Document Type codes can have only one default value of Invoice, Credit Memo, Self-Billing and Prepayment
 
-        Initialize;
+        Initialize();
         FatturaDocHelper.InsertFatturaDocumentTypeList();
         InvoiceFatturaDocumentType.SetRange(Invoice, true);
         Assert.IsTrue(InvoiceFatturaDocumentType.FindFirst(), 'No code for the Invoice');
@@ -98,7 +98,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [FEATURE] [UT]
         // [SCENARIO 352458] A "Fattura Document Type" is self-billing in the Sales Document if customer has the same VAT Registration No. as Company
 
-        Initialize;
+        Initialize();
         SalesHeader.Init;
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
@@ -121,7 +121,7 @@ codeunit 144210 "FatturaPA Document Type"
     begin
         // [SCENARIO 352458] A "Fattura Document Type" is self-billing in the Service Document if customer has the same VAT Registration No. as Company
 
-        Initialize;
+        Initialize();
         ServiceHeader.Init;
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
@@ -143,7 +143,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [FEATURE] [UT]
         // [SCENARIO 342458] A "Fattura Document Type" is credit memo in the Sales Credit Memo document
 
-        Initialize;
+        Initialize();
         SalesHeader.Init;
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
@@ -160,7 +160,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [FEATURE] [UT]
         // [SCENARIO 342458] A "Fattura Document Type" is credit memo in the Service Credit Memo document
 
-        Initialize;
+        Initialize();
         ServiceHeader.Init;
         ServiceHeader."Document Type" := ServiceHeader."Document Type"::"Credit Memo";
         ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
@@ -181,7 +181,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [FEATURE] [Sales] [Export]
         // [SCENARIO 352458] A FatturaPA xml file has Fattura Document Type code manually entered in the sales document
 
-        Initialize;
+        Initialize();
         FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
         DocumentNo := PostSalesInvoice(FatturaDocType);
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
@@ -208,7 +208,7 @@ codeunit 144210 "FatturaPA Document Type"
         // [FEATURE] [Sales] [Export]
         // [SCENARIO 352458] A FatturaPA xml file has Fattura Document Type code manually entered in the service document
 
-        Initialize;
+        Initialize();
         FatturaDocType := LibraryITLocalization.GetRandomFatturaDocType('');
         CustomerNo := PostServiceInvoice(FatturaDocType);
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);

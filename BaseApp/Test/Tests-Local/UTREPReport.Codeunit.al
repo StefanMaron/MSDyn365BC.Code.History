@@ -46,7 +46,7 @@ codeunit 144149 "UT REP Report"
     procedure OnPreReportLIFOBandLIFOEntries()
     begin
         // Purpose of the test is to verify On Pre Report Trigger of LIFO Band for Report ID 12123 - LIFO Entries.
-        Initialize;
+        Initialize();
         LIFOBandLIFOEntries(StrSubstNo(LIFOBandsMsg), NotDefMsgCap, 0);  // Using 0 for Increment value.
     end;
 
@@ -59,7 +59,7 @@ codeunit 144149 "UT REP Report"
         IncrementValue: Decimal;
     begin
         // Purpose of the test is to verify On After Get Record Trigger of LIFO Band for Report ID 12123 - LIFO Entries.
-        Initialize;
+        Initialize();
         IncrementValue := LibraryRandom.RandDec(100, 2);
         LIFOBandLIFOEntries(IncrementValue, 'InventoryValue', IncrementValue);
     end;
@@ -85,7 +85,7 @@ codeunit 144149 "UT REP Report"
         // Purpose of the test is to verify On Pre Report Trigger of LIFO Band for Report ID 12137 - LIFO Valuation.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateLIFOBand(LifoBand, 0);  // Using 0 for increment value.
 
         // Exercise.
@@ -109,7 +109,7 @@ codeunit 144149 "UT REP Report"
         // Purpose of the test is to verify On Pre Data Item Trigger of Date for Report ID 12182 - VAT Plafond Period.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATPlafondPeriod(VATPlafondPeriod);
 
         // Exercise.
@@ -130,7 +130,7 @@ codeunit 144149 "UT REP Report"
         CurrencyCode: Code[10];
     begin
         // Purpose of the test is to verify On After Get Record Trigger of Posted Vendor Bill Header with currency of Report ID 12179 - Issued Vendor Bill List report.
-        Initialize;
+        Initialize();
         CurrencyCode := LibraryUTUtility.GetNewCode10;
         IssuedVendBillListReport(CurrencyCode, CurrencyCode);
     end;
@@ -144,7 +144,7 @@ codeunit 144149 "UT REP Report"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Purpose of the test is to verify On After Get Record Trigger of Posted Vendor Bill Header without currency of Report ID 12179 - Issued Vendor Bill List report.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         IssuedVendBillListReport('', GeneralLedgerSetup."LCY Code");  // Using blank for currency code.
     end;
@@ -181,10 +181,10 @@ codeunit 144149 "UT REP Report"
     begin
         // [FEATURE] [Customer][Customer Bills List]
         // [SCENARIO 382091] Customer Bills List doesn't have to contain Dtld Cust. Ledger Entry of closed bank receipts
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Cust. Ledger Entry" with Customer = "C", "Document Type" = Invoice
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         TransactionNo := LibraryRandom.RandIntInRange(1, 100);
         CustLedgerEntryNo := MockCustLedgerEntry(TransactionNo, CustomerNo, DummyCustLedgerEntry."Document Type"::Invoice);
 
@@ -223,7 +223,7 @@ codeunit 144149 "UT REP Report"
     begin
         // [FEATURE] [Report] [Receipt]
         // [SCENARIO 288116] List of Bank Receipts report shows all Cumulative Bank Receipts
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer
         LibrarySales.CreateCustomer(Customer);
@@ -250,7 +250,7 @@ codeunit 144149 "UT REP Report"
         // [WHEN] List of Bank Receipts report is run
         ListOfBankReceiptsReport.SetTableView(CustomerBillHeader);
         LibraryVariableStorage.Enqueue(CustomerBillHeader."No.");
-        ListOfBankReceiptsReport.RunModal;
+        ListOfBankReceiptsReport.RunModal();
         // RequestPage handled by ListOfBankReceiptsRequestPageHandler
 
         // [THEN] There are 4 lines with "IsFooter" = true in DataSet
@@ -261,7 +261,7 @@ codeunit 144149 "UT REP Report"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -339,7 +339,7 @@ codeunit 144149 "UT REP Report"
         CustomerBillLine: Record "Customer Bill Line";
         NewLineNo: Integer;
     begin
-        if CustomerBillLine.FindLast then
+        if CustomerBillLine.FindLast() then
             NewLineNo := CustomerBillLine."Line No." + 10000
         else
             NewLineNo := 10000;
@@ -403,7 +403,7 @@ codeunit 144149 "UT REP Report"
         Customer.SetRange("No.", CustomerNo);
         CustomerBillsList.SetTableView(Customer);
         CustomerBillsList.UseRequestPage(true);
-        CustomerBillsList.Run;
+        CustomerBillsList.Run();
     end;
 
     [RequestPageHandler]

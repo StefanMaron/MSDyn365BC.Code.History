@@ -342,7 +342,7 @@ table 5746 "Transfer Receipt Header"
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure PrintRecords(ShowRequestForm: Boolean)

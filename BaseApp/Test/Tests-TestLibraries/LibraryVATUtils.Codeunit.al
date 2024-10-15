@@ -215,7 +215,7 @@ codeunit 143002 "Library - VAT Utils"
     begin
         with VATReportHeader do begin
             Init;
-            "No." := LibraryUtility.GenerateGUID;
+            "No." := LibraryUtility.GenerateGUID();
             Insert(true);
             Validate("VAT Report Config. Code", VATReportConfigCode);
             Validate("VAT Report Type", VATReportType);
@@ -235,7 +235,7 @@ codeunit 143002 "Library - VAT Utils"
 
         // Find VAT Report Lines.
         VATReportLine.SetFilter("VAT Report No.", VATReportHeader."No.");
-        if VATReportLine.FindFirst then; // No lines is expected result for certain Credit Memo scenarios.
+        if VATReportLine.FindFirst() then; // No lines is expected result for certain Credit Memo scenarios.
     end;
 
     [Scope('OnPrem')]
@@ -326,13 +326,13 @@ codeunit 143002 "Library - VAT Utils"
         VATPostingSetup.SetRange("VAT Calculation Type", VATCalculationType);
         VATPostingSetup.SetFilter("VAT %", '>0');
         VATPostingSetup.SetRange("Deductible %", 100);
-        if VATPostingSetup.FindSet then begin
+        if VATPostingSetup.FindSet() then begin
             repeat
                 if VATPostingSetup."VAT %" > VATRate then
                     VATRate := VATPostingSetup."VAT %"
             until VATPostingSetup.Next = 0;
             VATPostingSetup.SetRange("VAT %", VATRate);
-            VATPostingSetup.FindFirst;
+            VATPostingSetup.FindFirst();
         end;
     end;
 
@@ -350,7 +350,7 @@ codeunit 143002 "Library - VAT Utils"
             SetFilter("Gen. Prod. Posting Group", '');
             SetFilter("VAT Bus. Posting Group", '');
             SetFilter("VAT Prod. Posting Group", VATProdGroup);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -392,7 +392,7 @@ codeunit 143002 "Library - VAT Utils"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetCurrentKey("Operation Occurred Date");
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         if VATEntry."Posting Date" > WorkDate then
             exit(CalcDate('<1D>', VATEntry."Posting Date"));
         exit(CalcDate('<1D>', WorkDate));
@@ -404,7 +404,7 @@ codeunit 143002 "Library - VAT Utils"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.SetFilter("Starting Date", '<=%1', StartingDate);
-        VATTransactionReportAmount.FindLast;
+        VATTransactionReportAmount.FindLast();
 
         if InclVAT then
             Amount := VATTransactionReportAmount."Threshold Amount Incl. VAT"
@@ -492,7 +492,7 @@ codeunit 143002 "Library - VAT Utils"
 
         with VATPostingSetup do begin
             SetRange("Include in VAT Transac. Rep.", true);
-            FindFirst;
+            FindFirst();
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
             Validate("Sales VAT Unreal. Account", FindGLAccount(''));
             Validate("Purch. VAT Unreal. Account", FindGLAccount(''));
@@ -549,7 +549,7 @@ codeunit 143002 "Library - VAT Utils"
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '''''');
         VATPostingSetup.SetRange("VAT %", FindMaxVATRate(VATPostingSetup."VAT Calculation Type"::"Normal VAT"));
         VATPostingSetup.SetRange("Deductible %", 100);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
 
         VATPostingSetup.Validate("Include in VAT Transac. Rep.", InclInVATTransRep);
         VATPostingSetup.Modify(true);

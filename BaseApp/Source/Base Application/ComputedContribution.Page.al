@@ -87,7 +87,7 @@ page 12136 "Computed Contribution"
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
         }

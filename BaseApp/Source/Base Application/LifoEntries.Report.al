@@ -212,7 +212,7 @@ report 12123 "Lifo Entries"
 
         CompanyInfo.Get();
         "Lifo Band".SetRange(Definitive, false);
-        if "Lifo Band".FindFirst then
+        if "Lifo Band".FindFirst() then
             NotDefMsg := Text1033;
     end;
 
@@ -243,7 +243,7 @@ report 12123 "Lifo Entries"
             if (not CompYearBlank) then begin
                 Reset;
                 CopyFilters("Lifo Band");
-                if FindSet then
+                if FindSet() then
                     repeat
                         if LifoBand2.Get("Entry No.") then
                             LifoBand2.Mark(true);
@@ -255,7 +255,7 @@ report 12123 "Lifo Entries"
     procedure ValuesCalculation()
     begin
         with LifoBand2 do
-            if FindSet then begin
+            if FindSet() then begin
                 AbsorbedQty := "Lifo Band"."Absorbed Quantity";
                 ResidualQty := "Lifo Band"."Residual Quantity";
                 IncrementValue := "Lifo Band"."Increment Value";

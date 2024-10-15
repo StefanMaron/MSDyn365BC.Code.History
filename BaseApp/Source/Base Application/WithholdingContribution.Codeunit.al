@@ -53,7 +53,7 @@
                 end;
 
                 WithholdingTax.LockTable();
-                if WithholdingTax.FindLast then
+                if WithholdingTax.FindLast() then
                     EntryNo := WithholdingTax."Entry No." + 1
                 else
                     EntryNo := 1;
@@ -179,7 +179,7 @@
                 InsertRec := false;
                 // Insert INPS/INAIL values
                 SocialSecurity.LockTable();
-                if SocialSecurity.FindLast then
+                if SocialSecurity.FindLast() then
                     EntryNo := SocialSecurity."Entry No." + 1
                 else
                     EntryNo := 1;
@@ -296,7 +296,7 @@
         OnCalculateWithholdingTaxOnAfterPurchLineSetFilters(PurchLine, PurchHeader);
 
         TotalAmount := 0;
-        if PurchLine.FindSet then
+        if PurchLine.FindSet() then
             repeat
                 TotalAmount := TotalAmount + PurchLine."VAT Base Amount";
             until PurchLine.Next() = 0;
@@ -371,7 +371,7 @@
                 ComputedWithholdingTax.SetRange("Vendor No.", "Account No.");
                 ComputedWithholdingTax.SetRange("Document No.", "Applies-to Doc. No.");
 
-                if ComputedWithholdingTax.FindFirst then begin
+                if ComputedWithholdingTax.FindFirst() then begin
                     TmpWithholdingSocSec."External Document No." := ComputedWithholdingTax."External Document No.";
                     TmpWithholdingSocSec."Related Date" := ComputedWithholdingTax."Related Date";
                     if ComputedWithholdingTax."Payment Date" <> 0D then
@@ -382,16 +382,16 @@
                     ComputedSocSec.SetRange("Vendor No.", "Account No.");
                     ComputedSocSec.SetRange("Document No.", "Applies-to Doc. No.");
 
-                    if ComputedSocSec.FindFirst then
+                    if ComputedSocSec.FindFirst() then
                         TmpWithholdingSocSec."Social Security Code" := ComputedSocSec."Social Security Code";
-                    if ComputedSocSec.FindFirst then
+                    if ComputedSocSec.FindFirst() then
                         TmpWithholdingSocSec."INAIL Code" := ComputedSocSec."INAIL Code";
                     if ComputedWithholdingTax."Currency Code" = "Currency Code" then begin
                         TmpWithholdingSocSec."Total Amount" := GetRemainingWithhTaxAmount(ComputedWithholdingTax, "Applies-to Occurrence No.");
                         TmpWithholdingSocSec."Base - Excluded Amount" := ComputedWithholdingTax."Remaining - Excluded Amount";
                         TmpWithholdingSocSec.Validate("Non Taxable Amount By Treaty", ComputedWithholdingTax."Non Taxable Remaining Amount");
 
-                        if ComputedSocSec.FindFirst then begin
+                        if ComputedSocSec.FindFirst() then begin
                             TmpWithholdingSocSec.Validate("Gross Amount", ComputedSocSec."Remaining Gross Amount");
                             TmpWithholdingSocSec.Validate("Soc.Sec.Non Taxable Amount", ComputedSocSec."Remaining Soc.Sec. Non Taxable");
                             TmpWithholdingSocSec.Validate("Free-Lance Amount", ComputedSocSec."Remaining Free-Lance Amount");
@@ -418,7 +418,7 @@
                             "Currency Code",
                             ComputedWithholdingTax."Non Taxable Remaining Amount"));
 
-                        if ComputedSocSec.FindFirst then begin
+                        if ComputedSocSec.FindFirst() then begin
                             TmpWithholdingSocSec.Validate("Gross Amount", CurrencyExchRate.ExchangeAmtFCYToFCY(
                                 "Document Date",
                                 ComputedWithholdingTax."Currency Code",
@@ -484,7 +484,7 @@
         WithholdCodeLine.SetRange("Withhold Code", WithholdCode);
         WithholdCodeLine.SetRange("Starting Date", 0D, ValidityDate);
 
-        if WithholdCodeLine.FindLast then
+        if WithholdCodeLine.FindLast() then
             WithholdCodeLine.SetRange("Starting Date", WithholdCodeLine."Starting Date")
         else
             Error(WithholdCodeLinesNotSpecifiedErr, WithholdCode);
@@ -500,7 +500,7 @@
         SocSecCodeLine.SetRange(Code, SocialSecurityCode);
         SocSecCodeLine.SetRange("Starting Date", 0D, StartingDate);
 
-        if SocSecCodeLine.FindLast then
+        if SocSecCodeLine.FindLast() then
             SocSecCodeLine.SetRange("Starting Date", SocSecCodeLine."Starting Date")
         else
             Error(ContributionCodeLinesNotSpecifiedErr, SocialSecurityCode);
@@ -518,7 +518,7 @@
         SocSecBracketLine.Reset();
         SocSecBracketLine.SetFilter("Contribution Type", '%1', TipoContributo);
         SocSecBracketLine.SetRange(Code, SocialSecurityBracketCode);
-        if not SocSecBracketLine.FindLast then
+        if not SocSecBracketLine.FindLast() then
             Error(ContributionBracketLinesNotSpecifiedErr, SocialSecurityBracketCode, Code);
     end;
 
@@ -544,7 +544,7 @@
             // Get the Vendor Ledger Entry that generates the ComputedWithholdingTax line
             Reset;
             SetRange("Document No.", ComputedWithholdingTax."Document No.");
-            if FindFirst then
+            if FindFirst() then
                 CreateVendLedgEntry := VendLedgEntry;
             SetRange("Document No.");
 
@@ -552,7 +552,7 @@
             DtldVendLedgEntry1.SetCurrentKey("Vendor Ledger Entry No.");
             DtldVendLedgEntry1.SetRange("Vendor Ledger Entry No.", CreateVendLedgEntry."Entry No.");
             DtldVendLedgEntry1.SetRange(Unapplied, false);
-            if DtldVendLedgEntry1.FindSet then
+            if DtldVendLedgEntry1.FindSet() then
                 repeat
                     if DtldVendLedgEntry1."Vendor Ledger Entry No." =
                        DtldVendLedgEntry1."Applied Vend. Ledger Entry No."
@@ -563,21 +563,21 @@
                           "Applied Vend. Ledger Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
                         DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
                         DtldVendLedgEntry2.SetRange(Unapplied, false);
-                        if DtldVendLedgEntry2.FindSet then
+                        if DtldVendLedgEntry2.FindSet() then
                             repeat
                                 if DtldVendLedgEntry2."Vendor Ledger Entry No." <>
                                    DtldVendLedgEntry2."Applied Vend. Ledger Entry No."
                                 then begin
                                     SetCurrentKey("Entry No.");
                                     SetRange("Entry No.", DtldVendLedgEntry2."Vendor Ledger Entry No.");
-                                    if FindFirst then
+                                    if FindFirst() then
                                         Mark(true);
                                 end;
                             until DtldVendLedgEntry2.Next() = 0;
                     end else begin
                         SetCurrentKey("Entry No.");
                         SetRange("Entry No.", DtldVendLedgEntry1."Applied Vend. Ledger Entry No.");
-                        if FindFirst then
+                        if FindFirst() then
                             Mark(true);
                     end;
                 until DtldVendLedgEntry1.Next() = 0;
@@ -592,7 +592,7 @@
 
             SetCurrentKey("Closed by Entry No.");
             SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     Mark(true);
                 until Next() = 0;
@@ -603,11 +603,11 @@
 
             // Calculate the RemainingWithhTaxAmount by substracting amount from its applied amount
             RemainingWithhTaxAmount := ComputedWithholdingTax."Remaining Amount";
-            if FindSet then begin
+            if FindSet() then begin
                 repeat
                     ComputedWithholdingTax1.Reset();
                     ComputedWithholdingTax1.SetRange("Document No.", "Document No.");
-                    if ComputedWithholdingTax1.FindFirst then
+                    if ComputedWithholdingTax1.FindFirst() then
                         RemainingWithhTaxAmount -= ComputedWithholdingTax1."Remaining Amount";
                 until Next() = 0
             end;
@@ -663,7 +663,7 @@
         with VendLedgEntry do begin
             SetCurrentKey("Document No.");
             SetRange("Document No.", ComputedWithholdingTax."Document No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     CalcFields(Amount);
                     TotalPaymentAmt := TotalPaymentAmt + Abs(Amount);
@@ -671,7 +671,7 @@
             if TotalPaymentAmt = 0 then
                 exit(0);
             SetRange("Document Occurrence", AppliestoOccurrenceNo);
-            if FindFirst then begin
+            if FindFirst() then begin
                 CalcFields("Remaining Amount");
                 if "Remaining Amount" <> 0 then
                     exit(Abs(ComputedWithholdingTax."Total Amount" / TotalPaymentAmt * "Remaining Amount"));

@@ -33,11 +33,11 @@ codeunit 136125 "Service Posting Journals"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Posting Journals");
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateAccountInServiceCosts;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
 
         IsInitialized := true;
         Commit();
@@ -58,7 +58,7 @@ codeunit 136125 "Service Posting Journals"
         // Test Posted Entries after Posting Service Order with Location.
 
         // 1. Setup: Create Location, Inventory setup for Location, Service Order with Item, Resource, Cost and G/L Account.
-        Initialize;
+        Initialize();
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         CreateServiceOrderWithLines(ServiceHeader, Location.Code);
         GetServiceLines(ServiceLine, ServiceHeader."No.");
@@ -90,7 +90,7 @@ codeunit 136125 "Service Posting Journals"
         // Test Bin Content after Posting Item Journal with Location and Bin Code.
 
         // 1. Setup: Create Location with Bin Code and Create Item.
-        Initialize;
+        Initialize();
         CreateLocationWithBinCode(Bin);
         LibraryInventory.CreateItem(Item);
 
@@ -120,7 +120,7 @@ codeunit 136125 "Service Posting Journals"
 
         // 1. Setup: Create Location with Bin Code, Create Item, Create and Post Item Journal, Create Service Order with Type Item and
         // Update Location and Bin Code on Service Line.
-        Initialize;
+        Initialize();
         CreateLocationWithBinCode(Bin);
         LibraryInventory.CreateItem(Item);
         Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
@@ -136,7 +136,7 @@ codeunit 136125 "Service Posting Journals"
 
         // 3. Verify: Verify Service Ledger Entry after Posting Service Order.
         ServiceShipmentHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceShipmentHeader.FindFirst;
+        ServiceShipmentHeader.FindFirst();
         VerifyServiceLedgerEntryForBin(
           ServiceLine, ServiceShipmentHeader."No.", ServiceLedgerEntry."Document Type"::Shipment, ServiceLedgerEntry."Entry Type"::Usage);
         VerifyServiceLedgerEntryForBin(
@@ -163,18 +163,18 @@ codeunit 136125 "Service Posting Journals"
         // Test Service Ledger Entry after Posting Service Order with Job.
 
         // 1. Setup: Create Job, Job Task, Create Service Order with Item and Resource.
-        Initialize;
+        Initialize();
         LibraryJob.CreateJob(Job);
         LibraryJob.CreateJobTask(Job, JobTask);
         Quantity := LibraryRandom.RandInt(10);  // Use Random because value is not important.
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Job."Bill-to Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        ItemNo := LibraryInventory.CreateItemNo;
+        ItemNo := LibraryInventory.CreateItemNo();
         CreateServiceLineWithBlankLocation(ServiceLine, ServiceHeader, ServiceLine.Type::Item, ItemNo);
         UpdateServiceLineWithJob(ServiceLine, JobTask, ServiceItemLine."Line No.", Quantity);
 
-        ResourceNo := LibraryResource.CreateResourceNo;
+        ResourceNo := LibraryResource.CreateResourceNo();
         CreateServiceLineWithBlankLocation(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, ResourceNo);
         UpdateServiceLineWithJob(ServiceLine, JobTask, ServiceItemLine."Line No.", Quantity);
 
@@ -199,7 +199,7 @@ codeunit 136125 "Service Posting Journals"
         // Test Shipment Line after Posting Service Order with Resource.
 
         // 1. Setup: Create Service Order with Resource.
-        Initialize;
+        Initialize();
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
         CreateServiceLineWithResource(ServiceHeader, ServiceItemLine."Line No.");
@@ -228,7 +228,7 @@ codeunit 136125 "Service Posting Journals"
         // Test Service Ledger Entry after Posting Service Credit Memo with Location and Bin Code.
 
         // 1. Setup: Create Location, Bin and Service Credit Memo.
-        Initialize;
+        Initialize();
         CreateLocationWithBinCode(Bin);
         CreateServiceCreditMemo(ServiceHeader, ServiceLine, Bin);
 
@@ -238,7 +238,7 @@ codeunit 136125 "Service Posting Journals"
 
         // 3. Verify: Verify Service Ledger Entry after Posting Service Credit Memo.
         ServiceCrMemoHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         VerifyServiceLedgerEntryForBin(
           ServiceLine, ServiceCrMemoHeader."No.", ServiceLedgerEntry."Document Type"::"Credit Memo", ServiceLedgerEntry."Entry Type"::Sale);
     end;
@@ -254,7 +254,7 @@ codeunit 136125 "Service Posting Journals"
         OldAutomaticCostPosting: Boolean;
     begin
         // Setup: Update Automatic Cost Posting setup. Create two Items. Create and Post Item Journal for Items. Create Service Order with 3 lines.
-        Initialize;
+        Initialize();
         OldAutomaticCostPosting := UpdateAutomaticCostPosting(true);
         Quantity := LibraryRandom.RandInt(10);
         ItemNo := CreateItemWithUnitCost(LibraryRandom.RandDec(10, 2));
@@ -292,7 +292,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         // [FEATURE] [Job] [Sales Price] [Price Including VAT]
         // [SCENARIO 325829] Posted prices does not include VAT in Job Ledger Entry when posting Service Order for customer with enabled "Prices Incl. VAT".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J" with job task "JT"
         LibraryJob.CreateJob(Job);
@@ -339,7 +339,7 @@ codeunit 136125 "Service Posting Journals"
 #endif
     local procedure CopyServiceLines(var FromServiceLine: Record "Service Line"; var ToTempServiceLine: Record "Service Line" temporary)
     begin
-        if FromServiceLine.FindSet then
+        if FromServiceLine.FindSet() then
             repeat
                 ToTempServiceLine.Init();
                 ToTempServiceLine := FromServiceLine;
@@ -574,7 +574,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         BinContent.SetRange("Location Code", Bin."Location Code");
         BinContent.SetRange("Bin Code", Bin.Code);
-        BinContent.FindFirst;
+        BinContent.FindFirst();
         BinContent.TestField(Fixed, true);
         BinContent.TestField(Default, true);
         BinContent.TestField("Item No.", ItemNo);
@@ -588,10 +588,10 @@ codeunit 136125 "Service Posting Journals"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
     end;
 
@@ -601,7 +601,7 @@ codeunit 136125 "Service Posting Journals"
         GLEntry: Record "G/L Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Source Type", GLEntry."Source Type"::Customer);
         GLEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
@@ -619,14 +619,14 @@ codeunit 136125 "Service Posting Journals"
         ResLedgerEntry: Record "Res. Ledger Entry";
     begin
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Resource);
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
 
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         ResLedgerEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ResLedgerEntry.SetRange("Resource No.", TempServiceLine."No.");
-        ResLedgerEntry.FindFirst;
+        ResLedgerEntry.FindFirst();
         ResLedgerEntry.TestField("Posting Date", ServiceInvoiceHeader."Posting Date");
         ResLedgerEntry.TestField(Quantity, -TempServiceLine.Quantity);
         ResLedgerEntry.TestField("Order Type", ResLedgerEntry."Order Type"::Service);
@@ -641,7 +641,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         TempServiceLine.FindSet();
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         repeat
             ServiceInvoiceLine.Get(ServiceInvoiceHeader."No.", TempServiceLine."Line No.");
             ServiceInvoiceLine.TestField(Type, TempServiceLine.Type);
@@ -661,7 +661,7 @@ codeunit 136125 "Service Posting Journals"
         ServiceLedgerEntry.SetRange("Service Order No.", TempServiceLine."Document No.");
         repeat
             ServiceLedgerEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
-            ServiceLedgerEntry.FindFirst;
+            ServiceLedgerEntry.FindFirst();
             ServiceLedgerEntry.TestField("No.", TempServiceLine."No.");
             ServiceLedgerEntry.TestField(Quantity, TempServiceLine.Quantity);
         until TempServiceLine.Next = 0;
@@ -674,7 +674,7 @@ codeunit 136125 "Service Posting Journals"
         ServiceLedgerEntry.SetRange("Document Type", DocumentType);
         ServiceLedgerEntry.SetRange("Entry Type", EntryType);
         ServiceLedgerEntry.SetRange("Document No.", DocumentNo);
-        ServiceLedgerEntry.FindFirst;
+        ServiceLedgerEntry.FindFirst();
         ServiceLedgerEntry.TestField("Location Code", ServiceLine."Location Code");
         ServiceLedgerEntry.TestField("Bin Code", ServiceLine."Bin Code");
         ServiceLedgerEntry.TestField("No.", ServiceLine."No.");
@@ -709,7 +709,7 @@ codeunit 136125 "Service Posting Journals"
         TempServiceLine.FindSet();
         repeat
             ServiceShipmentLine.SetRange("Order Line No.", TempServiceLine."Line No.");
-            ServiceShipmentLine.FindFirst;
+            ServiceShipmentLine.FindFirst();
             ServiceShipmentLine.TestField("No.", TempServiceLine."No.");
             ServiceShipmentLine.TestField(Quantity, TempServiceLine.Quantity);
             ServiceShipmentLine.TestField("Quantity Consumed", TempServiceLine.Quantity);
@@ -722,7 +722,7 @@ codeunit 136125 "Service Posting Journals"
         VATEntry: Record "VAT Entry";
     begin
         ServiceInvoiceHeader.SetRange("Order No.", OrderNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         VATEntry.FindSet();
@@ -738,15 +738,15 @@ codeunit 136125 "Service Posting Journals"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         TempServiceLine.SetRange(Type, TempServiceLine.Type::Item);
-        TempServiceLine.FindFirst;
+        TempServiceLine.FindFirst();
 
         ServiceInvoiceHeader.SetRange("Order No.", TempServiceLine."Document No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         ValueEntry.SetRange("Document Type", ValueEntry."Document Type"::"Service Invoice");
         ValueEntry.SetRange("Document No.", ServiceInvoiceHeader."No.");
         ValueEntry.SetRange("Document Line No.", TempServiceLine."Line No.");
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
         ValueEntry.TestField("Item No.", TempServiceLine."No.");
         ValueEntry.TestField("Valued Quantity", -TempServiceLine.Quantity);
     end;
@@ -766,7 +766,7 @@ codeunit 136125 "Service Posting Journals"
     begin
         JobLedgerEntry.SetRange(Type, JobLedgerEntry.Type::Item);
         JobLedgerEntry.SetRange("No.", Item."No.");
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
 
         JobLedgerEntry.TestField("Unit Price (LCY)", ExpectedUnitPrice);
         JobLedgerEntry.TestField("Total Price (LCY)", ExpectedTotalPrice);

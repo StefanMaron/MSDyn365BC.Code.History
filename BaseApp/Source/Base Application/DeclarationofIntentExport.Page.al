@@ -141,7 +141,7 @@ page 12161 "Declaration of Intent Export"
 
                         VATExemption.SetRecFilter;
                         DeclarationOfIntentReport.SetTableView(VATExemption);
-                        DeclarationOfIntentReport.Run;
+                        DeclarationOfIntentReport.Run();
 
                         VATExemption."Declared Operations Up To Amt." += AmountToDeclare;
                         VATExemption.Modify();

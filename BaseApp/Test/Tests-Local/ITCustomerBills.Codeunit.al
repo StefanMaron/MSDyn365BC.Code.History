@@ -188,7 +188,7 @@ codeunit 144191 "IT - Customer Bills"
         // Find Bank Account No for the Payment Method and Create Customer Bill.
         Customer.Get(CustomerNo);
         BillPostingGroup.SetRange("Payment Method", Customer."Payment Method Code");
-        BillPostingGroup.FindFirst;
+        BillPostingGroup.FindFirst();
         LibrarySales.CreateCustomerBillHeader(
           CustomerBillHeader, BillPostingGroup."No.", BillPostingGroup."Payment Method", CustomerBillHeader.Type::"Bills For Collection");
         RunSuggestCustomerBill(CustomerBillHeader, CustomerNo);
@@ -218,7 +218,7 @@ codeunit 144191 "IT - Customer Bills"
         GenJournalTemplate: Record "Gen. Journal Template";
         BankAccount: Record "Bank Account";
     begin
-        BankAccount.FindFirst;
+        BankAccount.FindFirst();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
         GenJournalTemplate.SetRange(Recurring, false);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
@@ -235,7 +235,7 @@ codeunit 144191 "IT - Customer Bills"
     begin
         Bill.SetRange("Allow Issue", true);
         Bill.SetRange("Bank Receipt", true);
-        Bill.FindFirst;
+        Bill.FindFirst();
         PaymentMethod.SetRange("Bill Code", Bill.Code);
         LibraryERM.FindPaymentMethod(PaymentMethod);
         exit(PaymentMethod.Code);
@@ -250,7 +250,7 @@ codeunit 144191 "IT - Customer Bills"
         IssuingCustomerBill.SetTableView(CustLedgerEntry);
         IssuingCustomerBill.SetPostingDescription(CustomerNo);
         IssuingCustomerBill.UseRequestPage(false);
-        IssuingCustomerBill.Run;
+        IssuingCustomerBill.Run();
     end;
 
     local procedure RunSuggestCustomerBill(CustomerBillHeader: Record "Customer Bill Header"; CustomerNo: Code[20])
@@ -263,7 +263,7 @@ codeunit 144191 "IT - Customer Bills"
         SuggestCustomerBills.InitValues(CustomerBillHeader, true);
         SuggestCustomerBills.SetTableView(CustLedgerEntry);
         SuggestCustomerBills.UseRequestPage(false);
-        SuggestCustomerBills.Run;
+        SuggestCustomerBills.Run();
     end;
 
     local procedure PostCustomerBill(var CustomerBillHeader: Record "Customer Bill Header")

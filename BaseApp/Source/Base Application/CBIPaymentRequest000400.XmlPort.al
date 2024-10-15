@@ -391,7 +391,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
                             RemittanceText1 := '';
                             RemittanceText2 := '';
                             TempPaymentExportRemittanceTxt.SetRange("Pmt. Export Data Entry No.", PaymentExportData."Entry No.");
-                            if TempPaymentExportRemittanceTxt.FindSet then begin
+                            if TempPaymentExportRemittanceTxt.FindSet() then begin
                                 RemittanceText1 := TempPaymentExportRemittanceTxt.Text;
                                 if TempPaymentExportRemittanceTxt.Next <> 0 then
                                     RemittanceText2 := TempPaymentExportRemittanceTxt.Text;
@@ -464,7 +464,7 @@ xmlport 12100 "CBI Payment Request.00.04.00"
           "Sender Bank BIC", "SEPA Instruction Priority Text", "Transfer Date",
           "SEPA Batch Booking", "SEPA Charge Bearer Text");
 
-        if not PaymentExportData.FindSet then
+        if not PaymentExportData.FindSet() then
             Error(NoDataToExportErr);
 
         InitPmtGroup;

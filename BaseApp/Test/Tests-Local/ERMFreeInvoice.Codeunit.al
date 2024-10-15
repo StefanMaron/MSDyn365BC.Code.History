@@ -191,7 +191,7 @@ codeunit 144136 "ERM Free Invoice"
     begin
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Payment Method Code", PaymentMethod);
         CustLedgerEntry.TestField("Bal. Account No.", BalAccountNo);
         CustLedgerEntry.TestField(Open, Open);

@@ -71,7 +71,7 @@ report 12180 "Issuing Customer Bill"
                 Modify;
 
                 DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", "Entry No.");
-                DetailedCustLedgEntry.FindFirst;
+                DetailedCustLedgEntry.FindFirst();
                 DetailedCustLedgEntry."Bank Receipt Issued" := true;
                 DetailedCustLedgEntry.Modify();
 

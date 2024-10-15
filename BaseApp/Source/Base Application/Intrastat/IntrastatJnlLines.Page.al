@@ -32,10 +32,18 @@ page 12116 "Intrastat Jnl. Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a identification number that refers to the source document.';
                 }
+#if not CLEAN18
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies VAT registration number that is associated with the Intrastat journal.';
+                    Visible = false;
+                }
+#endif
+                field("Partner VAT ID"; Rec."Partner VAT ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
                 }
                 field("Item No."; "Item No.")
                 {

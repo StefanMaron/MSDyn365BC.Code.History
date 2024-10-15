@@ -185,7 +185,7 @@ page 5981 "Service Item List"
                         begin
                             CurrPage.SetSelectionFilter(ServiceItem);
                             DefaultDimMultiple.SetMultiRecord(ServiceItem, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -267,7 +267,7 @@ page 5981 "Service Item List"
                     begin
                         Clear(SkilledResourceList);
                         SkilledResourceList.Initialize(ResourceSkill.Type::"Service Item", "No.", Description);
-                        SkilledResourceList.RunModal;
+                        SkilledResourceList.RunModal();
                     end;
                 }
                 action("Co&mments")

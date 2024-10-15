@@ -399,7 +399,7 @@ report 12154 "Subcontract. Transfer Shipment"
                                 Continue := false;
 
                                 DimSetEntry.SetRange("Dimension Set ID", "Transfer Shipment Line"."Dimension Set ID");
-                                DimSetEntry.FindFirst;
+                                DimSetEntry.FindFirst();
                                 repeat
                                     OldDimText := DimText;
                                     if DimText = '' then

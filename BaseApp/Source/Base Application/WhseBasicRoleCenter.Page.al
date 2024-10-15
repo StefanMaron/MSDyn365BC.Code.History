@@ -639,6 +639,15 @@ page 9008 "Whse. Basic Role Center"
                     Caption = 'Blanket Purchase Order Archives';
                     RunObject = page "Blanket Purch. Order Archives";
                 }
+                action("Navi&gate")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Find entries...';
+                    Image = Navigate;
+                    RunObject = Page Navigate;
+                    ShortCutKey = 'Ctrl+Alt+Q';
+                    ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
+                }
             }
 #if not CLEAN18
             group(SetupAndExtensions)

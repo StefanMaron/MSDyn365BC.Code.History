@@ -350,7 +350,7 @@ table 99000830 "Planning Routing Line"
 
             trigger OnValidate()
             begin
-                GetGLSetup;
+                GetGLSetup();
                 "Unit Cost per" :=
                   Round("Direct Unit Cost" * (1 + "Indirect Cost %" / 100) + "Overhead Rate", GLSetup."Unit-Amount Rounding Precision");
             end;
@@ -938,12 +938,12 @@ table 99000830 "Planning Routing Line"
         PlanningRtngLine2.SetRange("Worksheet Line No.", "Worksheet Line No.");
         PlanningRtngLine2.SetFilter("Operation No.", '>%1', "Operation No.");
 
-        if PlanningRtngLine2.FindFirst then
+        if PlanningRtngLine2.FindFirst() then
             "Next Operation No." := PlanningRtngLine2."Operation No."
         else begin
             PlanningRtngLine2.SetFilter("Operation No.", '');
             PlanningRtngLine2.SetRange("Next Operation No.", '');
-            if PlanningRtngLine2.FindFirst then begin
+            if PlanningRtngLine2.FindFirst() then begin
                 PlanningRtngLine2."Next Operation No." := "Operation No.";
                 PlanningRtngLine2.Modify();
             end;

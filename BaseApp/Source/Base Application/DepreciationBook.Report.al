@@ -553,6 +553,9 @@ report 12119 "Depreciation Book"
             column(ReclassAmount_4_; ReclassAmount[4])
             {
             }
+            column(CompanyDisplayName; CompanyProperty.DisplayName())
+            {
+            }
 
             trigger OnAfterGetRecord()
             var
@@ -959,7 +962,7 @@ report 12119 "Depreciation Book"
             TempFALedgEntry.SetRange("FA Class Code", "Fixed Asset"."FA Class Code");
             TempFALedgEntry.SetRange("Transaction No.", Type);
             TempFALedgEntry.SetRange("FA No.", "Fixed Asset"."No.");
-            if TempFALedgEntry.FindSet then
+            if TempFALedgEntry.FindSet() then
                 repeat
                     TotalAmount[Type] := TotalAmount[Type] + TempFALedgEntry.Amount;
                 until TempFALedgEntry.Next() = 0;

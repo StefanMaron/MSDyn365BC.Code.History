@@ -165,7 +165,7 @@ table 12135 "Periodic Settlement VAT Entry"
         PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
     begin
         PeriodicSettlementVATEntry.SetFilter("VAT Period", '<%1', "VAT Period");
-        if PeriodicSettlementVATEntry.FindLast then begin
+        if PeriodicSettlementVATEntry.FindLast() then begin
             "Prior Period Input VAT" := PeriodicSettlementVATEntry."Prior Period Input VAT";
             "Prior Period Output VAT" := PeriodicSettlementVATEntry."Prior Period Output VAT";
         end;

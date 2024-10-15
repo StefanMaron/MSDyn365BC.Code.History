@@ -212,7 +212,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         CreateVendorBill(VendorBillHeader, TempVendorBillLine, BankExportImportSetup.Code, true);
         TempVendorBillLine.CalcSums("Amount to Pay");
         TotalFirstBankAcc := TempVendorBillLine."Amount to Pay";
-        TempVendorBillLine.FindLast;
+        TempVendorBillLine.FindLast();
 
         CreateVendorBankAccount(VendorBankAccount, TempVendorBillLine."Vendor No.");
         for i := 1 to LibraryRandom.RandIntInRange(5, 10) do begin
@@ -249,7 +249,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         CreateVendorBill(VendorBillHeader, TempVendorBillLine, BankExportImportSetup.Code, true);
         TempVendorBillLine.CalcSums("Amount to Pay");
         TotalFirstBankAcc := TempVendorBillLine."Amount to Pay";
-        TempVendorBillLine.FindLast;
+        TempVendorBillLine.FindLast();
 
         LibraryPurchase.CreateVendor(Vendor);
         CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
@@ -341,7 +341,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         FillExportBuffer(VendorBillHeader."No.", TempPaymentExportData);
 
         // [THEN] Payment Export Remittance Text contain External Doc Type and No text
-        TempVendorBillLine.FindFirst;
+        TempVendorBillLine.FindFirst();
         ExpectedText := StrSubstNo('%1 %2', Format(TempVendorBillLine."Document Type"), TempVendorBillLine."External Document No.");
         VerifyPmtExportRmtText(TempPaymentExportData, ExpectedText);
     end;
@@ -587,7 +587,7 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
     begin
         PaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
-        TempPaymentExportRemittanceText.FindFirst;
+        TempPaymentExportRemittanceText.FindFirst();
         Assert.ExpectedMessage(ExpectedText, TempPaymentExportRemittanceText.Text);
     end;
 

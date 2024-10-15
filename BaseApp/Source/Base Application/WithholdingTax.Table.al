@@ -219,7 +219,7 @@ table 12116 "Withholding Tax"
     begin
         WithholdingTax.LockTable();
         WithholdingTax.Reset();
-        if WithholdingTax.FindLast then
+        if WithholdingTax.FindLast() then
             "Entry No." := WithholdingTax."Entry No." + 1
         else
             "Entry No." := 1;
@@ -251,7 +251,7 @@ table 12116 "Withholding Tax"
         WithholdingTaxCreateQst: Label 'The program will create the withhold entry for entry %1 based on the Withholding Tax Code %2.\Do you want to create the withhold entry?', Comment = 'Parameter 1 - entry number, 2 - withholding tax code';
         WithholdingTaxCreatedMsg: Label 'Withholding tax with entry number %1 has been created.';
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure ValorizzaRitenute()
     begin
         WithholdCode.Get("Withholding Tax Code");
@@ -280,7 +280,7 @@ table 12116 "Withholding Tax"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "Document No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 
     [Scope('OnPrem')]
@@ -309,7 +309,7 @@ table 12116 "Withholding Tax"
         Reset;
         SetRange("Document No.", VendLedgEntry."Document No.");
         SetRange("Posting Date", VendLedgEntry."Posting Date");
-        if FindFirst then
+        if FindFirst() then
             Error(WithholdingTaxEntryAlreadyExistsErr, "Entry No.", "Document No.", "Posting Date");
     end;
 

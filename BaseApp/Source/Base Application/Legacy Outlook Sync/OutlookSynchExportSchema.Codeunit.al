@@ -222,7 +222,7 @@ codeunit 5306 "Outlook Synch. Export Schema"
         OSynchDependency.Reset();
         OSynchDependency.SetRange("Synch. Entity Code", TempOSynchField."Synch. Entity Code");
         OSynchDependency.SetRange("Element No.", TempOSynchField."Element No.");
-        if OSynchDependency.FindFirst then begin
+        if OSynchDependency.FindFirst() then begin
             TempOSynchField.SetRange("Search Field", true);
             if TempOSynchField.Find('-') then
                 repeat
@@ -268,10 +268,10 @@ codeunit 5306 "Outlook Synch. Export Schema"
                                 OSynchField1.SetRange("Table No.", OSynchField."Table No.");
 
                         OSynchField1.SetRange("Field No.", OSynchField."Field No.");
-                        if OSynchField1.FindFirst then begin
+                        if OSynchField1.FindFirst() then begin
                             SearchKeyBuffer.Reset();
                             SearchKeyBuffer.SetRange(Name, OSynchEntity.Code);
-                            if not SearchKeyBuffer.FindFirst then begin
+                            if not SearchKeyBuffer.FindFirst() then begin
                                 XMLWriter.WriteStartElement('Entity');
                                 XMLWriter.WriteAttribute('Name', OSynchEntity.Code);
                                 XMLWriter.WriteAttribute('Field', OSynchField1."Outlook Property");

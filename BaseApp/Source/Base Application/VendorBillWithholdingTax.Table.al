@@ -260,7 +260,7 @@ table 12185 "Vendor Bill Withholding Tax"
         Text12101: Label '%1 %2 does not exist in table %3.';
         Currency: Record Currency;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure CalculateWithholdingTax()
     var
         WithholdCode: Record "Withhold Code";
@@ -327,7 +327,7 @@ table 12185 "Vendor Bill Withholding Tax"
         "Soc.Sec.Non Taxable Amount" := 0;
         SocSecBracketLine.SetFilter(Amount, '>%1', CompPartiesBase);
 
-        if SocSecBracketLine.FindSet then
+        if SocSecBracketLine.FindSet() then
             repeat
                 Difference := SocSecBracketLine.Amount - CompPartiesBase;
                 if Difference < GrossAmount then begin
@@ -356,7 +356,7 @@ table 12185 "Vendor Bill Withholding Tax"
             Currency.Get(CurrencyCode);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure ValidateWithhSocSec()
     begin
         CalculateWithholdingTax;

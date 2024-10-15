@@ -94,7 +94,7 @@ table 5643 "Depreciation Table Line"
         DeprTableLine: Record "Depreciation Table Line";
     begin
         DeprTableLine.SetRange("Depreciation Table Code", "Depreciation Table Code");
-        if DeprTableLine.FindLast then;
+        if DeprTableLine.FindLast() then;
         "Period No." := DeprTableLine."Period No." + 1;
     end;
 }

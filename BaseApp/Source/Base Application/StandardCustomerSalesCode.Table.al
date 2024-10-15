@@ -166,7 +166,7 @@ table 172 "Standard Customer Sales Code"
         StdCustSalesCodes.LookupMode(true);
         if StdCustSalesCodes.RunModal = ACTION::LookupOK then begin
             StdCustSalesCodes.GetSelected(StdCustSalesCode);
-            if StdCustSalesCode.FindSet then
+            if StdCustSalesCode.FindSet() then
                 repeat
                     ApplyStdCodesToSalesLines(SalesHeader, StdCustSalesCode);
                 until StdCustSalesCode.Next() = 0;
@@ -282,7 +282,7 @@ table 172 "Standard Customer Sales Code"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type");
         SalesLine.SetRange("Document No.", SalesLine."Document No.");
-        if SalesLine.FindLast then
+        if SalesLine.FindLast() then
             exit(SalesLine."Line No." + 10000);
 
         exit(10000);

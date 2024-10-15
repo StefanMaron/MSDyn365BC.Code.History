@@ -38,7 +38,7 @@ codeunit 144207 "FatturaPA Applications"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305069] An information about the sales invoice applied to credit memo from document exists in FatturaPA XML File under node DatiFattureCollegate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
@@ -81,7 +81,7 @@ codeunit 144207 "FatturaPA Applications"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305069] An information about the sales credit memo applied from invoice after posting exists in FatturaPA XML File under node DatiFattureCollegate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
@@ -123,7 +123,7 @@ codeunit 144207 "FatturaPA Applications"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 305069] An information about the sales credit memo applied to invoice after posting exists in FatturaPA XML File under node DatiFattureCollegate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
@@ -166,7 +166,7 @@ codeunit 144207 "FatturaPA Applications"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305069] An information about the sales credit invoice applied to credit memo from document exists in FatturaPA XML File under node DatiFattureCollegate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
@@ -209,7 +209,7 @@ codeunit 144207 "FatturaPA Applications"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305069] An information about the sales invoice applied from credit memo after posting exists in FatturaPA XML File under node DatiFattureCollegate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
@@ -251,7 +251,7 @@ codeunit 144207 "FatturaPA Applications"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 305069] An information about the sales invoice applied to credit memo after posting exists in FatturaPA XML File under node DatiFattureCollegate
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
@@ -280,7 +280,7 @@ codeunit 144207 "FatturaPA Applications"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 

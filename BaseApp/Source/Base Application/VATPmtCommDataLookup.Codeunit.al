@@ -368,7 +368,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("Include in VAT Comm. Rep.", true);
-        if VATPostingSetup.FindSet then begin
+        if VATPostingSetup.FindSet() then begin
             VATEntry.SetRange(Type, VATEntry.Type::Sale);
             VATEntry.SetFilter(
               "VAT Calculation Type", '<>%1&<>%2',
@@ -393,7 +393,7 @@ codeunit 12151 "VAT Pmt. Comm. Data Lookup"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("Include in VAT Comm. Rep.", true);
-        if VATPostingSetup.FindSet then begin
+        if VATPostingSetup.FindSet() then begin
             VATEntry.SetRange(Type, VATEntry.Type::Purchase);
             VATEntry.SetFilter("VAT Calculation Type", '<>%1', VATEntry."VAT Calculation Type"::"Full VAT");
             OnGetTotalPurchasesOnAfterVATEntrySetFilters(VATEntry);

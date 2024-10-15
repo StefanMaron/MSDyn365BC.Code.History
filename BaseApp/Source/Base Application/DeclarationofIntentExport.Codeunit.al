@@ -30,7 +30,7 @@ codeunit 12134 "Declaration of Intent Export"
 
         CompanyInformation.Get();
 
-        FlatFileManagement.Initialize;
+        FlatFileManagement.Initialize();
         FlatFileManagement.StartNewFile;
         CreateRecordA;
         CreateRecordB(VATExemption, DescriptionOfGoods, SigningCompanyOfficials, AmountToDeclare, CeilingType,

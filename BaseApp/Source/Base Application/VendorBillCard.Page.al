@@ -137,7 +137,7 @@ page 12185 "Vendor Bill Card"
 
                         Clear(SuggestPayment);
                         SuggestPayment.InitValues(Rec);
-                        SuggestPayment.RunModal;
+                        SuggestPayment.RunModal();
                     end;
                 }
                 action(InsertVendBillLineManual)
@@ -152,7 +152,7 @@ page 12185 "Vendor Bill Card"
                         ManualVendPmtLine: Page "Manual vendor Payment Line";
                     begin
                         ManualVendPmtLine.SetVendBillNoAndDueDate("No.", "Posting Date");
-                        ManualVendPmtLine.Run;
+                        ManualVendPmtLine.Run();
                     end;
                 }
             }

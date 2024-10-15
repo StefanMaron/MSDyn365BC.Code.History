@@ -194,7 +194,7 @@ report 12181 "VAT Exemption Register"
                 VATExemption.SetRange(Type, GetRangeMin(Type));
                 VATExemption.SetFilter("VAT Exempt. Int. Registry Date", '<%1', StartDate);
                 VATExemption.SetRange(Printed, false);
-                if VATExemption.FindFirst then
+                if VATExemption.FindFirst() then
                     Error(Text12100, VATExemption.GetVATExemptNo());
 
                 SetCurrentKey("VAT Exempt. Int. Registry No.", Type, "No.");

@@ -38,7 +38,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         XmlDoc: DotNet XmlDocument;
     begin
         // [SCENARIO] For every Modulo tag either Mese tag is present or Trimestre tag is.
-        Initialize;
+        Initialize();
         VATPmtCommXMLGenerator.CreateXml(XmlDoc);
 
         VerifyTagsCount(XmlDoc, 'Mese', 'Trimestre');
@@ -52,7 +52,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FoundXMLNodeList: DotNet XmlNodeList;
     begin
         // [SCENARIO] There are at maximum 5 Modulo tags (xsd validation does not capture this).
-        Initialize;
+        Initialize();
         VATPmtCommXMLGenerator.CreateXml(XmlDoc);
 
         FoundXMLNodeList := XmlDoc.GetElementsByTagName('Modulo');
@@ -70,7 +70,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         CFDichiaranteCount: Integer;
     begin
         // [SCENARIO] Tag CodiceCaricaDichiarante must be present if Tag CodiceCaricaDichiarante is present.
-        Initialize;
+        Initialize();
         VATPmtCommXMLGenerator.CreateXml(XmlDoc);
 
         FoundXMLNodeList := XmlDoc.GetElementsByTagName('CFDichiarante');
@@ -91,7 +91,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [SCENARIO] Tag DataImpegno must be present if Tag CFIntermediario is present.
         // [SCENARIO] Tag FirmaIntermediario must be present if Tag CFIntermediario is present.
-        Initialize;
+        Initialize();
         VATPmtCommXMLGenerator.CreateXml(XmlDoc);
 
         CFIntermediarioCount := XmlDoc.GetElementsByTagName('CFIntermediario').Count();
@@ -116,7 +116,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         TotalPurchaseTax: Decimal;
     begin
         // [SCENARIO] Either IvaDovuta tag or IvaCredito tag is present
-        Initialize;
+        Initialize();
         PopulateVATEntryTable(DMY2Date(1, 10, 2017), TotalSales, TotalPurchases, TotalSalesTax, TotalPurchaseTax);
         VATPmtCommXMLGenerator.CreateXml(XmlDoc);
 
@@ -135,7 +135,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         TotalPurchaseTax: Decimal;
     begin
         // [SCENARIO] Either ImportoDaVersare tag or ImportoACredito tag is present
-        Initialize;
+        Initialize();
         PopulateVATEntryTable(DMY2Date(1, 10, 2017), TotalSales, TotalPurchases, TotalSalesTax, TotalPurchaseTax);
         VATPmtCommXMLGenerator.CreateXml(XmlDoc);
 
@@ -171,7 +171,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         TotalPurchaseTax: Decimal;
     begin
         // [SCENARIO] The data returned from the lookup methods are correct
-        Initialize;
+        Initialize();
         BindSubscription(PeriodicVATPmtCommTests);
         // [GIVEN] Initialize the instance
         VATPmtCommDataLookup.Init();
@@ -248,7 +248,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           true, false,
           1, false, 0, 1, DestinationPath);
         VATPaymentCommunication.UseRequestPage(false);
-        VATPaymentCommunication.Run;
+        VATPaymentCommunication.Run();
 
         // [THEN] XML generated conforms to the XSD
         SignatureSchemaPath := GetInetRoot + '\GDL\IT\App\Test\XMLSchemas\xmldsig-core-schema.xsd';
@@ -290,7 +290,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 223234] COD 12151 "VAT Pmt. Comm. Data Lookup".GetTotalSales() returns sum of positive VATEntry."Base" excluding Reverse Charge VAT
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<-CM+1M>', GetLastVATEntryOpOccrDate);
         VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(VATEntryDate);
@@ -341,7 +341,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [Report] [UT]
         // [SCENARIO 223234] REP 12150 "VAT Payment Communication" exports "TotaleOperazioniAttive" = sum of positive VATEntry."Base" excluding Reverse Charge VAT
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<-CY+1Y>', GetLastVATEntryOpOccrDate);
         VATPmtCommDataLookup.Init();
         VATPmtCommDataLookup.SetStartDate(VATEntryDate);
@@ -394,7 +394,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FileName: Text;
     begin
         // [SCENARIO 224532] Check XML when "VAT Calculation Type" = "Full VAT", "Deductible %" = 100
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
         SalesVATAmount := LibraryRandom.RandDec(1000, 2);
         PurchVATAmount := -SalesVATAmount / 2;
@@ -442,7 +442,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FileName: Text;
     begin
         // [SCENARIO 224532] Check XML when "VAT Calculation Type" differ in lines, one of lines has "VAT Calculation Type" = "Full VAT", "Deductible %" = 100
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
         PrepareVATBaseAndAmountArray(Amount, Base);
         TotalVATAmount := Amount[1] + Amount[2] + Amount[3] + Amount[4] + Amount[5];
@@ -504,7 +504,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FileName: Text;
     begin
         // [SCENARIO 232382] TotaleOperazioniAttive and TotaleOperazioniPassive must absent in communication XML when "Include in VAT Comm. Rep." in VAT Posting Setup is disabled and VAT Amount = 0
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
         PrepareVATBaseArray(Base);
         VATPmtCommDataLookup.Init();
@@ -544,7 +544,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FileName: Text;
     begin
         // [SCENARIO 232382] TotaleOperazioniAttive and TotaleOperazioniPassive must exist in communication XML when "Include in VAT Comm. Rep." in VAT Posting Setup is enabled and VAT Amount = 0
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
         PrepareVATBaseArray(Base);
         VATPmtCommDataLookup.Init();
@@ -593,7 +593,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232382] Error when trying validate "Include in VAT Comm. Rep." in VAT Posting Setup with "VAT Calculation Type" = "Normal VAT" and "VAT %" <> 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "Normal VAT" and "VAT %" <> 0
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -614,7 +614,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232382] Error when trying validate "Include in VAT Comm. Rep." in VAT Posting Setup with "VAT Calculation Type" = "Reverse Charge VAT" and "VAT %" <> 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "Reverse Charge VAT" and "VAT %" <> 0
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -635,7 +635,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232382] Error when trying validate "Include in VAT Comm. Rep." in VAT Posting Setup with "VAT Calculation Type" = "Normal VAT" and "VAT %" = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "Normal VAT" and "VAT %" = 0
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
@@ -655,7 +655,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232382] Error when trying validate "Include in VAT Comm. Rep." in VAT Posting Setup with "VAT Calculation Type" = "Reverse Charge VAT" and "VAT %" = 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "Reverse Charge VAT" and "VAT %" = 0
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 0);
@@ -675,7 +675,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232382] Untick "Include in VAT Comm. Rep." in VAT Posting Setup when "VAT %" was changed from 0
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with ticked "Include in VAT Comm. Rep." and "VAT %" = 0
         CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(
@@ -696,7 +696,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 232382] Untick "Include in VAT Comm. Rep." in VAT Posting Setup when "VAT Calculation Type" was validated with "Sales Tax"
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with ticked "Include in VAT Comm. Rep." and ""VAT Calculation Type" "Normal VAT"
         CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(
@@ -719,7 +719,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         VATEntryDate: Date;
     begin
         // [SCENARIO 252305] Settlement VAT Entries must not be exported in VAT Settlement Communication report
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
         Amount := LibraryRandom.RandDec(1000, 2);
         Base := LibraryRandom.RandDec(1000, 2);
@@ -757,7 +757,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 252548] Export VAT Payment Communication Report for purchase with non-deductible VAT amount
-        Initialize;
+        Initialize();
         VATEntryDate := CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate);
         PrepareVATBaseAndAmountArray(Amount, Base);
 
@@ -812,7 +812,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         VATEntryDate: Date;
     begin
         // [SCENARIO 255474] Amounts for the second and third months must not contain amounts for the previous months.
-        Initialize;
+        Initialize();
         VATEntryDate := VATPmtCommXMLGenerator.GetFirstDateOfQuarter(CalcDate('<CY+1Y>', GetLastVATEntryOpOccrDate));
         PrepareVATBaseAndAmountArray(Amount, Base);
 
@@ -897,7 +897,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FileName: Text;
     begin
         // [SCENARIO 264706] Mandatory tags on quarter export of VAT Communication report 2018 with advanced amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
@@ -945,7 +945,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         FileName: Text;
     begin
         // [SCENARIO 264706] Mandatory tags on quarter export of VAT Communication report 2018 without advanced amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
@@ -990,7 +990,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         StartDate: Date;
     begin
         // [SCENARIO 264706] Advanced Amount cannot be exported with blank method of calculation in VAT Communication report
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
@@ -1027,7 +1027,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         StartDate: Date;
     begin
         // [SCENARIO 264706] Report cannot be exported with blank module number in VAT Communication report
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Settlement Period is Quarter in General Ledger Setup
         UpdateGLSetupWithVATPeriod(GeneralLedgerSetup."VAT Settlement Period"::Quarter);
@@ -1060,7 +1060,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 264706] Controls on VAT Communication report request page are accessible
-        Initialize;
+        Initialize();
         Commit();
         REPORT.Run(REPORT::"VAT Payment Communication");
     end;
@@ -1185,7 +1185,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
     procedure Initialize()
     begin
         Clear(VATPmtCommDataLookup);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if Initialized then
             exit;
@@ -1387,7 +1387,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetCurrentKey("Operation Occurred Date", Type, "Document Type", "Document No.", "Contract No.");
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Operation Occurred Date");
     end;
 
@@ -1435,7 +1435,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         Clear(VATPaymentCommunication);
         VATPaymentCommunication.InitializeRequest(VATEntryDate, 0, '', '', false, 0, false, false, false, 0, false, 0, 1, FileName);
         VATPaymentCommunication.UseRequestPage(false);
-        VATPaymentCommunication.Run;
+        VATPaymentCommunication.Run();
     end;
 
     local procedure RunVATPaymentCommunicationRepExtended(VATEntryDate: Date; ExtraordinaryOperation: Boolean; MetodOfCalcAdvanced: Option; ModuleNumber: Option; IsSigned: Boolean) FileName: Text
@@ -1449,7 +1449,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           VATEntryDate, 0, '', '', IsSigned, 0, false, false, false, 0,
           ExtraordinaryOperation, MetodOfCalcAdvanced, ModuleNumber, FileName);
         VATPaymentCommunication.UseRequestPage(false);
-        VATPaymentCommunication.Run;
+        VATPaymentCommunication.Run();
     end;
 
     local procedure RunCalcAndPostVATSettlementReport(VATPostingSetup: Record "VAT Posting Setup"; StartDate: Date; PostingDate: Date)

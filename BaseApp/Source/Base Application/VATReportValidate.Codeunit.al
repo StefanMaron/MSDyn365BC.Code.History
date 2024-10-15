@@ -33,7 +33,7 @@ codeunit 744 "VAT Report Validate"
 
     local procedure InsertErrorLog(ErrorMessage: Text[250])
     begin
-        if TempVATReportErrorLog.FindLast then
+        if TempVATReportErrorLog.FindLast() then
             ErrorID := TempVATReportErrorLog."Entry No." + 1
         else
             ErrorID := 1;
@@ -85,7 +85,7 @@ codeunit 744 "VAT Report Validate"
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Incl. in Report", true);
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             repeat
                 VATEntry.Get(VATReportLine."VAT Entry No.");
                 case VATReportLine.Type of

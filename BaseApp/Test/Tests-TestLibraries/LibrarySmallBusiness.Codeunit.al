@@ -36,7 +36,7 @@ codeunit 132213 "Library - Small Business"
         SalesCommentLine.SetRange("Document Type", SalesLine."Document Type".AsInteger());
         SalesCommentLine.SetRange("No.", SalesLine."No.");
         SalesCommentLine.SetRange("Document Line No.", SalesLine."Line No.");
-        if SalesCommentLine.FindLast then
+        if SalesCommentLine.FindLast() then
             NextLineNo := SalesCommentLine."Line No." + 10000
         else
             NextLineNo := 10000;
@@ -329,7 +329,7 @@ codeunit 132213 "Library - Small Business"
     var
         GeneralPostingSetup: Record "General Posting Setup";
     begin
-        GeneralPostingSetup.FindLast;
+        GeneralPostingSetup.FindLast();
         exit(GeneralPostingSetup."Gen. Bus. Posting Group");
     end;
 
@@ -337,7 +337,7 @@ codeunit 132213 "Library - Small Business"
     var
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        UnitOfMeasure.FindFirst;
+        UnitOfMeasure.FindFirst();
         exit(UnitOfMeasure.Code);
     end;
 
@@ -349,7 +349,7 @@ codeunit 132213 "Library - Small Business"
         VATPostingSetup.SetRange("VAT Prod. Posting Group", VATProdPostingGroupCode);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.SetRange("VAT %", 0);
-        if not VATPostingSetup.FindLast then
+        if not VATPostingSetup.FindLast() then
             CreateZeroVATPostingSetupByProdGroupCode(VATPostingSetup, VATProdPostingGroupCode);
         exit(VATPostingSetup."VAT Bus. Posting Group");
     end;
@@ -359,7 +359,7 @@ codeunit 132213 "Library - Small Business"
         NoSeries: Record "No. Series";
     begin
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         exit(NoSeries.Code);
     end;
 
@@ -428,7 +428,7 @@ codeunit 132213 "Library - Small Business"
             SetFilter("VAT Prod. Posting Group", '<>%1', '');
             SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
             SetRange("VAT %", 0);
-            if not FindLast then
+            if not FindLast() then
                 CreateZeroVATPostingSetupByBusGroupCode(VATPostingSetup, VATBusPostingGroupCode);
             exit("VAT Prod. Posting Group");
         end;
@@ -439,7 +439,7 @@ codeunit 132213 "Library - Small Business"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetFilter("VAT %", '<>%1', 0);
-        if not VATPostingSetup.FindLast then
+        if not VATPostingSetup.FindLast() then
             CreateVATPostingSetup(VATPostingSetup);
 
         with GLAccount do begin
@@ -523,7 +523,7 @@ codeunit 132213 "Library - Small Business"
         end else begin
             DimValue.SetRange("Dimension Code", Format(GlobalDimCodeFieldRef.Value));
             DimValue.SetRange(Blocked, false);
-            DimValue.FindFirst;
+            DimValue.FindFirst();
         end;
         exit(DimValue.Code);
     end;

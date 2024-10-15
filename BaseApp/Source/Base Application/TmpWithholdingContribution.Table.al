@@ -404,7 +404,7 @@ table 12113 "Tmp Withholding Contribution"
         Vend: Record Vendor;
         WithholdingSocSec: Codeunit "Withholding - Contribution";
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure CalculateWithholdingTax()
     begin
         WithholdCode.Get("Withholding Tax Code");
@@ -475,7 +475,7 @@ table 12113 "Tmp Withholding Contribution"
 
         SocSecBracketLine.SetFilter(Amount, '>%1', Assoggettato);
 
-        if SocSecBracketLine.FindSet then
+        if SocSecBracketLine.FindSet() then
             repeat
                 Gap := SocSecBracketLine.Amount - Assoggettato;
                 if Gap < GrossAmount then begin
@@ -537,7 +537,7 @@ table 12113 "Tmp Withholding Contribution"
 
         SocSecBracketLine.SetFilter(Amount, '>%1', Assoggettato);
 
-        if SocSecBracketLine.FindSet then
+        if SocSecBracketLine.FindSet() then
             repeat
                 Gap := SocSecBracketLine.Amount - Assoggettato;
                 if Gap < GrossAmount then begin

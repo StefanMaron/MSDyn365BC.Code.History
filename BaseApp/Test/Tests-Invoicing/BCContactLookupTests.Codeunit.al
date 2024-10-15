@@ -35,7 +35,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         CreateCustomerWithContact(Customer, Contact);
 
         // [WHEN] The user creates a new invoice from business center
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] The user enters the contact number
         BCO365SalesInvoice."Sell-to Customer Name".Value(Format(Contact."No."));
@@ -64,7 +64,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         CreateItem(Item);
 
         // [WHEN] The user creates a new invoice from business center
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] The user enters the contact name
         BCO365SalesInvoice."Sell-to Customer Name".Value(Format(Contact.Name));
@@ -93,7 +93,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         CreateCustomerWithContact(Customer, Contact);
 
         // [WHEN] The user creates a new invoice from business center
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] The user enters the partial contact name
         BCO365SalesInvoice."Sell-to Customer Name".Value('Te');
@@ -121,7 +121,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         CreateContact(Contact, '');
 
         // [WHEN] The user creates a new invoice from business center
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] The user enters the contact number
         BCO365SalesInvoice."Sell-to Customer Name".Value(Format(Contact."No."));
@@ -149,7 +149,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         CreateContact(Contact, 'Test');
 
         // [WHEN] The user creates a new invoice from business center
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] The user enters the contact number
         BCO365SalesInvoice."Sell-to Customer Name".Value(Contact.Name);
@@ -177,7 +177,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         CreateContact(Contact, 'Test');
 
         // [WHEN] The user creates a new invoice from business center
-        BCO365SalesInvoice.OpenNew;
+        BCO365SalesInvoice.OpenNew();
 
         // [WHEN] The user enters the contact number
         BCO365SalesInvoice."Sell-to Customer Name".Value('te');
@@ -192,7 +192,7 @@ codeunit 138945 "BC Contact Lookup Tests"
     local procedure CreateContact(var Contact: Record Contact; Name: Text[50])
     begin
         Contact.Init();
-        Contact.Validate("No.", LibraryUtility.GenerateGUID);
+        Contact.Validate("No.", LibraryUtility.GenerateGUID());
         Contact.Validate(Type, Contact.Type::Person);
         Contact.Validate(Name, Name);
         Contact.Insert(true);
@@ -206,7 +206,7 @@ codeunit 138945 "BC Contact Lookup Tests"
         MiniCustomerTemplate.NewCustomerFromTemplate(Customer);
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
-        ContactBusinessRelation.FindFirst;
+        ContactBusinessRelation.FindFirst();
         Contact.Get(ContactBusinessRelation."Contact No.");
         Contact.Name := 'Test';
         Contact.Modify(true);
@@ -252,7 +252,6 @@ codeunit 138945 "BC Contact Lookup Tests"
         if IsInitialized then
             exit;
 
-        LibraryInvoicingApp.SetupEmailTable;
         LibraryInvoicingApp.DisableC2Graph;
 
         EventSubscriberInvoicingApp.SetAppId('INV');

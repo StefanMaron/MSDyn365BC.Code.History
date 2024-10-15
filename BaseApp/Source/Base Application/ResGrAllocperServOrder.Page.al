@@ -86,7 +86,7 @@ page 6009 "Res. Gr. Alloc. per Serv Order"
                     HorizontalRecord.SetRange("Resource Group No.", ResourceGrFilter);
                     ServiceHeader.SetFilter("Resource Group Filter", ResourceGrFilter);
                     ResPerServiceOrderMatrix.Load(ServiceHeader, HorizontalRecord, MatrixColumnCaptions, MatrixRecords, CurrSetLength);
-                    ResPerServiceOrderMatrix.RunModal;
+                    ResPerServiceOrderMatrix.RunModal();
                 end;
             }
             action("Previous Set")

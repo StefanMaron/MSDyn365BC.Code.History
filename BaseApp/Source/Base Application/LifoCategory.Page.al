@@ -43,7 +43,7 @@ page 12128 "Lifo Category"
                     trigger OnAction()
                     begin
                         LIFOBandList.Editable(false);
-                        LIFOBandList.Run;
+                        LIFOBandList.Run();
                     end;
                 }
             }

@@ -75,7 +75,7 @@ page 12148 "Vendor Aging"
                     Clear(MatrixForm);
                     MatrixForm.Load(MATRIX_CaptionSet, MatrixRecords, MATRIX_CurrentNoOfColumns, RoundingFactor, AmountType,
                       GetFilter("Global Dimension 1 Filter"), GetFilter("Global Dimension 2 Filter"));
-                    MatrixForm.RunModal;
+                    MatrixForm.RunModal();
                 end;
             }
             action("Next Set")

@@ -55,7 +55,7 @@ codeunit 144075 "ERM Fiscal Book"
         // Test to validate G/L Book Entry after Reverse Register on G/L Register without VAT and with same Document No.
 
         // Setup: Create and post General Journal Line without VAT.
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         FindVATPostingSetupWithZeroVAT(VATPostingSetup);
         CreateAndPostGeneralJournalLine(GenJournalLine, VATPostingSetup, DocumentNo, DocumentNo);  // Same Document No on multiple line of General Journal Line.
 
@@ -80,9 +80,9 @@ codeunit 144075 "ERM Fiscal Book"
     begin
         // Test to validate G/L Book Entry after Reverse Register on G/L Register with VAT and different Document No.
         // Setup.
-        DocumentNo := LibraryUtility.GenerateGUID;
+        DocumentNo := LibraryUtility.GenerateGUID();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CreateAndPostGeneralJournalLine(GenJournalLine, VATPostingSetup, DocumentNo, LibraryUtility.GenerateGUID);  // Different Document No on multiple lines of General Journal Line.
+        CreateAndPostGeneralJournalLine(GenJournalLine, VATPostingSetup, DocumentNo, LibraryUtility.GenerateGUID());  // Different Document No on multiple lines of General Journal Line.
         VATAmount := (GenJournalLine.Amount * 100) / (VATPostingSetup."VAT %" + 100);  // Calculate VAT Amount.
 
         // Exercise: Reverse Register on G/L Register.
@@ -213,7 +213,7 @@ codeunit 144075 "ERM Fiscal Book"
         GLRegister: Record "G/L Register";
     begin
         GLRegister.SetRange("Journal Batch Name", JournalBatchName);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
         exit(GLRegister."No.");
     end;
 

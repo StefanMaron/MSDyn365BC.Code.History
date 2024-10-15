@@ -131,17 +131,5 @@ page 737 "VAT Return Period List"
         OpenVATReturnEnabled := true;
         CheckOpenOrOverdue;
     end;
-
-    local procedure CheckOpenOrOverdue()
-    begin
-        if (Status = Status::Open) and ("Due Date" <> 0D) and
-           (("Due Date" < WorkDate) or
-            VATReportSetup.IsPeriodReminderCalculation and
-            ("Due Date" >= WorkDate) and ("Due Date" <= CalcDate(VATReportSetup."Period Reminder Calculation", WorkDate)))
-        then
-            WarningStyleExpr := 'Unfavorable'
-        else
-            WarningStyleExpr := '';
-    end;
 }
 

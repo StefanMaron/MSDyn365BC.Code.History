@@ -159,6 +159,7 @@ page 99000767 "Routing Version Lines"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     ToolTip = 'View or add comments for the record.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -171,6 +172,7 @@ page 99000767 "Routing Version Lines"
                     Caption = 'Tools';
                     Image = Tools;
                     ToolTip = 'View or edit information about tools that apply to operations that represent the standard task.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -183,6 +185,7 @@ page 99000767 "Routing Version Lines"
                     Caption = 'Personnel';
                     Image = User;
                     ToolTip = 'View or edit information about personnel that applies to operations that represent the standard task.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -194,6 +197,7 @@ page 99000767 "Routing Version Lines"
                     ApplicationArea = Manufacturing;
                     Caption = 'Quality Measures';
                     ToolTip = 'View or edit information about quality measures that apply to operations that represent the standard task.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -204,15 +208,17 @@ page 99000767 "Routing Version Lines"
         }
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        ShowRelatedDataEnabled := "Operation No." <> '';
+    end;
+
     var
         RtngComment: Record "Routing Comment Line";
-        Text001: Label 'Operation No. must be filled in. Enter a value.';
+        ShowRelatedDataEnabled: Boolean;
 
     local procedure ShowComment()
     begin
-        if "Operation No." = '' then
-            Error(Text001);
-
         RtngComment.SetRange("Routing No.", "Routing No.");
         RtngComment.SetRange("Operation No.", "Operation No.");
         RtngComment.SetRange("Version Code", "Version Code");

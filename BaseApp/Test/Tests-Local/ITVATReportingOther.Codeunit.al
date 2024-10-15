@@ -153,7 +153,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -197,7 +197,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Purchase][Vendor Account Bills List]
         // [SCENARIO 379767] First row of Vendor Account Bills List report should be refund and second row should be applied credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted credit memo
         CreateAndPostPurchaseCreditMemo(VendorNo, Amount, PaymentNo);
@@ -206,7 +206,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         PurchaseDocNo := CreateApplyAndPostGenJnlLine(
             GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Vendor,
             VendorNo, GenJournalLine."Applies-to Doc. Type"::"Credit Memo", PaymentNo, -Amount);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
 
         // [WHEN] Run Vendor Account Bills List
@@ -230,7 +230,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Sales][Customer Bills List]
         // [SCENARIO 379767] First row of Customer Bills List report should be refund and second row should be applied credit memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted credit memo
         CreateAndPostSalesCreditMemo(CustomerNo, Amount, PaymentNo);
@@ -239,7 +239,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         SalesDocNo := CreateApplyAndPostGenJnlLine(
             GenJournalLine."Document Type"::Refund, GenJournalLine."Account Type"::Customer,
             CustomerNo, GenJournalLine."Applies-to Doc. Type"::"Credit Memo", PaymentNo, Amount);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         Commit();
 
         // [WHEN] Run Customer Bills List
@@ -261,7 +261,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Release]
         // [SCENARIO 228087] Cassie can release VAT Report at date without Spesometro Appointment entries
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
 
         // [GIVEN] Date without VAT Entries 15.03.2019
@@ -291,7 +291,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Release]
         // [SCENARIO 251924] Cassie can release VAT Report when individual Vendor as Tax Representative in Company Inf. with filled First and Last Name
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
 
         // [GIVEN] Individual Vendor "Vend" with filled First and Last Name
@@ -328,7 +328,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Release]
         // [SCENARIO 251924] Error must appear when releasing VAT Report when individual Vendor as Tax Representative in Company Inf. without First and Last Name
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
 
         // [GIVEN] Individual Vendor "Vend" without First and Last Name
@@ -370,7 +370,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Release]
         // [SCENARIO 251924] Cassie can release VAT Report when non-individual Vendor as Tax Representative in Company Inf. with filled Name
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
 
         // [GIVEN] Non-individual Vendor "Vend" with filled Name
@@ -407,7 +407,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
     begin
         // [FEATURE] [Release]
         // [SCENARIO 251924] Cassie can release VAT Report when non-individual Vendor as Tax Representative in Company Inf. without Name
-        Initialize;
+        Initialize();
         UpdateCompanyInformation;
 
         // [GIVEN] Non-individual Vendor "Vend" without Name
@@ -437,9 +437,9 @@ codeunit 144011 "IT - VAT Reporting - Other"
     local procedure Initialize()
     begin
         TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         Clear(LibraryReportValidation);
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
@@ -646,7 +646,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
           LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(10));
@@ -661,7 +661,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
           LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
@@ -709,7 +709,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         Vendor.SetRange("No.", VendorNo);
         VendorAccountBillsList.SetTableView(Vendor);
         VendorAccountBillsList.UseRequestPage(true);
-        VendorAccountBillsList.Run;
+        VendorAccountBillsList.Run();
     end;
 
     local procedure RunCustomerBillsListReport(CustomerNo: Code[20])
@@ -720,7 +720,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         Customer.SetRange("No.", CustomerNo);
         CustomerBillsList.SetTableView(Customer);
         CustomerBillsList.UseRequestPage(true);
-        CustomerBillsList.Run;
+        CustomerBillsList.Run();
     end;
 
     local procedure EnableUnrealizedVAT(UnrealVAT: Boolean)
@@ -750,7 +750,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetCurrentKey("Operation Occurred Date", Type, "Document Type", "Document No.", "Contract No.");
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         exit(VATEntry."Operation Occurred Date");
     end;
 
@@ -759,7 +759,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.SetFilter("Starting Date", '<=%1', StartingDate);
-        VATTransactionReportAmount.FindLast;
+        VATTransactionReportAmount.FindLast();
 
         if InclVAT then
             Amount := VATTransactionReportAmount."Threshold Amount Incl. VAT"

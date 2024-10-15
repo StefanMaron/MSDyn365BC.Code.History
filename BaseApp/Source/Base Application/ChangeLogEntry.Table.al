@@ -4,7 +4,7 @@ table 405 "Change Log Entry"
     Caption = 'Change Log Entry';
     DrillDownPageID = "Change Log Entries";
     LookupPageID = "Change Log Entries";
-    ReplicateData = true;
+    ReplicateData = false;
 
     fields
     {
@@ -53,11 +53,9 @@ table 405 "Change Log Entry"
             Caption = 'Field Caption';
             FieldClass = FlowField;
         }
-        field(9; "Type of Change"; Option)
+        field(9; "Type of Change"; Enum "Change Log Entry Type")
         {
             Caption = 'Type of Change';
-            OptionCaption = 'Insertion,Modification,Deletion';
-            OptionMembers = Insertion,Modification,Deletion;
         }
         field(10; "Old Value"; Text[2048])
         {

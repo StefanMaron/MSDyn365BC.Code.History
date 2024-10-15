@@ -61,21 +61,10 @@ codeunit 12182 "Datifattura Export"
 
         XMLDoc.Save(ServerFilePath);
         SuggestedFileName := StrSubstNo(FileFormat, GetSubmitterID, FileNameSuffix);
-#if not CLEAN17
-        if not ServerFilePathAlreadySet then
-            if not FileManagement.IsLocalFileSystemAccessible then
-                TempNameValueBuffer.AddNewEntry(
-                  CopyStr(ServerFilePath, 1, MaxStrLen(TempNameValueBuffer.Name)),
-                  CopyStr(SuggestedFileName, 1, MaxStrLen(TempNameValueBuffer.Value)))
-            else
-                Download(ServerFilePath, SaveXmlAsLbl, '',
-                  FileManagement.GetToFilterText('', SuggestedFileName), SuggestedFileName);
-#else
         if not ServerFilePathAlreadySet then
             TempNameValueBuffer.AddNewEntry(
               CopyStr(ServerFilePath, 1, MaxStrLen(TempNameValueBuffer.Name)),
               CopyStr(SuggestedFileName, 1, MaxStrLen(TempNameValueBuffer.Value)));
-#endif
 
         OnAfterSaveFileOnClient(SuggestedFileName);
         ServerFilePath := '';
@@ -149,7 +138,7 @@ codeunit 12182 "Datifattura Export"
         CessionarioCommittenteDTELoop := VATReportLine.Count div 1000;
         if VATReportLine.Count mod 1000 <> 0 then
             CessionarioCommittenteDTELoop += 1;
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             for CessionarioCommittenteDTELoopCouner := 1 to CessionarioCommittenteDTELoop do begin
                 InitDatiFatturaNode(DotNetXmlDocument, XMLRootNode);
                 ExportStandardDatifatturaHeader(VATReportHeader, XMLRootNode);
@@ -182,7 +171,7 @@ codeunit 12182 "Datifattura Export"
         CessionarioCommittenteDTELoop := VATReportLine.Count div 1000;
         if VATReportLine.Count mod 1000 <> 0 then
             CessionarioCommittenteDTELoop += 1;
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             for CessionarioCommittenteDTELoopCouner := 1 to CessionarioCommittenteDTELoop do begin
                 InitDatiFatturaNode(DotNetXmlDocument, XMLRootNode);
                 ExportStandardDatifatturaHeader(VATReportHeader, XMLRootNode);

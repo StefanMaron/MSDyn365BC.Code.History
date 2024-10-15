@@ -178,7 +178,7 @@ report 4 "Detail Trial Balance"
                 if GLDateFilter <> '' then begin
                     Date.SetRange("Period Type", Date."Period Type"::Date);
                     Date.SetFilter("Period Start", GLDateFilter);
-                    if Date.FindFirst then begin
+                    if Date.FindFirst() then begin
                         SetRange("Date Filter", 0D, ClosingDate(Date."Period Start" - 1));
                         CalcFields("Net Change");
                         StartBalance := "Net Change";
@@ -189,7 +189,7 @@ report 4 "Detail Trial Balance"
                 if PrintOnlyOnePerPage then begin
                     GLEntry.Reset();
                     GLEntry.SetRange("G/L Account No.", "No.");
-                    if CurrReport.PrintOnlyIfDetail and GLEntry.FindFirst then
+                    if CurrReport.PrintOnlyIfDetail and GLEntry.FindFirst() then
                         PageGroupNo := PageGroupNo + 1;
                 end;
             end;

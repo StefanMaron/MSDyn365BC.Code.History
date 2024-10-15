@@ -12,7 +12,7 @@ page 9050 "Whse Ship & Receive Activities"
             cuegroup("Outbound - Today")
             {
                 Caption = 'Outbound - Today';
-                field("Rlsd. Sales Orders Until Today"; "Rlsd. Sales Orders Until Today")
+                field("Rlsd. Sales Orders Until Today"; Rec."Rlsd. Sales Orders Until Today")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Released Sales Orders Until Today';
@@ -20,7 +20,7 @@ page 9050 "Whse Ship & Receive Activities"
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of released sales orders that are displayed in the Warehouse Basic Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Posted Sales Shipments - Today"; "Posted Sales Shipments - Today")
+                field("Posted Sales Shipments - Today"; Rec."Posted Sales Shipments - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Posted Sales Shipments";
@@ -51,14 +51,14 @@ page 9050 "Whse Ship & Receive Activities"
             cuegroup("Inbound - Today")
             {
                 Caption = 'Inbound - Today';
-                field("Exp. Purch. Orders Until Today"; "Exp. Purch. Orders Until Today")
+                field("Exp. Purch. Orders Until Today"; Rec."Exp. Purch. Orders Until Today")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Expected Purch. Orders Until Today';
                     DrillDownPageID = "Purchase Order List";
                     ToolTip = 'Specifies the number of expected purchase orders that are displayed in the Basic Warehouse Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Posted Purch. Receipts - Today"; "Posted Purch. Receipts - Today")
+                field("Posted Purch. Receipts - Today"; Rec."Posted Purch. Receipts - Today")
                 {
                     ApplicationArea = Warehouse;
                     DrillDownPageID = "Posted Purchase Receipts";
@@ -80,21 +80,21 @@ page 9050 "Whse Ship & Receive Activities"
             cuegroup(Internal)
             {
                 Caption = 'Internal';
-                field("Invt. Picks Until Today"; "Invt. Picks Until Today")
+                field("Invt. Picks Until Today"; Rec."Invt. Picks Until Today")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Inventory Picks Until Today';
                     DrillDownPageID = "Inventory Picks";
                     ToolTip = 'Specifies the number of inventory picks that are displayed in the Warehouse Basic Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Invt. Put-aways Until Today"; "Invt. Put-aways Until Today")
+                field("Invt. Put-aways Until Today"; Rec."Invt. Put-aways Until Today")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Inventory Put-aways Until Today';
                     DrillDownPageID = "Inventory Put-aways";
                     ToolTip = 'Specifies the number of inventory put-always that are displayed in the Warehouse Basic Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Open Phys. Invt. Orders"; "Open Phys. Invt. Orders")
+                field("Open Phys. Invt. Orders"; Rec."Open Phys. Invt. Orders")
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Open Phys. Invt. Orders';
@@ -129,33 +129,6 @@ page 9050 "Whse Ship & Receive Activities"
                     }
                 }
             }
-            cuegroup("My User Tasks")
-            {
-                Caption = 'My User Tasks';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with User Tasks Activities part';
-                ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Pending User Tasks';
-                    Image = Checklist;
-                    ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with User Tasks Activities part';
-                    ObsoleteTag = '17.0';
-
-                    trigger OnDrillDown()
-                    var
-                        UserTaskList: Page "User Task List";
-                    begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
-                        UserTaskList.Run;
-                    end;
-                }
-            }
         }
     }
 
@@ -165,23 +138,22 @@ page 9050 "Whse Ship & Receive Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
 
-        SetRange("Date Filter", 0D, WorkDate);
-        SetRange("Date Filter2", WorkDate, WorkDate);
-        SetRange("User ID Filter", UserId);
+        Rec.SetRange("Date Filter", 0D, WorkDate());
+        Rec.SetRange("Date Filter2", WorkDate(), WorkDate());
+        Rec.SetRange("User ID Filter", UserId());
 
-        LocationCode := WhseWMSCue.GetEmployeeLocation(UserId);
-        SetFilter("Location Filter", LocationCode);
+        LocationCode := WhseWMSCue.GetEmployeeLocation(UserId());
+        Rec.SetFilter("Location Filter", LocationCode);
     end;
 
     var
         WhseWMSCue: Record "Warehouse WMS Cue";
-        UserTaskManagement: Codeunit "User Task Management";
         LocationCode: Text[1024];
 }
 

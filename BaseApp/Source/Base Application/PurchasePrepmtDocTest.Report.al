@@ -303,7 +303,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry.FindSet then
+                            if not DimSetEntry.FindSet() then
                                 CurrReport.Break();
                         end else
                             if not Continue then
@@ -621,7 +621,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                         trigger OnAfterGetRecord()
                         begin
                             if Number = 1 then begin
-                                if not LineDimSetEntry.FindSet then
+                                if not LineDimSetEntry.FindSet() then
                                     CurrReport.Break();
                             end else
                                 if not Continue then
@@ -681,7 +681,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
 
                         if not DimMgt.CheckDimIDComb(TempPrepmtInvLineBuf."Dimension Set ID") then
                             AddError(DimMgt.GetDimCombErr);
-                        TableID[1] := DimMgt.TypeToTableID3("Purchase Line".Type::"G/L Account".AsInteger());
+                        TableID[1] := DimMgt.PurchLineTypeToTableID("Purchase Line".Type::"G/L Account");
                         No[1] := "Prepayment Inv. Line Buffer"."G/L Account No.";
                         TableID[2] := DATABASE::Job;
                         No[2] := "Prepayment Inv. Line Buffer"."Job No.";
@@ -863,7 +863,7 @@ report 412 "Purchase Prepmt. Doc. - Test"
                 if VendLedgEntry.HasFilter then begin
                     VendLedgEntry.SetCurrentKey("Vendor No.");
                     VendLedgEntry.SetRange("Vendor No.", "Pay-to Vendor No.");
-                    if VendLedgEntry.FindFirst then
+                    if VendLedgEntry.FindFirst() then
                         AddError(StrSubstNo(Text011, VendLedgEntry."Document Type", VendLedgEntry."External Document No."));
                 end;
 

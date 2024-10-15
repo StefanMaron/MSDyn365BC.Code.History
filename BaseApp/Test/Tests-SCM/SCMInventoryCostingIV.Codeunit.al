@@ -70,7 +70,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entry for Sales Document after change of Unit Cost.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := 10 + LibraryRandom.RandDec(100, 1);  // Taking 10 + Random to make sure Quantity not less than 10.
         CreateAndUpdatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, LibraryRandom.RandDec(100, 1), Quantity,
@@ -114,7 +114,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entry for Sales Document after change of Indirect Cost.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := 10 + LibraryRandom.RandDec(100, 1);  // Taking 10 + Random to make sure Quantity not less than 10.
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, CreateVendor,
@@ -168,11 +168,11 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entry for Transfer Order after change of Unit Cost.
 
         // Setup: Create and Post Purchase as Receive and Post Transfer Order.
-        Initialize;
+        Initialize();
         Quantity := 10 + LibraryRandom.RandDec(100, 1);  // Taking 10 + Random to make sure Quantity not less than 10.
         Location.SetRange("Bin Mandatory", false);
         Location.SetRange("Use As In-Transit", false);
-        Location.FindFirst;
+        Location.FindFirst();
         Item.Get(CreateItem(0, Item."Costing Method"::FIFO));
         CreateAndUpdatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, 0, Quantity, Quantity, Item."No.", Location.Code);  // Using 0 for Direct Unit Cost.
@@ -227,7 +227,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Item Ledger Entry for Sales Document with Non Zero Cost.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 1);
 
         CreateSalesDocument(
@@ -249,7 +249,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Find Return Receipt Line and Create Purchase Order for Charge Item.
         ReturnReceiptLine.SetRange("No.", Item."No.");
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
         CreateAndUpdatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine.Type::"Charge (Item)", LibraryRandom.RandInt(100), 1, 1,
           LibraryInventory.CreateItemChargeNo, '');  // Using 1 for Charge Item and blank value for Location.
@@ -276,7 +276,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify sum of Invoiced Quantity and Cost Amount (Actual) of all Value Entries after Inventory Revaluation per Item Ledger Entry and Adjust Cost - Item Entries for FIFO Item.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         Item.Get(CreateItem(0, Item."Costing Method"::FIFO));  // 0 for Indirect Cost Pct.
         RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", CalculatePer::"Item Ledger Entry");
 
@@ -294,7 +294,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify sum of Invoiced Quantity and Cost Amount (Actual) of all Value Entries after Inventory Revaluation per Item and Adjust Cost - Item Entries for FIFO Item.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         Item.Get(CreateItem(0, Item."Costing Method"::FIFO));  // 0 for Indirect Cost Pct.
         RevaluateInventoryAndRunAdjustCostItemEntries(Item."No.", CalculatePer::Item);
 
@@ -314,7 +314,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify sum of Invoiced Quantity and Cost Amount (Actual) of all Value Entries after Inventory Revaluation per Item and Adjust Cost - Item Entries for an Average Item.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Day);
 
@@ -342,7 +342,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entry for Cost Amount (Actual) (ACY) and Cost per Unit (ACY) when post Purchase Invoice for Charge Item with Additional Reporting Currency.
 
         // Setup: Create Currency with Exchange Rate. Update General Ledger Setup for Additional Reporting Currency. Post Purchase Invoice without Currency with Random Direct Unit Cost.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value.
         GeneralLedgerSetup.Get();
         CreateCurrencyWithExchangeRate(Currency);
@@ -382,7 +382,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entry for Cost Amount (Actual) (ACY) and Cost per Unit (ACY) when post Purchase Invoice for Charge Item without Additional Reporting Currency.
 
         // Setup: Create And Post Purchase Invoice without Currency and Random Direct Unit Cost.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value.
         CreateAndUpdatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, PurchaseLine.Type::Item, LibraryRandom.RandDec(10, 2), Quantity,
@@ -410,7 +410,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         PurchaseLine: Record "Purchase Line";
     begin
         // Verify Value Entry for Cost Amount (Non-Invtbl.)(ACY) when post Purchase Order for Charge Item with Additional Reporting Currency.
-        Initialize;
+        Initialize();
         PostPurchDocumentToSalesOrderWithACY(PurchaseLine."Document Type"::Order);
     end;
 
@@ -422,7 +422,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         PurchaseLine: Record "Purchase Line";
     begin
         // Verify Value Entry for Cost Amount (Non-Invtbl.)(ACY) when post Purchase Invoice for Charge Item with Additional Reporting Currency.
-        Initialize;
+        Initialize();
         PostPurchDocumentToSalesOrderWithACY(PurchaseLine."Document Type"::Invoice);
     end;
 
@@ -455,7 +455,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         with ValueEntry do begin
             SetRange("Document No.", DocumentNo);
             SetRange("Item Charge No.", PurchaseLine."No.");
-            FindFirst;
+            FindFirst();
             CostAmountNonInvtblACY := Round("Cost Amount (Non-Invtbl.)" * CurrencyExchangeRate."Exchange Rate Amount" /
                 CurrencyExchangeRate."Relational Exch. Rate Amount", LibraryERM.GetAmountRoundingPrecision);
             TestField("Cost Amount (Non-Invtbl.)(ACY)", CostAmountNonInvtblACY);
@@ -476,7 +476,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entry for Cost Amount (Expected) (ACY) when post Output Journal with Additional Reporting Currency.
 
         // Setup: Create Currency with Exchange Rate. Update General Ledger Setup for Additional Reporting Currency.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         CreateCurrencyWithExchangeRate(Currency);
         UpdateGeneralLedgerSetupForACY(Currency.Code);
@@ -504,7 +504,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Error while Undo Receipt after reservation of the Item from Sales Order.
 
         // Setup: Create Purchase Order and Post, create Sale Order and reserve the Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, LibraryRandom.RandDec(50, 1), false);  // Use Random value.
         CreateSalesDocumentAndReserve(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity);
@@ -528,7 +528,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Get Receipt Line page, not find any Receipt Line from Purchase Invoice.
 
         // Setup: Create Purchase Order, Post and undo Receipt.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, PurchaseLine.Type::Item, LibraryRandom.RandDec(50, 1), false);  // Use Random value.
         LibraryVariableStorage.Enqueue(UndoReceiptMessage);  // Enqueue ConfirmMessageHandler.
@@ -557,7 +557,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify error when undo a Purchase Receipt Line with applied Quantity.
 
         // Setup: Create Purchase Order and Receive Purchase Order.
-        Initialize;
+        Initialize();
         PurchaseApplication(PurchaseLine, PurchaseLine."Document Type"::Order, LibraryRandom.RandDec(50, 1));  // Use Random value.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseHeader."Last Receiving No.", ItemLedgerEntry."Entry Type"::Purchase);
@@ -580,7 +580,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify error after undo Receipt with Put Away created after post Warehouse Receipt.
 
         // Setup: Create Purchase Order with Warehouse Location and create Whse. Receipt and Post.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithWhseLocation(PurchaseLine, PurchaseLine."Document Type"::Order);  // Use Random value.
         CreateAndPostWarehouseReceiptFromPO(PurchaseLine);
         LibraryVariableStorage.Enqueue(UndoReceiptMessage);  // Enqueue value for ConfirmHandler.
@@ -603,7 +603,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify undo Purchase Receipt for that Invoice created with Item Charge Assignment.
 
         // Setup: Create Purchase Order, Post, create Purchase Invoice with Item Charge Assignment.
-        Initialize;
+        Initialize();
         PurchaseDocumentWithItemChargeAssignment(PurchaseLine, false);
 
         // Exercise: Undo Purchase Receipt Line.
@@ -624,7 +624,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Error while undo Purchase Receipt which Invoiced with Item Charge Assignment.
 
         // Setup: Create Purchase Order, Post, create Purchase Invoice with Item Charge Assignment and Post.
-        Initialize;
+        Initialize();
         PurchaseDocumentWithItemChargeAssignment(PurchaseLine, true);
 
         // Exercise: Undo Purchase Receipt Line.
@@ -647,7 +647,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Corrective Line on Return Shipment after create Pick, Register and post Whse. Shipment.
 
         // Setup: Create Purchase Return Order, create and post Item Journal Line, create Whse. Shipment, Register and Post.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithWhseLocation(PurchaseLine, PurchaseLine."Document Type"::"Return Order");
         CreateAndPostItemJournalLine(ItemJournalLine, PurchaseLine."No.", PurchaseLine.Quantity, PurchaseLine."Location Code");
         CreatePickAndRegisterWhseShipment(WarehouseShipmentHeader, PurchaseLine."Document No.", PurchaseLine."Location Code", false);
@@ -673,7 +673,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify undo Purchase Return Shipment for that Invoice created with Item Charge Assignment.
 
         // Setup: Create Purchase Return Order, Post, create Purchase Invoice with Item Charge Assignment.
-        Initialize;
+        Initialize();
         PurchaseReturnWithItemChargeAssignment(PurchaseLine, false);
 
         // Exercise: Undo Purchase Return Shipment Line.
@@ -696,7 +696,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Corrective Line after undo Purchase Return Shipment Line with applied Quantity.
 
         // Setup: Create Purchase Return Order and Ship, create Sales Order for same Item and Post.
-        Initialize;
+        Initialize();
         PurchaseApplication(PurchaseLine, PurchaseLine."Document Type"::"Return Order", -LibraryRandom.RandDec(50, 1));
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseHeader."Last Return Shipment No.", ItemLedgerEntry."Entry Type"::Purchase);
@@ -720,7 +720,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Get Return Shipment Line page, not find any Return Shipment Line from Purchase Credit Memo.
 
         // Setup: Create Purchase Order, Post and undo Receipt.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Return Order", PurchaseLine.Type::Item, LibraryRandom.RandDec(50, 1), false);  // Use Random value.
         LibraryVariableStorage.Enqueue(UndoPurchRetOrderMessage);  // Enqueue value for ConfirmHandler.
@@ -749,7 +749,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Corrective Lines  Undo Purchase Return Shipment after reservation of the Item from Sales Order.
 
         // Setup: Create Purchase Return Order and Post, create Sale Order and reserve the Item.
-        Initialize;
+        Initialize();
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::"Return Order", PurchaseLine.Type::Item, -LibraryRandom.RandDec(50, 1), false);  // Use Random value.
         CreateSalesDocumentAndReserve(SalesLine, PurchaseLine."No.", PurchaseLine.Quantity);
@@ -775,7 +775,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Error while Undo Reserved Sales Shipment.
 
         // Setup: Create and post Sales Order, Create another Sales Order and Reserved.
-        Initialize;
+        Initialize();
         CreateAndShipSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, SalesLine.Type::Item, CreateItem(0, Item."Costing Method"::FIFO), -1);  // 1 used as Quantity Factor.
         CreateSalesDocumentAndReserve(SalesLine2, SalesLine."No.", Abs(SalesLine.Quantity));
@@ -798,7 +798,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Error while Undo Sales Shipment which have Drop Shipment.
 
         // Setup: Create Sales Order with Drop Shipment and create Purchase Order, Get Drop Shipment and Receive.
-        Initialize;
+        Initialize();
         SalesOrderUpdatedWithDropShipment(SalesLine);
         GetDropShptFromPurchaseOrder(SalesLine."Sell-to Customer No.");
         LibraryVariableStorage.Enqueue(UndoSalesShipmentMsg);
@@ -824,7 +824,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Undo Sales Shipment Line after Warehouse Shipment, create Pick and Register.
 
         // Setup: Create Purhcase Warehouse Receipt and Register, create Sales Order, Warehouse Shipment, Pick and Register.
-        Initialize;
+        Initialize();
         PurchaseWhseRcptAndRegister(PurchaseLine);
         CreateSalesDocumentWithLocation(
           SalesHeader, SalesHeader."Document Type"::Order, PurchaseLine."No.", PurchaseLine."Location Code", PurchaseLine.Quantity);
@@ -853,7 +853,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Get Shipment Lines after undo Shipment Lines.
 
         // Setup: Create Sales Order, Ship and undo Shipment, create Sales Invoice.
-        Initialize;
+        Initialize();
         CreateAndShipSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, SalesLine.Type::Item, CreateItem(0, Item."Costing Method"::FIFO), 1);  // 1 used as Quantity Factor.
         LibraryVariableStorage.Enqueue(UndoSalesShipmentMsg);  // Enqueue value for ConfirmHandler.
@@ -880,7 +880,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Error while Undo Reserved Sales Return Receipt.
 
         // Setup: Create and post Sales Order, Create another Sales Order and Reserved.
-        Initialize;
+        Initialize();
         CreateAndShipSalesDocument(
           SalesLine, SalesLine."Document Type"::"Return Order", SalesLine.Type::Item, CreateItem(0, Item."Costing Method"::FIFO), 1);  // 1 used as Quantity Factor.
         CreateSalesDocumentAndReserve(SalesLine2, SalesLine."No.", Abs(SalesLine.Quantity));
@@ -905,7 +905,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Get Sales Return Receipt Lines after undo Return Receipt Line.
 
         // Setup: Create Return Sales Order, Post and undo Return Receipt, create Sales Credit Memo.
-        Initialize;
+        Initialize();
         CreateAndShipSalesDocument(
           SalesLine, SalesLine."Document Type"::"Return Order", SalesLine.Type::Item, CreateItem(0, Item."Costing Method"::FIFO), 1);  // 1 used as Quantity Factor.
         LibraryVariableStorage.Enqueue(UndoSalesRetReceiptMsg);  // Enqueue value for ConfirmHandler.
@@ -933,7 +933,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify error while undo Sales Return Receipt Line after Warehouse Receipt and create Put-away.
 
         // Setup: Create Sales Return Order with Location, create Warehouse Receipt and Post.
-        Initialize;
+        Initialize();
         CreateLocation(Location);
         CreateSalesDocumentWithLocation(
           SalesHeader, SalesHeader."Document Type"::"Return Order", CreateItem(0, Item."Costing Method"::FIFO), Location.Code,
@@ -963,7 +963,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entries in 'Cost Amount (Expected)(ACY)' of Item Ledger Entry when transactions posted with different Currency Exchange Rates.
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateItem(LibraryRandom.RandInt(10), Item."Costing Method"::Average);  // Take random for Indirect Cost Percent.
         SetupForAdjustCostOnACY(SalesHeader, ItemNo, Currency.Code);
@@ -997,7 +997,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Value Entries with ACY transactions on different Posting Dates after run Adjust Cost Item batch job.
 
         // Setup: Create Currency, add Additional Reporting Currency and update Inventory Setup.
-        Initialize;
+        Initialize();
         InventorySetup.Get();
         CreateCurrencyWithExchangeRate(Currency);
         ItemNo := CreateItem(LibraryRandom.RandInt(10), Item."Costing Method"::Average);  // Take random for Indirect Cost Percent.
@@ -1041,7 +1041,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Sales Amount on Item Ledger Entry after updating Currency Exchange Rate on Sales Order.
 
         // Setup: Create Currency, create Sales Order and update Currency Exchange.
-        Initialize;
+        Initialize();
         CreateCurrencyWithExchangeRate(Currency);
         CreateSalesDocument(
           SalesHeader, SalesHeader."Document Type"::Order, SalesLine.Type::Item, CreateAndUpdateCustomer(Currency.Code),
@@ -1075,7 +1075,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Cost Amount on Item Ledger Entry after updating Currency Exchange Rate on Purchase Order.
 
         // Setup: Create Currency, create Purchase Order and update Currency Exchange.
-        Initialize;
+        Initialize();
         LibraryERM.SetWorkDate;
         CreateCurrencyWithExchangeRate(Currency);
         CreatePurchaseOrderWithCurrency(
@@ -1114,7 +1114,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Cost Amount (Actual) on Item Ledger Entry after running Adjust Cost item entries with filtering on Assembled item
 
         // Setup: Create Assembly Item with 2 BOM components
-        Initialize;
+        Initialize();
         CreateAssemblyItemWithBOM(AssemblyItem, BomComponent, BomComponent2, AssemblyItem."Assembly Policy"::"Assemble-to-Order");
 
         Quantity := LibraryRandom.RandDec(10, 2); // Generate the Quantity to sell for Assembly Item
@@ -1136,7 +1136,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         with ItemLedgerEntry do begin
             SetRange("Item No.", AssemblyItem."No.");
             SetRange("Entry Type", "Entry Type"::Sale);
-            FindFirst;
+            FindFirst();
             CalcFields("Cost Amount (Actual)"); // CALCFIELDS because "Cost Amount (Actual)" is a flow field
         end;
 
@@ -1173,7 +1173,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         Quantity: Decimal;
     begin
         // Setup: Create Assembly BOM with Component. Create Item Journal for Assembly BOM.
-        Initialize;
+        Initialize();
         CreateAssemblyItemWithBOMForPlanning(AssemblyItem, LibraryRandom.RandInt(10));
         Quantity := LibraryRandom.RandDecInRange(2, 10, 2);
         CreateAndPostItemJournalLine(ItemJournalLine, AssemblyItem."No.", Quantity, '');
@@ -1214,7 +1214,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         QtyPer: Decimal;
     begin
         // Setup: Create Top Assembly BOM with Assembly Item as Component. Create Component Item for Assembly Item.
-        Initialize;
+        Initialize();
         QtyPer := LibraryRandom.RandInt(10);
         ItemNo := CreateAssemblyItemWithBOMForPlanning(TopAssemblyItem, QtyPer);
         CreateBOMComponentItem(ItemNo, LibraryRandom.RandInt(10));
@@ -1267,7 +1267,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify that 'Cost Amount (Non-Invtbl)' in Value Entry is negative, if cost is assigned to Sales Shipment Line from Purchase Invoice.
 
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         DocumentNo := SalesDocumentWithItemChargeAssignment;
@@ -1290,7 +1290,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Verify Cost Amount (Actual) (ACY) on Item Ledger Entry with updating Additional Reporting Currency before revaluation.
 
         // Setup: Create Currency with multiple Exchange Rates. Update Additional Reporting Currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         CreateCurrencyWithMultipleExchangeRates(Currency, CurrencyExchangeRate);
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetupForACY(Currency.Code);
@@ -1324,7 +1324,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // Setup: Update Automatic Cost Posting on Inventory Setup. Create Currency with multiple Exchange Rates.
         // Create and post Purchase Order as Receive and Invoice. Run Adjust Cost Item Entries.
         // Create and post Revaluation Journal with new Unit Cost (Revalued).
-        Initialize;
+        Initialize();
 
         LibraryInventory.SetAutomaticCostPosting(true);
 
@@ -1362,7 +1362,7 @@ codeunit 137289 "SCM Inventory Costing IV"
 
         // Setup: Create Currency with multiple Exchange Rates. Create and post Purchase Order as Receive.
         // Run Adjust Cost Item Entries. Create and post Revaluation Journal with new Unit Cost (Revalued).
-        Initialize;
+        Initialize();
         CreateCurrencyWithMultipleExchangeRates(Currency, CurrencyExchangeRate);
         RevaluedFactor := LibraryRandom.RandIntInRange(2, 5);
         PostPurchaseOrderAndRevaluationJournal(PurchaseLine, false, RevaluedFactor, Currency.Code);
@@ -1392,7 +1392,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         // [FEATURE] [BOM Cost Shares]
         // [SCENARIO 380466] If first Item in filter doesn't contain BOM the ERROR "None of the items in the filter have a BOM" must not occur.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two Items, First without BOM, second with BOM. Their primary key values: First - ABCDE, Second - ABC.
         ItemFilterHead := LibraryUtility.GenerateRandomCode(BOMItem.FieldNo("No."), DATABASE::Item);
@@ -1433,7 +1433,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [FEATURE] [Cost Shares] [Production] [Production BOM]
         // [SCENARIO 219053] Overdue BOM components should not be included in the "BOM Cost Shares" report
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Manufactured item "P" and 3 components: "C1", "C2", "C3"
         LibraryInventory.CreateItem(ComponentItem[1]);
@@ -1487,7 +1487,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [FEATURE] [Cost Shares] [Production] [Production BOM]
         // [SCENARIO 225032] Page "BOM Cost Shares" should consider starting and ending dates of production BOM components
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workdate is 24.01.2019
         // [GIVEN] Manufactured item "P" and 4 components: "C1", "C2", "C3", "C4"
@@ -1523,7 +1523,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         // [FEATURE] [BOM Structure] [Production] [Production BOM]
         // [SCENARIO 225032] Page "BOM Structure" should consider starting and ending dates of production BOM components
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Workdate is 24.01.2019
         // [GIVEN] Manufactured item "P" and 4 components: "C1", "C2", "C3", "C4"
@@ -1560,7 +1560,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         // [FEATURE] [Adjust Cost] [Service] [Undo Receipt]
         // [SCENARIO 316002] Undo Receipt for a Service Item doesn't populate "Avg. Cost Adjmt. Entry Point"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created and posted Purchase Order with Service Item
         CreateServiceItem(Item, LibraryRandom.RandDec(10, 1), Item."Costing Method"::FIFO);
@@ -1584,21 +1584,23 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Inventory Costing IV");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing IV");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
+        LibraryERM.SetJournalTemplateNameMandatory(false);
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
+        LibrarySetupStorage.SavePurchasesSetup();
 
         isInitialized := true;
         Commit();
@@ -1695,7 +1697,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         LibraryCosting.CreateRevaluationJournal(
           ItemJournalBatch, Item, NewPostingDate, LibraryUtility.GenerateGUID, CalculatePer, false, false, false, CalcBase::" ", false);
         ItemJournalLine.SetRange("Item No.", ItemNo);
-        ItemJournalLine.FindFirst;
+        ItemJournalLine.FindFirst();
         ItemJournalLine.Validate("Unit Cost (Revalued)", RevalueFactor * ItemJournalLine."Unit Cost (Calculated)");
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -2093,7 +2095,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindPurchasingCode(): Code[10]
@@ -2101,27 +2103,27 @@ codeunit 137289 "SCM Inventory Costing IV"
         Purchasing: Record Purchasing;
     begin
         Purchasing.SetRange("Drop Shipment", true);
-        Purchasing.FindFirst;
+        Purchasing.FindFirst();
         exit(Purchasing.Code);
     end;
 
     local procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; No: Code[20])
     begin
         PurchRcptLine.SetRange("No.", No);
-        PurchRcptLine.FindFirst;
+        PurchRcptLine.FindFirst();
     end;
 
     local procedure FindReturnReceiptLine(var ReturnReceiptLine: Record "Return Receipt Line"; SalesLine: Record "Sales Line")
     begin
         ReturnReceiptLine.SetRange("Return Order No.", SalesLine."Document No.");
         ReturnReceiptLine.SetRange("No.", SalesLine."No.");
-        ReturnReceiptLine.FindFirst;
+        ReturnReceiptLine.FindFirst();
     end;
 
     local procedure FindReturnShipmentLine(var ReturnShipmentLine: Record "Return Shipment Line"; PurchaseLine: Record "Purchase Line")
     begin
         ReturnShipmentLine.SetRange("No.", PurchaseLine."No.");
-        ReturnShipmentLine.FindFirst;
+        ReturnShipmentLine.FindFirst();
     end;
 
     local procedure FindRequisitionLine(var RequisitionLine: Record "Requisition Line"; No: Code[20])
@@ -2129,7 +2131,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         with RequisitionLine do begin
             SetRange(Type, Type::Item);
             SetRange("No.", No);
-            FindFirst;
+            FindFirst();
         end
     end;
 
@@ -2137,13 +2139,13 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; No: Code[20])
     begin
         SalesShipmentLine.SetRange("No.", No);
-        SalesShipmentLine.FindFirst;
+        SalesShipmentLine.FindFirst();
     end;
 
     local procedure FindTransferReceiptHeader(TransferFromCode: Code[10]; TransferToCode: Code[10]): Code[20]
@@ -2152,7 +2154,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         TransferReceiptHeader.SetRange("Transfer-from Code", TransferFromCode);
         TransferReceiptHeader.SetRange("Transfer-to Code", TransferToCode);
-        TransferReceiptHeader.FindFirst;
+        TransferReceiptHeader.FindFirst();
         exit(TransferReceiptHeader."No.");
     end;
 
@@ -2162,7 +2164,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     begin
         TransferShipmentHeader.SetRange("Transfer-from Code", TransferFromCode);
         TransferShipmentHeader.SetRange("Transfer-to Code", TransferToCode);
-        TransferShipmentHeader.FindFirst;
+        TransferShipmentHeader.FindFirst();
         exit(TransferShipmentHeader."No.");
     end;
 
@@ -2172,27 +2174,27 @@ codeunit 137289 "SCM Inventory Costing IV"
         ValueEntry.SetRange("Item Charge No.", ItemChargeNo);
         ValueEntry.SetRange(Adjustment, Adjustment);
         ValueEntry.SetRange("Location Code", LocationCode);
-        ValueEntry.FindFirst;
+        ValueEntry.FindFirst();
     end;
 
     local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
-        WarehouseActivityLine.FindFirst;
+        WarehouseActivityLine.FindFirst();
     end;
 
     local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceNo: Code[20]; SourceDocument: Enum "Warehouse Activity Source Document")
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
-        WarehouseReceiptLine.FindFirst;
+        WarehouseReceiptLine.FindFirst();
     end;
 
     local procedure FindWarehouseShipmentHeader(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; LocationCode: Code[10])
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
-        WarehouseShipmentHeader.FindFirst;
+        WarehouseShipmentHeader.FindFirst();
     end;
 
     local procedure GetDropShptFromPurchaseOrder(SelltoCustomerNo: Code[20])
@@ -2405,7 +2407,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         BOMCostShares: Page "BOM Cost Shares";
     begin
         BOMCostShares.InitItem(Item);
-        BOMCostShares.Run;
+        BOMCostShares.Run();
     end;
 
     local procedure SalesOrderUpdatedWithDropShipment(var SalesLine: Record "Sales Line")
@@ -2530,7 +2532,7 @@ codeunit 137289 "SCM Inventory Costing IV"
     local procedure UpdateCurrencyExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10])
     begin
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
-        CurrencyExchangeRate.FindFirst;
+        CurrencyExchangeRate.FindFirst();
         CurrencyExchangeRate."Relational Exch. Rate Amount" :=
           CurrencyExchangeRate."Exchange Rate Amount" * LibraryRandom.RandInt(10);  // Use random value for update Relational Exchange Rate Amount.
         LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Relational Exch. Rate Amount");  // Enqueue for ChangeExchangeRatePageHandler.
@@ -2558,8 +2560,8 @@ codeunit 137289 "SCM Inventory Costing IV"
 
     local procedure UpdatePurchaseHeader(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
 
@@ -2676,7 +2678,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         ItemLedgerEntry.CalcFields("Sales Amount (Actual)");
         ItemLedgerEntry.TestField("Sales Amount (Actual)", SalesAmount);
     end;
@@ -2769,7 +2771,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         with ValueEntry do begin
             SetRange("Document Type", "Document Type"::"Purchase Invoice");
             SetRange("Document No.", DocumentNo);
-            FindFirst;
+            FindFirst();
             Assert.IsTrue("Cost Amount (Non-Invtbl.)" < 0, CostAmountNonInvtblErr);
         end;
     end;
@@ -2781,7 +2783,7 @@ codeunit 137289 "SCM Inventory Costing IV"
         with ValueEntry do begin
             SetRange("Item No.", ItemNo);
             SetRange("Entry Type", "Entry Type"::Revaluation);
-            FindFirst;
+            FindFirst();
             Assert.AreNearlyEqual(CostPerUnitACY, "Cost per Unit (ACY)", Delta, CostPerUnitACYErr);
             Assert.AreNearlyEqual(CostPostedToGLACY, "Cost Posted to G/L (ACY)", Delta, CostPostedToGLACYErr);
         end;

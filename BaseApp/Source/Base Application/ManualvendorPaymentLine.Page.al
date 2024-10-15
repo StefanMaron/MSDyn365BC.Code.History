@@ -152,7 +152,7 @@ page 12188 "Manual vendor Payment Line"
                         LockTable();
                         Reset;
                         SetRange("Vendor Bill List No.", VendorBillNo);
-                        if not FindLast then
+                        if not FindLast() then
                             NextLineNo := 10000
                         else
                             NextLineNo := "Line No." + 10000;

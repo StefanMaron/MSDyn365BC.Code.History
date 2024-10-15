@@ -48,7 +48,7 @@ table 12181 "Vendor Bill Header"
                 PaymentMethod.TestField("Bill Code");
 
                 GetLines;
-                if VendorBillLine.FindFirst then
+                if VendorBillLine.FindFirst() then
                     Error(PaymentMethodCodeErr);
 
                 "Report Header" := PaymentMethod.Description;
@@ -96,7 +96,7 @@ table 12181 "Vendor Bill Header"
                     exit;
 
                 GetLines;
-                if VendorBillLine.FindFirst then
+                if VendorBillLine.FindFirst() then
                     Error(BeneficiaryValueDateErr);
             end;
         }
@@ -112,7 +112,7 @@ table 12181 "Vendor Bill Header"
                     exit;
 
                 GetLines;
-                if VendorBillLine.FindFirst then
+                if VendorBillLine.FindFirst() then
                     Error(CurrencyCodeErr);
 
                 UpdateCurrencyFactor;
@@ -179,7 +179,7 @@ table 12181 "Vendor Bill Header"
     trigger OnDelete()
     begin
         GetLines;
-        if VendorBillLine.FindFirst then
+        if VendorBillLine.FindFirst() then
             VendorBillLine.DeleteAll(true);
     end;
 

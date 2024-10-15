@@ -71,7 +71,7 @@ report 12108 "VAT Register Grouped"
                 AccPeriod.Reset();
                 AccPeriod.SetRange("New Fiscal Year", true);
                 AccPeriod.SetFilter("Starting Date", '<=%1', StartingDate);
-                AccPeriod.FindLast;
+                AccPeriod.FindLast();
             end;
         }
         dataitem(ForCode; "VAT Register - Buffer")

@@ -419,7 +419,7 @@ table 12137 "Purch. Withh. Contribution"
         SocSecBracketLine: Codeunit "Withholding - Contribution";
         WHTAmtManualEqWHTAmtErr: Label '%1 must not be equal to %2 in %3.', Comment = '%1=FIELDCAPTION("WHT Amount Manual"),%2=FIELDCAPTION("Withholding Tax Amount"),%3=TABLECAPTION("Purch. Withh. Contribution")';
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure ValorizzaRitenute()
     begin
         if "Payment Date" <> 0D then
@@ -493,7 +493,7 @@ table 12137 "Purch. Withh. Contribution"
 
             "Soc.Sec.Non Taxable Amount" := 0;
             SocSecCodeLine.SetFilter(Amount, '>%1', Assoggettato);
-            if SocSecCodeLine.FindSet then
+            if SocSecCodeLine.FindSet() then
                 repeat
                     Gap := SocSecCodeLine.Amount - Assoggettato;
                     if Gap < GrossAmount then begin
@@ -568,7 +568,7 @@ table 12137 "Purch. Withh. Contribution"
 
             "INAIL Non Taxable Amount" := 0;
             RigheScaglioniINAIL.SetFilter(Amount, '>%1', AssoggettatoINAIL);
-            if RigheScaglioniINAIL.FindSet then
+            if RigheScaglioniINAIL.FindSet() then
                 repeat
                     GapINAIL := RigheScaglioniINAIL.Amount - AssoggettatoINAIL;
                     if GapINAIL < GrossAmountINAIL then begin

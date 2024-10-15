@@ -43,7 +43,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
                 CheckNRCountryCodeInGenJnl(GenJournalLine);
                 CheckVATRegistrationNoInGenJnl(GenJournalLine);
             end;
-            if IncludeinVATReportErrorLog.FindSet then
+            if IncludeinVATReportErrorLog.FindSet() then
                 repeat
                     IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                     IncludeVATReportErrorLogParam.Insert();
@@ -160,7 +160,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             CheckIncludeInVATReportInSalesLine(SalesLine);
         until SalesLine.Next() = 0;
 
-        if IncludeinVATReportErrorLog.FindSet then
+        if IncludeinVATReportErrorLog.FindSet() then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                 IncludeVATReportErrorLogParam.Insert();
@@ -272,7 +272,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             CheckIncludeInVATReportInPurchaseLine(PurchaseLine);
         until PurchaseLine.Next() = 0;
 
-        if IncludeinVATReportErrorLog.FindSet then
+        if IncludeinVATReportErrorLog.FindSet() then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                 IncludeVATReportErrorLogParam.Insert();
@@ -385,7 +385,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
             CheckIncludeInVATReportInServiceLine(ServiceLine);
         until ServiceLine.Next() = 0;
 
-        if IncludeinVATReportErrorLog.FindSet then
+        if IncludeinVATReportErrorLog.FindSet() then
             repeat
                 IncludeVATReportErrorLogParam := IncludeinVATReportErrorLog;
                 IncludeVATReportErrorLogParam.Insert();
@@ -471,7 +471,7 @@ codeunit 12174 "Incl. in VAT Report Validation"
 
     local procedure InsertError(RecordNo: Integer; FieldNo: Integer; ErrorText: Text[250]; LineNo: Integer)
     begin
-        if not IncludeinVATReportErrorLog.FindLast then;
+        if not IncludeinVATReportErrorLog.FindLast() then;
         IncludeinVATReportErrorLog."Entry No." += 1;
         IncludeinVATReportErrorLog."Record No." := RecordNo;
         IncludeinVATReportErrorLog."Field No." := FieldNo;

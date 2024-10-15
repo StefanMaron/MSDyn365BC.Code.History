@@ -111,7 +111,7 @@ report 99001015 "Calculate Subcontracts"
         ReqLine.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
         ReqLine.LockTable();
 
-        if ReqLine.FindLast then
+        if ReqLine.FindLast() then
             ReqLine.Init();
 
         Window.Open(Text000 + Text001);
@@ -187,6 +187,8 @@ report 99001015 "Calculate Subcontracts"
                     Validate("Direct Unit Cost", 0);
             "Qty. per Unit of Measure" := 0;
             "Quantity (Base)" := 0;
+            "Qty. Rounding Precision" := ProdOrderLine."Qty. Rounding Precision";
+            "Qty. Rounding Precision (Base)" := ProdOrderLine."Qty. Rounding Precision (Base)";
             "Prod. Order No." := ProdOrderLine."Prod. Order No.";
             "Prod. Order Line No." := ProdOrderLine."Line No.";
             "Due Date" := "Prod. Order Routing Line"."Ending Date";

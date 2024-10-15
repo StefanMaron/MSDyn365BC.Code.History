@@ -62,7 +62,7 @@ codeunit 144130 "ERM Service Invoice"
         CreateServiceDocument(ServiceHeader, CustomerNo, BankAccount, CumulativeBankReceipts);
 
         // Verify: Verify values on Service Invoice page.
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
         ServiceInvoice.OpenView;
         ServiceInvoice.FILTER.SetFilter("No.", ServiceHeader."No.");
         ServiceInvoice."Bank Account".AssertEquals(UpperCase(BankAccount));
@@ -121,7 +121,7 @@ codeunit 144130 "ERM Service Invoice"
 
         // Verify: Verify Bank Account and Cumulative Bank Receipts on Posted Service Invoice.
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Bank Account", BankAccount);
         ServiceInvoiceHeader.TestField("Cumulative Bank Receipts", CumulativeBankReceipts);
     end;

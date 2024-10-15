@@ -1,4 +1,4 @@
-page 12153 "Subcontracting Order Subform"
+﻿page 12153 "Subcontracting Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -32,7 +32,7 @@ page 12153 "Subcontracting Order Subform"
                     end;
                 }
 #if not CLEAN19
-                field("Cross-Reference No."; "Cross-Reference No.")
+                field("Cross-Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the document that is cross-referenced.';
@@ -744,7 +744,7 @@ page 12153 "Subcontracting Order Subform"
         SalesHeader.SetRange("No.", "Sales Order No.");
         SalesOrder.SetTableView(SalesHeader);
         SalesOrder.Editable := false;
-        SalesOrder.Run;
+        SalesOrder.Run();
     end;
 
     [Scope('OnPrem')]
@@ -764,7 +764,7 @@ page 12153 "Subcontracting Order Subform"
         TrackingForm: Page "Order Tracking";
     begin
         TrackingForm.SetPurchLine(Rec);
-        TrackingForm.RunModal;
+        TrackingForm.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -782,7 +782,7 @@ page 12153 "Subcontracting Order Subform"
         SalesHeader.SetRange("No.", "Special Order Sales No.");
         SalesOrder.SetTableView(SalesHeader);
         SalesOrder.Editable := false;
-        SalesOrder.Run;
+        SalesOrder.Run();
     end;
 
     [Scope('OnPrem')]
@@ -811,10 +811,10 @@ page 12153 "Subcontracting Order Subform"
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("No.", "Prod. Order No.");
 
-        if ProductionOrder.FindFirst then begin
+        if ProductionOrder.FindFirst() then begin
             RelProdOrderForm.SetTableView(ProductionOrder);
             RelProdOrderForm.Editable := false;
-            RelProdOrderForm.Run;
+            RelProdOrderForm.Run();
         end;
     end;
 
@@ -827,10 +827,10 @@ page 12153 "Subcontracting Order Subform"
         ProdOrderRoutingLine.SetRange(Status, ProdOrderRoutingLine.Status::Released);
         ProdOrderRoutingLine.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderRoutingLine.SetRange("Routing Reference No.", "Prod. Order Line No.");
-        if ProdOrderRoutingLine.FindFirst then begin
+        if ProdOrderRoutingLine.FindFirst() then begin
             ProdOrdRoutForm.SetTableView(ProdOrderRoutingLine);
             ProdOrdRoutForm.Editable := false;
-            ProdOrdRoutForm.Run;
+            ProdOrdRoutForm.Run();
         end;
     end;
 

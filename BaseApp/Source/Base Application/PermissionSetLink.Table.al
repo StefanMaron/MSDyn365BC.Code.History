@@ -49,7 +49,7 @@ table 9802 "Permission Set Link"
         PermissionSet: Record "Permission Set";
         PermissionManager: Codeunit "Permission Manager";
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 if PermissionSet.Get("Permission Set ID") then begin
                     "Source Hash" := PermissionManager.GenerateHashForPermissionSet(PermissionSet."Role ID");
@@ -65,7 +65,7 @@ table 9802 "Permission Set Link"
         PermissionManager: Codeunit "Permission Manager";
         SourceChanged: Boolean;
     begin
-        if FindSet then
+        if FindSet() then
             repeat
                 SourceChanged := false;
                 if PermissionSet.Get("Permission Set ID") then
@@ -81,7 +81,7 @@ table 9802 "Permission Set Link"
     procedure GetSourceForLinkedPermissionSet(LinkedPermissionSetId: Code[20]): Code[20]
     begin
         SetRange("Linked Permission Set ID", LinkedPermissionSetId);
-        if FindFirst then
+        if FindFirst() then
             exit("Permission Set ID");
     end;
 }

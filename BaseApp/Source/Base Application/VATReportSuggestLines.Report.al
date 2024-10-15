@@ -218,7 +218,7 @@ report 741 "VAT Report Suggest Lines"
         VATReportLine: Record "VAT Report Line";
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        if VATReportLine.FindLast then;
+        if VATReportLine.FindLast() then;
         exit(VATReportLine."Line No." + 1);
     end;
 
@@ -232,7 +232,7 @@ report 741 "VAT Report Suggest Lines"
           "Record Identifier", '%1|%2|%3|%4|%5|%6', FEInvoicesIssuedTxt, FRInvoicesReceivedTxt, NECreditMemosIssuedTxt,
           NRCreditMemosReceivedTxt, FNNonResidentsSalesTxt, SENonResidentsPurchasesTxt);
 
-        if VATReportLine.FindSet then
+        if VATReportLine.FindSet() then
             repeat
                 if not VATTransactionReportAmount.IncludeInVATTransacRep(
                      VATReportLine."Posting Date", true, Abs(VATReportLine."Amount Incl. VAT"))
@@ -285,7 +285,7 @@ report 741 "VAT Report Suggest Lines"
     begin
         TempVATEntry.SetRange("Document No.", DocumentNo);
         TempVATEntry.SetFilter("Deductible %", '<100');
-        if TempVATEntry.FindFirst then
+        if TempVATEntry.FindFirst() then
             VATReportLine.Amount := 0
         else
             VATReportLine.Amount := TotalAmount;

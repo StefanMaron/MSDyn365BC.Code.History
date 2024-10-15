@@ -39,6 +39,7 @@ permissionset 862 "Payables Documents - Post"
                   tabledata "IC Outbox Purchase Line" = RIMD,
                   tabledata "IC Outbox Transaction" = RIMD,
                   tabledata "IC Partner" = R,
+                  tabledata "IC Setup" = R,
                   tabledata "Inventory Posting Group" = r,
                   tabledata "Inventory Posting Setup" = r,
                   tabledata Item = Rm,

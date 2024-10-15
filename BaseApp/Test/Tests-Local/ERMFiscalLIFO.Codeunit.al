@@ -157,7 +157,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         // Verify End Year Inventory on Ledger Entry Details report.
 
         // Setup.
-        Initialize;
+        Initialize();
         Item.Get(CreateItem(Item."Inventory Valuation"::Average));
         EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate), false);  // Using False for Definitive.
         CalculateEndYearCosts(Item."No.", ItemCostingSetup."Components Valuation"::"Average Cost", true);
@@ -179,7 +179,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         // Verify Residual Quantity in Lifo Band When End Year Inventory is more than Start Year Inventory.
         // Setup.
-        Initialize;
+        Initialize();
         EndYearInventoryAndStartYearInventory(LibraryRandom.RandDec(10, 2), LibraryRandom.RandDecInRange(100, 200, 2));  // Large Value for Current Year Quantity. Using random for Previous Year Quantity.
     end;
 
@@ -190,7 +190,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         // Verify Residual Quantity in Lifo Band When End Year Inventory is less than Start Year Inventory.
         // Setup.
-        Initialize;
+        Initialize();
         EndYearInventoryAndStartYearInventory(LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDec(10, 2));  // Using random for Current Year Quantity. Large Value for Previous Year Quantity.
     end;
 
@@ -220,7 +220,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         Item: Record Item;
     begin
         // [SCENARIO 255417] Balances from the previous year are considered in FIFO and LIFO costs of current year-end inventory, when you run Calculate End Year Costs report for a purchased item, and the stock is decreased.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchased item.
         CreateItemForReplenishmentSystem(Item, Item."Replenishment System"::Purchase);
@@ -258,7 +258,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         Item: Record Item;
     begin
         // [SCENARIO 255417] Balances from the previous year are considered in FIFO and LIFO costs of current year-end inventory, when you run Calculate End Year Costs report for a purchased item, and the stock is increased.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchased item.
         CreateItemForReplenishmentSystem(Item, Item."Replenishment System"::Purchase);
@@ -298,7 +298,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         BeforeStartItemCost: Record "Before Start Item Cost";
     begin
         // [SCENARIO 255417] Balances from the previous year are considered in FIFO and LIFO costs of current year-end inventory, when you run Calculate End Year Costs report for a production item, and the stock is decreased.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production item.
         CreateItemForReplenishmentSystem(Item, Item."Replenishment System"::"Prod. Order");
@@ -341,7 +341,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         BeforeStartItemCost: Record "Before Start Item Cost";
     begin
         // [SCENARIO 255417] Balances from the previous year are considered in FIFO and LIFO costs of current year-end inventory, when you run Calculate End Year Costs report for a production item, and the stock is increased.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Production item.
         CreateItemForReplenishmentSystem(Item, Item."Replenishment System"::"Prod. Order");
@@ -378,7 +378,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     var
         ItemCostHistory: Record "Item Cost History";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         ItemCostHistory.DeleteAll();
     end;
 
@@ -524,7 +524,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         ItemNo: Code[20];
     begin
         // Setup And Exercise.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Inventory Valuation"::Average);
         EnqueueVariablesForHandler(CalcDate('<CY>', WorkDate), false);  // Using False for Definitive.
         CalculateEndYearCosts(ItemNo, ComponentsValuation, EstimatedWIPConsumption);
@@ -541,7 +541,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         ItemNo: Code[20];
     begin
         // Setup And Exercise.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Inventory Valuation"::Average);
         EnqueueVariablesForHandler(CalcDate('<-CY-1D>', WorkDate), Definitive);
         CalculateEndYearCosts(ItemNo, ComponentsValuation, EstimatedWIPConsumption);
@@ -557,7 +557,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         ItemNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ItemNo := CreateItem(Item."Inventory Valuation"::"Discrete LIFO");
         CreateAndUpdateItemCostingSetup(ItemCostingSetup."Components Valuation"::"Average Cost", true);  // Using true for Estimated WIP Consumption.
         EnqueueVariablesForHandler(CalcDate('<-CY-1D>', WorkDate), Definitive);
@@ -591,10 +591,10 @@ codeunit 144100 "ERM Fiscal LIFO"
 
         // Verify: Verifying Residual Quantity in LIFO Band.
         ItemCostHistory.SetRange("Item No.", ItemNo);
-        ItemCostHistory.FindFirst;
+        ItemCostHistory.FindFirst();
 
         LIFOBand.SetRange("Item No.", ItemNo);
-        LIFOBand.FindFirst;
+        LIFOBand.FindFirst();
         LIFOBand.TestField("Residual Quantity", ItemCostHistory."End Year Inventory" - ItemCostHistory."Start Year Inventory");
     end;
 
@@ -617,7 +617,7 @@ codeunit 144100 "ERM Fiscal LIFO"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Posting Date", CalcDate('<-CY-1D>', WorkDate));
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
         exit(ItemLedgerEntry.Quantity);
     end;
 
@@ -626,7 +626,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         ItemCostHistory: Record "Item Cost History";
     begin
         ItemCostHistory.SetRange("Item No.", ItemNo);
-        ItemCostHistory.FindFirst;
+        ItemCostHistory.FindFirst();
         ItemCostHistory.TestField("Start Year Inventory", StartYearInventory);
         ItemCostHistory.TestField("End Year Inventory", EndYearInventory);
         ItemCostHistory.TestField(Definitive, Definitive);

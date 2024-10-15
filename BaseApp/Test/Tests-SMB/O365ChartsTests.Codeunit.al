@@ -37,7 +37,7 @@ codeunit 138022 "O365 Charts Tests"
         ColumnIndex: Integer;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         WorkDate(CalcDate('<2Y>', WorkDate));
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Month;
@@ -75,7 +75,7 @@ codeunit 138022 "O365 Charts Tests"
         EndDate: Date;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         BusinessChartBuffer."Period Length" := BusinessChartBuffer."Period Length"::Week;
         WorkDate(CalcDate('<2M>', WorkDate)); // To avoid conflict by No. Series with Date Order
@@ -110,7 +110,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerSalesLCYs: array[12] of Decimal;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
@@ -129,7 +129,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerSalesLCYs: array[12] of Decimal;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 2);
@@ -148,7 +148,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerSalesLCYs: array[12] of Decimal;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
@@ -167,7 +167,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerSalesLCYs: array[12] of Decimal;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 2);
@@ -189,7 +189,7 @@ codeunit 138022 "O365 Charts Tests"
         TestCustomerSalesLCYs: array[12] of Decimal;
         OriginalWDate: Date;
     begin
-        Initialize;
+        Initialize();
         OriginalWDate := WorkDate;
         WorkDate(CalcDate('<2M>', WorkDate));
         CreateTestCustomersForTopChart(TestCustomerNames, TestCustomerSalesLCYs, 12);
@@ -257,7 +257,7 @@ codeunit 138022 "O365 Charts Tests"
         RefDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         RefDate := WorkDate;
 
         CreateTwoCustPostingGroups(NewCustPostGroup1, NewCustPostGroup2);
@@ -309,7 +309,7 @@ codeunit 138022 "O365 Charts Tests"
         SalesByCustGrpChartMgt: Codeunit "Sales by Cust. Grp. Chart Mgt.";
     begin
         // [SCENARIO 206660] A Customer List is opened on Drilldown in not modal mode.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A customer with a posting group, new item and one posted invoice.
         LibrarySales.CreateCustomerPostingGroup(CustomerPostingGroup);
@@ -345,7 +345,7 @@ codeunit 138022 "O365 Charts Tests"
         RefDate: Date;
         NewDate: Date;
     begin
-        Initialize;
+        Initialize();
         RefDate := WorkDate;
 
         CreateTwoCustPostingGroups(NewCustPostGroup1, NewCustPostGroup2);
@@ -389,8 +389,8 @@ codeunit 138022 "O365 Charts Tests"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Charts Tests");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         ClearTable(DATABASE::Resource);
         ClearTable(DATABASE::"Res. Ledger Entry");
@@ -403,9 +403,9 @@ codeunit 138022 "O365 Charts Tests"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Charts Tests");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.CreateVATData();
 
         isInitialized := true;
         Commit();
@@ -419,7 +419,7 @@ codeunit 138022 "O365 Charts Tests"
         Customer: Record Customer;
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
+        LibraryLowerPermissions.SetOutsideO365Scope();
         case TableID of
             DATABASE::Resource:
                 Resource.DeleteAll();

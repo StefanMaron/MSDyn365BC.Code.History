@@ -29,7 +29,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate ShowInvoice Action of Table ID - 12184 Posted Vendor Bill Line.
 
         // Setup: Create Purchase Invoice Header and Posted Vendor Bill Line.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoiceHeader(PurchInvHeader);
         CreatePostedVendorBill(PostedVendorBillLine, PurchInvHeader."Buy-from Vendor No.", PurchInvHeader."No.");
 
@@ -51,7 +51,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate Base - Excluded Amount - OnValidate Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup: Create Withholding Tax and validate Base - Excluded Amount.
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax);
 
         // Exercise.
@@ -72,7 +72,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         WithholdingTax.DeleteAll();
 
         // Exercise.
@@ -93,7 +93,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         WithholdingTax.DeleteAll();
         CreateWithholdingTax(WithholdingTax);
 
@@ -114,7 +114,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnModify Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax);
         WithholdingTax.Reported := true;
 
@@ -158,7 +158,7 @@ codeunit 144092 "UT TAB Withhold"
         WithholdingTax: Record "Withholding Tax";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax);
         UpdateWithholdingTaxReportedAndPaid(WithholdingTax, Reported, Paid);
 
@@ -179,7 +179,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnDelete Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax);
 
         // Exercise.
@@ -200,7 +200,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate CheckWithhEntryExist function of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendLedgEntry(VendorLedgerEntry);
         CreateWithholdingTax(WithholdingTax);
         WithholdingTax."Document No." := VendorLedgerEntry."Document No.";
@@ -223,7 +223,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate Payment Date - OnValidate Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax);
         CreateWithholdCodeLine(WithholdingTax."Withholding Tax Code");
 
@@ -249,7 +249,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate InsertWithhold function of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendLedgEntry(VendorLedgerEntry);
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         WithholdCodeLine."Withhold Code" := Vendor."Withholding Tax Code";
@@ -275,7 +275,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 12117 Contributions.
 
         // Setup.
-        Initialize;
+        Initialize();
         Contributions.DeleteAll();
 
         // Exercise.
@@ -296,7 +296,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnInsert Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup.
-        Initialize;
+        Initialize();
         Contributions.DeleteAll();
         CreateContributions(Contributions);
 
@@ -317,7 +317,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate OnModify Trigger of Table ID - 12116 Withholding Tax.
 
         // Setup: Create Contributions.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions);
         Contributions.Reported := true;
 
@@ -361,7 +361,7 @@ codeunit 144092 "UT TAB Withhold"
         Contributions: Record Contributions;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions);
         UpdateContributionsReportedAndINPSPaid(Contributions, Reported, INPSPaid);
 
@@ -385,7 +385,7 @@ codeunit 144092 "UT TAB Withhold"
         // Purpose of the test is to validate Payment Date - OnValidate Trigger of Table ID - 12117 Contributions.
 
         // Setup: Create Contributions and Contribution Code Line with Contribution Type - INPS and INAIL.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions);
         SocialSecurityPct :=
           CreateContributionCodeLine(ContributionCodeLine."Contribution Type"::INPS, Contributions."Social Security Code");
@@ -430,7 +430,7 @@ codeunit 144092 "UT TAB Withhold"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateContributionCodeLine(ContributionType: Option; "Code": Code[20]): Decimal
@@ -450,7 +450,7 @@ codeunit 144092 "UT TAB Withhold"
         Contributions2: Record Contributions;
     begin
         Contributions."Entry No." := 1;
-        if Contributions2.FindLast then
+        if Contributions2.FindLast() then
             Contributions."Entry No." := Contributions2."Entry No." + 1;
         Contributions."Social Security Code" := LibraryUTUtility.GetNewCode;
         Contributions."INAIL Code" := LibraryUTUtility.GetNewCode;
@@ -472,7 +472,7 @@ codeunit 144092 "UT TAB Withhold"
         WithholdingTax2: Record "Withholding Tax";
     begin
         WithholdingTax."Entry No." := 1;
-        if WithholdingTax2.FindLast then
+        if WithholdingTax2.FindLast() then
             WithholdingTax."Entry No." := WithholdingTax2."Entry No." + 1;
         WithholdingTax.Insert();
     end;
@@ -545,7 +545,7 @@ codeunit 144092 "UT TAB Withhold"
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := CreateVendor;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;

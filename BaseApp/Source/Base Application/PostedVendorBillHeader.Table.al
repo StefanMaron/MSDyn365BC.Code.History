@@ -114,7 +114,7 @@ table 12183 "Posted Vendor Bill Header"
         NavigateForm: Page Navigate;
     begin
         NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigateForm.Run();
     end;
 }
 

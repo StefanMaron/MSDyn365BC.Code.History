@@ -146,7 +146,7 @@ page 12171 "Payment Date Lines"
                             ServiceLine.Reset();
                             ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
                             ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-                            if ServiceLine.FindSet then
+                            if ServiceLine.FindSet() then
                                 repeat
                                     DocumentAmount := DocumentAmount + ServiceLine."Amount Including VAT";
                                 until ServiceLine.Next() = 0;

@@ -15,7 +15,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         if not FromDirectDebitCollectionEntry.IsEmpty() then begin
             FromDirectDebitCollectionEntry.SetFilter(Status, '%1|%2',
               FromDirectDebitCollectionEntry.Status::New, FromDirectDebitCollectionEntry.Status::"File Created");
-            if FromDirectDebitCollectionEntry.FindSet then
+            if FromDirectDebitCollectionEntry.FindSet() then
                 repeat
                     ToDirectDebitCollectionEntry := FromDirectDebitCollectionEntry;
                     ToDirectDebitCollectionEntry.Insert();
@@ -35,7 +35,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         CustomerBillHeader.Get(DirectDebitCollection.Identifier);
         CustomerBillHeader.TestField("Payment Method Code");
         CustomerBillLine.SetRange("Customer Bill No.", CustomerBillHeader."No.");
-        if CustomerBillLine.FindSet then
+        if CustomerBillLine.FindSet() then
             with ToDirectDebitCollectionEntry do begin
                 repeat
                     CustomerBillLine.TestField("Cumulative Bank Receipts", false);
@@ -65,7 +65,7 @@ codeunit 1232 "SEPA DD-Prepare Source"
         IssuedCustomerBillHeader.Get(DirectDebitCollection.Identifier);
         IssuedCustomerBillHeader.TestField("Payment Method Code");
         IssuedCustomerBillLine.SetRange("Customer Bill No.", IssuedCustomerBillHeader."No.");
-        if IssuedCustomerBillLine.FindSet then
+        if IssuedCustomerBillLine.FindSet() then
             with ToDirectDebitCollectionEntry do begin
                 repeat
                     IssuedCustomerBillLine.TestField("Cumulative Bank Receipts", false);

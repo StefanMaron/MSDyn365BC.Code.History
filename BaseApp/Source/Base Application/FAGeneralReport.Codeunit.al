@@ -317,7 +317,7 @@ codeunit 5626 "FA General Report"
                     SetRange("FA Posting Date", 0D, EndingDate);
             end;
             SetRange("Reclassification Entry", true);
-            if FindFirst then
+            if FindFirst() then
                 SetRange("Entry No.", 0, "Entry No." - 1);
             SetRange("Reclassification Entry");
             CalcSums(Amount);

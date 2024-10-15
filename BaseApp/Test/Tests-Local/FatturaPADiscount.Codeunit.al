@@ -37,7 +37,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Sales] [Invoice] [Invoice Discount]
         // [SCENARIO 298793] Invoice Discount Amount of Sales Invoice exports to multiple nodes in FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
         CustomerNo := CreateCustomer;
@@ -80,7 +80,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Sales] [Credit Memo] [Invoice Discount]
         // [SCENARIO 298793] Invoice Discount Amount of Sales Credit Memo exports to multiple nodes in FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
         CustomerNo := CreateCustomer;
@@ -123,7 +123,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Service] [Invoice] [Invoice Discount]
         // [SCENARIO 298066] Invoice Discount Amount of Service Invoice exports to multiple nodes in FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
         CustomerNo := CreateCustomer;
@@ -169,7 +169,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Service] [Credit Memo] [Invoice Discount]
         // [SCENARIO 298066] Invoice Discount Amount of Service Credit Memo exports to multiple nodes in FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with Quantity = 5, "Line Amount" = 100, "Invoice Discount Amount" = 20
         CustomerNo := CreateCustomer;
@@ -215,7 +215,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Sales] [Invoice] [Line Discount]
         // [SCENARIO 298793] Line Discount Percent of Sales Invoice must be exported to Percentuale node
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -252,7 +252,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Sales] [Credit Memo] [Line Discount]
         // [SCENARIO 298793] Line Discount Percent of Sales Credit Memo must be exported to Percentuale node
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -288,7 +288,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Service] [Invoice] [Line Discount]
         // [SCENARIO 298066] Line Discount Percent of Service Invoice must be exported to Percentuale node
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -324,7 +324,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Service] [Credit Memo] [Line Discount]
         // [SCENARIO 298066] Line Discount Percent of Service Credit Memo must be exported to Percentuale node
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -361,7 +361,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Sales] [Invoice] [Line Discount] [Invoice Discount]
         // [SCENARIO 298793] Line Discount Percent and Invoice Discount Amount of Sales Invoice must be exported to specific nodes of FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -398,7 +398,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Sales] [Credit Memo] [Line Discount] [Invoice Discount]
         // [SCENARIO 298793] Line Discount Percent and Invoice Discount Amount of Sales Credit Memo must be exported to specific nodes of FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -434,7 +434,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Service] [Invoice] [Line Discount] [Invoice Discount]
         // [SCENARIO 298066] Line Discount Percent and Invoice Discount Amount of Service Invoice must be exported to specific nodes of FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -470,7 +470,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Service] [Credit Memo] [Line Discount] [Invoice Discount]
         // [SCENARIO 298066] Line Discount Percent and Invoice Discount Amount of Service Credit Memo must be exported to specific nodes of FatturaPA file
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with "Line Discount %" = 5
         CustomerNo := CreateCustomer;
@@ -505,7 +505,7 @@ codeunit 144204 "FatturaPA Discount"
         // [FEATURE] [Line Discount]
         // [SCENARIO 300725] FatturaPA file has line XML nodes if Line Amount is zero because of hundred percent line discount
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted sales invoice with "Line Amount" = 0 and "Line Discount %" = 100
         CreateSalesDocument(
@@ -537,7 +537,7 @@ codeunit 144204 "FatturaPA Discount"
     begin
         // [FEATURE] [Sales] [Invoice] [Prices Including VAT] [Line Discount]
         // [SCENARIO 323459] PrezzoUnitario and PrezzoTotale get exported correctly when Document uses "Prices Including VAT" and Line Discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item with unit price = "100"
         CreateItemWithPrice(Item, LibraryRandom.RandDec(100, 2));
@@ -637,7 +637,7 @@ codeunit 144204 "FatturaPA Discount"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -761,14 +761,14 @@ codeunit 144204 "FatturaPA Discount"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure UpdateDiscAmountInSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; InvDiscFactor: Decimal; LineDiscPct: Decimal)

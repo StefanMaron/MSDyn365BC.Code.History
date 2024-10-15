@@ -485,6 +485,18 @@ page 7022 "Price Worksheet"
         TempWorksheetPriceListHeader: Record "Price List Header" temporary;
         TempWorksheetPriceListLine: Record "Price List Line" temporary;
         PriceListManagement: Codeunit "Price List Management";
+        IsSaaSExcelAddinEnabled: Boolean;
+        DefaultPriceListCode: Code[20];
+        DefaultPriceListCodeLbl: Text;
+        Defaults: Text;
+        DefinePriceListCodeErr: Label 'Define the default price list.';
+        DefinePriceListCodeLbl: Label 'Define the price list...';
+        UpdateMultiplePriceLists: Boolean;
+        DefaultsLbl: Label '%1 = %2; ', Locked = true;
+        CopyLinesEnabled: Boolean;
+        WorksheetFilterLbl: Label 'Price_Type eq ''%1'' and Source_Group eq ''%2''', Locked = true;
+
+    protected var
         CustomerSourceType: Enum "Sales Price Source Type";
         VendorSourceType: Enum "Purchase Price Source Type";
         JobSourceType: Enum "Job Price Source Type";
@@ -499,7 +511,6 @@ page 7022 "Price Worksheet"
         DiscountVisible: Boolean;
         ItemAsset: Boolean;
         ItemAssetVisible: Boolean;
-        IsSaaSExcelAddinEnabled: Boolean;
         LineExists: Boolean;
         ModifiedLine: Boolean;
         ModifiedUnitPrice: Boolean;
@@ -517,15 +528,6 @@ page 7022 "Price Worksheet"
         SalesVisible: Boolean;
         SourceNoEditable: Boolean;
         SourceTypeEditable: Boolean;
-        DefaultPriceListCode: Code[20];
-        DefaultPriceListCodeLbl: Text;
-        Defaults: Text;
-        DefinePriceListCodeErr: Label 'Define the default price list.';
-        DefinePriceListCodeLbl: Label 'Define the price list...';
-        UpdateMultiplePriceLists: Boolean;
-        DefaultsLbl: Label '%1 = %2; ', Locked = true;
-        CopyLinesEnabled: Boolean;
-        WorksheetFilterLbl: Label 'Price_Type eq ''%1'' and Source_Group eq ''%2''', Locked = true;
 
     procedure SetPriceType(NewPriceType: Enum "Price Type")
     begin

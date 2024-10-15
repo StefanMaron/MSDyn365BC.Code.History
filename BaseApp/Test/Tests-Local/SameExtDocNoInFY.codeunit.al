@@ -95,7 +95,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(false);
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.02.2018 and "External Doc. No." = "X"
@@ -125,7 +125,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(false);
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.01.2019 and "External Doc. No." = "X"
@@ -157,7 +157,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.02.2018 and "External Doc. No." = "X"
@@ -189,7 +189,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.02.2018 and "External Doc. No." = "X"
@@ -222,7 +222,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.01.2019 and "External Doc. No." = "X"
@@ -254,7 +254,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
 
         // [GIVEN] Posted Purchase invoice with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhInvWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Invoice with "Document Date" = 01.01.2019 and "External Doc. No." = "X"
@@ -286,7 +286,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
 
         // [GIVEN] Posted Purchase Credit Memo with "Document Date" = 01.01.2018 and "External Doc. No." = "X"
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         PostPurhCrMemoWithExtDocNo(WorkDate, VendNo, ExtDocNo);
 
         // [WHEN] Post Purchase Credit Memo with "Document Date" = 01.01.2019 and "External Doc. No." = "X"
@@ -312,7 +312,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         SetSameExtDocNoInDiffFY(true);
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         EntryNo := MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
         MockVendorLedgerEntry(VendNo, CalcDate('<1Y>', WorkDate), ExtDocNo);
@@ -339,7 +339,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
 
         SetSameExtDocNoInDiffFY(true);
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         EntryNo := MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
         MockVendorLedgerEntry(VendNo, GetDateFromFiscalYear(CalcDate('<1Y>', WorkDate)), ExtDocNo);
@@ -368,7 +368,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(false);
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -405,7 +405,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(true);
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -441,7 +441,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(true);
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -477,7 +477,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(false);
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -515,7 +515,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -552,7 +552,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -588,7 +588,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(false);
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -627,7 +627,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -665,7 +665,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -702,7 +702,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetSameExtDocNoInDiffFY(false);
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -741,7 +741,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Calendar Year");
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -779,7 +779,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         SetExtDocPeriodSource(PeriodSourceRef::"Fiscal Year");
 
         // [GIVEN] Vendor Ledger Entry with "External Document No." = "X" and "Document Date" = 01.01.2019
-        VendNo := LibraryPurchase.CreateVendorNo;
+        VendNo := LibraryPurchase.CreateVendorNo();
         ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
         MockVendorLedgerEntry(VendNo, WorkDate, ExtDocNo);
 
@@ -801,14 +801,14 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Same Ext. Doc. No. In FY");
         BindSubscription(LibraryJobQueue);
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         IsInitialized := true;
         Commit;
 
@@ -945,7 +945,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         GenJournalBatch.SetRange(Name, GenJournalLine."Journal Batch Name");
         VendorPrePaymentJournal.SetTableView(GenJournalBatch);
         VendorPrePaymentJournal.SetTableView(GenJournalLine);
-        VendorPrePaymentJournal.Run;
+        VendorPrePaymentJournal.Run();
     end;
 
     local procedure VerifyTwoVendLedgEntryWithSameExtDocNo(VendNo: Code[20]; ExtDocNo: Text[35])

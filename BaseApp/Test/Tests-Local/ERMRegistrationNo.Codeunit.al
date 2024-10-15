@@ -42,7 +42,7 @@ codeunit 144184 "ERM Registration No."
         // Verify report Customer Bill List after posting Sales Invoice.
 
         // Setup: Create and post Sales Invoice and General Journal Line.
-        Initialize;
+        Initialize();
         CreateSalesInvoice(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Using true for Ship and Invoice.
@@ -72,7 +72,7 @@ codeunit 144184 "ERM Registration No."
         // Verify report Vendor Account Bills List after posting Purchase Invoice.
 
         // Setup: Create and post Purchase Invoice and General Journal Line.
-        Initialize;
+        Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT");
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Using true for Receive and Invoice.
@@ -92,7 +92,7 @@ codeunit 144184 "ERM Registration No."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])

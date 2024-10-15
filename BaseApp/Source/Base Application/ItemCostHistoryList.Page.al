@@ -159,7 +159,7 @@ page 12118 "Item Cost History List"
                         ItemCostHistory.SetRange("Item No.", "Item No.");
                         ItemCostHistory.SetRange("Competence Year", "Competence Year");
                         DetailLedgEntries.SetTableView(ItemCostHistory);
-                        DetailLedgEntries.Run;
+                        DetailLedgEntries.Run();
                     end;
                 }
             }

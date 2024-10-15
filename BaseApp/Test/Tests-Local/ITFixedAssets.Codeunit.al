@@ -45,7 +45,7 @@ codeunit 144000 "IT - Fixed Assets"
         // Test Posting Purchase Invoice when No. of Fixed Asset Cards is greater than 1.
 
         // 1.Setup: Count number of existing Fixed Assets.
-        Initialize;
+        Initialize();
         FixedAssetCount := GetFACount;
 
         // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
@@ -66,7 +66,7 @@ codeunit 144000 "IT - Fixed Assets"
         // Test Posting Purchase Invoice when No. of Fixed Asset Cards is 1.
 
         // 1.Setup: Count number of existing Fixed Assets.
-        Initialize;
+        Initialize();
         FixedAssetCount := GetFACount;
 
         // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
@@ -86,7 +86,7 @@ codeunit 144000 "IT - Fixed Assets"
         // Test Posting Purchase Invoice when No. of Fixed Asset Cards is 0.
 
         // 1.Setup: Count number of existing Fixed Assets.
-        Initialize;
+        Initialize();
         FixedAssetCount := GetFACount;
 
         // 2.Exercise: Create Fixed Asset, Depreciation Book, FA Posting Group. Post Purchase Invoice with FA.
@@ -111,7 +111,7 @@ codeunit 144000 "IT - Fixed Assets"
         // GLIntegration for Acqusition Cost = Yes, GLIntegration for Depreciation = No, Fixed Assets use same FA Posting Group.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, true, false, false);
@@ -150,7 +150,7 @@ codeunit 144000 "IT - Fixed Assets"
         // GLIntegration for Acqusition Cost = Yes, GLIntegration for Depreciation = No, Fixed Assets use different FA Posting Group.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Depreciation Book and FA Journal Setup.
         DepreciationBook := CreateDepreciationBook(true, false, true, false, false);
@@ -189,7 +189,7 @@ codeunit 144000 "IT - Fixed Assets"
         // GLIntegration for Acqusition Cost = Yes, GLIntegration for Depreciation = No, Fixed Assets use same FA Posting Group, Compression = No.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, false, false, false);
@@ -229,7 +229,7 @@ codeunit 144000 "IT - Fixed Assets"
         // GLIntegration for Acqusition Cost = Yes, GLIntegration for Depreciation = Yes, Fixed Assets use same FA Posting Group.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, true, true, false, false);
@@ -267,7 +267,7 @@ codeunit 144000 "IT - Fixed Assets"
         // GLIntegration for Acqusition Cost = No, GLIntegration for Depreciation = No, Fixed Assets use same FA Posting Group.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(false, false, true, false, false);
@@ -299,7 +299,7 @@ codeunit 144000 "IT - Fixed Assets"
         // GLIntegration for Acqusition Cost = Yes, GLIntegration for Depreciation = No, Fixed Assets use same FA Posting Group.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2.Exercise: Create Depreciation Book, FA Journal Setup, FA Posting Group.
         DepreciationBook := CreateDepreciationBook(true, false, true, false, false);
@@ -337,7 +337,7 @@ codeunit 144000 "IT - Fixed Assets"
         // Test User Defined Depreciation with Anticipated %.
 
         // 1.Setup.
-        Initialize;
+        Initialize();
 
         // 2. Set Global Variable and Execute Verification.
         UseAnticipatedDepr := true;
@@ -354,7 +354,7 @@ codeunit 144000 "IT - Fixed Assets"
         // Test User Defined Depreciation with Accelerated/Reduced %.
 
         // 1. Setup.
-        Initialize;
+        Initialize();
 
         // 2. Set Global Variable and Execute Verification.
         UseAccDecrDepr := true;
@@ -605,7 +605,7 @@ codeunit 144000 "IT - Fixed Assets"
         FAJournalLine.SetRange("Journal Template Name", FAJournalSetup."FA Jnl. Template Name");
         FAJournalLine.SetRange("Journal Batch Name", FAJournalSetup."FA Jnl. Batch Name");
         FAJournalLine.SetFilter(Amount, '<>0');
-        if FAJournalLine.FindFirst then;
+        if FAJournalLine.FindFirst() then;
     end;
 
     local procedure GetFAPostingGroup(var FAPostingGroup: Record "FA Posting Group"): Boolean
@@ -691,7 +691,7 @@ codeunit 144000 "IT - Fixed Assets"
         FALedgerEntry.SetFilter("Document No.", DocumentNo);
         FALedgerEntry.SetFilter("FA No.", FANo);
         FALedgerEntry.SetRange("FA Posting Type", FAPostingType);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         FALedgerEntry.TestField(Amount, -Amount);
     end;
 
@@ -709,7 +709,7 @@ codeunit 144000 "IT - Fixed Assets"
 
         if Compressed then begin
             VerifyNoGLEntriesPosted(DocumentNo, 1);
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
         end else begin
             VerifyNoGLEntriesPosted(DocumentNo, FALedgerEntry.Count);
             GLEntry.CalcSums(Amount);
@@ -733,7 +733,7 @@ codeunit 144000 "IT - Fixed Assets"
 
         // Find FA Deprecition Book for the initial Fixed Asset.
         FADepreciationBook2.SetFilter("FA No.", FixedAssetNo);
-        FADepreciationBook2.FindFirst;
+        FADepreciationBook2.FindFirst();
         FADepreciationBook2.CalcFields("Acquisition Cost");
 
         // Verify Depreciation Method, FA Posting Group, Acquisition Cost.
@@ -806,17 +806,17 @@ codeunit 144000 "IT - Fixed Assets"
         TotalDepr: Decimal;
         TotalDeprValue: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setting random quantity to number of lines in Depreciation Table
         LinesQty := LibraryRandom.RandInt(10);
 
-        DepreciationTableCode := LibraryUtility.GenerateGUID;
+        DepreciationTableCode := LibraryUtility.GenerateGUID();
 
         TotalDepr := 0;
 
         // Creating new Depreciation Table
-        DepreciationTableCardPage.OpenNew;
+        DepreciationTableCardPage.OpenNew();
         DepreciationTableCardPage.Code.SetValue(DepreciationTableCode);
 
         for i := 1 to LinesQty do begin

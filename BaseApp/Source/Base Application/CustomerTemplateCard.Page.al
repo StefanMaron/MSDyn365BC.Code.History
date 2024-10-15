@@ -1,9 +1,12 @@
-#if not CLEAN18
+#if not CLEAN20
 page 5157 "Customer Template Card"
 {
     Caption = 'Customer Template Card';
     PageType = Card;
     SourceTable = "Customer Template";
+    ObsoleteReason = 'Deprecate mini and customer templates. Use "Customer Templ. Card" page instead and for extensions.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {

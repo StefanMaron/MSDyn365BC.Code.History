@@ -27,7 +27,7 @@ codeunit 9022 "Pmt. Rec. Journals Launcher"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        BankAccReconciliation.FindFirst;
+        BankAccReconciliation.FindFirst();
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");

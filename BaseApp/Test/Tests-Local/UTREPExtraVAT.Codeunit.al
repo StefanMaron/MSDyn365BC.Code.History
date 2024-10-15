@@ -95,7 +95,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnPreDataItemBlankCompanyNameVATRegGrpErr()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped with blank Company Name.
-        Initialize;
+        Initialize();
         VATRegisterGrouped(
           '', LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Company Name.
@@ -108,7 +108,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnPreDataItemBlankCompanyAddressVATRegGrpErr()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped with blank Company Address.
-        Initialize;
+        Initialize();
         VATRegisterGrouped(
           LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode10, LibraryUTUtility.GetNewCode,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Company Address.
@@ -121,7 +121,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnPreDataItemBlankCompanyPostCodeVATRegGrpErr()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank Company Post Code
-        Initialize;
+        Initialize();
         VATRegisterGrouped(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Company Post Code.
@@ -134,7 +134,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnPreDataItemBlankRegisterCompanyNumberVATRegGrpErr()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank Register Company Number.
-        Initialize;
+        Initialize();
         VATRegisterGrouped(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10, '',
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);  // Blank Register Company Number.
@@ -147,7 +147,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnPreDataItemBlankVATRegistrationNoVATRegGrpErr()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank VAT Registration No.
-        Initialize;
+        Initialize();
         VATRegisterGrouped(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, '', LibraryUTUtility.GetNewCode);  // Blank VAT Registration No.
@@ -160,7 +160,7 @@ codeunit 144077 "UT REP Extra VAT"
     procedure OnPreDataItemBlankFiscalCodeVATRegGrpErr()
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped blank Fiscal Code
-        Initialize;
+        Initialize();
         VATRegisterGrouped(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, '');  // Blank Fiscal Code.
@@ -187,7 +187,7 @@ codeunit 144077 "UT REP Extra VAT"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped with blank Period Starting Date.
         // Actual error message is "There is no Accounting Period within the filter.Filters: Starting Date: <='', New Fiscal Year: Yes".
-        Initialize;
+        Initialize();
         VATRegisterGroupedPeriodStartingDate(0D);  // Blank Period Starting Date.
     end;
 
@@ -201,8 +201,8 @@ codeunit 144077 "UT REP Extra VAT"
     begin
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12108 VAT Register Grouped with one day prior of first Accounting Period Starting Date.
         // Actual error message is "There is no Accounting Period within the filter.Filters: Starting Date: <=XXXXX, New Fiscal Year: Yes"
-        Initialize;
-        AccountingPeriod.FindFirst;
+        Initialize();
+        AccountingPeriod.FindFirst();
         VATRegisterGroupedPeriodStartingDate(CalcDate('<-1D>', AccountingPeriod."Starting Date"));  // Taking one day prior of first Accounting Period Starting Date.
     end;
 
@@ -246,7 +246,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATEntry: Record "VAT Entry";
     begin
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CalcAndPostVATSettlementWithUnrealizedVAT(VATEntry, false, VATEntry.Type::Sale, ShowVATEntries);  // False for Unrealized VAT.
 
         // Verify: Non Deductible Base and Amount on generated file of Report - Calculate and Post VAT Settlement.
@@ -283,7 +283,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATEntry: Record "VAT Entry";
     begin
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CalcAndPostVATSettlementWithUnrealizedVAT(VATEntry, true, EntryType, true);  // True for Unrealized VAT and Show VAT Entries.
 
         // Verify: Remaining Unrealized Base and Amount on generated file of Report - Calculate and Post VAT Settlement.
@@ -303,7 +303,7 @@ codeunit 144077 "UT REP Extra VAT"
         // Purpose of the test is to validate OnPostDataItem - VAT Posting Setup Trigger of Report 20 - Calculate and Post VAT Settlement.
 
         // Setup and Exercise.
-        Initialize;
+        Initialize();
         CalcAndPostVATSettlementWithUnrealizedVAT(VATEntry, false, VATEntry.Type::Purchase, true);  // False for Unrealized VAT and True for Show VAT Entries.
 
         // Verify: Next Period Input VAT Amount on generated file of Report - Calculate and Post VAT Settlement.
@@ -375,7 +375,7 @@ codeunit 144077 "UT REP Extra VAT"
     local procedure VATRegisterGroupedWithPrintCompanyInformation(PeriodStartingDate: Date; PeriodEndingDate: Date)
     begin
         // Setup.
-        Initialize;
+        Initialize();
         UpdateCompanyInformation(
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode10,
           LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
@@ -398,7 +398,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATBookEntry: Record "VAT Book Entry";
     begin
         // Purpose of the test is to validate Unrealized VAT - OnAfterGetRecord Trigger of Report - 12120 VAT Register Print for Purchase.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithVATBookEntry(VATBookEntry.Type::Purchase, LibraryRandom.RandDec(10, 2));  // Using random value for Unrealized Amount
     end;
 
@@ -411,7 +411,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATBookEntry: Record "VAT Book Entry";
     begin
         // Purpose of the test is to validate Unrealized VAT - OnAfterGetRecord Trigger of Report - 12120 VAT Register Print for Sales.
-        Initialize;
+        Initialize();
         VATRegisterPrintWithVATBookEntry(VATBookEntry.Type::Sale, -LibraryRandom.RandDec(10, 2));  // Using random value for Unrealized Amount
     end;
 
@@ -438,7 +438,7 @@ codeunit 144077 "UT REP Extra VAT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CalcAndPostVATSettlementWithUnrealizedVAT(var VATEntry: Record "VAT Entry"; UnrealizedVAT: Boolean; EntryType: Enum "General Posting Type"; ShowVATEntries: Boolean)
@@ -472,7 +472,7 @@ codeunit 144077 "UT REP Extra VAT"
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
-        VATBookEntry2.FindLast;
+        VATBookEntry2.FindLast();
         VATBookEntry."Entry No." := VATBookEntry2."Entry No." + 1;
         VATBookEntry.Type := Type;
         VATBookEntry."No. Series" := NoSeries;
@@ -492,7 +492,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         CreateVATPostingSetup(VATPostingSetup);
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := Type;
         VATEntry."Operation Occurred Date" := GetStartingDate;
@@ -510,7 +510,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATBookEntry.Type;
         VATEntry."No. Series" := VATBookEntry."No. Series";
@@ -578,7 +578,7 @@ codeunit 144077 "UT REP Extra VAT"
         // Periodic Settlement VAT Entry is created after running the Report - Calc. and Post VAT Settlement.
         PeriodicSettlementVATEntry.SetRange(
           "VAT Period", Format(Date2DMY(PeriodDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0'));  // Calculation is given in OnPostDataItem - VAT Posting Setup of Report - Calc. and Post VAT Settlement.
-        PeriodicSettlementVATEntry.FindFirst;
+        PeriodicSettlementVATEntry.FindFirst();
         exit(PeriodicSettlementVATEntry."Prior Period Input VAT");
     end;
 

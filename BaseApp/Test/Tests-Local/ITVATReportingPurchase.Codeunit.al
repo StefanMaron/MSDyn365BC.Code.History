@@ -103,7 +103,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchLine: Record "Purchase Line";
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -177,7 +177,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         LineAmount: Decimal;
         OrderAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -231,7 +231,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         Vendor: Record Vendor;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -364,7 +364,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         LineAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -413,7 +413,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         OrderAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -604,7 +604,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
     begin
         // [Prices Including VAT] = No.
         // Line Amount > [Threshold Amount Excl. VAT.].
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -659,7 +659,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
     begin
         // [Prices Including VAT] = No.
         // Line Amount > [Threshold Amount Excl. VAT.].
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -730,7 +730,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         TaxRepNo: Code[20];
         ExpectedTaxRepType: Option;
     begin
-        Initialize;
+        Initialize();
 
         // Create Vendor.
         Vendor.Get(CreateVendor(false, Vendor.Resident::"Non-Resident", false, false));
@@ -849,7 +849,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         LineAmount: Decimal;
         ExpectedError: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -928,7 +928,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         PurchLine: Record "Purchase Line";
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -954,7 +954,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         LineAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -986,7 +986,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
     local procedure Initialize()
     begin
         TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -1182,7 +1182,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, FieldName);
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."Field Caption");
     end;
 
@@ -1243,7 +1243,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.SetFilter("Starting Date", '<=%1', StartingDate);
-        VATTransactionReportAmount.FindLast;
+        VATTransactionReportAmount.FindLast();
 
         if InclVAT then
             Amount := VATTransactionReportAmount."Threshold Amount Incl. VAT"
@@ -1255,7 +1255,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
     begin
         PurchLine.SetRange("Document Type", DocumentType);
         PurchLine.SetFilter("Document No.", DocumentNo);
-        PurchLine.FindFirst;
+        PurchLine.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1290,7 +1290,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         NoSeriesCode: Code[20];
     begin
         PurchHeader.Find; // Required to avoid Another user has modified the record error.
-        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchHeader.Validate(Receive, true);
         PurchHeader.Validate(Invoice, true);
 
@@ -1312,7 +1312,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         UpdateCheckTotal(PurchHeader, Round(PurchLine."Prepmt. Line Amount" / 100 * (100 + PurchLine."VAT %")));
         PurchPostPrepayments.Invoice(PurchHeader);
         PurchInvHeader.SetRange("Prepayment Order No.", PurchHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.");
     end;
 
@@ -1340,7 +1340,7 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", true);
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         VATPostingSetup.Validate("Sales Prepayments Account", CreateGLAccount("General Posting Type"::" "));
         VATPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccount("General Posting Type"::" "));
         VATPostingSetup.Modify(true);
@@ -1397,13 +1397,13 @@ codeunit 144008 "IT - VAT Reporting - Purchase"
             DATABASE::"Sales Cr.Memo Line":
                 begin
                     SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-                    SalesCrMemoLine.FindFirst;
+                    SalesCrMemoLine.FindFirst();
                     SalesCrMemoLine.TestField("Refers to Period", RefersToPeriod);
                 end;
             DATABASE::"Purch. Cr. Memo Line":
                 begin
                     PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-                    PurchCrMemoLine.FindFirst;
+                    PurchCrMemoLine.FindFirst();
                     PurchCrMemoLine.TestField("Refers to Period", RefersToPeriod);
                 end;
         end;

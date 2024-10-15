@@ -489,7 +489,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [THEN] The deferral schedule was copied from the existing line
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         FindPurchLine(PurchaseHeaderDest, PurchaseLineDest);
         if PurchaseLineDest."No." = '' then
@@ -534,7 +534,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [THEN] The deferral schedule was copied from the existing line
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
 
         FindPurchLine(PurchaseHeaderDest, PurchaseLineDest);
         if PurchaseLineDest."No." = '' then
@@ -685,7 +685,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
           PurchaseHeader."Document Type"::"Return Order", PurchaseLine.Type::Item, ItemNo, SetDateDay(1, WorkDate));
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
 
         // [WHEN] Create New purchase document and copy the existing one - Return uses day = 15
         CreatePurchHeaderForVendor(PurchaseHeaderDest,
@@ -1013,7 +1013,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // [WHEN] The Order Qty to Invoice is updated again
-        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchHeader.Modify();
         FindPurchLine(PurchHeader, PurchLine);
         UpdateQtyToReceiveInvoiceOnPurchLine(PurchLine, 5, 2, 2);
@@ -1716,7 +1716,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         FindDeferralHeader(PurchaseLine, DeferralHeader);
         RangeDeferralLines(DeferralHeader, DeferralLine);
-        if DeferralLine.FindFirst then begin
+        if DeferralLine.FindFirst() then begin
             DeferralLine.Amount := 0.0;
             DeferralLine."Amount (LCY)" := 0.0;
             DeferralLine.Modify();
@@ -2359,7 +2359,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
 
         // [THEN] The deferral schedule was copied from the existing line
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         FindPurchLine(PurchaseHeader, PurchaseLine);
         if PurchaseLine."No." = '' then
             PurchaseLine.Next;
@@ -2534,18 +2534,18 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RED Test Unit for Purch Doc");
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         // Setup demo data.
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"RED Test Unit for Purch Doc");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         isInitialized := true;
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
@@ -2560,7 +2560,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralTemplate.Init();
         DeferralTemplate."Deferral Code" :=
           LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
-        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo;
+        DeferralTemplate."Deferral Account" := LibraryERM.CreateGLAccountNo();
         DeferralTemplate."Calc. Method" := CalcMethod;
         DeferralTemplate."Start Date" := StartDate;
         DeferralTemplate."No. of Periods" := NumOfPeriods;
@@ -2735,7 +2735,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralLineSetRange(DeferralLine, DocType, DocNo, LineNo);
         Clear(DeferralAmount);
         Period := 0;
-        if DeferralLine.FindSet then begin
+        if DeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -2758,7 +2758,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         asserterror DeferralHeader.Get("Deferral Document Type"::Purchase, '', '', DocType, DocNo, LineNo);
 
         DeferralLineSetRange(DeferralLine, DocType, DocNo, LineNo);
-        asserterror DeferralLine.FindFirst;
+        asserterror DeferralLine.FindFirst();
     end;
 
     local procedure CopyDoc(PurchaseHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean)
@@ -2769,7 +2769,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         CopyPurchaseDoc.SetParameters(ConvertDocType(DocType), DocNo, IncludeHeader, RecalculateLines);
         CopyPurchaseDoc.SetPurchHeader(PurchaseHeader);
         CopyPurchaseDoc.UseRequestPage(false);
-        CopyPurchaseDoc.RunModal;
+        CopyPurchaseDoc.RunModal();
     end;
 
     local procedure ConvertDocType(DocType: Enum "Purchase Document Type"): Enum "Purchase Document Type From"
@@ -2996,7 +2996,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseHeaderArchive.SetRange("No.", No);
-        PurchaseHeaderArchive.FindFirst;
+        PurchaseHeaderArchive.FindFirst();
     end;
 
 #if not CLEAN19
@@ -3008,7 +3008,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         FindPurchOrderArchive(PurchHeaderArchive, No);
         DeletePurchaseOrderVersions.UseRequestPage(false);
         DeletePurchaseOrderVersions.SetTableView(PurchHeaderArchive);
-        DeletePurchaseOrderVersions.Run;
+        DeletePurchaseOrderVersions.Run();
     end;
 #endif
 
@@ -3018,7 +3018,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     begin
         PurchHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type"::"Return Order");
         PurchHeaderArchive.SetRange("No.", No);
-        PurchHeaderArchive.FindFirst;
+        PurchHeaderArchive.FindFirst();
     end;
 
     local procedure ValidateDeferralArchiveScheduleDoesNotExist(DocType: Enum "Purchase Document Type"; DocNo: Code[20]; LineNo: Integer)
@@ -3032,7 +3032,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralLineArchive.SetRange("Document Type", DocType);
         DeferralLineArchive.SetRange("Document No.", DocNo);
         DeferralLineArchive.SetRange("Line No.", LineNo);
-        asserterror DeferralLineArchive.FindFirst;
+        asserterror DeferralLineArchive.FindFirst();
     end;
 
     local procedure ValidatePostedDeferralSchedule(DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; HeaderAmountToDeferLCY: Decimal; NoOfPeriods: Integer)
@@ -3053,7 +3053,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         RangePostedDeferralLines(PostedDeferralHeader, PostedDeferralLine);
         Clear(DeferralAmount);
         Period := 0;
-        if PostedDeferralLine.FindSet then begin
+        if PostedDeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := HeaderPostingDate
@@ -3071,13 +3071,13 @@ codeunit 134804 "RED Test Unit for Purch Doc"
     local procedure FindPurchInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; No: Code[20])
     begin
         PurchInvLine.SetRange("Document No.", No);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindPurchCrMemoLine(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; No: Code[20])
     begin
         PurchCrMemoLine.SetRange("Document No.", No);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
     end;
 
     local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; AccNo: Code[20]; GenPostType: Enum "General Posting Type")
@@ -3142,7 +3142,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
                 SetRange("VAT Amount", 0);
                 Assert.RecordCount(GLEntry, 1);
             end;
-            FindFirst;
+            FindFirst();
             SetRange("VAT Amount");
             exit(Amount);
         end;
@@ -3160,7 +3160,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         RecCount := GLEntry.Count();
         GLEntry.CalcSums(Amount);
         AccAmt := GLEntry.Amount;
-        if GLEntry.FindFirst then
+        if GLEntry.FindFirst() then
             NonDeferralAmt := GLEntry.Amount;
     end;
 
@@ -3188,7 +3188,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         DeferralLine.SetRange("Document No.", DocNo);
         DeferralLine.SetRange("Line No.", LineNo);
         Period := 0;
-        if DeferralLine.FindSet then begin
+        if DeferralLine.FindSet() then begin
             repeat
                 if Period = 0 then
                     PostingDate := ReturnsDeferralStartDate
@@ -3219,19 +3219,19 @@ codeunit 134804 "RED Test Unit for Purch Doc"
             DeferralTemplate."Start Date"::"Beginning of Period":
                 begin
                     AccountingPeriod.SetRange("Starting Date", 0D, StartDate);
-                    if AccountingPeriod.FindLast then
+                    if AccountingPeriod.FindLast() then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
             DeferralTemplate."Start Date"::"End of Period":
                 begin
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-                    if AccountingPeriod.FindFirst then
+                    if AccountingPeriod.FindFirst() then
                         AdjustedStartDate := CalcDate('<-1D>', AccountingPeriod."Starting Date");
                 end;
             DeferralTemplate."Start Date"::"Beginning of Next Period":
                 begin
                     AccountingPeriod.SetFilter("Starting Date", '>%1', StartDate);
-                    if AccountingPeriod.FindFirst then
+                    if AccountingPeriod.FindFirst() then
                         AdjustedStartDate := AccountingPeriod."Starting Date";
                 end;
         end;
@@ -3461,7 +3461,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
         repeat
             GLEntry.SetFilter(Amount, '<%1', 0);
             GLEntry.SetRange("Posting Date", TempPostedDeferralLine."Posting Date");
-            GLEntry.FindFirst;
+            GLEntry.FindFirst();
             GLEntry.TestField(Amount, -TempPostedDeferralLine.Amount);
         until TempPostedDeferralLine.Next = 0;
     end;
@@ -3577,7 +3577,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
             SetFilter(Amount, '<%1', 0);
             FilterInvoiceGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummyPurchInvLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
+            FindFirst();
             TestField(Amount, -PairAmount);
         end;
     end;
@@ -3604,7 +3604,7 @@ codeunit 134804 "RED Test Unit for Purch Doc"
             SetFilter(Amount, '>%1', 0);
             FilterCrMemoGLEntryGroups(GLEntry, "Gen. Posting Type"::" ", DummyPurchCrMemoLine);
             Assert.RecordCount(GLEntry, 1);
-            FindFirst;
+            FindFirst();
             TestField(Amount, -PairAmount);
         end;
     end;

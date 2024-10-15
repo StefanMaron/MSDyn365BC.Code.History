@@ -128,7 +128,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT Entry and VAT Book Entry, Post Sales Invoice and fully apply.
 
         // Setup: Set Unrealized VAT true, Post Sales Invoice and General Journal Line fully apply.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         DocumentNo := PostSalesDocument(SalesLine);
@@ -151,7 +151,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT Entry and VAT Book Entry, Post Sales Invoice and Partial apply.
 
         // Setup: SetUnrealizedVAT true, Post Sales Invoice and General Journal Line partially apply.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         DocumentNo := PostSalesDocument(SalesLine);
@@ -174,7 +174,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT Entry and VAT Book Entry, Post Sales Credit Memo and Fully apply.
 
         // Setup: SetUnrealizedVAT true, Post Sales Credit Memo and General Journal Line fully apply.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::"Credit Memo", '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         DocumentNo := PostSalesDocument(SalesLine);
@@ -197,7 +197,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT Entry and VAT Book Entry, Post Sales Credit Memo and Partial apply.
 
         // Setup: SetUnrealizedVAT true, Post Sales Credit Memo and General Journal Line partially apply.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::"Credit Memo", '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         DocumentNo := PostSalesDocument(SalesLine);
@@ -219,7 +219,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify error while posting Sales Invoice in closed VAT Period with Unrealized VAT.
 
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create Periodic VAT Settlement Entry and Sales Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreatePeriodicVATSettlementEntry;
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank for Payment Terms Code and Currency Code. False for Prices Including VAT.
@@ -247,7 +247,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify error while posting Purchase Invoice in closed VAT Period with Unrealized VAT.
 
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create Periodic VAT Settlement Entry and Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreatePeriodicVATSettlementEntry;
         CreatePurchaseInvoice(
@@ -276,7 +276,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify error while posting Journal with in closed VAT Period with Unrealized VAT.
 
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create Periodic VAT Settlement Entry and Gen. Journal Line.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreatePeriodicVATSettlementEntry;
         CreateGeneralJournalLine(
@@ -304,7 +304,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify error while reversing transaction in closed VAT Period with Unrealized VAT.
 
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Create and post Journal and Create Periodic VAT Settlement Entry.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer,
@@ -334,7 +334,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify error while posting application transaction in closed VAT Period with Unrealized VAT.
 
         // Setup: Set Unrealized VAT true, Unrealized VAT Type as Percentage, Post Sales Invoice and apply Payment to it.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         AppliesToDocNo := PostSalesDocument(SalesLine);
@@ -370,7 +370,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify error while posting unapplication transaction in closed VAT Period with Unrealized VAT.
 
         // Setup: Set UnrealizedVAT true, Unrealized VAT Type as Percentage, Post Sales Invoice, apply and unapply Payment to it.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, '', '', false);  // Using blank value for Payment Terms Code and Currency Code. False for Prices Including VAT.
         AppliesToDocNo := PostSalesDocument(SalesLine);
@@ -404,7 +404,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entry after applying Payment to one Installment of Purchase Invoice with LCY.
 
         // Setup: Set Unrealized VAT True on General Ledger Setup. Find and Update VAT Posting Setup. Post Purchase Invoice and Post Payment applied to One Installment of Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreatePurchaseInvoice(
           PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", FindPaymentTermsCode, '', PurchaseLine.Type::Item,
@@ -440,7 +440,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entry after applying Payment to one Installment of Purchase Invoice with FCY.
 
         // Setup: Set Unrealized VAT True on General Ledger Setup and Invoice Rounding False on Purchases Payables Setup. Find and Update VAT Posting Setup. Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         LibraryPurchase.SetInvoiceRounding(false);  // Set False for Invoice Rounding to avoid creating Rounding entry on Posting Invoice.
         CreatePurchaseInvoice(
@@ -477,7 +477,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entry after applying Payment to one Installment of Sales Invoice with FCY.
 
         // Setup: Set Unrealized VAT True on General Ledger Setup and Invoice Rounding False on Sales Receivables Setup. Find and Update VAT Posting Setup. Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         LibrarySales.SetInvoiceRounding(false);  // Set False for Invoice Rounding to avoid creating Rounding entry on Posting Invoice.
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, FindPaymentTermsCode,
@@ -515,7 +515,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entry after applying Payment to one Installment of Sales Invoice with LCY.
 
         // Setup: Set Unrealized VAT True on General Ledger Setup. Find and Update VAT Posting Setup. Post Sales Invoice and Post Payment applied to One Installment of Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateSalesDocument(SalesLine, VATPostingSetup, SalesLine."Document Type"::Invoice, FindPaymentTermsCode, '', false);  // Using blank value for Currency Code and False for Prices Including VAT.
         AppliesToDocNo := PostSalesDocument(SalesLine);
@@ -548,7 +548,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entry after applying Payment to one Installment of Service Invoice with FCY.
 
         // Setup: Set Unrealized VAT True on General Ledger Setup and Invoice Rounding False on Sales Receivables Setup. Find and Update VAT Posting Setup. Post Service Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         LibrarySales.SetInvoiceRounding(false);  // Set False for Invoice Rounding to avoid creating Rounding entry on Posting Invoice.
         CreateAndPostServiceInvoice(ServiceLine, VATPostingSetup, CreateCurrencyWithExchangeRate);
@@ -583,7 +583,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entry after applying Payment to one Installment of Service Invoice with LCY.
 
         // Setup: Set Unrealized VAT True on General Ledger Setup. Find and Update VAT Posting Setup. Post Service Invoice and Post Payment applied to One Installment of Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
         CreateAndPostServiceInvoice(ServiceLine, VATPostingSetup, '');  // Blank value used for Currency.
         DocumentNo :=
@@ -618,7 +618,7 @@ codeunit 144078 "ERM Extra VAT"
         // [FEATURE] [Reverse Charge VAT]
         // [SCENARIO 379762] "Document No." in VAT Entry schould be getting from "Reversal Sales VAT No." for purchase invoice
         // [SCENARIO 379762] posted from 2 lines in general journal with "VAT Calculation Type" = "Reverse Charge VAT"
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account = "GLA" with Reverse Charge VAT Posting Setup
         CreateGLAccountWithReverseChargeVATAndPurchasePostingType(GLAccount, VATPostingSetup);
@@ -629,7 +629,7 @@ codeunit 144078 "ERM Extra VAT"
         // [GIVEN] Gen. Journal Line for vendor with Amount = "-100"
         // [GIVEN] Balance Gen. Journal Line for G/L Account = "GLA" with Amount = "100", "VAT Calculation Type" = "Reverse Charge VAT"
         // [WHEN] Post Journal Lines
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         ExpectedDocumentNo := NoSeriesManagement.GetNextNo(PurchOperationNoSeries."Reverse Sales VAT No. Series", WorkDate, false);
         CreateAndPostMultiGenJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice,
           LibraryRandom.RandDec(1000, 2), GLAccount."No.", VendorNo);
@@ -654,7 +654,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         // [FEATURE] [Reverse Charge VAT]
         // [SCENARIO 379248] Document No. in VAT Entry should be getting from Reverse Sales VAT No. Series for purchase invoice posted from general journal if "VAT Calculation Type" = "Reverse Charge VAT".
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with Reverse Charge VAT Posting Setup.
         CreateGLAccountWithReverseChargeVATAndPurchasePostingType(GLAccount, VATPostingSetup);
@@ -688,7 +688,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         // [FEATURE] [Reverse Charge VAT]
         // [SCENARIO 379248] Document No. in VAT Entry should be getting from Default Purch. Operation Type for payment posted from general journal if "VAT Calculation Type" = "Reverse Charge VAT".
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account with Reverse Charge VAT Posting Setup.
         CreateGLAccountWithReverseChargeVATAndPurchasePostingType(GLAccount, VATPostingSetup);
@@ -714,7 +714,7 @@ codeunit 144078 "ERM Extra VAT"
     procedure PurchInvDeductiblePctRandomWithNondeductibleAcc()
     begin
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be split into two different accounts that are Reverse Charge VAT Account and Nondeductible VAT Account with Random Deductible Pct.
-        Initialize;
+        Initialize();
         PurchaseInvoiceWithDeductiblePct(
           LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandDecInRange(10, 50, 2));  // Using Random value.
     end;
@@ -724,7 +724,7 @@ codeunit 144078 "ERM Extra VAT"
     procedure PurchInvDeductiblePcthundredWithNondeductibleAcc()
     begin
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be split into two different accounts that are Reverse Charge VAT Account and Nondeductible VAT Account with 100 Deductible Pct.
-        Initialize;
+        Initialize();
         PurchaseInvoiceWithDeductiblePct(LibraryERM.CreateGLAccountWithSalesSetup, 100);  // Using 100 for Deductible Percent.
     end;
 
@@ -733,7 +733,7 @@ codeunit 144078 "ERM Extra VAT"
     procedure PurchInvDeductiblePctRandomWithoutNondeductibleAcc()
     begin
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be posted to the Account which is entered in the invoice when Nondeductible VAT Account =<blank> with Random Deductible Pct.
-        Initialize;
+        Initialize();
         PurchaseInvoiceWithDeductiblePct('', LibraryRandom.RandDecInRange(10, 50, 2));  // Using blank value for Nondeductible Account.
     end;
 
@@ -742,7 +742,7 @@ codeunit 144078 "ERM Extra VAT"
     procedure PurchInvDeductiblePcthundredWithoutNondeductibleAcc()
     begin
         // Verify that Reverse Charge VAT and Non-deductible reverse charge vat should be posted to the Account which is entered in the invoice when Nondeductible VAT Account =<blank> with 100 Deductible Pct.
-        Initialize;
+        Initialize();
         PurchaseInvoiceWithDeductiblePct('', 100);  // Using blank value for Nondeductible Account and 100 for Deductible Percent.
     end;
 
@@ -788,7 +788,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT Percentage, VAT Identifier and Deductible Percentage after posting Purchase Invoice of multiple line with different VAT Product Posting Group.
 
         // Setup: Update Unrealized VAT on General Ledger Setup. Create two VAT Posting Setup with different VAT Product Posting Group. Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         CreateUnrealVATPostingSetup(VATPostingSetup);
 
         CreateRelatedVATPostingSetup(VATPostingSetup2, VATPostingSetup);
@@ -818,7 +818,7 @@ codeunit 144078 "ERM Extra VAT"
         // when Unrealized VAT is turned on
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomUnrealVATPostingSetup(VATPostingSetup, 20);
         DocAmount := CreateSalesDocumentWithTwoLines(SalesLine, VATPostingSetup);
 
@@ -847,7 +847,7 @@ codeunit 144078 "ERM Extra VAT"
         // Credit memo applied to Invoice and Unrealized VAT Type = FIRST
 
         // Setup
-        Initialize;
+        Initialize();
         CreateVATPostingSetupWithVATType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::First);
         CustomerNo := LibrarySales.CreateCustomerWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
 
@@ -879,7 +879,7 @@ codeunit 144078 "ERM Extra VAT"
         // Verify VAT entries for sales invoice partially applied with Credit Memo
 
         // Setup:
-        Initialize;
+        Initialize();
         CreateCustomUnrealVATPostingSetup(VATPostingSetup, 20);
         CustNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group", '', '', false);
         LineAmount := LibraryRandom.RandDec(1000, 2);
@@ -905,7 +905,7 @@ codeunit 144078 "ERM Extra VAT"
         ReverseSalesDocNo: Code[20];
     begin
         // [SCENARIO] Verify Document Nos on VAT Entries for Purchase Prepayment with Reverse Charge VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare Purchase Prepayment Order with Reverse Charge VAT
         CreatePrepmtPurchOrder(PurchaseHeader);
@@ -928,7 +928,7 @@ codeunit 144078 "ERM Extra VAT"
         ReverseSalesDocNo: Code[20];
     begin
         // [SCENARIO] Verify Document Nos on VAT Entries for Next Purchase Prepayment with Reverse Charge VAT
-        Initialize;
+        Initialize();
 
         // [GIVEN] Prepare Purchase Prepayment Order with Reverse Charge VAT
         CreatePrepmtPurchOrder(PurchaseHeader);
@@ -954,8 +954,8 @@ codeunit 144078 "ERM Extra VAT"
         // [FEATURE] [UT] [UI] [VAT Posting Setup]
         // [SCENARIO] It should be possible to open VAT Posting Setup Card from VAT Posting Setup page
 
-        VATPostingSetup."VAT Bus. Posting Group" := LibraryUtility.GenerateGUID;
-        VATPostingSetup."VAT Prod. Posting Group" := LibraryUtility.GenerateGUID;
+        VATPostingSetup."VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
+        VATPostingSetup."VAT Prod. Posting Group" := LibraryUtility.GenerateGUID();
         VATPostingSetup."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type"::"Full VAT";
         VATPostingSetup.Insert();
 
@@ -983,7 +983,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         // [FEATURE] [Unrealized VAT] [Installment] [Sales]
         // [SCENARIO 380404] Several partial payments per each document occurrences for Sales Invoice with Unrealized VAT and several sales lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Posting Setup with VAT% = 20
         CreateUnrealVATPostingSetup(VATPostingSetup);
@@ -1049,7 +1049,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         // [FEATURE] [Unrealized VAT] [Installment] [Purchase]
         // [SCENARIO 380404] Several partial payments per each document occurrences for Purchase Invoice with Unrealized VAT and several purchase lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unrealized VAT Posting Setup with VAT% = 20
         CreateUnrealVATPostingSetup(VATPostingSetup);
@@ -1111,7 +1111,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         // [FEATURE] [Reverse Charge VAT] [Posting Preview] [UI]
         // [SCENARIO ] Stan can preview posted purchase invoice when Reverse Charge VAT and Reversal Series are involved
-        Initialize;
+        Initialize();
 
         LibraryPurchase.SetCalcInvDiscount(true);
 
@@ -1343,8 +1343,8 @@ codeunit 144078 "ERM Extra VAT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1807,7 +1807,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         PeriodicSettlementVATEntry.SetRange(
           "VAT Period", StrSubstNo(VATPeriodTxt, Date2DMY(WorkDate, 3), ConvertStr(Format(Date2DMY(WorkDate, 2), 2), ' ', '0')));  // Value Zero required for VAT Period.
-        PeriodicSettlementVATEntry.FindFirst;
+        PeriodicSettlementVATEntry.FindFirst();
         PeriodicSettlementVATEntry.Delete(true);
     end;
 
@@ -1816,7 +1816,7 @@ codeunit 144078 "ERM Extra VAT"
         GLRegister: Record "G/L Register";
     begin
         GLRegister.SetRange("Journal Batch Name", JournalBatchName);
-        GLRegister.FindFirst;
+        GLRegister.FindFirst();
         exit(GLRegister."No.");
     end;
 
@@ -1825,7 +1825,7 @@ codeunit 144078 "ERM Extra VAT"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.SetFilter("Payment Nos.", '>1');  // Payment Terms Code with multiple Payment Nos. is required for the tests.
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         exit(PaymentTerms.Code);
     end;
 
@@ -1878,7 +1878,7 @@ codeunit 144078 "ERM Extra VAT"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         exit(ServiceInvoiceHeader."No.");
     end;
 
@@ -2046,7 +2046,7 @@ codeunit 144078 "ERM Extra VAT"
         with PurchaseLine do begin
             SetRange("Document Type", PurchaseHeader."Document Type");
             SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst;
+            FindFirst();
             Validate("Prepayment %", PrepmtPct);
             Modify(true);
             exit("Prepmt. Line Amount" - "Prepmt. Amount Inv. Incl. VAT");
@@ -2129,7 +2129,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount2, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount2, GLEntry.TableCaption));
@@ -2185,7 +2185,7 @@ codeunit 144078 "ERM Extra VAT"
     local procedure VerifyVATEntryWithVATPostingSetup(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; Amount: Decimal; Amount2: Decimal)
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount2, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(AmountErr, VATEntry.FieldCaption(Base), Amount2, VATEntry.TableCaption));
@@ -2199,7 +2199,7 @@ codeunit 144078 "ERM Extra VAT"
         VATBookEntry: Record "VAT Book Entry";
     begin
         VATBookEntry.SetRange("Document No.", DocumentNo);
-        VATBookEntry.FindFirst;
+        VATBookEntry.FindFirst();
         VATBookEntry.CalcFields(Base);
         Assert.AreNearlyEqual(
           Amount, VATBookEntry.Base, LibraryERM.GetAmountRoundingPrecision,
@@ -2213,7 +2213,7 @@ codeunit 144078 "ERM Extra VAT"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         VATEntry.TestField("VAT %", VATPostingSetup."VAT %");
         VATEntry.TestField("VAT Identifier", VATPostingSetup."VAT Identifier");
         VATEntry.TestField("Deductible %", VATPostingSetup."Deductible %");
@@ -2230,7 +2230,7 @@ codeunit 144078 "ERM Extra VAT"
             repeat
                 Reset;
                 SetRange("Unrealized VAT Entry No.", VATEntryInvoice."Entry No.");
-                FindFirst;
+                FindFirst();
                 Assert.AreEqual(VATEntryInvoice."Unrealized Amount", Amount, StrSubstNo(VATFieldErr, FieldCaption(Amount)));
                 Assert.AreEqual(VATEntryInvoice."Unrealized Base", Base, StrSubstNo(VATFieldErr, FieldCaption(Base)));
             until VATEntryInvoice.Next = 0;
@@ -2280,7 +2280,7 @@ codeunit 144078 "ERM Extra VAT"
             SetRange("Customer No.", CustomerNo);
             SetRange("Document No.", DocumentNo);
             SetRange("Document Occurrence", DocumentOccurrenceNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount, "Remaining Amount");
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedRemAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
@@ -2295,7 +2295,7 @@ codeunit 144078 "ERM Extra VAT"
             SetRange("Vendor No.", VendorNo);
             SetRange("Document No.", DocumentNo);
             SetRange("Document Occurrence", DocumentOccurrenceNo);
-            FindFirst;
+            FindFirst();
             CalcFields(Amount, "Remaining Amount");
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
             Assert.AreEqual(ExpectedRemAmount, "Remaining Amount", FieldCaption("Remaining Amount"));

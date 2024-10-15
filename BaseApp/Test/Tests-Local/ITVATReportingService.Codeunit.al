@@ -107,7 +107,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine: Record "Service Line";
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -184,7 +184,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ContractAmount: Decimal;
         ServiceInvoiceNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -242,7 +242,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ContractAmount: Decimal;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -302,7 +302,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ContractAmount: Decimal;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -340,7 +340,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         Customer: Record Customer;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -445,7 +445,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         LineAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -509,7 +509,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         LineAmount: Decimal;
         DocumentNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         // Setup.
 
         SetupThresholdAmount(WorkDate);
@@ -658,7 +658,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
     begin
         // [Prices Including VAT] = No.
         // Line Amount > [Threshold Amount Excl. VAT.].
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -728,7 +728,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         TaxRepNo: Code[20];
         ExpectedTaxRepType: Option;
     begin
-        Initialize;
+        Initialize();
 
         // Create Customer.
         Customer.Get(CreateCustomer(false, Customer.Resident::"Non-Resident", false, false));
@@ -876,7 +876,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         RecordRef: RecordRef;
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -955,7 +955,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine: Record "Service Line";
         LineAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         SetupThresholdAmount(WorkDate);
@@ -977,7 +977,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
     local procedure Initialize()
     begin
         TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -1266,7 +1266,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceItem: Record "Service Item";
     begin
         ServiceItem.SetFilter("Customer No.", CustomerNo);
-        ServiceItem.FindFirst;
+        ServiceItem.FindFirst();
         exit(ServiceItem."No.");
     end;
 
@@ -1275,7 +1275,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VATTransactionReportAmount: Record "VAT Transaction Report Amount";
     begin
         VATTransactionReportAmount.SetFilter("Starting Date", '<=%1', StartingDate);
-        VATTransactionReportAmount.FindLast;
+        VATTransactionReportAmount.FindLast();
 
         if InclVAT then
             Amount := VATTransactionReportAmount."Threshold Amount Incl. VAT"
@@ -1288,7 +1288,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceDocumentRegister.SetRange("Source Document Type", SourceDocumentType);
         ServiceDocumentRegister.SetRange("Source Document No.", SourceDocumentNo);
         ServiceDocumentRegister.SetRange("Destination Document Type", DestinationDocumentType);
-        ServiceDocumentRegister.FindFirst;
+        ServiceDocumentRegister.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; SkipEmptyLine: Boolean)
@@ -1297,7 +1297,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.SetFilter("Document No.", DocumentNo);
         if SkipEmptyLine then
             ServiceLine.SetFilter("No.", '<>%1', ''); // Skip empty line.
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1407,13 +1407,13 @@ codeunit 144009 "IT - VAT Reporting - Service"
             DATABASE::"Sales Cr.Memo Line":
                 begin
                     SalesCrMemoLine.SetRange("Document No.", DocumentNo);
-                    SalesCrMemoLine.FindFirst;
+                    SalesCrMemoLine.FindFirst();
                     SalesCrMemoLine.TestField("Refers to Period", RefersToPeriod);
                 end;
             DATABASE::"Purch. Cr. Memo Line":
                 begin
                     PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-                    PurchCrMemoLine.FindFirst;
+                    PurchCrMemoLine.FindFirst();
                     PurchCrMemoLine.TestField("Refers to Period", RefersToPeriod);
                 end;
         end;

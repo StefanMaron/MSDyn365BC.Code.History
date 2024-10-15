@@ -60,7 +60,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestVendorAccountBillsList()
     begin
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         Commit();
@@ -72,7 +72,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestFiscalInventoryValuation()
     begin
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         Commit();
@@ -84,7 +84,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestDepreciationBook()
     begin
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         Commit();
@@ -97,7 +97,7 @@ codeunit 144005 "Report Layout - Local"
     var
         CompanyInformation: Record "Company Information";
     begin
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         LibraryVariableStorage.Enqueue(
@@ -114,7 +114,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestAnnualVATComm2010()
     begin
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         Commit();
@@ -126,7 +126,7 @@ codeunit 144005 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure TestAccountBookSheetPrint()
     begin
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         Commit();
@@ -142,7 +142,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::Invoice, false, 0);
 
@@ -166,7 +166,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Vendor Account Bills List]
         // [SCENARIO 375550] Report "Vendor Account Bills List" shows amounts correctly after Invoice and Payment partial apply
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Invoice with Amount = 1000; Payment applied to the Invoice with Amount = 300
         PmtAmount := VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::Invoice, true, 0.3);
@@ -199,7 +199,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::Invoice, true, 2);
 
@@ -219,7 +219,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::Invoice, true, 1);
 
@@ -239,7 +239,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::"Credit Memo", false, 0);
 
@@ -259,7 +259,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::"Credit Memo", true, 0.5);
 
@@ -279,7 +279,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::"Credit Memo", true, 2);
 
@@ -299,7 +299,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorAccountBillsListScenario(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::"Credit Memo", true, 1);
 
@@ -321,7 +321,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchases] [Application] [Bill List]
         // [SCENARION 361093] Payment applied to Invoice manually
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment applied to Invoice via Vendor Ledger Entry
         VendorAccountBillsListScenarioNonGLApplication(PurchaseDocNo, PaymentDocNo, PurchaseHeader."Document Type"::Invoice, true, 1);
@@ -351,12 +351,12 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchases] [Application] [Bill List]
         // [SCENARIO 363514] "Vendor Account Bills List" should show split payment after applied to two Invoices during posting of the Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "I1" with amount 100
         // [GIVEN] Posted Purchase Invoice "I2" with amount 200
         // [GIVEN] Posted Payment "P1" with amount 300 applied to "I1" and "I2" in a certain transaction
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PostPaymentAppliedToTwoPurchaseInvoices(VendorNo, PaymentNo, InvoiceNo, InvoiceAmount);
 
         // [WHEN] "Vendor Account Bills List" report exports entries
@@ -381,13 +381,13 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchases] [Application] [Bill List]
         // [SCENARIO 363514] "Vendor Account Bills List" should show split payment after applied to two Invoices where the Payment was an applying entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "I1" with amount 100
         // [GIVEN] Posted Purchase Invoice "I2" with amount 200
         // [GIVEN] Posted Payment "P1" with amount 300
         // [GIVEN] "P1" applied to "I1" and "I2"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PostTwoPurchaseInvoicesAndPayment(VendorNo, PaymentNo, InvoiceNo, InvoiceAmount);
         ApplyAndPostVendorDocuments(VendorNo, VendorLedgerEntry."Document Type"::Payment, PaymentNo, InvoiceNo);
 
@@ -415,13 +415,13 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchases] [Application] [Bill List]
         // [SCENARIO 363514] "Vendor Account Bills List" should show split payment after applied to two Invoices where the Invoice was an applying entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "I1" with amount 100
         // [GIVEN] Posted Purchase Invoice "I2" with amount 200
         // [GIVEN] Posted Payment "P1" with amount 300
         // [GIVEN] "I1" applied to "P1" and "I2"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PostTwoPurchaseInvoicesAndPayment(VendorNo, PaymentNo, InvoiceNo, InvoiceAmount);
         ApplyingDocumentNo := InvoiceNo[1];
         AppliedDocumentNo[1] := PaymentNo;
@@ -451,10 +451,10 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Application] [Bill List]
         // [SCENARIO 378469] "Vendor Account Bill List" should show correct subtotal Balance for invoice with partially applied payment Gen. Journal Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with amount 100
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         DocumentNo := PostPurchaseDocument(ApplyingAmount, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
         // [GIVEN] Posted Payment Gen. Journal Line partially applied to invoice with applied amount 35
@@ -485,10 +485,10 @@ codeunit 144005 "Report Layout - Local"
         // [FEATURE] [Purchase] [Application] [Bill List]
         // [SCENARIO 296925] Report "Customer Bills List" shows <zero> Total when Payment with higher Amount is applied to Sales Invoice
         // [SCENARIO 378837] "Vendor Account Bill List" should show correct subtotal Balance for invoice with partially applied payment Gen. Journal Line with Amount higher than applying
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with amount 100
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         DocumentNo := PostPurchaseDocument(ApplyingAmount, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
         // [GIVEN] Posted Payment Gen. Journal Line with amount 135 applied to the invoice
@@ -518,10 +518,10 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Application] [Bill List] [Credit Memo]
         // [SCENARIO 379566] "Vendor Account Bills List" should show correct total Balance with credit memo applied to invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice with amount = "X"
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         DocumentNo := PostPurchaseDocument(ApplyingAmount, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
         // [GIVEN] Posted Credit Memo with amount = "Y" and partially applied to the invoice
@@ -547,7 +547,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::Invoice, false, 0);
 
@@ -567,7 +567,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::Invoice, true, 0.5);
 
@@ -587,7 +587,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::Invoice, true, 2);
 
@@ -607,7 +607,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::Invoice, true, 1);
 
@@ -627,7 +627,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::"Credit Memo", false, 0);
 
@@ -647,7 +647,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::"Credit Memo", true, 0.5);
 
@@ -667,7 +667,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::"Credit Memo", true, 2);
 
@@ -687,7 +687,7 @@ codeunit 144005 "Report Layout - Local"
         SalesDocNo: Code[20];
         PaymentDocNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CustomerBillsListScenario(SalesDocNo, PaymentDocNo, SalesHeader."Document Type"::"Credit Memo", true, 1);
 
@@ -709,7 +709,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List]
         // [SCENARION 361353] Payment applied to Invoice manually
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment applied to Invoice via Customer Ledger Entry
         CustomerBillsListScenarioNonGLApplication(PurchaseDocNo, PaymentDocNo, SalesHeader."Document Type"::Invoice, true, 1);
@@ -739,12 +739,12 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List]
         // [SCENARIO 363514] "Customer Bills List" should show split payment after applied to two Invoices during posting of the Payment.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "I1" with amount 100
         // [GIVEN] Posted Sales Invoice "I2" with amount 200
         // [GIVEN] Posted Payment "P1" with amount 300 applied to "I1" and "I2" in a certain transaction
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         PostPaymentAppliedToTwoSalesInvoices(CustomerNo, PaymentNo, InvoiceNo, InvoiceAmount);
 
         // [WHEN] "Customer Account Bills List" report exports entries
@@ -769,13 +769,13 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List]
         // [SCENARIO 363514] "Customer Bills List" should show split payment after applied to two Invoices where the Payment was an applying entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "I1" with amount 100
         // [GIVEN] Posted Sales Invoice "I2" with amount 200
         // [GIVEN] Posted Payment "P1" with amount 300
         // [GIVEN] "P1" applied to "I1" and "I2"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         PostTwoSalesInvoicesAndPayment(CustomerNo, PaymentNo, InvoiceNo, InvoiceAmount);
         ApplyAndPostCustomerDocuments(
           CustomerNo, CustLedgerEntry."Document Type"::Payment, PaymentNo, InvoiceNo);
@@ -805,13 +805,13 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List]
         // [SCENARIO 363514] "Customer Bills List" should show split payment after applied to two Invoice where an Invoice was an applying entry.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice "I1" with amount 100
         // [GIVEN] Posted Sales Invoice "I2" with amount 200
         // [GIVEN] Posted Payment "P1" with amount 300
         // [GIVEN] "I1" applied to "P1" and "I2"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         PostTwoSalesInvoicesAndPayment(CustomerNo, PaymentNo, InvoiceNo, InvoiceAmount);
         ApplyingDocumentNo := InvoiceNo[1];
         AppliedDocumentNo[1] := PaymentNo;
@@ -841,10 +841,10 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List]
         // [SCENARIO 378469] "Customer Bills List" should show correct subtotal Balance for invoice with partially applied payment Gen. Journal Line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with amount 100
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         DocumentNo := PostSalesDocument(ApplyingAmount, SalesHeader."Document Type"::Invoice, CustomerNo);
 
         // [GIVEN] Posted Payment Gen. Journal Line partially applied to with applied amount 35
@@ -875,10 +875,10 @@ codeunit 144005 "Report Layout - Local"
         // [FEATURE] [Sales] [Application] [Bill List]
         // [SCENARIO 296925] Report "Customer Bills List" shows <zero> Total when Payment with higher Amount is applied to Sales Invoice
         // [SCENARIO 378837] "Customer Bills List" should show correct subtotal Balance for invoice with partially applied payment Gen. Journal Line with Amount is higher than applying amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice with amount 100
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         DocumentNo := PostSalesDocument(ApplyingAmount, SalesHeader."Document Type"::Invoice, CustomerNo);
 
         // [GIVEN] Posted Payment Gen. Journal Line with amount 135 applied to the invoice
@@ -908,10 +908,10 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List] [Credit Memo]
         // [SCENARIO 379566] "Customer Bills List" should show correct total Balance with credit memo applied to invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Invoice with amount = "X"
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         DocumentNo := PostSalesDocument(ApplyingAmount, SalesHeader."Document Type"::Invoice, CustomerNo);
 
         // [GIVEN] Posted Credit Memo with amount = "Y" and partially applied to the invoice
@@ -937,7 +937,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Depreciation Book]
         // [SCENARIO 252017] Dates on the Request Page for Depreciation Book report is set to the current year on initialization.
-        Initialize;
+        Initialize();
         UpdateSalesSetup;
 
         // [GIVEN] No saved options for Report 12119 "Depreciation Book".
@@ -968,7 +968,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Application] [Bill List] [Payment Terms]
         // [SCENARIO 296925] Vendor Accounts Bill List report when Purchase Invoice was posted with Payment Terms and partial Payment was applied
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitInvoicePaymentAmountsWithPmtRate(PmtRate, Days, AmountToPay, AmountToApply);
 
@@ -1022,7 +1022,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Application] [Bill List] [Payment Terms]
         // [SCENARIO 296925] Customer Bills List report when Sales Invoice was posted with Payment Terms and partial Payment was applied
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitInvoicePaymentAmountsWithPmtRate(PmtRate, Days, AmountToPay, AmountToApply);
 
@@ -1073,7 +1073,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Payments are applied to Several Invoices and total paid Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -1127,7 +1127,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Payments are applied to Several Invoices and total paid Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -1181,7 +1181,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Payments are applied to Several Invoices and total paid Amount is higher than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         PaidAmount[2] *= 2;
@@ -1236,7 +1236,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Invoices are applied to Several Payments and total paid Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -1290,7 +1290,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Invoices are applied to Several Payments and total paid Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -1344,7 +1344,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Invoices are applied to Several Payments and total paid Amount is higher than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         PaidAmount[2] *= 2;
@@ -1399,7 +1399,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Credit Memo are applied to Several Invoices and total returned Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -1455,7 +1455,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Credit Memo are applied to Several Invoices and total returned Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -1511,7 +1511,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Credit Memos are applied to Several Invoices and total returned Amount is higher than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         ReturnedAmount[2] *= 2;
@@ -1568,7 +1568,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Invoices are applied to Several Credit Memo and total returned Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -1623,7 +1623,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Invoices are applied to Several Credit Memo and total returned Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -1678,7 +1678,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Purchase] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Vendor Account Bills List report when Several Invoices are applied to Several Credit Memo and total returned Amount is higher then total invoiced Amount
-        Initialize;
+        Initialize();
         InitVendorTagsArray(VendorTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         ReturnedAmount[2] *= 2;
@@ -1734,7 +1734,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Payments are applied to Several Invoices and total paid Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -1788,7 +1788,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Payments are applied to Several Invoices and total paid Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -1842,7 +1842,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Payments are applied to Several Invoices and total paid Amount is higher than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         PaidAmount[2] *= 2;
@@ -1897,7 +1897,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Invoices are applied to Several Payments and total paid Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -1951,7 +1951,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Invoices are applied to Several Payments and total paid Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -2005,7 +2005,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Invoices are applied to Several Payments and total paid Amount is higher than invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, PaidAmount, AppliedAmount, 2);
         PaidAmount[2] *= 2;
@@ -2060,7 +2060,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Credit Memos are applied to Several Invoices and total returned Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -2116,7 +2116,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Credit Memos are applied to Several Invoices and total returned Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -2172,7 +2172,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Credit Memos are applied to Several Invoices and total returned Amount is higher than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         ReturnedAmount[2] *= 2;
@@ -2229,7 +2229,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Invoices are applied to Several Credit Memos and total returned Amount is less than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 4);
         RemainingAmount[1] := Amount[1] - AppliedAmount[1] - AppliedAmount[3];
@@ -2286,7 +2286,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Invoices are applied to Several Credit Memos and total returned Amount equals to total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         RemainingAmount[1] := 0;
@@ -2343,7 +2343,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         // [FEATURE] [Sales] [Invoice] [Credit Memo] [Application] [Bill List]
         // [SCENARIO 296925] Customer Bills List report when Several Invoices are applied to Several Credit Memos and total returned Amount is higher than total invoiced Amount
-        Initialize;
+        Initialize();
         InitCustomerTagsArray(CustomerTags);
         InitAmounts(Amount, ReturnedAmount, AppliedAmount, 2);
         ReturnedAmount[2] *= 2;
@@ -2404,8 +2404,8 @@ codeunit 144005 "Report Layout - Local"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -2465,7 +2465,7 @@ codeunit 144005 "Report Layout - Local"
         VendorNo: Code[20];
         Amount: Decimal;
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PurchaseDocNo := PostPurchaseDocument(Amount, DocumentType, VendorNo);
 
         case DocumentType of
@@ -2503,7 +2503,7 @@ codeunit 144005 "Report Layout - Local"
         VendorNo: Code[20];
         Amount: Decimal;
     begin
-        VendorNo := LibraryPurchase.CreateVendorNo;
+        VendorNo := LibraryPurchase.CreateVendorNo();
         PurchaseDocNo := PostPurchaseDocument(Amount, DocumentType, VendorNo);
 
         case DocumentType of
@@ -2540,7 +2540,7 @@ codeunit 144005 "Report Layout - Local"
         CustomerNo: Code[20];
         Amount: Decimal;
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         SalesDocNo := PostSalesDocument(Amount, DocumentType, CustomerNo);
 
         case DocumentType of
@@ -2576,7 +2576,7 @@ codeunit 144005 "Report Layout - Local"
         CustomerNo: Code[20];
         Amount: Decimal;
     begin
-        CustomerNo := LibrarySales.CreateCustomerNo;
+        CustomerNo := LibrarySales.CreateCustomerNo();
         SalesDocNo := PostSalesDocument(Amount, DocumentType, CustomerNo);
 
         case DocumentType of
@@ -3080,7 +3080,7 @@ codeunit 144005 "Report Layout - Local"
         Vendor.SetRange("No.", VendorNo);
         VendorAccountBillsList.SetTableView(Vendor);
         VendorAccountBillsList.UseRequestPage(true);
-        VendorAccountBillsList.Run;
+        VendorAccountBillsList.Run();
     end;
 
     local procedure RunCustomerBillsListReport(CustomerNo: Code[20])
@@ -3091,7 +3091,7 @@ codeunit 144005 "Report Layout - Local"
         Customer.SetRange("No.", CustomerNo);
         CustomerBillsList.SetTableView(Customer);
         CustomerBillsList.UseRequestPage(true);
-        CustomerBillsList.Run;
+        CustomerBillsList.Run();
     end;
 
     local procedure SetAppliesToIDCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; AmountToApply: Decimal)
@@ -3308,7 +3308,7 @@ codeunit 144005 "Report Layout - Local"
     var
         RecDepreciationBook: Record "Depreciation Book";
     begin
-        RecDepreciationBook.FindFirst;
+        RecDepreciationBook.FindFirst();
         DepreciationBook.DepreciationBook.SetValue(RecDepreciationBook.Code);
         DepreciationBook.StartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
         DepreciationBook.EndingDate.SetValue(CalcDate('<+2Y>', WorkDate));
@@ -3334,7 +3334,7 @@ codeunit 144005 "Report Layout - Local"
     begin
         LibraryVariableStorage.Dequeue(RegisterCompany);
         LibraryVariableStorage.Dequeue(FiscalCode);
-        VATRegister.FindFirst;
+        VATRegister.FindFirst();
         VATRegisterPrint.VATRegister.SetValue(VATRegister.Code);
         VATRegisterPrint.PeriodStartingDate.SetValue(CalcDate('<-2Y>', WorkDate));
         VATRegisterPrint.PeriodEndingDate.SetValue(CalcDate('<+1Y>', WorkDate));
@@ -3350,9 +3350,9 @@ codeunit 144005 "Report Layout - Local"
         VATStatementTemplate: Record "VAT Statement Template";
         VATStatementName: Record "VAT Statement Name";
     begin
-        VATStatementTemplate.FindLast;
+        VATStatementTemplate.FindLast();
         AnnualVATComm2010.StatementTemplate.SetValue(VATStatementTemplate.Name);
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         AnnualVATComm2010.StatementName.SetValue(VATStatementName.Name);
         AnnualVATComm2010.SeparateLedger.SetValue(true);
         AnnualVATComm2010.GroupSettlement.SetValue(true);

@@ -48,6 +48,11 @@ table 291 "Shipping Agent"
             ELSE
             IF ("Shipping Agent Type" = CONST(Contact)) Contact."No." WHERE(Type = FILTER(Company));
         }
+        field(720; "Coupled to CRM"; Boolean)
+        {
+            Caption = 'Coupled to Dataverse';
+            Editable = false;
+        }
     }
 
     keys

@@ -470,6 +470,8 @@ page 5076 "Interaction Log Entries"
 
     var
         InteractionLogEntry: Record "Interaction Log Entry";
+
+    protected var
         [InDataSet]
         ShowEnable: Boolean;
         ShowCreateOpportunity: Boolean;

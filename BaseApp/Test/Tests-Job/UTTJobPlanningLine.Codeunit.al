@@ -44,7 +44,7 @@ codeunit 136353 "UT T Job Planning Line"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
 
         with JobPlanningLine do begin
@@ -93,7 +93,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobUsageLink: Record "Job Usage Link";
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
 
         // Validate that a Job Planning Line can be deleted as long as no usage link exists.
@@ -119,7 +119,7 @@ codeunit 136353 "UT T Job Planning Line"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
 
         // Verify that Usage Link is set to TRUE for Job Planning Lines of Line Type "Schedule" and Jobs with "Apply Usage Link" enabled.
@@ -144,7 +144,7 @@ codeunit 136353 "UT T Job Planning Line"
     var
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
 
         // Verify that Usage Link is not set on Job Planning Lines of Line Type "Schedule" if the Jobs "Apply Usage Link" is disabled.
@@ -161,7 +161,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
 
         // Verify that Quantity cannot be set to less than Quantity Posted.
@@ -184,7 +184,7 @@ codeunit 136353 "UT T Job Planning Line"
         QtyToPost: Decimal;
         QtyDelta: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
 
         with JobPlanningLine do begin
@@ -227,7 +227,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
 
         with JobPlanningLine do begin
@@ -261,7 +261,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
 
         with JobPlanningLine do begin
@@ -305,7 +305,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLineInvoice: Record "Job Planning Line Invoice";
         JobPlanningLine: Record "Job Planning Line";
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, false);
 
         with JobPlanningLine do begin
@@ -340,7 +340,7 @@ codeunit 136353 "UT T Job Planning Line"
         LineAmountToPost: Decimal;
         LineAmountToPostLCY: Decimal;
     begin
-        Initialize;
+        Initialize();
         CreateJobPlanningLine(JobPlanningLine, true);
 
         // Post usage using function Use().
@@ -392,7 +392,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Order Promising] [Location Mandatory]
         // [SCENARIO 375033] If Location is set as mandatory, then it should be possible to create Order Promising from Job Planning Line with specified Location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup, where "Location Mondatory" is Yes
         LibraryInventory.SetLocationMandatory(true);
@@ -417,7 +417,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Order Promising] [Location Mandatory]
         // [SCENARIO 375033] If Location is set as mandatory, then it should not be possible to create Order Promising from Job Planning Line without specified Location
-        Initialize;
+        Initialize();
 
         // [GIVEN] Inventory Setup, where "Location Mondatory" is Yes
         LibraryInventory.SetLocationMandatory(true);
@@ -445,7 +445,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 375593] Job Planning Line can be created through UI page with "Line Type"="Both Schedule and Billable" in case of "Apply Usage Link"=TRUE and foreign currency
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job with "Apply Usage Link"=TRUE, "Currency Code"=USD. Create Job Task.
         CreateJobAndJobTask(Job, JobTask, true, CreateCurrency);
@@ -475,7 +475,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Resouce]
         // [SCENARIO 375530] User is not allowed to remove resource if there are one more job planning lines associated
 
-        Initialize;
+        Initialize();
         // [GIVEN] Resource "X"
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         LibraryResource.CreateResource(Resource, VATPostingSetup."VAT Bus. Posting Group");
@@ -504,7 +504,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [SCENARIO 380580] It is not possible to remove Job Planning Line with Type = "Text" if this line was transfered to Sales Invoice
 
-        Initialize;
+        Initialize();
         CreateJobAndJobTask(Job, JobTask, false, '');
         CreateSimpleJobPlanningLine(JobPlanningLine, JobTask);
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Text);
@@ -530,7 +530,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Discount] [Line Discount]
         // [SCENARIO 380764] "Line Discount %" of Job Planning Line has value when "Allow Line Disc." in Customer Posting Group is defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Task with Customer "C"
         CreateJobAndJobTask(Job, JobTask, false, '');
@@ -565,7 +565,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Discount] [Line Discount]
         // [SCENARIO 380764] "Line Discount %" of Job Planning Line is zero when "Allow Line Disc." in Customer Posting Group is not defined
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Task with Customer "C"
         CreateJobAndJobTask(Job, JobTask, false, '');
@@ -599,7 +599,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381083] Filter for "Job No." is set changeless when "Job Planning Lines" page opened from Job Task Lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
         // [GIVEN] Job Planning Line "JPL", where "Job No." = "J", "Job Task No." = "JT"
@@ -665,7 +665,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381083] Filter for "Job No." is set changeless when Drill Down on Job Task Lines Statistics page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
         // [GIVEN] Job Planning Line "JPL", where "Job No." = "J", "Job Task No." = "JT"
@@ -703,7 +703,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 381083] Filter for "Job No." is set changeless when Drill Down on Job Card Statistics page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J", Job Task "JT", where "Job No." = "J"
         // [GIVEN] Job Planning Line "JPL", where "Job No." = "J", "Job Task No." = "JT"
@@ -739,7 +739,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Job Details Billable Price factbox fields have correct values of price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J" and Job Planning Lines any types and Line types for this job
         CreateJobPlanningLinesWithMultipleTypesAndLineTypes(Job, BillableArrAmount);
@@ -763,7 +763,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Correct Billable Resource Job Planning Lines are shown when DrillDown on Job Details Billable Price "Resource" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Planning Lines any types and Line types for this job
         CreateJobPlanningLinesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -789,7 +789,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Correct Billable Item Job Planning Lines are shown when DrillDown on Job Details Billable Price "Item" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Planning Lines any types and Line types for this job
         CreateJobPlanningLinesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -815,7 +815,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Correct Billable GLAccount Job Planning Lines are shown when DrillDown on Job Details Billable Price "G/L Account" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Planning Lines any types and Line types for this job
         CreateJobPlanningLinesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -841,7 +841,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] All Billable Job Planning Lines are shown when DrillDown on Job Details Billable Price "Total" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Planning Lines any types and Line types for this job
         CreateJobPlanningLinesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -866,7 +866,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Job Details Invoiced Price factbox fields have correct values of price
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job "J" and Job Planning Lines any types and Line types for this job
         CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(Job, InvoiceArrAmount);
@@ -890,7 +890,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Correct Sales Resource Job Ledger Entries are shown when DrillDown on Job Details Invoiced Price "Resource" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Ledger Entries any types and Line types for this job
         CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -916,7 +916,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Correct Invoiced Item Job Ledger Entries are shown when DrillDown on Job Details Invoiced Price "Item" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Ledger Entries any types and Line types for this job
         CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -942,7 +942,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] Correct Invoiced GLAccount Job Ledger Entries are shown when DrillDown on Job Details Invoiced Price "G/L Account" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Ledger Entries any types and Line types for this job
         CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -968,7 +968,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 203577] All Invoiced Job Ledger Entries are shown when DrillDown on Job Details Invoiced Price "Total" factbox field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job and Job Ledger Entries any types and Line types for this job
         CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(Job, ArrAmount);
@@ -995,7 +995,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [SCENARIO 206657] "Job Planning Lines" page opens with filter "Job Task" from "Job Task Lines" subpage
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Task "X" with one Job Planning Line
         LibraryJob.CreateJob(Job);
@@ -1028,13 +1028,13 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Item Variant]
         // [SCENARIO 210300] Item Variant description should be copied to Job Planning Line description if Variant Code is not blank.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item Variant "X" with Description = "D1" and "Description 2" = "D2".
         with ItemVariant do begin
             LibraryInventory.CreateItemVariant(ItemVariant, LibraryInventory.CreateItemNo);
-            Validate(Description, LibraryUtility.GenerateGUID);
-            Validate("Description 2", LibraryUtility.GenerateGUID);
+            Validate(Description, LibraryUtility.GenerateGUID());
+            Validate("Description 2", LibraryUtility.GenerateGUID());
             Modify(true);
         end;
 
@@ -1069,7 +1069,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Discount] [Line Discount] [Item Variant]
         // [SCENARIO 212422] "Line Discount %" of Job Planning Line is zero when "Allow Line Disc." is No in Sales Price for "All Customers", Item with Variant and Customer has "Line Discount" from Customer Discount Group
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Discount Group "CUSTDISC" assigned to Customer "C"
         LibraryERM.CreateCustomerDiscountGroup(CustomerDiscountGroup);
@@ -1127,7 +1127,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Resource]
         // [SCENARIO 271174] "Gen. Prod. Posting Group" is mandatory when validate Resource in Job Planning Line
 
-        Initialize;
+        Initialize();
         LibraryResource.CreateResource(Resource, '');
         Resource.Validate("Gen. Prod. Posting Group", '');
         Resource.Modify(true);
@@ -1149,7 +1149,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [Item]
         // [SCENARIO 271174] "Gen. Prod. Posting Group" is mandatory when validate Item in Job Planning Line
 
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         Item.Validate("Gen. Prod. Posting Group", '');
         Item.Modify(true);
@@ -1171,7 +1171,7 @@ codeunit 136353 "UT T Job Planning Line"
         // [FEATURE] [G/L Account]
         // [SCENARIO 271174] "Gen. Prod. Posting Group" is mandatory when validate G/L Account in Job Planning Line
 
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount.Validate("Gen. Prod. Posting Group", '');
         GLAccount.Modify(true);
@@ -1221,11 +1221,11 @@ codeunit 136353 "UT T Job Planning Line"
         JobTransferLine: Codeunit "Job Transfer Line";
     begin
         // [SCENARIO 319491] Function FromPlanningLineToJnlLine assigns Source Code to resulting Job Journal Line from Job Journal Template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Job Journal Template with "Source Code" = "S".
         LibraryJob.CreateJobJournalTemplate(JobJournalTemplate);
-        JobJournalTemplate."Source Code" := LibraryUtility.GenerateGUID;
+        JobJournalTemplate."Source Code" := LibraryUtility.GenerateGUID();
         JobJournalTemplate.Modify();
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
 
@@ -1249,7 +1249,7 @@ codeunit 136353 "UT T Job Planning Line"
         JobPlanningLine: Record "Job Planning Line";
         StandardText: Record "Standard Text";
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] A job planning line
         CreateJobPlanningLine(JobPlanningLine, false);
@@ -1390,7 +1390,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Job Planning Line - Rounding Precision]
         // [SCENARIO] Error is thrown when rounding precision causes the base quantity to be rounded to 0.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1434,7 +1434,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Job Planning Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1477,7 +1477,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Job Planning Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the default rounding precision when rounding precision is not specified.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         NonBaseQtyPerUOM := LibraryRandom.RandIntInRange(2, 10);
@@ -1521,7 +1521,7 @@ codeunit 136353 "UT T Job Planning Line"
     begin
         // [FEATURE] [Job Planning Line - Rounding Precision]
         // [SCENARIO] Quantity (Base) is rounded with the specified rounding precision.
-        Initialize;
+        Initialize();
 
         // [GIVEN] An item with 2 unit of measures and qty. rounding precision on the base item unit of measure set.
         QtyRoundingPrecision := Round(1 / LibraryRandom.RandIntInRange(2, 10), 0.00001);
@@ -1764,53 +1764,55 @@ codeunit 136353 "UT T Job Planning Line"
         JobCard.Close();
     end;
 
-    [Test]
-    procedure JobPlanningLineFindJTPriceForGLAccountNotUpdateUnitPrice()
-    var
-        JobPlanningLine: Record "Job Planning Line";
-        JobTask: Record "Job Task";
-        Job: Record Job;
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-        UnitCost: Decimal;
-    begin
-        // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice do not update "Job Planning Line"."Unit Price" if "Job G/L Account Price" is not found
-        Initialize();
+#if not CLEAN20
+        [Test]
+        procedure JobPlanningLineFindJTPriceForGLAccountNotUpdateUnitPrice()
+        var
+            JobPlanningLine: Record "Job Planning Line";
+            JobTask: Record "Job Task";
+            Job: Record Job;
+            SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+            UnitCost: Decimal;
+        begin
+            // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice do not update "Job Planning Line"."Unit Price" if "Job G/L Account Price" is not found
+            Initialize();
 
-        LibraryJob.CreateJob(Job);
-        LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
-            JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
-        UnitCost := JobPlanningLine."Unit Cost";
+            LibraryJob.CreateJob(Job);
+            LibraryJob.CreateJobTask(Job, JobTask);
+            LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+                JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+            UnitCost := JobPlanningLine."Unit Cost";
 
-        SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
+            SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
 
-        JobPlanningLine.TestField("Unit Cost", UnitCost);
-    end;
+            JobPlanningLine.TestField("Unit Cost", UnitCost);
+        end;
 
-    [Test]
-    procedure JobPlanningLineFindJTPriceForGLAccountUpdateUnitPrice()
-    var
-        JobPlanningLine: Record "Job Planning Line";
-        JobTask: Record "Job Task";
-        Job: Record Job;
-        JobGLAccountPrice: Record "Job G/L Account Price";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
-        UnitCost: Decimal;
-    begin
-        // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice update "Job Planning Line"."Unit Price"
-        Initialize();
+        [Test]
+        procedure JobPlanningLineFindJTPriceForGLAccountUpdateUnitPrice()
+        var
+            JobPlanningLine: Record "Job Planning Line";
+            JobTask: Record "Job Task";
+            Job: Record Job;
+            JobGLAccountPrice: Record "Job G/L Account Price";
+            SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+            UnitCost: Decimal;
+        begin
+            // [SCENARIO 408052] "Sales Price Calc. Mgt".JobPlanningLineFindJTPrice update "Job Planning Line"."Unit Price"
+            Initialize();
 
-        LibraryJob.CreateJob(Job);
-        LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
-            JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
-        CreateJobGLAccPrice(JobGLAccountPrice, Job."No.", '', JobPlanningLine."No.");
-        UnitCost := JobGLAccountPrice."Unit Cost";
+            LibraryJob.CreateJob(Job);
+            LibraryJob.CreateJobTask(Job, JobTask);
+            LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget,
+                JobPlanningLine.Type::"G/L Account", JobTask, JobPlanningLine);
+            CreateJobGLAccPrice(JobGLAccountPrice, Job."No.", '', JobPlanningLine."No.");
+            UnitCost := JobGLAccountPrice."Unit Cost";
 
-        SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
+            SalesPriceCalcMgt.JobPlanningLineFindJTPrice(JobPlanningLine);
 
-        JobPlanningLine.TestField("Unit Cost", UnitCost);
-    end;
+            JobPlanningLine.TestField("Unit Cost", UnitCost);
+        end;
+#endif
 
     [Test]
     procedure PlanningDateOnInitJobPlanningLine()
@@ -1854,14 +1856,14 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT T Job Planning Line");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job Planning Line");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
 
@@ -2022,16 +2024,17 @@ codeunit 136353 "UT T Job Planning Line"
         ArrAmount[9] := JobPlanningLine."Line Amount";
     end;
 
-    local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
-    begin
-        LibraryJob.CreateJobGLAccountPrice(
-            JobGLAccountPrice, JobNo, JobTaskNo, GLAccountNo, '');
-        JobGLAccountPrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
-        JobGLAccountPrice."Line Discount %" := LibraryRandom.RandIntInRange(1, 10);
-        JobGLAccountPrice."Unit Cost" := LibraryRandom.RandIntInRange(1, 10);
-        JobGLAccountPrice.Modify();
-    end;
-
+#if not CLEAN20
+        local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; JobTaskNo: Code[20]; GLAccountNo: Code[20])
+        begin
+            LibraryJob.CreateJobGLAccountPrice(
+                JobGLAccountPrice, JobNo, JobTaskNo, GLAccountNo, '');
+            JobGLAccountPrice."Unit Price" := LibraryRandom.RandIntInRange(1, 10);
+            JobGLAccountPrice."Line Discount %" := LibraryRandom.RandIntInRange(1, 10);
+            JobGLAccountPrice."Unit Cost" := LibraryRandom.RandIntInRange(1, 10);
+            JobGLAccountPrice.Modify();
+        end;
+#endif
     local procedure CreateJobLedgerEntriesWithMultipleTypesAndLineTypes(var Job: Record Job; var ArrAmount: array[12] of Decimal)
     var
         JobTask: Record "Job Task";

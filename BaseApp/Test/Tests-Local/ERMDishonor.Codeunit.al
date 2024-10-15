@@ -76,7 +76,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Cust. Ledger Entries after Posting Cust. Ledger Application with Set Applies to Id.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBill(TempSalesLine);
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -107,7 +107,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Payment Cust. Ledger Entry after Unapplying Dishonored Entry Totally.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored, Apply Dishonered Entry Post Application after Set Applies to Id.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBill(TempSalesLine);
         DocumentNo2 := ApplyAndPostGeneralJournalLine(
             TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -143,7 +143,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Payment Cust. Ledger Entry after Unapplying Dishonored Entry Partially.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored, Apply Dishonered Entries partially and Post Application after Set Applies to Id.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBill(TempSalesLine);
         DocumentNo2 := ApplyAndPostGeneralJournalLine(
             TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount" / 2, GenJournalLine."Document Type"::Dishonored);  // Apply Partial Amount to Dishonred Entry.
@@ -174,7 +174,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Payment Cust. Ledger Entry after applying Dishonored to Payment Entry.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBill(TempSalesLine);
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -214,7 +214,7 @@ codeunit 144133 "ERM Dishonor"
         DocumentNo: Code[20];
     begin
         // Setup: Create and Post Sales Invoice. Run Issue Bank Receipt Report, Create and Post Customer Bill.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBill(TempSalesLine);
 
         // Exercise: Unapply Cust. Ledger Entry of Document Type Dishonored.
@@ -244,7 +244,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Report - Closing Bank Receipts.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Create and Post Customer Bill.
-        Initialize;
+        Initialize();
         CreateAndPostCustomerBill(TempSalesLine);
         LibraryVariableStorage.Enqueue(TempSalesLine."Sell-to Customer No.");  // Enqueue CustomerNo. on ClosingBankReceiptRequestPageHandler.
 
@@ -265,7 +265,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify Avg. Collection Period Days on Customer Entry Statistics Page after applying Posted Entries with Application Date.
 
         // Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
 
         // Exercise: Apply Posted Entries with Application Date.
@@ -286,7 +286,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Report - Customer Bills List.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored and Payment Entries.
-        Initialize;
+        Initialize();
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -315,7 +315,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify error message on Report - Customer Bills List when Ending Date is blank.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored and Payment Entries.
-        Initialize;
+        Initialize();
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -340,7 +340,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify error message on Report - Customer Bills List when Bank Receipts Risk Period on Sales & Receivable Setup is blank.
 
         // Setup: Update Bank Receipts Risk Period on Sales & Receivable Setup, Create and Post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored Entry.
-        Initialize;
+        Initialize();
         SalesReceivablesSetup.Get();
         UpdateSalesAndReceivableSetup('');
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
@@ -370,7 +370,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Cust. Ledger Entry after applying Cust Bill to Dishonored Entry.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Create and Post Customer Bill.
-        Initialize;
+        Initialize();
         CreateAndPostCustomerBill(TempSalesLine);
 
         // Exercise: Apply Cust Bill to Dishonored Entry.
@@ -396,7 +396,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify values on the Payment Cust. Ledger Entry after applying Cust Bill to Payment Entry.
 
         // Setup: Create and Post Sales Invoice, Run Issue Bank Receipt Report, Create and Post Customer Bill and Apply Customer Bill to Dishonored.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBill(TempSalesLine);
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -423,7 +423,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify Customer Ledger Entry when Sales Invoice applied with multiple Document Types.
 
         // Setup: Create and post Sales Invoice, Run Issue Bank Receipt Report, Apply Customer Bill to Dishonored Entry.
-        Initialize;
+        Initialize();
         IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, FindPaymentTermsCode);
         ApplyAndPostGeneralJournalLine(
           TempSalesLine."Sell-to Customer No.", TempSalesLine."Line Amount", GenJournalLine."Document Type"::Dishonored);
@@ -451,7 +451,7 @@ codeunit 144133 "ERM Dishonor"
         // Test to verify Vendor Ledger Entry when Purchase Invoice applied with multiple Document Types.
 
         // Setup: Post Purchase Invoice after posting Vendor Bill, Unapply and Apply Vendor Bill to Dishonored Entry.
-        Initialize;
+        Initialize();
         DocumentNo := PostVendorBillAfterPostingPurchaseInvoice(TempPurchaseLine);
         DocumentNo2 := UnApplyVendorLedgerEntry(TempPurchaseLine."Buy-from Vendor No.");
         CreateAndPostCashReceiptJournal(
@@ -479,7 +479,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         // [FEATURE] [Apply]
         // [SCENARIO 124025] HandleBill function in "Gen. Jnl.-Post Line" for application
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Payment and Invoice entries
         MockCustLedgerEntryAndDtldCustLedgEntry(ApplyingCustLedgEntry, false);
@@ -506,7 +506,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         // [FEATURE] [UnApply]
         // [SCENARIO 124025] HandleBill function in "Gen. Jnl.-Post Line" for unapplication
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Payment and Invoice entries
         MockCustLedgerEntryAndDtldCustLedgEntry(AppliedCustLedgEntry, true);
@@ -524,7 +524,7 @@ codeunit 144133 "ERM Dishonor"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
@@ -591,7 +591,7 @@ codeunit 144133 "ERM Dishonor"
         // Find Bank Account No for the Payment Method and Create Customer Bill.
         DocumentNo := IssueBankReceiptAfterPostingSalesInvoice(TempSalesLine, '');  // Payment Terms Code as blank.
         BillPostingGroup.SetRange("Payment Method", FindPaymentMethod);
-        BillPostingGroup.FindFirst;
+        BillPostingGroup.FindFirst();
         LibrarySales.CreateCustomerBillHeader(
           CustomerBillHeader, BillPostingGroup."No.", BillPostingGroup."Payment Method", CustomerBillHeader.Type::"Bills For Collection");
         RunSuggestCustomerBill(CustomerBillHeader, TempSalesLine."Sell-to Customer No.");
@@ -713,7 +713,7 @@ codeunit 144133 "ERM Dishonor"
         BillPostingGroup: Record "Bill Posting Group";
     begin
         BillPostingGroup.SetRange("No.", No);
-        BillPostingGroup.FindFirst;
+        BillPostingGroup.FindFirst();
         LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
         VendorBillHeader.Validate("Bank Account No.", BillPostingGroup."No.");
         VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
@@ -733,7 +733,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         Bill.SetRange("Allow Issue", true);
         Bill.SetRange("Bank Receipt", true);
-        Bill.FindFirst;
+        Bill.FindFirst();
         Bill.Validate("List No.", LibraryERM.CreateNoSeriesSalesCode);
         Bill.Validate("Vendor Bill List", Bill."List No.");
         Bill.Validate("Vendor Bill No.", Bill."List No.");
@@ -745,7 +745,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindPaymentMethod(): Code[10]
@@ -762,7 +762,7 @@ codeunit 144133 "ERM Dishonor"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.SetFilter("Payment Nos.", '>%1', 1);  // Payment Term Code with multiple Payments is required.
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         exit(PaymentTerms.Code);
     end;
 
@@ -790,7 +790,7 @@ codeunit 144133 "ERM Dishonor"
         IssuingCustomerBill.SetTableView(CustLedgerEntry);
         IssuingCustomerBill.SetPostingDescription(CustomerNo);
         IssuingCustomerBill.UseRequestPage(false);
-        IssuingCustomerBill.Run;
+        IssuingCustomerBill.Run();
     end;
 
     local procedure RunSuggestCustomerBill(CustomerBillHeader: Record "Customer Bill Header"; CustomerNo: Code[20])
@@ -803,7 +803,7 @@ codeunit 144133 "ERM Dishonor"
         SuggestCustomerBills.InitValues(CustomerBillHeader, true);
         SuggestCustomerBills.SetTableView(CustLedgerEntry);
         SuggestCustomerBills.UseRequestPage(false);
-        SuggestCustomerBills.Run;
+        SuggestCustomerBills.Run();
     end;
 
     local procedure RunSuggestVendorBills(VendorBillHeader: Record "Vendor Bill Header"; VendorNo: Code[20])
@@ -816,7 +816,7 @@ codeunit 144133 "ERM Dishonor"
         SuggestVendorBills.InitValues(VendorBillHeader);
         SuggestVendorBills.SetTableView(VendorLedgerEntry);
         SuggestVendorBills.UseRequestPage(false);
-        SuggestVendorBills.Run;
+        SuggestVendorBills.Run();
     end;
 
     local procedure PostCustomerBill(CustomerBillHeader: Record "Customer Bill Header")
@@ -835,7 +835,7 @@ codeunit 144133 "ERM Dishonor"
         CustLedgerEntry.CalcFields("Remaining Amount");
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Remaining Amount");
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry2, CustLedgerEntry2."Document Type"::Invoice, DocumentNo);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
         CustLedgerEntry2.CalcFields("Remaining Amount");
         CustLedgerEntry2.Validate("Amount to Apply", CustLedgerEntry2."Remaining Amount");
         CustLedgerEntry2.Modify(true);
@@ -886,7 +886,7 @@ codeunit 144133 "ERM Dishonor"
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Payment);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         DocumentNo := VendorLedgerEntry."Document No.";
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
@@ -914,7 +914,7 @@ codeunit 144133 "ERM Dishonor"
             "Document No." :=
               LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
             "Document Occurrence" := LibraryRandom.RandInt(10);
-            "Customer No." := LibrarySales.CreateCustomerNo;
+            "Customer No." := LibrarySales.CreateCustomerNo();
             Open := true;
             Insert;
         end;
@@ -1067,7 +1067,7 @@ codeunit 144133 "ERM Dishonor"
             SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
             SetRange("Cust. Ledger Entry No.", EntryNo);
             SetRange("Entry Type", "Entry Type"::"Initial Entry");
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(BankReceiptIssued, "Bank Receipt Issued", WrongValueInDtldCustLedgerEntryErr);
         end;
     end;

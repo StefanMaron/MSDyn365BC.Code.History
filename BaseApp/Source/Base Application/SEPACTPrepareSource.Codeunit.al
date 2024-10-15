@@ -17,7 +17,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        if FromGenJnlLine.FindSet then begin
+        if FromGenJnlLine.FindSet() then begin
             GenJnlBatch.Get(FromGenJnlLine."Journal Template Name", FromGenJnlLine."Journal Batch Name");
 
             repeat
@@ -51,7 +51,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
 
         VendorBillLine.SetRange("Cumulative Transfers", true);
-        if VendorBillLine.FindSet then begin
+        if VendorBillLine.FindSet() then begin
             CumulativeAmount := 0;
             CumulativeCnt := 0;
             PrevVendorBillLine := VendorBillLine;
@@ -71,7 +71,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
         end;
 
         VendorBillLine.SetRange("Cumulative Transfers", false);
-        if VendorBillLine.FindSet then
+        if VendorBillLine.FindSet() then
             repeat
                 VendorBillLine.TestField("Document Type", VendorBillLine."Document Type"::Invoice);
                 InsertTempGenJnlLine(TempGenJnlLine, VendorBillHeader, VendorBillLine, VendorBillLine."Amount to Pay", 1);

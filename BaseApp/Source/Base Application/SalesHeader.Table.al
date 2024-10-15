@@ -19,7 +19,6 @@
 
             trigger OnValidate()
             var
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
                 LocationCode: Code[10];
                 IsHandled: Boolean;
             begin
@@ -45,13 +44,13 @@
                         SalesLine.SetRange("Document Type", "Document Type");
                         SalesLine.SetRange("Document No.", "No.");
                         if "Sell-to Customer No." = '' then begin
-                            if SalesLine.FindFirst then
+                            if SalesLine.FindFirst() then
                                 Error(
                                   Text005,
                                   FieldCaption("Sell-to Customer No."));
                             Init;
                             OnValidateSellToCustomerNoAfterInit(Rec, xRec);
-                            GetSalesSetup;
+                            GetSalesSetup();
                             "No. Series" := xRec."No. Series";
                             InitRecord;
                             InitNoSeries;
@@ -140,7 +139,7 @@
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GetSalesSetup;
+                    GetSalesSetup();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -214,7 +213,7 @@
                 CustBankAccount.SetRange("Customer No.", "Bill-to Customer No.");
                 if Cust."Preferred Bank Account Code" <> '' then
                     CustBankAccount.SetRange(Code, Cust."Preferred Bank Account Code");
-                if CustBankAccount.FindFirst then
+                if CustBankAccount.FindFirst() then
                     "Bank Account" := CustBankAccount.Code
                 else
                     "Bank Account" := '';
@@ -653,6 +652,7 @@
 
                 UpdateShipToAddress;
                 UpdateOutboundWhseHandlingTime;
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -711,11 +711,12 @@
                                 ConfirmCurrencyFactorUpdate();
                         end;
 
-                if ("No." <> '') and ("Currency Code" <> xRec."Currency Code") then
+                if ShouldCheckShowRecurringSalesLines(xRec, Rec) then
                     StandardCodesMgt.CheckShowSalesRecurringLinesNotification(Rec);
 
                 if "Currency Code" <> xRec."Currency Code" then
                     SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec, true);
+                SetCompanyBankAccount();
             end;
         }
         field(33; "Currency Factor"; Decimal)
@@ -772,7 +773,7 @@
                     SalesLine.SetRange("Document No.", "No.");
                     SalesLine.SetFilter("Unit Price", '<>%1', 0);
                     SalesLine.SetFilter("VAT %", '<>%1', 0);
-                    if SalesLine.FindFirst then begin
+                    if SalesLine.FindFirst() then begin
                         RecalculatePrice := ConfirmRecalculatePrice(SalesLine);
                         OnAfterConfirmSalesPrice(Rec, SalesLine, RecalculatePrice);
                         SalesLine.SetSalesHeader(Rec);
@@ -1600,7 +1601,7 @@
             begin
                 with SalesHeader do begin
                     SalesHeader := Rec;
-                    GetSalesSetup;
+                    GetSalesSetup();
                     TestNoSeries;
                     if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                         Validate("Posting No. Series");
@@ -1611,7 +1612,7 @@
             trigger OnValidate()
             begin
                 if "Posting No. Series" <> '' then begin
-                    GetSalesSetup;
+                    GetSalesSetup();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
                 end;
@@ -1634,7 +1635,7 @@
 
                 with SalesHeader do begin
                     SalesHeader := Rec;
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Shipment Nos.");
                     if NoSeriesMgt.LookupSeries(SalesSetup."Posted Shipment Nos.", "Shipping No. Series") then
                         Validate("Shipping No. Series");
@@ -1652,7 +1653,7 @@
                     exit;
 
                 if "Shipping No. Series" <> '' then begin
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Shipment Nos.");
                     NoSeriesMgt.TestSeries(SalesSetup."Posted Shipment Nos.", "Shipping No. Series");
                 end;
@@ -1721,7 +1722,7 @@
                     CustLedgEntry.SetRange("Customer No.", "Bill-to Customer No.");
                     CustLedgEntry.SetRange(Open, true);
                     CustLedgEntry.SetRange("Applies-to ID", xRec."Applies-to ID");
-                    if CustLedgEntry.FindFirst then
+                    if CustLedgEntry.FindFirst() then
                         CustEntrySetApplID.SetApplId(CustLedgEntry, TempCustLedgEntry, '');
                     CustLedgEntry.Reset();
                 end;
@@ -1833,7 +1834,7 @@
             begin
                 with SalesHeader do begin
                     SalesHeader := Rec;
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
                     if NoSeriesMgt.LookupSeries(GetPostingPrepaymentNoSeriesCode, "Prepayment No. Series") then
                         Validate("Prepayment No. Series");
@@ -1844,7 +1845,7 @@
             trigger OnValidate()
             begin
                 if "Prepayment No. Series" <> '' then begin
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Inv. Nos.");
                     NoSeriesMgt.TestSeries(GetPostingPrepaymentNoSeriesCode, "Prepayment No. Series");
                 end;
@@ -1869,7 +1870,7 @@
             begin
                 with SalesHeader do begin
                     SalesHeader := Rec;
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
                     if NoSeriesMgt.LookupSeries(GetPostingPrepaymentNoSeriesCode, "Prepmt. Cr. Memo No. Series") then
                         Validate("Prepmt. Cr. Memo No. Series");
@@ -1880,7 +1881,7 @@
             trigger OnValidate()
             begin
                 if "Prepmt. Cr. Memo No." <> '' then begin
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Prepmt. Cr. Memo Nos.");
                     NoSeriesMgt.TestSeries(GetPostingPrepaymentNoSeriesCode, "Prepmt. Cr. Memo No. Series");
                 end;
@@ -1926,7 +1927,7 @@
                             PaymentTermsLine.SetRange("Sales/Purchase", PaymentSales."Sales/Purchase"::" ");
                             PaymentTermsLine.SetRange(Type, PaymentTermsLine.Type::"Payment Terms");
                             PaymentTermsLine.SetRange(Code, "Prepmt. Payment Terms Code");
-                            PaymentTermsLine.FindFirst;
+                            PaymentTermsLine.FindFirst();
                             IsHandled := false;
                             OnValidatePaymentTermsCodeOnBeforeCalcDueDate(Rec, xRec, FieldNo("Prepmt. Payment Terms Code"), CurrFieldNo, IsHandled);
                             if not IsHandled then
@@ -2021,6 +2022,17 @@
         {
             Caption = 'Job Queue Entry ID';
             Editable = false;
+        }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+
+            trigger OnValidate()
+            begin
+                if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Company Bank Account Code" <> xRec."Company Bank Account Code") then
+                    TestStatusOpen;
+            end;
         }
         field(165; "Incoming Document Entry No."; Integer)
         {
@@ -2123,6 +2135,18 @@
             ObsoleteTag = '21.0';
 #endif            
         }
+        field(178; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Sales));
+
+            trigger OnValidate()
+            begin
+                SalesSetup.Get();
+                TestNoSeries();
+                Validate("Posting No. Series", GenJournalTemplate."Posting No. Series");
+            end;
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -2199,12 +2223,7 @@
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code")
+                CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
         field(5051; "Sell-to Customer Template Code"; Code[10])
@@ -2410,6 +2429,7 @@
             trigger OnValidate()
             var
                 BillToCustTemplate: Record "Customer Template";
+                DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
             begin
                 TestField("Document Type", "Document Type"::Quote);
                 TestStatusOpen;
@@ -2445,12 +2465,13 @@
                     "Shipment Method Code" := BillToCustTemplate."Shipment Method Code";
                 end;
 
-                CreateDim(
-                  DATABASE::"Customer Template", "Bill-to Customer Template Code",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Customer Template", Rec."Bill-to Customer Template Code");
+                DimMgt.AddDimSource(DefaultDimSource, Database::Customer, Rec."Bill-to Customer No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salesperson Code");
+                DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.");
+                DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center");
+                DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
+                CreateDim(DefaultDimSource);
 
                 OnValidateBilltoCustomerTemplateCodeBeforeRecreateSalesLines(Rec, CurrFieldNo);
 
@@ -2549,12 +2570,7 @@
                 if BillToCustTemplate.Get("Bill-to Customer Templ. Code") then
                     InitFromBillToCustTemplate(BillToCustTemplate);
 
-                CreateDim(
-                  DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(Rec.FieldNo("Bill-to Customer Templ. Code"));
 
                 OnValidateBilltoCustomerTemplCodeOnBeforeRecreateSalesLines(Rec, CurrFieldNo);
 
@@ -2582,12 +2598,7 @@
                 UpdateOutboundWhseHandlingTime;
                 UpdateShipToAddress;
 
-                CreateDim(
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::Customer, "Bill-to Customer No.",
-                  DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+                CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
 
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreateSalesLines(FieldCaption("Responsibility Center"));
@@ -2610,7 +2621,6 @@
                 WhseSourceHeader.SalesHeaderVerifyChange(Rec, xRec);
             end;
         }
-
         field(5751; "Shipped Not Invoiced"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
@@ -2776,7 +2786,7 @@
 
                 with SalesHeader do begin
                     SalesHeader := Rec;
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Return Receipt Nos.");
                     if NoSeriesMgt.LookupSeries(SalesSetup."Posted Return Receipt Nos.", "Return Receipt No. Series") then
                         Validate("Return Receipt No. Series");
@@ -2794,7 +2804,7 @@
                     exit;
 
                 if "Return Receipt No. Series" <> '' then begin
-                    GetSalesSetup;
+                    GetSalesSetup();
                     SalesSetup.TestField("Posted Return Receipt Nos.");
                     NoSeriesMgt.TestSeries(SalesSetup."Posted Return Receipt Nos.", "Return Receipt No. Series");
                 end;
@@ -3128,7 +3138,7 @@
         key(Key4; "Document Type", "Bill-to Customer No.")
         {
         }
-        key(Key5; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID")
+        key(Key5; "Document Type", "Combine Shipments", "Bill-to Customer No.", "Currency Code", "EU 3-Party Trade", "Dimension Set ID", "Journal Templ. Name")
         {
             Enabled = false;
         }
@@ -3224,8 +3234,6 @@
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert;
         InsertMode := true;
@@ -3239,7 +3247,7 @@
             SetDefaultSalesperson;
 
         if "Sell-to Customer No." <> '' then
-            StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreateSalesRecurringLines(Rec);
 
         if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
             "Refers to Period" := "Refers to Period"::" ";
@@ -3308,6 +3316,8 @@
         InvtSetup: Record "Inventory Setup";
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         CompanyInfo: Record "Company Information";
@@ -3321,6 +3331,7 @@
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         PostingSetupMgt: Codeunit PostingSetupManagement;
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
         CurrencyDate: Date;
         Confirmed: Boolean;
@@ -3330,8 +3341,6 @@
         ContactIsNotRelatedToAnyCostomerErr: Label 'Contact %1 %2 is not related to a customer.';
         Text040: Label 'A won opportunity is linked to this order.\It has to be changed to status Lost before the Order can be deleted.\Do you want to change the status for this opportunity now?';
         Text044: Label 'The status of the opportunity has not been changed. The program has aborted deleting the order.';
-        SkipSellToContact: Boolean;
-        SkipBillToContact: Boolean;
         Text045: Label 'You can not change the %1 field because %2 %3 has %4 = %5 and the %6 has already been assigned %7 %8.';
         Text048: Label 'Sales quote %1 has already been assigned to opportunity %2. Would you like to reassign this quote?';
         Text049: Label 'The %1 field cannot be blank because this quote is linked to an opportunity.';
@@ -3359,7 +3368,6 @@
         Text1130019: Label 'A Posting No. has been assigned to this record. You cannot delete this document.';
         PaymentTermsLine: Record "Payment Lines";
         PaymentSales: Record "Payment Lines";
-        NoSeries: Record "No. Series";
         VATBusPostingGroup: Record "VAT Business Posting Group";
         CustBankAccount: Record "Customer Bank Account";
         ShipmentMethod: Record "Shipment Method";
@@ -3398,6 +3406,8 @@
         SalesHeaderIsTemporaryLbl: Label 'Sales Header must be not temporary.', Locked = true;
         SalesHeaderDoesNotExistLbl: Label 'Sales Header must exist.', Locked = true;
         SalesHeaderCannotModifyLbl: Label 'Cannot modify Sales Header.', Locked = true;
+        WarnZeroQuantitySalesPostingTxt: Label 'Warn before posting Sales lines with 0 quantity';
+        WarnZeroQuantitySalesPostingDescriptionTxt: Label 'Warn before posting lines on Sales documents where quantity is 0.';
         CalledFromWhseDoc: Boolean;
 
     protected var
@@ -3405,6 +3415,8 @@
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
         UpdateDocumentDate: Boolean;
+        SkipSellToContact: Boolean;
+        SkipBillToContact: Boolean;
 
     procedure InitInsert()
     var
@@ -3432,7 +3444,7 @@
         ArchiveManagement: Codeunit ArchiveManagement;
         IsHandled: Boolean;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         IsHandled := false;
         OnBeforeInitRecord(Rec, IsHandled, xRec);
         if not IsHandled then
@@ -3550,6 +3562,11 @@
         "Posting Description" := Format("Document Type") + ' ' + "No.";
     end;
 
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
+    end;
+
     procedure AssistEdit(OldSalesHeader: Record "Sales Header") Result: Boolean
     var
         SalesHeader2: Record "Sales Header";
@@ -3562,7 +3579,7 @@
 
         with SalesHeader do begin
             Copy(Rec);
-            GetSalesSetup;
+            GetSalesSetup();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldSalesHeader."No. Series", "No. Series") then begin
                 if ("Sell-to Customer No." = '') and ("Sell-to Contact No." = '') then begin
@@ -3583,30 +3600,52 @@
     var
         IsHandled: Boolean;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         IsHandled := false;
         OnBeforeTestNoSeries(Rec, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
             case "Document Type" of
                 "Document Type"::Quote:
                     SalesSetup.TestField("Quote Nos.");
                 "Document Type"::Order:
                     SalesSetup.TestField("Order Nos.");
                 "Document Type"::Invoice:
-                    begin
-                        SalesSetup.TestField("Invoice Nos.");
-                        SalesSetup.TestField("Posted Invoice Nos.");
-                    end;
+                    SalesSetup.TestField("Invoice Nos.");
                 "Document Type"::"Return Order":
                     SalesSetup.TestField("Return Order Nos.");
                 "Document Type"::"Credit Memo":
-                    begin
-                        SalesSetup.TestField("Credit Memo Nos.");
-                        SalesSetup.TestField("Posted Credit Memo Nos.");
-                    end;
+                    SalesSetup.TestField("Credit Memo Nos.");
                 "Document Type"::"Blanket Order":
                     SalesSetup.TestField("Blanket Order Nos.");
             end;
+            GLSetup.GetRecordOnce();
+            if not GLSetup."Journal Templ. Name Mandatory" then
+                case "Document Type" of
+                    "Document Type"::Invoice:
+                        SalesSetup.TestField("Posted Invoice Nos.");
+                    "Document Type"::"Credit Memo":
+                        SalesSetup.TestField("Posted Credit Memo Nos.");
+                end
+            else begin
+                SalesSetup.GetRecordOnce();
+                if not IsCreditDocType() then begin
+                    SalesSetup.TestField("S. Invoice Template Name");
+                    if "Journal Templ. Name" = '' then
+                        GenJournalTemplate.Get(SalesSetup."S. Invoice Template Name")
+                    else
+                        GenJournalTemplate.Get("Journal Templ. Name");
+                end else begin
+                    SalesSetup.TestField("S. Cr. Memo Template Name");
+                    if "Journal Templ. Name" = '' then
+                        GenJournalTemplate.Get(SalesSetup."S. Cr. Memo Template Name")
+                    else
+                        GenJournalTemplate.Get("Journal Templ. Name");
+                end;
+                GenJournalTemplate.TestField("Posting No. Series");
+                NoSeries.Get(GenJournalTemplate."Posting No. Series");
+                NoSeries.TestField("Default Nos.", true);
+            end;
+        end;
 
         OnAfterTestNoSeries(Rec, SalesSetup);
     end;
@@ -3616,7 +3655,7 @@
         NoSeriesCode: Code[20];
         IsHandled: Boolean;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         IsHandled := false;
         OnBeforeGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode, IsHandled);
         if IsHandled then
@@ -3644,16 +3683,21 @@
     var
         IsHandled: Boolean;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         IsHandled := false;
         OnBeforeGetPostingNoSeriesCode(Rec, SalesSetup, PostingNos, IsHandled);
         if IsHandled then
             exit;
 
-        if IsCreditDocType then
-            PostingNos := SalesSetup."Posted Credit Memo Nos."
-        else
-            PostingNos := SalesSetup."Posted Invoice Nos.";
+        GLSetup.GetRecordOnce();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            GenJournalTemplate.Get("Journal Templ. Name");
+            PostingNos := GenJournalTemplate."Posting No. Series";
+        end else
+            if IsCreditDocType() then
+                PostingNos := SalesSetup."Posted Credit Memo Nos."
+            else
+                PostingNos := SalesSetup."Posted Invoice Nos.";
 
         OnAfterGetPostingNoSeriesCode(Rec, PostingNos);
     end;
@@ -3669,8 +3713,6 @@
     end;
 
     local procedure TestNoSeriesDate(No: Code[20]; NoSeriesCode: Code[20]; NoCapt: Text[1024]; NoSeriesCapt: Text[1024])
-    var
-        NoSeries: Record "No. Series";
     begin
         if (No <> '') and (NoSeriesCode <> '') then begin
             NoSeries.Get(NoSeriesCode);
@@ -3950,7 +3992,7 @@
         TempItemChargeAssgntSales.SetRange("Applies-to Doc. Type", TempSalesLine."Document Type");
         TempItemChargeAssgntSales.SetRange("Applies-to Doc. No.", TempSalesLine."Document No.");
         TempItemChargeAssgntSales.SetRange("Applies-to Doc. Line No.", TempSalesLine."Line No.");
-        if TempItemChargeAssgntSales.FindSet then
+        if TempItemChargeAssgntSales.FindSet() then
             repeat
                 if not TempItemChargeAssgntSales.Mark then begin
                     TempItemChargeAssgntSales."Applies-to Doc. Line No." := SalesLine."Line No.";
@@ -4128,7 +4170,7 @@
         SalesLine.SetFilter(Quantity, '<>0');
         SalesLine.LockTable();
         LockTable();
-        if SalesLine.FindSet then begin
+        if SalesLine.FindSet() then begin
             if not Rec.Modify() then begin
                 Session.LogMessage('0000G94', SalesHeaderCannotModifyLbl, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', SalesLinesCategoryLbl);
                 exit;
@@ -4205,7 +4247,7 @@
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 IsHandled := false;
                 OnBeforeSalesLineByChangedFieldNo(Rec, SalesLine, ChangedFieldNo, IsHandled, xRec);
@@ -4277,6 +4319,8 @@
                 Error('');
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20]; Type5: Integer; No5: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -4284,6 +4328,7 @@
         No: array[10] of Code[20];
         OldDimSetID: Integer;
         IsHandled: Boolean;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled);
@@ -4302,13 +4347,46 @@
         TableID[5] := Type5;
         No[5] := No5;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID);
+
+        if (OldDimSetID <> "Dimension Set ID") and SalesLinesExist then begin
+            Modify;
+            UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+        end;
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        OldDimSetID: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := "Dimension Set ID";
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Sales, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo, OldDimSetID);
 
@@ -4382,7 +4460,7 @@
         if IsHandled then
             exit;
 
-        if SalesLine.FindSet then begin
+        if SalesLine.FindSet() then begin
             ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.", GetHideValidationDialog);
             repeat
                 SalesLine.SuspendStatusCheck(true);
@@ -4480,12 +4558,7 @@
         if IsHandled then
             exit;
 
-        CreateDim(
-            DATABASE::Customer, "Bill-to Customer No.",
-            DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-            DATABASE::Campaign, "Campaign No.",
-            DATABASE::"Responsibility Center", "Responsibility Center",
-            DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+        CreateDimFromDefaultDim(Rec.FieldNo("Bill-to Customer No."));
     end;
 
     local procedure CreateDimensionsFromValidateSalesPersonCode()
@@ -4497,12 +4570,7 @@
         if IsHandled then
             exit;
 
-        CreateDim(
-            DATABASE::"Salesperson/Purchaser", "Salesperson Code",
-            DATABASE::Customer, "Bill-to Customer No.",
-            DATABASE::Campaign, "Campaign No.",
-            DATABASE::"Responsibility Center", "Responsibility Center",
-            DATABASE::"Customer Templ.", "Bill-to Customer Templ. Code");
+        CreateDimFromDefaultDim(Rec.FieldNo("Salesperson Code"));
     end;
 
     local procedure CheckShipmentInfo(var SalesLine: Record "Sales Line"; BillTo: Boolean)
@@ -4523,7 +4591,7 @@
                 SalesLine.SetFilter("Shipment No.", '<>%1', '');
             end;
 
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             if "Document Type" = "Document Type"::Order then
                 TestQuantityShippedField(SalesLine)
             else
@@ -4560,7 +4628,7 @@
                 SalesLine.SetFilter("Return Receipt No.", '<>%1', '');
             end;
 
-        if SalesLine.FindFirst then
+        if SalesLine.FindFirst() then
             if "Document Type" = "Document Type"::"Return Order" then
                 SalesLine.TestField("Return Qty. Received", 0)
             else
@@ -4646,7 +4714,7 @@
                     ContBusRel.SetCurrentKey("Link to Table", "No.");
                     ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                     ContBusRel.SetRange("No.", "Sell-to Customer No.");
-                    if ContBusRel.FindFirst then
+                    if ContBusRel.FindFirst() then
                         "Sell-to Contact No." := ContBusRel."Contact No."
                     else
                         "Sell-to Contact No." := '';
@@ -4680,7 +4748,7 @@
                 ContBusRel.SetCurrentKey("Link to Table", "No.");
                 ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
                 ContBusRel.SetRange("No.", "Bill-to Customer No.");
-                if ContBusRel.FindFirst then
+                if ContBusRel.FindFirst() then
                     "Bill-to Contact No." := ContBusRel."Contact No."
                 else
                     "Bill-to Contact No." := '';
@@ -5222,7 +5290,7 @@
         case "Document Type" of
             "Document Type"::Order, "Document Type"::Invoice:
                 begin
-                    if SalesLine.FindSet then
+                    if SalesLine.FindSet() then
                         repeat
                             if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then
                                 with SalesShptLine do begin
@@ -5238,10 +5306,10 @@
                                     if QtyType = QtyType::Invoicing then
                                         SetFilter("Qty. Shipped Not Invoiced", '<>0');
 
-                                    if FindSet then
+                                    if FindSet() then
                                         repeat
                                             FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                                            if ItemLedgEntry.FindSet then
+                                            if ItemLedgEntry.FindSet() then
                                                 repeat
                                                     CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
                                                 until ItemLedgEntry.Next() = 0;
@@ -5251,7 +5319,7 @@
                 end;
             "Document Type"::"Return Order", "Document Type"::"Credit Memo":
                 begin
-                    if SalesLine.FindSet then
+                    if SalesLine.FindSet() then
                         repeat
                             if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine.Quantity <> 0) then
                                 with ReturnRcptLine do begin
@@ -5267,10 +5335,10 @@
                                     if QtyType = QtyType::Invoicing then
                                         SetFilter("Return Qty. Rcd. Not Invd.", '<>0');
 
-                                    if FindSet then
+                                    if FindSet() then
                                         repeat
                                             FilterPstdDocLnItemLedgEntries(ItemLedgEntry);
-                                            if ItemLedgEntry.FindSet then
+                                            if ItemLedgEntry.FindSet() then
                                                 repeat
                                                     CreateTempAdjmtValueEntries(TempValueEntry, ItemLedgEntry."Entry No.");
                                                 until ItemLedgEntry.Next() = 0;
@@ -5333,7 +5401,7 @@
         with ValueEntry do begin
             SetCurrentKey("Item Ledger Entry No.");
             SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
-            if FindSet then
+            if FindSet() then
                 repeat
                     if Adjustment then begin
                         TempValueEntry := ValueEntry;
@@ -5369,7 +5437,7 @@
     begin
         OnBeforeCalcInvDiscForHeader(Rec);
 
-        GetSalesSetup;
+        GetSalesSetup();
         if SalesSetup."Calc. Inv. Discount" then
             SalesInvDisc.CalculateIncDiscForHeader(Rec);
     end;
@@ -5431,14 +5499,6 @@
             exit(false);
         exit(true);
     end;
-
-#if not CLEAN17
-    [Obsolete('Replaced by WhseShipmentConflict().', '17.0')]
-    procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
-    begin
-        exit(WhseShipmentConflict("Sales Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
-    end;
-#endif
 
     procedure WhseShipmentConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
@@ -5592,25 +5652,29 @@
            not ShippingAgent.ShippingAgentVendorOrContact("Shipping Agent Code")
         then
             Error(
-              Text12100, FieldCaption("Shipping Agent Code"), "Shipping Agent Code",
-              FieldCaption("Shipment Method Code"), "Shipment Method Code");
+              ErrorInfo.Create(
+                  StrSubstNo(
+                      Text12100, FieldCaption("Shipping Agent Code"), "Shipping Agent Code",
+                      FieldCaption("Shipment Method Code"), "Shipment Method Code"),
+                  true, 
+                  Rec));  
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure CheckTDDData()
     var
         ShippingAgent: Record "Shipping Agent";
     begin
         CheckShipAgentMethodComb;
         if ShipmentMethod.ThirdPartyLoader("Shipment Method Code") then begin
-            TestField("3rd Party Loader Type");
-            TestField("3rd Party Loader No.");
+            TestField("3rd Party Loader Type", ErrorInfo.Create());
+            TestField("3rd Party Loader No.", ErrorInfo.Create());
         end else begin
-            TestField("3rd Party Loader Type", "3rd Party Loader Type"::" ");
-            TestField("3rd Party Loader No.", '');
+            TestField("3rd Party Loader Type", "3rd Party Loader Type"::" ", ErrorInfo.Create());
+            TestField("3rd Party Loader No.", '', ErrorInfo.Create());
         end;
         if ShippingAgent.ShippingAgentVendorOrContact("Shipping Agent Code") then
-            TestField("TDD Prepared By");
+            TestField("TDD Prepared By", ErrorInfo.Create());
     end;
 
     [Scope('OnPrem')]
@@ -5704,7 +5768,7 @@
 
     procedure GetLegalStatement(): Text
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         exit(SalesSetup.GetLegalStatement);
     end;
 
@@ -5808,11 +5872,11 @@
         end;
     end;
 
-    local procedure UpdateOpportunityLink(Opportunity: Record Opportunity; SalesDocumentType: Option; SalesHeaderNo: Code[20])
+    local procedure UpdateOpportunityLink(Opportunity: Record Opportunity; SalesDocumentType: Enum "Opportunity Document Type"; SalesHeaderNo: Code[20])
     begin
         Opportunity."Sales Document Type" := SalesDocumentType;
         Opportunity."Sales Document No." := SalesHeaderNo;
-        OnUpdateOpportunityLinkOnBeforeModify(Opportunity, Rec, SalesDocumentType, SalesHeaderNo);
+        OnUpdateOpportunityLinkOnBeforeModify(Opportunity, Rec, SalesDocumentType.AsInteger(), SalesHeaderNo);
         Opportunity.Modify();
     end;
 
@@ -5826,7 +5890,7 @@
         ATOLink.SetRange(Type, ATOLink.Type::Sale);
         ATOLink.SetRange("Document Type", "Document Type");
         ATOLink.SetRange("Document No.", "No.");
-        if ATOLink.FindSet then
+        if ATOLink.FindSet() then
             repeat
                 if AsmHeader.Get(ATOLink."Assembly Document Type", ATOLink."Assembly Document No.") then
                     if "Posting Date" <> AsmHeader."Posting Date" then begin
@@ -5856,7 +5920,7 @@
         SalesLine.SetRange("Drop Shipment", false);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
         Result := true;
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 Item.Get(SalesLine."No.");
                 if SalesLine.IsShipment and (Item.Type = Item.Type::Inventory) then begin
@@ -5872,7 +5936,7 @@
 
         OnAfterCheckShippingAdvice(Rec, Result);
         if not Result then
-            Error(ShippingAdviceErr);
+            Error(ErrorInfo.Create(ShippingAdviceErr, true, Rec));
     end;
 
     local procedure GetContactAsCompany(Contact: Record Contact; var SearchContact: Record Contact): Boolean;
@@ -5913,9 +5977,9 @@
         if GetFilter("Sell-to Customer No.") <> '' then begin
             SalesHeader.CopyFilters(Rec);
             SalesHeader.SetCurrentKey("Sell-to Customer No.");
-            if SalesHeader.FindFirst then
+            if SalesHeader.FindFirst() then
                 MinValue := SalesHeader."Sell-to Customer No.";
-            if SalesHeader.FindLast then
+            if SalesHeader.FindLast() then
                 MaxValue := SalesHeader."Sell-to Customer No.";
             if MinValue = MaxValue then
                 exit(MaxValue);
@@ -5960,22 +6024,30 @@
     var
         SalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         SalesLine.SetRange("Document Type", "Document Type");
         SalesLine.SetRange("Document No.", "No.");
         SalesLine.SetFilter("Prepmt. Amt. Inv.", '<>%1', 0);
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 CollectParamsInBufferForCreateDimSet(TempSalesLine, SalesLine);
             until SalesLine.Next() = 0;
         TempSalesLine.Reset();
         TempSalesLine.MarkedOnly(false);
-        if TempSalesLine.FindSet then
+        if TempSalesLine.FindSet() then
             repeat
-                SalesLine.CreateDim(DATABASE::"G/L Account", TempSalesLine."No.",
-                  DATABASE::Job, TempSalesLine."Job No.",
-                  DATABASE::"Responsibility Center", TempSalesLine."Responsibility Center");
+                InitSalesLineDefaultDimSource(DefaultDimSource, TempSalesLine);
+                SalesLine.CreateDim(DefaultDimSource);
             until TempSalesLine.Next() = 0;
+    end;
+
+    local procedure InitSalesLineDefaultDimSource(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourceSalesLine: Record "Sales Line")
+    begin
+        Clear(DefaultDimSource);
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SourceSalesLine."No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, SourceSalesLine."Job No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SourceSalesLine."Responsibility Center");
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
@@ -5985,7 +6057,7 @@
     begin
         TempSalesLine.SetRange("Gen. Bus. Posting Group", SalesLine."Gen. Bus. Posting Group");
         TempSalesLine.SetRange("Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
-        if not TempSalesLine.FindFirst then begin
+        if not TempSalesLine.FindFirst() then begin
             GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
             DefaultDimension.SetRange("Table ID", DATABASE::"G/L Account");
             DefaultDimension.SetRange("No.", GenPostingSetup.GetSalesPrepmtAccount);
@@ -6179,7 +6251,7 @@
         if (SalesLineToIgnore."Document Type" = "Document Type") and (SalesLineToIgnore."Document No." = "No.") then
             SplitSalesLine.SetFilter("Line No.", '<>%1', SalesLineToIgnore."Line No.");
 
-        if not SplitSalesLine.FindSet then
+        if not SplitSalesLine.FindSet() then
             exit;
 
         CurrentLineNo := IncrementLineNo(GetHighestLineNo(SplitSalesLine));
@@ -6261,10 +6333,7 @@
         TotalingSalesLine."Gen. Prod. Posting Group" := SplitSalesLine."Gen. Prod. Posting Group";
         TotalingSalesLine."VAT Identifier" := SplitSalesLine."VAT Identifier";
         TotalingSalesLine."Automatically Generated" := true;
-        TotalingSalesLine.CreateDim(
-          DimMgt.TypeToTableID3(TotalingSalesLine.Type.AsInteger()), TotalingSalesLine."No.",
-          DATABASE::Job, TotalingSalesLine."Job No.",
-          DATABASE::"Responsibility Center", TotalingSalesLine."Responsibility Center");
+        TotalingSalesLine.CreateDimFromDefaultDim(0);
     end;
 
     [Scope('OnPrem')]
@@ -6274,7 +6343,7 @@
         VATPostingSetup.SetRange("Reversed VAT Bus. Post. Group", SplitSalesLine."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("Reversed VAT Prod. Post. Group", SplitSalesLine."VAT Prod. Posting Group");
 
-        if not VATPostingSetup.FindFirst then
+        if not VATPostingSetup.FindFirst() then
             Error(MissingVATPostingSetupErr,
               SplitSalesLine.FieldCaption("VAT Prod. Posting Group"),
               SplitSalesLine."VAT Prod. Posting Group",
@@ -6292,7 +6361,7 @@
         LocalSalesLine.SetCurrentKey("Document Type", "Document No.", "Line No.");
         LocalSalesLine.SetRange("Document Type", SplitSalesLine."Document Type");
         LocalSalesLine.SetRange("Document No.", SplitSalesLine."Document No.");
-        if LocalSalesLine.FindLast then;
+        if LocalSalesLine.FindLast() then;
         exit(LocalSalesLine."Line No.");
     end;
 
@@ -6389,7 +6458,7 @@
 
         ItemChargeAssgntSales.SetRange("Document Type", "Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", "No.");
-        if ItemChargeAssgntSales.FindSet then begin
+        if ItemChargeAssgntSales.FindSet() then begin
             repeat
                 TempItemChargeAssgntSales.Init();
                 TempItemChargeAssgntSales := ItemChargeAssgntSales;
@@ -6443,12 +6512,12 @@
     begin
         ClearItemAssgntSalesFilter(TempItemChargeAssgntSales);
         TempSalesLine.SetRange(Type, SalesLine.Type::"Charge (Item)");
-        if TempSalesLine.FindSet then
+        if TempSalesLine.FindSet() then
             repeat
                 TempItemChargeAssgntSales.SetRange("Document Line No.", TempSalesLine."Line No.");
-                if TempItemChargeAssgntSales.FindSet then begin
+                if TempItemChargeAssgntSales.FindSet() then begin
                     repeat
-                        TempInteger.FindFirst;
+                        TempInteger.FindFirst();
                         ItemChargeAssgntSales.Init();
                         ItemChargeAssgntSales := TempItemChargeAssgntSales;
                         ItemChargeAssgntSales."Document Line No." := TempInteger.Number;
@@ -6821,6 +6890,14 @@
             Validate("Location Code", SellToCustomer."Location Code");
     end;
 
+    local procedure SetCompanyBankAccount()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        Validate("Company Bank Account Code", BankAccount.GetDefaultBankAccountNoForCurrency("Currency Code"));
+        OnAfterSetCompanyBankAccount(Rec, xRec);
+    end;
+
     procedure SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr: Record "Ship-to Address")
     var
         IsHandled: Boolean;
@@ -7143,7 +7220,7 @@
         OpportunityEntry: Record "Opportunity Entry";
     begin
         OpportunityEntry.SetRange("Opportunity No.", "Opportunity No.");
-        if OpportunityEntry.FindLast then
+        if OpportunityEntry.FindLast() then
             exit(OpportunityEntry."Estimated Value (LCY)");
     end;
 
@@ -7175,7 +7252,7 @@
             if not SalesLine.IsEmpty() then
                 Error(Text005, ContactCaption);
             Init;
-            GetSalesSetup;
+            GetSalesSetup();
             "No. Series" := xRec."No. Series";
             OnInitFromContactOnBeforeInitRecord(Rec, xRec);
             InitRecord;
@@ -7194,7 +7271,7 @@
             if not SalesLine.IsEmpty() then
                 Error(Text005, TemplateCaption);
             Init;
-            GetSalesSetup;
+            GetSalesSetup();
             "No. Series" := xRec."No. Series";
             OnInitFromTemplateOnBeforeInitRecord(Rec, xRec);
             InitRecord;
@@ -7251,7 +7328,7 @@
             Message(ReadingDataSkippedMsg, FieldCaption("Work Description"));
     end;
 
-    local procedure LookupContact(CustomerNo: Code[20]; ContactNo: Code[20]; var Contact: Record Contact)
+    procedure LookupContact(CustomerNo: Code[20]; ContactNo: Code[20]; var Contact: Record Contact)
     var
         ContactBusinessRelation: Record "Contact Business Relation";
         FilterByContactCompany: Boolean;
@@ -7291,7 +7368,7 @@
                     Validate("Salesperson Code", UserSetupSalespersonCode);
     end;
 
-    local procedure GetUserSetupSalespersonCode(): Code[20]
+    procedure GetUserSetupSalespersonCode(): Code[20]
     var
         UserSetup: Record "User Setup";
     begin
@@ -7308,6 +7385,30 @@
                 SalesHeader.SetRange("Sell-to Customer No.");
 
         OnAfterSelltoCustomerNoOnAfterValidate(Rec, xRec);
+    end;
+
+    internal procedure PerformManualRelease(var SalesHeader: Record "Sales Header")
+    var
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+        NoOfSelected: Integer;
+        NoOfSkipped: Integer;
+    begin
+        NoOfSelected := SalesHeader.Count;
+        SalesHeader.SetFilter(Status, '<>%1', SalesHeader.Status::Released);
+        NoOfSkipped := NoOfSelected - SalesHeader.Count;
+        BatchProcessingMgt.BatchProcess(SalesHeader, Codeunit::"Sales Manual Release", "Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
+    end;
+
+    internal procedure PerformManualReopen(var SalesHeader: Record "Sales Header")
+    var
+        BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
+        NoOfSelected: Integer;
+        NoOfSkipped: Integer;
+    begin
+        NoOfSelected := SalesHeader.Count;
+        SalesHeader.SetFilter(Status, '<>%1', SalesHeader.Status::Open);
+        NoOfSkipped := NoOfSelected - SalesHeader.Count;
+        BatchProcessingMgt.BatchProcess(SalesHeader, Codeunit::"Sales Manual Reopen", "Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
     end;
 
 #if not CLEAN18
@@ -7347,7 +7448,7 @@
     var
         Customer: Record Customer;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         if SalesSetup."Ignore Updated Addresses" then
             exit;
         if IsCreditDocType then
@@ -7364,7 +7465,7 @@
     var
         Customer: Record Customer;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         if SalesSetup."Ignore Updated Addresses" then
             exit;
         if IsCreditDocType then
@@ -7432,6 +7533,11 @@
     procedure GetLineInvoiceDiscountResetNotificationId(): Guid
     begin
         exit('35AB3090-2E03-4849-BBF9-9664DE464605');
+    end;
+
+    procedure GetWarnWhenZeroQuantitySalesLinePosting(): Guid
+    begin
+        exit('ce906407-2f7e-410a-8fb9-4fdc76954876');
     end;
 
     procedure SetModifyCustomerAddressNotificationDefaultState()
@@ -7567,9 +7673,17 @@
             if Salesperson.Get(SalesHeader2."Salesperson Code") then
                 if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then begin
                     if IsTransaction then
-                        Error(Salesperson.GetPrivacyBlockedTransactionText(Salesperson, IsPostAction, true));
+                        Error(
+                            ErrorInfo.Create(
+                                Salesperson.GetPrivacyBlockedTransactionText(Salesperson, IsPostAction, true),
+                                true,
+                                Salesperson));
                     if not IsTransaction then
-                        Error(Salesperson.GetPrivacyBlockedGenericText(Salesperson, true));
+                        Error(
+                            ErrorInfo.Create(
+                                Salesperson.GetPrivacyBlockedGenericText(Salesperson, true),
+                                true,
+                                Salesperson));
                 end;
     end;
 
@@ -7589,6 +7703,10 @@
         if not Customer.Get(CustomerNo) then
             exit(true);
 
+        GetSalesSetup();
+        if SalesSetup."Disable Search by Name" then
+            exit(false);
+
         exit(not Customer."Disable Search by Name");
     end;
 
@@ -7596,7 +7714,7 @@
     var
         BlankDateFormula: DateFormula;
     begin
-        GetSalesSetup;
+        GetSalesSetup();
         if SalesSetup."Quote Validity Calculation" <> BlankDateFormula then
             "Quote Valid Until Date" := CalcDate(SalesSetup."Quote Validity Calculation", "Document Date");
     end;
@@ -7664,7 +7782,7 @@
         CurrentSalesLine.SetFilter(Type, '%1|%2', CurrentSalesLine.Type::Item, CurrentSalesLine.Type::Resource);
         CurrentSalesLine.SetFilter("No.", '<>''''');
 
-        if CurrentSalesLine.FindSet then
+        if CurrentSalesLine.FindSet() then
             repeat
                 case CurrentSalesLine.Type of
                     CurrentSalesLine.Type::Item:
@@ -7693,7 +7811,7 @@
             exit;
 
         CopySalesDocument.SetSalesHeader(Rec);
-        CopySalesDocument.RunModal;
+        CopySalesDocument.RunModal();
     end;
 
     local procedure CheckContactRelatedToCustomerCompany(ContactNo: Code[20]; CustomerNo: Code[20]; CurrFieldNo: Integer);
@@ -7839,11 +7957,30 @@
     end;
 
     local procedure InitPostingNoSeries()
+    var
+        PostingNoSeries: Code[20];
     begin
+        GLSetup.GetRecordOnce();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if "Journal Templ. Name" = '' then begin
+                if not IsCreditDocType() then
+                    GenJournalTemplate.Get(SalesSetup."S. Invoice Template Name")
+                else
+                    GenJournalTemplate.Get(SalesSetup."S. Cr. Memo Template Name");
+                "Journal Templ. Name" := GenJournalTemplate.Name;
+            end else
+                GenJournalTemplate.Get("Journal Templ. Name");
+            PostingNoSeries := GenJournalTemplate."Posting No. Series";
+        end else
+            if IsCreditDocType() then
+                PostingNoSeries := SalesSetup."Posted Credit Memo Nos."
+            else
+                PostingNoSeries := SalesSetup."Posted Invoice Nos.";
+
         case "Document Type" of
             "Document Type"::Quote, "Document Type"::Order:
                 begin
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Invoice Nos.");
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
                     if "Document Type" = "Document Type"::Order then begin
                         NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", SalesSetup."Posted Prepmt. Inv. Nos.");
@@ -7852,34 +7989,50 @@
                 end;
             "Document Type"::Invoice:
                 begin
-                    if ("No. Series" <> '') and
-                       (SalesSetup."Invoice Nos." = SalesSetup."Posted Invoice Nos.")
-                    then
+                    if ("No. Series" <> '') and (SalesSetup."Invoice Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Invoice Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     if SalesSetup."Shipment on Invoice" then
                         NoSeriesMgt.SetDefaultSeries("Shipping No. Series", SalesSetup."Posted Shipment Nos.");
                 end;
             "Document Type"::"Return Order":
                 begin
-                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Credit Memo Nos.");
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
                 end;
             "Document Type"::"Credit Memo":
                 begin
-                    if ("No. Series" <> '') and
-                       (SalesSetup."Credit Memo Nos." = SalesSetup."Posted Credit Memo Nos.")
-                    then
+                    if ("No. Series" <> '') and (SalesSetup."Credit Memo Nos." = PostingNoSeries) then
                         "Posting No. Series" := "No. Series"
                     else
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", SalesSetup."Posted Credit Memo Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
                     if SalesSetup."Return Receipt on Credit Memo" then
                         NoSeriesMgt.SetDefaultSeries("Return Receipt No. Series", SalesSetup."Posted Return Receipt Nos.");
                 end;
         end;
 
         OnAfterInitPostingNoSeries(Rec, xRec);
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Customer, Rec."Bill-to Customer No.", FieldNo = Rec.FieldNo("Bill-to Customer No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Salesperson Code", FieldNo = Rec.FieldNo("Salesperson Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FieldNo = Rec.FieldNo("Campaign No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Customer Templ.", Rec."Bill-to Customer Templ. Code", FieldNo = Rec.FieldNo("Bill-to Customer Templ. Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;
 
     procedure SelltoContactLookup(): Boolean
@@ -7913,8 +8066,72 @@
         exit(false);
     end;
 
+    local procedure ShouldCheckShowRecurringSalesLines(var xHeader: Record "Sales Header"; var Header: Record "Sales Header"): Boolean
+    begin
+        exit(
+            (xHeader."Bill-to Customer No." <> '') and
+            (Header."No." <> '') and
+            (Header."Currency Code" <> xHeader."Currency Code")
+        );
+    end;
+
+    procedure SetWarnZeroQuantitySalesPosting()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(GetWarnWhenZeroQuantitySalesLinePosting(),
+         WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Sales Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Sales Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Sales Header") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var SalesHeader: Record "Sales Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignDefaultVATBusPostingGroup(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; GenBusinessPostingGroup: Record "Gen. Business Posting Group")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var SalesHeader: Record "Sales Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -8083,10 +8300,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by OnAfterInitDefaultDimensionSources() event', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var SalesHeader: Record "Sales Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -8826,6 +9046,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSalesLines(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCompanyBankAccount(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 

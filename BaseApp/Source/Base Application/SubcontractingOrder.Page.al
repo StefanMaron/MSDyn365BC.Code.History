@@ -490,7 +490,7 @@ page 12152 "Subcontracting Order"
                     trigger OnAction()
                     begin
                         CopyPurchDoc.SetPurchHeader(Rec);
-                        CopyPurchDoc.RunModal;
+                        CopyPurchDoc.RunModal();
                         Clear(CopyPurchDoc);
                     end;
                 }
@@ -519,7 +519,7 @@ page 12152 "Subcontracting Order"
                     begin
                         Clear(MoveNegPurchLines);
                         MoveNegPurchLines.SetPurchHeader(Rec);
-                        MoveNegPurchLines.RunModal;
+                        MoveNegPurchLines.RunModal();
                         MoveNegPurchLines.ShowDocument;
                     end;
                 }

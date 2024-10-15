@@ -49,7 +49,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if "Bill-to Customer No." is blocked
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with Customer "X"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -73,7 +73,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if "Posting Date" is outside of allowed posting period from General Ledger Setup
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with "Posting Date" = 01.01
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -97,7 +97,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if it was already cancelled
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -122,7 +122,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if it's not corrective document
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo
         PostCrMemo(SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsPost;
@@ -144,7 +144,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if Inventory Period is closed
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with "Posting Date" = 01.01
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -160,7 +160,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         Assert.ExpectedError(InvtPeriodClosedErr);
 
         // Tear down
-        LibraryLowerPermissions.SetO365Setup;
+        LibraryLowerPermissions.SetO365Setup();
         InventoryPeriod.Delete();
     end;
 
@@ -174,7 +174,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if item is blocked
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo cancelled Invoice with Item = "X"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -200,7 +200,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel corrective Sales Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B1" cancelled Invoice "A1"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -226,7 +226,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if invoice applied partially
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted unapplied Credit Memo "B" cancelled Invoice "A" with Amount = 100
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
         UnapplyDocument(CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
@@ -257,7 +257,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UT] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo if there are detailed entries applied different from "Initial Entry" and "Application"
 
-        Initialize;
+        Initialize();
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsPost;
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", SalesCrMemoHeader."No.");
@@ -278,7 +278,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         // [SCENARIO 168492] Corrective Invoice is generated when cancel Corrective Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
         LibraryLowerPermissions.SetSalesDocsPost;
@@ -318,7 +318,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Unapplication]
         // [SCENARIO 168492] Corrective Invoice is generated when unapply corrective credit memo from invoice before the cancellation
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -350,7 +350,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         // [FEATURE] [Unapplication]
         // [SCENARIO 168492] Corrective Invoice is generated when there is invoice different from original fully applied and unapplied to this credit memo before cancellation
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A" with Amount = 100
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
@@ -390,7 +390,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         // [SCENARIO 168492] It is possible to cancel original invoice after the corrective credit memo applied to this invoice was cancelled
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
         OrigSalesInvHeader.Get(SalesCrMemoHeader."Applies-to Doc. No.");
@@ -424,7 +424,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Unapplication] [Cancellation Not Allowed]
         // [SCENARIO 168492] It's not possible to cancel Posted Credit Memo when there are other multiple invoices applied and unapplied fully to this credit memo before cancellation
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted unapplied Credit Memo "B" cancelled Invoice "A" with Amount = 100
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
@@ -462,7 +462,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 168492] Action "Cancel Credit Memo" on "Posted Sales Credit Memos" page should cancel current Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -501,7 +501,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 168492] Action "Cancel Credit Memo" on "Posted Sales Credit Memo" page should cancel current Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemo(SalesCrMemoHeader);
 
@@ -546,7 +546,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [SCM] [Cost Application] [Item Application Entry]
         // [SCENARIO 168492] Cost application posted correctly after reapply when cancel Sales Invoice second time
 
-        Initialize;
+        Initialize();
         // [GIVEN] Positive Adjustment "A1"
         // [GIVEN] Positive Adjustment "A2"
         // [GIVEN] Invoice "I1"
@@ -600,7 +600,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Invoice Rounding]
         // [SCENARIO 169199] Corrective Invoice is rounded according to "Inv. Rounding Precision" when cancel Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup"
         LibraryERM.SetInvRoundingPrecisionLCY(1);
 
@@ -635,7 +635,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Blocked]
         // [SCENARIO] Corrective Credit Memo fails to post if Invoice contains GLAccount, not allowed for direct posting.
 
-        Initialize;
+        Initialize();
         // [GIVEN] "Invoice Rounding Precision" is 1.00 in "General Ledger Setup"
         LibraryERM.SetInvRoundingPrecisionLCY(1);
 
@@ -679,7 +679,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Sales Credit Memo" open Corrective Invoice when called from canceled Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
@@ -713,7 +713,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Invoice" on page "Posted Sales Credit Memos" open Corrective Invoice when called from canceled Credit Memo
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
@@ -747,7 +747,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Sales Invoice" open Canceled Credit Memo when called from corrective Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
@@ -781,7 +781,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 170460] Action "Show Canceled/Corrective Credit Memo" on page "Posted Sales Invoices" open Canceled Credit Memo when called from corrective Invoice
 
-        Initialize;
+        Initialize();
         // [GIVEN] Posted Credit Memo "B" cancelled Invoice "A"
         CancelInvoiceByCreditMemoWithFixedAmount(SalesCrMemoHeader);
 
@@ -813,7 +813,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [UI]
         // [SCENARIO 172717] It should not be possible to cancel regular Sales Credit Memo
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Credit Memo "X"
         PostCrMemo(SalesCrMemoHeader);
@@ -837,7 +837,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Fixed Asset]
         // [SCENARIO 206572] Stan cannot correct Posted Sales Invoice with Fixed Asset
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Fixed Asset (Acquisition)
         FANo := PostPurchInvWithFixedAsset;
@@ -863,7 +863,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Fixed Asset]
         // [SCENARIO 206572] Stan cannot cancel Posted Sales Invoice with Fixed Asset
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Fixed Asset (Acquisition)
         FANo := PostPurchInvWithFixedAsset;
@@ -890,7 +890,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         // [FEATURE] [Corrective Credit Memo] [Fixed Asset]
         // [SCENARIO 206572] Stan cannot create Corrective Sales Credit Memo for Posted Sales Invoice with Fixed Asset
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with Fixed Asset (Acquisition)
         FANo := PostPurchInvWithFixedAsset;
@@ -916,7 +916,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         // [FEATURE] [Sales] [Credit Memo] [UT]
         // [SCENARIO 322909] Cassie can cancel Posted Sales Credit Memo with Item of Type Service when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::Service, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
@@ -938,7 +938,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         // [FEATURE] [Sales] [Credit Memo] [UT]
         // [SCENARIO 322909] Cassie can cancel Posted Sales Credit Memo with Item of Type Non-Inventory when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::"Non-Inventory", GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
@@ -960,7 +960,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         // [FEATURE] [Sales] [Credit Memo] [UT]
         // [SCENARIO 322909] Cassie can't cancel Posted Sales Credit Memo with Item of Type Inventory when COGS account is empty in General Posting Setup.
-        Initialize;
+        Initialize();
 
         CancelInvoiceByCreditMemoWithItemType(SalesCrMemoHeader, Item.Type::Inventory, GeneralPostingSetup);
         CleanCOGSAccountOnGenPostingSetup(GeneralPostingSetup);
@@ -981,17 +981,17 @@ codeunit 137026 "Sales Correct Cr. Memo"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Sales Correct Cr. Memo");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Correct Cr. Memo");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.UpdateFAPostingType;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
@@ -1023,7 +1023,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
           SalesHeader."Customer Posting Group", SalesHeader."Gen. Bus. Posting Group");
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         SalesInvHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvHeader.FindLast;
+        SalesInvHeader.FindLast();
         CancelInvoice(SalesCrMemoHeader, SalesInvHeader);
     end;
 
@@ -1066,7 +1066,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         PostDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         SalesInvHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesInvHeader.FindLast;
+        SalesInvHeader.FindLast();
     end;
 
     local procedure PostCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -1075,7 +1075,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         PostDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         SalesCrMemoHeader.SetRange("Pre-Assigned No.", SalesHeader."No.");
-        SalesCrMemoHeader.FindLast;
+        SalesCrMemoHeader.FindLast();
     end;
 
     local procedure PostDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
@@ -1212,7 +1212,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         SalesCrMemoLine.SetRange(Type, SalesCrMemoLine.Type::Item);
         SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHeader."No.");
-        SalesCrMemoLine.FindFirst;
+        SalesCrMemoLine.FindFirst();
         Item.Get(SalesCrMemoLine."No.");
         Item.Validate(Blocked, true);
         Item.Modify(true);
@@ -1309,7 +1309,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     local procedure FindLastSalesInvHeader(var SalesInvHeader: Record "Sales Invoice Header"; CustNo: Code[20])
     begin
         SalesInvHeader.SetRange("Bill-to Customer No.", CustNo);
-        SalesInvHeader.FindLast;
+        SalesInvHeader.FindLast();
     end;
 
     local procedure FindItemLedgEntryNo(ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"): Integer
@@ -1318,7 +1318,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
     begin
         ItemLedgEntry.SetRange("Item No.", ItemNo);
         ItemLedgEntry.SetRange("Entry Type", EntryType);
-        ItemLedgEntry.FindLast;
+        ItemLedgEntry.FindLast();
         exit(ItemLedgEntry."Entry No.");
     end;
 
@@ -1345,7 +1345,7 @@ codeunit 137026 "Sales Correct Cr. Memo"
         SalesInvLine: Record "Sales Invoice Line";
     begin
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
-        SalesInvLine.FindFirst;
+        SalesInvLine.FindFirst();
         SalesInvLine.SetRange(Type, SalesInvLine.Type::" ");
         SalesInvLine.TestField(Description, StrSubstNo(CrMemoCancellationTxt, SalesInvHeader."Applies-to Doc. No."));
     end;

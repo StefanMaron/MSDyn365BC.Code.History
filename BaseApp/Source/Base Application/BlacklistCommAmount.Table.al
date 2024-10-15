@@ -32,7 +32,7 @@ table 12194 "Blacklist Comm. Amount"
     begin
         Reset;
         SetFilter("Start Date", '<=%1', Date);
-        if FindLast then
+        if FindLast() then
             exit("Threshold Amount");
         exit(0);
     end;

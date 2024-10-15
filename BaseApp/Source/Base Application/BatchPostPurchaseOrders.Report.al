@@ -1,4 +1,4 @@
-report 496 "Batch Post Purchase Orders"
+﻿report 496 "Batch Post Purchase Orders"
 {
     Caption = 'Batch Post Purchase Orders';
     ProcessingOnly = true;
@@ -136,16 +136,18 @@ report 496 "Batch Post Purchase Orders"
 
     var
         Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
+        Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+
+    protected var
         ReceiveReq: Boolean;
         InvReq: Boolean;
         PostingDateReq: Date;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
-        Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 
     procedure InitializeRequest(NewReceiveReq: Boolean; NewInvReq: Boolean; NewPostingDateReq: Date; NewReplacePostingDate: Boolean; NewReplaceDocumentDate: Boolean; NewCalcInvDisc: Boolean)
     var

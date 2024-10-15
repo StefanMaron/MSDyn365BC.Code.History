@@ -19,7 +19,7 @@
                     ItemLedgEntry: Record "Item Ledger Entry";
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Entry Type" in ["Entry Type"::Sale, "Entry Type"::Purchase] then begin
@@ -32,7 +32,7 @@
                                                "Document Type"::"Purchase Receipt", "Document Type"::"Purchase Return Shipment"]
                         then begin
                             ItemLedgEntry.SetRange("Document Type", "Document Type");
-                            if ItemLedgEntry.FindSet then
+                            if ItemLedgEntry.FindSet() then
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
                                         CurrReport.Skip();
@@ -61,7 +61,7 @@
                                     IntrastatJnlLine2.Reset();
                                     IntrastatJnlLine2.SetRange("Item No.", "Item No.");
                                     IntrastatJnlLine2.SetRange("Document No.", ValueEntry."Document No.");
-                                    if not IntrastatJnlLine2.FindFirst then
+                                    if not IntrastatJnlLine2.FindFirst() then
                                         InsertItemJnlLine;
                                 end;
                         until ValueEntry.Next() = 0;
@@ -179,10 +179,10 @@
 
                                     TempCustLedgEntry.SetRange("Document Type", TempCustLedgEntry."Document Type"::Invoice);
                                     TempCustLedgEntry.SetFilter("Posting Date", '<%1', StartDate);
-                                    if TempCustLedgEntry.FindSet then
+                                    if TempCustLedgEntry.FindSet() then
                                         repeat
                                             FilterVATEntryOnCustLedgEntry(VATEntry, TempCustLedgEntry);
-                                            if VATEntry.FindSet then
+                                            if VATEntry.FindSet() then
                                                 repeat
                                                     InsertEUServiceLine(VATEntry);
                                                 until VATEntry.Next() = 0;
@@ -201,10 +201,10 @@
 
                                     TempVendLedgEntry.SetRange("Document Type", TempVendLedgEntry."Document Type"::Invoice);
                                     TempVendLedgEntry.SetFilter("Posting Date", '<%1', StartDate);
-                                    if TempVendLedgEntry.FindSet then
+                                    if TempVendLedgEntry.FindSet() then
                                         repeat
                                             FilterVATEntryOnVendLedgEntry(VATEntry, TempVendLedgEntry);
-                                            if VATEntry.FindSet then
+                                            if VATEntry.FindSet() then
                                                 repeat
                                                     InsertEUServiceLine(VATEntry);
                                                 until VATEntry.Next() = 0;
@@ -250,7 +250,7 @@
             begin
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
-                    if IntrastatJnlLine2.FindFirst then
+                    if IntrastatJnlLine2.FindFirst() then
                         CurrReport.Skip();
 
                     if "Item Ledger Entry".Get("Item Ledger Entry No.")
@@ -358,7 +358,7 @@
                         begin
                             SetIntrastatJnlBatchFilter(IntrastatJnlBatch2);
                             IntrastatJnlBatch2.SetRange(Name, CorrectedIntrastatRepNo);
-                            if not IntrastatJnlBatch2.FindFirst then
+                            if not IntrastatJnlBatch2.FindFirst() then
                                 Error(Text12100,
                                   CorrectedIntrastatRepNo, IntrastatJnlBatch2.GetFilters);
                         end;
@@ -417,7 +417,7 @@
 
     trigger OnInitReport()
     begin
-        CompanyInfo.FindFirst;
+        CompanyInfo.FindFirst();
     end;
 
     trigger OnPreReport()
@@ -425,7 +425,7 @@
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlLine.LockTable();
-        if IntrastatJnlLine.FindLast then
+        if IntrastatJnlLine.FindLast() then
             if not Confirm(LinesDeletionConfirmationTxt, true, IntrastatJnlLine."Journal Batch Name", IntrastatJnlLine."Journal Template Name") then
                 CurrReport.Quit;
 
@@ -444,7 +444,6 @@
 
     var
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         IntrastatJnlLine2: Record "Intrastat Jnl. Line";
         Item: Record Item;
@@ -456,14 +455,10 @@
         SalesSetup: Record "Sales & Receivables Setup";
         PurchInvHeader: Record "Purch. Inv. Header";
         UOMMgt: Codeunit "Unit of Measure Management";
-        StartDate: Date;
-        EndDate: Date;
-        IndirectCostPctReq: Decimal;
         TotalInvoicedQty: Decimal;
         TotalAmt: Decimal;
         AddCurrencyFactor: Decimal;
         GLSetupRead: Boolean;
-        ShowBlank: Boolean;
         CustomsOfficeNo: Code[10];
         CorrectedIntrastatRepNo: Code[10];
         Text12100: Label 'There is no %1 with in the filter.\\Filters: %2';
@@ -472,10 +467,17 @@
         CustomsOfficeNoEnable: Boolean;
         [InDataSet]
         CorrectedIntrastatRepNoEnable: Boolean;
-        SkipZeroAmounts: Boolean;
-        ShowItemCharges: Boolean;
         LinesDeletionConfirmationTxt: Label 'The existing lines for Intrastat journal batch %1 of Intrastat journal template %2 will be deleted. Do you want to continue?', Comment = '%1 - Intrastat Journal Batch; %2 -  Intrastat Journal Template';
+
+    protected var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        StartDate: Date;
+        EndDate: Date;
+        IndirectCostPctReq: Decimal;
         IncludeIntraCommunityEntries: Boolean;
+        SkipZeroAmounts: Boolean;
+        ShowBlank: Boolean;
+        ShowItemCharges: Boolean;
 
     procedure SetIntrastatJnlLine(NewIntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
@@ -657,7 +659,7 @@
                             ItemLedgEntry2.SetRange("Item No.", "Item No.");
                             ItemLedgEntry2.SetRange("Posting Date", "Posting Date");
                             ItemLedgEntry2.SetRange("Applies-to Entry", "Entry No.");
-                            ItemLedgEntry2.FindFirst;
+                            ItemLedgEntry2.FindFirst();
                         end else
                             ItemLedgEntry2.Get("Applies-to Entry");
                         if (ItemLedgEntry2."Country/Region Code" <> CompanyInfo."Country/Region Code") and
@@ -1128,7 +1130,7 @@
             IntrastatJnlLine2.SetRange("Document No.", VATEntry."Document No.");
             if not HasApplications then
                 IntrastatJnlLine2.SetRange("Service Tariff No.", VATEntry."Service Tariff No.");
-            if not IntrastatJnlLine2.FindFirst then begin
+            if not IntrastatJnlLine2.FindFirst() then begin
                 Init;
                 "Line No." := "Line No." + 10000;
                 "Source Type" := "Source Type"::"VAT Entry";
@@ -1181,7 +1183,7 @@
             SetFilter("Subcontr. Purch. Order No.", '%1', ItemLedgerEntry."Subcontr. Purch. Order No.");
             SetFilter("Subcontr. Purch. Order Line", '%1', ItemLedgerEntry."Subcontr. Purch. Order Line");
             SetFilter(Positive, '%1', ItemLedgerEntry.Positive);
-            FindFirst;
+            FindFirst();
             exit("Entry No." = ItemLedgerEntry."Entry No.");
         end;
     end;
@@ -1198,7 +1200,7 @@
         ValueEntry2.SetRange("Item No.", ValueEntry."Item No.");
         ValueEntry2.SetFilter("Item Charge No.", '<>%1', '');
         ValueEntry2.SetRange("Document No.", ValueEntry."Document No.");
-        if ValueEntry2.FindSet then begin
+        if ValueEntry2.FindSet() then begin
             repeat
                 ActualAmount := GetActualAmount(ValueEntry2);
                 if IntrastatJnlBatch."Amounts in Add. Currency" then
@@ -1300,7 +1302,7 @@
         DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
         DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DtldCustLedgEntry.SetRange(Unapplied, false);
-        if DtldCustLedgEntry.FindSet then
+        if DtldCustLedgEntry.FindSet() then
             repeat
                 if DtldCustLedgEntry."Cust. Ledger Entry No." = DtldCustLedgEntry."Applied Cust. Ledger Entry No." then begin
                     DtldCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
@@ -1308,11 +1310,11 @@
                       "Applied Cust. Ledger Entry No.", DtldCustLedgEntry."Applied Cust. Ledger Entry No.");
                     DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::Application);
                     DtldCustLedgEntry2.SetRange(Unapplied, false);
-                    if DtldCustLedgEntry2.FindSet then begin
+                    if DtldCustLedgEntry2.FindSet() then begin
                         repeat
                             if DtldCustLedgEntry2."Cust. Ledger Entry No." <> DtldCustLedgEntry2."Applied Cust. Ledger Entry No." then begin
                                 CustLedgEntry2.SetRange("Entry No.", DtldCustLedgEntry2."Cust. Ledger Entry No.");
-                                if CustLedgEntry2.FindFirst then begin
+                                if CustLedgEntry2.FindFirst() then begin
                                     TempAppliedCustLedgEntry := CustLedgEntry2;
                                     TempAppliedCustLedgEntry.Insert();
                                 end;
@@ -1321,7 +1323,7 @@
                     end;
                 end else begin
                     CustLedgEntry2.SetRange("Entry No.", DtldCustLedgEntry."Applied Cust. Ledger Entry No.");
-                    if CustLedgEntry2.FindFirst then begin
+                    if CustLedgEntry2.FindFirst() then begin
                         TempAppliedCustLedgEntry := CustLedgEntry2;
                         TempAppliedCustLedgEntry.Insert();
                     end;
@@ -1341,7 +1343,7 @@
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetRange(Unapplied, false);
-        if DtldVendLedgEntry.FindSet then
+        if DtldVendLedgEntry.FindSet() then
             repeat
                 if DtldVendLedgEntry."Vendor Ledger Entry No." = DtldVendLedgEntry."Applied Vend. Ledger Entry No." then begin
                     DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
@@ -1349,11 +1351,11 @@
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
                     DtldVendLedgEntry2.SetRange(Unapplied, false);
-                    if DtldVendLedgEntry2.FindSet then begin
+                    if DtldVendLedgEntry2.FindSet() then begin
                         repeat
                             if DtldVendLedgEntry2."Vendor Ledger Entry No." <> DtldVendLedgEntry2."Applied Vend. Ledger Entry No." then begin
                                 VendLedgEntry2.SetRange("Entry No.", DtldVendLedgEntry2."Vendor Ledger Entry No.");
-                                if VendLedgEntry2.FindFirst then begin
+                                if VendLedgEntry2.FindFirst() then begin
                                     TempAppliedVendLedgEntry := VendLedgEntry2;
                                     TempAppliedVendLedgEntry.Insert();
                                 end;
@@ -1362,7 +1364,7 @@
                     end;
                 end else begin
                     VendLedgEntry2.SetRange("Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
-                    if VendLedgEntry2.FindFirst then begin
+                    if VendLedgEntry2.FindFirst() then begin
                         TempAppliedVendLedgEntry := VendLedgEntry2;
                         TempAppliedVendLedgEntry.Insert();
                     end;
@@ -1396,7 +1398,7 @@
             SetCurrentKey("Transaction No.");
             SetRange("Transaction No.", VATEntry."Transaction No.");
             SetRange("Document No.", VATEntry."Document No.");
-            if FindFirst then
+            if FindFirst() then
                 exit("Entry No.");
         end;
     end;
@@ -1409,7 +1411,7 @@
             SetCurrentKey("Transaction No.");
             SetRange("Transaction No.", VATEntry."Transaction No.");
             SetRange("Document No.", VATEntry."Document No.");
-            if FindFirst then
+            if FindFirst() then
                 exit("Entry No.");
         end;
     end;

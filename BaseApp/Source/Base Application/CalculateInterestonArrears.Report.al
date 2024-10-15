@@ -229,7 +229,7 @@ report 12107 "Calculate Interest on Arrears"
                     CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
                     CustLedgerEntry.SetFilter("Posting Date", '<%1', CreateCustLedgEntry."Due Date");
-                    if CustLedgerEntry.FindSet then
+                    if CustLedgerEntry.FindSet() then
                         repeat
                             CustLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                             TotalAmount := TotalAmount + CustLedgerEntry."Amount (LCY)";
@@ -237,7 +237,7 @@ report 12107 "Calculate Interest on Arrears"
                     CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
                     CustLedgerEntry.SetFilter("Posting Date", '>=%1', CreateCustLedgEntry."Due Date");
-                    if CustLedgerEntry.FindSet then
+                    if CustLedgerEntry.FindSet() then
                         repeat
                             ix2 := ix2 + 1;
                             DueDateTmp[ix2] := CustLedgerEntry."Posting Date";
@@ -263,7 +263,7 @@ report 12107 "Calculate Interest on Arrears"
                         CustLedgerEntry.SetCurrentKey("Closed by Entry No.");
                         CustLedgerEntry.SetRange("Closed by Entry No.", CreateCustLedgEntry."Entry No.");
                         CustLedgerEntry.SetFilter("Posting Date", '>=%1', CreateCustLedgEntry."Due Date");
-                        if CustLedgerEntry.FindSet then
+                        if CustLedgerEntry.FindSet() then
                             repeat
                                 CustLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                                 ix := ix + 1;
@@ -594,7 +594,7 @@ report 12107 "Calculate Interest on Arrears"
                     VenLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     VenLedgerEntry.SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
                     VenLedgerEntry.SetFilter("Posting Date", '<%1', CreateVendLedgEntry."Due Date");
-                    if VenLedgerEntry.FindSet then
+                    if VenLedgerEntry.FindSet() then
                         repeat
                             VenLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                             TotalAmount := TotalAmount + VenLedgerEntry."Amount (LCY)";
@@ -603,7 +603,7 @@ report 12107 "Calculate Interest on Arrears"
                     VenLedgerEntry.SetCurrentKey("Closed by Entry No.");
                     VenLedgerEntry.SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
                     VenLedgerEntry.SetFilter("Posting Date", '>=%1', CreateVendLedgEntry."Due Date");
-                    if VenLedgerEntry.FindSet then
+                    if VenLedgerEntry.FindSet() then
                         repeat
                             ix2 := ix2 + 1;
                             DueDateTmp[ix2] := VenLedgerEntry."Posting Date";
@@ -630,7 +630,7 @@ report 12107 "Calculate Interest on Arrears"
                         VenLedgerEntry.SetCurrentKey("Closed by Entry No.");
                         VenLedgerEntry.SetRange("Closed by Entry No.", CreateVendLedgEntry."Entry No.");
                         VenLedgerEntry.SetFilter("Posting Date", '>=%1', CreateVendLedgEntry."Due Date");
-                        if VenLedgerEntry.FindSet then
+                        if VenLedgerEntry.FindSet() then
                             repeat
                                 VenLedgerEntry.CalcFields("Amount (LCY)", "Remaining Amt. (LCY)");
                                 ix := ix + 1;
@@ -912,14 +912,14 @@ report 12107 "Calculate Interest on Arrears"
         InterestonArrears.SetCurrentKey(Code, "Starting Date");
         InterestonArrears.SetRange(Code, InterestCode);
         InterestonArrears.SetFilter("Starting Date", '<=%1', CalcDate('<+1D>', DueDate));
-        if InterestonArrears.FindLast then
+        if InterestonArrears.FindLast() then
             StartDate := InterestonArrears."Starting Date"
         else
             Error(InvalidCalcPeriodErr, DueDate, InterestonArrears.TableCaption, InterestCode);
         InterestonArrears.Ascending(true);
         InterestonArrears.SetRange(Code, InterestCode);
         InterestonArrears.SetFilter("Starting Date", '>%1', StartDate);
-        if InterestonArrears.FindFirst then
+        if InterestonArrears.FindFirst() then
             DateSecond := InterestonArrears."Starting Date"
         else
             DateSecond := EndingDate;
@@ -930,7 +930,7 @@ report 12107 "Calculate Interest on Arrears"
         InterestonArrears.SetFilter("Starting Date", '%1..%2', StartDate, EndingDate);
         TotalCount := InterestonArrears.Count();
         CurrentCount := 0;
-        if InterestonArrears.FindSet then
+        if InterestonArrears.FindSet() then
             repeat
                 RateFirst := InterestonArrears."Interest Rate";
                 if (RateLabel <> Format(InterestonArrears."Interest Rate")) and (RateLabel <> '') then
@@ -954,7 +954,7 @@ report 12107 "Calculate Interest on Arrears"
                 InterestonArrearsNext.Reset();
                 InterestonArrearsNext.SetRange(Code, InterestCode);
                 InterestonArrearsNext.SetFilter("Starting Date", '%1..', CalcDate('<+1D>', DateSecond));
-                if InterestonArrearsNext.FindFirst then begin
+                if InterestonArrearsNext.FindFirst() then begin
                     if EndingDate > InterestonArrearsNext."Starting Date" then
                         DateSecond := InterestonArrearsNext."Starting Date"
                     else

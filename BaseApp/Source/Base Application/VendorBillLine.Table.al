@@ -259,7 +259,7 @@ table 12182 "Vendor Bill Line"
         if not "Manual Line" then begin
             PurchInvHeader.Get("Document No.");
             PostedPurchInv.SetRecord(PurchInvHeader);
-            PostedPurchInv.RunModal;
+            PostedPurchInv.RunModal();
         end else
             Error(Text12100, "Document No.");
     end;
@@ -272,7 +272,7 @@ table 12182 "Vendor Bill Line"
         VendBillWithhTax.Get("Vendor Bill List No.", "Line No.");
         VendBillWithholdTax.SetRecord(VendBillWithhTax);
         VendBillWithholdTax.SetValues(Open);
-        VendBillWithholdTax.RunModal;
+        VendBillWithholdTax.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -291,7 +291,7 @@ table 12182 "Vendor Bill Line"
                 CompWithhTax.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
                 CompWithhTax.SetRange("Vendor No.", "Vendor No.");
                 CompWithhTax.SetRange("Document No.", "Document No.");
-                if CompWithhTax.FindFirst then begin
+                if CompWithhTax.FindFirst() then begin
                     InitValues;
                     VendBillWithhTax."Currency Code" := CompWithhTax."Currency Code";
                     VendBillWithhTax."External Document No." := CompWithhTax."External Document No.";
@@ -404,7 +404,7 @@ table 12182 "Vendor Bill Line"
         ComputedContribution.SetCurrentKey("Vendor No.", "Document Date", "Document No.");
         ComputedContribution.SetRange("Vendor No.", "Vendor No.");
         ComputedContribution.SetRange("Document No.", "Document No.");
-        if ComputedContribution.FindFirst then begin
+        if ComputedContribution.FindFirst() then begin
             VendorBillWithholdingTax."Social Security Code" := ComputedContribution."Social Security Code";
             VendorBillWithholdingTax.Validate("Gross Amount", ComputedContribution."Remaining Gross Amount");
             VendorBillWithholdingTax.Validate("Soc.Sec.Non Taxable Amount", ComputedContribution."Remaining Soc.Sec. Non Taxable");
@@ -420,7 +420,7 @@ table 12182 "Vendor Bill Line"
         VendorLedgerEntry.SetRange("Document Type", "Document Type");
         VendorLedgerEntry.SetRange("Document No.", "Document No.");
         VendorLedgerEntry.SetRange("Vendor No.", "Vendor No.");
-        if VendorLedgerEntry.FindSet then
+        if VendorLedgerEntry.FindSet() then
             repeat
                 VendorLedgerEntry.CalcFields(Amount);
                 TotalAmountABS += Abs(VendorLedgerEntry.Amount);

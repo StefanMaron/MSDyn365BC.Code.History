@@ -902,7 +902,7 @@ report 5607 "Fixed Asset - Projected Value"
             exit(FADateCalc.CalculateDate(PeriodEndingDate, PeriodLength, Year365Days));
         AccountingPeriod.SetFilter(
           "Starting Date", '>=%1', DepreciationCalc.ToMorrow(PeriodEndingDate, Year365Days) + 1);
-        if AccountingPeriod.FindFirst then begin
+        if AccountingPeriod.FindFirst() then begin
             if Date2DMY(AccountingPeriod."Starting Date", 1) <> 31 then
                 UntilDate2 := DepreciationCalc.Yesterday(AccountingPeriod."Starting Date", Year365Days)
             else

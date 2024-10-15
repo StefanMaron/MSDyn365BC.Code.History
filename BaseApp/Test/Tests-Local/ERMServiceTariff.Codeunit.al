@@ -142,7 +142,7 @@ codeunit 144156 "ERM Service Tariff"
 
         // Verify.
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 
@@ -223,7 +223,7 @@ codeunit 144156 "ERM Service Tariff"
         // Verify.
         SalesInvoiceHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Transport Method", TransportMethod);
     end;
 
@@ -303,7 +303,7 @@ codeunit 144156 "ERM Service Tariff"
 
         // Verify.
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         PurchInvLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 
@@ -385,7 +385,7 @@ codeunit 144156 "ERM Service Tariff"
         // Verify.
         PurchInvHeader.SetRange("Prepayment Order No.", PurchaseHeader."No.");
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.TestField("Transport Method", TransportMethod);
     end;
 
@@ -465,9 +465,9 @@ codeunit 144156 "ERM Service Tariff"
 
         // Verify.
         ServiceInvoiceHeader.SetRange("Pre-Assigned No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 

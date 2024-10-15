@@ -62,7 +62,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
 
         with PaymentExportData do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
 
             TempGenJnlLine.FindSet();
             repeat
@@ -125,7 +125,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 OnFillExportBufferOnAfterInsertPaymentExportData(PaymentExportData, TempGenJnlLine, BankExportImportSetup);
                 TempInteger.DeleteAll();
                 GetAppliesToDocEntryNumbers(TempGenJnlLine, TempInteger);
-                if TempInteger.FindSet then
+                if TempInteger.FindSet() then
                     repeat
                         CreateNewCreditTransferEntry(
                             PaymentExportData, CreditTransferEntry, CreditTransferRegister, TempGenJnlLine, 0, TempInteger.Number);
@@ -263,7 +263,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         RecordRef.GetTable(RecVariant);
         FieldRef := RecordRef.FieldIndex(1);
         with RecordRef do begin
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempInteger.Number := FieldRef.Value;
                     TempInteger.Insert();
@@ -290,7 +290,7 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
         RecRef.GetTable(PaymentExportData);
         Field.SetRange(TableNo, RecRef.Number);
         Field.SetRange(FieldName, FieldName);
-        Field.FindFirst;
+        Field.FindFirst();
         FieldRef := RecRef.Field(Field."No.");
         if (Field.Type = Field.Type::Text) and (Format(FieldRef.Value) <> '') then
             exit;

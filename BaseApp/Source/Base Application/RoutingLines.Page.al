@@ -165,6 +165,7 @@ page 99000765 "Routing Lines"
                     Caption = 'Co&mments';
                     Image = ViewComments;
                     ToolTip = 'View or add comments for the record.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -177,6 +178,7 @@ page 99000765 "Routing Lines"
                     Caption = '&Tools';
                     Image = Tools;
                     ToolTip = 'View or edit information about tools that are assigned to the operation.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -189,6 +191,7 @@ page 99000765 "Routing Lines"
                     Caption = '&Personnel';
                     Image = User;
                     ToolTip = 'View or edit the personnel that are assigned to the operation.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -200,6 +203,7 @@ page 99000765 "Routing Lines"
                     ApplicationArea = Manufacturing;
                     Caption = '&Quality Measures';
                     ToolTip = 'View or edit the quality details that are assigned to the operation.';
+                    Enabled = ShowRelatedDataEnabled;
 
                     trigger OnAction()
                     begin
@@ -222,8 +226,14 @@ page 99000765 "Routing Lines"
         }
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        ShowRelatedDataEnabled := "Operation No." <> '';
+    end;
+
     var
         RtngComment: Record "Routing Comment Line";
+        ShowRelatedDataEnabled: Boolean;
 
     local procedure ShowComment()
     begin

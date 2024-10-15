@@ -55,7 +55,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify values on the Report - Depreciation Book after Calculate Depreciation.
 
         // Setup: Create Depreciation Table with Multiple Lines and FA Depreciation Books with Depreciation Book Code.
-        Initialize;
+        Initialize();
         CreateMultipleFADepreciationBookSetups(FADepreciationBook, WorkDate);
 
         // Post Purchase Invoice with Fixed Assets.
@@ -87,7 +87,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify values on the Report - Depreciation Book when Disposal Entry Posted after Reclassification.
 
         // Setup: Create Depreciation Table with Multiple Lines and FA Depreciation Books with Depreciation Book Code.
-        Initialize;
+        Initialize();
         CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate));
 
         // Post General Journal with FA Posting Type Acquisition Cost.
@@ -117,7 +117,7 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // [FEATURE] [FA Disposal]
         // [SCENARIO 372227] Local rep 12119 "Depreciation Book" shows original Acqisition Cost amount and partial Disposal Amount for main Fixed Asset
-        Initialize;
+        Initialize();
         CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate));
 
         // [GIVEN] Create Acquisision Cost on "FA1" with Amount = 1000
@@ -150,7 +150,7 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // [FEATURE] [FA Disposal]
         // [SCENARIO 372227] Local rep 12119 "Depreciation Book" shows zero amounts for Reclassified Fixed Asset
-        Initialize;
+        Initialize();
         CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate));
 
         // [GIVEN] Create Acquisision Cost on "FA1" with Amount = 1000
@@ -183,7 +183,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify values on the Report - Depreciation Book after Reclassification.
 
         // Setup: Create Depreciation Table with Multiple Lines and FA Depreciation Books with Depreciation Book Code.
-        Initialize;
+        Initialize();
         CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate));
 
         // Post General Journal with FA Posting Type Acquisition Cost.
@@ -222,7 +222,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify Total Depreciation Percentage on the Depreciation Table Card (5659).
 
         // Setup: Create Depreciation Table Lines with Period Depreciation %.
-        Initialize;
+        Initialize();
         DepreciationTableCode := CreateDepreciationTableWithMultipleLines;
 
         // Exercise & Verify: Open Depreciation Table Card and Verify Total Depreciation Percentage.
@@ -238,7 +238,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify Amount on FA Ledger Entry when Purchase Invoice posted with Multiple Fixed Assets with Depreciation Code.
 
         // Setup: Create FA Depreciation Books with Depreciation Book Code.
-        Initialize;
+        Initialize();
         CreateFADepreciationBookSetup(FADepreciationBook[1], '', WorkDate, CreateDepreciationBookAndFAJournalSetup);  // Depreciation Table Code as blank.
         CreateFADepreciationBookSetup(FADepreciationBook[2], '', WorkDate, FADepreciationBook[1]."Depreciation Book Code");  // Depreciation Table Code as blank.
 
@@ -262,7 +262,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify Amount on Vendor Ledger Entry when VAT Transaction Report Amount is specified.
 
         // Setup: Create VAT Transaction Report Amount, FA Depreciation Book and Purchase Invoice.
-        Initialize;
+        Initialize();
         UpdateVATTransactionReportAmount(VATTransactionReportAmount);
         CreateFADepreciationBookSetup(FADepreciationBook, '', WorkDate, CreateDepreciationBookAndFAJournalSetup);
         CreatePurchaseHeader(PurchaseHeader);
@@ -292,7 +292,7 @@ codeunit 144143 "ERM FA Deprciation"
         // Test to verify Amount on Customer Ledger Entry when VAT Transaction Report Amount is specified.
 
         // Setup: Create VAT Transaction Report Amount, FA Depreciation Book and Sales Invoice.
-        Initialize;
+        Initialize();
         UpdateVATTransactionReportAmount(VATTransactionReportAmount);
         CreateFADepreciationBookSetup(FADepreciationBook, '', WorkDate, CreateDepreciationBookAndFAJournalSetup);  // Depreciation Table Code as blank.
         CreateAndPostGenJournalLine(
@@ -338,7 +338,7 @@ codeunit 144143 "ERM FA Deprciation"
         Amount2: Decimal;
     begin
         // Test to verify Totals -  2 FAs, 2 Classes, 2 Subclasses
-        Initialize;
+        Initialize();
         DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
 
         Amount1 := PurchFAWithFAClassSubclass(DeprBookCode, CreateFAClass, CreateFASubclass, WorkDate);
@@ -362,7 +362,7 @@ codeunit 144143 "ERM FA Deprciation"
         Amount2: Decimal;
     begin
         // Test to verify Totals - 2 FAs, 2 Classes, 1 Subclass
-        Initialize;
+        Initialize();
         DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
         FASubclassCode := CreateFASubclass;
 
@@ -387,7 +387,7 @@ codeunit 144143 "ERM FA Deprciation"
         Amount2: Decimal;
     begin
         // Test to verify Totals - 2 FAs, 1 Class, 2 Subclasses
-        Initialize;
+        Initialize();
         DeprBookCode := CreateDepreciationBookAndFAJournalSetup;
         FAClassCode := CreateFAClass;
 
@@ -442,7 +442,7 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // [FEATURE] [Reclassification]
         // [SCENARIO 379832] Depreciation Book report shows line Reclassification for two FA after calculation depreciation and posting reclassification
-        Initialize;
+        Initialize();
 
         // [GIVEN] "FA1" and "FA2" with different depreciation books
         CreateMultipleFADepreciationBookSetups(FADepreciationBook, CalcDate('<1Y>', WorkDate));
@@ -498,7 +498,7 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         // [FEATURE] [Report] [FA Disposal] [Reclassification] [Depreciation Book]
         // [SCENARIO 331401] Report 12119 "Depreciation Book" do not mix reclassification amounts for "Addition in Period" and "Disposal in Period" when FA was reclassified and depreciated at the same period.
-        Initialize;
+        Initialize();
         DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup;
         DepreciationTableCode := CreateDepreciationTableWithMultipleLines;
         CreateFAPostingGroup(FAPostingGroupCode);
@@ -891,7 +891,7 @@ codeunit 144143 "ERM FA Deprciation"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateAndPostDisposalAfterReclassification(FADepreciationBook: array[2] of Record "FA Depreciation Book"; InitialAmount: Decimal; ReclassAmount: Decimal; DisposalAmount: Decimal)
@@ -1050,7 +1050,7 @@ codeunit 144143 "ERM FA Deprciation"
         FAReclassJournalTemplate: Record "FA Reclass. Journal Template";
         FAReclassJournalBatch: Record "FA Reclass. Journal Batch";
     begin
-        FAReclassJournalTemplate.FindFirst;
+        FAReclassJournalTemplate.FindFirst();
         LibraryFixedAsset.CreateFAReclassJournalBatch(FAReclassJournalBatch, FAReclassJournalTemplate.Name);
         LibraryFixedAsset.CreateFAReclassJournal(FAReclassJournalLine, FAReclassJournalTemplate.Name, FAReclassJournalBatch.Name);
         FAReclassJournalLine.Validate("FA No.", FADepreciationBook[1]."FA No.");
@@ -1199,7 +1199,7 @@ codeunit 144143 "ERM FA Deprciation"
         FALedgerEntry.SetRange("Depreciation Book Code", DepreciationBookCode);
         FALedgerEntry.SetRange("Document Type", DocumentType);
         FALedgerEntry.SetRange("FA Posting Category", FAPostingCategory);
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
     end;
 
     local procedure GetPeriodDepreciationPerc(DepreciationTableCode: Code[10]) PeriodDepreciationPerc: Decimal
@@ -1243,7 +1243,7 @@ codeunit 144143 "ERM FA Deprciation"
         FindGenJournalBatch(GenJournalBatch);
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -1258,7 +1258,7 @@ codeunit 144143 "ERM FA Deprciation"
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         if UpdateGenPostingType then begin
             GenJournalLine.Validate("Gen. Posting Type", GenJournalLine."Gen. Posting Type"::Purchase);
             GenJournalLine.Modify(true);
@@ -1325,7 +1325,7 @@ codeunit 144143 "ERM FA Deprciation"
         FALedgerEntry: Record "FA Ledger Entry";
     begin
         FALedgerEntry.SetRange("FA No.", FADepreciationBook."FA No.");
-        FALedgerEntry.FindFirst;
+        FALedgerEntry.FindFirst();
         FADepreciationBook.CalcFields("Book Value");
         FALedgerEntry.TestField(Amount, FADepreciationBook."Book Value");
     end;
@@ -1337,7 +1337,7 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         Customer.Get(CustomerNo);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         Customer.CalcFields(Balance);
         CustLedgerEntry.CalcFields(Amount);
         CustLedgerEntry.TestField(Amount, Customer.Balance);
@@ -1350,7 +1350,7 @@ codeunit 144143 "ERM FA Deprciation"
     begin
         Vendor.Get(VendorNo);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
         Vendor.CalcFields(Balance);
         VendorLedgerEntry.CalcFields(Amount);
         VendorLedgerEntry.TestField(Amount, -Vendor.Balance);
@@ -1401,10 +1401,10 @@ codeunit 144143 "ERM FA Deprciation"
             SetRange("Depreciation Book Code", FADepreciationBook."Depreciation Book Code");
             SetRange("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
             SetRange("Reclassification Entry", true);
-            FindFirst;
+            FindFirst();
             AdditionInPeriod := Amount;
             SetRange("Reclassification Entry");
-            FindFirst;
+            FindFirst();
             AmountAtEndDate := Amount + AdditionInPeriod;
             SetRange("FA Posting Type", "FA Posting Type"::Depreciation);
             CalcSums(Amount);

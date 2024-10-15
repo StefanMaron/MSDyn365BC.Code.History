@@ -78,7 +78,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Verify Error when no Balancing Account No. is defined on report.
 
         // Setup: Update New currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CreateCurrencyAndExchangeRate);
         CreateAndPostGenJournalLine(GenJournalLine, CalcDate('<CM>', LibraryFiscalYear.GetLastPostingDate(true)));  // Using true for closed.
 
@@ -105,7 +105,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Check Amount on GL Entry After Running Close Income Statement with Closing Fiscal Year.
 
         // Setup: Update New currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CurrencyCode);
         CreateAndPostGenJournalLine(GenJournalLine, CalcDate('<CM>', LibraryFiscalYear.GetLastPostingDate(true)));  // Using true for closed.
@@ -131,7 +131,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Verify Error when no Closing Account No. is defined on report.
 
         // Setup: Create and post General Journal Line.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
 
         // Exercise: Run Close Open Balance Sheet Report.
@@ -181,7 +181,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Verify Error when no Ending Date is defined on report.
 
         // Setup: Create and post General journal Line.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
 
         // Exercise: Run Close Open Balance Sheet Report.
@@ -198,7 +198,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Check Amount on GL Entry After Running Close Open Balance Sheet Report without additional currency with Closing Fiscal Year.
 
         // Setup: Create and post General Journal Line.
-        Initialize;
+        Initialize();
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
         RunCloseIncomeStatement(GenJournalLine, CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true)), CreateGLAccount);  // Using true for closed.
 
@@ -225,7 +225,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Check Amount on GL Entry After Running Close Open Balance Sheet Report with additional currency with Closing Fiscal Year.
 
         // Setup: Update New currency on General Ledger Setup.
-        Initialize;
+        Initialize();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CurrencyCode);
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
@@ -259,16 +259,16 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Check Amount on GL Entry After Running Close Open Balance Sheet with Additional Currency.
 
         // Setup: Close Already Opened Fiscal Year. Create New One, Update New currency on General Ledger Setup. Create and post General Journal Line.
-        Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
         CurrencyCode := CreateCurrencyAndExchangeRate;
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CurrencyCode);
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false));  // Using false for closed.
         AdditionalCurrencyAmount := LibraryERM.ConvertCurrency(GenJournalLine.Amount, '', CurrencyCode, WorkDate);  // Using blank for To Currecny.
 
         // Close Newly Created Fiscal Year. Customized Date formula required to calculate Fiscal Ending Date.
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
         RunCloseIncomeStatement(GenJournalLine, PostingDate, CreateGLAccount);
 
@@ -293,13 +293,13 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Check Amount on GL Entry After Running Close Open Balance Sheet without Additional Currency.
 
         // Setup: Close Already Opened Fiscal Year. Create New One, Update New currency on General Ledger Setup. Create and post General Journal Line.
-        Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false));  // Using false for closed.
 
         // Close Newly Created Fiscal Year. Customized Date formula required to calculate Fiscal Ending Date.
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
         RunCloseIncomeStatement(GenJournalLine, PostingDate, CreateGLAccount);
 
@@ -321,13 +321,13 @@ codeunit 144113 "ERM Close Income Statement IT"
         // Check GL Account No. after running Fiscal Year Balance report.
 
         // Setup: Close Already Opened Fiscal Year. Create New One, Update New currency on General Ledger Setup. Create and post General Journal Line.
-        Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
         CreateAndPostGenJournalLine(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false));  // Using False for closed.
 
         // Close Newly Created Fiscal Year. Customized Date formula required to calculate Fiscal Ending Date.
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
         RunCloseIncomeStatement(GenJournalLine, PostingDate, CreateGLAccount);
         RunCloseOpenBalanceSheet(GenJournalLine, GenJournalLine."Account No.", IncStr(GenJournalLine."Document No."), false, PostingDate);  // false for Business Unit and true for closed.
@@ -374,19 +374,19 @@ codeunit 144113 "ERM Close Income Statement IT"
         // [FEATURE] [Additional Currency]
         // [SCENARIO 363241] Run Close Income Statement and Closed/Open Balance Sheet with Additional Currency
         // [GIVEN] Additional Currency is set
-        Initialize;
+        Initialize();
         OldAdditionalReportingCurrency := UpdateAddnlReportingCurrencyGeneralLedgerSetup(CreateCurrencyAndExchangeRate);
         // [GIVEN] Closed Current Fiscal Year
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         // [GIVEN] Opened new Fiscal Year
-        LibraryFiscalYear.CreateFiscalYear;
+        LibraryFiscalYear.CreateFiscalYear();
         // [GIVEN] Posted document with dimensions and amount "X"
         // There is no inconsistent error when dimensions are not involved
         PostingDate := LibraryFiscalYear.GetFirstPostingDate(false);
         CreateAndPostGenJournalLineWithDim(GenJournalLine, PostingDate, TempDimSetEntry, true);
 
         // [GIVEN] Closed newly created Fiscal Year
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         DocumentNo := IncStr(GenJournalLine."Document No.");
         // [GIVEN] Ran Income Statement Report
         RunCloseIncomeStatement(
@@ -572,13 +572,13 @@ codeunit 144113 "ERM Close Income Statement IT"
         DocumentNo: Code[20];
     begin
         // Setup: Close Already Opened Fiscal Year. Create New One, Create and post General Journal Line, run Close Income Statement
-        Initialize;
-        LibraryFiscalYear.CloseFiscalYear;
-        LibraryFiscalYear.CreateFiscalYear;
+        Initialize();
+        LibraryFiscalYear.CloseFiscalYear();
+        LibraryFiscalYear.CreateFiscalYear();
         CreateAndPostGenJournalLineWithDim(GenJournalLine, LibraryFiscalYear.GetFirstPostingDate(false), TempDimSetEntry, GlobalDimOnly);
 
         // Close Newly Created Fiscal Year. Customized Date formula required to calculate Fiscal Ending Date.
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CloseFiscalYear();
         PostingDate := CalcDate('<1M-1D>', LibraryFiscalYear.GetLastPostingDate(true));  // Using true for closed.
 
         SelectDimForCloseIncomeStatement(TempDimSetEntry);
@@ -597,7 +597,7 @@ codeunit 144113 "ERM Close Income Statement IT"
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; AccountNo: Code[20])
     begin
         GLEntry.SetRange("G/L Account No.", AccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure RunCloseIncomeStatement(GenJournalLine: Record "Gen. Journal Line"; PostingDate: Date; GLAccount: Code[20])
@@ -613,7 +613,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryVariableStorage.Enqueue(true); // Close by Business Unit
         Commit();
         Clear(CloseIncomeStatement);
-        CloseIncomeStatement.Run;
+        CloseIncomeStatement.Run();
     end;
 
     local procedure RunCloseOpenBalanceSheet(GenJournalLine: Record "Gen. Journal Line"; GLAccount: Code[20]; DocumentNo: Code[20]; BusinessUnit: Boolean; FiscalYearEndingDate: Date)
@@ -639,7 +639,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryVariableStorage.Enqueue(BusinessUnit);
         Commit();
         Clear(CloseOpenBalanceSheet);
-        CloseOpenBalanceSheet.Run;
+        CloseOpenBalanceSheet.Run();
     end;
 
     local procedure RunFiscalYearBalance(StartingDate: Date; GLAccount: Code[20])
@@ -650,7 +650,7 @@ codeunit 144113 "ERM Close Income Statement IT"
         LibraryVariableStorage.Enqueue(GLAccount);
         LibraryVariableStorage.Enqueue(StartingDate);
         Clear(FiscalYearBalance);
-        FiscalYearBalance.Run;
+        FiscalYearBalance.Run();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -714,7 +714,7 @@ codeunit 144113 "ERM Close Income Statement IT"
     begin
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
-        GenJournalLine.FindLast;
+        GenJournalLine.FindLast();
         Assert.AreEqual(DimSetId, GenJournalLine."Dimension Set ID", IncorrectDimSetIDErr);
     end;
 

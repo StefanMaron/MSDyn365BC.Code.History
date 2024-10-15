@@ -24,16 +24,16 @@ codeunit 138010 "O365 Sales Invoice Status"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Sales Invoice Status");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Sales Invoice Status");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         isInitialized := true;
         Commit();
@@ -49,7 +49,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         Customer: Record Customer;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(Customer, Item, 1, SalesHeader, SalesInvHeader);
 
         // check that invoice is unpaid and remaining amount is the price of one item, because that's what we invoiced
@@ -66,7 +66,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         Customer: Record Customer;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(Customer, Item, 1, SalesHeader, SalesInvHeader);
 
         // customer paid the full amount of the invoice (1 item) - register it
@@ -86,7 +86,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         Customer: Record Customer;
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         CreateAndPostSalesInvoice(Customer, Item, 2, SalesHeader, SalesInvHeader);
 
         // first payment, customer pays for only one item, he still has to pay for the other item later
@@ -154,7 +154,7 @@ codeunit 138010 "O365 Sales Invoice Status"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         PaymentJournal: TestPage "Payment Journal";
     begin
-        GenJnlBatch.FindLast;
+        GenJnlBatch.FindLast();
         PaymentJournal.OpenEdit;
         PaymentJournal."Document No.".SetValue(NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", SalesInvHeader."Posting Date", false));
         PaymentJournal."Account Type".SetValue(GenJnlLine."Account Type"::Customer);

@@ -15,45 +15,45 @@ page 450 "Issued Finance Charge Memo"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Customer No."; "Customer No.")
+                field("Customer No."; Rec."Customer No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the customer number the finance charge memo is for.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the name of the customer the finance charge memo is for.';
                 }
-                field(Address; Address)
+                field(Address; Rec.Address)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the address of the customer the finance charge memo is for.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field(City; City)
+                field(City; Rec.City)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city name of the customer the finance charge memo is for.';
                 }
-                field(Contact; Contact)
+                field(Contact; Rec.Contact)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the person you regularly contact when you communicate with the customer the finance charge memo is for.';
@@ -85,33 +85,33 @@ page 450 "Issued Finance Charge Memo"
                     Importance = Additional;
                     ToolTip = 'Specifies the email address of the customer contact person the finance charge is for.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the posting date that the finance charge memo was issued on.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Pre-Assigned No."; "Pre-Assigned No.")
+                field("Pre-Assigned No."; Rec."Pre-Assigned No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the finance charge memo.';
                 }
-                field("No. Printed"; "No. Printed")
+                field("No. Printed"; Rec."No. Printed")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how many times the document has been printed.';
                 }
-                field(Canceled; Canceled)
+                field(Canceled; Rec.Canceled)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the issued finance charge memo has been canceled.';
                 }
-                field("Activity Code"; "Activity Code")
+                field("Activity Code"; Rec."Activity Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the company''s primary activity.';
@@ -125,19 +125,19 @@ page 450 "Issued Finance Charge Memo"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Fin. Charge Terms Code"; "Fin. Charge Terms Code")
+                field("Fin. Charge Terms Code"; Rec."Fin. Charge Terms Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code for the involved finance charges in case of late payment.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when payment of the finance charge memo is due.';
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Promoted;
@@ -146,23 +146,35 @@ page 450 "Issued Finance Charge Memo"
                     trigger OnAssistEdit()
                     begin
                         ChangeExchangeRate.SetParameter(
-                          "Currency Code",
-                          CurrExchRate.ExchangeRate("Posting Date", "Currency Code"),
-                          "Posting Date");
+                          Rec."Currency Code",
+                          CurrExchRate.ExchangeRate(Rec."Posting Date", Rec."Currency Code"),
+                          Rec."Posting Date");
                         ChangeExchangeRate.Editable(false);
                         if ChangeExchangeRate.RunModal = ACTION::OK then;
                         Clear(ChangeExchangeRate);
                     end;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
+                }
+                field("Customer Posting Group"; Rec."Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
                 }
             }
         }
@@ -240,7 +252,7 @@ page 450 "Issued Finance Charge Memo"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
+                        Rec.ShowDimensions();
                     end;
                 }
                 separator(Action6)
@@ -302,12 +314,12 @@ page 450 "Issued Finance Charge Memo"
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category5;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Rec.Navigate();
                 end;
             }
             action(Cancel)
@@ -325,8 +337,8 @@ page 450 "Issued Finance Charge Memo"
                     IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
                 begin
                     IssuedFinChargeMemoHeader := Rec;
-                    IssuedFinChargeMemoHeader.SetRecFilter;
-                    RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
+                    IssuedFinChargeMemoHeader.SetRecFilter();
+                    Rec.RunCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
                 end;
             }
         }

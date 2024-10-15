@@ -29,7 +29,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     var
         CustomerPostingGroups: TestPage "Customer Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Invoice rounding account
         LibrarySales.SetInvoiceRounding(false);
@@ -51,7 +51,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         CustomerPostingGroups: TestPage "Customer Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
@@ -75,7 +75,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         CustomerPostingGroups: TestPage "Customer Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Payment tolerance accounts
         GLSetup.Get();
@@ -96,7 +96,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         CustomerPostingGroups: TestPage "Customer Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Currency application accounts
         SalesSetup.Get();
@@ -116,7 +116,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     var
         CustomerPostingGroupCard: TestPage "Customer Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Invoice rounding account
         LibrarySales.SetInvoiceRounding(false);
@@ -138,7 +138,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         CustomerPostingGroupCard: TestPage "Customer Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
@@ -162,7 +162,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         CustomerPostingGroupCard: TestPage "Customer Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Payment tolerance accounts
         GLSetup.Get();
@@ -183,7 +183,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         CustomerPostingGroupCard: TestPage "Customer Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Currency application accounts
         SalesSetup.Get();
@@ -203,7 +203,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     var
         VendorPostingGroups: TestPage "Vendor Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Invoice rounding account
         LibraryPurchase.SetInvoiceRounding(false);
@@ -225,7 +225,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         VendorPostingGroups: TestPage "Vendor Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
@@ -249,7 +249,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         VendorPostingGroups: TestPage "Vendor Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Payment tolerance accounts
         GLSetup.Get();
@@ -270,7 +270,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         VendorPostingGroups: TestPage "Vendor Posting Groups";
     begin
-        Initialize;
+        Initialize();
 
         // Currency application accounts
         PurchSetup.Get();
@@ -290,7 +290,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     var
         VendorPostingGroupCard: TestPage "Vendor Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Invoice rounding account
         LibraryPurchase.SetInvoiceRounding(false);
@@ -312,7 +312,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         VendorPostingGroupCard: TestPage "Vendor Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Payment discount accounts
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
@@ -336,7 +336,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         VendorPostingGroupCard: TestPage "Vendor Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Payment tolerance accounts
         GLSetup.Get();
@@ -357,7 +357,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         VendorPostingGroupCard: TestPage "Vendor Posting Group Card";
     begin
-        Initialize;
+        Initialize();
 
         // Currency application accounts
         PurchSetup.Get();
@@ -378,7 +378,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
@@ -394,7 +394,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
@@ -410,7 +410,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
@@ -426,7 +426,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
@@ -442,7 +442,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentTerms: Record "Payment Terms";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         GeneralPostingSetup.OpenView;
@@ -458,7 +458,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
@@ -475,7 +475,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         GLSetup.Get();
         GeneralPostingSetup.OpenView;
@@ -493,7 +493,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
@@ -509,7 +509,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
@@ -525,7 +525,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
@@ -541,7 +541,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
@@ -557,7 +557,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentTerms: Record "Payment Terms";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         GeneralPostingSetup.OpenView;
@@ -573,7 +573,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
@@ -590,7 +590,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         GeneralPostingSetup: TestPage "General Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         GLSetup.Get();
         GeneralPostingSetup.OpenView;
@@ -608,7 +608,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Line Discounts");
 
@@ -624,7 +624,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
@@ -640,7 +640,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"Invoice Discounts");
 
@@ -656,7 +656,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetSalesDiscountPosting(SalesSetup."Discount Posting"::"No Discounts");
 
@@ -672,7 +672,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentTerms: Record "Payment Terms";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         GeneralPostingSetupCard.OpenView;
@@ -688,7 +688,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
@@ -705,7 +705,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         GLSetup.Get();
         GeneralPostingSetupCard.OpenView;
@@ -723,7 +723,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Line Discounts");
 
@@ -739,7 +739,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
@@ -755,7 +755,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"Invoice Discounts");
 
@@ -771,7 +771,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PurchSetup: Record "Purchases & Payables Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         SetPurchDiscountPosting(PurchSetup."Discount Posting"::"No Discounts");
 
@@ -787,7 +787,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentTerms: Record "Payment Terms";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
         GeneralPostingSetupCard.OpenView;
@@ -803,7 +803,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         PaymentLines: Record "Payment Lines";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         PaymentLines.SetFilter("Discount %", '<>%1', 0);
         PaymentLines.DeleteAll();
@@ -820,7 +820,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         GeneralPostingSetupCard: TestPage "General Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         GLSetup.Get();
         GeneralPostingSetupCard.OpenView;
@@ -838,7 +838,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         VATPostingSetup: TestPage "VAT Posting Setup";
     begin
-        Initialize;
+        Initialize();
 
         GLSetup.Get();
         VATPostingSetup.OpenView;
@@ -854,7 +854,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLSetup: Record "General Ledger Setup";
         VATPostingSetupCard: TestPage "VAT Posting Setup Card";
     begin
-        Initialize;
+        Initialize();
 
         GLSetup.Get();
         VATPostingSetupCard.OpenView;
@@ -872,7 +872,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is visible on page Customer Posting Groups when "Post Interest" = TRUE in Finance Charge Terms
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostInterest := true;
 
@@ -896,7 +896,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is invisible on page Customer Posting Groups when "Post Interest" = FALSE in Finance Charge Terms and there are no Reminder Terms with "Post Interest" = TRUE
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostInterest := false;
 
@@ -920,7 +920,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is visible on page Customer Posting Groups when "Post Additional Fee" = TRUE in Finance Charge Terms
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostAdditionalFee := true;
 
@@ -944,7 +944,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is invisible on page Customer Posting Groups when "Post Additional Fee" = FALSE in Finance Charge Terms and there are no Reminder Terms with "Post Additional Fee" = TRUE
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostAdditionalFee := false;
 
@@ -968,7 +968,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is visible on page Customer Posting Groups when "Post Interest" = TRUE in Reminder Terms
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostInterest := true;
 
@@ -992,7 +992,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Interest Account" is invisible on page Customer Posting Groups when "Post Interest" = FALSE in Reminder Terms and there are no Finance Charge Terms with "Post Interest" = TRUE
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostInterest := false;
 
@@ -1016,7 +1016,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is visible on page Customer Posting Groups when "Post Additional Fee" = TRUE in Reminder Terms
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostAdditionalFee := true;
 
@@ -1039,7 +1039,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Late Payment Fee] [Customer Posting Groups] [Visibility]
         // [SCENARIO 254979] Column "Additional Fee Account" is invisible on page Customer Posting Groups when "Post Additional Fee" = FALSE in Reminder Terms and there are no Finance Charge Terms with "Post Additional Fee" = TRUE
-        Initialize;
+        Initialize();
         DeleteAllReminderTermsAndFinanceChargeTerms;
         PostAdditionalFee := false;
 
@@ -1063,7 +1063,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [SCENARIO 267197] Payment Tolerance fields are visible on General Posting Setup page when "Max. Payment Tolerance Amount" is specified in General Ledger Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Max. Payment Tolerance Amount" = 1 in General Ledger Setup
         GeneralLedgerSetup.Get();
@@ -1072,7 +1072,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GeneralLedgerSetup.Modify();
 
         // [WHEN] Open page "General Posting Setup"
-        GeneralPostingSetup.OpenNew;
+        GeneralPostingSetup.OpenNew();
 
         // [THEN] Sales and Purchase payment tolerance fields are visible
         VerifyPmtTolFieldsVisibilityOnGeneralPostingSetup(GeneralPostingSetup, true);
@@ -1087,7 +1087,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [SCENARIO 267197] Payment Tolerance fields are not visible on General Posting Setup page when "Max. Payment Tolerance Amount" is not specified in General Ledger Setup
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Max. Payment Tolerance Amount" = 0 in General Ledger Setup
         GeneralLedgerSetup.Get();
@@ -1096,7 +1096,7 @@ codeunit 134069 "ERM Edit Posting Groups"
         GeneralLedgerSetup.Modify();
 
         // [WHEN] Open page "General Posting Setup"
-        GeneralPostingSetup.OpenNew;
+        GeneralPostingSetup.OpenNew();
 
         // [THEN] Sales and Purchase payment tolerance fields are not visible
         VerifyPmtTolFieldsVisibilityOnGeneralPostingSetup(GeneralPostingSetup, false);
@@ -1111,7 +1111,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [Customer] [Payment Tolerance]
         // [SCENARIO 281606] Stan cannot validate "Payment Tolerance Credit Acc." = blocked G/L Account in Customer Posting Group
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blocked GL Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1136,7 +1136,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [Vendor] [Payment Tolerance]
         // [SCENARIO 281606] Stan cannot validate "Payment Tolerance Credit Acc." = blocked G/L Account in Vendor Posting Group
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blocked GL Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -1165,13 +1165,13 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Customer] [Payment Tolerance]
         // [SCENARIO 281606] When Stan Looks up "Payment Tolerance Credit Acc." in Customer Posting Group then "Payment Tolerance Debit Acc." is not changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set <non-zero> Payment Tolerance % in General Ledger Setup
         ModifyPaymentTolerancePercentInGLSetup;
 
         // [GIVEN] G/L Account "GL1"
-        GLAccountNo1 := LibraryERM.CreateGLAccountNo;
+        GLAccountNo1 := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] G/L Account "GL2" in Interest Expense Subcategory
         GLAccountNo2 := CreateGLAccountNoWithAccountSubcategory(
@@ -1213,13 +1213,13 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [UI] [Vendor] [Payment Tolerance]
         // [SCENARIO 281606] When Stan Looks up "Payment Tolerance Credit Acc." in Vendor Posting Group then "Payment Tolerance Debit Acc." is not changed
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set <non-zero> Payment Tolerance % in General Ledger Setup
         ModifyPaymentTolerancePercentInGLSetup;
 
         // [GIVEN] G/L Account "GL1"
-        GLAccountNo1 := LibraryERM.CreateGLAccountNo;
+        GLAccountNo1 := LibraryERM.CreateGLAccountNo();
 
         // [GIVEN] G/L Account "GL2" in Income Interest Subcategory
         GLAccountNo2 := CreateGLAccountNoWithAccountSubcategory(
@@ -1258,11 +1258,11 @@ codeunit 134069 "ERM Edit Posting Groups"
     begin
         // [FEATURE] [Customer] [UI]
         // [SCENARIO 287860] User gets validation error after looking up an account with empty general posting group
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "1" with Category = Income and empty "Gen. Prod. Posting Group"
         GLAccountNo := CreateGLAccountNoWithAccountSubcategory(
-            CreateGLAccountCategoryWithDescription(AccountCategory::Income, LibraryUtility.GenerateGUID));
+            CreateGLAccountCategoryWithDescription(AccountCategory::Income, LibraryUtility.GenerateGUID()));
 
         // [GIVEN] Customer Posting Group Page was open
         CustomerPostingGroupPage.OpenEdit;
@@ -1278,10 +1278,112 @@ codeunit 134069 "ERM Edit Posting Groups"
         Assert.ExpectedError(StrSubstNo(GenProdPostingGroupTestFieldErr, GLAccountNo));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlockedOnGenPostingSetupList()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GeneralPostingSetupList: TestPage "General Posting Setup";
+    begin
+        // [FEATURE] [UI] [Gen. Posting Setup] [Blocked]
+        // [SCENARIO 403129] New Gen. Posting Setup is not blocked on the page "Gen. Posting Setup".
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+
+        GeneralPostingSetupList.OpenNew();
+        GeneralPostingSetupList."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
+        GeneralPostingSetupList."Gen. Prod. Posting Group".SetValue(GenProductPostingGroup.Code);
+
+        GeneralPostingSetupList.Blocked.AssertEquals(false);
+        GeneralPostingSetupList.Blocked.SetValue(true);
+        GeneralPostingSetupList.Close();
+
+        GeneralPostingSetup.Get(GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+        GeneralPostingSetup.TestField(Blocked, true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlockedOnGenPostingSetupCard()
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GeneralPostingSetupCard: TestPage "General Posting Setup Card";
+    begin
+        // [FEATURE] [UI] [Gen. Posting Setup] [Blocked]
+        // [SCENARIO 403129] New Gen. Posting Setup is not blocked on the page "Gen. Posting Setup Card".
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+
+        GeneralPostingSetupCard.OpenNew();
+        GeneralPostingSetupCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
+        GeneralPostingSetupCard."Gen. Prod. Posting Group".SetValue(GenProductPostingGroup.Code);
+
+        GeneralPostingSetupCard.Blocked.AssertEquals(false);
+        GeneralPostingSetupCard.Blocked.SetValue(true);
+        GeneralPostingSetupCard.Close();
+
+        GeneralPostingSetup.Get(GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+        GeneralPostingSetup.TestField(Blocked, true);
+    end;
+
+    [Test]
+    procedure BlockedOnVATPostingSetupList()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetupList: TestPage "VAT Posting Setup";
+    begin
+        // [FEATURE] [UI] [VAT Posting Setup] [Blocked]
+        // [SCENARIO 403129] New VAT Posting Setup is not blocked on the page "VAT Posting Setup".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+
+        VATPostingSetupList.OpenNew();
+        VATPostingSetupList."VAT Bus. Posting Group".SetValue(VATBusinessPostingGroup.Code);
+        VATPostingSetupList."VAT Prod. Posting Group".SetValue(VATProductPostingGroup.Code);
+
+        VATPostingSetupList.Blocked.AssertEquals(false);
+        VATPostingSetupList.Blocked.SetValue(true);
+        VATPostingSetupList.Close();
+
+        VATPostingSetup.Get(VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.TestField(Blocked, true);
+    end;
+
+    [Test]
+    procedure BlockedOnVATPostingSetupCard()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetupCard: TestPage "VAT Posting Setup Card";
+    begin
+        // [FEATURE] [UI] [VAT Posting Setup] [Blocked]
+        // [SCENARIO 403129] New VAT Posting Setup is not blocked on the page "VAT Posting Setup Card".
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+
+        VATPostingSetupCard.OpenNew();
+        VATPostingSetupCard."VAT Bus. Posting Group".SetValue(VATBusinessPostingGroup.Code);
+        VATPostingSetupCard."VAT Prod. Posting Group".SetValue(VATProductPostingGroup.Code);
+
+        VATPostingSetupCard.Blocked.AssertEquals(false);
+        VATPostingSetupCard.Blocked.SetValue(true);
+        VATPostingSetupCard.Close();
+
+        VATPostingSetup.Get(VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.TestField(Blocked, true);
+    end;
+
     local procedure Initialize()
     begin
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
@@ -1320,7 +1422,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     local procedure CreateCustomerPostingGroupWithPmtTolDebitAcc(var CustomerPostingGroup: Record "Customer Posting Group"; GLAccountNo: Code[20])
     begin
         CustomerPostingGroup.Init();
-        CustomerPostingGroup.Code := LibraryUtility.GenerateGUID;
+        CustomerPostingGroup.Code := LibraryUtility.GenerateGUID();
         CustomerPostingGroup."Payment Tolerance Debit Acc." := GLAccountNo;
         CustomerPostingGroup.Insert();
     end;
@@ -1328,7 +1430,7 @@ codeunit 134069 "ERM Edit Posting Groups"
     local procedure CreateVendorPostingGroupWithPmtTolDebitAcc(var VendorPostingGroup: Record "Vendor Posting Group"; GLAccountNo: Code[20])
     begin
         VendorPostingGroup.Init();
-        VendorPostingGroup.Code := LibraryUtility.GenerateGUID;
+        VendorPostingGroup.Code := LibraryUtility.GenerateGUID();
         VendorPostingGroup."Payment Tolerance Debit Acc." := GLAccountNo;
         VendorPostingGroup.Insert();
     end;
@@ -1417,4 +1519,3 @@ codeunit 134069 "ERM Edit Posting Groups"
         GLAccountList.OK.Invoke;
     end;
 }
-

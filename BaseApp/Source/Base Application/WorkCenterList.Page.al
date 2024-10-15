@@ -218,7 +218,7 @@ page 99000755 "Work Center List"
                         begin
                             CurrPage.SetSelectionFilter(Work);
                             DefaultDimMultiple.SetMultiRecord(Work, FieldNo("No."));
-                            DefaultDimMultiple.RunModal;
+                            DefaultDimMultiple.RunModal();
                         end;
                     }
                 }
@@ -311,7 +311,7 @@ page 99000755 "Work Center List"
                     if "Subcontractor No." <> '' then begin
                         SubcontractorPrices.SetRange("Work Center No.", "No.");
                         SubcPriceForm.SetTableView(SubcontractorPrices);
-                        SubcPriceForm.RunModal;
+                        SubcPriceForm.RunModal();
                     end;
                 end;
             }

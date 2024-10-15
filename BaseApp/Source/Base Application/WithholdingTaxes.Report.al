@@ -155,7 +155,7 @@ report 12101 "Withholding Taxes"
                 begin
                     if FinalPrinting and not CurrReport.Preview then begin
                         if PayableAmount <> 0 then begin
-                            if WithholdingTaxPayment.FindLast then
+                            if WithholdingTaxPayment.FindLast() then
                                 EntryNo := WithholdingTaxPayment."Entry No." + 1
                             else
                                 EntryNo := 1;
@@ -214,7 +214,7 @@ report 12101 "Withholding Taxes"
                     WithholdingTaxPayment.SetCurrentKey(Year, Month);
                     WithholdingTaxPayment.SetRange(Month, MonthParam);
                     WithholdingTaxPayment.SetRange(Year, YearParam);
-                    if WithholdingTaxPayment.FindFirst then begin
+                    if WithholdingTaxPayment.FindFirst() then begin
                         if not Confirm(Text1033, false, MonthParam, YearParam) then
                             CurrReport.Quit;
                         WithholdingTaxPayment.DeleteAll();

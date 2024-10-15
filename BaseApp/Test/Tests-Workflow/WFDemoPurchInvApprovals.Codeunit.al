@@ -47,7 +47,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] The user will get an error that he cannot post a purchase invoice that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         CreatePurchaseInvoice(PurchaseHeader);
@@ -77,7 +77,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] The user will get an error that he cannot release a purchase invoice that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         CreatePurchaseInvoice(PurchaseHeader);
@@ -109,7 +109,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] The user will get an error that he cannot release the purchase invoice that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -155,7 +155,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [THEN] The user will get an error that he cannot reopen the purchase invoice.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         // Setup - Create 3 approval usersetups
@@ -200,7 +200,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Invoice is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
@@ -258,7 +258,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Purchaser rejects the approval request.
         // [THEN] Purchase Invoice is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         // Setup - Create 3 usersetups
@@ -319,7 +319,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Approval Request is approved.
         // [THEN] Purchase Invoice is released.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         // Setup - Create 3 usersetups
@@ -396,7 +396,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Sender cancels the approval request.
         // [THEN] Purchase Invoice is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
         // Setup - Create 3 usersetups
@@ -449,7 +449,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
         // [SCENARIO] This test verifies E2E scenario for the purchase invoice approval and basic purchase invoice posting workflow.
-        Initialize;
+        Initialize();
         // [GIVEN] Create sender's usersetup
         LibraryDocumentApprovals.CreateOrFindUserSetup(CurrentUserSetup, UserId);
 
@@ -492,13 +492,13 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         // [THEN] A payment line is created.
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchHeader."No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
 
         GenJournalLine.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GenJournalLine.SetRange("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
         GenJournalLine.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
         Assert.AreEqual(1, GenJournalLine.Count, 'Unexpected payment line.');
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         // [THEN] Notification entry for the payment line.
         VerifyNotificationEntry(GenJournalLine.RecordId);
@@ -517,7 +517,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] Purchase Header approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchaseInvoice(PurchHeader);
@@ -596,7 +596,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] PurchHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchaseInvoice(PurchHeader);
@@ -655,7 +655,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     begin
         // [SCENARIO] Approval action for invoice without lines.
         // [GIVEN] Purchase Header with no lines.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, '');
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
         Commit();
@@ -690,7 +690,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Purchaser approves the approval request.
         // [THEN] Purchase Invoice is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
@@ -757,7 +757,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.PurchaseInvoiceApprovalWorkflowCode);
 
@@ -831,7 +831,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         // [FEATURE] [UT]
         // [SCENARIO 255337] Overdue enties must be filtered on clicking "Overdue Entries" on Approval Entries page
 
-        Initialize;
+        Initialize();
 
         ApprovalEntry.DeleteAll();
 
@@ -861,12 +861,12 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"WF Demo Purch. Inv. Approvals");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
         LibraryERMCountryData.InitializeCountry;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryWorkflow.DisableAllWorkflows;
         PostedApprovalEntry.DeleteAll();
         if IsInitialized then
@@ -913,7 +913,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
     local procedure RegetPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.SetRecFilter;
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure VerifyPurchaseInvIsReleased(var PurchaseHeader: Record "Purchase Header")
@@ -1024,13 +1024,13 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
 
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.PostDocumentAsyncCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         WorkflowStep.Validate("Function Name", WorkflowResponseHandling.PostDocumentCode);
         WorkflowStep.Modify(true);
 
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
         WorkflowStep.Validate("Function Name", WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode);
         WorkflowStep.Modify(true);
 
@@ -1038,7 +1038,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         LibraryWorkflow.InsertPmtLineCreationArgument(WorkflowStep.ID, GenJournalBatch."Journal Template Name", GenJournalBatch.Name);
 
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
 
@@ -1057,7 +1057,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
         WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode);
-        WorkflowStep.FindFirst;
+        WorkflowStep.FindFirst();
 
         LibraryWorkflow.InsertNotificationArgument(WorkflowStep.ID, UserId, 0, '');
 
@@ -1072,7 +1072,7 @@ codeunit 134179 "WF Demo Purch. Inv. Approvals"
 
         NotificationEntry.SetRange("Recipient User ID", UserId);
         Assert.AreEqual(1, NotificationEntry.Count, 'Unexpected notification line.');
-        NotificationEntry.FindFirst;
+        NotificationEntry.FindFirst();
         NotificationEntry.TestField(Type, NotificationEntry.Type::"New Record");
     end;
 

@@ -319,7 +319,7 @@ codeunit 144123 "ERM Details Purchase"
         PurchaseHeader.TestField("Posting No. Series", NoSeriesLinePurchase."Series Code");
         Assert.AreNotEqual(DefaultNoSeriesCode, PurchaseHeader."Posting No. Series", 'Posting No. Series must not match');
 
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
     end;
 
     [Test]
@@ -358,7 +358,7 @@ codeunit 144123 "ERM Details Purchase"
         Clear(VendorTop10List);
 
         // Exercise: Run Report Vendor - Top 10 List.
-        VendorTop10List.Run;  // Opens VendorTopTenListRequestPageHandler.
+        VendorTop10List.Run();  // Opens VendorTopTenListRequestPageHandler.
 
         // Verify: Verify Report Vendor - Top 10 List run successfully with option Balance (LCY) without any error.
         LibraryReportDataset.LoadDataSetFile;
@@ -379,7 +379,11 @@ codeunit 144123 "ERM Details Purchase"
     begin
         // Setup: Create Currency with Exchange rate, create and post Purchase Invoice with that Currency and Apply payment for Invoice on next year.
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+#if not CLEAN20
         LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate, WorkDate);  // Ending Date, Posting Date - WORKDATE.
+#else
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate, WorkDate);  // Ending Date, Posting Date - WORKDATE.
+#endif
         CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, WorkDate, CurrencyCode);  // Expected Receipt Date.
 
         PostedPurchaseInvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -466,7 +470,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Purchase);
         NoSeries.SetRange("Date Order", true);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -506,7 +510,7 @@ codeunit 144123 "ERM Details Purchase"
         NoSeriesLinePurchase: Record "No. Series Line Purchase";
     begin
         NoSeriesLinePurchase.SetRange("Last Date Used", LastDateUsed);
-        NoSeriesLinePurchase.FindFirst;
+        NoSeriesLinePurchase.FindFirst();
         exit(NoSeriesLinePurchase."Last No. Used");
     end;
 
@@ -516,7 +520,7 @@ codeunit 144123 "ERM Details Purchase"
         PurchGetReturnShipments: Codeunit "Purch.-Get Return Shipments";
     begin
         ReturnShipmentLine.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        ReturnShipmentLine.FindLast;
+        ReturnShipmentLine.FindLast();
         PurchGetReturnShipments.SetPurchHeader(PurchaseHeader);
         PurchGetReturnShipments.CreateInvLines(ReturnShipmentLine);
     end;
@@ -527,7 +531,7 @@ codeunit 144123 "ERM Details Purchase"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::"Return Order");
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));
         PurchaseLine.Modify(true);
         exit(PurchaseLine."Amount Including VAT");
@@ -550,7 +554,7 @@ codeunit 144123 "ERM Details Purchase"
         Vendor.SetRange("No.", No);
         Vendor.SetRange("Date Filter", CalcDate('<-CY + 1Y>', WorkDate), CalcDate('<CY + 1Y>', WorkDate));  // Date filter on the Date range of payment.
         VendorSheetPrint.SetTableView(Vendor);
-        VendorSheetPrint.Run;
+        VendorSheetPrint.Run();
     end;
 
     local procedure UpdatePurchasesPayablesSetupExtDocNoMandatory(ExtDocNoMandatory: Boolean) OldExtDocNoMandatory: Boolean
@@ -607,7 +611,7 @@ codeunit 144123 "ERM Details Purchase"
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocumentType);
             SetRange("Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
         end
     end;
 
@@ -629,7 +633,7 @@ codeunit 144123 "ERM Details Purchase"
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorNo);
         with DetailedVendorLedgEntry do begin
             SetRange("Vendor Ledger Entry No.", VendorLedgerEntry."Entry No.");
-            FindLast;
+            FindLast();
             Assert.AreEqual(VendorLedgerEntry."Due Date", "Initial Entry Due Date", WrongDueDateDetailedVendorLedgEntryErr);
         end
     end;

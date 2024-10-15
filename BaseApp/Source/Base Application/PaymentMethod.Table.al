@@ -74,7 +74,7 @@ table 289 "Payment Method"
                 DataExchDef: Record "Data Exch. Def";
             begin
                 DataExchLineDef.SetFilter(Code, '<>%1', '');
-                if DataExchLineDef.FindSet then begin
+                if DataExchLineDef.FindSet() then begin
                     repeat
                         DataExchDef.Get(DataExchLineDef."Data Exch. Def Code");
                         if DataExchDef.Type = DataExchDef.Type::"Payment Export" then begin

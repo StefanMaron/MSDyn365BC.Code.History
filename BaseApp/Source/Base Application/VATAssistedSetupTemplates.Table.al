@@ -53,7 +53,7 @@ table 1878 "VAT Assisted Setup Templates"
         VATSetupPostingGroups: Record "VAT Setup Posting Groups";
     begin
         DeleteAll();
-        if ConfigTemplateHeader.FindSet then
+        if ConfigTemplateHeader.FindSet() then
             repeat
                 Code := ConfigTemplateHeader.Code;
                 Description := ConfigTemplateHeader.Description;
@@ -111,14 +111,14 @@ table 1878 "VAT Assisted Setup Templates"
         VATSetupPostingGroups.SetRange(Selected, true);
         VATSetupPostingGroups.SetRange(Default, false);
 
-        if VATAssistedSetupTemplates.FindSet then
+        if VATAssistedSetupTemplates.FindSet() then
             repeat
                 with VATAssistedSetupTemplates do begin
                     if ("Default VAT Bus. Posting Grp" <> '') and
                        (("Table ID" = DATABASE::Customer) or ("Table ID" = DATABASE::Vendor))
                     then begin
                         VATAssistedSetupBusGrp.SetRange(Code, "Default VAT Bus. Posting Grp");
-                        if not VATAssistedSetupBusGrp.FindFirst then begin
+                        if not VATAssistedSetupBusGrp.FindFirst() then begin
                             VATValidationError := "Default VAT Bus. Posting Grp";
                             exit(false);
                         end;
@@ -128,7 +128,7 @@ table 1878 "VAT Assisted Setup Templates"
                        ("Table ID" = DATABASE::Item)
                     then begin
                         VATSetupPostingGroups.SetRange("VAT Prod. Posting Group", "Default VAT Prod. Posting Grp");
-                        if not VATSetupPostingGroups.FindFirst then begin
+                        if not VATSetupPostingGroups.FindFirst() then begin
                             VATValidationError := "Default VAT Prod. Posting Grp";
                             exit(false);
                         end;

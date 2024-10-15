@@ -69,7 +69,7 @@ codeunit 144093 "UT REP Withhold"
         Vendor: Record Vendor;
     begin
         // Setup: Enqueue values for handler - CompensationDetailsRequestPageHandler.
-        Initialize;
+        Initialize();
         EnqueueVendorNoAndDates(
           LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor),
           FromPaymentDate, FromRelatedDate);
@@ -93,7 +93,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Withholding Tax - OnAfterGetRecord Trigger of Report - 12105 Compensation Details.
 
         // Setup: Create Contributions and Withholding Tax.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INPS);
         CreateWithholdingTax(WithholdingTax, Contributions."Vendor No.");
         EnqueueVendorNoAndDates(WithholdingTax."Vendor No.", WithholdingTax."Payment Date", WithholdingTax."Related Date");  // Enqueue values for handler - CompensationDetailsRequestPageHandler.
@@ -118,7 +118,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         // Purpose of the test is to validate INPS - OnAfterGetRecord Trigger of Report - 12102 Contribution.
         // Setup.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INPS);
         RunContributionReport(ContributionCode."Contribution Type"::INPS);
 
@@ -139,7 +139,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Withholding Tax - OnAfterGetRecord Trigger of Report - 12101 Withholding Taxes.
 
         // Setup: Create Withholding Tax and Vendor.
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
 
         // Exercise.
@@ -163,7 +163,7 @@ codeunit 144093 "UT REP Withhold"
         // [SCENARIO] Validate Withholding Tax - OnAfterGetRecord Trigger of Report - 12106 Certifications.
 
         // [GIVEN] Withholding Tax and Vendor ("Name" = "A", "Name 2" = "B", Address = "C", "Individual Person" = No).
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
 
         // [WHEN] Run report "Certifications"
@@ -191,7 +191,7 @@ codeunit 144093 "UT REP Withhold"
         // [SCENARIO 378836] Validate Withholding Tax - OnAfterGetRecord Trigger of Report - 12106 Certifications (Individual Person).
 
         // [GIVEN] Withholding Tax and Vendor ("Name" = "A", "Name 2" = "B", Address = "C", "Individual Person" = Yes, "First Name" = "D", "Last Name" = "E", "Residence Address" = "F").
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax, CreateVendor('', '', true));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
 
         // [WHEN] Run report "Certifications"
@@ -214,7 +214,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         // Purpose of the test is to validate Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueVendorNoAndDates('', WorkDate, WorkDate);  // Enqueue Value for WithholdingTaxTestRequestPageHandler.
 
         // Exercise.
@@ -232,7 +232,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
 
         // Setup: Create vendor with blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
-        Initialize;
+        Initialize();
         EnqueueVendorNoAndDates(CreateVendor('', '', true), 0D, WorkDate);  // Start Date -0D, End Date -WORKDATE, Enqueue Value for WithholdingTaxTestRequestPageHandler.
 
         // Exercise.
@@ -250,7 +250,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Blank Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
 
         // Setup: Create vendor with blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
-        Initialize;
+        Initialize();
         EnqueueVendorNoAndDates(CreateVendor('', '', true), WorkDate, 0D);  // Start Date -WORKDATE, End Date -0D, Enqueue Value for WithholdingTaxTestRequestPageHandler.
 
         // Exercise.
@@ -268,7 +268,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Blank Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
 
         // Setup: Create vendor with blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
-        Initialize;
+        Initialize();
         EnqueueVendorNoAndDates(
           CreateVendor('', '', true), CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate), WorkDate);  // Enqueue Value for WithholdingTaxTestRequestPageHandler, Calculated Start Date greater than End Date.
 
@@ -287,7 +287,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
 
         // Setup: VAT Registration error text with blank VAT Registration Number and blank Country/Region Code.
-        Initialize;
+        Initialize();
         WithholdingTaxTestValidation('', VATRegistrationNoBlankTxt, '');
     end;
 
@@ -299,7 +299,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
 
         // Setup: VAT Registration error text with VAT Registration Number and Country/Region Code, VAT Registration No. required 9 digit value.
-        Initialize;
+        Initialize();
         WithholdingTaxTestValidation(
           Format(LibraryRandom.RandIntInRange(100000000, 999999999)), VATRegistrationNoFormatTxt, CreateCountryRegionCode);
     end;
@@ -312,7 +312,7 @@ codeunit 144093 "UT REP Withhold"
         // Purpose of the test is to validate Vendor - OnPreReport Trigger of Report - 12183 Withholding Tax - Test.
 
         // Setup: VAT Registration error text with VAT Registration No and blank Country/Region Code, VAT Registration No. required 9 digit value.
-        Initialize;
+        Initialize();
         WithholdingTaxTestValidation(Format(LibraryRandom.RandIntInRange(100000000, 999999999)), VATRegistrationNoVATRulesTxt, '');
     end;
 
@@ -321,7 +321,7 @@ codeunit 144093 "UT REP Withhold"
         Vendor: Record Vendor;
     begin
         // Update General Ledger Setup and create Vendor.
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateLocVATRegNo(true);
         CreateVendorAndWithholdingTax(Vendor, VATRegistrationNo, CountryRegionCode, false);  // Individual Person mark FALSE.
 
@@ -342,7 +342,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord Trigger of Report - 12183 Withholding Tax - Test.
         // Setup.
-        Initialize;
+        Initialize();
         CreateVendorAndWithholdingTax(Vendor, '', '', true);  // Create vendor with Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
 
         // Exercise.
@@ -362,7 +362,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         // Purpose of the test is to validate Withholding Tax Payment on Report - 12103 Withholding Tax Payment.
         // Setup.
-        Initialize;
+        Initialize();
         CreateWithholdingTaxPayment(WithholdingTaxPayment);
 
         // Exercise.
@@ -386,7 +386,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         // Purpose of the test is to validate INAIL - OnAfterGetRecord Trigger of Report - 12102 Contribution.
         // Setup.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INAIL);
         RunContributionReport(ContributionCode."Contribution Type"::INAIL);
 
@@ -410,7 +410,7 @@ codeunit 144093 "UT REP Withhold"
         // [SCENARIO] Validate Contributions - OnAfterGetRecord Trigger of Report - 12106 Certifications.
 
         // [GIVEN] Withholding Tax and Contributions for Vendor with "Name" = "A", "Name 2" = "B", Address = "C", "Individual Person" = No
-        Initialize;
+        Initialize();
         CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INAIL);
 
@@ -437,7 +437,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         // Purpose of the test is to verify that after running Contributions report with 2 different parameters sequentially
         // Contribution Payment line is not overridden, but added.
-        Initialize;
+        Initialize();
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INPS);
         RunContributionReport(ContributionCode."Contribution Type"::INPS);
         RunContributionReport(ContributionCode."Contribution Type"::INAIL);
@@ -454,8 +454,8 @@ codeunit 144093 "UT REP Withhold"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -480,7 +480,7 @@ codeunit 144093 "UT REP Withhold"
         Contributions2: Record Contributions;
     begin
         Contributions."Entry No." := 1;
-        if Contributions2.FindLast then
+        if Contributions2.FindLast() then
             Contributions."Entry No." := Contributions2."Entry No." + 1;
         Contributions.Month := Date2DMY(WorkDate, 2);  // 2 returns month.
         Contributions.Year := Date2DMY(WorkDate, 3);  // 3 returns year.
@@ -502,7 +502,7 @@ codeunit 144093 "UT REP Withhold"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         VATRegistrationNoFormat."Country/Region Code" := CountryRegion.Code;
-        VATRegistrationNoFormat.Format := LibraryUtility.GenerateGUID;
+        VATRegistrationNoFormat.Format := LibraryUtility.GenerateGUID();
         VATRegistrationNoFormat.Insert();
         exit(VATRegistrationNoFormat."Country/Region Code");
     end;
@@ -513,13 +513,13 @@ codeunit 144093 "UT REP Withhold"
     begin
         with Vendor do begin
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::Vendor);
-            Name := LibraryUtility.GenerateGUID;
-            "Name 2" := LibraryUtility.GenerateGUID;
-            Address := LibraryUtility.GenerateGUID;
+            Name := LibraryUtility.GenerateGUID();
+            "Name 2" := LibraryUtility.GenerateGUID();
+            Address := LibraryUtility.GenerateGUID();
             "Individual Person" := IndividualPerson;
-            "First Name" := LibraryUtility.GenerateGUID;
-            "Last Name" := LibraryUtility.GenerateGUID;
-            "Residence Address" := LibraryUtility.GenerateGUID;
+            "First Name" := LibraryUtility.GenerateGUID();
+            "Last Name" := LibraryUtility.GenerateGUID();
+            "Residence Address" := LibraryUtility.GenerateGUID();
             "Date of Birth" := WorkDate;
             "Fiscal Code" := Format(LibraryRandom.RandInt(100));
             "VAT Registration No." := VATRegistrationNo;
@@ -554,14 +554,14 @@ codeunit 144093 "UT REP Withhold"
         WithholdingTax2: Record "Withholding Tax";
     begin
         WithholdingTax."Entry No." := 1;
-        if WithholdingTax2.FindLast then
+        if WithholdingTax2.FindLast() then
             WithholdingTax."Entry No." := WithholdingTax2."Entry No." + 1;
         WithholdingTax."Vendor No." := VendorNo;
         WithholdingTax."Payment Date" := WorkDate;
         WithholdingTax."Posting Date" := WorkDate;
         WithholdingTax."Related Date" := WorkDate;
         WithholdingTax."Total Amount" := LibraryRandom.RandDec(10, 2);
-        WithholdingTax."Document No." := LibraryUtility.GenerateGUID;
+        WithholdingTax."Document No." := LibraryUtility.GenerateGUID();
         WithholdingTax."Withholding Tax %" := LibraryRandom.RandDec(10, 2);
         WithholdingTax.Month := Date2DMY(WorkDate, 2);  // 2 returns month.
         WithholdingTax.Year := Date2DMY(WorkDate, 3);  // 3 returns year.
@@ -576,7 +576,7 @@ codeunit 144093 "UT REP Withhold"
         WithholdingTaxPayment2: Record "Withholding Tax Payment";
     begin
         WithholdingTaxPayment."Entry No." := 1;
-        if WithholdingTaxPayment2.FindLast then
+        if WithholdingTaxPayment2.FindLast() then
             WithholdingTaxPayment."Entry No." := WithholdingTaxPayment2."Entry No." + 1;
         WithholdingTaxPayment."Payment Date" := WorkDate;
         WithholdingTaxPayment.Month := Date2DMY(WorkDate, 2);  // 2 returns month.
@@ -613,7 +613,7 @@ codeunit 144093 "UT REP Withhold"
         Commit();
         Vendor.SetRange("No.", VendorNo);
         Certifications.SetTableView(Vendor);
-        Certifications.RunModal;
+        Certifications.RunModal();
     end;
 
     local procedure RunReportSummaryWithholdingPayment()

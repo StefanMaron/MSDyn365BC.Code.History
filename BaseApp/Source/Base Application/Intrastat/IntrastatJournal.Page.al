@@ -58,6 +58,7 @@
                     ToolTip = 'Specifies the document number on the entry.';
                     ShowMandatory = true;
                 }
+#if not CLEAN18
                 field("VAT Registration No."; "VAT Registration No.")
                 {
                     ApplicationArea = BasicEU;
@@ -66,6 +67,7 @@
                     ObsoleteReason = 'Merged to W1';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 field("Item No."; "Item No.")
                 {
                     ApplicationArea = BasicEU;
@@ -374,7 +376,7 @@
                         IntrastatJnlBatch.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlBatch.SetRange(Name, "Journal Batch Name");
                         MakeDiskReport.SetTableView(IntrastatJnlBatch);
-                        MakeDiskReport.Run;
+                        MakeDiskReport.Run();
                     end;
                 }
             }
@@ -400,7 +402,7 @@
                     end;
 
                     GetItemEntries.SetIntrastatJnlLine(Rec);
-                    GetItemEntries.RunModal;
+                    GetItemEntries.RunModal();
                     Clear(GetItemEntries);
                 end;
             }

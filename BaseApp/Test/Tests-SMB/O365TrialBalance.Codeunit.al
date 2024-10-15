@@ -34,7 +34,7 @@ codeunit 138029 "O365 Trial Balance"
         I: Integer;
     begin
         // [SCENARIO] Trial Balance handles lack of accounting periods gracefully.
-        Initialize;
+        Initialize();
 
         // [GIVEN] No Accounting periods
         TrialBalanceCacheInfo.DeleteAll();
@@ -71,7 +71,7 @@ codeunit 138029 "O365 Trial Balance"
         Values: array[9, 2] of Decimal;
         PeriodCaptionTxt: array[2] of Text;
     begin
-        Initialize;
+        Initialize();
         OpenAccSchedOverviewPage(AccScheduleOverview);
 
         TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
@@ -90,7 +90,7 @@ codeunit 138029 "O365 Trial Balance"
         I: Integer;
         NoOfColumns: Integer;
     begin
-        Initialize;
+        Initialize();
         OpenAccSchedOverviewPage(AccScheduleOverview);
         TrialBalanceMgt.LoadData(Descriptions, Values, PeriodCaptionTxt, 2);
 
@@ -115,7 +115,7 @@ codeunit 138029 "O365 Trial Balance"
     var
         TrialBalance: TestPage "Trial Balance";
     begin
-        Initialize;
+        Initialize();
         TrialBalance.OpenEdit;
 
         // Test drill down on GL Accounts
@@ -162,7 +162,7 @@ codeunit 138029 "O365 Trial Balance"
     var
         TrialBalance: TestPage "Trial Balance";
     begin
-        Initialize;
+        Initialize();
         TrialBalance.OpenEdit;
 
         // Test drill down on Formulas
@@ -211,7 +211,7 @@ codeunit 138029 "O365 Trial Balance"
         TrialBalance: TestPage "Trial Balance";
     begin
         // [SCENARIO] Trial Balance handles lack of accounting periods gracefully.
-        Initialize;
+        Initialize();
 
         // [GIVEN] No Accounting periods
         AccountingPeriod.DeleteAll();

@@ -70,7 +70,7 @@ codeunit 144118 "ERM VAT Communication"
         // Verify: Verify Field on Purch. Cr. Memo Hdr. table.
         PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         PurchCrMemoHdr.TestField("Individual Person", PurchaseHeader."Individual Person");
         PurchCrMemoHdr.TestField(Resident, PurchaseHeader.Resident);
         PurchCrMemoHdr.TestField("First Name", PurchaseHeader."First Name");
@@ -98,7 +98,7 @@ codeunit 144118 "ERM VAT Communication"
         // Verify: Verify Field on Sales Cr.Memo Header table.
         SalesCrMemoHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("Individual Person", SalesHeader."Individual Person");
         SalesCrMemoHeader.TestField(Resident, SalesHeader.Resident);
         SalesCrMemoHeader.TestField("First Name", SalesHeader."First Name");
@@ -243,7 +243,7 @@ codeunit 144118 "ERM VAT Communication"
     begin
         PurchInvHeader.SetRange("Prepayment Order No.", PurchaseHeader."No.");
         PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader."Buy-from Vendor No.");
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields("Amount Including VAT");
         PurchaseOrder.OpenEdit;
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
@@ -278,7 +278,7 @@ codeunit 144118 "ERM VAT Communication"
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         Assert.AreEqual(GenBusPostingGroup, SalesInvoiceLine."Gen. Bus. Posting Group", GenBusPostingGroupErr);
         SalesInvoiceLine.Next;
         Assert.AreEqual(GenBusPostingGroup2, SalesInvoiceLine."Gen. Bus. Posting Group", GenBusPostingGroupErr);

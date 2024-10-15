@@ -60,7 +60,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 12181 VAT Exemption Register.
 
         // Setup: Test to verify error - Ending Date must not be blank on Report VAT Exemption Register.
-        Initialize;
+        Initialize();
         OnPreReportVATExemptionRegister(
           WorkDate, 0D, LibraryRandom.RandInt(10),
           StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WORKDATE, Blank End Date and Random Starting Page.
@@ -77,7 +77,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 12181 VAT Exemption Register.
 
         // Setup: Test to verify error - Start Date cannot be greater than End Date on Report VAT Exemption Register.
-        Initialize;
+        Initialize();
         OnPreReportVATExemptionRegister(
           CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate), WorkDate, LibraryRandom.RandInt(10),
           StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Calculated Start Date greater than End Date with Random Starting Page.
@@ -94,7 +94,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12181 VAT Exemption Register.
 
         // Setup: Test to verify error - Starting Page must not be blank on Report VAT Exemption Register.
-        Initialize;
+        Initialize();
         OnPreReportVATExemptionRegister(
           WorkDate, WorkDate, 0, StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WORKDATE, End Date - WORKDATE and Blank Starting Page.
     end;
@@ -110,7 +110,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate OnPreReport Trigger of Report ID - 12181 VAT Exemption Register.
 
         // Setup: Test to verify error - You can only print report for one type at a time on Report VAT Exemption Register.
-        Initialize;
+        Initialize();
         OnPreReportVATExemptionRegister(
           WorkDate, WorkDate, LibraryRandom.RandInt(10),
           StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Vendor));  // Start Date - WORKDATE, End Date - WORKDATE and Random Starting Page.
@@ -127,7 +127,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate VAT Exemption - OnPreReport Trigger of Report ID - 12181 VAT Exemption Register.
 
         // Setup: Test to verify error - VAT Exemption Int. Registry Date of the previous period has not been printed on Report VAT Exemption Register.
-        Initialize;
+        Initialize();
         OnPreReportVATExemptionRegister(
           WorkDate, WorkDate, LibraryRandom.RandInt(10),
           StrSubstNo(VATExemptionTypeTxt, VATExemption.Type::Customer, VATExemption.Type::Customer));  // Start Date - WORKDATE, End Date - WORKDATE and Random Starting Page.
@@ -193,7 +193,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptNo: Code[20];
     begin
         // Setup: Create VAT Exemption and enqueue values for handler - VATExemptionRegisterRequestPageHandler.
-        Initialize;
+        Initialize();
         VATExemptNo := CreateVATExemption(VATExemptionType, '', Printed, WorkDate);  // Blank Number, VAT Exempt. Int. Registry Date - WORKDATE.
         EnqueueVATExemptionDetail(
           WorkDate, WorkDate, LibraryRandom.RandInt(10),
@@ -223,7 +223,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate VAT Exemption - OnAfterGetRecord Trigger of Report - 12181 VAT Exemption Register.
 
         // Setup: Create VAT Exemption and Enqueue values for VATExemptionRegisterRequestPageHandler.
-        Initialize;
+        Initialize();
         VATExemptNo := CreateVATExemption(VATExemption.Type::Vendor, '', false, WorkDate);  // Blank Number, Printed as FALSE and VAT Exempt. Int. Registry Date - WORKDATE.
         EnqueueVATExemptionDetail(
           WorkDate, WorkDate, LibraryRandom.RandInt(10),
@@ -234,7 +234,7 @@ codeunit 144073 "UT REP VAT Exemption"
 
         // Verify: Verify VAT Exemption - Printed as TRUE.
         VATExemption.SetRange("VAT Exempt. No.", VATExemptNo);
-        VATExemption.FindFirst;
+        VATExemption.FindFirst();
         VATExemption.TestField(Printed, true);
     end;
 
@@ -299,7 +299,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionNumber: Code[20];
     begin
         // Setup: Create Service Credit Memo and VAT Exemption.
-        Initialize;
+        Initialize();
         CreateServiceCreditMemoHeader(ServiceCrMemoHeader, CurrencyCode, YourReference, VATRegistrationNumber);
         CreateServiceCreditMemoLine(ServiceCrMemoHeader."No.");
         VATExemptionNumber :=
@@ -377,7 +377,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemptionNumber: Code[20];
     begin
         // Setup: Create Service Invoice and VAT Exemption.
-        Initialize;
+        Initialize();
         CreateServiceInvoiceHeader(ServiceInvoiceHeader, CurrencyCode, YourReference, VATRegistrationNumber);
         CreateServiceInvoiceLine(ServiceInvoiceHeader."No.");
         VATExemptionNumber :=
@@ -421,7 +421,7 @@ codeunit 144073 "UT REP VAT Exemption"
         Amount: Decimal;
     begin
         // Setup:  Update General Ledger Setup - Last Settlement Date, Create VAT Entry and VAT Plafond Period.
-        Initialize;
+        Initialize();
         UpdateGeneralLedgerSetupLastSettlementDate;
         CreateVATEntry(VATEntry);
         Amount := CreateVATPlafondPeriod;
@@ -455,7 +455,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate Sales Header - OnAfterGetRecord Trigger of Report ID - 202 Sales Document - Test.
 
         // Setup: Create Sales Order and VAT Exemption.
-        Initialize;
+        Initialize();
         CreateSalesHeader(SalesHeader);
         CreateSalesLine(SalesHeader."No.");
         VATExemptionNumber := CreateVATExemption(VATExemption.Type::Customer, SalesHeader."Bill-to Customer No.", false, WorkDate);  // Printed as False and VAT Exempt Int. Registry Date - Workdate.
@@ -481,7 +481,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // Purpose of the test is to validate Service Header - OnAfterGetRecord Trigger of Report ID - 5915 Service Document - Test.
 
         // Setup: Create Service Order and VAT Exemption.
-        Initialize;
+        Initialize();
         CreateServiceHeader(ServiceHeader);
         CreateServiceLine(ServiceHeader."No.");
         VATExemptionNumber := CreateVATExemption(VATExemption.Type::Customer, ServiceHeader."Bill-to Customer No.", false, WorkDate);  // Printed as False and VAT Exempt Int. Registry Date - Workdate.
@@ -506,7 +506,7 @@ codeunit 144073 "UT REP VAT Exemption"
         IntRegNo2: Code[20];
     begin
         // [SCENARIO 378202] The VAT Exemption Register report should order the information by Int. Registry No. field and not by Vendor
-        Initialize;
+        Initialize();
         // [GIVEN] Code of Vendor2 is more than Code of Vendor1
         Vendor1 := LibraryUTUtility.GetNewCode;
         Vendor2 := LibraryUTUtility.GetNewCode;
@@ -550,7 +550,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [FEATURE] [Sales] [Invoice] [Report]
         // [SCENARIO 341871] Sales Document Test report prints VAT Exemption Number with Consecutive VAT Exempt. No.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
         // [GIVEN] Sales Invoice with customer related to above VAT Exemption
@@ -582,7 +582,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [FEATURE] [Service] [Invoice] [Report]
         // [SCENARIO 341871] Servicve Invoice report pints VAT Exemption Number with Consecutive VAT Exempt. No.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
         // [GIVEN] Service invoice with customer related to above VAT Exemption
@@ -614,7 +614,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [FEATURE] [Service] [Credit Memo] [Report]
         // [SCENARIO 341871] Servicve Credit Memo report pints VAT Exemption Number with Consecutive VAT Exempt. No.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
         // [GIVEN] Service Credit Memo with customer related to above VAT Exemption
@@ -646,7 +646,7 @@ codeunit 144073 "UT REP VAT Exemption"
         // [FEATURE] [Service] [Invoice] [Report]
         // [SCENARIO 341871] Servicve Document Test report pints VAT Exemption Number with Consecutive No.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Exemption with "VAT Exempt. No." = "1234" and "Consecutive VAT Exempt. No." = "001"
         // [GIVEN] Service Invoice with customer related to above VAT Exemption
@@ -668,7 +668,7 @@ codeunit 144073 "UT REP VAT Exemption"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -865,7 +865,7 @@ codeunit 144073 "UT REP VAT Exemption"
     var
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATEntry.Type::Purchase;
         VATEntry."Operation Occurred Date" := WorkDate;
@@ -912,7 +912,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemption: Record "VAT Exemption";
     begin
         CreateVATExemptionRec(VATExemption, Type, No, Printed, VATExemptIntRegistryDate);
-        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID);
+        VATExemption.Validate("Consecutive VAT Exempt. No.", LibraryUtility.GenerateGUID());
         VATExemption.Modify(true);
         exit(VATExemption.GetVATExemptNo());
     end;
@@ -980,7 +980,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemption: Record "VAT Exemption";
     begin
         VATExemption.SetRange("VAT Exempt. No.", VATExemptNo);
-        VATExemption.FindFirst;
+        VATExemption.FindFirst();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists(BillToCustomerNoCap, BillToCustomerNumber);
         LibraryReportDataset.AssertElementWithValueExists(VATExemptionNumberCap, VATExemption."VAT Exempt. No.");
@@ -998,7 +998,7 @@ codeunit 144073 "UT REP VAT Exemption"
         VATExemption: Record "VAT Exemption";
     begin
         VATExemption.SetRange("VAT Exempt. No.", VATExemptionNumber);
-        VATExemption.FindFirst;
+        VATExemption.FindFirst();
 
         LibraryReportDataset.AssertElementWithValueExists(
           VATExemptionPeriodLbl,

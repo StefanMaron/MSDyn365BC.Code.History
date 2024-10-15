@@ -65,7 +65,7 @@ codeunit 136907 Resource
         TemplateCode: Code[10];
     begin
         // Setup. Create Contact.
-        Initialize;
+        Initialize();
         LibraryMarketing.CreateCompanyContact(Contact);
         LibraryVariableStorage.Enqueue(WantToCreateContactQst);  // Enqueue for Confirm Handler.
         LibraryVariableStorage.Enqueue(false);  // Enqueue for Confirm Handler.
@@ -86,7 +86,7 @@ codeunit 136907 Resource
         ServiceItem: Record "Service Item";
     begin
         // Setup: Create Customer and Service Item. Create Service Contract.
-        Initialize;
+        Initialize();
         CreateServiceContractHeader(ServiceContractHeader, ServiceItem);
 
         // Exercise.
@@ -104,7 +104,7 @@ codeunit 136907 Resource
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
     begin
         // Setup: Create Resource.
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         ResourceUnitOfMeasure.Get(Resource."No.", Resource."Base Unit of Measure");
 
@@ -128,7 +128,7 @@ codeunit 136907 Resource
         UnitOfMeasure: Record "Unit of Measure";
     begin
         // Setup: Create Resource. Create and post Sales Order. Create Unit of Measure code.
-        Initialize;
+        Initialize();
         LibraryResource.CreateResourceNew(Resource);
         CreateAndPostSalesOrder(
           '', SalesLine.Type::Resource, Resource."No.", LibraryRandom.RandDec(10, 2));
@@ -150,7 +150,7 @@ codeunit 136907 Resource
     procedure TaskForContactWithSalesPerson()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         TaskForContact(false);
     end;
 
@@ -159,7 +159,7 @@ codeunit 136907 Resource
     procedure TaskForContactWithSalesPersonAndTeamCode()
     begin
         // Setup.
-        Initialize;
+        Initialize();
         TaskForContact(true);  // UpdateTeamCode as TRUE.
     end;
 
@@ -198,7 +198,7 @@ codeunit 136907 Resource
         JobTask: Record "Job Task";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingJobTaskTypeOnPurchaseLine(JobTask."Job Task Type"::Total);
     end;
 
@@ -221,7 +221,7 @@ codeunit 136907 Resource
         // [SCENARIO] Job ledger entries contain correct values after running Update Job Item Cost batch report and posting Purchase Orders.
 
         // Setup: Create Item with Average Costing method. Create Job and Job Task. Post Purchase Orders with different Direct Unit cost. Run Adjust Cost Item entries batch job.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         DirectUnitCost := Quantity + LibraryRandom.RandInt(10);  // Greater value required for Direct Unit Cost.
         CreateItemWithCostingMethod(Item, Item."Costing Method"::Average);
@@ -262,7 +262,7 @@ codeunit 136907 Resource
         DocumentNo: Code[20];
     begin
         // Setup: Create Item. Create Job and Job Task. Create and post Purchase Order with two lines with different Job Line Type.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateJobWithJobTask(JobTask);
         CreateAndPostPurchaseOrderWithMultipleLines(PurchaseHeader, PurchaseLine, PurchaseLine2, JobTask, Item."No.");
@@ -296,7 +296,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry does not gets created after Update Job Item Cost batch job with Standard Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         AdjustCostItemEntriesWithJobAndStandardCosting(Item, ItemUnitOfMeasure, JobTask, Quantity);
 
@@ -323,7 +323,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry does not gets created after Adjust Cost Item Entries with different UOM and Standard Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         AdjustCostItemEntriesWithJobAndStandardCosting(Item, ItemUnitOfMeasure, JobTask, Quantity);
         LibraryVariableStorage.Enqueue(NoJobLedgerEntriesUpdatedMsg);  // Enqueue for Message Handler.
@@ -355,7 +355,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Update Job Item Cost batch job with Specific Costing and Serial Tracking.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         AdjustCostItemEntriesWithJobAndSpecificCosting(Item, ItemUnitOfMeasure, JobTask, Quantity);
 
@@ -382,7 +382,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Adjust Cost Item Entries with different UOM, Specific Costing and Serial Tracking.
 
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         AdjustCostItemEntriesWithJobAndSpecificCosting(Item, ItemUnitOfMeasure, JobTask, Quantity);
         LibraryVariableStorage.Enqueue(JobLedgerEntryUpdatedMsg);  // Enqueue for Message Handler.
@@ -413,7 +413,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Update Job Item Cost batch job with Average Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateJobItemCostWithPOAndCostingMethod(Item."Costing Method"::Average);
     end;
 
@@ -428,7 +428,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Adjust Cost Item Entries with different UOM and Average Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         AdjustCostItemWithMultipleUOMAndCostingMethod(Item."Costing Method"::Average);
     end;
 
@@ -443,7 +443,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Update Job Item Cost batch job with FIFO Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateJobItemCostWithPOAndCostingMethod(Item."Costing Method"::FIFO);
     end;
 
@@ -458,7 +458,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Adjust Cost Item Entries with different UOM and FIFO Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         AdjustCostItemWithMultipleUOMAndCostingMethod(Item."Costing Method"::FIFO);
     end;
 
@@ -473,7 +473,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Update Job Item Cost batch job with LIFO Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateJobItemCostWithPOAndCostingMethod(Item."Costing Method"::LIFO);
     end;
 
@@ -488,7 +488,7 @@ codeunit 136907 Resource
         // [SCENARIO] Adjustment Job ledger entry gets created after Adjust Cost Item Entries with different UOM and LIFO Costing.
 
         // Setup.
-        Initialize;
+        Initialize();
         AdjustCostItemWithMultipleUOMAndCostingMethod(Item."Costing Method"::LIFO);
     end;
 
@@ -546,7 +546,7 @@ codeunit 136907 Resource
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateAndReceivePurchaseOrderWithJob(PurchaseHeader, PurchaseLine);
@@ -566,7 +566,7 @@ codeunit 136907 Resource
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create and receive Purchase Order with Job.
-        Initialize;
+        Initialize();
         CreateAndReceivePurchaseOrderWithJob(PurchaseHeader, PurchaseLine);
 
         // Exercise.
@@ -586,7 +586,7 @@ codeunit 136907 Resource
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create and receive Purchase Order with Job. Post Purchase Order as Invoice.
-        Initialize;
+        Initialize();
         CreateAndReceivePurchaseOrderWithJob(PurchaseHeader, PurchaseLine);
         PostPurchaseOrder(PurchaseHeader, false);
 
@@ -607,7 +607,7 @@ codeunit 136907 Resource
         Quantity: Decimal;
     begin
         // Setup: Create Item. Create Job with Job Task.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateJobWithJobTask(JobTask);
@@ -629,7 +629,7 @@ codeunit 136907 Resource
         Quantity: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         CreateJobWithJobTask(JobTask);
@@ -654,7 +654,7 @@ codeunit 136907 Resource
         JobTask: Record "Job Task";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingJobTaskTypeOnPurchaseLine(JobTask."Job Task Type"::"End-Total");
     end;
 
@@ -665,7 +665,7 @@ codeunit 136907 Resource
         JobTask: Record "Job Task";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         ErrorOnUpdatingJobTaskTypeOnPurchaseLine(JobTask."Job Task Type"::"Begin-Total");
     end;
 
@@ -701,7 +701,7 @@ codeunit 136907 Resource
         ItemCharge: Record "Item Charge";
     begin
         // Setup: Create Vendor. Create Job and Job Task line. Create Item Charge.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateJobWithJobTask(JobTask);
         LibraryInventory.CreateItemCharge(ItemCharge);
@@ -726,7 +726,7 @@ codeunit 136907 Resource
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup: Create Job with Job Task. Create Fixed Asset.
-        Initialize;
+        Initialize();
         CreateJobWithJobTask(JobTask);
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
 
@@ -758,7 +758,7 @@ codeunit 136907 Resource
         // [SCENARIO] Job Ledger Entry contains correct values after Update Job Item Cost and Adjust Cost Item Entries with Specific Costing Method.
 
         // Setup: Create Item with Serial Item Tracking. Update Unit Price and Costing Method on Item. Create Job with Job Task. Update Automatic Update Job Item Cost on Jobs Setup. Create and Post Partial Purchase Order with job.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandInt(10);
         CreateItemWithSerialItemTracking(Item);
         UpdateUnitPriceAndCostingMethodOnItem(Item, Item."Costing Method"::Specific);
@@ -803,7 +803,7 @@ codeunit 136907 Resource
         // [SCENARIO] Job Ledger Entry contains correct values after Update Job Item Cost and Adjust Cost Item Entries with Different UOM and LIFO Costing Method.
 
         // Setup: Create Item with Multiple Unit of Measure. Update Unit Price and Costing Method on Item. Create Job with Job Task. Update Automatic Update Job Item Cost on Jobs Setup. Create and Post Multiple Purchase Orders.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithMultipleUnitOfMeasure(Item, ItemUnitOfMeasure);
         UpdateUnitPriceAndCostingMethodOnItem(Item, Item."Costing Method"::LIFO);
@@ -847,7 +847,7 @@ codeunit 136907 Resource
         Quantity: Decimal;
     begin
         // Setup: Create Multiple Items. Create and Release Sales Order with Multiple Items. Create Warehouse Shipment Header with Location.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         LibraryInventory.CreateItem(Item2);
@@ -876,7 +876,7 @@ codeunit 136907 Resource
         ItemAnalysisViewCode: Code[10];
     begin
         // Setup: Create Item, Customer with Default Dimension. Create Job with Job Task. Create and Post Job Journal Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         ItemAnalysisViewCode := CreateCustomerWithDefaultDimension(Customer);
         CreateJobWithJobTask(JobTask);
@@ -903,7 +903,7 @@ codeunit 136907 Resource
         Quantity: Decimal;
     begin
         // Setup: Create Item, Customer with Default Dimension. Create Job with Job Task. Create and Post Job Journal Line. Create and post Sales Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItem(Item);
         ItemAnalysisViewCode := CreateCustomerWithDefaultDimension(Customer);
@@ -932,7 +932,7 @@ codeunit 136907 Resource
         // [SCENARIO] Post Service Order with Quantity = Q, "Qty. to Ship" = Q/2, undo consumption, ILEs contain positive and negative adjustments of Service Shipment with Quantity = Q/2.
 
         // Setup: Create Item with Unit Cost. Create and Post Item Journal Line. Create and Post Service Order.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDec(10, 2);
         CreateItemWithUnitCost(Item);
         CreateAndPostItemJournalLine(Item."No.", Quantity);
@@ -984,7 +984,7 @@ codeunit 136907 Resource
         // Verify that existing item unit of measure can be used as item's base unit of measure
 
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         LibraryResource.CreateResourceNew(Res);
 
@@ -1010,7 +1010,7 @@ codeunit 136907 Resource
         // and this unit of measure is created during the validation
 
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1037,7 +1037,7 @@ codeunit 136907 Resource
         SecondUnitOfMeasure: Record "Unit of Measure";
         ResUnitOfMeasure: Record "Resource Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Res.Init();
         Res.Insert(true);
@@ -1063,7 +1063,7 @@ codeunit 136907 Resource
         FirstUnitOfMeasure: Record "Unit of Measure";
         SecondUnitOfMeasure: Record "Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Res.Init();
         Res.Insert(true);
@@ -1088,7 +1088,7 @@ codeunit 136907 Resource
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1114,7 +1114,7 @@ codeunit 136907 Resource
         UnitOfMeasureQtyGreaterThanOne: Record "Unit of Measure";
         ResUnitOfMeasure: Record "Resource Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Res.Init();
         Res.Insert(true);
@@ -1142,7 +1142,7 @@ codeunit 136907 Resource
         SecondUnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1166,7 +1166,7 @@ codeunit 136907 Resource
         UnitOfMeasure: Record "Unit of Measure";
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        Initialize;
+        Initialize();
 
         Item.Init();
         Item.Insert(true);
@@ -1194,7 +1194,7 @@ codeunit 136907 Resource
         // because it has ValidateTableRelation=No
 
         // Setup: create item, unit of measure, item unit of measure
-        Initialize;
+        Initialize();
 
         Res.Init();
         Res.Insert(true);
@@ -1226,7 +1226,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Location]
         // [SCENARIO 380436] It should be possible to allocate two resources on the same location, the same date
-        Initialize;
+        Initialize();
 
         // [GIVEN] Location "L"
         LibraryWarehouse.CreateLocation(Location);
@@ -1254,7 +1254,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Location]
         // [SCENARIO 380436] It should be possible to allocate one resource on different locations on different dates
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource "R"
         LibraryResource.CreateResourceNew(Resource);
@@ -1281,7 +1281,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Resource Unit of Measure]
         // [SCENARIO 161627] "Resource Unit of Measure" Page should take "Base Unit of Measure" from Resource.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource with "Base Unit Of Measure" = "X".
         LibraryResource.CreateResource(Resource, '');
@@ -1305,7 +1305,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 210924] Value of "Unit Price" of Resource Ledger Entry must be positive when Quantity of Sales Line of Sales Credit Memo is positive
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with Resource Sales Ivoice line with Quanity > 0
         CreateSalesHeaderWithTwoSalesLine(
@@ -1329,7 +1329,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Credit Memo]
         // [SCENARIO 210924] Value of "Unit Price" of Resource Ledger Entry must be positive when Quantity of Sales Line of Sales Credit Memo is Negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with Resource Sales Ivoice line with Quanity > 0 and Resource Sales Invoice line with Quantity < 0
         CreateSalesHeaderWithTwoSalesLine(
@@ -1354,10 +1354,10 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Invoice]
         // [SCENARIO 217415] Value of "Unit Price" of Resource Ledger Entry must be negative when Unit Price of Sales Line of Sales Invoice is negative
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with two Resource Sales Invoice line
-        ResNo := LibraryResource.CreateResourceNo;
+        ResNo := LibraryResource.CreateResourceNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
 
         // [GIVEN] First sales line has positive "Unit Price" = 100
@@ -1389,7 +1389,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Purchase] [Resource]
         // [SCENARIO 289386] Resource base unit of measure cannot be renamed if it was purchased
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted purchase order with resource line
         LibraryResource.CreateResourceNew(Resource);
@@ -1421,7 +1421,7 @@ codeunit 136907 Resource
     begin
         // [FEATURE] [Resource]
         // [SCENARIO 289386] Resource cannot be deleted if it exists in the purchase document
-        Initialize;
+        Initialize();
 
         // [GIVEN] Resource
         LibraryResource.CreateResourceNew(Resource);
@@ -1490,17 +1490,17 @@ codeunit 136907 Resource
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::Resource);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::Resource);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        NoSeriesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        NoSeriesSetup();
         CreateItemJournalTemplateAndBatch;
-        LocationSetup;
+        LocationSetup();
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
@@ -1591,11 +1591,11 @@ codeunit 136907 Resource
     begin
         LibrarySales.CreateCustomer(Customer);
         ItemAnalysisView.SetRange("Include Budgets", true);
-        ItemAnalysisView.FindFirst;
+        ItemAnalysisView.FindFirst();
         AnalysisLineTemplate.SetRange("Item Analysis View Code", ItemAnalysisView.Code);
-        AnalysisLineTemplate.FindFirst;
+        AnalysisLineTemplate.FindFirst();
         AnalysisLine.SetRange("Analysis Line Template Name", AnalysisLineTemplate.Name);
-        AnalysisLine.FindFirst;
+        AnalysisLine.FindFirst();
         LibraryDimension.CreateDefaultDimensionCustomer(
           DefaultDimension, Customer."No.", ItemAnalysisView."Dimension 1 Code", AnalysisLine.Range);
         exit(ItemAnalysisView.Code);
@@ -1948,7 +1948,7 @@ codeunit 136907 Resource
     var
         SalesLine: Record "Sales Line";
     begin
-        ResNo := LibraryResource.CreateResourceNo;
+        ResNo := LibraryResource.CreateResourceNo();
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
         UnitPrice[1] := CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResNo, FirstLineQnt);
         UnitPrice[2] := CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Resource, ResNo, SecondLineQnt);
@@ -2042,7 +2042,7 @@ codeunit 136907 Resource
         PurchGetReceipt: Codeunit "Purch.-Get Receipt";
     begin
         PurchRcptHeader.SetRange("Order No.", OrderNo);
-        PurchRcptHeader.FindFirst;
+        PurchRcptHeader.FindFirst();
         PurchRcptLine.SetRange("Document No.", PurchRcptHeader."No.");
         PurchGetReceipt.SetPurchHeader(PurchaseHeader);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
@@ -2067,7 +2067,7 @@ codeunit 136907 Resource
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindJobLedgerEntry(var JobLedgerEntry: Record "Job Ledger Entry"; JobNo: Code[20]; DocumentNo: Code[20])
@@ -2081,7 +2081,7 @@ codeunit 136907 Resource
     begin
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
         PurchaseLine.SetRange("No.", ItemNo);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure OpenSelectContractLinesFromServiceContractPage(ContractNo: Code[20])
@@ -2111,7 +2111,7 @@ codeunit 136907 Resource
     local procedure PostPurchaseOrder(PurchaseHeader: Record "Purchase Header"; IsShipAndInvoice: Boolean)
     begin
         PurchaseHeader.Find;
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, IsShipAndInvoice, true);  // Post as Invoice.
     end;
@@ -2179,7 +2179,7 @@ codeunit 136907 Resource
         FindPurchaseLine(PurchaseLine, ItemNo);
         UpdateQuantityOnPurchaseLine(PurchaseLine, Quantity);
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Receive and Invoice as TRUE.
     end;
@@ -2213,7 +2213,7 @@ codeunit 136907 Resource
         ItemTrackingMode: Option SelectEntries,AssignSerialNo;
     begin
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
         PurchaseLine.Find;
         PurchaseLine.Validate("Unit Price (LCY)", UnitPrice);
@@ -2248,7 +2248,7 @@ codeunit 136907 Resource
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
         FilterItemAnalysisViewEntry(ItemAnalysisViewEntry, ItemNo);
-        ItemAnalysisViewEntry.FindFirst;
+        ItemAnalysisViewEntry.FindFirst();
         ItemAnalysisViewEntry.TestField(Quantity, Quantity);
     end;
 
@@ -2336,7 +2336,7 @@ codeunit 136907 Resource
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        ServiceContractLine.FindFirst;
+        ServiceContractLine.FindFirst();
         ServiceContractLine.TestField("Service Item No.", ServiceItemNo);
     end;
 
@@ -2356,7 +2356,7 @@ codeunit 136907 Resource
         WarehouseShipmentLine.SetRange("Source Document", WarehouseShipmentLine."Source Document"::"Sales Order");
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.SetRange("Item No.", ItemNo);
-        WarehouseShipmentLine.FindFirst;
+        WarehouseShipmentLine.FindFirst();
         WarehouseShipmentLine.TestField(Quantity, Quantity);
     end;
 

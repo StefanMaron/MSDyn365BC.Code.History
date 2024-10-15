@@ -1405,7 +1405,7 @@ table 5409 "Prod. Order Routing Line"
                 until TempRemainingProdOrderRoutingLine.Next() = 0;
                 TempRemainingProdOrderRoutingLine.MarkedOnly(true);
                 ProdOrderRoutingPage.SetTableView(TempRemainingProdOrderRoutingLine);
-                ProdOrderRoutingPage.RunModal;
+                ProdOrderRoutingPage.RunModal();
                 OnCheckPreviousAndNextOnAfterProdOrderRoutingPageRunModal(TempRemainingProdOrderRoutingLine);
                 Clear(ProdOrderRoutingPage);
             end;
@@ -1452,12 +1452,12 @@ table 5409 "Prod. Order Routing Line"
         RtngLine2.SetRange("Routing No.", RtngLine."Routing No.");
         RtngLine2.SetFilter("Operation No.", '>%1', RtngLine."Operation No.");
 
-        if RtngLine2.FindFirst then
+        if RtngLine2.FindFirst() then
             RtngLine."Next Operation No." := RtngLine2."Operation No."
         else begin
             RtngLine2.SetFilter("Operation No.", '');
             RtngLine2.SetRange("Next Operation No.", '');
-            if RtngLine2.FindFirst then begin
+            if RtngLine2.FindFirst() then begin
                 RtngLine2."Next Operation No." := RtngLine."Operation No.";
                 RtngLine2.Modify();
             end;
@@ -1601,7 +1601,7 @@ table 5409 "Prod. Order Routing Line"
         ParentProdOrderLine.SetRange("Prod. Order No.", ChildProdOrderLine."Prod. Order No.");
         ParentProdOrderLine.SetRange("Planning Level Code", ChildProdOrderLine."Planning Level Code" - 1);
         ParentProdOrderLine.SetFilter("Starting Date-Time", '<%1', ChildProdOrderLine."Ending Date-Time");
-        if ParentProdOrderLine.FindSet then
+        if ParentProdOrderLine.FindSet() then
             repeat
                 ProdOrderComponent.SetRange(Status, ParentProdOrderLine.Status);
                 ProdOrderComponent.SetRange("Prod. Order No.", ParentProdOrderLine."Prod. Order No.");

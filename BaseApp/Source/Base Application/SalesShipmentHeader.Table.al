@@ -472,6 +472,11 @@
             Caption = 'Quote No.';
             Editable = false;
         }
+        field(163; "Company Bank Account Code"; Code[20])
+        {
+            Caption = 'Company Bank Account Code';
+            TableRelation = "Bank Account" where("Currency Code" = FIELD("Currency Code"));
+        }
         field(171; "Sell-to Phone No."; Text[30])
         {
             Caption = 'Sell-to Phone No.';
@@ -685,7 +690,6 @@
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
-        TrackingInternetAddr: Text;
         Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
         ShipmentMethod: Record "Shipment Method";
 
@@ -743,7 +747,7 @@
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure StartTrackingSite()
@@ -755,7 +759,9 @@
         if IsHandled then
             exit;
 
-        HyperLink(GetTrackingInternetAddr());
+        TestField("Shipping Agent Code");
+        ShippingAgent.Get("Shipping Agent Code");
+        HyperLink(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
     end;
 
     procedure ShowDimensions()
@@ -847,7 +853,6 @@
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure CheckTDDData(): Boolean
     begin
         CheckShipAgentMethodComb;
@@ -883,21 +888,6 @@
         end;
     end;
 
-    [Obsolete('Moved to table 291 Shipping Agent GetTrackingInternetAddr()', '17.0')]
-    procedure GetTrackingInternetAddr(): Text
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeGetTrackingInternetAddr(Rec, TrackingInternetAddr, IsHandled);
-        if IsHandled then
-            exit;
-
-        TestField("Shipping Agent Code");
-        ShippingAgent.Get("Shipping Agent Code");
-        exit(ShippingAgent.GetTrackingInternetAddr("Package Tracking No."));
-    end;
-
     procedure GetWorkDescription(): Text
     var
         TypeHelper: Codeunit "Type Helper";
@@ -925,12 +915,6 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendProfile(var DocumentSendingProfile: Record "Document Sending Profile"; var SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
-    begin
-    end;
-
-    [Obsolete('Moved to table 291 Shipping Agent OnBeforeGetTrackingInternetAddr', '17.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTrackingInternetAddr(var SalesShipmentHeader: Record "Sales Shipment Header"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
     begin
     end;
 

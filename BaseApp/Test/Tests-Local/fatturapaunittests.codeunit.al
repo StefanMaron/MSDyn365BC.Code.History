@@ -34,13 +34,13 @@ codeunit 144208 "FatturaPA Unit Tests"
         // [FEAUTURE] [Sales] [FCY]
         // [SCENARIO 308849] All the FCY amounts of the document converts to LCY when runnning CollectDocumentInformation of "Fattura Doc. Helper" codeunit again posted sales invoice
 
-        Initialize;
+        Initialize();
         CreateSalesInvoiceFCY(SalesHeader, SalesLine);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         RecRef.GetTable(SalesInvoiceHeader);
         FatturaDocHelper.InitializeErrorLog(SalesInvoiceHeader);
         FatturaDocHelper.CollectDocumentInformation(TempFatturaHeader, TempFatturaLine, RecRef);
-        TempFatturaLine.FindFirst;
+        TempFatturaLine.FindFirst();
         Assert.AreEqual(ExchangeToLCYAmount(SalesHeader, SalesLine."Unit Price"), TempFatturaLine."Unit Price", '');
         Assert.AreEqual(ExchangeToLCYAmount(SalesHeader, SalesLine.Amount), TempFatturaLine.Amount, '');
         Assert.AreEqual(ExchangeToLCYAmount(SalesHeader, SalesLine."Amount Including VAT"), TempFatturaHeader."Total Amount", '');
@@ -57,7 +57,7 @@ codeunit 144208 "FatturaPA Unit Tests"
     begin
         // [SCENARIO 305855] When a file name generates by function GetFileName of "Fattura Doc. Helper" codeunit it takes ten chars from "Progressive No." passed as parameter
 
-        Initialize;
+        Initialize();
         ProgressiveNo := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(ProgressiveNo));
         CompanyInformation.Get();
         BaseString := CopyStr(DelChr(ProgressiveNo, '=', ',?;.:/-_ '), 1, 10);
@@ -80,7 +80,7 @@ codeunit 144208 "FatturaPA Unit Tests"
     begin
         // [SCENARIO X] Multiple Fattura Line records with "Line Type" = "Extended Text" can be generated
 
-        Initialize;
+        Initialize();
         CreateSalesDocInvWithMultipleExtTexts(SalesHeader);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         RecRef.GetTable(SalesInvoiceHeader);
@@ -109,7 +109,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         VATRate: array[2] of Decimal;
     begin
         // [SCENARIO 319765] When collecting VAT Fattura Lines for export description gets reset between lines and is blank when expected
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with VAT Business Posting Group
         Customer.Get(CreateCustomerNo);
@@ -202,7 +202,7 @@ codeunit 144208 "FatturaPA Unit Tests"
 
         Initialize();
         LibraryInventory.CreateItem(Item);
-        Item.GTIN := LibraryUtility.GenerateGUID;
+        Item.GTIN := LibraryUtility.GenerateGUID();
         Item.Modify();
         FatturaLine.Type := Format(SalesLine.Type::Item);
         FatturaLine."No." := Item."No.";
@@ -212,7 +212,7 @@ codeunit 144208 "FatturaPA Unit Tests"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -326,7 +326,7 @@ codeunit 144208 "FatturaPA Unit Tests"
     begin
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::VAT);
         TempFatturaLine.SetRange("VAT %", VATRate);
-        TempFatturaLine.FindFirst;
+        TempFatturaLine.FindFirst();
         TempFatturaLine.TestField(Description, DescriptionText);
     end;
 }

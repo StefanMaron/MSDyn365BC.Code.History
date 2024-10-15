@@ -329,13 +329,13 @@ report 12117 "Customer Bills List"
                             DetailedCustLedgEntryApplied.SetRange("Document Type", TempDetailedCustLedgEntry."Document Type");
                             DetailedCustLedgEntryApplied.SetRange("Applied Cust. Ledger Entry No.", CustLedgEntry3."Entry No.");
                             DetailedCustLedgEntryApplied.SetRange("Cust. Ledger Entry No.", CustLedgEntry1."Entry No.");
-                            if DetailedCustLedgEntryApplied.FindFirst then
+                            if DetailedCustLedgEntryApplied.FindFirst() then
                                 AmountLCY := DetailedCustLedgEntryApplied."Amount (LCY)"
                             else begin
                                 DetailedCustLedgEntryApplied.SetRange("Document Type", "Document Type"::Invoice);
                                 DetailedCustLedgEntryApplied.SetRange("Applied Cust. Ledger Entry No.", CustLedgEntry1."Entry No.");
                                 DetailedCustLedgEntryApplied.SetRange("Cust. Ledger Entry No.", CustLedgEntry3."Entry No.");
-                                if DetailedCustLedgEntryApplied.FindFirst then
+                                if DetailedCustLedgEntryApplied.FindFirst() then
                                     AmountLCY := -DetailedCustLedgEntryApplied."Amount (LCY)";
                             end;
                         end;
@@ -501,7 +501,7 @@ report 12117 "Customer Bills List"
         DetailedCustLedgEntryApplied.SetRange(
           "Entry Type", DetailedCustLedgEntryApplied."Entry Type"::Application);
 
-        if DetailedCustLedgEntry.FindSet then
+        if DetailedCustLedgEntry.FindSet() then
             repeat
                 if (DetailedCustLedgEntry."Transaction No." <> 0) or (DetailedCustLedgEntry."Application No." <> 0) then begin
                     DetailedCustLedgEntryApplied.SetRange(
@@ -514,7 +514,7 @@ report 12117 "Customer Bills List"
                       "Application No.", DetailedCustLedgEntry."Application No.");
                     DetailedCustLedgEntryApplied.SetRange(
                       "Transaction No.", DetailedCustLedgEntry."Transaction No.");
-                    if DetailedCustLedgEntryApplied.FindSet then
+                    if DetailedCustLedgEntryApplied.FindSet() then
                         repeat
                             CustLedgerEntryApplied.Get(DetailedCustLedgEntryApplied."Cust. Ledger Entry No.");
                             if IsPaymentDocumentType(CustLedgerEntryApplied) then begin

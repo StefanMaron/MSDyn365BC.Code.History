@@ -33,7 +33,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     begin
         // Purpose of the test is to validate VAT Registration No. - OnValidate trigger of Table ID - 79 Company Information.
         // Setup.
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateLocVATRegNo(true); // Update Validate loc.VAT Reg. No. TRUE on General Ledger Setup.
         CompanyInformation.Get();
 
@@ -51,7 +51,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // Purpose of the test is to validate VAT Registration No. - OnValidate trigger of Table ID - 23 Vendor.
 
         // Setup: Update General Ledger Setup and create Vendor.
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateLocVATRegNo(true); // Update Validate loc.VAT Reg. No. TRUE on General Ledger Setup.
         CreateVendor(Vendor, true, '');
 
@@ -69,7 +69,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // Purpose of the test is to validate VAT Registration No. - OnValidate trigger of Table ID - 18 Customer.
 
         // Setup: Update General Ledger Setup and create Customer.
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateLocVATRegNo(true); // Update Validate loc.VAT Reg. No. TRUE on General Ledger Setup.
         CreateCustomer(Customer, true, '');
 
@@ -87,7 +87,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         // Purpose of the test is to validate VAT Registration No. - OnValidate Trigger of Table ID - 5050 Contact.
 
         // Setup: Update General Ledger Setup and create Contact.
-        Initialize;
+        Initialize();
         LibraryITLocalization.SetValidateLocVATRegNo(true); // Update Validate loc.VAT Reg. No. TRUE on General Ledger Setup.
         CreateContact(Contact, Contact.Type::Person);
 
@@ -103,7 +103,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO 376053] Validate Company Information "Fiscal Code" with wrong value
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
@@ -120,7 +120,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO 376053] Validate Company Information "Fiscal Code" with correct Fiscal Code 16-chars value
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
@@ -139,7 +139,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         CompanyInformation: Record "Company Information";
     begin
         // [SCENARIO 376053] Validate Company Information "Fiscal Code" with correct VAT Code 11-chars value
-        Initialize;
+        Initialize();
         CompanyInformation.Get();
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
@@ -296,7 +296,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 376053] Validate Contact "Fiscal Code" with  wrong Fiscal Code value
-        Initialize;
+        Initialize();
         CreateContact(Contact, Contact.Type::Person);
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
@@ -314,7 +314,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 376053] Validate Contact "Fiscal Code" with correct Fiscal Code 16-chars value
-        Initialize;
+        Initialize();
         CreateContact(Contact, Contact.Type::Person);
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
@@ -333,7 +333,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     begin
         // [FEATURE] [Contact]
         // [SCENARIO 376053] Validate Contact "Fiscal Code" with correct VAT Code 11-chars value
-        Initialize;
+        Initialize();
         CreateContact(Contact, Contact.Type::Person);
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
 
@@ -375,7 +375,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         ContactList: TestPage "Contact List";
     begin
         // Setup: Create Contact and open Contact List page.
-        Initialize;
+        Initialize();
         CreateContact(Contact, Type);
         OpenContactListPage(ContactList, Contact."No.");
 
@@ -397,7 +397,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     begin
         // [FEATURE] [Sales] [Bill-to Customer]
         // [SCENARIO 270797] Fiscal code in sales order should be populated from bill-to customer.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "Bill" with "Fiscal Code" = "X".
         LibrarySales.CreateCustomer(BillToCustomer);
@@ -419,8 +419,8 @@ codeunit 144145 "UT TAB Fiscal Code"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -435,7 +435,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, Individual, CreateVATRegNoFormat);
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
         Vendor.Validate("Fiscal Code", Format(LibraryRandom.RandInt(100)));
@@ -445,7 +445,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     var
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
         CreateVendor(Vendor, Individual, CreateVATRegNoFormat);
         Vendor.Validate("Fiscal Code", FiscalCode);
         Assert.AreEqual(FiscalCode, Vendor."Fiscal Code", Vendor.FieldCaption("Fiscal Code"));
@@ -455,7 +455,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, Individual, CreateVATRegNoFormat);
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
         Customer.Validate("Fiscal Code", Format(LibraryRandom.RandInt(100)));
@@ -465,7 +465,7 @@ codeunit 144145 "UT TAB Fiscal Code"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         CreateCustomer(Customer, Individual, CreateVATRegNoFormat);
         LibraryVariableStorage.Enqueue(VATRegistrationNoMsg);
         Customer.Validate("Fiscal Code", FiscalCode);
@@ -534,7 +534,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         Vendor: Record Vendor;
     begin
         Vendor.SetRange(Name, Contact."No.");
-        Vendor.FindFirst;
+        Vendor.FindFirst();
         Vendor.TestField("Fiscal Code", Contact."Fiscal Code");
         Vendor.TestField("Individual Person", IndividualPerson);
         Vendor.TestField(Name, Contact.Name);

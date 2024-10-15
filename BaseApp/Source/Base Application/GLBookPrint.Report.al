@@ -308,7 +308,7 @@ report 12121 "G/L Book - Print"
             trigger OnPostDataItem()
             begin
                 if (not CurrReport.Preview) and (ReportType = ReportType::"Final Print") then begin
-                    if TempGLBookEntry.FindSet then
+                    if TempGLBookEntry.FindSet() then
                         repeat
                             GLBookEntry2.Get(TempGLBookEntry."Entry No.");
                             GLBookEntry2."Progressive No." := TempGLBookEntry."Progressive No.";
@@ -345,7 +345,7 @@ report 12121 "G/L Book - Print"
                     GLBookEntry2.Reset();
                     GLBookEntry2.SetCurrentKey("Official Date");
                     GLBookEntry2.SetFilter("Official Date", '>=%1&<%2', FiscalYearStartDate, StartDate);
-                    if GLBookEntry2.FindSet then
+                    if GLBookEntry2.FindSet() then
                         repeat
                             GLBookEntry2.CalcFields("Debit Amount", "Credit Amount");
                             StartDebit := StartDebit + GLBookEntry2."Debit Amount";
@@ -591,7 +591,7 @@ report 12121 "G/L Book - Print"
         AccPeriod.SetRange("New Fiscal Year", true);
         AccPeriod.SetFilter("Starting Date", '<=%1', StartDate);
 
-        AccPeriod.FindLast;
+        AccPeriod.FindLast();
 
         FiscalYearStartDate := AccPeriod."Starting Date";
         if FiscalYearStartDate = StartDate then begin
@@ -601,7 +601,7 @@ report 12121 "G/L Book - Print"
         end;
 
         AccPeriod.SetFilter("Starting Date", '<=%1', EndDate);
-        AccPeriod.FindLast;
+        AccPeriod.FindLast();
 
         if FiscalYearStartDate <> AccPeriod."Starting Date" then
             Error(Text1035);

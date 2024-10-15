@@ -78,7 +78,7 @@ codeunit 144051 "UT REP AUTOPAY"
         // Purpose of the test is to validate Issued Customer Bill Header - OnAfterGetRecord Trigger of Report - 12174 Issued Cust Bills Report.
 
         // Setup.
-        Initialize;
+        Initialize();
         IssuedBillNo := CreateIssuedCustomerBill;
         LibraryVariableStorage.Enqueue(IssuedBillNo);  // Enqueue value for IssuedCustBillsReportRequestPageHandler.
 
@@ -101,7 +101,7 @@ codeunit 144051 "UT REP AUTOPAY"
         // Purpose of the test is to validate Cust. Ledger Entry - OnAfterGetRecord Trigger of Report - 12104 Customer Sheet Print without Currency.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");  // Enqueue value for CustomerSheetPrintRequestPageHandler.
@@ -126,7 +126,7 @@ codeunit 144051 "UT REP AUTOPAY"
         // Purpose of the test is to validate CustLedgEntry1 - OnAfterGetRecord Trigger of Report - 12117 Customer Bills List.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerLedgerEntry(CustLedgerEntry);
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry);
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Customer No.");  // Enqueue value for CustomerBillsListRequestPageHandler.
@@ -149,7 +149,7 @@ codeunit 144051 "UT REP AUTOPAY"
         // Purpose of the test is to validate OnPreReport Trigger of Report - 12116 Vendor Account Bills List for blank Ending Date.
 
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForVendorAccountBillsListRequestPageHandler('', 0D);  // Enqueue blank as Vendor No.,0D as Ending Date for VendorAccountBillsListRequestPageHandler.
 
         // Exercise.
@@ -171,7 +171,7 @@ codeunit 144051 "UT REP AUTOPAY"
         // Purpose of the test is to validate VendLedgEntry1 - OnAfterGetRecord Trigger of Report - 12116 Vendor Account Bills List.
 
         // Setup.
-        Initialize;
+        Initialize();
         AmountToPay := LibraryRandom.RandDec(100, 2);
         CreateVendorLedgerEntry(VendorLedgerEntry, AmountToPay);
         CreateDetailedVendorLedgerEntry(VendorLedgerEntry);
@@ -210,7 +210,7 @@ codeunit 144051 "UT REP AUTOPAY"
         CustomerBillNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CustomerBillNo := CreateCustomerBill(CumulativeBankReceipts, TestReport);
         LibraryVariableStorage.Enqueue(CustomerBillNo);  // Enqueue value for ListOfBankReceiptsRequestPageHandler.
 
@@ -251,7 +251,7 @@ codeunit 144051 "UT REP AUTOPAY"
         VendorBillNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillNo := CreateVendorBill(CurrencyCode, ListStatus, 0, 0);  // 0 for VendorEntryNo and AmountToPay.
         LibraryVariableStorage.Enqueue(VendorBillNo);  // Enqueue value for VendorBillReportRequestPageHandler.
 
@@ -272,7 +272,7 @@ codeunit 144051 "UT REP AUTOPAY"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Purpose of the test is to validate Posted Vendor Bill Header - OnAfterGetRecord Trigger without Currency of Report - 12179 Issued Vendor Bill List.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         OnAfterGetRecPstdVendBillHdrIssuedVendBillList('', GeneralLedgerSetup."LCY Code");  // Blank for Currency code.
     end;
@@ -286,7 +286,7 @@ codeunit 144051 "UT REP AUTOPAY"
         CurrencyCode: Code[10];
     begin
         // Purpose of the test is to validate Posted Vendor Bill Header - OnAfterGetRecord Trigger with Currency of Report - 12179 Issued Vendor Bill List.
-        Initialize;
+        Initialize();
         CurrencyCode := LibraryUTUtility.GetNewCode10;
         OnAfterGetRecPstdVendBillHdrIssuedVendBillList(CurrencyCode, CurrencyCode);
     end;
@@ -316,7 +316,7 @@ codeunit 144051 "UT REP AUTOPAY"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -370,7 +370,7 @@ codeunit 144051 "UT REP AUTOPAY"
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CreateCustomer;
@@ -469,7 +469,7 @@ codeunit 144051 "UT REP AUTOPAY"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
         VendorBillHeader: Record "Vendor Bill Header";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := CreateVendor;
         VendorLedgerEntry."Posting Date" := WorkDate;

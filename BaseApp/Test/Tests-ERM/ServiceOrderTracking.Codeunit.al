@@ -45,16 +45,16 @@ codeunit 136129 "Service Order Tracking"
         Quantity := 0;
         Clear(LotNo);
         Clear(SerialNo);
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Tracking");
 
-        LibraryService.SetupServiceMgtNoSeries;
-        LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryService.SetupServiceMgtNoSeries();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();
@@ -68,7 +68,7 @@ codeunit 136129 "Service Order Tracking"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         // Test Order Tracking Entries from Service Line with Item having Order Tracking Policy Tracking Only.
         // Variation: Tracking Only, Location Equal, Service Order
         ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::"Tracking Only");
@@ -90,7 +90,7 @@ codeunit 136129 "Service Order Tracking"
         Item: Record Item;
         PurchaseOrderSubform: Page "Purchase Order Subform";
     begin
-        Initialize;
+        Initialize();
         // Test Order Tracking Entries from Purchase Line with Item having Order Tracking Policy Tracking Only.
         // Variation: Tracking Only, Location Equal, Purchase Order
         ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::"Tracking Only");
@@ -112,7 +112,7 @@ codeunit 136129 "Service Order Tracking"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         // Test Order Tracking Entries from Service Line with Item having Order Tracking Policy None.
         // Variation: Tracking None, Location Equal, Service Order
         ServiceOrderWithTracking(LocationA, Item."Order Tracking Policy"::None);
@@ -133,7 +133,7 @@ codeunit 136129 "Service Order Tracking"
     var
         Item: Record Item;
     begin
-        Initialize;
+        Initialize();
         // Verify that two orders with different locations cannot be used for Order Tracking
         // Variation: Tracking Only, Location Different, Service Order
         ServiceOrderWithTracking(LocationB, Item."Order Tracking Policy"::"Tracking Only");
@@ -157,7 +157,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Serial No. suggested at the time of Reservation.
 
         // 1. Setup: Create Purchase Order and Service Order, assign Item Tracking and post Purchase Order as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignSerialNo;  // Assign global variable for page handler.
         CreateAndPostPurchaseDocument(PurchaseLine, false, true);  // LotSpecific as False and SNSpecific as True.
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.");
@@ -183,7 +183,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Error on the created Service Line with Item Tracking.
 
         // 1. Setup: Create Purchase Order, Service Order and assign Item Tracking.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignSerialNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, false, true);  // LotSpecific as False and SNSpecific as True.
 
@@ -207,7 +207,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Lot No suggested at the time of Reservation.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and Post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignLotNo;  // Assign global variable for page handler.
         CreateAndPostPurchaseDocument(PurchaseLine, true, false);  // LotSpecific as True and SNSpecific as False.
         FindItemLedgerEntry(ItemLedgerEntry, PurchaseLine."No.");
@@ -235,7 +235,7 @@ codeunit 136129 "Service Order Tracking"
         // Check values on Item Tracking Summary page.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignLotNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, true, false);  // LotSpecific as True and SNSpecific as False.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -261,7 +261,7 @@ codeunit 136129 "Service Order Tracking"
         // Check error for Selected Quantity on created Service Line with Item Tracking.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignLotNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, true, false);  // LotSpecific as True and SNSpecific as False.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -288,7 +288,7 @@ codeunit 136129 "Service Order Tracking"
         // Check values on the Item Tracking Lines page for Assign Lot No.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignLotNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, true, false);  // LotSpecific as True and SNSpecific as False.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -314,7 +314,7 @@ codeunit 136129 "Service Order Tracking"
         // Check values on the Item Tracking Lines page for Assign Serial No.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignSerialNo;  // Assign global variables for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, false, true);  // LotSpecific as False and SNSpecific as True.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -342,7 +342,7 @@ codeunit 136129 "Service Order Tracking"
         // Check posting of Service Order as Ship and verify the shipment.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignSerialNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, false, true);  // LotSpecific as FALSE and SNSpecific as TRUE.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -360,7 +360,7 @@ codeunit 136129 "Service Order Tracking"
         // 3. Verify.
         ServiceShipmentLine.SetRange("Order No.", ServiceLine."Document No.");
         ServiceShipmentLine.SetRange("No.", ServiceLine."No.");
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLine.TestField(Quantity, Quantity);
     end;
 
@@ -375,7 +375,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Last No. Used In No. Series for Service Invoice when Item created with Item Tracking Code.
 
         // Setup: Create and Update Service Line with Item with Item Tracking Code.
-        Initialize;
+        Initialize();
         FindNoSeriesLine(NoSeriesLine);
         LastNoUsed := NoSeriesLine."Last No. Used";
         CreateAndUpdateServiceLine(
@@ -404,7 +404,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Last No. Used In No. Series for Posted Service Invoice when Item created with Item Tracking Code.
 
         // Setup: Create and Post Item Journal by assigning Serial No. and Select Serial No. to Service Line.
-        Initialize;
+        Initialize();
         CreateAndPostItemJournalLine(ItemJournalLine, CreateItemWithItemTrackingCode(FindItemTrackingCode(false, true)));
         CreateAndUpdateServiceLine(ServiceLine, ItemJournalLine."Item No.", ItemJournalLine.Quantity);
         LibraryVariableStorage.Enqueue(TrackingActionForSerialNo::SelectEntries);
@@ -417,7 +417,7 @@ codeunit 136129 "Service Order Tracking"
 
         // Verify: Verify Last No. Used in No. Series of Posted Service Invoice.
         ServiceInvoiceHeader.SetRange("Order No.", ServiceHeader."No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("No.", IncStr(OperationType));
     end;
 
@@ -431,7 +431,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Information Field values on Item Tracking Summary page with Assign Lot No. on Service Order.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignLotNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, true, false);  // LotSpecific as True and SNSpecific as False.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -457,7 +457,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Information Field values on Item Tracking Summary page with Assign Serial No. on Service Order.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignSerialNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, false, true);  // LotSpecific as True and SNSpecific as False.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -483,7 +483,7 @@ codeunit 136129 "Service Order Tracking"
         // Check Error while negative values is taken in the Selected Quantity field on Item Tracking Summary page with Assign Lot No. on Service Order.
 
         // 1. Setup: Create Purchase Order, assign Item Tracking on Purchase Line and post it as Receive.
-        Initialize;
+        Initialize();
         TrackingAction := TrackingAction::AssignLotNo;  // Assign global variable for page handler.
         CreatePurchaseOrderWithItemTracking(PurchaseLine, true, false);  // LotSpecific as True and SNSpecific as False.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -513,7 +513,7 @@ codeunit 136129 "Service Order Tracking"
     begin
         // [FEATURE] [Item Tracking] [Value Entry Relation]
         // [SCENARIO 380073] Item Tracking Entries reviewed from Posted Service Invoice, should show Item Tracking that was set on Service Item Line before posting.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Serial Nos. tracked Item.
         LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
@@ -531,7 +531,7 @@ codeunit 136129 "Service Order Tracking"
         LibraryVariableStorage.Enqueue(Quantity);
         with ServiceInvoiceLine do begin
             SetRange("No.", ItemNo);
-            FindFirst;
+            FindFirst();
             ShowItemTrackingLines;
         end;
     end;
@@ -669,7 +669,7 @@ codeunit 136129 "Service Order Tracking"
         ItemTrackingCode.SetRange("SN Sales Inbound Tracking", SNSpecific);
         ItemTrackingCode.SetRange("SN Sales Outbound Tracking", SNSpecific);
         ItemTrackingCode.SetRange("Man. Expir. Date Entry Reqd.", false);
-        ItemTrackingCode.FindFirst;
+        ItemTrackingCode.FindFirst();
         exit(ItemTrackingCode.Code);
     end;
 
@@ -677,7 +677,7 @@ codeunit 136129 "Service Order Tracking"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Purchase);
-        ItemLedgerEntry.FindFirst;
+        ItemLedgerEntry.FindFirst();
     end;
 
     local procedure FindNoSeriesLine(var NoSeriesLine: Record "No. Series Line")
@@ -686,7 +686,7 @@ codeunit 136129 "Service Order Tracking"
     begin
         ServiceMgtSetup.Get();
         NoSeriesLine.SetRange("Series Code", ServiceMgtSetup."Posted Service Invoice Nos.");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
     end;
 
     local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; LocationCode: Code[10]; Quantity: Decimal)

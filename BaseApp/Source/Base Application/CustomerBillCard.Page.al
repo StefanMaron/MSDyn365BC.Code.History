@@ -125,7 +125,7 @@ page 12175 "Customer Bill Card"
 
                         Clear(SuggestCustomerBill);
                         SuggestCustomerBill.InitValues(Rec, Bill."Allow Issue");
-                        SuggestCustomerBill.RunModal;
+                        SuggestCustomerBill.RunModal();
                     end;
                 }
                 separator(Action1130009)
@@ -156,7 +156,7 @@ page 12175 "Customer Bill Card"
                     begin
                         CustomerBillLine.SetRange("Customer Bill No.", "No.");
                         CustomerBillLine.SetRange(Amount, 0);
-                        if CustomerBillLine.FindFirst then
+                        if CustomerBillLine.FindFirst() then
                             Error(Text1130004,
                               CustomerBillLine."Line No.",
                               CustomerBillLine.FieldCaption(Amount));

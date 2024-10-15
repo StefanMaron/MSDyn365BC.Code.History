@@ -94,7 +94,7 @@ codeunit 12171 "Vend. Bill List-Change Status"
             VendorBillLine.Reset();
             VendorBillLine.SetRange("Vendor Bill List No.", "No.");
             VendorBillLine.SetCurrentKey("Vendor No.", "External Document No.", "Document Date");
-            if VendorBillLine.FindSet then
+            if VendorBillLine.FindSet() then
                 repeat
                     if not VendorBillLine."Manual Line" then begin
                         VendLedgEntry.Get(VendorBillLine."Vendor Entry No.");

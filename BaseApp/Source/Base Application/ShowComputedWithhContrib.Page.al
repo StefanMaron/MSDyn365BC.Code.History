@@ -242,7 +242,7 @@ page 12111 "Show Computed Withh. Contrib."
         GenJnlLine2.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlLine2.SetRange("Line No.", "Line No.");
 
-        if GenJnlLine2.FindFirst then begin
+        if GenJnlLine2.FindFirst() then begin
             if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::Payment then
                 GenJnlLine2.Validate(Amount, GenJnlLine2.Amount - "Withholding Tax Amount" + "Old Withholding Amount" -
                   "Free-Lance Amount" + "Old Free-Lance Amount" -
@@ -260,7 +260,7 @@ page 12111 "Show Computed Withh. Contrib."
                 if "Payment Line-Withholding" = 0 then begin
                     GenJnlLine.Init();
                     GenJnlLine.Copy(GenJnlLine2);
-                    if GenJnlLine2.FindLast then
+                    if GenJnlLine2.FindLast() then
                         PurchSetup := GenJnlLine2."Line No.";
                     GenJnlLine."Line No." := PurchSetup + 10000;
                     GenJnlLine."System-Created Entry" := true;
@@ -269,7 +269,7 @@ page 12111 "Show Computed Withh. Contrib."
                     GenJnlLine.SetRange("Journal Template Name", TmpGenJnlLine."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", TmpGenJnlLine."Journal Batch Name");
                     GenJnlLine.SetRange("Line No.", "Payment Line-Withholding");
-                    GenJnlLine.FindFirst;
+                    GenJnlLine.FindFirst();
                     ClearFilters;
                 end;
                 GenJnlLine.Validate("Account No.");
@@ -295,7 +295,7 @@ page 12111 "Show Computed Withh. Contrib."
                 if "Payment Line-Soc. Sec." = 0 then begin
                     GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
-                    if GenJnlLine2.FindLast then
+                    if GenJnlLine2.FindLast() then
                         PurchSetup := GenJnlLine2."Line No.";
                     GenJnlLine."Line No." := PurchSetup + 10000;
                     GenJnlLine."System-Created Entry" := true;
@@ -304,7 +304,7 @@ page 12111 "Show Computed Withh. Contrib."
                     GenJnlLine.SetRange("Journal Template Name", TmpGenJnlLine."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", TmpGenJnlLine."Journal Batch Name");
                     GenJnlLine.SetRange("Line No.", "Payment Line-Soc. Sec.");
-                    GenJnlLine.FindFirst;
+                    GenJnlLine.FindFirst();
                     ClearFilters;
                 end;
 
@@ -325,7 +325,7 @@ page 12111 "Show Computed Withh. Contrib."
                 if "Payment Line-Company" = 0 then begin
                     GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
-                    if GenJnlLine2.FindLast then
+                    if GenJnlLine2.FindLast() then
                         PurchSetup := GenJnlLine2."Line No.";
                     GenJnlLine."Line No." := PurchSetup + 10000;
                     GenJnlLine."System-Created Entry" := true;
@@ -334,7 +334,7 @@ page 12111 "Show Computed Withh. Contrib."
                     GenJnlLine.SetRange("Journal Template Name", TmpGenJnlLine."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", TmpGenJnlLine."Journal Batch Name");
                     GenJnlLine.SetRange("Line No.", "Payment Line-Company");
-                    GenJnlLine.FindFirst;
+                    GenJnlLine.FindFirst();
                     ClearFilters;
                 end;
                 GenJnlLine.Validate(Amount, "Company Amount");
@@ -363,7 +363,7 @@ page 12111 "Show Computed Withh. Contrib."
                 if "INAIL Payment Line" = 0 then begin
                     GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
-                    if GenJnlLine2.FindLast then
+                    if GenJnlLine2.FindLast() then
                         PurchSetup := GenJnlLine2."Line No.";
                     GenJnlLine."Line No." := PurchSetup + 10000;
                     GenJnlLine."System-Created Entry" := true;
@@ -372,7 +372,7 @@ page 12111 "Show Computed Withh. Contrib."
                     GenJnlLine.SetRange("Journal Template Name", TmpGenJnlLine."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", TmpGenJnlLine."Journal Batch Name");
                     GenJnlLine.SetRange("Line No.", "INAIL Payment Line");
-                    GenJnlLine.FindFirst;
+                    GenJnlLine.FindFirst();
                     ClearFilters;
                 end;
                 GenJnlLine.Validate(Amount, "INAIL Free-Lance Amount");
@@ -392,7 +392,7 @@ page 12111 "Show Computed Withh. Contrib."
                 if "INAIL Company Payment Line" = 0 then begin
                     GenJnlLine.Init();
                     GenJnlLine.Copy(TmpGenJnlLine);
-                    if GenJnlLine2.FindLast then
+                    if GenJnlLine2.FindLast() then
                         PurchSetup := GenJnlLine2."Line No.";
                     GenJnlLine."Line No." := PurchSetup + 10000;
                     GenJnlLine."System-Created Entry" := true;
@@ -401,7 +401,7 @@ page 12111 "Show Computed Withh. Contrib."
                     GenJnlLine.SetRange("Journal Template Name", TmpGenJnlLine."Journal Template Name");
                     GenJnlLine.SetRange("Journal Batch Name", TmpGenJnlLine."Journal Batch Name");
                     GenJnlLine.SetRange("Line No.", "Payment Line-Company");
-                    GenJnlLine.FindFirst;
+                    GenJnlLine.FindFirst();
                     ClearFilters;
                 end;
                 GenJnlLine.Validate(Amount, "INAIL Company Amount");

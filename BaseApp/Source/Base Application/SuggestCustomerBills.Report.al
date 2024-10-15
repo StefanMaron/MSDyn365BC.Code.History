@@ -57,7 +57,7 @@ report 12176 "Suggest Customer Bills"
                 CustomerBillLine.Reset();
                 CustomerBillLine.SetRange("Customer Bill No.", CustBillHeader."No.");
 
-                if not CustomerBillLine.FindLast then
+                if not CustomerBillLine.FindLast() then
                     NextLineNo := 10000
                 else
                     NextLineNo := CustomerBillLine."Line No." + 10000;
@@ -151,7 +151,7 @@ report 12176 "Suggest Customer Bills"
         LookupCustBillLine.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
         PaymentsCalc;
 
-        if not LookupCustBillLine.FindFirst then
+        if not LookupCustBillLine.FindFirst() then
             if (MaxAmount = 0) or
                (TotalPayments + CustLedgEntry."Remaining Amount" <= MaxAmount)
             then begin

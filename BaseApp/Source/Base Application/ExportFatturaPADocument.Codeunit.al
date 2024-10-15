@@ -18,7 +18,7 @@ codeunit 12179 "Export FatturaPA Document"
         FatturaDocHelper.CollectDocumentInformation(TempFatturaHeader, TempFatturaLine, HeaderRecRef);
 
         RecordExportBuffer.SetView(GetView);
-        RecordExportBuffer.FindFirst;
+        RecordExportBuffer.FindFirst();
 
         if TempFatturaHeader."Progressive No." <> '' then begin
             if RecordExportBuffer.ID = ID then begin
@@ -54,6 +54,37 @@ codeunit 12179 "Export FatturaPA Document"
         BodyErrMsg: Label 'Cannot create XML body: %1', Locked = true;
 
     [Scope('OnPrem')]
+    procedure GenerateXMLFile(var TempBlob: Codeunit "Temp Blob"; var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; ClientFileName: Text[250])
+    var
+        ExportFatturaPADocument: Codeunit "Export FatturaPA Document";
+    begin
+        Session.LogMessage('0000CQ9', GenerateXMLMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
+
+        CompanyInformation.Get();
+        BindSubscription(ExportFatturaPADocument);
+
+        // create file
+        if not TryCreateFatturaElettronicaHeader(TempFatturaHeader) then begin
+            Session.LogMessage('0000CQA', StrSubstNo(HeaderErrMsg, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
+            Error(GetLastErrorText());
+        end;
+
+        if not TryCreateFatturaElettronicaBody(TempFatturaLine, TempFatturaHeader) then begin
+            Session.LogMessage('0000CQB', StrSubstNo(BodyErrMsg, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
+            Error(GetLastErrorText());
+        end;
+
+        // update Buffer
+        TempXMLBuffer.FindFirst();
+        TempXMLBuffer.Save(TempBlob);
+        OnAfterCreateBlobXML(TempXMLBuffer, TempBlob);
+
+        Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
+    end;
+
+#if not CLEAN20
+    [Scope('OnPrem')]
+    [Obsolete('Replaced by GenerateXMLFile with TempBlob parameter.', '20.0')]
     procedure GenerateXMLFile(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; ClientFileName: Text[250]): Text[250]
     var
         FileManagement: Codeunit "File Management";
@@ -91,7 +122,7 @@ codeunit 12179 "Export FatturaPA Document"
         Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
         exit(CopyStr(FileName, 1, 250))
     end;
-
+#endif
     [TryFunction]
     local procedure TryCreateFatturaElettronicaHeader(TempFatturaHeader: Record "Fattura Header" temporary)
     var
@@ -136,7 +167,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddGroupElement('DatiBeniServizi');
             TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
-            if TempFatturaLine.FindSet then
+            if TempFatturaLine.FindSet() then
                 repeat
                     PopulateLineData(TempFatturaLine);
                 until TempFatturaLine.Next() = 0;
@@ -144,7 +175,7 @@ codeunit 12179 "Export FatturaPA Document"
             // fill in LineVATData
             TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::VAT);
-            if TempFatturaLine.FindSet then
+            if TempFatturaLine.FindSet() then
                 repeat
                     PopulateLineVATData(TempFatturaLine);
                 until TempFatturaLine.Next() = 0;
@@ -520,7 +551,7 @@ codeunit 12179 "Export FatturaPA Document"
 
         TempFatturaLine.Reset();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Order);
-        if not TempFatturaLine.FindSet then
+        if not TempFatturaLine.FindSet() then
             exit;
 
         with TempXMLBuffer do begin
@@ -567,7 +598,7 @@ codeunit 12179 "Export FatturaPA Document"
         with TempXMLBuffer do begin
             TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Payment);
-            if TempFatturaLine.FindSet then begin
+            if TempFatturaLine.FindSet() then begin
                 AddGroupElement('DatiPagamento');
                 AddNonEmptyElement('CondizioniPagamento', TempFatturaHeader."Fattura Payment Terms Code");
                 repeat
@@ -587,7 +618,7 @@ codeunit 12179 "Export FatturaPA Document"
     begin
         TempFatturaLine.Reset();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Shipment);
-        if not TempFatturaLine.FindSet then
+        if not TempFatturaLine.FindSet() then
             exit;
 
         with TempXMLBuffer do begin
@@ -635,7 +666,7 @@ codeunit 12179 "Export FatturaPA Document"
         TempExtFatturaLine.Copy(TempFatturaLine, true);
         TempExtFatturaLine.SetRange("Line Type", TempExtFatturaLine."Line Type"::"Extended Text");
         TempExtFatturaLine.SetRange("Related Line No.", TempFatturaLine."Line No.");
-        if TempExtFatturaLine.FindSet then
+        if TempExtFatturaLine.FindSet() then
             repeat
                 PopulateExtendedTextData(TempExtFatturaLine);
             until TempExtFatturaLine.Next() = 0;
@@ -655,7 +686,7 @@ codeunit 12179 "Export FatturaPA Document"
         with DocumentAttachment do begin
             SetRange("Table ID", TempFatturaHeader.GetTableID);
             SetRange("No.", TempFatturaHeader."Document No.");
-            if FindSet then
+            if FindSet() then
                 repeat
                     if not "Document Reference ID".HasValue then
                         exit;
@@ -727,6 +758,11 @@ codeunit 12179 "Export FatturaPA Document"
     local procedure SubstituteInvalidCharactersOnNormalizeElementValue(var ElementValue: Text)
     begin
         SubstituteInvalidCharacters(ElementValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateBlobXML(var TempXMLBuffer: Record "XML Buffer" temporary; var TempBlob: Codeunit "Temp Blob")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

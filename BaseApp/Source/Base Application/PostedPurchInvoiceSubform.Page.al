@@ -41,17 +41,6 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -489,7 +478,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
             }
@@ -542,7 +531,7 @@
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(
           7, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", "Order No.", "Order Line No.");
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()

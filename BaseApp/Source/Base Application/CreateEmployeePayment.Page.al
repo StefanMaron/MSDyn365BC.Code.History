@@ -1,4 +1,4 @@
-page 1191 "Create Employee Payment"
+﻿page 1191 "Create Employee Payment"
 {
     Caption = 'Create Employee Payment';
     PageType = StandardDialog;
@@ -195,7 +195,7 @@ page 1191 "Create Employee Payment"
         GenJournalBatch.Get(JournalTemplateName, JournalBatchName);
         GenJnlLine.SetRange("Journal Template Name", JournalTemplateName);
         GenJnlLine.SetRange("Journal Batch Name", JournalBatchName);
-        if GenJnlLine.FindLast then begin
+        if GenJnlLine.FindLast() then begin
             LastLineNo := GenJnlLine."Line No.";
             GenJnlLine.Init();
         end;
@@ -205,7 +205,7 @@ page 1191 "Create Employee Payment"
         TempEmplPaymentBuffer.SetFilter(
           "Employee Ledg. Entry Doc. Type", '<>%1&<>%2', TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Refund,
           TempEmplPaymentBuffer."Employee Ledg. Entry Doc. Type"::Payment);
-        if TempEmplPaymentBuffer.FindSet then
+        if TempEmplPaymentBuffer.FindSet() then
             repeat
                 with GenJnlLine do begin
                     Init;
@@ -270,7 +270,7 @@ page 1191 "Create Employee Payment"
             DimBuf.Reset();
             DimBuf.DeleteAll();
             DimBufMgt.GetDimensions(TempEmplPaymentBuffer."Dimension Entry No.", DimBuf);
-            if DimBuf.FindSet then
+            if DimBuf.FindSet() then
                 repeat
                     DimVal.Get(DimBuf."Dimension Code", DimBuf."Dimension Value Code");
                     TempDimSetEntry."Dimension Code" := DimBuf."Dimension Code";
@@ -281,12 +281,7 @@ page 1191 "Create Employee Payment"
             NewDimensionID := DimMgt.GetDimensionSetID(TempDimSetEntry);
             "Dimension Set ID" := NewDimensionID;
 
-            CreateDim(
-              DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
-              DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
-              DATABASE::Job, "Job No.",
-              DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-              DATABASE::Campaign, "Campaign No.");
+            CreateDimFromDefaultDim(0);
             if NewDimensionID <> "Dimension Set ID" then
                 AssignCombinedDimensionSetID(GenJnlLine, DimSetIDArr, NewDimensionID);
 
@@ -316,7 +311,7 @@ page 1191 "Create Employee Payment"
         GenJournalTemplate.Reset();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Payments);
         GenJournalTemplate.SetRange(Recurring, false);
-        if GenJournalTemplate.FindFirst then
+        if GenJournalTemplate.FindFirst() then
             JournalTemplateName := GenJournalTemplate.Name;
     end;
 
@@ -330,7 +325,7 @@ page 1191 "Create Employee Payment"
         else begin
             GenJournalLine.SetRange("Journal Template Name", JournalTemplateName);
             GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-            if GenJournalLine.FindLast then
+            if GenJournalLine.FindLast() then
                 NextDocNo := IncStr(GenJournalLine."Document No.")
             else
                 NextDocNo := NoSeriesMgt.GetNextNo(GenJournalBatchNoSeries, PostingDate, false);

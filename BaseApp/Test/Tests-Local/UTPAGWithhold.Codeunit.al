@@ -30,7 +30,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Amount to Pay - OnValidate of Page - 12102 Subform Sent Vendor Bill Lines.
 
         // Setup: Create Vendor Bill Line and open Page - Subform Sent Vendor Bill Lines.
-        Initialize;
+        Initialize();
         SubformSentVendorBillLines.OpenEdit;
         SubformSentVendorBillLines.FILTER.SetFilter("Vendor No.", CreateVendorBillLine);
 
@@ -51,8 +51,8 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate OnInsertRecord Trigger of Page - 12107 Contribution Code Lines.
 
         // Setup: Open Page Contribution Code Lines from Page Contribution Code.
-        Initialize;
-        ContributionCode.OpenNew;
+        Initialize();
+        ContributionCode.OpenNew();
         ContributionCode.Code.SetValue(LibraryUTUtility.GetNewCode);
         ContributionCodeLines.Trap;
         ContributionCode."Soc. Sec. Code Lines".Invoke;
@@ -79,7 +79,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate Action of Page - 12112 Withholding Tax Card.
 
         // Setup: Open Page Withholding Tax Card.
-        Initialize;
+        Initialize();
         WithholdingTaxCard.OpenEdit;
         WithholdingTaxCard.FILTER.SetFilter("Document No.", CreateWithholdingTax);
         WithholdingTaxCard."Vendor No.".SetValue('');  // Blank value of Vendor.
@@ -106,7 +106,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate Action of Page - 12113 Withholding Tax List.
 
         // Setup: Open Page Withholding Tax List.
-        Initialize;
+        Initialize();
         WithholdingTaxList.OpenEdit;
         WithholdingTaxList.FILTER.SetFilter("Document No.", CreateWithholdingTax);
         Navigate.Trap;
@@ -132,7 +132,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate Action of Page - 12114 Contribution Card.
 
         // Setup: Open Page Contribution Card.
-        Initialize;
+        Initialize();
         OpenContributionCard(ContributionCard);
         ContributionCard."Vendor No.".SetValue('');  // Blank value of Vendor.
         Navigate.Trap;
@@ -175,7 +175,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate ListINAIL Action of Page - 12114 Contribution Card.
 
         // Setup: Open Page Contribution Card.
-        Initialize;
+        Initialize();
         OpenContributionCard(ContributionCard);
         EnqueueSocialSecurityCodeAndINAILCode(Format(ContributionCard."Social Security Code"), Format(ContributionCard."INAIL Code"));
 
@@ -220,14 +220,14 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate Action of Page - 35492 INPS Contribution List.
 
         // Setup: Open Page INPS Contribution List.
-        Initialize;
+        Initialize();
         FilterOnContributions(Contributions);
         INPSContributionList.SetTableView(Contributions);
         LibraryVariableStorage.Enqueue(Contributions."Social Security Code");
         LibraryVariableStorage.Enqueue(Contributions."INAIL Code");
 
         // Exercise & Verify: Verify Contributions - Social Security Code and INAIL Code on handler - INPSContributionListPageHandler.
-        INPSContributionList.Run;
+        INPSContributionList.Run();
     end;
 
     [Test]
@@ -248,7 +248,7 @@ codeunit 144094 "UT PAG Withhold"
         LibraryVariableStorage.Enqueue(Contributions."INAIL Code");
 
         // Exercise: Verify Contributions - Social Security Code and INAIL Code on handler - INAILContributionListPageHandler.
-        INAILContributionList.Run;
+        INAILContributionList.Run();
     end;
 
     [Test]
@@ -262,7 +262,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate INAIL Non Taxable Amount - OnValidate trigger of Page ID - 12133  Withh. Taxes-Contribution Card.
 
         // Setup: Create Purchase with Contribution.
-        Initialize;
+        Initialize();
         CreatePurchWithhContribution(PurchWithhContribution, CreatePurchaseHeader);
         WithhTaxesContributionCard.OpenEdit;
         WithhTaxesContributionCard.GotoRecord(PurchWithhContribution);
@@ -287,7 +287,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Calculate - OnAction Trigger of Page ID - 12133  Withh. Taxes-Contribution Card.
 
         // Setup: Create Purchase With Contribution.
-        Initialize;
+        Initialize();
         CreatePurchaseLine(PurchaseLine);
         CreatePurchWithhContribution(PurchWithhContribution, PurchaseLine."Document No.");
         CreateWithholdCodeLine(PurchWithhContribution."Withholding Tax Code");
@@ -314,7 +314,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate - OnAction Trigger of Page ID - 12136 Computed Contribution.
 
         // Setup: Open Page Computed Contribution.
-        Initialize;
+        Initialize();
         DocumentNo := CreateComputedContribution;
         ComputedContributionPage.OpenEdit;
         ComputedContributionPage.FILTER.SetFilter("Document No.", DocumentNo);
@@ -342,7 +342,7 @@ codeunit 144094 "UT PAG Withhold"
         // Purpose of the test is to validate Navigate - OnAction Trigger of Page ID - 12135 Computed Withholding Tax.
 
         // Setup: Open Page Computed Withholding Tax.
-        Initialize;
+        Initialize();
         DocumentNo := CreateComputedWithholdingTax;
         ComputedWithholdingTaxPage.OpenEdit;
         ComputedWithholdingTaxPage.FILTER.SetFilter("Document No.", DocumentNo);
@@ -359,7 +359,7 @@ codeunit 144094 "UT PAG Withhold"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePurchaseHeader(): Code[20]
@@ -389,7 +389,7 @@ codeunit 144094 "UT PAG Withhold"
         ContributionCode: Record "Contribution Code";
     begin
         Contributions."Entry No." := 1;
-        if Contributions2.FindLast then
+        if Contributions2.FindLast() then
             Contributions."Entry No." := Contributions2."Entry No." + 1;
         Contributions."Social Security Code" := CreateContributionCode(ContributionCode."Contribution Type"::INPS);
         Contributions."INAIL Code" := CreateContributionCode(ContributionCode."Contribution Type"::INAIL);
@@ -453,7 +453,7 @@ codeunit 144094 "UT PAG Withhold"
         WithholdingTax2: Record "Withholding Tax";
     begin
         WithholdingTax."Entry No." := 1;
-        if WithholdingTax2.FindLast then
+        if WithholdingTax2.FindLast() then
             WithholdingTax."Entry No." := WithholdingTax2."Entry No." + 1;
         WithholdingTax."Document No." := LibraryUTUtility.GetNewCode;
         WithholdingTax."Posting Date" := WorkDate;
@@ -496,7 +496,7 @@ codeunit 144094 "UT PAG Withhold"
         Contributions.SetRange("Document No.", CreateContributions);
         Contributions.SetFilter("Social Security Code", '<>%1', '');
         Contributions.SetFilter("INAIL Code", '<>%1', '');
-        Contributions.FindFirst;
+        Contributions.FindFirst();
     end;
 
     local procedure OpenContributionCard(var ContributionCard: TestPage "Contribution Card")

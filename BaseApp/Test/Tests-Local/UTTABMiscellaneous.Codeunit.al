@@ -70,7 +70,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - DirectComponentsAmount Trigger of Table Before Start Item Cost(12133).
         // Setup.
-        Initialize;
+        Initialize();
         BeforeStartItemCost."Direct Routing Amount" := LibraryRandom.RandDec(100, 2);
 
         // Exercise.
@@ -90,7 +90,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - SubcontractedAmount Trigger of Table Before Start Item Cost(12133).
         // Setup.
-        Initialize;
+        Initialize();
         BeforeStartItemCost."Direct Components Amount" := LibraryRandom.RandDec(100, 2);
 
         // Exercise.
@@ -110,7 +110,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - DirectRoutingAmount Trigger of Table Before Start Item Cost(12133).
         // Setup.
-        Initialize;
+        Initialize();
         BeforeStartItemCost."Overhead Routing Amount" := LibraryRandom.RandDec(100, 2);
 
         // Exercise.
@@ -130,7 +130,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - OverheadRoutingAmount Trigger of Table Before Start Item Cost(12133).
         // Setup.
-        Initialize;
+        Initialize();
         BeforeStartItemCost."Subcontracted Amount" := LibraryRandom.RandDec(100, 2);
 
         // Exercise.
@@ -151,7 +151,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table Bill(12180).
         // Setup.
-        Initialize;
+        Initialize();
         Bill.Code := LibraryUTUtility.GetNewCode;
         Bill.Insert();
         PaymentMethod.Code := LibraryUTUtility.GetNewCode10;
@@ -175,7 +175,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table Contribution Bracket(12108).
         // Setup.
-        Initialize;
+        Initialize();
         ContributionBracket.Code := LibraryUTUtility.GetNewCode10;
         ContributionBracket.Insert();
         ContributionBracketLine.Code := ContributionBracket.Code;
@@ -198,7 +198,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnInsert Trigger of Table Deferring Due Dates(12173).
         // Setup.
-        Initialize;
+        Initialize();
         DeferringDueDates."No." := CreateDeferringDueDates;
         DeferringDueDates."From-Date" := WorkDate;
 
@@ -218,7 +218,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnInsert Trigger of Table Deferring Due Dates(12173) when To-Date conflicts with another period.
         // Setup.
-        Initialize;
+        Initialize();
         DeferringDueDates."No." := CreateDeferringDueDates;
         DeferringDueDates."From-Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
         DeferringDueDates."To-Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
@@ -240,7 +240,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table Contribution Code(12106).
         // Setup.
-        Initialize;
+        Initialize();
         ContributionCode.Code := LibraryUTUtility.GetNewCode;
         ContributionCode.Insert();
         ContributionCodeLine.Code := ContributionCode.Code;
@@ -264,7 +264,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnDelete Trigger of Table Withhold Code(12104).
         // Setup.
-        Initialize;
+        Initialize();
         WithholdCode.Code := LibraryUTUtility.GetNewCode;
         WithholdCode.Insert();
         WithholdCodeLine."Withhold Code" := WithholdCode.Code;
@@ -288,7 +288,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - SourceWithholdingTax Trigger of Table Withhold Code(12104).
         // Setup.
-        Initialize;
+        Initialize();
         WithholdCode.Code := LibraryUTUtility.GetNewCode;
         WithholdCode."Recipient May Report Income" := true;
 
@@ -308,7 +308,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - RecipientMayReportIncome Trigger of Table Withhold Code(12104).
         // Setup.
-        Initialize;
+        Initialize();
         WithholdCode.Code := LibraryUTUtility.GetNewCode;
 
         // Exercise.
@@ -327,7 +327,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnAfterGetRecord - CustomerBill Trigger of Report List of Bank Receipts(12170).
         // Setup.
-        Initialize;
+        Initialize();
         CreateCustomerBill(CustomerBillLine);
         LibraryVariableStorage.Enqueue(CustomerBillLine."Customer Bill No.");  // Enqueue for ListOfBankReceiptsRequestPageHandler.
 
@@ -349,7 +349,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - DueDatePaymentLine Trigger of Table Payment Line(12170).
         // Setup.
-        Initialize;
+        Initialize();
         CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Sales, CreateSalesHeader);
 
         // Exercise.
@@ -368,7 +368,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - PrepmtDueDatePaymentLine Trigger of Table Payment Line(12170).
         // Setup.
-        Initialize;
+        Initialize();
         CreatePaymentLine(PaymentLines, PaymentLines."Sales/Purchase"::Purchase, CreatePurchaseHeader);
 
         // Exercise.
@@ -388,7 +388,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - BankAccountNo Trigger of Table Vendor Bill Header(12181).
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
 
         // Exercise.
@@ -407,7 +407,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - ListDate Trigger of Table Vendor Bill Header(12181).
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
         VendorBillHeader."Posting Date" := WorkDate;
 
@@ -427,7 +427,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // Purpose of the test is to validate OnValidate - CurrencyCode Trigger of Table Vendor Bill Header(12181).
         // Setup.
-        Initialize;
+        Initialize();
         VendorBillHeader."No." := LibraryUTUtility.GetNewCode;
 
         // Exercise.
@@ -446,7 +446,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 304160] Length of "Sales Invoice Header"."Bank Account" must be equal to lenght of "Sales Header"."Bank Account"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           SalesHeader, SalesHeader.FieldNo("Bank Account"),
@@ -462,7 +462,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 304160] Length of "Service Invoice Header"."Bank Account" must be equal to lenght of "Service Header"."Bank Account"
-        Initialize;
+        Initialize();
 
         LibraryTablesUT.CompareFieldTypeAndLength(
           ServiceHeader, ServiceHeader.FieldNo("Bank Account"),
@@ -477,7 +477,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Sales]
         // [SCENARIO 326053] When the option is disabled in Sales & Recievables Setup and Posting Date is validated to a date later than Operation Occurred Date - no confirm
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was disabled in setup
         SetOccurredDateChangeNotifySales(false);
@@ -501,7 +501,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Sales]
         // [SCENARIO 326053] When the option is enabled in Sales & Recievables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was enabled in setup
         SetOccurredDateChangeNotifySales(true);
@@ -529,7 +529,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Sales]
         // [SCENARIO 326053] When the option is enabled in Sales & Recievables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when No - don't validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was enabled in setup
         SetOccurredDateChangeNotifySales(true);
@@ -556,7 +556,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Purchase]
         // [SCENARIO 326053] When the option is disabled in Purchases & Payables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was disabled in setup
         SetOccurredDateChangeNotifyPurchase(false);
@@ -580,7 +580,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Purchase]
         // [SCENARIO 326053] When the option is enabled in Purchases & Payables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was enabled in setup
         SetOccurredDateChangeNotifyPurchase(true);
@@ -608,7 +608,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Purchases]
         // [SCENARIO 326053] When the option is enabled in Purchases & Payables Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when No - don't validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was enabled in setup
         SetOccurredDateChangeNotifyPurchase(true);
@@ -635,7 +635,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Service]
         // [SCENARIO 326053] When the option is disabled in Service Management Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify disabled was enabled in setup
         SetOccurredDateChangeNotifyService(false);
@@ -659,7 +659,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Service]
         // [SCENARIO 326053] When the option is enabled in Service Management Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when yes - Validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was enabled in setup
         SetOccurredDateChangeNotifyService(true);
@@ -687,7 +687,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Service]
         // [SCENARIO 326053] When the option is enabled in Service Management Setup and Posting Date is validated to a date later than Operation Occurred Date - confirm pops up, when No - don't validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Occurred Date Change Notify option was enabled in setup
         SetOccurredDateChangeNotifyService(true);
@@ -715,7 +715,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Sales]
         // [SCENARIO 326053] When Posting Date is validated to a date earlier than Operation Occurred Date - confirm pops up, when yes - Validate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
@@ -740,7 +740,7 @@ codeunit 144126 "UT TAB Miscellaneous"
     begin
         // [UI] [Sales]
         // [SCENARIO 326053] When Posting Date is validated to a date earlier than Operation Occurred Date - confirm pops up, when no - Error
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header with Posting date and Operation Occurred Date = 15.01.2000
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, '');
@@ -759,7 +759,7 @@ codeunit 144126 "UT TAB Miscellaneous"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(Blocked: Boolean): Code[20]

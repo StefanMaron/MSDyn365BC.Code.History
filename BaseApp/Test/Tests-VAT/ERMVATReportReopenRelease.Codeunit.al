@@ -121,7 +121,7 @@ codeunit 134058 "ERM VAT Report Reopen Release"
     begin
         VATReportSetup.Get();
         NoSeries.Init();
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         VATReportSetup."No. Series" := NoSeries.Code;
         VATReportSetup."Intermediary VAT Reg. No." := LibraryVATUtils.GenerateVATRegistrationNumber;
         VATReportSetup.Modify();

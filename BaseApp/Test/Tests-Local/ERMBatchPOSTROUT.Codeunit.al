@@ -33,7 +33,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         LastUsedSeriesDate := GetLastUsedSeriesDate(PurchaseHeader."Operation Type");
         // [WHEN] Run Report Batch Post Purch. Credit Memos for Posting Date higher than Purchase Credit Memo Posting Date.
@@ -55,7 +55,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BuyFromVendorNo: Code[20];
     begin
         // [GIVEN] Create Purchase Credit Memo.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
         LastUsedSeriesDate := GetLastUsedSeriesDate(PurchaseHeader."Operation Type");
 
@@ -80,7 +80,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LastUsedSeriesDate: Date;
     begin
         // [GIVEN] Create Purchase Return Order.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
 
         // [WHEN] Run Report Batch Post Purch. Ret. Orders for Posting Date higher than Purchase Return Order Posting Date.
@@ -103,7 +103,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BuyFromVendorNo: Code[20];
     begin
         // [GIVEN] Create Purchase Return Order.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order");
         LastUsedSeriesDate := GetLastUsedSeriesDate(PurchaseHeader."Operation Type");
 
@@ -127,7 +127,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
 
         // [WHEN] Run Report Batch Post Purchase Orders for Posting Date higher than Purchase Order Posting Date.
@@ -149,7 +149,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BuyFromVendorNo: Code[20];
     begin
         // [GIVEN] Create Purchase Order.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Order);
         LastUsedSeriesDate := GetLastUsedSeriesDate(PurchaseHeader."Operation Type");
 
@@ -173,7 +173,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Purchase Invoice.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
         // [WHEN] Run Report Batch Post Purchase Invoices for Posting Date higher than Purchase Invoice Posting Date.
@@ -195,7 +195,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LastUsedSeriesDate: Date;
     begin
         // [GIVEN] Create Purchase Invoice.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         LastUsedSeriesDate := GetLastUsedSeriesDate(PurchaseHeader."Operation Type");
 
@@ -219,7 +219,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
         PostingDate := CalcDate('<1D>', LastUsedSeriesDate);
@@ -241,7 +241,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SellToCustomerNo: Code[20];
     begin
         // [GIVEN] Create Sales Credit Memo.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
 
@@ -265,7 +265,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Sales Invoice.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
         PostingDate := CalcDate('<1D>', LastUsedSeriesDate);
@@ -287,7 +287,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LastUsedSeriesDate: Date;
     begin
         // [GIVEN] Create Sales Invoice.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
 
@@ -311,7 +311,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Sales Return Order.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
         PostingDate := CalcDate('<1D>', LastUsedSeriesDate);
@@ -333,7 +333,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SellToCustomerNo: Code[20];
     begin
         // [GIVEN] Create Sales Return Order.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Return Order");
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
 
@@ -357,7 +357,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Sales Order.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
         PostingDate := CalcDate('<1D>', LastUsedSeriesDate);
@@ -379,7 +379,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SellToCustomerNo: Code[20];
     begin
         // [GIVEN] Create Sales Order.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
         LastUsedSeriesDate := GetLastUsedSeriesDate(SalesHeader."Operation Type");
 
@@ -402,7 +402,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Service Credit Memo.
-        Initialize;
+        Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::"Credit Memo");
         PostingDate := CalcDate('<1D>', WorkDate);
 
@@ -422,7 +422,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BillToCustomerNo: Code[20];
     begin
         // [GIVEN] Create Service Credit Memo.
-        Initialize;
+        Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::"Credit Memo");
 
         // [WHEN] Run Report Batch Post Service Credit Memos for Posting Date same as Service Cr.Memo Posting Date.
@@ -442,7 +442,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Service Invoice.
-        Initialize;
+        Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Invoice);
         PostingDate := CalcDate('<1D>', WorkDate);
 
@@ -462,7 +462,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BillToCustomerNo: Code[20];
     begin
         // [GIVEN] Create Service Invoice.
-        Initialize;
+        Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Invoice);
 
         // [WHEN] Run Report Batch Post Service Invoices for Posting Date same as Service Invoice Posting Date.
@@ -481,7 +481,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         BillToCustomerNo: Code[20];
     begin
         // [GIVEN] Create Service Order.
-        Initialize;
+        Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Order);
 
         // [WHEN] Run Report Batch Post Service Orders for Posting Date same as Service Order Posting Date.
@@ -498,7 +498,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         DocumentDate: Date;
     begin
         // [GIVEN] Create Blanket Purchase Order with Document Date earlier than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Document Date earlier than Posting Date as WORKDATE.
         BlanketPurchOrderMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
     end;
@@ -510,7 +510,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         OperationOccurredDate: Date;
     begin
         // [GIVEN] Create Blanket Purchase Order with Operation Occurred Date more than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         OperationOccurredDate := CalcDate('<1D>', WorkDate);  // Operation Occurred Date more than Posting Date as WORKDATE.
         BlanketPurchOrderMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
     end;
@@ -536,7 +536,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchaseHeader: Record "Purchase Header";
         DocumentDate: Date;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Blanket Purchase with Order Document Date more than Posting Date as WORKDATE
         DocumentDate := CalcDate('<1D>', WorkDate);  // Document Date more than Posting Date as WORKDATE.
         CreatePurchaseDocumentWithOperationAndDocumentDate(
@@ -556,7 +556,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         DocumentDate: Date;
     begin
         // [GIVEN] Create Purchase Quote with Document Date earlier than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         PurchQuoteMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
     end;
@@ -568,7 +568,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         OperationOccurredDate: Date;
     begin
         // [GIVEN] Create Purchase Quote with Operation Occurred Date more than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         OperationOccurredDate := CalcDate('<1D>', WorkDate);
         PurchQuoteMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
     end;
@@ -579,7 +579,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchaseOrderHeader: Record "Purchase Header";
     begin
         // Create Purchase Quote.
-        Initialize;
+        Initialize();
         CreatePurchaseDocumentWithOperationAndDocumentDate(
           PurchaseHeader, PurchaseHeader."Document Type"::Quote, DocumentDate, OperationOccurredDate);
 
@@ -600,7 +600,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         DocumentDate: Date;
     begin
         // [GIVEN] Create Purchase Quote with Document Date more than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         DocumentDate := CalcDate('<1D>', WorkDate);
         CreatePurchaseDocumentWithOperationAndDocumentDate(
           PurchaseHeader, PurchaseHeader."Document Type"::Quote, DocumentDate, WorkDate);  // Operation Occurred Date - WORKDATE.
@@ -621,10 +621,10 @@ codeunit 144066 "ERM Batch POSTROUT"
         DocumentDate: Date;
     begin
         // [GIVEN] Create Blanket Sales Order with Document Date earlier than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         BlanketSalesOrderMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -636,10 +636,10 @@ codeunit 144066 "ERM Batch POSTROUT"
         OperationOccurredDate: Date;
     begin
         // [GIVEN] Create Blanket Sales Order with Operation Occurred Date more than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         OperationOccurredDate := CalcDate('<1D>', WorkDate);
         BlanketSalesOrderMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure BlanketSalesOrderMakeOrderWithDocAndOperationOccurredDate(DocumentDate: Date; OperationOccurredDate: Date)
@@ -666,7 +666,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         DocumentDate: Date;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Blanket Sales Order with Document Date more than Posting Date as WORKDATE
         DocumentDate := CalcDate('<1D>', WorkDate);
         CreateSalesDocumentWithOperationAndDocumentDate(
@@ -677,7 +677,7 @@ codeunit 144066 "ERM Batch POSTROUT"
 
         // [THEN] Error: Document Date cannot be greater than Posting Date as WORKDATE
         Assert.ExpectedError(DocumentDateErr);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -689,10 +689,10 @@ codeunit 144066 "ERM Batch POSTROUT"
         DocumentDate: Date;
     begin
         // [GIVEN] Create Sales Quote with Document Date earlier than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         DocumentDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
         SalesQuoteMakeOrderWithDocAndOperationOccurredDate(DocumentDate, DocumentDate);  // Document Date, Operation Occurred Date.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -704,10 +704,10 @@ codeunit 144066 "ERM Batch POSTROUT"
         OperationOccurredDate: Date;
     begin
         // [GIVEN] Create Sales Quote with Operation Occurred Date more than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         OperationOccurredDate := CalcDate('<1D>', WorkDate);
         SalesQuoteMakeOrderWithDocAndOperationOccurredDate(WorkDate, OperationOccurredDate);  // Document Date, Operation Occurred Date.
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure SalesQuoteMakeOrderWithDocAndOperationOccurredDate(DocumentDate: Date; OperationOccurredDate: Date)
@@ -737,7 +737,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         DocumentDate: Date;
     begin
         // [GIVEN] Create Sales Quote with Document Date more than Posting Date as WORKDATE.
-        Initialize;
+        Initialize();
         DocumentDate := CalcDate('<1D>', WorkDate);
         CreateSalesDocumentWithOperationAndDocumentDate(
           SalesHeader, SalesHeader."Document Type"::Quote, DocumentDate, WorkDate);  // Operation Occurred Date - WORKDATE.
@@ -747,7 +747,7 @@ codeunit 144066 "ERM Batch POSTROUT"
 
         // [THEN] Verify Error: Document Date cannot be greater than Posting Date as WORKDATE.
         Assert.ExpectedError(DocumentDateErr);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -760,7 +760,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Service Order, Service Item and update Service Item Line - Bill To Customer Number.
-        Initialize;
+        Initialize();
         BillToCustomerNo := CreateServiceDocument(ServiceHeader."Document Type"::Order);
         CreateServiceItemAndUpdateServiceLine(BillToCustomerNo);
         PostingDate := CalcDate('<1D>', WorkDate);  // Posting Date higher than WORKDATE.
@@ -784,7 +784,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Purchase Invoice.
-        Initialize;
+        Initialize();
         BuyFromVendorNo := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
         FindPurchaseHeader(PurchaseHeader, BuyFromVendorNo, PurchaseHeader."Document Type"::Invoice);
         NoSeriesCode := PurchaseHeader."Operation Type";
@@ -812,7 +812,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PostingDate: Date;
     begin
         // [GIVEN] Create Sales Invoice.
-        Initialize;
+        Initialize();
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
         FindSalesHeader(SalesHeader, SellToCustomerNo, SalesHeader."Document Type"::Invoice);
         NoSeriesCode := SalesHeader."Operation Type";
@@ -840,7 +840,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         OldSalesPrepaymentsAccount: Code[20];
     begin
         // [GIVEN] Create Sales Order, update Sales Prepayment Account, Sales Header Prepayment Percentage, Sales Line - VAT Posting Group.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         OldSalesPrepaymentsAccount := UpdateVATPostingSetupSalesPrepaymentAccount(VATPostingSetup, GLAccount."No.");
         SellToCustomerNo := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order);
@@ -860,7 +860,7 @@ codeunit 144066 "ERM Batch POSTROUT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Code[20]
@@ -872,7 +872,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         NoSeries.SetFilter("No. Series Type", '%1|%2', NoSeries."No. Series Type"::Sales, NoSeries."No. Series Type"::Purchase);
         NoSeries.SetRange("Date Order", true);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, Vendor."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -944,11 +944,11 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceLine: Record "Service Line";
     begin
         ServiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        ServiceHeader.FindFirst;
+        ServiceHeader.FindFirst();
         LibraryService.CreateServiceItem(ServiceItem, BillToCustomerNo);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
         ServiceLine.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
         ServiceLine.Modify(true);
     end;
@@ -974,7 +974,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostPurchCreditMemos);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
         BatchPostPurchCreditMemos.SetTableView(PurchaseHeader);
-        BatchPostPurchCreditMemos.Run;  // Opens handler - BatchPostPurchCreditMemosRequestPageHandler.
+        BatchPostPurchCreditMemos.Run();  // Opens handler - BatchPostPurchCreditMemosRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostPurchRetOrders(VendorNo: Code[20]; PostingDate: Date)
@@ -996,7 +996,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostPurchaseOrders);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
         BatchPostPurchaseOrders.SetTableView(PurchaseHeader);
-        BatchPostPurchaseOrders.Run;  // Opens handler - BatchPostPurchaseOrdersRequestPageHandler.
+        BatchPostPurchaseOrders.Run();  // Opens handler - BatchPostPurchaseOrdersRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostPurchaseInvoices(VendorNo: Code[20]; PostingDate: Date)
@@ -1009,7 +1009,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostPurchaseInvoices);
         PurchaseHeader.SetRange("Buy-from Vendor No.", VendorNo);
         BatchPostPurchaseInvoices.SetTableView(PurchaseHeader);
-        BatchPostPurchaseInvoices.Run;  // Opens handler - BatchPostPurchaseInvoicesRequestPageHandler.
+        BatchPostPurchaseInvoices.Run();  // Opens handler - BatchPostPurchaseInvoicesRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostSalesCreditMemos(SellToCustomerNo: Code[20]; PostingDate: Date)
@@ -1022,7 +1022,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostSalesCreditMemos);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         BatchPostSalesCreditMemos.SetTableView(SalesHeader);
-        BatchPostSalesCreditMemos.Run;  // Opens handler - BatchPostSalesCreditMemosRequestPageHandler.
+        BatchPostSalesCreditMemos.Run();  // Opens handler - BatchPostSalesCreditMemosRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostSalesInvoices(SellToCustomerNo: Code[20]; PostingDate: Date)
@@ -1035,7 +1035,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostSalesInvoices);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         BatchPostSalesInvoices.SetTableView(SalesHeader);
-        BatchPostSalesInvoices.Run;  // Opens handler - BatchPostSalesInvoicesRequestPageHandler.
+        BatchPostSalesInvoices.Run();  // Opens handler - BatchPostSalesInvoicesRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostSalesReturnOrders(SellToCustomerNo: Code[20]; PostingDate: Date)
@@ -1048,7 +1048,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostSalesReturnOrders);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
         BatchPostSalesReturnOrders.SetTableView(SalesHeader);
-        BatchPostSalesReturnOrders.Run;  // Opens handler - BatchPostSalesInvoicesRequestPageHandler.
+        BatchPostSalesReturnOrders.Run();  // Opens handler - BatchPostSalesInvoicesRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostSalesOrders(SellToCustomerNo: Code[20]; PostingDate: Date)
@@ -1071,7 +1071,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostServiceCrMemos);
         ServiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         BatchPostServiceCrMemos.SetTableView(ServiceHeader);
-        BatchPostServiceCrMemos.Run;  // Opens handler - BatchPostServiceCreditMemosRequestPageHandler.
+        BatchPostServiceCrMemos.Run();  // Opens handler - BatchPostServiceCreditMemosRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostServiceInvoices(BillToCustomerNo: Code[20]; PostingDate: Date)
@@ -1084,7 +1084,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostServiceInvoices);
         ServiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         BatchPostServiceInvoices.SetTableView(ServiceHeader);
-        BatchPostServiceInvoices.Run;  // Opens handler - BatchPostServiceInvoicesRequestPageHandler.
+        BatchPostServiceInvoices.Run();  // Opens handler - BatchPostServiceInvoicesRequestPageHandler.
     end;
 
     local procedure RunReportBatchPostServiceOrders(BillToCustomerNo: Code[20]; PostingDate: Date)
@@ -1097,21 +1097,21 @@ codeunit 144066 "ERM Batch POSTROUT"
         Clear(BatchPostServiceOrders);
         ServiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
         BatchPostServiceOrders.SetTableView(ServiceHeader);
-        BatchPostServiceOrders.Run;  // Opens handler - BatchPostServiceOrdersRequestPageHandler.
+        BatchPostServiceOrders.Run();  // Opens handler - BatchPostServiceOrdersRequestPageHandler.
     end;
 
     local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchaseHeader.FindFirst;
+        PurchaseHeader.FindFirst();
     end;
 
     local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure FindSalesNoSeries(): Code[20]
@@ -1120,13 +1120,13 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
         NoSeries.SetRange("Date Order", true);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         exit(NoSeries.Code);
     end;
 
     local procedure UpdateVATPostingSetupSalesPrepaymentAccount(var VATPostingSetup: Record "VAT Posting Setup"; SalesPrepaymentsAccount: Code[20]) OldSalesPrepaymentsAccount: Code[20]
     begin
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         OldSalesPrepaymentsAccount := VATPostingSetup."Sales Prepayments Account";
         VATPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
         VATPostingSetup.Modify(true);
@@ -1148,7 +1148,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         FindSalesHeader(SalesHeader, SellToCustomerNo, SalesHeader."Document Type"::Order);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -1190,7 +1190,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchCrMemoHdr.FindFirst;
+        PurchCrMemoHdr.FindFirst();
         PurchCrMemoHdr.TestField("Posting Date", PostingDate);
         PurchCrMemoHdr.TestField("Document Date", WorkDate);
         PurchCrMemoHdr.TestField("Operation Occurred Date", PostingDate);
@@ -1201,7 +1201,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvHeader.TestField("Posting Date", PostingDate);
         PurchInvHeader.TestField("Document Date", WorkDate);
         PurchInvHeader.TestField("Operation Occurred Date", PostingDate);
@@ -1212,7 +1212,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesCrMemoHeader.FindFirst;
+        SalesCrMemoHeader.FindFirst();
         SalesCrMemoHeader.TestField("Posting Date", PostingDate);
         SalesCrMemoHeader.TestField("Document Date", WorkDate);
         SalesCrMemoHeader.TestField("Operation Occurred date", PostingDate);
@@ -1223,7 +1223,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.TestField("Posting Date", PostingDate);
         SalesInvoiceHeader.TestField("Document Date", WorkDate);
         SalesInvoiceHeader.TestField("Operation Occurred Date", PostingDate);
@@ -1266,7 +1266,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         ServiceCrMemoHeader.TestField("Posting Date", PostingDate);
         ServiceCrMemoHeader.TestField("Document Date", WorkDate);
         ServiceCrMemoHeader.TestField("Operation Occurred Date", PostingDate);
@@ -1285,7 +1285,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         ServiceInvoiceHeader.TestField("Posting Date", PostingDate);
         ServiceInvoiceHeader.TestField("Document Date", WorkDate);
         ServiceInvoiceHeader.TestField("Operation Occurred Date", PostingDate);
@@ -1321,7 +1321,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         NoSeriesLineSales.SetRange("Series Code", NoSeriesCode);
         NoSeriesLineSales.SetFilter("Starting Date", '<%1', WorkDate);
-        NoSeriesLineSales.FindLast;
+        NoSeriesLineSales.FindLast();
         NoSeriesLineSales.TestField("Last Date Used", PostingDate);
     end;
 
@@ -1329,7 +1329,7 @@ codeunit 144066 "ERM Batch POSTROUT"
     begin
         NoSeriesLinePurchase.SetRange("Series Code", NoSeriesCode);
         NoSeriesLinePurchase.SetFilter("Starting Date", '<%1', WorkDate);
-        NoSeriesLinePurchase.FindLast;
+        NoSeriesLinePurchase.FindLast();
         NoSeriesLinePurchase.TestField("Last Date Used", PostingDate);
     end;
 

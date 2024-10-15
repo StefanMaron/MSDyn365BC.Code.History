@@ -42,22 +42,22 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         SalesHeader: Record "Sales Header";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Invoice Aggregate UT");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales Invoice Aggregate UT");
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         if GeneralLedgerSetup.UseVat then begin
-            LibraryERMCountryData.CreateVATData;
-            LibraryERMCountryData.CreateGeneralPostingSetupData;
+            LibraryERMCountryData.CreateVATData();
+            LibraryERMCountryData.CreateGeneralPostingSetupData();
         end;
 
         LibrarySales.SetStockoutWarning(false);
@@ -140,7 +140,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine."Recalculate Invoice Disc." := true;
         SalesLine.Modify();
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoice."No.".Value);
@@ -238,7 +238,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -265,7 +265,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesInvoice."No.".Value);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         LibraryNotificationMgt.RecallNotificationsForRecord(SalesLine);
     end;
 
@@ -282,7 +282,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         // Execute
         SalesLine.Delete(true);
@@ -291,7 +291,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         VerifyAggregateTableIsUpdatedForInvoice(SalesHeader."No.");
 
         // Execute last
-        SalesLine.FindLast;
+        SalesLine.FindLast();
         SalesLine.Delete(true);
 
         // Verify
@@ -353,7 +353,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreateInvoiceWithLinesThroughCodeNoDiscount(SalesHeader);
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         // Execute
         SalesLine.DeleteAll(true);
@@ -696,7 +696,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         CreatePostedInvoiceNoDiscount(SalesInvoiceHeader);
 
         // Execute
-        NewCode := LibraryUtility.GenerateGUID;
+        NewCode := LibraryUtility.GenerateGUID();
         SalesInvoiceHeader.Rename(NewCode);
 
         // Verify
@@ -838,7 +838,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         VerifyAggregateTableIsUpdatedForPostedInvoice(SalesInvoiceHeader."No.", DummySalesInvoiceEntityAggregate.Status::Open);
 
         CorrectiveSalesInvoiceHeader.SetRange("Applies-to Doc. No.", NewSalesCrMemoHeader."No.");
-        CorrectiveSalesInvoiceHeader.FindFirst;
+        CorrectiveSalesInvoiceHeader.FindFirst();
 
         VerifyAggregateTableIsUpdatedForPostedInvoice(
           CorrectiveSalesInvoiceHeader."No.", DummySalesInvoiceEntityAggregate.Status::Corrective);
@@ -863,7 +863,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         ClosedCustLedgerEntry.Delete();
 
         OpenCustLedgerEntry.SetRange("Entry No.", UnpaidSalesInvoiceHeader."Cust. Ledger Entry No.");
-        OpenCustLedgerEntry.FindFirst;
+        OpenCustLedgerEntry.FindFirst();
         OpenCustLedgerEntry.Rename(SalesInvoiceHeader."Cust. Ledger Entry No.");
 
         // Verify
@@ -1113,7 +1113,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
         SalesInvoiceAggregator.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
-        TempSalesInvoiceLineAggregate.FindFirst;
+        TempSalesInvoiceLineAggregate.FindFirst();
         UpdateSalesInvoiceLineAggregate(TempSalesInvoiceLineAggregate, TempFieldBuffer);
 
         // Execute
@@ -1142,7 +1142,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         CreateSalesHeader(SalesHeader, ExpectedGUID, SalesHeader."Document Type"::Invoice);
         SalesInvoiceAggregator.LoadLines(TempSalesInvoiceLineAggregate, SalesHeader.SystemId);
-        TempSalesInvoiceLineAggregate.FindFirst;
+        TempSalesInvoiceLineAggregate.FindFirst();
 
         // Execute
         SalesInvoiceAggregator.PropagateDeleteLine(TempSalesInvoiceLineAggregate);
@@ -1423,7 +1423,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
     local procedure CreateInvoiceWithOneLineThroughTestPage(var SalesInvoice: TestPage "Sales Invoice"; Customer: Record Customer; Item: Record Item)
     begin
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer."No.");
 
         CreateLineThroughTestPage(SalesInvoice, Item."No.");
@@ -1502,7 +1502,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
         NewSalesCrMemoHeader.SetRange("Bill-to Customer No.", SalesInvoiceHeader."Bill-to Customer No.");
-        NewSalesCrMemoHeader.FindLast;
+        NewSalesCrMemoHeader.FindLast();
     end;
 
     local procedure CreateAndMarkPostedInvoiceAsPaid(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -1535,7 +1535,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
 
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
 
@@ -1557,7 +1557,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure CreateInvoiceWithRandomNumberOfLines(var SalesHeader: Record "Sales Header"; var Item: Record Item; var Customer: Record Customer)
@@ -1696,7 +1696,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         RecRef.Open(SourceTableID);
         TargetTableRecRef.Open(TempField.TableNo);
 
-        TempField.FindFirst;
+        TempField.FindFirst();
 
         repeat
             if not SkipValidation(SourceTableID, TempField."No.") then begin
@@ -1714,7 +1714,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         RecRef.Open(TableID);
 
         TempField.Reset();
-        TempField.FindFirst;
+        TempField.FindFirst();
 
         repeat
             if not SkipValidation(TableID, TempField."No.") then
@@ -1815,8 +1815,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         if LinesRecordRef.Count = 0 then
             exit;
 
-        TempSalesInvoiceLineAggregate.FindFirst;
-        LinesRecordRef.FindFirst;
+        TempSalesInvoiceLineAggregate.FindFirst();
+        LinesRecordRef.FindFirst();
         repeat
             VerifyLineValuesMatch(LinesRecordRef, TempSalesInvoiceLineAggregate, SalesInvoiceEntityAggregate.Posted);
             TempSalesInvoiceLineAggregate.Next;
@@ -1840,7 +1840,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
 
         if Posted then
             FilterOutFieldsMissingOnSalesInvoiceLine(TempField);
-        TempField.FindFirst;
+        TempField.FindFirst();
         repeat
             SourceFieldRef := SourceRecordRef.Field(TempField."No.");
             AggregateLineFieldRef := SourceRecordRef.Field(TempField."No.");
@@ -2185,7 +2185,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         LastOrderNo: Integer;
     begin
         LastOrderNo := 1;
-        if TempFieldBuffer.FindLast then
+        if TempFieldBuffer.FindLast() then
             LastOrderNo := TempFieldBuffer.Order + 1;
 
         Clear(TempFieldBuffer);

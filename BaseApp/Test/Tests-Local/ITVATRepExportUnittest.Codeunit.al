@@ -66,7 +66,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify issued invoice is printed correctly
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -93,7 +93,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify issued invoice is printed correctly
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -122,7 +122,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -149,7 +149,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify issued invoice is printed correctly
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -179,7 +179,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify received invoice is printed correctly
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -210,7 +210,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify received invoice is printed correctly
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -250,7 +250,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify received invoice is printed correctly
-        Initialize;
+        Initialize();
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
         CustA := LibrarySpesometro.CreateCustomer(false, CustomerRec.Resident::Resident, true, false);
@@ -284,7 +284,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -311,7 +311,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -338,7 +338,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -365,7 +365,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VendorNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -395,7 +395,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Tests the aggregated export with two customers which should be seperated properly. The order of the VAT Report Line is "scrampled" so the sorting is tested
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -426,7 +426,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -457,7 +457,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VendorNoB: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
         VendorNoA := LibrarySpesometro.CreateVendor(false, CustomerRec.Resident::Resident, true, false);
@@ -488,7 +488,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFileAgg: BigText;
         TextFileDetailed: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -530,7 +530,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -557,7 +557,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -584,7 +584,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -611,7 +611,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -641,7 +641,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TotalVAT: Decimal;
         TotalVAT2: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -682,7 +682,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Index: Integer;
         MaxRecordCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Report for a Customer
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -720,7 +720,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Index: Integer;
         MaxRecordCount: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Report for 3 Customers
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -728,7 +728,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo2 := LibrarySpesometro.CreateVendor(true, CustomerRec.Resident::"Non-Resident", false, true);
         CustNo3 := LibrarySpesometro.CreateCustomer(true, CustomerRec.Resident::"Non-Resident", false, true);
 
-        FlatFileManagement.Initialize;
+        FlatFileManagement.Initialize();
 
         // [GIVEN] 4 lines in header and footer of VAT Report (A, B, E and Z records)
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(4);
@@ -776,7 +776,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Index: Integer;
         TotalAmount: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -807,7 +807,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify export is able to handle special characters and convert them accordingly.
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -839,7 +839,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify a phone number is "cleaned" correctly, i.e. removing all non-numering characters
-        Initialize;
+        Initialize();
 
         // Setup
         CompanyInfo.Get();
@@ -887,7 +887,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Sales invoice for customer (Non-Individual/Individual) with VAT Reg. No. is identified by FE001001
-        Initialize;
+        Initialize();
 
         // [GIVEN] An individual/non-individual resident customer with VAT Registration No.
         Customer.Get(LibrarySpesometro.CreateCustomer(Individual, Customer.Resident::Resident, true, false));
@@ -917,7 +917,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Sales invoice for customer with Fiscal code is identified by FE001002
-        Initialize;
+        Initialize();
 
         // [GIVEN] An non-individual resident customer without VAT Reg. No. but fiscal code
         Customer.Get(LibrarySpesometro.CreateCustomer(false, Customer.Resident::Resident, false, true));
@@ -947,7 +947,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Sales invoice for customer without Fiscal code and VAT Reg. No is a summary document
-        Initialize;
+        Initialize();
 
         // [GIVEN] An non-individual resident customer without VAT Reg. No. but fiscal code
         Customer.Get(LibrarySpesometro.CreateCustomer(false, Customer.Resident::Resident, false, false));
@@ -977,7 +977,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Purchase invoice for vendor with VAT Reg. No. is identified by FR001001
-        Initialize;
+        Initialize();
 
         // [GIVEN] An individual resident vendor with VAT Registration No.
         Vendor.Get(LibrarySpesometro.CreateVendor(true, Vendor.Resident::Resident, true, false));
@@ -1007,7 +1007,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Purchase invoice for vendor without VAT Reg. No. but fiscal which is considered a summary document
-        Initialize;
+        Initialize();
 
         // [GIVEN] An individual resident vendor with VAT Registration No.
         Vendor.Get(LibrarySpesometro.CreateVendor(true, Vendor.Resident::Resident, false, true));
@@ -1037,7 +1037,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Sales credit-memo for customer with VAT Reg. No is identified by NE001001
-        Initialize;
+        Initialize();
 
         // [GIVEN] An non-individual resident customer with VAT Reg. No. and Fiscal Code
         Customer.Get(LibrarySpesometro.CreateCustomer(false, Customer.Resident::Resident, true, true));
@@ -1067,7 +1067,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Sales credit-memo for customer without VAT Reg. No. but Fiscal Code is identified by NE001002
-        Initialize;
+        Initialize();
 
         // [GIVEN] An non-individual resident customer without VAT Reg. No. and with Fiscal Code
         Customer.Get(LibrarySpesometro.CreateCustomer(false, Customer.Resident::Resident, false, true));
@@ -1097,7 +1097,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Purchase credit-memo for vendor with VAT Reg. No is identified by NR001001
-        Initialize;
+        Initialize();
 
         // [GIVEN] An non-individual resident vendor with VAT Reg. No. and Fiscal Code
         Vendor.Get(LibrarySpesometro.CreateVendor(false, Vendor.Resident::Resident, true, true));
@@ -1126,7 +1126,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
         TextFile: BigText;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CompanyInfo.Get();
@@ -1153,7 +1153,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify an empty report is not exportable
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1177,7 +1177,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Test that a block value can exceed 16 characters
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1207,7 +1207,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Test that intermediary information is exported correct
-        Initialize;
+        Initialize();
         CreateVATReportSetup(true);
 
         // Setup
@@ -1236,7 +1236,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Test that a corrective VAT report can be generated
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1270,7 +1270,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CustNo: Code[20];
     begin
         // Test that a corrective VAT report can be generated
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1299,7 +1299,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Test that a corrective VAT report can be generated
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1331,7 +1331,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Test that a cancellation VAT report can be generated
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(OrgVATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1365,7 +1365,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify only selected lines are exported
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1413,7 +1413,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Country: Code[10];
     begin
         // Generate a report with all modules and their combinations for the validator tool
-        Initialize;
+        Initialize();
         CompanyInfo.Get();
 
         // Setup
@@ -1531,7 +1531,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Generate a report with all modules and their combinations for the validator tool
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -1576,7 +1576,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify self billed is checked
-        Initialize;
+        Initialize();
         CompanyInfo.Get();
 
         // Setup
@@ -1607,7 +1607,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Entry can be inserted into Appointment management if all required fields are filled out
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Report Setup page is opened on Appointment fasttab
 
@@ -1636,7 +1636,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Entry cannot be inserted into Appointment management if a required field is not filled out
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Report Setup page is opened on Appointment fasttab
 
@@ -1674,7 +1674,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Date From has to be before or equal to the Date To in Appointment Management
-        Initialize;
+        Initialize();
 
         // [GIVEN] A valid entry in "Spesometro Appointment" exists
         LibrarySpesometro.InsertSpesometroAppointment(
@@ -1701,7 +1701,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Vendor information is fetched through "Spesometro Appointment" table
-        Initialize;
+        Initialize();
 
         // [GIVEN] A "Spesometro Appointment" record with Type = Vendor and No. = "Some vendor"
         VendorNo := LibrarySpesometro.CreateVendor(true, VendorRec.Resident::Resident, false, true);
@@ -1741,7 +1741,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Vendor information is fetched through "Spesometro Appointment" table
-        Initialize;
+        Initialize();
 
         // [GIVEN] A "Spesometro Appointment" record with Type = Vendor and No. = "Some vendor"
         VendorNo := LibrarySpesometro.CreateVendor(true, VendorRec.Resident::"Non-Resident", false, true);
@@ -1779,7 +1779,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] The user is able to delete an "Spesometro Appointment" record
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Report Setup page is opened on Appointment fasttab
         LibrarySpesometro.InsertSpesometroAppointment(
@@ -1811,7 +1811,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Appointment data can be fetched during export; No appointment in the date range
-        Initialize;
+        Initialize();
 
         DateVATStart := CalcDate('<-CM>', WorkDate);
         DateVATEnd := CalcDate('<CM>', WorkDate);
@@ -1877,7 +1877,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Appointment data can be fetched during export; No appointment in the date range, with Ind. Tax Representative
-        Initialize;
+        Initialize();
 
         DateVATStart := CalcDate('<-CM>', WorkDate);
         DateVATEnd := CalcDate('<CM>', WorkDate);
@@ -1960,7 +1960,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Appointment data can be fetched during export; No appointment in the date range, with Non-ind. Tax Representative
-        Initialize;
+        Initialize();
 
         DateVATStart := CalcDate('<-CM>', WorkDate);
         DateVATEnd := CalcDate('<CM>', WorkDate);
@@ -2040,7 +2040,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Appointment data can be fetched during export; One Appointment in range, individual
-        Initialize;
+        Initialize();
 
         DateVATStart := CalcDate('<-CM>', WorkDate);
         DateVATEnd := CalcDate('<CM>', WorkDate);
@@ -2127,7 +2127,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Appointment data can be fetched during export; One Appointment in range, Non-individual
-        Initialize;
+        Initialize();
 
         DateVATStart := CalcDate('<-CM>', WorkDate);
         DateVATEnd := CalcDate('<CM>', WorkDate);
@@ -2206,7 +2206,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Appointment data can be fetched during export; Multiple Appointment records in range
-        Initialize;
+        Initialize();
 
         DateVATStart := CalcDate('<-CM>', WorkDate);
         DateVATEnd := CalcDate('<CM>', WorkDate);
@@ -2260,7 +2260,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] A non-empty "VAT Report Setup"."Intermediary VAT Registration No." results in a intermediary submission
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Report Setup"."Intermediary VAT Registration No." is not empty
         VATReportSetup."Intermediary VAT Reg. No." :=
@@ -2307,7 +2307,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] Intermediary CAF Reg. No. is optional
-        Initialize;
+        Initialize();
 
         // [GIVEN] "VAT Report Setup"."Intermediary VAT Registration No." is not empty
         VATReportSetup."Intermediary VAT Reg. No." :=
@@ -2344,7 +2344,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] BUG101089: Differentiate between purchase invoices received and summary documents declared
-        Initialize;
+        Initialize();
 
         // [GIVEN] A VAT Report
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -2383,7 +2383,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] BUG101094: An individual vendors VAT reg. no exported to FA001001
-        Initialize;
+        Initialize();
 
         // [GIVEN] A VAT Report
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -2416,7 +2416,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] Appointment / Intermediary / Spesometro unification
         // [SCENARIO] BUG101095: Aggregate count should work even with summary documents
-        Initialize;
+        Initialize();
 
         // [GIVEN] A VAT Report
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -2484,7 +2484,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     [Scope('OnPrem')]
     procedure CheckBase()
     begin
-        Initialize;
+        Initialize();
 
         RunCheckBaseScenario(ConstType::FE, 'FE001012', true);
         RunCheckBaseScenario(ConstType::FR, 'FR001010', false);
@@ -2507,7 +2507,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify self billed is checked
-        Initialize;
+        Initialize();
         CompanyInfo.Get();
 
         // Setup
@@ -2540,7 +2540,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify self billed is checked
-        Initialize;
+        Initialize();
         CompanyInfo.Get();
 
         // Setup
@@ -2584,19 +2584,19 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Index: Integer;
     begin
         // Verify self billed is checked
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
 
-        AddGLAccountVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, LibraryUtility.GenerateGUID);
+        AddGLAccountVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, LibraryUtility.GenerateGUID());
         Index := LibraryRandom.RandIntInRange(5, 10);
         while Index > 0 do begin
             AddGLAccountVATReportLine(VATReportLine, VATReportHeader, ConstType::FE, '');
             Index -= 1;
         end;
 
-        AddGLAccountVATReportLine(VATReportLine, VATReportHeader, ConstType::FR, LibraryUtility.GenerateGUID);
+        AddGLAccountVATReportLine(VATReportLine, VATReportHeader, ConstType::FR, LibraryUtility.GenerateGUID());
         Index := LibraryRandom.RandIntInRange(5, 10);
         while Index > 0 do begin
             AddGLAccountVATReportLine(VATReportLine, VATReportHeader, ConstType::FR, '');
@@ -2626,7 +2626,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     begin
         // [FEATURE] [SALES]
         // [SCENARIO 363440] Aggregated VAT Report for non-resident Customers creates detailed lines for each customers
-        Initialize;
+        Initialize();
 
         // [GIVEN] 2 Non-resident customers with empty VAT Registration No. and Fiscal Code
         CustNo1 := LibrarySpesometro.CreateCustomer(true, CustomerRec.Resident::"Non-Resident", false, false);
@@ -2660,7 +2660,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         MaxRecordCount: Integer;
     begin
         // [SCENARIO 378693] VAT Report containing maximum number of lines calculated by Flat File Management should be exported to 1 file
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Report for a Customer
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -2691,7 +2691,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         // [FEATURE] [UT]
         // [SCENARIO 378693] The maximum of 2759 lines of 1900 symbols should be allowed for VAT Report without header and footer to not exceed 5 MB
 
-        FlatFileManagement.Initialize;
+        FlatFileManagement.Initialize();
         HeaderAndFooterSize := LibraryRandom.RandInt(2760) - 1;
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(HeaderAndFooterSize);
         MaxRecordCount := FlatFileManagement.GetMaxRecordsPerFile;
@@ -2757,7 +2757,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Vendor: Record Vendor;
         NewEntryNo: Integer;
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         NewEntryNo := VATEntry."Entry No." + 1;
 
         with VATEntry do begin
@@ -2833,7 +2833,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VATEntry: Record "VAT Entry";
         NewEntryNo: Integer;
     begin
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         NewEntryNo := VATEntry."Entry No." + 1;
 
         with VATEntry do begin
@@ -2892,7 +2892,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         TextFile: BigText;
     begin
         // Verify self billed is checked
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVATReportHeader(VATReportHeader, VATReportHeader."VAT Report Type"::Standard);
@@ -2941,7 +2941,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         CountryRegion.Next(LibraryRandom.RandInt(CountryRegion.Count));
         ForeignCountry := CountryRegion.Code;
 
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         CountryRegion."Foreign Country/Region Code" := ForeignCountry;
         CountryRegion.Modify(true);
     end;
@@ -2968,7 +2968,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
     var
         FlatFileManagement: Codeunit "Flat File Management";
     begin
-        FlatFileManagement.Initialize;
+        FlatFileManagement.Initialize();
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(4); // A, B, E and Z records
         exit(FlatFileManagement.GetMaxRecordsPerFile);
     end;
@@ -2985,10 +2985,10 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         VATReportHeader.SetFilter("No.", VATReportHeader."No.");
         ExportVATTransactions.SetTableView(VATReportHeader);
         ExportVATTransactions.UseRequestPage(false);
-        FileNameBase := TemporaryPath + LibraryUtility.GenerateGUID;
+        FileNameBase := TemporaryPath + LibraryUtility.GenerateGUID();
         FileName := FileNameBase + '.ccf';
         ExportVATTransactions.InitializeRequest(FileName, DetailedExport);
-        ExportVATTransactions.RunModal;
+        ExportVATTransactions.RunModal();
         if ExportVATTransactions.GetNoFiles > 1 then begin
             for Index := 1 to ExportVATTransactions.GetNoFiles do
                 TransmissionFiles.Enqueue(FileNameBase + Format(Index) + '.ccf');

@@ -37,7 +37,7 @@ codeunit 144062 "UT REP Intrastat"
         // Purpose of the test is to verify VAT Registration No. and Total Weight on Intrastat - Monthly Report.
 
         // Setup: Create Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateIntrastatJournalLine(IntrastatJnlLine, false);  // FALSE for EU Service.
 
         // Exercise.
@@ -64,7 +64,7 @@ codeunit 144062 "UT REP Intrastat"
         // Purpose of the test is to verify VAT Registration No. and Corrective Entry on Intrastat - Quarterly Report.
 
         // Setup: Create Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateIntrastatJournalLine(IntrastatJnlLine, false);  // FALSE for EU Service.
 
         // Exercise.
@@ -89,7 +89,7 @@ codeunit 144062 "UT REP Intrastat"
         // Purpose of the test is to verify VAT Registration No. and Intrastat Payment Method on Intrastat - Monthly Report.
 
         // Setup: Create Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateIntrastatJournalLine(IntrastatJnlLine, true);  // TRUE for EU Service.
         PaymentMethod.Get(IntrastatJnlLine."Payment Method");
 
@@ -114,7 +114,7 @@ codeunit 144062 "UT REP Intrastat"
         // Purpose of the test is to verify VAT Registration No. and Intrastat Payment Method on Intrastat - Quarterly Report.
 
         // Setup: Create Intrastat Journal Line.
-        Initialize;
+        Initialize();
         CreateIntrastatJournalLine(IntrastatJnlLine, true);  // TRUE for EU Service.
         PaymentMethod.Get(IntrastatJnlLine."Payment Method");
 
@@ -140,7 +140,7 @@ codeunit 144062 "UT REP Intrastat"
         // Purpose of the test is to validate GL Book Entry - OnAfterGetRecord Trigger of Report - 121069 Account Book Sheet - Print.
 
         // Setup: Create two G/L Entry and GL Book Entry with same G/L Account and Transaction Number.
-        Initialize;
+        Initialize();
         CreateGLEntry(GLEntry, CreateGLAccount, LibraryRandom.RandInt(10), LibraryRandom.RandDec(10, 2));  // Random Integer - Transaction Number and Random Decimal - Amount.
         CreateGLBookEntry(GLEntry."G/L Account No.", GLEntry."Transaction No.");
         CreateGLEntry(GLEntry2, GLEntry."G/L Account No.", GLEntry."Transaction No.", -LibraryRandom.RandDecInRange(10, 100, 2));  // Random Decimal Range - Amount.
@@ -160,7 +160,7 @@ codeunit 144062 "UT REP Intrastat"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCountryRegionCode(): Code[10]
@@ -186,7 +186,7 @@ codeunit 144062 "UT REP Intrastat"
         GLBookEntry: Record "GL Book Entry";
         GLBookEntry2: Record "GL Book Entry";
     begin
-        GLBookEntry2.FindLast;
+        GLBookEntry2.FindLast();
         GLBookEntry."Entry No." := GLBookEntry2."Entry No." + 1;
         GLBookEntry."G/L Account No." := GLAccountNo;
         GLBookEntry."Posting Date" := WorkDate;
@@ -198,7 +198,7 @@ codeunit 144062 "UT REP Intrastat"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry."Posting Date" := WorkDate;
@@ -257,7 +257,7 @@ codeunit 144062 "UT REP Intrastat"
         Clear(IntrastatMonthlyReport);
         IntrastatJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         IntrastatMonthlyReport.SetTableView(IntrastatJnlLine);
-        IntrastatMonthlyReport.Run;  // Opens handler - IntrastatMonthlyReportRequestPageHandler.
+        IntrastatMonthlyReport.Run();  // Opens handler - IntrastatMonthlyReportRequestPageHandler.
     end;
 
     local procedure RunIntrastatQuarterlyReport(JournalBatchName: Code[10])
@@ -268,7 +268,7 @@ codeunit 144062 "UT REP Intrastat"
         Clear(IntrastatQuarterlyReport);
         IntrastatJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         IntrastatQuarterlyReport.SetTableView(IntrastatJnlLine);
-        IntrastatQuarterlyReport.Run;  // Opens handler - IntrastatQuarterlyReportRequestPageHandler.
+        IntrastatQuarterlyReport.Run();  // Opens handler - IntrastatQuarterlyReportRequestPageHandler.
     end;
 
     [RequestPageHandler]

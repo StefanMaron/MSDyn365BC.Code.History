@@ -71,7 +71,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate different Sales Invoice created after Combine Shipment with different Sales Order.
 
         // Setup: Create and post Sales Order.
-        Initialize;
+        Initialize();
         OperationType := LibraryERM.CreateNoSeriesSalesCode;
         DocumentNo := CreateAndPostSalesOrder(SalesLine, CreateCustomer, '', OperationType, false);  // Currency Code as blank and Invoice as False.
         DocumentNo2 := CreateAndPostSalesOrder(SalesLine, SalesLine."Sell-to Customer No.", '', OperationType, false);  // Currency Code as blank and Invoice as False.
@@ -97,7 +97,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate values on Report Customer Bills List after post Sales Invoice and General Journal Line.
 
         // Setup: Issue Customer Bill after post Sales Invoice. Create and post General Journal Line.
-        Initialize;
+        Initialize();
         DocumentNo := IssuingCustomerBillAfterPostSalesInvoice(SalesLine);
         DocumentNo2 :=
           ApplyAndPostGeneralJournalLine(
@@ -127,7 +127,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate Customer Ledger Entry after Closing Bank Receipts.
 
         // Setup: Create and post Customer Bill after post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateAndPostCustomerBillAfterPostSalesInvoice(SalesLine);
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");  // Enqueue for ClosingBankReceiptsRequestPageHandler.
 
@@ -153,7 +153,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate values on Report Customer Bills List after Closing Bank Receipts.
 
         // Setup: Create and post Customer Bill after post Sales Invoice. Run report Closing Bank Receipts.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostCustomerBillAfterPostSalesInvoice(SalesLine);
         LibraryVariableStorage.Enqueue(SalesLine."Sell-to Customer No.");  // Enqueue for ClosingBankReceiptsRequestPageHandler.
         REPORT.Run(REPORT::"Closing Bank Receipts");  // Opens ClosingBankReceiptsRequestPageHandler.
@@ -182,7 +182,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate Vendor Ledger Entry after Post Vendor Bill.
 
         // Setup: Issue Vendor Bill after post Purchase Invoice.
-        Initialize;
+        Initialize();
         DocumentNo := IssueVendorBillAfterPostPurchaseInvoice(VendorBillHeader);
         FindPostedPurchaseInvoice(PurchInvLine, DocumentNo);
 
@@ -208,7 +208,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate values on Report Vendor Account Bills List after Post Vendor Bill.
 
         // Setup: Issue Vendor Bill after post Purchase Invoice, post Vendor Bill.
-        Initialize;
+        Initialize();
         DocumentNo := IssueVendorBillAfterPostPurchaseInvoice(VendorBillHeader);
         FindPostedPurchaseInvoice(PurchInvLine, DocumentNo);
         PostVendorBill(VendorBillHeader."Payment Method Code");
@@ -238,7 +238,7 @@ codeunit 144178 "ERM Details Sales"
         // Test to validate values on Report Customer Sheet - Print after Post Sales Invoice and General Journal Line with Currency.
 
         // Setup: Create and post Sales Order and General Journal Line with Currency.
-        Initialize;
+        Initialize();
         DocumentNo :=
           CreateAndPostSalesOrder(SalesLine, CreateCustomer, CreateCurrencyWithExchangeRate, LibraryERM.CreateNoSeriesSalesCode, true);  // Invoice as True.
         DocumentNo2 :=
@@ -262,7 +262,7 @@ codeunit 144178 "ERM Details Sales"
         SalesHeader: Record "Sales Header";
     begin
         // SETUP
-        Initialize;
+        Initialize();
         CreateSalesHeaderWithPaymentTerms(SalesHeader);
         // EXERCISE
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -285,7 +285,7 @@ codeunit 144178 "ERM Details Sales"
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 380451] Openning "List of Posted Bill List" page for the Invoice record of the Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issue Vendor Bill = "X" after posting of Purchase Invoice.
         DocumentNo := IssueVendorBillAfterPostPurchaseInvoice(VendorBillHeader);
@@ -316,7 +316,7 @@ codeunit 144178 "ERM Details Sales"
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 380451] Openning "List of Posted Bill List" page for the Payment record of the Vendor Ledger Entry
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Issue Vendor Bill = "X" after posting of Purchase Invoice.
         DocumentNo := IssueVendorBillAfterPostPurchaseInvoice(VendorBillHeader);
@@ -347,7 +347,7 @@ codeunit 144178 "ERM Details Sales"
         // [FEATURE] [Purchase] [UI]
         // [SCENARIO 380800] Check Payment Discount when Post Vendor Bill.
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Terms with discount "D"
         Discount := LibraryRandom.RandDecInDecimalRange(1, 20, 1);
@@ -384,7 +384,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         // [FEATURE] [Purchase] [Bill]
         // [SCENARIO 381093] "Vendor Bill No." is present in posted vendor bill and invoice ledger entry
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice "PI"
         // [GIVEN] Issued Vendor Bill List:
@@ -462,7 +462,7 @@ codeunit 144178 "ERM Details Sales"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure RunCombineShipmentsReport(CustomerNo: Code[20]; OperationType: Code[20]; PostingDate: Date; DocumentDate: Date)
@@ -720,14 +720,14 @@ codeunit 144178 "ERM Details Sales"
     local procedure FindBillPostingGroup(var BillPostingGroup: Record "Bill Posting Group"; No: Code[20])
     begin
         BillPostingGroup.SetRange("No.", No);
-        BillPostingGroup.FindFirst;
+        BillPostingGroup.FindFirst();
     end;
 
     local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
     end;
 
     local procedure FindDebitAmountGLEntry(BalAccountNo: Code[20]): Decimal
@@ -736,7 +736,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("Bal. Account No.", BalAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         exit(GLEntry."Debit Amount");
     end;
 
@@ -745,9 +745,9 @@ codeunit 144178 "ERM Details Sales"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Pre-Assigned No.", PreAssignedNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindPostedPurchaseInvoiceNo(VendorNo: Code[20]): Code[20]
@@ -756,7 +756,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         with PurchInvHeader do begin
             SetRange("Buy-from Vendor No.", VendorNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -766,7 +766,7 @@ codeunit 144178 "ERM Details Sales"
         PostedVendorBillHeader: Record "Posted Vendor Bill Header";
     begin
         PostedVendorBillHeader.SetRange("Bank Account No.", BankAccountNo);
-        PostedVendorBillHeader.FindFirst;
+        PostedVendorBillHeader.FindFirst();
         exit(PostedVendorBillHeader."No.");
     end;
 
@@ -774,7 +774,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         with VendorBillLine do begin
             SetRange("Vendor Bill List No.", VendorBillListNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -784,7 +784,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Shipment No.", ShipmentNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         exit(SalesLine."Document No.");
     end;
 
@@ -817,7 +817,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VendorLedgerEntry.FindFirst;
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure RunIssuingCustomerBill(CustomerNo: Code[20])
@@ -830,7 +830,7 @@ codeunit 144178 "ERM Details Sales"
         IssuingCustomerBill.SetTableView(CustLedgerEntry);
         IssuingCustomerBill.SetPostingDescription(CustomerNo);
         IssuingCustomerBill.UseRequestPage(false);
-        IssuingCustomerBill.Run;
+        IssuingCustomerBill.Run();
     end;
 
     local procedure RunSuggestCustomerBill(CustomerBillHeader: Record "Customer Bill Header"; CustomerNo: Code[20])
@@ -843,7 +843,7 @@ codeunit 144178 "ERM Details Sales"
         SuggestCustomerBills.InitValues(CustomerBillHeader, true);  // OKIssue as True.
         SuggestCustomerBills.SetTableView(CustLedgerEntry);
         SuggestCustomerBills.UseRequestPage(false);
-        SuggestCustomerBills.Run;
+        SuggestCustomerBills.Run();
     end;
 
     local procedure RunSuggestVendorBills(VendorBillHeader: Record "Vendor Bill Header"; VendorNo: Code[20])
@@ -856,7 +856,7 @@ codeunit 144178 "ERM Details Sales"
         SuggestVendorBills.InitValues(VendorBillHeader);
         SuggestVendorBills.SetTableView(VendorLedgerEntry);
         SuggestVendorBills.UseRequestPage(false);
-        SuggestVendorBills.Run;
+        SuggestVendorBills.Run();
     end;
 
     local procedure CreateSalesHeaderWithPaymentTerms(var SalesHeader: Record "Sales Header")
@@ -923,7 +923,7 @@ codeunit 144178 "ERM Details Sales"
         FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerNo);
         with DetailedCustLedgEntry do begin
             SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-            FindLast;
+            FindLast();
             Assert.AreEqual(CustLedgerEntry."Due Date", "Initial Entry Due Date", WrongDueDateDetailedCustLedgEntryErr);
         end
     end;
@@ -944,7 +944,7 @@ codeunit 144178 "ERM Details Sales"
     begin
         with PostedVendorBillLine do begin
             SetRange("Vendor Bill No.", PostedVendorBillNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedVendorBillNo, "Vendor Bill List No.", FieldCaption("Vendor Bill List No."));
         end;
     end;

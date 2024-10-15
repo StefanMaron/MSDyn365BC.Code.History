@@ -449,14 +449,14 @@ report 12175 "Vendor Bills Floppy"
         VendorBankAccount: Record "Vendor Bank Account";
     begin
         VendorBillLine.SetFilter("Vendor Bill List No.", '%1', "Vendor Bill Header"."No.");
-        if VendorBillLine.FindSet then
+        if VendorBillLine.FindSet() then
             repeat
                 VendorBankAccount.Get(VendorBillLine."Vendor No.", VendorBillLine."Vendor Bank Acc. No.");
                 VendorBankAccount.Mark := VendorBankAccount.IBAN = '';
             until VendorBillLine.Next() = 0;
 
         VendorBankAccount.MarkedOnly(true);
-        if VendorBankAccount.FindFirst then begin
+        if VendorBankAccount.FindFirst() then begin
             VendorBankAccount.FilterGroup := 2;
             VendorBankAccount.SetFilter(IBAN, '');
             VendorBankAccount.FilterGroup := 0;

@@ -16,8 +16,6 @@
             TableRelation = Vendor;
 
             trigger OnValidate()
-            var
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
             begin
                 if "No." = '' then
                     InitRecord();
@@ -114,7 +112,7 @@
                 VendBankAccount.SetRange("Vendor No.", "Pay-to Vendor No.");
                 if Vend."Preferred Bank Account Code" <> '' then
                     VendBankAccount.SetRange(Code, Vend."Preferred Bank Account Code");
-                if VendBankAccount.FindFirst then
+                if VendBankAccount.FindFirst() then
                     "Bank Account" := VendBankAccount.Code
                 else
                     "Bank Account" := '';
@@ -164,7 +162,7 @@
                 TestStatusOpen();
                 if (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") and
                    (xRec."Pay-to Vendor No." <> '')
-                then 
+                then
                     if ConfirmUpdateField(FieldNo("Pay-to Vendor No.")) then begin
                         PurchLine.SetRange("Document Type", "Document Type");
                         PurchLine.SetRange("Document No.", "No.");
@@ -224,7 +222,6 @@
                 Validate("Payment Method Code");
                 Validate("Currency Code");
                 Validate("Creditor No.", Vend."Creditor No.");
-
 #if not CLEAN19
                 OnValidatePurchaseHeaderPayToVendorNo(Vend, Rec);
 #endif
@@ -619,6 +616,7 @@
 
                 UpdateShipToAddress();
                 UpdateInboundWhseHandlingTime;
+                CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
             end;
         }
         field(29; "Shortcut Dimension 1 Code"; Code[20])
@@ -677,7 +675,7 @@
                                 ConfirmCurrencyFactorUpdate();
                         end;
 
-                if ("No." <> '') and ("Currency Code" <> xRec."Currency Code") then
+                if ShouldCheckShowRecurringSalesLines(xRec, Rec) then
                     StandardCodesMgt.CheckShowPurchRecurringLinesNotification(Rec);
             end;
         }
@@ -819,11 +817,7 @@
                 if not ApprovalEntry.IsEmpty() then
                     Error(Text042, FieldCaption("Purchaser Code"));
 
-                CreateDim(
-                  DATABASE::"Salesperson/Purchaser", "Purchaser Code",
-                  DATABASE::Vendor, "Pay-to Vendor No.",
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(Rec.FieldNo("Purchaser Code"));
             end;
         }
         field(45; "Order Class"; Code[10])
@@ -875,18 +869,18 @@
                 if "Applies-to Doc. No." <> '' then begin
                     VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                     VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
-                    if VendLedgEntry.FindFirst then;
+                    if VendLedgEntry.FindFirst() then;
                     VendLedgEntry.SetRange("Document Type");
                     VendLedgEntry.SetRange("Document No.");
                 end else
                     if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                        if VendLedgEntry.FindFirst then;
+                        if VendLedgEntry.FindFirst() then;
                         VendLedgEntry.SetRange("Document Type");
                     end else
                         if Amount <> 0 then begin
                             VendLedgEntry.SetRange(Positive, Amount < 0);
-                            if VendLedgEntry.FindFirst then;
+                            if VendLedgEntry.FindFirst() then;
                             VendLedgEntry.SetRange(Positive);
                         end;
                 ApplyVendEntries.SetPurch(Rec, VendLedgEntry, PurchHeader.FieldNo("Applies-to Doc. No."));
@@ -1868,7 +1862,7 @@
                         PaymentTermsLine.SetRange("Sales/Purchase", PaymentPurchase."Sales/Purchase"::" ");
                         PaymentTermsLine.SetRange(Type, PaymentTermsLine.Type::"Payment Terms");
                         PaymentTermsLine.SetRange(Code, "Prepmt. Payment Terms Code");
-                        PaymentTermsLine.FindFirst;
+                        PaymentTermsLine.FindFirst();
                         IsHandled := false;
                         OnValidatePaymentTermsCodeOnBeforeCalcDueDate(Rec, xRec, FieldNo("Prepmt. Payment Terms Code"), CurrFieldNo, IsHandled);
                         if not IsHandled then
@@ -1963,6 +1957,18 @@
             Caption = 'Payment Reference';
             Numeric = true;
         }
+        field(178; "Journal Templ. Name"; Code[10])
+        {
+            Caption = 'Journal Template Name';
+            TableRelation = "Gen. Journal Template" WHERE(Type = FILTER(Purchases));
+
+            trigger OnValidate()
+            begin
+                PurchSetup.Get();
+                TestNoSeries();
+                Validate("Posting No. Series", GenJournalTemplate."Posting No. Series");
+            end;
+        }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
             CalcFormula = Sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" WHERE("Document Type" = FIELD("Document Type"),
@@ -2022,11 +2028,7 @@
 
             trigger OnValidate()
             begin
-                CreateDim(
-                  DATABASE::Campaign, "Campaign No.",
-                  DATABASE::Vendor, "Pay-to Vendor No.",
-                  DATABASE::"Salesperson/Purchaser", "Purchaser Code",
-                  DATABASE::"Responsibility Center", "Responsibility Center");
+                CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
         field(5052; "Buy-from Contact No."; Code[20])
@@ -2052,7 +2054,7 @@
 
                 if ("Buy-from Contact No." <> xRec."Buy-from Contact No.") and
                    (xRec."Buy-from Contact No." <> '')
-                then 
+                then
                     if ConfirmUpdateField(FieldNo("Buy-from Contact No.")) then begin
                         if InitFromContact("Buy-from Contact No.", "Buy-from Vendor No.", FieldCaption("Buy-from Contact No.")) then
                             exit
@@ -2111,7 +2113,7 @@
 
                 if ("Pay-to Contact No." <> xRec."Pay-to Contact No.") and
                    (xRec."Pay-to Contact No." <> '')
-                then 
+                then
                     if ConfirmUpdateField(FieldNo("Pay-to Contact No.")) then begin
                         if InitFromContact("Pay-to Contact No.", "Pay-to Vendor No.", FieldCaption("Pay-to Contact No.")) then
                             exit
@@ -2148,11 +2150,7 @@
 
                 UpdateShipToAddress();
 
-                CreateDim(
-                  DATABASE::"Responsibility Center", "Responsibility Center",
-                  DATABASE::Vendor, "Pay-to Vendor No.",
-                  DATABASE::"Salesperson/Purchaser", "Purchaser Code",
-                  DATABASE::Campaign, "Campaign No.");
+                CreateDimFromDefaultDim(Rec.FieldNo("Responsibility Center"));
 
                 if xRec."Responsibility Center" <> "Responsibility Center" then begin
                     RecreatePurchLines(FieldCaption("Responsibility Center"));
@@ -2754,8 +2752,6 @@
     end;
 
     trigger OnInsert()
-    var
-        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
         InitInsert();
 
@@ -2767,7 +2763,7 @@
             SetDefaultPurchaser();
 
         if "Buy-from Vendor No." <> '' then
-            StandardCodesMgt.CheckCreatePurchRecurringLines(Rec);
+            StandardCodesMgtGlobal.CheckCreatePurchRecurringLines(Rec);
 
         if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
             "Refers to Period" := "Refers to Period"::" ";
@@ -2833,6 +2829,8 @@
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
         InvtSetup: Record "Inventory Setup";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        NoSeries: Record "No. Series";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -2840,6 +2838,7 @@
         UserSetupMgt: Codeunit "User Setup Management";
         LeadTimeMgt: Codeunit "Lead-Time Management";
         PostingSetupMgt: Codeunit PostingSetupManagement;
+        StandardCodesMgtGlobal: Codeunit "Standard Codes Mgt.";
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         Confirmed: Boolean;
@@ -2847,8 +2846,6 @@
         Text037: Label 'Contact %1 %2 is not related to vendor %3.';
         Text038: Label 'Contact %1 %2 is related to a different company than vendor %3.';
         Text039: Label 'Contact %1 %2 is not related to a vendor.';
-        SkipBuyFromContact: Boolean;
-        SkipPayToContact: Boolean;
         Text040: Label 'You can not change the %1 field because %2 %3 has %4 = %5 and the %6 has already been assigned %7 %8.';
         Text042: Label 'You must cancel the approval process if you wish to change the %1.';
         Text045: Label 'Deleting this document will cause a gap in the number series for prepayment invoices. An empty prepayment invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?';
@@ -2864,7 +2861,6 @@
         VendBankAccount: Record "Vendor Bank Account";
         PaymentPurchase: Record "Payment Lines";
         PaymentTermsLine: Record "Payment Lines";
-        NoSeries: Record "No. Series";
         PurchWithhSoc: Record "Purch. Withh. Contribution";
         ShipmentMethod: Record "Shipment Method";
         Text1130011: Label 'This %1 has a sales type VAT register. Continue anyway?';
@@ -2899,11 +2895,15 @@
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'You must delete the existing purchase lines before you can change %1.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
+        WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
+        WarnZeroQuantityPostingDescriptionTxt: Label 'Warn before posting lines on Purchase documents where quantity is 0.';
         CalledFromWhseDoc: Boolean;
 
     protected var
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
+        SkipBuyFromContact: Boolean;
+        SkipPayToContact: Boolean;
 
     procedure InitInsert()
     var
@@ -2930,45 +2930,8 @@
         IsHandled := false;
         OnBeforeInitRecord(Rec, IsHandled, xRec, PurchSetup, GLSetup);
         if not IsHandled then
-            case "Document Type" of
-                "Document Type"::Quote, "Document Type"::Order:
-                    begin
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PurchSetup."Posted Invoice Nos.");
-                        NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
-                        if "Document Type" = "Document Type"::Order then begin
-                            NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", PurchSetup."Posted Prepmt. Inv. Nos.");
-                            NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", PurchSetup."Posted Prepmt. Cr. Memo Nos.");
-                        end;
-                    end;
-                "Document Type"::Invoice:
-                    begin
-                        if ("No. Series" <> '') and
-                           (PurchSetup."Invoice Nos." = PurchSetup."Posted Invoice Nos.")
-                        then
-                            "Posting No. Series" := "No. Series"
-                        else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", PurchSetup."Posted Invoice Nos.");
-                        if PurchSetup."Receipt on Invoice" then
-                            NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
-                    end;
-                "Document Type"::"Return Order":
-                    begin
-                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PurchSetup."Posted Credit Memo Nos.");
-                        NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if ("No. Series" <> '') and
-                           (PurchSetup."Credit Memo Nos." = PurchSetup."Posted Credit Memo Nos.")
-                        then
-                            "Posting No. Series" := "No. Series"
-                        else
-                            NoSeriesMgt.SetDefaultSeries("Posting No. Series", PurchSetup."Posted Credit Memo Nos.");
-                        if PurchSetup."Return Shipment on Credit Memo" then
-                            NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
-                    end;
-            end;
-
+            InitPostingNoSeries();
+ 
         SetOperationType();
 
         if "Document Type" = "Document Type"::Invoice then
@@ -3033,6 +2996,11 @@
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
+    procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
+    begin
+        StandardCodesMgtGlobal := StandardCodesMgtNew;
+    end;
+
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean
     var
         IsHandled: Boolean;
@@ -3058,27 +3026,49 @@
         GetPurchSetup();
         IsHandled := false;
         OnBeforeTestNoSeries(Rec, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
             case "Document Type" of
                 "Document Type"::Quote:
                     PurchSetup.TestField("Quote Nos.");
                 "Document Type"::Order:
                     PurchSetup.TestField("Order Nos.");
                 "Document Type"::Invoice:
-                    begin
-                        PurchSetup.TestField("Invoice Nos.");
-                        PurchSetup.TestField("Posted Invoice Nos.");
-                    end;
+                    PurchSetup.TestField("Invoice Nos.");
                 "Document Type"::"Return Order":
                     PurchSetup.TestField("Return Order Nos.");
                 "Document Type"::"Credit Memo":
-                    begin
-                        PurchSetup.TestField("Credit Memo Nos.");
-                        PurchSetup.TestField("Posted Credit Memo Nos.");
-                    end;
+                    PurchSetup.TestField("Credit Memo Nos.");
                 "Document Type"::"Blanket Order":
                     PurchSetup.TestField("Blanket Order Nos.");
             end;
+            GLSetup.GetRecordOnce();
+            if not GLSetup."Journal Templ. Name Mandatory" then
+                case "Document Type" of
+                    "Document Type"::Invoice:
+                        PurchSetup.TestField("Posted Invoice Nos.");
+                    "Document Type"::"Credit Memo":
+                        PurchSetup.TestField("Posted Credit Memo Nos.");
+                end
+            else begin
+                PurchSetup.GetRecordOnce();
+                if not IsCreditDocType() then begin
+                    PurchSetup.TestField("P. Invoice Template Name");
+                    if "Journal Templ. Name" = '' then
+                        GenJournalTemplate.Get(PurchSetup."P. Invoice Template Name")
+                    else
+                        GenJournalTemplate.Get("Journal Templ. Name");
+                end else begin
+                    PurchSetup.TestField("P. Cr. Memo Template Name");
+                    if "Journal Templ. Name" = '' then
+                        GenJournalTemplate.Get(PurchSetup."P. Cr. Memo Template Name")
+                    else
+                        GenJournalTemplate.Get("Journal Templ. Name");
+                end;
+                GenJournalTemplate.TestField("Posting No. Series");
+                NoSeries.Get(GenJournalTemplate."Posting No. Series");
+                NoSeries.TestField("Default Nos.", true);
+            end;
+        end;
 
         OnAfterTestNoSeries(Rec, PurchSetup);
     end;
@@ -3136,10 +3126,16 @@
         if IsHandled then
             exit(PostingNos);
 
-        if IsCreditDocType() then
-            PostingNos := PurchSetup."Posted Credit Memo Nos."
-        else
-            PostingNos := PurchSetup."Posted Invoice Nos.";
+        GLSetup.GetRecordOnce();
+        if not GLSetup."Journal Templ. Name mandatory" then
+            if IsCreditDocType() then
+                PostingNos := PurchSetup."Posted Credit Memo Nos."
+            else
+                PostingNos := PurchSetup."Posted Invoice Nos."
+        else begin
+            GenJournalTemplate.Get("Journal Templ. Name");
+            PostingNos := GenJournalTemplate."Posting No. Series";
+        end;
 
         OnAfterGetPostingNoSeriesCode(Rec, PostingNos);
     end;
@@ -3155,8 +3151,6 @@
     end;
 
     local procedure TestNoSeriesDate(No: Code[20]; NoSeriesCode: Code[20]; NoCapt: Text[1024]; NoSeriesCapt: Text[1024])
-    var
-        NoSeries: Record "No. Series";
     begin
         if (No <> '') and (NoSeriesCode <> '') then begin
             NoSeries.Get(NoSeriesCode);
@@ -3297,7 +3291,7 @@
             PurchLine.SetRange("Document Type", "Document Type");
             PurchLine.SetRange("Document No.", "No.");
             OnRecreatePurchLinesOnAfterPurchLineSetFilters(PurchLine);
-            if PurchLine.FindSet then begin
+            if PurchLine.FindSet() then begin
                 RecreateTempPurchLines(TempPurchLine);
                 StorePurchCommentLineToTemp(TempPurchCommentLine);
                 DeletePurchCommentLines();
@@ -3437,7 +3431,7 @@
         if TempPurchLine.FindSet() then
             repeat
                 TempItemChargeAssgntPurch.SetRange("Document Line No.", TempPurchLine."Line No.");
-                if TempItemChargeAssgntPurch.FindSet then begin
+                if TempItemChargeAssgntPurch.FindSet() then begin
                     repeat
                         TempInteger.FindFirst();
                         ItemChargeAssgntPurch.Init();
@@ -3683,7 +3677,7 @@
         PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
         PurchLine.SetFilter(Quantity, '<>0');
         PurchLine.LockTable();
-        if PurchLine.FindSet then begin
+        if PurchLine.FindSet() then begin
             Modify();
             repeat
                 PurchLine.UpdateAmounts();
@@ -3811,6 +3805,8 @@
                 Error('');
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20]; Type4: Integer; No4: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -3818,6 +3814,7 @@
         No: array[10] of Code[20];
         OldDimSetID: Integer;
         IsHandled: Boolean;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         IsHandled := false;
         OnBeforeCreateDim(Rec, IsHandled);
@@ -3834,13 +3831,46 @@
         TableID[4] := Type4;
         No[4] := No4;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.GetRecDefaultDimID(
-            Rec, CurrFieldNo, TableID, No, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+        OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
+
+        if (OldDimSetID <> "Dimension Set ID") and PurchLinesExist then begin
+            Modify;
+            UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+        end;
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        SourceCodeSetup: Record "Source Code Setup";
+        OldDimSetID: Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceCodeSetup.Get();
+#if not CLEAN20
+        RunEventOnAfterCreateDimTableIDs(DefaultDimSource);
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        OldDimSetID := "Dimension Set ID";
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(
+            Rec, CurrFieldNo, DefaultDimSource, SourceCodeSetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
 
@@ -4620,7 +4650,7 @@
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Scope('OnPrem')]
     procedure CheckTDDData()
     var
         ShippingAgent: Record "Shipping Agent";
@@ -4842,23 +4872,31 @@
     var
         PurchaseLine: Record "Purchase Line";
         TempPurchaseLine: Record "Purchase Line" temporary;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         PurchaseLine.SetRange("Document Type", "Document Type");
         PurchaseLine.SetRange("Document No.", "No.");
         PurchaseLine.SetFilter("Prepmt. Amt. Inv.", '<>%1', 0);
-        if PurchaseLine.FindSet then
+        if PurchaseLine.FindSet() then
             repeat
                 CollectParamsInBufferForCreateDimSet(TempPurchaseLine, PurchaseLine);
             until PurchaseLine.Next() = 0;
         TempPurchaseLine.Reset();
         TempPurchaseLine.MarkedOnly(false);
-        if TempPurchaseLine.FindSet then
+        if TempPurchaseLine.FindSet() then
             repeat
-                PurchaseLine.CreateDim(DATABASE::"G/L Account", TempPurchaseLine."No.",
-                  DATABASE::Job, TempPurchaseLine."Job No.",
-                  DATABASE::"Responsibility Center", TempPurchaseLine."Responsibility Center",
-                  DATABASE::"Work Center", TempPurchaseLine."Work Center No.");
+                InitPurchaseLineDefaultDimSource(DefaultDimSource, TempPurchaseLine);
+                PurchaseLine.CreateDim(DefaultDimSource);
             until TempPurchaseLine.Next() = 0;
+    end;
+
+    local procedure InitPurchaseLineDefaultDimSource(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; SourcePurchaseLine: Record "Purchase Line")
+    begin
+        Clear(DefaultDimSource);
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", SourcePurchaseLine."No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::Job, SourcePurchaseLine."Job No.");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", SourcePurchaseLine."Responsibility Center");
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Work Center", SourcePurchaseLine."Work Center No.");
     end;
 
     local procedure CollectParamsInBufferForCreateDimSet(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
@@ -4868,7 +4906,7 @@
     begin
         TempPurchaseLine.SetRange("Gen. Bus. Posting Group", PurchaseLine."Gen. Bus. Posting Group");
         TempPurchaseLine.SetRange("Gen. Prod. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
-        if not TempPurchaseLine.FindFirst then begin
+        if not TempPurchaseLine.FindFirst() then begin
             GenPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
             GenPostingSetup.TestField("Purch. Prepayments Account");
             DefaultDimension.SetRange("Table ID", DATABASE::"G/L Account");
@@ -4912,7 +4950,7 @@
 
         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", "No.");
-        if ItemChargeAssgntPurch.FindSet then begin
+        if ItemChargeAssgntPurch.FindSet() then begin
             repeat
                 TempItemChargeAssgntPurch := ItemChargeAssgntPurch;
                 TempItemChargeAssgntPurch.Insert();
@@ -5316,6 +5354,10 @@
         if VendorNo = '' then
             exit(true);
 
+        GetPurchSetup();
+        if PurchSetup."Disable Search by Name" then
+            exit(false);
+
         if not Vendor.Get(VendorNo) then
             exit(true);
 
@@ -5572,7 +5614,7 @@
                     Validate("Purchaser Code", UserSetupPurchaserCode);
     end;
 
-    local procedure GetUserSetupPurchaserCode(): Code[20]
+    procedure GetUserSetupPurchaserCode(): Code[20]
     var
         UserSetup: Record "User Setup";
     begin
@@ -5580,6 +5622,66 @@
             exit;
 
         exit(UserSetup."Salespers./Purch. Code");
+    end;
+
+    local procedure InitPostingNoSeries()
+    var
+        PostingNoSeries: Code[20];
+    begin
+        GLSetup.GetRecordOnce();
+        if GLSetup."Journal Templ. Name Mandatory" then begin
+            if "Journal Templ. Name" = '' then begin
+                if not IsCreditDocType() then
+                    GenJournalTemplate.Get(PurchSetup."P. Invoice Template Name")
+                else
+                    GenJournalTemplate.Get(PurchSetup."P. Cr. Memo Template Name");
+                "Journal Templ. Name" := GenJournalTemplate.Name;
+            end else
+                if GenJournalTemplate.Name = '' then
+                    GenJournalTemplate.Get("Journal Templ. Name");
+            PostingNoSeries := GenJournalTemplate."Posting No. Series";
+        end else
+            if IsCreditDocType() then
+                PostingNoSeries := PurchSetup."Posted Credit Memo Nos."
+            else
+                PostingNoSeries := PurchSetup."Posted Invoice Nos.";
+
+        case "Document Type" of
+            "Document Type"::Quote, "Document Type"::Order:
+                begin
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
+                    if "Document Type" = "Document Type"::Order then begin
+                        NoSeriesMgt.SetDefaultSeries("Prepayment No. Series", PurchSetup."Posted Prepmt. Inv. Nos.");
+                        NoSeriesMgt.SetDefaultSeries("Prepmt. Cr. Memo No. Series", PurchSetup."Posted Prepmt. Cr. Memo Nos.");
+                    end;
+                end;
+            "Document Type"::Invoice:
+                begin
+                    if ("No. Series" <> '') and (PurchSetup."Invoice Nos." = PostingNoSeries) then
+                        "Posting No. Series" := "No. Series"
+                    else
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    if PurchSetup."Receipt on Invoice" then
+                        NoSeriesMgt.SetDefaultSeries("Receiving No. Series", PurchSetup."Posted Receipt Nos.");
+                end;
+            "Document Type"::"Return Order":
+                begin
+                    NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
+                end;
+            "Document Type"::"Credit Memo":
+                begin
+                    if ("No. Series" <> '') and (PurchSetup."Credit Memo Nos." = PostingNoSeries) then
+                        "Posting No. Series" := "No. Series"
+                    else
+                        NoSeriesMgt.SetDefaultSeries("Posting No. Series", PostingNoSeries);
+                    if PurchSetup."Return Shipment on Credit Memo" then
+                        NoSeriesMgt.SetDefaultSeries("Return Shipment No. Series", PurchSetup."Posted Return Shpt. Nos.");
+                end;
+        end;
+
+        OnAfterInitPostingNoSeries(Rec, xRec);
     end;
 
     local procedure SetShipToCodeEmpty()
@@ -5727,6 +5829,11 @@
         exit('3DC9C8BC-0512-4A49-B587-256C308EBCAA');
     end;
 
+    procedure GetWarnWhenZeroQuantityPurchaseLinePosting(): Guid
+    begin
+        exit('68354b20-7f89-11ec-a8a3-0242ac120002');
+    end;
+
     procedure SetModifyVendorAddressNotificationDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -5788,6 +5895,14 @@
           ("Pay-to Contact" <> Vendor.Contact));
     end;
 
+    procedure SetWarnZeroQuantityPurchasePosting()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(GetWarnWhenZeroQuantityPurchaseLinePosting(),
+         WarnZeroQuantityPostingTxt, WarnZeroQuantityPostingDescriptionTxt, true);
+    end;
+
     procedure FindPostedDocumentWithSameExternalDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExternalDocumentNo: Code[35]): Boolean
     var
         VendorMgt: Codeunit "Vendor Mgt.";
@@ -5809,7 +5924,7 @@
         Evaluate(ReceiveValue, ReceiveFilter);
 
         PurchaseHeaderOriginal := Rec;
-        if FindSet then
+        if FindSet() then
             repeat
                 if not HasReceivedLines then
                     IsMarked := not ReceiveValue
@@ -5834,7 +5949,7 @@
         Evaluate(InvoiceValue, InvoiceFilter);
 
         PurchaseHeaderOriginal := Rec;
-        if FindSet then
+        if FindSet() then
             repeat
                 if not HasInvoicedLines then
                     IsMarked := not InvoiceValue
@@ -5996,9 +6111,17 @@
             if SalespersonPurchaser.Get(PurchaseHeader2."Purchaser Code") then
                 if SalespersonPurchaser.VerifySalesPersonPurchaserPrivacyBlocked(SalespersonPurchaser) then begin
                     if IsTransaction then
-                        Error(SalespersonPurchaser.GetPrivacyBlockedTransactionText(SalespersonPurchaser, IsPostAction, false));
+                        Error(
+                            ErrorInfo.Create(
+                                SalespersonPurchaser.GetPrivacyBlockedTransactionText(SalespersonPurchaser, IsPostAction, false),
+                                true,
+                                SalespersonPurchaser));
                     if not IsTransaction then
-                        Error(SalespersonPurchaser.GetPrivacyBlockedGenericText(SalespersonPurchaser, false));
+                        Error(
+                            ErrorInfo.Create(
+                                SalespersonPurchaser.GetPrivacyBlockedGenericText(SalespersonPurchaser, false),
+                                true,
+                                SalespersonPurchaser));
                 end;
     end;
 
@@ -6049,7 +6172,7 @@
         CurrentPurchLine.SetFilter(Type, '%1|%2', CurrentPurchLine.Type::Item, CurrentPurchLine.Type::Resource);
         CurrentPurchLine.SetFilter("No.", '<>''''');
 
-        if CurrentPurchLine.FindSet then
+        if CurrentPurchLine.FindSet() then
             repeat
                 case CurrentPurchLine.Type of
                     CurrentPurchLine.Type::Item:
@@ -6150,7 +6273,7 @@
             exit;
 
         CopyPurchaseDocument.SetPurchHeader(Rec);
-        CopyPurchaseDocument.RunModal;
+        CopyPurchaseDocument.RunModal();
     end;
 
     local procedure CheckBlockedVendOnDocs(Vend: Record Vendor)
@@ -6320,11 +6443,82 @@
         if IsHandled then
             exit;
 
-        CreateDim(
-            DATABASE::Vendor, "Pay-to Vendor No.",
-            DATABASE::"Salesperson/Purchaser", "Purchaser Code",
-            DATABASE::Campaign, "Campaign No.",
-            DATABASE::"Responsibility Center", "Responsibility Center");
+        CreateDimFromDefaultDim(Rec.FieldNo("Pay-to Vendor No."));
+    end;
+
+    procedure CreateDimFromDefaultDim(FieldNo: Integer)
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource, FieldNo);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::Vendor, Rec."Pay-to Vendor No.", FieldNo = Rec.FieldNo("Pay-to Vendor No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Salesperson/Purchaser", Rec."Purchaser Code", FieldNo = Rec.FieldNo("Purchaser Code"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Campaign, Rec."Campaign No.", FieldNo = Rec.FieldNo("Campaign No."));
+        DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
+        DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+    local procedure ShouldCheckShowRecurringSalesLines(var xHeader: Record "Purchase Header"; var Header: Record "Purchase Header"): Boolean
+    begin
+        exit(
+            (xHeader."Pay-to Vendor No." <> '') and
+            (Header."No." <> '') and
+            (Header."Currency Code" <> xHeader."Currency Code")
+        );
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Purchase Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Purchase Header", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunEventOnAfterCreateDimTableIDs(Rec, DefaultDimSource, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Purchase Header") then
+            exit;
+
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    [Obsolete('Temporary event for compatibility', '20.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunEventOnAfterCreateDimTableIDs(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
     end;
 
     [IntegrationEvent(false, false)]
@@ -6532,11 +6726,13 @@
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Temporary event for compatibility', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
-
+#endif
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
@@ -7265,6 +7461,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountToApply(var PurchaseHeader: Record "Purchase Header"; var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitPostingNoSeries(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

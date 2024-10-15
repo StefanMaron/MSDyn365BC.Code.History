@@ -53,7 +53,7 @@ report 12113 "Close/Open Balance Sheet"
                                 DimBufMgt.GetDimensions(EntryNo, TempDimBuf);
                             end;
                             TempDimBuf2.DeleteAll();
-                            if TempSelectedDim.FindSet then
+                            if TempSelectedDim.FindSet() then
                                 repeat
                                     if TempDimBuf.Get(DATABASE::"G/L Entry", EntryNo, TempSelectedDim."Dimension Code")
                                     then begin
@@ -95,7 +95,7 @@ report 12113 "Close/Open Balance Sheet"
                         GlobalDimVal2: Code[20];
                         NewDimensionID: Integer;
                     begin
-                        if EntryNoAmountBuf.FindSet then
+                        if EntryNoAmountBuf.FindSet() then
                             repeat
                                 GenJnlLine."Line No." := GenJnlLine."Line No." + 10000;
                                 GenJnlLine."Account No." := "G/L Account No.";
@@ -181,7 +181,7 @@ report 12113 "Close/Open Balance Sheet"
                     GenJnlLine."Journal Template Name" := OpTemplateName;
                     GenJnlLine."Journal Batch Name" := OpBatchName;
                     if GLSetup."Additional Reporting Currency" <> '' then
-                        if CloseGLEntry.FindLast then
+                        if CloseGLEntry.FindLast() then
                             CloseTransactionNo := CloseGLEntry."Transaction No.";
                 end;
 
@@ -189,7 +189,7 @@ report 12113 "Close/Open Balance Sheet"
 
                 GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
                 GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-                if not GenJnlLine.FindLast then;
+                if not GenJnlLine.FindLast() then;
                 GenJnlLine.Init();
             end;
         }
@@ -446,7 +446,7 @@ report 12113 "Close/Open Balance Sheet"
         ClosePerGlobalDim2 := false;
         ClosePerGlobalDimOnly := true;
 
-        if TempSelectedDim.FindSet then
+        if TempSelectedDim.FindSet() then
             repeat
                 if TempSelectedDim."Dimension Code" = GLSetup."Global Dimension 1 Code" then
                     ClosePerGlobalDim1 := true;
@@ -580,7 +580,7 @@ report 12113 "Close/Open Balance Sheet"
 
         GLEntry.SetCurrentKey("Close Income Statement Dim. ID");
         GLEntry.SetFilter("Close Income Statement Dim. ID", '>1');
-        if GLEntry.FindSet then begin
+        if GLEntry.FindSet() then begin
             repeat
                 if GLEntry."Dimension Set ID" <> 0 then begin
                     DimSetEntry.SetRange("Dimension Set ID", GLEntry."Dimension Set ID");
@@ -638,7 +638,7 @@ report 12113 "Close/Open Balance Sheet"
     begin
         Counter := 0;
         DimSetEntry.SetRange("Dimension Set ID", GLEntryDimensionSetID);
-        if DimSetEntry.FindSet then
+        if DimSetEntry.FindSet() then
             repeat
                 DimBuf."Table ID" := DATABASE::"G/L Entry";
                 DimBuf."Entry No." := GLEntryNo;
@@ -666,7 +666,7 @@ report 12113 "Close/Open Balance Sheet"
     begin
         DimBufCount := GetGLEntryDimensions(GLEntryNo, GLEntryDimensionSetID, TempDimBuf);
         if not TempDimBuf.IsEmpty() then begin
-            TempDimBuf.FindFirst;
+            TempDimBuf.FindFirst();
             DimensionSetID := DimBufMgt.FindDimensionsKnownDimBufCount(TempDimBuf, DimBufCount);
             if DimensionSetID = 0 then begin
                 DimBufMgt.InsertDimensionsUsingEntryNo(TempDimBuf, NextDimensionSetID);

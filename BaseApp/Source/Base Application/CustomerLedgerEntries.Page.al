@@ -73,6 +73,13 @@ page 25 "Customer Ledger Entries"
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
+                field("Customer Posting Group"; "Customer Posting Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the customer''s market type to link business transactions to.';
+                    Visible = false;
+                }
                 field("IC Partner Code"; "IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
@@ -428,6 +435,13 @@ page 25 "Customer Ledger Entries"
                 SubPageLink = "No." = FIELD("Customer No."),
                               "Date Filter" = field("Date Filter");
             }
+            part(GLEntriesPart; "G/L Entries Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Related G/L Entries';
+                ShowFilter = false;
+                SubPageLink = "Posting Date" = field("Posting Date"), "Document No." = field("Document No.");
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -739,13 +753,13 @@ page 25 "Customer Ledger Entries"
                 Promoted = true;
                 PromotedCategory = Category5;
                 Scope = Repeater;
-                ShortCutKey = 'Shift+Ctrl+I';
+                ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
                     Navigate.SetDoc("Posting Date", "Document No.");
-                    Navigate.Run;
+                    Navigate.Run();
                 end;
             }
             action("Show Document")
@@ -819,7 +833,6 @@ page 25 "Customer Ledger Entries"
     var
         Navigate: Page Navigate;
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
-        StyleTxt: Text;
         HasIncomingDocument: Boolean;
         HasDocumentAttachment: Boolean;
         AmountVisible: Boolean;
@@ -838,6 +851,7 @@ page 25 "Customer Ledger Entries"
         Dim6Visible: Boolean;
         Dim7Visible: Boolean;
         Dim8Visible: Boolean;
+        StyleTxt: Text;
 
     local procedure SetDimVisibility()
     var

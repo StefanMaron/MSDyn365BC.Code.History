@@ -25,8 +25,8 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Purchase Invoice Stat.");
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableFoundationSetup();
 
         // Lazy Setup.
         if isInitialized then
@@ -34,7 +34,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"O365 Purchase Invoice Stat.");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
         PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
@@ -55,7 +55,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         Item: Record Item;
         Quantity: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndPostPurchaseInvoice(Vendor, Item, Quantity, PurchaseHeader, PurchInvHeader);
@@ -75,7 +75,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         Item: Record Item;
         Quantity: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndPostPurchaseInvoice(Vendor, Item, Quantity, PurchaseHeader, PurchInvHeader);
@@ -98,7 +98,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         Item: Record Item;
         Quantity: Decimal;
     begin
-        Initialize;
+        Initialize();
 
         Quantity := LibraryRandom.RandDec(100, 2);
         CreateAndPostPurchaseInvoice(Vendor, Item, 2 * Quantity, PurchaseHeader, PurchInvHeader);
@@ -168,7 +168,7 @@ codeunit 138021 "O365 Purchase Invoice Stat."
         NoSeriesMgt: Codeunit NoSeriesManagement;
         PaymentJournal: TestPage "Payment Journal";
     begin
-        GenJnlBatch.FindLast;
+        GenJnlBatch.FindLast();
 
         with PaymentJournal do begin
             OpenEdit;

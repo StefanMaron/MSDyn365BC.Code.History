@@ -33,7 +33,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     var
         VendorNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         VendorNo := CreateVendor;
 
@@ -50,7 +50,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     var
         SigningCompanyOfficialNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         LibraryVariableStorage.Enqueue(
           StrSubstNo('There were no Withholding Tax entries for the year %1.', Format(Date2DMY(WorkDate, 3))));
@@ -69,7 +69,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         NonTaxableAmountByTreaty: Decimal;
     begin
         // [SCENARIO 228176] Export Withholding Tax should correctly fill all fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V"
         VendorNo := CreateVendor;
@@ -101,7 +101,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         NonTaxableAmountByTreaty: Decimal;
     begin
         // [SCENARIO 228176] Export Withholding Tax with Non-Resident Vendor should not write "Non Taxable Amount By Treaty" in the 'AU001005' field
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with Resident = "Non-Resident"
         VendorNo := CreateNonResidentVendorNo;
@@ -130,7 +130,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo: Code[20];
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         VendorNo := CreateVendor;
 
@@ -151,7 +151,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo: Code[20];
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         VendorNo := CreateVendor;
 
@@ -175,7 +175,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         VendorNo: Code[20];
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         VendorNo := CreateVendor;
 
@@ -198,7 +198,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WHTEntryNo: Integer;
     begin
         // [SCENARIO 376054] Export Withholdind Tax in current and previous periods with empty Reason should generate an error for the current period only
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax for current and previous periods with Reason = ""
@@ -225,7 +225,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Filename: Text;
     begin
         // [SCENARIO 376054] Export Withholdind Tax in current period and previous period with empty Reason
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax for current period with Reason = "A" and previous period with Reason Code = ""
@@ -250,7 +250,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Filename: Text;
     begin
         // [SCENARIO 376054] Export Withholdind Tax in current and previous periods with different Reason
-        Initialize;
+        Initialize();
         VendorNo := CreateVendor;
 
         // [GIVEN] Withholding Tax for current period with Reason Code = "A" and previous period with Reason Code = "B"
@@ -278,7 +278,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         // [SCENARIO 380480] If Related Date of withholding tax entries is not equal to the year specified in Certificazione Unica declatation export, then these entries should not be included in AU001018 and AU001019 parameters of line H
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding tax entry with Related Date in current year (e.g. the year 2018)
         VendorNo := CreateVendor;
@@ -312,7 +312,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         // [SCENARIO 380698] If "Withholding Tax Amount" > TempWithholdingTaxPrevYears."Taxable Base" + 1 in Withholding Tax record and user accepts replacement, then AU001019 should contain "Taxable Base"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding tax entry 1 with Related Date in current year (e.g. the year 2018)
         // [GIVEN] Withholding tax entry 2 with Related Date in previous year (e.g. the year 2017)
@@ -338,7 +338,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         // [SCENARIO 380698] If "Withholding Tax Amount" > TempWithholdingTaxPrevYears."Taxable Base" + 1 in Withholding Tax record and user does not accept replacement, then AU001019 should contain "Withholding Tax Amount"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding tax entry 1 with Related Date in current year (e.g. the year 2018)
         // [GIVEN] Withholding tax entry 2 with Related Date in previous year (e.g. the year 2017)
@@ -386,7 +386,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
     begin
         // [SCENARIO 223885] Record H in exported file contains field AU001002 only for reasons "G", "H", "I". Value of field AU001002 must be less then the year of the declaration.
         // [SCENARIO 233814] Export file with 4 different values of AU001006
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding tax entry with Reason = "G" and year 2017
         // [GIVEN] "Non-Taxable Income Type" = 1 in Withholding Tax
@@ -448,7 +448,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         WHTEntryNo: Integer;
     begin
         // [SCENARIO 233814] Error when export file with empty "Non-Taxable Income Type" in "Withholding Tax"
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withholding tax entry with Non-Taxable Income Type" = " "
         VendorNo := CreateVendor;
@@ -903,8 +903,8 @@ codeunit 144021 "IT - CU 2015 Unit Test"
             exit;
 
         CompanyInformation.Get();
-        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID;
-        CompanyInformation.County := LibraryUtility.GenerateGUID;
+        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID();
+        CompanyInformation.County := LibraryUtility.GenerateGUID();
         CompanyInformation."Office Code" := 'abc';
         CompanyInformation.Modify();
         Commit();
@@ -938,7 +938,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
                 TempContributions.Insert();
             end;
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     TempContributions."Company Amount" += "Company Amount";
                     TempContributions."Free-Lance Amount" += "Free-Lance Amount";
@@ -962,14 +962,14 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         CompanyOfficials: Record "Company Officials";
     begin
         with CompanyOfficials do begin
-            if FindFirst then;
-            "No." += LibraryUtility.GenerateGUID;
-            "Fiscal Code" := LibraryUtility.GenerateGUID;
+            if FindFirst() then;
+            "No." += LibraryUtility.GenerateGUID();
+            "Fiscal Code" := LibraryUtility.GenerateGUID();
             "Appointment Code" := GetAppointmentCode();
-            "First Name" := LibraryUtility.GenerateGUID;
-            "Last Name" := LibraryUtility.GenerateGUID;
+            "First Name" := LibraryUtility.GenerateGUID();
+            "Last Name" := LibraryUtility.GenerateGUID();
 
-            Insert;
+            Insert();
             exit("No.");
         end;
     end;
@@ -979,7 +979,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         Contributions: Record Contributions;
     begin
         with Contributions do begin
-            if FindLast then;
+            if FindLast() then;
             "Entry No." += 1;
             Init;
 

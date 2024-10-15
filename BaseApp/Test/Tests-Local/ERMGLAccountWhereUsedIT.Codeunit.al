@@ -28,12 +28,12 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         WithholdCode: Record "Withhold Code";
     begin
         // [SCENARIO 263861] Withhold Code should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withhold Code with "Withholding Taxes Payable Acc." = "G"
         WithholdCode.Init();
         WithholdCode.Code := LibraryUTUtility.GetNewCode;
-        WithholdCode."Withholding Taxes Payable Acc." := LibraryERM.CreateGLAccountNo;
+        WithholdCode."Withholding Taxes Payable Acc." := LibraryERM.CreateGLAccountNo();
         WithholdCode.Insert();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G"
@@ -55,12 +55,12 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         WithholdCodes: TestPage "Withhold Codes";
     begin
         // [SCENARIO 263861] Withhold Codes page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Withhold Code "W" with "Withholding Taxes Payable Acc." = "G"
         WithholdCode.Init();
         WithholdCode.Code := LibraryUTUtility.GetNewCode;
-        WithholdCode."Withholding Taxes Payable Acc." := LibraryERM.CreateGLAccountNo;
+        WithholdCode."Withholding Taxes Payable Acc." := LibraryERM.CreateGLAccountNo();
         WithholdCode.Insert();
 
         // [WHEN] Run Where-Used function for G/L Accoun "G" and choose Show Details action
@@ -79,7 +79,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         ContributionCode: Record "Contribution Code";
     begin
         // [SCENARIO 263861] Contribution Code should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contribution Code with "Social Security Payable Acc." = "G"
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INAIL);
@@ -110,7 +110,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         ContributionCodesINPS: TestPage "Contribution Codes-INPS";
     begin
         // [SCENARIO 263861] Contribution Codes-INPS page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contribution Code "Code" = "CINPS", "Contribution Type" = "INPS" with "Social Security Payable Acc." = "G"
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INPS);
@@ -134,7 +134,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         ContributionCodesINAIL: TestPage "Contribution Codes-INAIL";
     begin
         // [SCENARIO 263861] Contribution Codes-INAIL page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Contribution Code "Code" = "CINAIL", "Contribution Type" = "INAIL" with "Social Security Payable Acc." = "G"
         LibraryITLocalization.CreateContributionCode(ContributionCode, ContributionCode."Contribution Type"::INAIL);
@@ -158,7 +158,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         BillPostingGroup: Record "Bill Posting Group";
     begin
         // [SCENARIO 263861] Bill Posting Group should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bill Posting Group with "Bills For Collection Acc. No." = "G"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -194,7 +194,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         BillPostingGroupPage: TestPage "Bill Posting Group";
     begin
         // [SCENARIO 263861] Bill Posting Group page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bill Posting Group with "Payment Method" = "PM", "Bills For Collection Acc. No." = "G"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
@@ -221,7 +221,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         Bill: Record Bill;
     begin
         // [SCENARIO 263861] Bill should be shown on Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bill with "Bills for Coll. Temp. Acc. No." = "G"
         LibraryITLocalization.CreateBill(Bill);
@@ -247,7 +247,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
         BillPage: TestPage Bill;
     begin
         // [SCENARIO 263861] Bill page should be open on Show Details action from Where-Used page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bill "Code" = "B" with "Bills for Coll. Temp. Acc. No." = "G"
         LibraryITLocalization.CreateBill(Bill);
@@ -264,7 +264,7 @@ codeunit 144563 "ERM G/L Account Where-Used IT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 

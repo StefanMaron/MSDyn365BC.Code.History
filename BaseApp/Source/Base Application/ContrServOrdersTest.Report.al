@@ -119,7 +119,7 @@ report 5988 "Contr. Serv. Orders - Test"
                     ServHeader.SetRange("Contract No.", "Contract No.");
                     ServHeader.SetRange(Status, ServHeader.Status::Pending);
 
-                    if ServHeader.FindFirst then begin
+                    if ServHeader.FindFirst() then begin
                         ServItemLine.SetCurrentKey("Document Type", "Document No.", "Service Item No.");
                         ServItemLine.SetRange("Document Type", ServHeader."Document Type");
                         ServItemLine.SetRange("Document No.", ServHeader."No.");
@@ -127,7 +127,7 @@ report 5988 "Contr. Serv. Orders - Test"
                         ServItemLine.SetRange("Contract Line No.", "Line No.");
                         OnBeforeFindServiceItemLine(
                           ServItemLine, "Service Contract Header", "Service Contract Line", ServHeader);
-                        if ServItemLine.FindFirst then
+                        if ServItemLine.FindFirst() then
                             CurrReport.Skip();
                     end;
 

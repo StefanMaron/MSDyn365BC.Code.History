@@ -49,7 +49,7 @@ codeunit 1315 "Chart Management"
             exit;
         if not LastChartEnabled then begin
             ChartDefinition.SetRange(Enabled, true);
-            if not ChartDefinition.FindLast then
+            if not ChartDefinition.FindLast() then
                 DIALOG.Error(NoEnabledChartsFoundErr);
         end;
         SetDefaultPeriodLength(ChartDefinition, BusinessChartBuffer);
@@ -418,7 +418,7 @@ codeunit 1315 "Chart Management"
         TwelveHourDuration: Duration;
         ZeroDayTime: DateTime;
     begin
-        if TopCustomersBySalesBuffer.FindFirst then begin
+        if TopCustomersBySalesBuffer.FindFirst() then begin
             LastBufferUpdateDateTime := TopCustomersBySalesBuffer.DateTimeUpdated;
             ZeroDayTime := 0DT;
             TwelveHourDuration := 43200000;

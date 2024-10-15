@@ -162,7 +162,7 @@ codeunit 143000 "Library - IT Localization"
     procedure CreateVATRegister(var VATRegister: Record "VAT Register"; VATRegisterType: Option)
     begin
         VATRegister.Init();
-        VATRegister.Validate(Code, LibraryUtility.GenerateGUID);
+        VATRegister.Validate(Code, LibraryUtility.GenerateGUID());
         VATRegister.Validate(Type, VATRegisterType);
         VATRegister.Insert(true);
     end;
@@ -320,7 +320,7 @@ codeunit 143000 "Library - IT Localization"
         with VATPostingSetup do begin
             LibraryERM.FindVATPostingSetup(VATPostingSetup, "VAT Calculation Type"::"Normal VAT");
             SetRange("VAT %", VATPercentage);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -448,7 +448,7 @@ codeunit 143000 "Library - IT Localization"
     begin
         DocumentSendingProfile.DeleteAll();
         DocumentSendingProfile.Init();
-        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
+        DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile.Validate(Disk, DocumentSendingProfile.Disk::"Electronic Document");
         DocumentSendingProfile.Validate("Disk Format", FatturaPA_ElectronicFormatTxt);
         DocumentSendingProfile.Validate(Default, true);
@@ -492,7 +492,7 @@ codeunit 143000 "Library - IT Localization"
     begin
         NoSeries.Get(LibraryERM.CreateNoSeriesCode);
         NoSeriesLine.SetRange("Series Code", NoSeries.Code);
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         NoSeriesLine.Validate("Starting No.", '1001');
         NoSeriesLine.Validate("Ending No.", '1999');
         NoSeriesLine.Validate("Last No. Used", '1995');
@@ -510,7 +510,7 @@ codeunit 143000 "Library - IT Localization"
         ServerFileName := CopyStr(FileManagement.ServerTempFileName('xml'), 1, MaxStrLen(ServerFileName));
         FileManagement.GetServerDirectoryFilesList(TempNameValueBuffer, FileManagement.GetDirectoryName(ServerFileName));
         TempNameValueBuffer.SetFilter(Name, '*.xml');
-        if TempNameValueBuffer.FindSet then
+        if TempNameValueBuffer.FindSet() then
             repeat
                 FileManagement.DeleteServerFile(TempNameValueBuffer.Name);
             until TempNameValueBuffer.Next = 0;

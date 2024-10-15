@@ -101,7 +101,7 @@
                         begin
                             SetVATEntryFilters(VATEntry);
                             VATEntry.SetRange("Entry No.", "Source Entry No.");
-                            if not VATEntry.FindFirst then
+                            if not VATEntry.FindFirst() then
                                 Error(
                                   Text12100, VATEntry.FieldCaption("Entry No."), VATEntry.GetFilters)
                             else
@@ -296,9 +296,14 @@
         field(12102; "VAT Registration No."; Code[20])
         {
             Caption = 'VAT Registration No.';
-            ObsoleteState = Pending;
             ObsoleteReason = 'Merged to W1';
+#if CLEAN18
+            ObsoleteTag = '21.0';
+            ObsoleteState = Removed;
+#else
             ObsoleteTag = '18.0';
+            ObsoleteState = Pending;
+#endif
         }
         field(12103; "Corrective entry"; Boolean)
         {
@@ -374,7 +379,7 @@
                     IntrastatJnlBatch.CheckEUServAndCorrection("Journal Template Name", "Journal Batch Name", false, true);
                     SetIntrastatJnlBatchFilters(IntrastatJnlBatch2);
                     IntrastatJnlBatch2.SetRange(Name, "Corrected Intrastat Report No.");
-                    if not IntrastatJnlBatch2.FindFirst then
+                    if not IntrastatJnlBatch2.FindFirst() then
                         FieldError("Corrected Intrastat Report No.")
                     else
                         Validate("Reference Period", IntrastatJnlBatch2."Statistics Period");
@@ -408,7 +413,7 @@
                     IntrastatJnlBatch.CheckEUServAndCorrection("Journal Template Name", "Journal Batch Name", false, true);
                     IntrastatJnlLine.SetRange("Journal Batch Name", "Corrected Intrastat Report No.");
                     IntrastatJnlLine.SetRange("Document No.", "Corrected Document No.");
-                    if not IntrastatJnlLine.FindFirst then
+                    if not IntrastatJnlLine.FindFirst() then
                         Error(
                           Text12100, FieldCaption("Document No."), IntrastatJnlLine.GetFilters);
                 end;
@@ -436,6 +441,14 @@
         }
         key(Key3; Type, "Country/Region Code", "VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", "Area", "Corrective entry")
         {
+            ObsoleteReason = 'VAT Registration No. merged into W1 Partner VAT ID. Use Key6 instead.';
+#if CLEAN18
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#endif
         }
         key(Key4; "Internal Ref. No.")
         {
@@ -592,14 +605,14 @@
                         "Corrected Document No." := SalesCrMemoHeader."Applies-to Doc. No.";
                         VATEntry2.Reset();
                         VATEntry2.SetRange("Document No.", SalesCrMemoHeader."Applies-to Doc. No.");
-                        if VATEntry2.FindFirst then
+                        if VATEntry2.FindFirst() then
                             "Reference Period" := Format(Date2DMY(VATEntry2."Operation Occurred Date", 3));
                     end else
                         if ServCrMemoHeader.Get(VATEntry."Document No.") then begin
                             "Corrected Document No." := ServCrMemoHeader."Applies-to Doc. No.";
                             VATEntry2.Reset();
                             VATEntry2.SetRange("Document No.", ServCrMemoHeader."Applies-to Doc. No.");
-                            if VATEntry2.FindFirst then
+                            if VATEntry2.FindFirst() then
                                 "Reference Period" := Format(Date2DMY(VATEntry2."Operation Occurred Date", 3));
                         end;
                 end;
@@ -613,7 +626,7 @@
                             "Corrected Document No." := PurchCrMemoHeader."Applies-to Doc. No.";
                             VATEntry2.Reset();
                             VATEntry2.SetRange("Document No.", PurchCrMemoHeader."Applies-to Doc. No.");
-                            if VATEntry2.FindFirst then
+                            if VATEntry2.FindFirst() then
                                 "Reference Period" := Format(Date2DMY(VATEntry2."Operation Occurred Date", 3));
                         end;
                     FindSourceCurrency(VATEntry."Bill-to/Pay-to No.", VATEntry."Document Date", VATEntry."Posting Date");
@@ -696,7 +709,7 @@
     begin
         Date := 0D;
         "Country/Region Code" := '';
-        "VAT Registration No." := '';
+        "Partner VAT ID" := '';
         Amount := 0;
         "Document No." := '';
         "Service Tariff No." := '';
@@ -790,7 +803,7 @@
                         SetRange("Transaction No.", VATEntry."Transaction No.");
                         SetRange("Document No.", VATEntry."Document No.");
                         SetFilter("Posting Date", '..%1', EndDate);
-                        if FindFirst then begin
+                        if FindFirst() then begin
                             TotalAppliedAmount :=
                               GetTotalBaseAmount("Transaction No.", "Document No.", VATEntry.Type::Purchase, StartDate, EndDate, IsCorrective);
                             ClosedEntry := "Closed by Entry No." <> 0;
@@ -805,7 +818,7 @@
                         SetRange("Transaction No.", VATEntry."Transaction No.");
                         SetRange("Document No.", VATEntry."Document No.");
                         SetFilter("Posting Date", '..%1', EndDate);
-                        if FindFirst then begin
+                        if FindFirst() then begin
                             TotalAppliedAmount :=
                               GetTotalBaseAmount("Transaction No.", "Document No.", VATEntry.Type::Sale, StartDate, EndDate, IsCorrective);
                             ClosedEntry := "Closed by Entry No." <> 0;
@@ -824,7 +837,7 @@
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetRange(Unapplied, false);
-        if DtldVendLedgEntry.FindSet then
+        if DtldVendLedgEntry.FindSet() then
             repeat
                 if DtldVendLedgEntry."Vendor Ledger Entry No." = DtldVendLedgEntry."Applied Vend. Ledger Entry No." then begin
                     DtldVendLedgEntry2.SetCurrentKey("Applied Vend. Ledger Entry No.", "Entry Type");
@@ -832,7 +845,7 @@
                       "Applied Vend. Ledger Entry No.", DtldVendLedgEntry."Applied Vend. Ledger Entry No.");
                     DtldVendLedgEntry2.SetRange("Entry Type", DtldVendLedgEntry2."Entry Type"::Application);
                     DtldVendLedgEntry2.SetRange(Unapplied, false);
-                    if DtldVendLedgEntry2.FindSet then begin
+                    if DtldVendLedgEntry2.FindSet() then begin
                         repeat
                             if DtldVendLedgEntry2."Vendor Ledger Entry No." <> DtldVendLedgEntry2."Applied Vend. Ledger Entry No." then
                                 FindAppliedVendLedgEntryAmtLCY(
@@ -854,7 +867,7 @@
         DtldCustLedgerEntry.SetCurrentKey("Cust. Ledger Entry No.");
         DtldCustLedgerEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DtldCustLedgerEntry.SetRange(Unapplied, false);
-        if DtldCustLedgerEntry.FindSet then
+        if DtldCustLedgerEntry.FindSet() then
             repeat
                 if DtldCustLedgerEntry."Cust. Ledger Entry No." = DtldCustLedgerEntry."Applied Cust. Ledger Entry No." then begin
                     DtldCustLedgEntry2.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
@@ -862,7 +875,7 @@
                       "Applied Cust. Ledger Entry No.", DtldCustLedgerEntry."Applied Cust. Ledger Entry No.");
                     DtldCustLedgEntry2.SetRange("Entry Type", DtldCustLedgEntry2."Entry Type"::Application);
                     DtldCustLedgEntry2.SetRange(Unapplied, false);
-                    if DtldCustLedgEntry2.FindSet then begin
+                    if DtldCustLedgEntry2.FindSet() then begin
                         repeat
                             if DtldCustLedgEntry2."Cust. Ledger Entry No." <> DtldCustLedgEntry2."Applied Cust. Ledger Entry No." then
                                 FindAppliedCustLedgEntryAmtLCY(
@@ -889,7 +902,7 @@
             else
                 SetRange("Posting Date", StartDate, EndDate);
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 if IsCorrective then
                     ClosedEntry := ClosedEntry and ("Closed by Entry No." <> 0);
                 if ClosedEntry then
@@ -914,7 +927,7 @@
             else
                 SetRange("Posting Date", StartDate, EndDate);
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 if IsCorrective then
                     ClosedEntry := ClosedEntry and ("Closed by Entry No." <> 0);
                 if ClosedEntry then
@@ -939,7 +952,7 @@
             else
                 SetRange("Posting Date", StartDate, EndDate);
 
-            if FindSet then
+            if FindSet() then
                 repeat
                     Result += (Base + "Nondeductible Base");
                 until Next() = 0;
@@ -958,7 +971,7 @@
             if TemplateFilter <> '' then
                 IntrastatJnlBatch.SetFilter("Journal Template Name", TemplateFilter);
             IntrastatJnlBatch.SetFilter(Name, BatchFilter);
-            IntrastatJnlBatch.FindFirst;
+            IntrastatJnlBatch.FindFirst();
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
@@ -1162,7 +1175,7 @@
         exit('QV999999999999');
     end;
 
-    local procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
+    protected procedure IsCustomerPrivatePerson(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
@@ -1171,7 +1184,7 @@
         exit(false);
     end;
 
-    local procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
+    protected procedure IsVendorPrivatePerson(VendorNo: Code[20]): Boolean
     var
         Vendor: Record Vendor;
     begin

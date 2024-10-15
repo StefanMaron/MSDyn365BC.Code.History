@@ -28,7 +28,7 @@ codeunit 12131 "Spesometro Export"
     [Scope('OnPrem')]
     procedure Initialize(NewDetailedExport: Boolean; NewStartDate: Date; NewEndDate: Date; NewPeriodType: Option Month,Quarter,Year,Hide)
     begin
-        FlatFileManagement.Initialize;
+        FlatFileManagement.Initialize();
         FlatFileManagement.SetHeaderFooterRecordCountPerFile(4); // A, B, E and Z record
 
         ProgressiveTransmissionNo := 0;
@@ -445,7 +445,7 @@ codeunit 12131 "Spesometro Export"
                     Date.SetRange("Period Type", Date."Period Type"::Quarter);
                     Date.SetFilter("Period Start", '<=%1', StartDate);
                     Date.SetFilter("Period End", '>=%1', StartDate);
-                    if Date.FindFirst then
+                    if Date.FindFirst() then
                         DateRef := 'T' + Format(Date."Period No.");
                 end;
             PeriodType::Year:

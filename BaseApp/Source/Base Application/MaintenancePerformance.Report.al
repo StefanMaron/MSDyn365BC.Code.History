@@ -76,7 +76,7 @@ report 5982 "Maintenance Performance"
                 ServContractLine.SetRange("Contract Type", "Contract Type");
                 ServContractLine.SetRange("Contract No.", "Contract No.");
                 ServContractLine.SetFilter("Next Planned Service Date", '<>%1', 0D);
-                if not ServContractLine.FindFirst then
+                if not ServContractLine.FindFirst() then
                     CurrReport.Skip();
 
                 AnnualAmount := 0;

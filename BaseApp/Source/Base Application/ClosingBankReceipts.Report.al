@@ -20,6 +20,7 @@ report 12171 "Closing Bank Receipts"
 
                 trigger OnAfterGetRecord()
                 var
+                    ApplyUnapplyParameters: Record "Apply Unapply Parameters";
                     ApplyCustomerEntries: Page "Apply Customer Entries";
                     DocumentNo: Code[20];
                 begin
@@ -38,7 +39,9 @@ report 12171 "Closing Bank Receipts"
                             exit;
                         ApplyCustomerEntries.AskForDocNoAndApplnDate(DocumentNo, ClosePerDay);
                     end;
-                    CustEntryApplyPostedEntries.Apply(CustLedgEntry, DocumentNo, ClosePerDay);
+                    ApplyUnapplyParameters."Document No." := DocumentNo;
+                    ApplyUnapplyParameters."Posting Date" := ClosePerDay;
+                    CustEntryApplyPostedEntries.Apply(CustLedgEntry, ApplyUnapplyParameters);
                     if Confirmation then
                         Message(Text012);
                 end;

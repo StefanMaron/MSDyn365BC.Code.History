@@ -55,17 +55,6 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the cross-reference number for this item.';
-                    Visible = false;
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -277,7 +266,7 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Shift+Ctrl+I';
+                    ShortCutKey = 'Ctrl+Alt+I'; 
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -360,10 +349,10 @@ page 5854 "Get Post.Doc-S.Cr.MemoLn Sbfrm"
         TempSalesCrMemoLine.Reset();
         TempSalesCrMemoLine.CopyFilters(Rec);
         TempSalesCrMemoLine.SetRange("Document No.", "Document No.");
-        if not TempSalesCrMemoLine.FindFirst then begin
+        if not TempSalesCrMemoLine.FindFirst() then begin
             SalesCrMemoLine.CopyFilters(Rec);
             SalesCrMemoLine.SetRange("Document No.", "Document No.");
-            if not SalesCrMemoLine.FindFirst then
+            if not SalesCrMemoLine.FindFirst() then
                 exit(false);
             TempSalesCrMemoLine := SalesCrMemoLine;
             TempSalesCrMemoLine.Insert();

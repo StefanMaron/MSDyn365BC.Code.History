@@ -39,7 +39,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Test case verifies Next Period Output VAT/Next Period Input VAT fields on
         // Calc. and Post VAT Settlement report
         // Purchase Invoice with non-deductible Amount
-        Initialize;
+        Initialize();
         PostingDate := GetPostingDate;
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
@@ -70,7 +70,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Test case verifies Next Period Output VAT/Next Period Input VAT fields on
         // Calc. and Post VAT Settlement report
         // Sales Invoice
-        Initialize;
+        Initialize();
         PostingDate := GetPostingDate;
 
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
@@ -101,7 +101,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Test case verifies Next Period Output VAT/Next Period Input VAT fields on
         // Calc. and Post VAT Settlement report
         // Purchase Invoice with non-deductible Amount, Sales Invoice with greater Amount
-        Initialize;
+        Initialize();
         PostingDate := GetPostingDate;
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
@@ -136,7 +136,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         // Test case verifies Next Period Output VAT/Next Period Input VAT fields on
         // Calc. and Post VAT Settlement report
         // Purchase Invoice with non-deductible Amount, Sales Invoice with less Amount
-        Initialize;
+        Initialize();
         PostingDate := GetPostingDate;
         CreateNonDeductibleVATPostingSetup(VATPostingSetup);
 
@@ -171,7 +171,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PostingDate: Date;
     begin
         // Setup: Find and update VAT Posting Setup. Create Activity Code. Create Vendor and Customer with Activitty Code.
-        Initialize;
+        Initialize();
         PostingDate := GetPostingDate;
         FindAndUpdateVATPostingSetup(VATPostingSetup);
         GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, DummyGLAccount."Gen. Posting Type"::Sale);
@@ -208,7 +208,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
         PostingDate: Date;
     begin
         // [SCENARIO 333516] When Use Activity Code is enabled in General Setup, calc and post vat settlement works
-        Initialize;
+        Initialize();
         // [GIVEN] Use Activity Code enabled
         SetUseActivityCode(true);
         ActivityCode := CreateActivityCode();
@@ -251,7 +251,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         // [FEATURE] [VAT Settlement] [Reverse Charge VAT]
         // [SCENARIO 275693] Reverse Charge VAT Entries must be posted to Reverse Chrg. VAT Acc. after posting throught Calc. And Post VAT Settlement report
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Reverse Chrg. VAT Acc. = "GLAcc"
         PostingDate := GetPostingDate;
@@ -272,17 +272,17 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
           PostingDate, PostingDate, PostingDate, Format(LibraryRandom.RandIntInRange(1, 10)), LibraryERM.CreateGLAccountNo,
           LibraryERM.CreateGLAccountNo, LibraryERM.CreateGLAccountNo, false, true);
         Commit();
-        CalcAndPostVATSettlement.Run;
+        CalcAndPostVATSettlement.Run();
 
         // [THEN] There is one record of "G/L Entry" for G/L Account - "Reverse Chrg. VAT Acc." and "Gen. Posting Type" = "Settlement"
         GLEntry.SetRange("G/L Account No.", VATPostingSetup."Reverse Chrg. VAT Acc.");
         GLEntry.SetRange("Gen. Posting Type", GLEntry."Gen. Posting Type"::Settlement);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Debit Amount", ExpectedVATAmount);
 
         // [THEN] There is one record of "G/L Entry" for G/L Account - "Purchase VAT Account" and "Gen. Posting Type" = "Settlement"
         GLEntry.SetRange("G/L Account No.", VATPostingSetup."Purchase VAT Account");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField("Credit Amount", ExpectedVATAmount);
 
         LibraryVariableStorage.AssertEmpty;
@@ -301,7 +301,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         // [FEATURE] [Report] [VAT Settlement]
         // [SCENARIO 323097] 'Next Period Output/Input VAT' fields are present in Calc. and Post VAT Settlement report
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set VAT Plafond Period
         InitLastSettlementDate(CalcDate('<1M-1D>', CalcDate('<-CY-1Y>', WorkDate)));
@@ -329,7 +329,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
           GLAccountCode, GLAccountCode, GLAccountCode, true, false);
 
         // [WHEN] Run Calc. and Post VAT Settlement report
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         CalcAndPostVATSettlement.SaveAsExcel(LibraryReportValidation.GetFileName);
 
         // [THEN] In the report 'Next Period Input VAT'=2 and 'Next Period Output VAT'=0
@@ -352,7 +352,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         // [FEATURE] [Report] [VAT Settlement]
         // [SCENARIO 348067] Run "Calc And Post VAT Settlement" with Advanced Amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Posting Date and VAT Posting Setup
         PostingDate := GetPostingDate();
@@ -393,7 +393,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure InitLastSettlementDate(InitialDate: Date)
@@ -533,7 +533,7 @@ codeunit 144015 "IT - Calc. And Post VAT Settl."
     begin
         with VATPostingSetup do begin
             SetRange("Deductible %", 100);
-            FindLast;
+            FindLast();
             if "VAT %" = 0 then begin
                 Validate("VAT %", LibraryRandom.RandInt(10));
                 Modify(true);

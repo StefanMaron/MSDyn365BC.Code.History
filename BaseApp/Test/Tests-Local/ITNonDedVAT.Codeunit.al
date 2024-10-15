@@ -889,7 +889,7 @@ codeunit 144001 "IT - Non Ded. VAT"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        FAPostingGroup.FindFirst;
+        FAPostingGroup.FindFirst();
         FAPostingGroup.Validate("Acquisition Cost Account",
           CreateGLAccount(GenProdPostingGroup, VATProductPostingGroup));
         FAPostingGroup.Modify(true);
@@ -901,14 +901,14 @@ codeunit 144001 "IT - Non Ded. VAT"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("G/L Account No.", GLAccNo);
-        GLEntry.FindLast;
+        GLEntry.FindLast();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
-        VATEntry.FindLast;
+        VATEntry.FindLast();
     end;
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup") DeductiblePercent: Decimal

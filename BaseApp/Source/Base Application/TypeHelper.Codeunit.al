@@ -582,7 +582,7 @@ codeunit 10 "Type Helper"
             OrderString := 'ORDER(Descending)';
 
         RecRef.SetView(StrSubstNo('SORTING(%1) %2', CommaSeparatedFieldsToSort, OrderString));
-        if RecRef.FindSet then;
+        if RecRef.FindSet() then;
     end;
 
     procedure TextDistance(Text1: Text; Text2: Text): Integer
@@ -798,7 +798,7 @@ codeunit 10 "Type Helper"
         DataTypeManagement.GetRecordRef(RecordVariant, SourceRecRef);
 
         TempFieldBuffer.Reset();
-        if not TempFieldBuffer.FindFirst then
+        if not TempFieldBuffer.FindFirst() then
             exit;
 
         repeat

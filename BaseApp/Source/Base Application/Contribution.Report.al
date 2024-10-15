@@ -230,7 +230,7 @@ report 12102 Contribution
                     Payment.LockTable();
                     Payment.Reset();
 
-                    if Payment.FindLast then
+                    if Payment.FindLast() then
                         NoEnt := Payment."Entry No." + 1
                     else
                         NoEnt := 1;
@@ -268,7 +268,7 @@ report 12102 Contribution
                     Payment.SetRange(Year, ParamYear);
                     Payment.SetRange(Month, ParamMonth);
 
-                    if Payment.FindFirst then begin
+                    if Payment.FindFirst() then begin
                         if not Confirm(Text1033, false, ParamMonth, ParamYear) then
                             CurrReport.Quit;
                         Payment.DeleteAll();
@@ -504,7 +504,7 @@ report 12102 Contribution
                     Payment.LockTable();
                     Payment.Reset();
 
-                    if Payment.FindLast then
+                    if Payment.FindLast() then
                         NoEnt := Payment."Entry No." + 1
                     else
                         NoEnt := 1;

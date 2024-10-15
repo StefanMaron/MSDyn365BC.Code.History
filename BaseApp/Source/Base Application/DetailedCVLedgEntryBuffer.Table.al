@@ -237,6 +237,13 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             Editable = false;
             TableRelation = "Tax Jurisdiction";
         }
+        field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
+        {
+            Caption = 'Exch. Rate Adjmt. Reg. No.';
+            DataClassification = SystemMetadata;
+            Editable = false;
+            TableRelation = "Exch. Rate Adjmt. Reg.";
+        }
         field(12100; "Bank Receipt Issued"; Boolean)
         {
             Caption = 'Bank Receipt Issued';
@@ -327,7 +334,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
 
         if NextDtldBufferEntryNo = 0 then begin
             DtldCVLedgEntryBuf.Reset();
-            if DtldCVLedgEntryBuf.FindLast then
+            if DtldCVLedgEntryBuf.FindLast() then
                 NextDtldBufferEntryNo := DtldCVLedgEntryBuf."Entry No." + 1
             else
                 NextDtldBufferEntryNo := 1;
@@ -361,7 +368,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         if IsHandled then
             exit;
 
-        if DtldCVLedgEntryBuf.FindFirst then begin
+        if DtldCVLedgEntryBuf.FindFirst() then begin
             DtldCVLedgEntryBuf.Amount := DtldCVLedgEntryBuf.Amount + NewDtldCVLedgEntryBuf.Amount;
             DtldCVLedgEntryBuf."Amount (LCY)" :=
               DtldCVLedgEntryBuf."Amount (LCY)" + NewDtldCVLedgEntryBuf."Amount (LCY)";
@@ -379,7 +386,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
             DtldCVLedgEntry.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
             DtldCVLedgEntry.SetRange("Cust. Ledger Entry No.", DtldCVLedgEntryBuf."CV Ledger Entry No.");
             DtldCVLedgEntry.SetRange("Entry Type", DtldCVLedgEntryBuf."Entry Type"::"Initial Entry");
-            if DtldCVLedgEntry.FindFirst then begin
+            if DtldCVLedgEntry.FindFirst() then begin
                 DtldCVLedgEntryBuf."Bank Receipt" := DtldCVLedgEntry."Bank Receipt";
                 DtldCVLedgEntryBuf."Bank Receipt Issued" := DtldCVLedgEntry."Bank Receipt Issued";
             end;
@@ -493,7 +500,7 @@ table 383 "Detailed CV Ledg. Entry Buffer"
         VATEntry.SetRange("Transaction No.", TransactionNo);
         VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
         VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     [IntegrationEvent(false, false)]

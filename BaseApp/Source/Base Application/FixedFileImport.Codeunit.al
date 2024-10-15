@@ -41,7 +41,7 @@ codeunit 1241 "Fixed File Import"
         StartPosition: Integer;
     begin
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
-        DataExchLineDef.FindFirst;
+        DataExchLineDef.FindFirst();
 
         if ((LineNo + SkippedLineNo) <= DataExchDef."Header Lines") or
            ((DataExchLineDef."Data Line Tag" <> '') and (StrPos(Line, DataExchLineDef."Data Line Tag") <> 1))

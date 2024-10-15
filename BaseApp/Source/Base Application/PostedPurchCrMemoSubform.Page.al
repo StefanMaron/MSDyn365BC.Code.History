@@ -36,16 +36,6 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the service tariff that is associated with the purchase credit memo.';
                 }
-#if not CLEAN17
-                field("Cross-Reference No."; "Cross-Reference No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
-                    ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '17.0';
-                }
-#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     AccessByPermission = tabledata "Item Reference" = R;
@@ -416,7 +406,7 @@
                     begin
                         RecRef.GetTable(Rec);
                         DocumentAttachmentDetails.OpenForRecRef(RecRef);
-                        DocumentAttachmentDetails.RunModal;
+                        DocumentAttachmentDetails.RunModal();
                     end;
                 }
                 action(Dimensions)
@@ -534,7 +524,7 @@
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(
           11, "Document No.", "Line No.", "Blanket Order No.", "Blanket Order Line No.", "Order No.", "Order Line No.");
-        DocumentLineTracking.RunModal;
+        DocumentLineTracking.RunModal();
     end;
 
     local procedure SetDimensionsVisibility()

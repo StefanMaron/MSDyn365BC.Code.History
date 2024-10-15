@@ -339,7 +339,6 @@ page 1314 "AccountantPortal Activity Cues"
         SetFilter("Due Date Filter", '>=%1', Today);
         SetFilter("Due Next Week Filter", '%1..%2', CalcDate('<1D>', Today), CalcDate('<1W>', Today));
         SetFilter("Overdue Date Filter", '<%1', Today);
-        SetRange("User ID Filter", UserId);
     end;
 
     var
@@ -468,11 +467,6 @@ page 1314 "AccountantPortal Activity Cues"
         TempString := Format("Ongoing Sales Orders");
         OngoingSalesOrdersAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
         CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Ongoing Sales Orders"), "Ongoing Sales Orders", OngoingSalesOrdersStyle);
-
-        CalcFields("Requests to Approve");
-        TempString := Format("Requests to Approve");
-        RequeststoApproveAmount := StringConversionManagement.GetPaddedString(TempString, 30, ' ', Justification::Right);
-        CuesAndKpis.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Requests to Approve"), "Requests to Approve", RequeststoApproveStyle);
 
         CalcFields("Purchase Orders");
         TempString := Format("Purchase Orders");

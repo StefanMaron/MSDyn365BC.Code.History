@@ -115,7 +115,7 @@ report 12183 "Withholding Tax - Test"
                 WithholdingTax.Reset();
                 WithholdingTax.SetRange("Vendor No.", "No.");
                 WithholdingTax.SetRange("Posting Date", StartDate, EndDate);
-                if not WithholdingTax.FindFirst then
+                if not WithholdingTax.FindFirst() then
                     CurrReport.Skip();
                 if "Individual Person" then begin
                     if "Fiscal Code" = '' then
@@ -222,7 +222,7 @@ report 12183 "Withholding Tax - Test"
             Date2.SetRange("Period Type", Date2."Period Type"::Month);
             Date2.SetFilter("Period Start", '<=%1', WorkDate);
             Date2.SetFilter("Period End", '>=%1', WorkDate);
-            if Date2.FindFirst then begin
+            if Date2.FindFirst() then begin
                 StartDate := Date2."Period Start";
                 EndDate := NormalDate(Date2."Period End");
             end;

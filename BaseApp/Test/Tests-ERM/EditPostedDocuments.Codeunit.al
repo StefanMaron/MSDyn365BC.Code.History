@@ -711,7 +711,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Edit Posted Documents");
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -782,7 +782,7 @@ codeunit 134658 "Edit Posted Documents"
     local procedure CreateShipmentMethodWith3rdPartyLoader(var ShipmentMethod: Record "Shipment Method")
     begin
         ShipmentMethod.Init();
-        ShipmentMethod.Code := LibraryUtility.GenerateGUID;
+        ShipmentMethod.Code := LibraryUtility.GenerateGUID();
         ShipmentMethod."3rd-Party Loader" := true;
         ShipmentMethod.Insert();
     end;
@@ -790,14 +790,14 @@ codeunit 134658 "Edit Posted Documents"
     local procedure CreateTransportReasonCode(var TransportReasonCode: Record "Transport Reason Code")
     begin
         TransportReasonCode.Init();
-        TransportReasonCode.Code := LibraryUtility.GenerateGUID;
+        TransportReasonCode.Code := LibraryUtility.GenerateGUID();
         TransportReasonCode.Insert();
     end;
 
     local procedure CreateGoodsAppearance(var GoodsAppearance: Record "Goods Appearance")
     begin
         GoodsAppearance.Init();
-        GoodsAppearance.Code := LibraryUtility.GenerateGUID;
+        GoodsAppearance.Code := LibraryUtility.GenerateGUID();
         GoodsAppearance.Insert();
     end;
 
@@ -892,25 +892,25 @@ codeunit 134658 "Edit Posted Documents"
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgent."Shipping Agent Type" := ShippingAgent."Shipping Agent Type"::Vendor;
-        ShippingAgent."Shipping Agent No." := LibraryPurchase.CreateVendorNo;
+        ShippingAgent."Shipping Agent No." := LibraryPurchase.CreateVendorNo();
         ShippingAgent.Modify();
 
         LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, DateFormula);
         CreateShipmentMethodWith3rdPartyLoader(ShipmentMethod);
-        SalesShptHeader.FindFirst;
+        SalesShptHeader.FindFirst();
         SalesShptHeader."Shipment Method Code" := ShipmentMethod.Code;
         SalesShptHeader.Modify();
 
         SalesShptHeader.Init();
         SalesShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         SalesShptHeader."Shipping Agent Service Code" := ShippingAgentServices.Code;
-        SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
-        SalesShptHeader."Additional Information" := LibraryUtility.GenerateGUID;
-        SalesShptHeader."Additional Notes" := LibraryUtility.GenerateGUID;
-        SalesShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID;
-        SalesShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID;
+        SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID();
+        SalesShptHeader."Additional Information" := LibraryUtility.GenerateGUID();
+        SalesShptHeader."Additional Notes" := LibraryUtility.GenerateGUID();
+        SalesShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID();
+        SalesShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID();
         SalesShptHeader."3rd Party Loader Type" := SalesShptHeader."3rd Party Loader Type"::Vendor;
-        SalesShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo;
+        SalesShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo();
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedSalesCrMemo(var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
@@ -944,7 +944,7 @@ codeunit 134658 "Edit Posted Documents"
         LibrarySales.CreateShipToAddress(ShipToAddress, PurchInvHeader."Sell-to Customer No.");
         PurchInvHeader."Payment Reference" := PaymentReference;
         PurchInvHeader."Payment Method Code" := PaymentMethod.Code;
-        PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID;
+        PurchInvHeader."Creditor No." := LibraryUtility.GenerateGUID();
         PurchInvHeader."Ship-to Code" := ShipToAddress.Code;
     end;
 
@@ -958,20 +958,20 @@ codeunit 134658 "Edit Posted Documents"
         CreateShipmentMethodWith3rdPartyLoader(ShipmentMethod);
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgent."Shipping Agent Type" := ShippingAgent."Shipping Agent Type"::Vendor;
-        ShippingAgent."Shipping Agent No." := LibraryPurchase.CreateVendorNo;
+        ShippingAgent."Shipping Agent No." := LibraryPurchase.CreateVendorNo();
         ShippingAgent.Modify();
 
         ReturnShptHeader.Init();
-        ReturnShptHeader."Ship-to County" := LibraryUtility.GenerateGUID;
+        ReturnShptHeader."Ship-to County" := LibraryUtility.GenerateGUID();
         ReturnShptHeader."Ship-to Country/Region Code" := CountryRegion.Code;
-        ReturnShptHeader."Additional Information" := LibraryUtility.GenerateGUID;
-        ReturnShptHeader."Additional Notes" := LibraryUtility.GenerateGUID;
-        ReturnShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID;
-        ReturnShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID;
+        ReturnShptHeader."Additional Information" := LibraryUtility.GenerateGUID();
+        ReturnShptHeader."Additional Notes" := LibraryUtility.GenerateGUID();
+        ReturnShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID();
+        ReturnShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID();
         ReturnShptHeader."Shipment Method Code" := ShipmentMethod.Code;
         ReturnShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         ReturnShptHeader."3rd Party Loader Type" := ReturnShptHeader."3rd Party Loader Type"::Vendor;
-        ReturnShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo;
+        ReturnShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo();
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedReturnReceipt(var ReturnRcptHeader: Record "Return Receipt Header")
@@ -983,10 +983,10 @@ codeunit 134658 "Edit Posted Documents"
         LibraryInventory.CreateShippingAgent(ShippingAgent);
 
         ReturnRcptHeader.Init();
-        ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID;
+        ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID();
         ReturnRcptHeader."Bill-to Country/Region Code" := CountryRegion.Code;
         ReturnRcptHeader."Shipping Agent Code" := ShippingAgent.Code;
-        ReturnRcptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
+        ReturnRcptHeader."Package Tracking No." := LibraryUtility.GenerateGUID();
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedTransferShipment(var TransferShptHeader: Record "Transfer Shipment Header")
@@ -998,7 +998,7 @@ codeunit 134658 "Edit Posted Documents"
         CreateTransportReasonCode(TransportReasonCode);
         CreateGoodsAppearance(GoodsAppearance);
         CreateShipmentMethodWith3rdPartyLoader(ShipmentMethod);
-        TransferShptHeader.FindFirst;
+        TransferShptHeader.FindFirst();
         TransferShptHeader."Shipment Method Code" := ShipmentMethod.Code;
         TransferShptHeader.Modify();
 
@@ -1009,16 +1009,16 @@ codeunit 134658 "Edit Posted Documents"
         TransferShptHeader."Net Weight" := LibraryRandom.RandDecInRange(100, 200, 2);
         TransferShptHeader."Parcel Units" := LibraryRandom.RandDecInRange(100, 200, 2);
         TransferShptHeader.Volume := LibraryRandom.RandDecInRange(100, 200, 2);
-        TransferShptHeader."Shipping Notes" := LibraryUtility.GenerateGUID;
+        TransferShptHeader."Shipping Notes" := LibraryUtility.GenerateGUID();
         TransferShptHeader."3rd Party Loader Type" := TransferShptHeader."3rd Party Loader Type"::Vendor;
-        TransferShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo;
+        TransferShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo();
         TransferShptHeader."Shipping Starting Date" := LibraryRandom.RandDate(1000);
         TransferShptHeader."Shipping Starting Time" := 123456T;
-        TransferShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
-        TransferShptHeader."Additional Information" := LibraryUtility.GenerateGUID;
-        TransferShptHeader."Additional Notes" := LibraryUtility.GenerateGUID;
-        TransferShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID;
-        TransferShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID;
+        TransferShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID();
+        TransferShptHeader."Additional Information" := LibraryUtility.GenerateGUID();
+        TransferShptHeader."Additional Notes" := LibraryUtility.GenerateGUID();
+        TransferShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID();
+        TransferShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID();
     end;
 
     local procedure PrepareValuesForEditableFieldsPostedServiceShipment(var ServiceShptHeader: Record "Service Shipment Header")
@@ -1029,18 +1029,18 @@ codeunit 134658 "Edit Posted Documents"
         CreateShipmentMethodWith3rdPartyLoader(ShipmentMethod);
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         ShippingAgent."Shipping Agent Type" := ShippingAgent."Shipping Agent Type"::Vendor;
-        ShippingAgent."Shipping Agent No." := LibraryPurchase.CreateVendorNo;
+        ShippingAgent."Shipping Agent No." := LibraryPurchase.CreateVendorNo();
         ShippingAgent.Modify();
 
         ServiceShptHeader.Init();
-        ServiceShptHeader."Additional Information" := LibraryUtility.GenerateGUID;
-        ServiceShptHeader."Additional Notes" := LibraryUtility.GenerateGUID;
-        ServiceShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID;
-        ServiceShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID;
+        ServiceShptHeader."Additional Information" := LibraryUtility.GenerateGUID();
+        ServiceShptHeader."Additional Notes" := LibraryUtility.GenerateGUID();
+        ServiceShptHeader."Additional Instructions" := LibraryUtility.GenerateGUID();
+        ServiceShptHeader."TDD Prepared By" := LibraryUtility.GenerateGUID();
         ServiceShptHeader."Shipment Method Code" := ShipmentMethod.Code;
         ServiceShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         ServiceShptHeader."3rd Party Loader Type" := ServiceShptHeader."3rd Party Loader Type"::Vendor;
-        ServiceShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo;
+        ServiceShptHeader."3rd Party Loader No." := LibraryPurchase.CreateVendorNo();
     end;
 
     [ModalPageHandler]

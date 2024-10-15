@@ -66,6 +66,15 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
                 }
             }
+            group(Payment)
+            {
+                Caption = 'Payment';
+                field("Company Bank Account Code"; "Company Bank Account Code")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the bank account to use for bank information when the document is printed.';
+                }
+            }
         }
     }
 
@@ -94,16 +103,16 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
           ("Shipping Agent Code" <> xSalesCrMemoHeader."Shipping Agent Code") or
           ("Shipping Agent Service Code" <> xSalesCrMemoHeader."Shipping Agent Service Code") or
           ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.") or
-          ("Fattura Document Type" <> xSalesCrMemoHeader."Fattura Document Type");
+          ("Fattura Document Type" <> xSalesCrMemoHeader."Fattura Document Type") or
+          ("Company Bank Account Code" <> xSalesCrMemoHeader."Company Bank Account Code");
 
         OnAfterRecordChanged(Rec, xSalesCrMemoHeader, IsChanged);
     end;
 
-    [Scope('OnPrem')]
     procedure SetRec(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
         Rec := SalesCrMemoHeader;
-        Insert();
+        Rec.Insert();
     end;
 
     [IntegrationEvent(false, false)]

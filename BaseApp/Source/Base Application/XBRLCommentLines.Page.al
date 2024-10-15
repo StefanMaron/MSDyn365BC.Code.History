@@ -1,3 +1,4 @@
+#if not CLEAN20
 page 585 "XBRL Comment Lines"
 {
     AutoSplitKey = true;
@@ -5,7 +6,10 @@ page 585 "XBRL Comment Lines"
     DataCaptionExpression = GetCaption;
     LinksAllowed = false;
     PageType = List;
+    ObsoleteReason = 'XBRL feature will be discontinued';
     SourceTable = "XBRL Comment Line";
+    ObsoleteState = Pending;
+    ObsoleteTag = '20.0';
 
     layout
     {
@@ -38,6 +42,13 @@ page 585 "XBRL Comment Lines"
     {
     }
 
+    trigger OnOpenPage()
+    var
+        XBRLDeprecationNotification: Codeunit "XBRL Deprecation Notification";
+    begin
+        XBRLDeprecationNotification.Show();
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         if BelowxRec then
@@ -58,4 +69,4 @@ page 585 "XBRL Comment Lines"
         exit(XBRLLine.Label + '-' + Format("Comment Type"));
     end;
 }
-
+#endif

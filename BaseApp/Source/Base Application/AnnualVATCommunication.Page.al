@@ -146,7 +146,7 @@ page 12126 "Annual VAT Communication"
                         VATStatementName: Record "VAT Statement Name";
                     begin
                         VATStatementName.SetFilter("Statement Template Name", '%1', "Statement Template Name");
-                        if VATStatementName.FindLast then
+                        if VATStatementName.FindLast() then
                             ReportPrint.PrintVATStmtName(VATStatementName);
                     end;
                 }
@@ -167,7 +167,7 @@ page 12126 "Annual VAT Communication"
                     VATStatementName: Record "VAT Statement Name";
                 begin
                     VATStatementName.SetFilter("Statement Template Name", '%1', "Statement Template Name");
-                    if VATStatementName.FindLast then
+                    if VATStatementName.FindLast() then
                         ReportPrint.PrintVATStmtName(VATStatementName);
                 end;
             }

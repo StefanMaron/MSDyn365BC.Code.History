@@ -75,7 +75,7 @@ codeunit 144176 "ERM Reverse"
         // Check that the system allows to Unapply Vendor Entries with Unrealized VAT and check the entries are correct.
 
         // Setup: Create And Post Purchase Invoice,Payment Journal.
-        Initialize;
+        Initialize();
         UnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);  // TRUE as General Ledger Setup -  Unrealized VAT.
         StockoutWarning := UpdateStockoutWarningOnSalesAndReceivableSetup(false);  // False as Sales And Receivable Setup - StockoutWarning.
         CreatePurchaseDocument(PurchaseHeader);
@@ -117,7 +117,7 @@ codeunit 144176 "ERM Reverse"
         // Check that the system allows to Unapply Customer Entries with Unrealized VAT and check the entries are correct.
 
         // Setup: Create And Post Sales Invoice,Payment Journal.
-        Initialize;
+        Initialize();
         UnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);  // TRUE as General Ledger Setup -  Unrealized VAT.
         StockoutWarning := UpdateStockoutWarningOnSalesAndReceivableSetup(false);  // False as Sales And Receivable Setup - StockoutWarning.
         CreateSalesDocument(SalesHeader);
@@ -156,7 +156,7 @@ codeunit 144176 "ERM Reverse"
         // Check that program generates Correct values on  Report ID - 12121 G/L Book Print when Report Type=Reprint after doing application on previous months.
 
         // Setup.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         LastGenJnlNo := GeneralLedgerSetup."Last General Journal No.";
         LastPrintedPageNo := GeneralLedgerSetup."Last Printed G/L Book Page";
@@ -187,7 +187,7 @@ codeunit 144176 "ERM Reverse"
         // Check reversing transaction error after running Report ID - 12121 G/L Book Print as Final print.
 
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := GetStartDate;
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', StartDate));  // Random Date within period.
         RunGLBookReport(ReportType::Final, StartDate, CalcDate('<CM>', StartDate));  // Confirm final printing
@@ -213,7 +213,7 @@ codeunit 144176 "ERM Reverse"
         // Check reversing transaction error after running Report ID - 12121 G/L Book Print as Reprint print.
 
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := GetStartDate;
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', StartDate));  // Random Date within period.
         RunGLBookReport(ReportType::Final, StartDate, CalcDate('<CM>', StartDate));  // Confirm final printing
@@ -240,7 +240,7 @@ codeunit 144176 "ERM Reverse"
         // Check reversing transaction after running Report ID - 12121 G/L Book Print as Test print.
 
         // Setup.
-        Initialize;
+        Initialize();
         StartDate := GetStartDate;
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', StartDate));  // Random Date within period.
         RunGLBookReport(ReportType::Test, StartDate, CalcDate('<CM>', StartDate));  // Confirm final printing
@@ -264,7 +264,7 @@ codeunit 144176 "ERM Reverse"
         // Check reversing transaction before running Report ID - 12121 G/L Book Print.
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePostGLBookEntry(GenJournalLine, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', GetStartDate));  // Random Date within period.
         OpenGLRegistersPage(GLRegisters);
 
@@ -282,7 +282,7 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check no reversals for Invoice are done for Customer in Page ID - 20 General Ledger Entries.
-        Initialize;
+        Initialize();
         ReversGeneralLedgerEntries(GenJournalLine."Document Type"::Invoice, InvoiceErr, LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
@@ -293,7 +293,7 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check no reversals for Credit Memo are done for Customer in Page ID - 20 General Ledger Entries.
-        Initialize;
+        Initialize();
         ReversGeneralLedgerEntries(GenJournalLine."Document Type"::"Credit Memo", CreditMemoErr, -LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
@@ -320,7 +320,7 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check no reversals for Invoice are done for customer Page ID - 25 Customer Ledger Entries.
-        Initialize;
+        Initialize();
         ReverseCustomerLedgerEntries(GenJournalLine."Document Type"::Invoice, InvoiceErr, LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
@@ -331,7 +331,7 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check no reversals for Credit Memo are done for Customer Page ID - 25 Customer Ledger Entries.
-        Initialize;
+        Initialize();
         ReverseCustomerLedgerEntries(GenJournalLine."Document Type"::"Credit Memo", CreditMemoErr, -LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
@@ -359,7 +359,7 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check no reversals for Invoice are done for Vendor Page ID - 29 Vendor Ledger Entries.
-        Initialize;
+        Initialize();
         ReverseVendorLedgerEntries(GenJournalLine."Document Type"::Invoice, InvoiceErr, -LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
@@ -370,7 +370,7 @@ codeunit 144176 "ERM Reverse"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check no reversals for Credit Memo are done for Vendor Page ID - 29 Vendor Ledger Entries.
-        Initialize;
+        Initialize();
         ReverseVendorLedgerEntries(GenJournalLine."Document Type"::"Credit Memo", CreditMemoErr, LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
@@ -427,7 +427,7 @@ codeunit 144176 "ERM Reverse"
     var
         GLBookEntry: Record "GL Book Entry";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         GLBookEntry.DeleteAll(false); // Delete Demo Data.
     end;
 
@@ -594,7 +594,7 @@ codeunit 144176 "ERM Reverse"
         VATIdentifier: Record "VAT Identifier";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATIdentifier.FindFirst;
+        VATIdentifier.FindFirst();
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.FindVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
@@ -642,7 +642,7 @@ codeunit 144176 "ERM Reverse"
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange(Type, Type);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; DocumentNo: Code[20])
@@ -650,7 +650,7 @@ codeunit 144176 "ERM Reverse"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, Type);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure GetStartDate() StartDate: Date
@@ -659,7 +659,7 @@ codeunit 144176 "ERM Reverse"
     begin
         AccountingPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate);
         AccountingPeriod.SetRange("New Fiscal Year", false);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         StartDate := AccountingPeriod."Starting Date";
     end;
 
@@ -667,7 +667,7 @@ codeunit 144176 "ERM Reverse"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         LastPostingDate := GLEntry."Posting Date";
     end;
 
@@ -678,7 +678,7 @@ codeunit 144176 "ERM Reverse"
         GLBookEntry.SetCurrentKey("Official Date");
         GLBookEntry.SetFilter("Progressive No.", '<>%1', 0);
         GLBookEntry.SetFilter("Official Date", '..%1', ClosingDate(EndDate));
-        GLBookEntry.FindLast;
+        GLBookEntry.FindLast();
         exit(GLBookEntry."Progressive No.");
     end;
 
@@ -743,7 +743,7 @@ codeunit 144176 "ERM Reverse"
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
         DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Payment);
         DetailedCustLedgEntry.SetFilter(Amount, AmountFilter, 0);
-        DetailedCustLedgEntry.FindFirst;
+        DetailedCustLedgEntry.FindFirst();
         DetailedCustLedgEntry.TestField(Amount, Amount);
     end;
 
@@ -756,7 +756,7 @@ codeunit 144176 "ERM Reverse"
         DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DetailedVendorLedgEntry.SetRange("Initial Document Type", DetailedVendorLedgEntry."Initial Document Type"::Payment);
         DetailedVendorLedgEntry.SetFilter(Amount, AmountFilter, 0);
-        DetailedVendorLedgEntry.FindFirst;
+        DetailedVendorLedgEntry.FindFirst();
         DetailedVendorLedgEntry.TestField(Amount, Amount);
     end;
 
@@ -777,7 +777,7 @@ codeunit 144176 "ERM Reverse"
         // Verify Progressive No.
         GLBookEntry.SetCurrentKey("Official Date");
         GLBookEntry.SetRange("Official Date", StartDate, ClosingDate(EndDate));
-        GLBookEntry.FindFirst;
+        GLBookEntry.FindFirst();
         ProgressiveNo := 1;  // Taking Value 1 for Progressive No.
         GLBookEntry.TestField("Progressive No.", ProgressiveNo + LastGenJnlNo);
     end;
@@ -799,7 +799,7 @@ codeunit 144176 "ERM Reverse"
         GLEntry.SetRange("Document Type", GenJournalLine."Document Type"::Payment);
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("G/L Account No.", GenJournalLine."Account No.");
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Reversed, true);
     end;
 

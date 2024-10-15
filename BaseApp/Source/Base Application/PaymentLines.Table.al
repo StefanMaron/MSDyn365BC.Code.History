@@ -247,7 +247,7 @@ table 12170 "Payment Lines"
         PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
         PaymentLinesTerms.SetRange(Code, SalesHeader."Payment Terms Code");
 
-        if PaymentLinesTerms.FindSet then begin
+        if PaymentLinesTerms.FindSet() then begin
             PaymentCounter := 0;
             DeferringDueDates.SetCurrentKey("No.", "To-Date");
             DeferringDueDates.SetRange("No.", SalesHeader."Bill-to Customer No.");
@@ -292,7 +292,7 @@ table 12170 "Payment Lines"
                     OldDate := PaymentLines."Due Date";
                     FixedDueDates.SetRange("Payment Days", Date2DMY(PaymentLines."Due Date", 1), 99);
 
-                    if FixedDueDates.FindFirst then begin
+                    if FixedDueDates.FindFirst() then begin
                         Day := FixedDueDates."Payment Days";
                         MaximumDay := Date2DMY(CalcDate('<CM>', PaymentLines."Due Date"), 1);
                         if Day > MaximumDay then
@@ -302,7 +302,7 @@ table 12170 "Payment Lines"
                         PaymentLines."Due Date" := DMY2Date(Day, Month, Year);
                     end else begin
                         FixedDueDates.SetRange("Payment Days");
-                        if FixedDueDates.FindFirst then begin
+                        if FixedDueDates.FindFirst() then begin
                             Day := FixedDueDates."Payment Days";
                             MaximumDay := Date2DMY(CalcDate('<CM + 1M>', PaymentLines."Due Date"), 1);
                             if Day > MaximumDay then
@@ -355,7 +355,7 @@ table 12170 "Payment Lines"
         PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
         PaymentLinesTerms.SetRange(Code, PurchaseHeader."Payment Terms Code");
 
-        if PaymentLinesTerms.FindSet then begin
+        if PaymentLinesTerms.FindSet() then begin
             ;
             PaymentCounter := 0;
             FixedDueDates.Reset();
@@ -387,7 +387,7 @@ table 12170 "Payment Lines"
                     PaymentLines."Due Date" := PurchaseHeader."Document Date";
 
                 FixedDueDates.SetRange("Payment Days", Date2DMY(PaymentLines."Due Date", 1), 99);
-                if FixedDueDates.FindFirst then begin
+                if FixedDueDates.FindFirst() then begin
                     Day := FixedDueDates."Payment Days";
                     MaximumDay := Date2DMY(CalcDate('<CM>', PaymentLines."Due Date"), 1);
                     if Day > MaximumDay then
@@ -397,7 +397,7 @@ table 12170 "Payment Lines"
                     PaymentLines."Due Date" := DMY2Date(Day, Month, Year);
                 end else begin
                     FixedDueDates.SetRange("Payment Days");
-                    if FixedDueDates.FindFirst then begin
+                    if FixedDueDates.FindFirst() then begin
                         Day := FixedDueDates."Payment Days";
                         MaximumDay := Date2DMY(CalcDate('<CM+1M>', PaymentLines."Due Date"), 1);
                         if Day > MaximumDay then
@@ -451,7 +451,7 @@ table 12170 "Payment Lines"
         PaymentLinesTerms.SetRange(Type, PaymentLinesTerms.Type::"Payment Terms");
         PaymentLinesTerms.SetRange(Code, ServiceHeader."Payment Terms Code");
 
-        if PaymentLinesTerms.FindSet then begin
+        if PaymentLinesTerms.FindSet() then begin
             PaymentCounter := 0;
             DeferringDueDates.SetCurrentKey("No.", "To-Date");
             DeferringDueDates.SetRange("No.", ServiceHeader."Bill-to Customer No.");
@@ -493,7 +493,7 @@ table 12170 "Payment Lines"
                     OldDate := PaymentLines."Due Date";
                     FixedDueDates.SetRange("Payment Days", Date2DMY(PaymentLines."Due Date", 1), 99);
 
-                    if FixedDueDates.FindFirst then begin
+                    if FixedDueDates.FindFirst() then begin
                         Day := FixedDueDates."Payment Days";
                         MaximumDay := Date2DMY(CalcDate('<CM>', PaymentLines."Due Date"), 1);
                         if Day > MaximumDay then
@@ -503,7 +503,7 @@ table 12170 "Payment Lines"
                         PaymentLines."Due Date" := DMY2Date(Day, Month, Year);
                     end else begin
                         FixedDueDates.SetRange("Payment Days");
-                        if FixedDueDates.FindFirst then begin
+                        if FixedDueDates.FindFirst() then begin
                             Day := FixedDueDates."Payment Days";
                             MaximumDay := Date2DMY(CalcDate('<CM + 1M>', PaymentLines."Due Date"), 1);
                             if Day > MaximumDay then

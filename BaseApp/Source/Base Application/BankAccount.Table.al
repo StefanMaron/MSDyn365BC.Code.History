@@ -163,7 +163,7 @@
                     BankAccLedgEntry.SetCurrentKey("Bank Account No.");
                 BankAccLedgEntry.SetRange("Bank Account No.", "No.");
                 BankAccLedgEntry.SetRange(Open, true);
-                if BankAccLedgEntry.FindLast then
+                if BankAccLedgEntry.FindLast() then
                     Error(
                       Text000,
                       FieldCaption("Currency Code"));
@@ -251,6 +251,7 @@
         }
         field(58; Balance; Decimal)
         {
+            AccessByPermission = TableData "Bank Account Ledger Entry" = R;
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Bank Account Ledger Entry".Amount WHERE("Bank Account No." = FIELD("No."),
@@ -262,6 +263,7 @@
         }
         field(59; "Balance (LCY)"; Decimal)
         {
+            AccessByPermission = TableData "Bank Account Ledger Entry" = R;
             AutoFormatType = 1;
             CalcFormula = Sum("Bank Account Ledger Entry"."Amount (LCY)" WHERE("Bank Account No." = FIELD("No."),
                                                                                 "Global Dimension 1 Code" = FIELD("Global Dimension 1 Filter"),
@@ -303,6 +305,15 @@
             Caption = 'Total on Checks';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(70; "Use as Default for Currency"; Boolean)
+        {
+            Caption = 'Use as Default for Currency';
+            trigger OnValidate()
+            begin
+                if "Use as Default for Currency" = true then
+                    EnsureUniqueForCurrency();
+            end;
         }
         field(84; "Fax No."; Text[30])
         {
@@ -851,11 +862,11 @@
         ContBusRel.SetCurrentKey("Link to Table", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::"Bank Account");
         ContBusRel.SetRange("No.", "No.");
-        if not ContBusRel.FindFirst then begin
+        if not ContBusRel.FindFirst() then begin
             if not Confirm(Text003, false, TableCaption, "No.") then
                 exit;
             UpdateContFromBank.InsertNewContact(Rec, false);
-            ContBusRel.FindFirst;
+            ContBusRel.FindFirst();
         end;
         Commit();
 
@@ -869,6 +880,15 @@
     procedure SetInsertFromContact(FromContact: Boolean)
     begin
         InsertFromContact := FromContact;
+    end;
+
+    procedure CopyBankFieldsFromCompanyInfo(CompanyInformation: Record "Company Information")
+    begin
+        "Bank Account No." := CompanyInformation."Bank Account No.";
+        "Bank Branch No." := CompanyInformation."Bank Branch No.";
+        Name := CompanyInformation."Bank Name";
+        IBAN := CompanyInformation.IBAN;
+        "SWIFT Code" := CompanyInformation."SWIFT Code";
     end;
 
     procedure GetPaymentExportCodeunitID(): Integer
@@ -934,13 +954,22 @@
         exit(NoSeriesManagement.GetNextNo("Direct Debit Msg. Nos.", Today, true));
     end;
 
+    procedure GetDefaultBankAccountNoForCurrency(CurrencyCode: Code[20]) BankAccountNo: Code[20]
+    begin
+        SetLoadFields("Currency Code", "Use as Default for Currency");
+        SetRange("Currency Code", CurrencyCode);
+        SetRange("Use as Default for Currency", true);
+        if FindFirst() then;
+        exit("No.");
+    end;
+
     procedure DisplayMap()
     var
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapManagement: Codeunit "Online Map Management";
     begin
         OnlineMapSetup.SetRange(Enabled, true);
-        if OnlineMapSetup.FindFirst then
+        if OnlineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::"Bank Account", GetPosition)
         else
             Message(Text004);
@@ -1145,7 +1174,7 @@
     var
         BankAccount: Record "Bank Account";
     begin
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
@@ -1158,13 +1187,25 @@
     var
         BankAccount: Record "Bank Account";
     begin
-        if BankAccount.FindSet then
+        if BankAccount.FindSet() then
             repeat
                 if BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
                     TempUnlinkedBankAccount.Insert();
                 end;
             until BankAccount.Next() = 0;
+    end;
+
+    local procedure EnsureUniqueForCurrency()
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        BankAccount.SetLoadFields("Currency Code", "Use as Default for Currency");
+        BankAccount.SetRange("Currency Code", "Currency Code");
+        BankAccount.SetFilter("No.", '<>%1', "No.");
+        BankAccount.SetRange("Use as Default for Currency", true);
+        if BankAccount.FindFirst() then
+            BankAccount.TestField("Use as Default for Currency", false);
     end;
 
     local procedure SelectBankLinkingService(): Text
@@ -1192,7 +1233,7 @@
             exit;
 
         TempNameValueBuffer.SetRange(Value, SelectStr(OptionNo, OptionStr));
-        TempNameValueBuffer.FindFirst;
+        TempNameValueBuffer.FindFirst();
 
         exit(TempNameValueBuffer.Name);
     end;
@@ -1257,7 +1298,7 @@
         JobQueueEntry: Record "Job Queue Entry";
     begin
         SetAutomaticImportJobQueueEntryFilters(JobQueueEntry);
-        if JobQueueEntry.FindFirst then
+        if JobQueueEntry.FindFirst() then
             PAGE.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
 
@@ -1309,7 +1350,7 @@
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
     begin
         OnGetStatementProvidersEvent(TempNameValueBuffer);
-        if TempNameValueBuffer.FindSet then
+        if TempNameValueBuffer.FindSet() then
             repeat
                 OnDisableStatementProviderEvent(TempNameValueBuffer.Name);
             until TempNameValueBuffer.Next() = 0;

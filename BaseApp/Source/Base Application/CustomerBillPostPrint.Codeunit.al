@@ -77,7 +77,7 @@ codeunit 12172 "Customer Bill - Post + Print"
 
             CustomerBillLine.SetRange("Customer Bill No.", "No.");
             CustomerBillLine.SetCurrentKey("Customer No.", "Due Date", "Customer Bank Acc. No.", "Cumulative Bank Receipts");
-            if CustomerBillLine.FindSet then begin
+            if CustomerBillLine.FindSet() then begin
                 InsertIssuedBillHeader(IssuedCustBillHeader, CustomerBillHeader, BillCode, ListNumber);
 
                 OldCustBillLine := CustomerBillLine;
@@ -286,7 +286,7 @@ codeunit 12172 "Customer Bill - Post + Print"
             RbCustLedgEntry.SetRange("Document Type to Close", CustLedgEntry."Document Type");
             RbCustLedgEntry.SetRange("Document No. to Close", CustLedgEntry."Document No.");
             RbCustLedgEntry.SetRange("Document Occurrence to Close", CustLedgEntry."Document Occurrence");
-            if RbCustLedgEntry.FindFirst then begin
+            if RbCustLedgEntry.FindFirst() then begin
                 RbCustLedgEntry."Due Date" := CustomerBillLine."Due Date";
                 RbCustLedgEntry.Modify();
                 DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", RbCustLedgEntry."Entry No.");

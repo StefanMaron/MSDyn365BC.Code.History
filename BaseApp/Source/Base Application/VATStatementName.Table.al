@@ -68,7 +68,7 @@ table 257 "VAT Statement Name"
         VATStatementTemplate: Record "VAT Statement Template";
     begin
         VATStatementTemplate.SetRange(Name, "Statement Template Name");
-        if VATStatementTemplate.FindFirst then begin
+        if VATStatementTemplate.FindFirst() then begin
             VATStatementTemplate.TestField("VAT Stat. Export Report ID");
             if VATStatementTemplate."VAT Stat. Export Report ID" = REPORT::"Exp. Annual VAT Communication" then
                 REPORT.RunModal(VATStatementTemplate."VAT Stat. Export Report ID", true, false)

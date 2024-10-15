@@ -136,7 +136,7 @@ page 12172 "Posted Payments"
                             CurrencyCode := ServiceInvoiceHeader."Currency Code";
                             ServiceInvoiceLine.Reset();
                             ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
-                            if ServiceInvoiceLine.FindSet then
+                            if ServiceInvoiceLine.FindSet() then
                                 repeat
                                     DocumentAmount := DocumentAmount + ServiceInvoiceLine."Amount Including VAT";
                                 until ServiceInvoiceLine.Next() = 0;
@@ -145,7 +145,7 @@ page 12172 "Posted Payments"
                                 CurrencyCode := ServiceCrMemoHeader."Currency Code";
                                 ServiceCrMemoLine.Reset();
                                 ServiceCrMemoLine.SetRange("Document No.", ServiceCrMemoHeader."No.");
-                                if ServiceCrMemoLine.FindSet then
+                                if ServiceCrMemoLine.FindSet() then
                                     repeat
                                         DocumentAmount := DocumentAmount + ServiceCrMemoLine."Amount Including VAT";
                                     until ServiceCrMemoLine.Next() = 0;

@@ -35,7 +35,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         InitialSalesOrderNo: Code[20];
     begin
         // [SCENARIO] Create a purchase return order as Business Manager
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted purchase invoice
         VendorNo := CreateVendor;
@@ -87,7 +87,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         InitialSalesOrderNo: Code[20];
     begin
         // [SCENARIO] Create a purchase return order as Accountant
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted purchase invoice
         VendorNo := CreateVendor;
@@ -140,7 +140,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         InitialSalesOrderNo: Code[20];
     begin
         // [SCENARIO] Create a purchase return order as Team Member
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted purchase invoice
         VendorNo := CreateVendor;
@@ -228,7 +228,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Reserv. & Order Promising E2E");
 
         LibraryNotificationMgt.ClearTemporaryNotificationContext;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -241,12 +241,12 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.RemoveBlankGenJournalTemplate;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.RemoveBlankGenJournalTemplate();
         LibraryTemplates.UpdateTemplatesVATGroups();
 
         InitializeAvailabilityCheckSettingsOnCompanyInformation;
@@ -271,9 +271,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseInvoice: TestPage "Purchase Invoice";
     begin
-        PurchaseInvoice.OpenNew;
+        PurchaseInvoice.OpenNew();
         PurchaseInvoice."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseInvoice."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
         PurchaseInvoice.PurchLines."No.".SetValue(ItemNo);
         PurchaseInvoice.PurchLines.Quantity.SetValue(Quantity);
@@ -302,9 +302,9 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         PurchaseLine: Record "Purchase Line";
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenNew;
+        PurchaseOrder.OpenNew();
         PurchaseOrder."Buy-from Vendor Name".SetValue(VendorNo);
-        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID);
+        PurchaseOrder."Vendor Invoice No.".SetValue(LibraryUtility.GenerateGUID());
         PurchaseOrder."Order Date".SetValue(OrderDate);
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(Format(PurchaseLine.Type::Item));
         PurchaseOrder.PurchLines."No.".SetValue(ItemNo);
@@ -332,7 +332,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         Item: Record Item;
         ItemCard: TestPage "Item Card";
     begin
-        ItemCard.OpenNew;
+        ItemCard.OpenNew();
         ItemCard.Description.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)));
         ItemNo := ItemCard."No.".Value;
         ItemCard.OK.Invoke;
@@ -346,7 +346,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         VendorCard: TestPage "Vendor Card";
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
-        VendorCard.OpenNew;
+        VendorCard.OpenNew();
         VendorCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)));
         VendorCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
         VendorCard."Vendor Posting Group".SetValue(LibraryPurchase.FindVendorPostingGroup);
@@ -362,7 +362,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
         CustomerCard: TestPage "Customer Card";
     begin
         LibraryERM.FindGenBusinessPostingGroup(GenBusinessPostingGroup);
-        CustomerCard.OpenNew;
+        CustomerCard.OpenNew();
         CustomerCard.Name.SetValue(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)));
         CustomerCard."Gen. Bus. Posting Group".SetValue(GenBusinessPostingGroup.Code);
         CustomerCard."Customer Posting Group".SetValue(LibrarySales.FindCustomerPostingGroup);
@@ -376,7 +376,7 @@ codeunit 135415 "Reserv. & Order Promising E2E"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesOrder.OpenNew;
+        SalesOrder.OpenNew();
         SalesOrder."Sell-to Customer No.".SetValue(CustomerNo);
         SalesOrder."Order Date".SetValue(OrderDate);
         SalesOrder.SalesLines.FilteredTypeField.SetValue(Format(SalesLine.Type::Item));

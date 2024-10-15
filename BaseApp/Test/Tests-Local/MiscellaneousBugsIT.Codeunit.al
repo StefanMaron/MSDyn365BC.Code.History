@@ -68,7 +68,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Test to verify Vendor Bank Account No. on Vendor Bill Card after Insert Line on Manual Vendor Payment Line.
 
         // Setup: Create Vendor, Vendor Bank Account and Vendor Bill Header.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
         CreateVendorBillHeader(VendorBillHeader);
@@ -101,7 +101,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Test to verify VAT entry after posting Payment Journal applied to Purchase Prepayment Invoice and Purchase Invoice with Unrealized VAT.
 
         // Setup: Create and Post Purchase Prepayment Invoice. Post Purchase Invoice. Post Payment Journal applied to Prepayment Invoice.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);  // True for Unrealized VAT.
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", false);  // FALSE for EU Service.
         CreatePurchaseDocument(
@@ -110,7 +110,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
           CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group"), '', LibraryRandom.RandDec(20, 2));  // Blank value used for Location Code and Random value used for Prepayment Percent.
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPrepaymentInvoice(PurchaseHeader);
-        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID);
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
 
         // Exercise.
@@ -140,7 +140,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Test to verify VAT entry after posting Cash Receipt Journal applied to Sales Prepayment Invoice and Sales Invoice with Unrealized VAT.
 
         // Setup: Create and Post Sales Prepayment Invoice. Post Sales Invoice. Post Cash Receipt Journal applied to Prepayment Invoice.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateUnrealizedVATOnGeneralLedgerSetup(true);  // True for Unrealized VAT.
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", false);  // FALSE for EU Service.
         CreateSalesDocument(
@@ -175,7 +175,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Test to verify G/L entry after posting Sales Order with Payment Method Code that uses a Balance Account.
 
         // Setup: Create Sales Order with Payment Method Code.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", false);  // FALSE for EU Service.
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Order, SalesLine.Type::Item, VATPostingSetup."VAT Bus. Posting Group",
@@ -205,7 +205,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         // Test to verify Reporting Tab values on Posted Transfer Shipment page after posting Transfer Order as Ship.
 
         // Setup: Create Transfer Route. Create and post Purchase Order to update Inventory. Create Transfer Order.
-        Initialize;
+        Initialize();
         CreateTransferRoute(TransferRoute);
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", false);  // FALSE for EU Service.
         CreatePurchaseDocument(
@@ -254,7 +254,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         Name: Text[100];
     begin
         // Setup: Post Sales Invoice, update Name on Customer.
-        Initialize;
+        Initialize();
         CreateVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", false);  // FALSE for EU Service.
         CreateSalesDocument(
           SalesLine, SalesLine."Document Type"::Invoice, SalesLine.Type::Item, VATPostingSetup."VAT Bus. Posting Group",
@@ -285,7 +285,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     procedure AmountOnIntrastatJnlLineWithSamePostingDate()
     begin
         // Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on same Posting Date.
-        Initialize;
+        Initialize();
         AmountOnIntrastatJnlLineAfterPostPayment;
     end;
 
@@ -295,7 +295,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     procedure AmountOnIntrastatJnlLineWithDiffPostingDate()
     begin
         // Test to verify Amount on Intrastat Journal Line after posting the Purchase Invoice and Payment on different Posting Date.
-        Initialize;
+        Initialize();
         AmountOnIntrastatJnlLineAfterPostPayment;  // Added random days to WORKDATE for taking different Posting Date..
     end;
 
@@ -337,7 +337,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     begin
         // [FEATURE] [UT] [VAT Registration No.]
         // [SCENARIO 230046] No error for VAT Registration No which has [8][9][10] numbers forming a value > 150 when Run COD12104 "LocalApplicationManagement".CheckDigitVAT()
-        Initialize;
+        Initialize();
 
         // [GIVEN] Semi-valid Italian VAT Registration No = '00000001511'
         // [GIVEN] length = 11, [8][9][10] numbers form a value 151, [11] number is calculated to pass CheckDigitVAT checks without errors
@@ -365,7 +365,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
         IntrastatJnlTemplate.DeleteAll();
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCountryRegion(): Code[10]
@@ -385,7 +385,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         Vendor.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
-        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -452,7 +452,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         TransportMethod: Record "Transport Method";
     begin
         LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
-        TransportMethod.FindFirst;
+        TransportMethod.FindFirst();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Location Code", LocationCode);
         PurchaseHeader.Validate("Prepayment Due Date", WorkDate);
@@ -549,7 +549,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         VATIdentifier: Record "VAT Identifier";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATIdentifier.FindFirst;
+        VATIdentifier.FindFirst();
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
@@ -571,7 +571,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     begin
         NoSeries.SetRange("No. Series Type", NoSeriesType);
         NoSeries.SetRange("Date Order", true);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         exit(NoSeries.Code);
     end;
 
@@ -580,7 +580,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
         exit(PurchInvLine.Amount);
     end;
 
@@ -589,7 +589,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchInvHeader.FindFirst;
+        PurchInvHeader.FindFirst();
         exit(PurchInvHeader."No.");
     end;
 
@@ -598,7 +598,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesInvoiceHeader.FindFirst;
+        SalesInvoiceHeader.FindFirst();
         exit(SalesInvoiceHeader."No.");
     end;
 
@@ -628,7 +628,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     begin
         IntrastatJnlLine.SetRange("Journal Batch Name", JournalBatchName);
         IntrastatJnlLine.SetRange("Service Tariff No.", ServiceTariffNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField(Amount, Amount);
     end;
 
@@ -638,7 +638,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountErr);
     end;
 
@@ -647,7 +647,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountErr);
         Assert.AreNearlyEqual(Base, VATEntry.Base, LibraryERM.GetAmountRoundingPrecision, AmountErr);
     end;
@@ -687,7 +687,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryVariableStorage.Dequeue(VendorNo);
         LibraryVariableStorage.Dequeue(VendorBankAccount);
         ManualVendorPaymentLine.VendorNo.SetValue(VendorNo);
-        ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID);
+        ManualVendorPaymentLine.DocumentNo.SetValue(LibraryUtility.GenerateGUID());
         ManualVendorPaymentLine.DocumentDate.SetValue(WorkDate);
         ManualVendorPaymentLine.TotalAmount.SetValue(LibraryRandom.RandDec(100, 2));
         ManualVendorPaymentLine.VendorBankAccount.SetValue(VendorBankAccount);
@@ -707,7 +707,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         LibraryVariableStorage.Dequeue(FiscalCode);
         LibraryVariableStorage.Dequeue(OperationType);
         NoSeries.SetRange(Code, OperationType);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         VATRegisterPrint.VATRegister.SetValue(NoSeries."VAT Register");
         VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate);
         VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate);

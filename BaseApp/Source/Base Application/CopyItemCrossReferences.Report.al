@@ -1,4 +1,4 @@
-
+﻿
 #if not CLEAN19
 report 5717 "Copy Item Cross References"
 {

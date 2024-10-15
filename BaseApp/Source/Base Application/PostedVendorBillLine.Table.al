@@ -186,7 +186,7 @@ table 12184 "Posted Vendor Bill Line"
         if not "Manual Line" then begin
             PurchInvHeader.Get("Document No.");
             PostedPurchInv.SetRecord(PurchInvHeader);
-            PostedPurchInv.RunModal;
+            PostedPurchInv.RunModal();
         end else
             Error(Text12100, "Document No.");
     end;

@@ -717,7 +717,7 @@ report 12193 "Export VAT Transactions"
         FAInvoices.SetRange("Incl. in Report", true);
         FAInvoices.SetFilter("Record Identifier", 'FE|FR|NE|NR');
         VATReportLinePrev.Init();
-        if FAInvoices.FindSet then begin
+        if FAInvoices.FindSet() then begin
             repeat
                 if (VATReportLinePrev."VAT Group Identifier" <> FAInvoices."VAT Group Identifier") or
                    (VATReportLinePrev."VAT Report No." <> FAInvoices."VAT Report No.")
@@ -743,7 +743,7 @@ report 12193 "Export VAT Transactions"
         BLTransactions.SetRange("Incl. in Report", true);
         BLTransactions.SetFilter("Record Identifier", 'FN|SE|BL');
         VATReportLinePrev.Init();
-        if BLTransactions.FindSet then
+        if BLTransactions.FindSet() then
             repeat
                 if ((VATReportLinePrev."Record Identifier" <> BLTransactions."Record Identifier") or
                     (VATReportLinePrev."VAT Group Identifier" <> BLTransactions."VAT Group Identifier")) or

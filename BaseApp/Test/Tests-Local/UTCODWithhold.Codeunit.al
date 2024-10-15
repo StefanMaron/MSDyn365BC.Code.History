@@ -66,7 +66,7 @@ codeunit 144091 "UT COD Withhold"
 
         // Verify: Verify Vendor Bill Number with blank, Vendor Bill List Number with blank and List Status as Open.
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillHeader."No.");
-        VendorBillLine.FindFirst;
+        VendorBillLine.FindFirst();
         VendorBillLine.TestField("Vendor Bill No.", '');
         VendorBillHeader.TestField("Vendor Bill List No.", '');
         VendorBillHeader.TestField("List Status", VendorBillHeader."List Status"::Open);
@@ -95,7 +95,7 @@ codeunit 144091 "UT COD Withhold"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry.Insert();
         exit(VendorLedgerEntry."Entry No.");

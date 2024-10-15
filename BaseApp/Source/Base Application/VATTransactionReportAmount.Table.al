@@ -51,7 +51,7 @@ table 12195 "VAT Transaction Report Amount"
         DataTransThreshold: Record "VAT Transaction Report Amount";
     begin
         VATPostingSetup.SetRange("Include in VAT Transac. Rep.", true);
-        if VATPostingSetup.FindFirst then
+        if VATPostingSetup.FindFirst() then
             if (DataTransThreshold.Count - 1) = 0 then
                 Error(NotAllowedToDeleteErr);
     end;
@@ -74,7 +74,7 @@ table 12195 "VAT Transaction Report Amount"
         VatTransRepAmountPage: Page "VAT Transaction Report Amounts";
     begin
         SetFilter("Starting Date", '<=%1', OperationOccurredDate);
-        if FindLast then begin
+        if FindLast() then begin
             if PricesIncludingVAT then
                 exit(Amount >= "Threshold Amount Incl. VAT");
             exit(Amount >= "Threshold Amount Excl. VAT");

@@ -87,9 +87,7 @@ codeunit 228 "Test Report-Print"
         FileManagement: Codeunit "File Management";
     begin
         IntrastatJnlLine.Copy(NewIntrastatJnlLine);
-        IntrastatJnlLine.SetCurrentKey(
-          Type, "Country/Region Code", "VAT Registration No.", "Transaction Type", "Tariff No.", "Group Code",
-          "Transport Method", "Transaction Specification", "Country/Region of Origin Code", Area, "Corrective entry");
+        IntrastatJnlLine.SetCurrentKey(Type, "Country/Region Code", "Tariff No.", "Transaction Type", "Transport Method");
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
         IntraJnlTemplate.Get(IntrastatJnlLine."Journal Template Name");
@@ -271,7 +269,7 @@ codeunit 228 "Test Report-Print"
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             OnCalcSalesDiscOnAfterSetFilters(SalesLine, SalesHeader);
-            SalesLine.FindFirst;
+            SalesLine.FindFirst();
             OnCalcSalesDiscOnBeforeRun(SalesHeader, SalesLine);
             CODEUNIT.Run(CODEUNIT::"Sales-Calc. Discount", SalesLine);
             SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -292,7 +290,7 @@ codeunit 228 "Test Report-Print"
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             OnCalcPurchDiscOnAfterSetFilters(PurchLine, PurchHeader);
-            PurchLine.FindFirst;
+            PurchLine.FindFirst();
             OnCalcPurchDiscOnBeforeRun(PurchHeader, PurchLine);
             CODEUNIT.Run(CODEUNIT::"Purch.-Calc.Discount", PurchLine);
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
@@ -312,7 +310,7 @@ codeunit 228 "Test Report-Print"
             ServLine.Reset();
             ServLine.SetRange("Document Type", ServHeader."Document Type");
             ServLine.SetRange("Document No.", ServHeader."No.");
-            ServLine.FindFirst;
+            ServLine.FindFirst();
             OnCalcServDiscOnBeforeRun(ServHeader, ServLine);
             CODEUNIT.Run(CODEUNIT::"Service-Calc. Discount", ServLine);
             ServHeader.Get(ServHeader."Document Type", ServHeader."No.");

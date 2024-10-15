@@ -135,7 +135,7 @@ codeunit 144099 "UT Fiscal LIFO"
     local procedure CostTypeFiscalInventoryValuation(var ItemCostHistory: Record "Item Cost History"; ItemCostType: Option)
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateItemCostHistory(ItemCostHistory);
         // Enqueue for FiscalInventoryValuationRequestPageHandler.
         LibraryVariableStorage.Enqueue(ItemCostHistory."Item No.");
@@ -147,7 +147,7 @@ codeunit 144099 "UT Fiscal LIFO"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateItem(): Code[20]

@@ -1101,7 +1101,7 @@ table 5108 "Sales Line Archive"
         SalesCommentLineArch.SetRange("Version No.", "Version No.");
         Clear(SalesArchCommentSheet);
         SalesArchCommentSheet.SetTableView(SalesCommentLineArch);
-        SalesArchCommentSheet.RunModal;
+        SalesArchCommentSheet.RunModal();
     end;
 
     procedure ShowDeferrals()
@@ -1121,7 +1121,7 @@ table 5108 "Sales Line Archive"
         SalesLineArchive.SetRange("Document No.", SalesHeaderArchive."No.");
         SalesLineArchive.SetRange("Version No.", SalesHeaderArchive."Version No.");
         OnCopyTempLinesOnAfterSalesLineArchiveSetFilters(SalesLineArchive, SalesHeaderArchive);
-        if SalesLineArchive.FindSet then
+        if SalesLineArchive.FindSet() then
             repeat
                 Init;
                 Rec := SalesLineArchive;

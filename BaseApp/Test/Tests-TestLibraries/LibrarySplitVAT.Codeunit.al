@@ -100,7 +100,7 @@ codeunit 143003 "Library - Split VAT"
         end;
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroupCode, VATProductPostingGroup.Code);
-        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo;
+        VATPostingSetup."Sales VAT Account" := LibraryERM.CreateGLAccountNo();
         VATPostingSetup."VAT Transaction Nature" := CreateVATTransactionNatureCode;
         VATPostingSetup.Modify(true);
     end;
@@ -126,7 +126,7 @@ codeunit 143003 "Library - Split VAT"
         with VATTransactionNature do begin
             Init;
             Code := CopyStr(LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"VAT Transaction Nature"), 1, MaxStrLen(Code));
-            Description := LibraryUtility.GenerateGUID;
+            Description := LibraryUtility.GenerateGUID();
             Insert(true);
 
             exit(Code);
@@ -147,7 +147,7 @@ codeunit 143003 "Library - Split VAT"
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
             SetRange("Automatically Generated", AutomaticallyGenerated);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -158,7 +158,7 @@ codeunit 143003 "Library - Split VAT"
             SetRange("Document Type", ServiceHeader."Document Type");
             SetRange("Document No.", ServiceHeader."No.");
             SetRange("Automatically Generated", AutomaticallyGenerated);
-            FindFirst;
+            FindFirst();
         end;
     end;
 }

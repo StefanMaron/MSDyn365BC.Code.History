@@ -45,7 +45,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustomerWithBankAccount(Customer);
@@ -60,7 +60,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
 
         // Exercise
         CODEUNIT.Run(CODEUNIT::"Pmt. Export Cust. Ledger Check", CustLedgEntry);
@@ -81,7 +81,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine1: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustomerWithBankAccount(Customer);
@@ -99,13 +99,13 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine2.Modify(true);
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Cust. Ledger Check", CustLedgEntry);
@@ -125,7 +125,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustomerWithBankAccount(Customer);
@@ -140,7 +140,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Cust. Ledger Check", CustLedgEntry);
@@ -160,7 +160,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustomerWithBankAccount(Customer);
@@ -177,7 +177,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Cust. Ledger Check", CustLedgEntry);
@@ -197,7 +197,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateCustomerWithBankAccount(Customer);
@@ -215,7 +215,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
-        CustLedgEntry.FindFirst;
+        CustLedgEntry.FindFirst();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Cust. Ledger Check", CustLedgEntry);
@@ -234,7 +234,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         ErrorText: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -270,7 +270,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         ErrorText: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -308,7 +308,7 @@ codeunit 132574 "Payment Export Validation UT"
         CreditTransferRegister: Record "Credit Transfer Register";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -341,7 +341,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         ErrorText: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -381,7 +381,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         ErrorText: Text[250];
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -421,7 +421,7 @@ codeunit 132574 "Payment Export Validation UT"
         BankAccount: Record "Bank Account";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -455,7 +455,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine2: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -499,7 +499,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         NoSeries: Record "No. Series";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -541,7 +541,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -570,7 +570,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -598,7 +598,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -641,7 +641,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -682,7 +682,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -722,7 +722,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -760,7 +760,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -803,7 +803,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -845,7 +845,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -879,7 +879,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -916,7 +916,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithBankAccount(Vendor);
@@ -933,7 +933,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         VendLedgEntry.TestField("Exported to Payment File", true);
     end;
 
@@ -946,7 +946,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateVendorWithBankAccount(Vendor);
@@ -961,7 +961,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
         VendLedgEntry.TestField("Exported to Payment File", false);
     end;
 
@@ -974,7 +974,7 @@ codeunit 132574 "Payment Export Validation UT"
         CustLedgEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomerWithBankAccount(Customer);
@@ -991,7 +991,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.TestField("Exported to Payment File", true);
     end;
 
@@ -1004,7 +1004,7 @@ codeunit 132574 "Payment Export Validation UT"
         CustLedgEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateCustomerWithBankAccount(Customer);
@@ -1019,7 +1019,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Verify
         CustLedgEntry.SetRange("Customer No.", Customer."No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Refund);
-        CustLedgEntry.FindLast;
+        CustLedgEntry.FindLast();
         CustLedgEntry.TestField("Exported to Payment File", false);
     end;
 
@@ -1030,7 +1030,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -1053,7 +1053,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -1076,7 +1076,7 @@ codeunit 132574 "Payment Export Validation UT"
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -1177,7 +1177,7 @@ codeunit 132574 "Payment Export Validation UT"
         Vendor: Record Vendor;
         VendorBankAcc: Record "Vendor Bank Account";
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -1199,7 +1199,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1220,7 +1220,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -1240,7 +1240,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1261,7 +1261,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -1282,7 +1282,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1305,7 +1305,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -1328,13 +1328,13 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlLine2.Modify(true);
         GenJnlLine.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", GenJnlBatch.Name);
-        GenJnlLine.FindFirst;
+        GenJnlLine.FindFirst();
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
 
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1355,7 +1355,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -1374,7 +1374,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1394,7 +1394,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithBankAccount(Vendor);
@@ -1409,7 +1409,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Invoice);
-        VendLedgEntry.FindLast;
+        VendLedgEntry.FindLast();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1431,7 +1431,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         CreateVendorWithCreditorInfo(Vendor);
@@ -1452,7 +1452,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1471,7 +1471,7 @@ codeunit 132574 "Payment Export Validation UT"
         VendLedgEntry: Record "Vendor Ledger Entry";
         Vendor: Record Vendor;
     begin
-        Initialize;
+        Initialize();
 
         // Pre-Setup
         LibraryPurchase.CreateVendor(Vendor);
@@ -1488,7 +1488,7 @@ codeunit 132574 "Payment Export Validation UT"
         // Pre-Exercise
         VendLedgEntry.SetRange("Vendor No.", Vendor."No.");
         VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
-        VendLedgEntry.FindFirst;
+        VendLedgEntry.FindFirst();
 
         // Exercise
         asserterror CODEUNIT.Run(CODEUNIT::"Pmt. Export Vend. Ledger Check", VendLedgEntry);
@@ -1507,7 +1507,7 @@ codeunit 132574 "Payment Export Validation UT"
         // [FEATURE] [Payment][Export to Payment File]
 
         // [SCENARIO 375650] Action "Export to Payment File" for a Gen. Journal Line, where "Check Printed" is Yes, should throw an error
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Gen. Journal Line" with "Check Printed" = TRUE;
         GenJournalLine.Init();
@@ -1527,8 +1527,8 @@ codeunit 132574 "Payment Export Validation UT"
             exit;
 
         LibraryRandom.SetSeed(1);
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalPostingSetup();
         IsInitialized := true;
     end;
 

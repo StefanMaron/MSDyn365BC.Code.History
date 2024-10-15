@@ -13600,6 +13600,9 @@ End Function
         <Field Name="ReclassAmount_4_Format">
           <DataField>ReclassAmount_4_Format</DataField>
         </Field>
+        <Field Name="CompanyDisplayName">
+          <DataField>CompanyDisplayName</DataField>
+        </Field>
       </Fields>
       <Query>
         <DataSourceName>DataSource</DataSourceName>

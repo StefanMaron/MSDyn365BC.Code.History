@@ -36,7 +36,7 @@ codeunit 144166 "UT VAT Statement"
     begin
         // Purpose of the test is to verify Total Amount on VAT Statement Line - OnCalcLineTotal Trigger of Report 12 (VAT Statement Report) without Add. Currency Nondeductable Amount and Base.
         // Setup.
-        Initialize;
+        Initialize();
         CalculateLineTotalOnVATStatement(0, 0);  // Passing 0 values for Add. Currency Nondeductable Amount and Add. Currency Nondeductable Base.
     end;
 
@@ -49,7 +49,7 @@ codeunit 144166 "UT VAT Statement"
         // Purpose of the test is to verify Total Amount on VAT Statement Line - OnCalcLineTotal Trigger of Report 12 (VAT Statement Report) with Add. Currency Nondeductable Amount and Base.
 
         // Setup: Update Additional Reprting Currency on GL Setup.
-        Initialize;
+        Initialize();
         UpdateAdditionalReportingCurrencyOnGLSetup;
         CalculateLineTotalOnVATStatement(LibraryRandom.RandDec(10, 2), LibraryRandom.RandDecInRange(11, 100, 2));  // Passing Random values for Add. Currency Nondeductable Amount and Add. Currency Nondeductable Base.
     end;
@@ -85,7 +85,7 @@ codeunit 144166 "UT VAT Statement"
         // Purpose of the test is to verify new options Non-Deductible Amount and Non- Deductible Base - OnValidate Amount Type of Annual VAT Communication Page (12126).
         // Transaction Model property is set to Auto Commit because Commit is explicitly called in Function Template Selection of VATStmtManagement Codeunit.
         // Setup.
-        Initialize;
+        Initialize();
         RowNo := LibraryUTUtility.GetNewCode10;
         RowNo2 := LibraryUTUtility.GetNewCode10;
 
@@ -108,7 +108,7 @@ codeunit 144166 "UT VAT Statement"
         // Purpose of the test is to verify new options Non-Deductible Amount and Non- Deductible Base - OnValidate Amount Type of VAT Statement Page (317).
         // Transaction Model property is set to Auto Commit because Commit is explicitly called in Function Template Selection of VATStmtManagement Codeunit.
         // Setup.
-        Initialize;
+        Initialize();
         RowNo := LibraryUTUtility.GetNewCode10;
         RowNo2 := LibraryUTUtility.GetNewCode10;
 
@@ -122,7 +122,7 @@ codeunit 144166 "UT VAT Statement"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -179,7 +179,7 @@ codeunit 144166 "UT VAT Statement"
     var
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATEntry.Type::Purchase;
         VATEntry."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
@@ -261,7 +261,7 @@ codeunit 144166 "UT VAT Statement"
         VATStatementLine: Record "VAT Statement Line";
     begin
         VATStatementLine.SetRange("Row No.", RowNo);
-        VATStatementLine.FindFirst;
+        VATStatementLine.FindFirst();
         VATStatementLine.TestField("Amount Type", AmountType);
     end;
 

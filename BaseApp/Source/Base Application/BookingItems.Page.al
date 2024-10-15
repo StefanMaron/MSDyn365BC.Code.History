@@ -83,7 +83,7 @@ page 1638 "Booking Items"
 
                     GetSelectedRecords(TempBookingItem);
 
-                    if TempBookingItem.FindSet then
+                    if TempBookingItem.FindSet() then
                         repeat
                             if InvoiceItemsForCustomer(TempBookingItem, SalesHeader) then
                                 CountCust += 1;
@@ -134,7 +134,7 @@ page 1638 "Booking Items"
 
                     if InstructionMgt.ShowConfirm(ConfirmMarkQst, InstructionMgt.MarkBookingAsInvoicedWarningCode) then begin
                         GetSelectedRecords(TempBookingItem);
-                        if TempBookingItem.FindSet then
+                        if TempBookingItem.FindSet() then
                             repeat
                                 BookingItem.Get(TempBookingItem.SystemId);
                                 BookingItem."Invoice Status" := BookingItem."Invoice Status"::open;
@@ -167,7 +167,7 @@ page 1638 "Booking Items"
                     TempBookingItem.Copy(Rec, true);
 
                     TempBookingItem.SetFilter("Customer Name", '<>''''');
-                    if TempBookingItem.FindSet then
+                    if TempBookingItem.FindSet() then
                         repeat
                             if InvoiceItemsForCustomer(TempBookingItem, SalesHeader) then
                                 CountCust += 1;

@@ -1,4 +1,4 @@
-report 6665 "Batch Post Purch. Ret. Orders"
+﻿report 6665 "Batch Post Purch. Ret. Orders"
 {
     Caption = 'Batch Post Purch. Ret. Orders';
     ProcessingOnly = true;
@@ -133,16 +133,18 @@ report 6665 "Batch Post Purch. Ret. Orders"
     }
 
     var
+        Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
+        PrintDoc: Boolean;
+        [InDataSet]
+        PrintDocVisible: Boolean;
+        Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
+
+    protected var
         PostingDateReq: Date;
         ShipReq: Boolean;
         InvReq: Boolean;
         ReplacePostingDate: Boolean;
         ReplaceDocumentDate: Boolean;
         CalcInvDisc: Boolean;
-        Text003: Label 'The exchange rate associated with the new posting date on the purchase header will not apply to the purchase lines.';
-        PrintDoc: Boolean;
-        [InDataSet]
-        PrintDocVisible: Boolean;
-        Text1130000: Label 'The %1 and %2 may be modified automatically if they are greater than the %3.';
 }
 

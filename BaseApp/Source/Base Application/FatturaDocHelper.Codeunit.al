@@ -104,7 +104,7 @@ codeunit 12184 "Fattura Doc. Helper"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         Customer.Get(HeaderRecRef.Field(CustomerNoFieldNo).Value);
 
         TempFatturaHeader.Init();
@@ -163,7 +163,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         CollectVATOnLines(TempVATEntry, TempVATPostingSetup, TempFatturaHeader);
         TempVATEntry.Reset();
-        if TempVATEntry.FindSet then begin
+        if TempVATEntry.FindSet() then begin
             IsSplitPayment := HasSplitPayment(LineRecRef);
             Clear(TempFatturaLine);
             TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::VAT;
@@ -208,7 +208,7 @@ codeunit 12184 "Fattura Doc. Helper"
         if HasErrors then
             exit;
 
-        Initialize;
+        Initialize();
 
         TempFatturaHeader.Init();
         TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Sales;
@@ -264,7 +264,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 TempFatturaLine.Description := BasicVATTypeLbl;
                 TempFatturaLine.Insert();
 
-                FindLast;
+                FindLast();
                 SetRange("VAT Bus. Posting Group");
                 SetRange("VAT Prod. Posting Group");
             until Next() = 0;
@@ -397,7 +397,7 @@ codeunit 12184 "Fattura Doc. Helper"
         FieldRef := LineRecRef.Field(DocNoFieldNo);
         FieldRef.SetRange(TempFatturaHeader."Document No.");
 
-        if not LineRecRef.FindSet then
+        if not LineRecRef.FindSet() then
             ErrorMessage.LogSimpleMessage(ErrorMessage."Message Type"::Error, MissingLinesErr);
 
         exit(not ErrorMessage.HasErrors(false));
@@ -413,7 +413,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TransmissionIntermediaryVendor: Record Vendor;
         PaymentTermsAndPaymentMethodExists: Boolean;
     begin
-        Initialize;
+        Initialize();
         Customer.Get(HeaderRecRef.Field(CustomerNoFieldNo).Value);
         PaymentTermsAndPaymentMethodExists :=
           PaymentMethod.Get(HeaderRecRef.Field(PaymentMethodCodeFieldNo)) and
@@ -489,7 +489,7 @@ codeunit 12184 "Fattura Doc. Helper"
         if FatturaPANoSeries.Get(SalesReceivablesSetup."Fattura PA Nos.") then;
         FatturaNoSeriesLine.SetRange("Series Code", FatturaPANoSeries.Code);
         FatturaNoSeriesLine.SetRange(Open, true);
-        if FatturaNoSeriesLine.FindFirst then begin
+        if FatturaNoSeriesLine.FindFirst() then begin
             ErrorMessage.LogIfLengthExceeded(FatturaNoSeriesLine, FatturaNoSeriesLine.FieldNo("Starting No."),
               ErrorMessage."Message Type"::Error, 5);
             ErrorMessage.LogIfLengthExceeded(FatturaNoSeriesLine, FatturaNoSeriesLine.FieldNo("Ending No."),
@@ -587,7 +587,7 @@ codeunit 12184 "Fattura Doc. Helper"
         VATEntry.SetRange("Document Type", TempFatturaHeader."Document Type");
         VATEntry.SetRange("Document No.", TempFatturaHeader."Document No.");
         VATEntry.SetRange("Posting Date", TempFatturaHeader."Posting Date");
-        if VATEntry.FindFirst then
+        if VATEntry.FindFirst() then
             if VATEntry."Tax Representative Type" <> 0 then begin
                 TempFatturaHeader."Tax Representative Type" := VATEntry."Tax Representative Type";
                 TempFatturaHeader."Tax Representative No." := VATEntry."Tax Representative No.";
@@ -629,7 +629,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LastEntryNo: Integer;
     begin
         with TempVATEntry do begin
-            if not VATEntry.FindSet then
+            if not VATEntry.FindSet() then
                 exit;
 
             FirstVATEntry := VATEntry;
@@ -771,7 +771,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         InvDtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", OriginalCustLedgerEntry."Entry No.");
         InvDtldCustLedgEntry.SetRange(Unapplied, false);
-        if InvDtldCustLedgEntry.FindSet then
+        if InvDtldCustLedgEntry.FindSet() then
             repeat
                 if InvDtldCustLedgEntry."Cust. Ledger Entry No." =
                    InvDtldCustLedgEntry."Applied Cust. Ledger Entry No."
@@ -780,7 +780,7 @@ codeunit 12184 "Fattura Doc. Helper"
                       "Applied Cust. Ledger Entry No.", InvDtldCustLedgEntry."Applied Cust. Ledger Entry No.");
                     AppliedDtldCustLedgEntry.SetRange("Entry Type", AppliedDtldCustLedgEntry."Entry Type"::Application);
                     AppliedDtldCustLedgEntry.SetRange(Unapplied, false);
-                    if AppliedDtldCustLedgEntry.FindSet then
+                    if AppliedDtldCustLedgEntry.FindSet() then
                         repeat
                             if AppliedDtldCustLedgEntry."Cust. Ledger Entry No." <>
                                AppliedDtldCustLedgEntry."Applied Cust. Ledger Entry No."
@@ -840,7 +840,7 @@ codeunit 12184 "Fattura Doc. Helper"
         if TempFatturaHeader."Entry Type" <> TempFatturaHeader."Entry Type"::Service then
             exit;
 
-        if not LineRecRef.FindSet then
+        if not LineRecRef.FindSet() then
             exit;
 
         repeat
@@ -908,7 +908,7 @@ codeunit 12184 "Fattura Doc. Helper"
         if TempFatturaHeader."Document Type" <> TempFatturaHeader."Document Type"::Invoice then
             exit;
 
-        if LineRecRef.FindSet then
+        if LineRecRef.FindSet() then
             repeat
                 i += 1;
                 FatturaProjectCode := '';
@@ -950,7 +950,7 @@ codeunit 12184 "Fattura Doc. Helper"
             if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then begin
                 SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
                 SalesShipmentLine.SetRange("Order No.", TempFatturaHeader."Order No.");
-                if SalesShipmentLine.FindSet then
+                if SalesShipmentLine.FindSet() then
                     repeat
                         i += 1;
                         TempLineNumberBuffer.Get(SalesShipmentLine."Order Line No.");
@@ -961,7 +961,7 @@ codeunit 12184 "Fattura Doc. Helper"
             end else begin
                 ServiceShipmentLine.SetRange(Type, ServiceShipmentLine.Type::Item);
                 ServiceShipmentLine.SetRange("Order No.", TempFatturaHeader."Order No.");
-                if ServiceShipmentLine.FindSet then
+                if ServiceShipmentLine.FindSet() then
                     repeat
                         i += 1;
                         TempLineNumberBuffer.Get(ServiceShipmentLine."Order Line No.");
@@ -979,13 +979,13 @@ codeunit 12184 "Fattura Doc. Helper"
         VATEntry.SetRange("Document Type", TempFatturaHeader."Document Type");
         VATEntry.SetRange("Document No.", TempFatturaHeader."Document No.");
         VATEntry.SetRange("Posting Date", TempFatturaHeader."Posting Date");
-        if VATEntry.FindSet then
+        if VATEntry.FindSet() then
             repeat
                 CollectVATPostingSetup(TempVATPostingSetup, VATEntry);
                 if not IsSplitVATSetup(TempVATPostingSetup) then begin
                     TempVATEntry.SetRange("VAT %", VATEntry."VAT %");
                     TempVATEntry.SetRange("VAT Transaction Nature", TempVATPostingSetup."VAT Transaction Nature");
-                    if TempVATEntry.FindFirst then begin
+                    if TempVATEntry.FindFirst() then begin
                         TempVATEntry.Base += VATEntry.Base + VATEntry."Unrealized Base";
                         TempVATEntry.Amount += VATEntry.Amount + VATEntry."Unrealized Amount";
                         TempVATEntry.Modify();
@@ -1080,7 +1080,7 @@ codeunit 12184 "Fattura Doc. Helper"
         OriginalFatturaLine := TempFatturaLine;
         TempFatturaLine.Init();
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::"Extended Text");
-        if TempFatturaLine.FindLast then
+        if TempFatturaLine.FindLast() then
             TempFatturaLine."Line No." := TempFatturaLine."Line No.";
         TempFatturaLine."Related Line No." := TempFatturaLine."Line No.";
         TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::"Extended Text";
@@ -1093,7 +1093,7 @@ codeunit 12184 "Fattura Doc. Helper"
         AttachedToLineNoFieldRef := LineRecRef.Field(AttachedToLineNoFieldNo);
         AttachedToLineNoFieldRef.SetFilter(Format(LineRecRef.Field(LineNoFieldNo).Value));
 
-        if LineRecRef.FindSet then begin
+        if LineRecRef.FindSet() then begin
             SourceNoNoValue := CurrRecRef.Field(NoFieldNo).Value;
             repeat
                 InsertExtTextFatturaLine(TempFatturaLine, LineRecRef, StrSubstNo(TxtTok, SourceNoNoValue));
@@ -1103,7 +1103,7 @@ codeunit 12184 "Fattura Doc. Helper"
         AttachedToLineNoFieldRef.SetRange(0);
         LineNoFieldRef := LineRecRef.Field(LineNoFieldNo);
         LineNoFieldRef.SetFilter('>%1', Format(CurrRecRef.Field(LineNoFieldNo).Value));
-        if LineRecRef.FindSet then
+        if LineRecRef.FindSet() then
             repeat
                 SourceTypeFound := Format(TypeFieldRef.Value) <> ' ';
                 if not SourceTypeFound then begin
@@ -1281,11 +1281,11 @@ codeunit 12184 "Fattura Doc. Helper"
     begin
         repeat
             if IsSplitPaymentLine(LineRecRef) then begin
-                LineRecRef.FindFirst;
+                LineRecRef.FindFirst();
                 exit(true);
             end;
         until LineRecRef.Next() = 0;
-        LineRecRef.FindFirst;
+        LineRecRef.FindFirst();
         exit(false)
     end;
 

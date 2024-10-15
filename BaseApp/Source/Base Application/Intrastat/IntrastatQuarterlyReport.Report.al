@@ -233,9 +233,15 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code_Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No__Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No__Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130036Caption; RoundAmount_Control1130036CaptionLbl)
                 {
                 }
@@ -263,9 +269,15 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130052Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130054Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130054Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130056Caption; RoundAmount_Control1130056CaptionLbl)
                 {
                 }
@@ -305,9 +317,15 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Corrected_Document_No__Caption; FieldCaption("Corrected Document No."))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130084Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130084Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130086Caption; RoundAmount_Control1130086CaptionLbl)
                 {
                 }
@@ -350,9 +368,15 @@ report 12161 "Intrastat - Quarterly Report"
                 column(Intrastat_Jnl__Line__Country_Region_Code__Control1130111Caption; FieldCaption("Country/Region Code"))
                 {
                 }
+#if CLEAN18
+                column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130113Caption; Intra___form_Buffer__VAT_Registration_No__CaptionLbl)
+                {
+                }
+#else
                 column(Intrastat_Jnl__Line__VAT_Registration_No___Control1130113Caption; FieldCaption("VAT Registration No."))
                 {
                 }
+#endif
                 column(RoundAmount_Control1130115Caption; RoundAmount_Control1130115CaptionLbl)
                 {
                 }
@@ -416,7 +440,7 @@ report 12161 "Intrastat - Quarterly Report"
                         IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
                         IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
                         IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
-                        if not IntrastatJnlLineTemp.FindFirst then begin
+                        if not IntrastatJnlLineTemp.FindFirst() then begin
                             IntrastatJnlLineTemp := "Intrastat Jnl. Line";
                             IntrastatJnlLineTemp.Insert();
                             NoOfRecordsRTC += 1;

@@ -20,12 +20,10 @@ codeunit 5334 "CRM Setup Defaults"
 
     procedure ResetConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
-        TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
 #if not CLEAN19
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
 #endif
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
         IsHandled: Boolean;
         IsTeamOwnershipModel: Boolean;
@@ -36,10 +34,6 @@ codeunit 5334 "CRM Setup Defaults"
             exit;
 
         EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData;
-        ConnectionName := RegisterTempConnectionIfNeeded(CRMConnectionSetup, TempCRMConnectionSetup);
-        if ConnectionName <> '' then
-            SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, true);
-
         IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
 
         if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
@@ -84,45 +78,29 @@ codeunit 5334 "CRM Setup Defaults"
         ResetDefaultCRMPricelevel(CRMConnectionSetup);
 
         SetCustomIntegrationsTableMappings(CRMConnectionSetup);
-
-        if ConnectionName <> '' then
-            TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
     procedure ResetExtendedPriceListConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
-        TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
-        ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
     begin
         if not CRMConnectionSetup.Get() then
             exit;
         EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData;
-        ConnectionName := RegisterTempConnectionIfNeeded(CRMConnectionSetup, TempCRMConnectionSetup);
-        if ConnectionName <> '' then
-            SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionName, true);
 
         ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
         ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
-
-        if ConnectionName <> '' then
-            TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
     procedure ResetUnitGroupMappingConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
-        TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
-        ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
     begin
         if not CRMConnectionSetup.Get() then
             exit;
         EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData();
-        ConnectionName := RegisterTempConnectionIfNeeded(CRMConnectionSetup, TempCRMConnectionSetup);
-        if ConnectionName <> '' then
-            SetDefaultTableConnection(TableConnectionType::CRM, ConnectionName, true);
 
         ResetUnitGroupUoMScheduleMapping('UNIT GROUP', EnqueueJobQueEntries);
         ResetItemUnitOfMeasureUoMMapping('ITEM UOM', EnqueueJobQueEntries);
@@ -131,9 +109,6 @@ codeunit 5334 "CRM Setup Defaults"
         ResetItemProductUnitGroupMapping();
         ResetResourceProductUnitGroupMapping();
         ResetPriceListLineProductPricelevelUnitGroupMapping();
-
-        if ConnectionName <> '' then
-            TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
     local procedure ResetItemProductUnitGroupMapping()
@@ -658,7 +633,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesInvoiceHeader.FieldNo("Shipping Agent Code"),
           CRMInvoice.FieldNo(ShippingMethodCodeEnum),
-          IntegrationFieldMapping.Direction::Bidirectional,
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
         // Payment Terms Code > paymenttermscode
@@ -666,7 +641,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesInvoiceHeader.FieldNo("Payment Terms Code"),
           CRMInvoice.FieldNo(PaymentTermsCodeEnum),
-          IntegrationFieldMapping.Direction::Bidirectional,
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
         // "Work description" <-> Description
@@ -972,7 +947,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesHeader.FieldNo("Shipping Agent Code"),
           CRMSalesorder.FieldNo(ShippingMethodCodeEnum),
-          IntegrationFieldMapping.Direction::Bidirectional,
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
         // Payment Terms Code > paymenttermscode
@@ -980,7 +955,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesHeader.FieldNo("Payment Terms Code"),
           CRMSalesorder.FieldNo(PaymentTermsCodeEnum),
-          IntegrationFieldMapping.Direction::Bidirectional,
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
         // "Requested Delivery Date" -> RequestDeliveryBy
@@ -1157,7 +1132,7 @@ codeunit 5334 "CRM Setup Defaults"
         PriceListHeader.Reset();
         PriceListHeader.SetRange("Price Type", "Price Type"::Sale);
         PriceListHeader.SetRange("Amount Type", "Price Amount Type"::Price);
-        PriceListHeader.SetRange("Allow Updating Defaults", false);
+        PriceListHeader.SetRange("Allow Updating Defaults", true);
         IntegrationTableMapping.SetTableFilter(
             GetTableFilterFromView(DATABASE::"Price List Header", PriceListHeader.TableCaption, PriceListHeader.GetView));
         IntegrationTableMapping."Dependency Filter" := 'CURRENCY|ITEM-PRODUCT';
@@ -1469,7 +1444,6 @@ codeunit 5334 "CRM Setup Defaults"
         Opportunity: Record Opportunity;
         CRMOpportunity: Record "CRM Opportunity";
         CDSCompany: Record "CDS Company";
-        CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
         EmptyGuid: Guid;
         IsHandled: Boolean;
     begin
@@ -1553,8 +1527,6 @@ codeunit 5334 "CRM Setup Defaults"
           '', true, false);
 
         OnResetOpportunityMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
-
-        CRMIntegrationTableSynch.SynchOption(IntegrationTableMapping);
     end;
 
     local procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean)
@@ -1600,7 +1572,7 @@ codeunit 5334 "CRM Setup Defaults"
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        IntegrationFieldMapping.FindLast;
+        IntegrationFieldMapping.FindLast();
         IntegrationFieldMapping."Clear Value on Failed Sync" := true;
         IntegrationFieldMapping.Modify();
     end;
@@ -1609,7 +1581,7 @@ codeunit 5334 "CRM Setup Defaults"
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        IntegrationFieldMapping.FindLast;
+        IntegrationFieldMapping.FindLast();
         IntegrationFieldMapping."Not Null" := true;
         IntegrationFieldMapping.Modify();
     end;
@@ -1676,7 +1648,7 @@ codeunit 5334 "CRM Setup Defaults"
     var
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CDSSetupDefaults.RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.SHORT());
+        CDSSetupDefaults.RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, IntervalInMinutes, ShouldRecreateJobQueueEntry, InactivityTimeoutPeriod, CRMProductName.SHORT(), false);
     end;
 
     procedure ResetCRMNAVConnectionData()
@@ -1883,6 +1855,12 @@ codeunit 5334 "CRM Setup Defaults"
         ItemUnitOfMeasure: Record "Item Unit of Measure";
         ResourceUnitOfMeasure: Record "Resource Unit of Measure";
         CRMUom: Record "CRM Uom";
+        PaymentTerms: Record "Payment Terms";
+        ShipmentMethod: Record "Shipment Method";
+        ShippingAgent: Record "Shipping Agent";
+        CRMPaymentTerms: Record "CRM Payment Terms";
+        CRMFreightTerms: Record "CRM Freight Terms";
+        CRMShippingMethod: Record "CRM Shipping Method";
         FieldNo: Integer;
     begin
         OnBeforeGetNameFieldNo(TableID, FieldNo);
@@ -1933,6 +1911,18 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(ResourceUnitOfMeasure.FieldNo(Code));
             DATABASE::"CRM Uom":
                 exit(CRMUom.FieldNo(Name));
+            DATABASE::"Payment Terms":
+                exit(PaymentTerms.FieldNo("Code"));
+            DATABASE::"Shipment Method":
+                exit(ShipmentMethod.FieldNo("Code"));
+            DATABASE::"Shipping Agent":
+                exit(ShippingAgent.FieldNo("Code"));
+            DATABASE::"CRM Payment Terms":
+                exit(CRMPaymentTerms.FieldNo("Code"));
+            DATABASE::"CRM Freight Terms":
+                exit(CRMFreightTerms.FieldNo("Code"));
+            DATABASE::"CRM Shipping Method":
+                exit(CRMShippingMethod.FieldNo("Code"));
         end;
     end;
 
@@ -1972,7 +1962,7 @@ codeunit 5334 "CRM Setup Defaults"
         IntegrationTableMapping.SetFilter("Parent Name", '=''''');
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetFilter("Table ID", '<>113');
-        if IntegrationTableMapping.FindSet then
+        if IntegrationTableMapping.FindSet() then
             repeat
                 AddPrioritizedMappingToList(NameValueBuffer, NextPriority, IntegrationTableMapping.Name);
             until IntegrationTableMapping.Next() = 0;
@@ -1991,7 +1981,7 @@ codeunit 5334 "CRM Setup Defaults"
             if IntegrationTableID > 0 then
                 SetRange("Integration Table ID", IntegrationTableID);
             SetRange("Int. Table UID Field Type", Field.Type::GUID);
-            if FindSet then
+            if FindSet() then
                 repeat
                     AddPrioritizedMappingToList(NameValueBuffer, Priority, Name);
                 until Next() = 0;
@@ -2003,7 +1993,7 @@ codeunit 5334 "CRM Setup Defaults"
         with NameValueBuffer do begin
             SetRange(Value, MappingName);
 
-            if not FindFirst then begin
+            if not FindFirst() then begin
                 Init;
                 ID := Priority;
                 Name := Format(Priority);
@@ -2064,6 +2054,9 @@ codeunit 5334 "CRM Setup Defaults"
         AddEntityTableMapping('quote', DATABASE::"CRM Quote", TempNameValueBuffer);
         AddEntityTableMapping('team', DATABASE::"CRM Team", TempNameValueBuffer);
 
+        // Virtual Tables
+        AddEntityTableMapping('msdyn_businesscentralvirtualentity', DATABASE::"CRM BC Virtual Table Config.", TempNameValueBuffer);
+
         OnAddEntityTableMapping(TempNameValueBuffer);
     end;
 
@@ -2076,16 +2069,6 @@ codeunit 5334 "CRM Setup Defaults"
             Name := CopyStr(CRMEntityTypeName, 1, MaxStrLen(Name));
             Value := Format(TableID);
             Insert;
-        end;
-    end;
-
-    local procedure RegisterTempConnectionIfNeeded(CRMConnectionSetup: Record "CRM Connection Setup"; var TempCRMConnectionSetup: Record "CRM Connection Setup" temporary) ConnectionName: Text
-    begin
-        if CRMConnectionSetup."Is User Mapping Required" then begin
-            ConnectionName := Format(CreateGuid);
-            TempCRMConnectionSetup.TransferFields(CRMConnectionSetup);
-            TempCRMConnectionSetup."Is User Mapping Required" := false;
-            TempCRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         end;
     end;
 
@@ -2139,10 +2122,13 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
+#if not CLEAN20
+    [Obsolete('Event is not raised anywhere', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResetCustomerAccountMapping(IntegrationTableMappingName: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCDSTableNo(BCTableNo: Integer; var CDSTableNo: Integer; var handled: Boolean)

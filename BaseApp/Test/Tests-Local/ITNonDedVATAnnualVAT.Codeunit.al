@@ -124,7 +124,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         // Test to validate Data On VAT Register Print report after post Sales Invoice and Sales Credit Memo.
 
         // Setup: Create VAT Posting Setup, find G/L Account, create and post Sales Invoice and Sales Credit Memo.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateGeneralLedgerSetup(true);
         CreateVatPostingSetup(VATPostingSetup);
         FindAndUpdateGLAccount(GLAccount, VATPostingSetup);
@@ -164,7 +164,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     var
         AppointmentCode: Record "Appointment Code";
     begin
-        if not AppointmentCode.FindFirst then
+        if not AppointmentCode.FindFirst() then
             CreateAppointmentCode;
     end;
 
@@ -304,7 +304,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAcountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure FindAndUpdateGLAccount(var GLAccount: Record "G/L Account"; VATPostingSetup: Record "VAT Posting Setup")
@@ -335,14 +335,14 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     local procedure FindVATRegister(var VATRegister: Record "VAT Register")
     begin
         VATRegister.SetRange(Type, VATRegister.Type::Sale);
-        VATRegister.FindFirst;
+        VATRegister.FindFirst();
     end;
 
     local procedure FindVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; VatPostingSetup: Record "VAT Posting Setup")
     begin
         VATBookEntry.SetRange("VAT Bus. Posting Group", VatPostingSetup."VAT Bus. Posting Group");
         VATBookEntry.SetRange("VAT Prod. Posting Group", VatPostingSetup."VAT Prod. Posting Group");
-        VATBookEntry.FindFirst;
+        VATBookEntry.FindFirst();
     end;
 
     local procedure NonDeductibleVATInAnnualVATCommReportPreview(AmountType: Enum "VAT Statement Line Amount Type")
@@ -354,7 +354,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         DeductiblePercent: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DeductiblePercent := FindDeductiblePercent;
         SetupTransactionData(VATStatementName, GLAccount, AmountType);
         if AmountType = VATStatementLine."Amount Type"::"Non-Deductible Base" then
@@ -384,7 +384,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         DeductiblePercent: Decimal;
     begin
         // Setup.
-        Initialize;
+        Initialize();
         DeductiblePercent := FindDeductiblePercent;
         SetupTransactionData(VATStatementName, GLAccount, AmountType);
         if AmountType = VATStatementLine."Amount Type"::"Non-Deductible Base" then
@@ -414,7 +414,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         AppointmentCode: Record "Appointment Code";
         AnnualVATComm2010: Report "Annual VAT Comm. - 2010";
     begin
-        AppointmentCode.FindFirst;
+        AppointmentCode.FindFirst();
         Clear(AnnualVATComm2010);
         AnnualVATComm2010.UseRequestPage(false);
         AnnualVATComm2010.InitializeRequest(
@@ -431,14 +431,14 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         ExpAnnualVATComm2010: Report "Exp.Annual VAT Comm. - 2010";
     begin
         VATStatementName.SetRange(Name, StatementName);
-        VATStatementName.FindFirst;
+        VATStatementName.FindFirst();
         VATStatementName.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(WorkDate, 3)), DMY2Date(31, 12, Date2DMY(WorkDate, 3)));
-        AppointmentCode.FindFirst;
+        AppointmentCode.FindFirst();
         Clear(ExpAnnualVATComm2010);
         ExpAnnualVATComm2010.SetTableView(VATStatementName);
         ExpAnnualVATComm2010.UseRequestPage(false);
         ExpAnnualVATComm2010.InitializeRequest('', AppointmentCode.Code, true, true, true, true);
-        ExpAnnualVATComm2010.RunModal;
+        ExpAnnualVATComm2010.RunModal();
         ExportedFileName := ExpAnnualVATComm2010.GetServerFileName;
     end;
 
@@ -488,7 +488,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
     begin
         // Delete VAT Statement Template.
         VATStatementTemplate.SetRange(Name, VATStatementTemplateName);
-        VATStatementTemplate.FindFirst;
+        VATStatementTemplate.FindFirst();
         VATStatementTemplate.Delete(true);
         VATPostingSetup.Get(VATBusPostingGroup, VATProdPostingGroup);
         VATPostingSetup.Validate("Deductible %", DeductiblePercent);
@@ -535,7 +535,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         OldUnrealizedVAT: Boolean;
     begin
         // Setup: Create VAT Posting Setup and find G/L Account.
-        Initialize;
+        Initialize();
         OldUnrealizedVAT := UpdateGeneralLedgerSetup(true);
         CreateVatPostingSetup(VATPostingSetup);
         FindAndUpdateGLAccount(GLAccount, VATPostingSetup);

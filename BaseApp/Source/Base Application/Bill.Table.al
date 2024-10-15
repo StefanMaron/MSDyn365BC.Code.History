@@ -100,7 +100,7 @@ table 12180 Bill
         PaymentMethod.Reset();
         PaymentMethod.SetRange("Bill Code", Code);
 
-        if PaymentMethod.FindFirst then
+        if PaymentMethod.FindFirst() then
             Error(Text000, TableCaption, Code);
     end;
 

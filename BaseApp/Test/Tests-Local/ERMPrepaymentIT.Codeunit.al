@@ -258,7 +258,7 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         // [FEATURE] [Sales] [Payment Lines]
         // [SCENARIO 202248] TAB 12171 "Posted Payment Lines" record with "Sales/Purchase" = "Sales" exists for the posted sales prepayment invoice
-        Initialize;
+        Initialize();
         EnableUnrealizedVAT(true);
         FindGenPostingSetup(GeneralPostingSetup);
         CreateVATPostingSetup(VATPostingSetup, GeneralPostingSetup."Gen. Prod. Posting Group");
@@ -291,7 +291,7 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         // [FEATURE] [Purchase] [Payment Lines]
         // [SCENARIO 202248] TAB 12171 "Posted Payment Lines" record with "Sales/Purchase" = "Purchase" exists for the posted purchase prepayment invoice
-        Initialize;
+        Initialize();
         EnableUnrealizedVAT(true);
         FindGenPostingSetup(GeneralPostingSetup);
         CreateVATPostingSetup(VATPostingSetup, GeneralPostingSetup."Gen. Prod. Posting Group");
@@ -323,7 +323,7 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment Lines]
         // [SCENARIO 283787] TAB 12171 "Posted Payment Lines" UpdateAmount works for Purchase Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created and posted
         LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
@@ -350,7 +350,7 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Payment Lines]
         // [SCENARIO 283787] TAB 12171 "Posted Payment Lines" UpdateAmount works for Purchase Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created and posted
         LibraryPurchase.CreatePurchaseCreditMemo(PurchHeader);
@@ -377,7 +377,7 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment Lines]
         // [SCENARIO 283787] TAB 12171 "Posted Payment Lines" UpdateAmount works for Sales Invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created and posted
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -404,7 +404,7 @@ codeunit 144172 "ERM Prepayment IT"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Payment Lines]
         // [SCENARIO 283787] TAB 12171 "Posted Payment Lines" UpdateAmount works for Sales Credit Memo
-        Initialize;
+        Initialize();
 
         // [GIVEN] Document was created and posted
         LibrarySales.CreateSalesCreditMemo(SalesHeader);
@@ -726,7 +726,7 @@ codeunit 144172 "ERM Prepayment IT"
         LibraryERM.SetApplyVendorEntry(VendLedgerEntry, VendLedgerEntry."Remaining Amount");
 
         VendLedgerEntry2.SetRange("Document No.", DocumentNo2);
-        VendLedgerEntry2.FindFirst;
+        VendLedgerEntry2.FindFirst();
 
         LibraryERM.SetAppliestoIdVendor(VendLedgerEntry2);
     end;
@@ -740,7 +740,7 @@ codeunit 144172 "ERM Prepayment IT"
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry."Remaining Amount");
 
         CustLedgerEntry2.SetRange("Document No.", DocumentNo2);
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
 
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry2);
     end;
@@ -889,7 +889,7 @@ codeunit 144172 "ERM Prepayment IT"
         PostedPaymentLines.SetRange("Sales/Purchase", SalesPurchase);
         PostedPaymentLines.SetRange(Type, DocumentType);
         PostedPaymentLines.SetRange(Code, DocumentNo);
-        PostedPaymentLines.FindFirst;
+        PostedPaymentLines.FindFirst();
     end;
 
     local procedure SetupAndRunPurchasePrepmtDocumentTestReport(var PurchaseLine: Record "Purchase Line"; PurchPrepaymentsAccount: Code[20])
@@ -899,7 +899,7 @@ codeunit 144172 "ERM Prepayment IT"
         PurchasePrepmtDocTest: Report "Purchase Prepmt. Doc. - Test";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("Purch. Prepayments Account", PurchPrepaymentsAccount);
         VATPostingSetup.Modify();
@@ -911,7 +911,7 @@ codeunit 144172 "ERM Prepayment IT"
         PurchaseHeader.SetRange("No.", PurchaseLine."Document No.");
         PurchasePrepmtDocTest.SetTableView(PurchaseHeader);
         Commit();
-        PurchasePrepmtDocTest.Run;
+        PurchasePrepmtDocTest.Run();
     end;
 
     local procedure SetupAndRunSalesPrepmtDocumentTestReport(var SalesLine: Record "Sales Line"; SalesPrepaymentsAccount: Code[20])
@@ -921,7 +921,7 @@ codeunit 144172 "ERM Prepayment IT"
         SalesPrepmtDocumentTest: Report "Sales Prepmt. Document Test";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         VATPostingSetup.Validate("Sales Prepayments Account", SalesPrepaymentsAccount);
         VATPostingSetup.Modify();
@@ -933,7 +933,7 @@ codeunit 144172 "ERM Prepayment IT"
         SalesHeader.SetRange("No.", SalesLine."Document No.");
         SalesPrepmtDocumentTest.SetTableView(SalesHeader);
         Commit();
-        SalesPrepmtDocumentTest.Run;
+        SalesPrepmtDocumentTest.Run();
     end;
 
     local procedure UpdateCheckTotalOnPuchaseInvoice(var PurchHeader: Record "Purchase Header"; CheckTotal: Decimal)

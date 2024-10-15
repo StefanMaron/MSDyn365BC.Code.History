@@ -27,7 +27,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
 
         TempDirectDebitCollectionEntry.SetAutoCalcFields("Applies-to Entry Document No.", "Applies-to Entry Description");
 
-        if not TempDirectDebitCollectionEntry.FindSet then
+        if not TempDirectDebitCollectionEntry.FindSet() then
             exit;
 
         DirectDebitCollection.Get(TempDirectDebitCollectionEntry."Direct Debit Collection No.");
@@ -49,7 +49,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
         TempDirectDebitCollectionEntry.FindSet();
         with PaymentExportData do begin
             Reset;
-            if FindLast then;
+            if FindLast() then;
             repeat
                 Init;
                 "Entry No." += 1;

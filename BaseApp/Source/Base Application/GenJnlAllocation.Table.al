@@ -33,7 +33,7 @@ table 221 "Gen. Jnl. Allocation"
             begin
                 if "Account No." = '' then begin
                     GLAcc.Init();
-                    CreateDim(DATABASE::"G/L Account", "Account No.");
+                    CreateDimFromDefaultDim();
                 end else begin
                     GLAcc.Get("Account No.");
                     GLAcc.CheckGLAcc;
@@ -50,7 +50,7 @@ table 221 "Gen. Jnl. Allocation"
                     Validate("VAT Prod. Posting Group");
                 end;
 
-                CreateDim(DATABASE::"G/L Account", "Account No.");
+                CreateDimFromDefaultDim();
             end;
         }
         field(6; "Shortcut Dimension 1 Code"; Code[20])
@@ -354,7 +354,7 @@ table 221 "Gen. Jnl. Allocation"
                 UpdateGenJnlLine := true;
             end;
 
-        if GenJnlAlloc.FindSet then
+        if GenJnlAlloc.FindSet() then
             repeat
                 if (GenJnlAlloc."Allocation Quantity" <> 0) or (GenJnlAlloc."Allocation %" <> 0) then begin
                     if not FromAllocations then
@@ -411,7 +411,7 @@ table 221 "Gen. Jnl. Allocation"
         GenJnlAlloc.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlAlloc.SetRange("Journal Line No.", GenJnlLine."Line No.");
         GenJnlAlloc.LockTable();
-        if GenJnlAlloc.FindSet then begin
+        if GenJnlAlloc.FindSet() then begin
             GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             Currency.TestField("Amount Rounding Precision");
@@ -494,12 +494,14 @@ table 221 "Gen. Jnl. Allocation"
         GenJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine3.SetRange("Journal Batch Name", "Journal Batch Name");
         GenJnlLine3.SetRange("Line No.", "Journal Line No.");
-        if GenJnlLine3.FindFirst then
+        if GenJnlLine3.FindFirst() then
             exit(GenJnlLine3."Currency Code");
 
         exit('');
     end;
 
+#if not CLEAN20
+    [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
@@ -519,6 +521,31 @@ table 221 "Gen. Jnl. Allocation"
           DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, TableID, No, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
 
         OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+#endif
+
+    procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCreateDim(Rec, IsHandled);
+        if IsHandled then
+            exit;
+#if not CLEAN20
+        if RunEventOnAfterCreateDimTableIDs(DefaultDimSource) then
+            exit;
+#endif
+
+        "Shortcut Dimension 1 Code" := '';
+        "Shortcut Dimension 2 Code" := '';
+        "Dimension Set ID" :=
+          DimMgt.GetRecDefaultDimID(Rec, CurrFieldNo, DefaultDimSource, '', "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", 0, 0);
+
+#if not CLEAN20
+        RunEventOnAfterCreateDim(DefaultDimSource);
+#endif
+        OnAfterCreateDimProcedure(Rec, CurrFieldNo, DefaultDimSource);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -551,15 +578,89 @@ table 221 "Gen. Jnl. Allocation"
         OnAfterShowDimensions(Rec);
     end;
 
+    procedure CreateDimFromDefaultDim()
+    var
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+    begin
+        InitDefaultDimensionSources(DefaultDimSource);
+        CreateDim(DefaultDimSource);
+    end;
+
+    local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+        DimMgt.AddDimSource(DefaultDimSource, Database::"G/L Account", Rec."Account No.");
+
+        OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
+    end;
+
+#if not CLEAN20
+    local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDefaultDimSourcesFromDimArray(Database::"Gen. Jnl. Allocation", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure CreateDimTableIDs(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+    begin
+        DimArrayConversionHelper.CreateDimTableIDs(Database::"Gen. Jnl. Allocation", DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDimTableIDs(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]) IsHandled: Boolean
+    var
+        DimArrayConversionHelper: Codeunit "Dim. Array Conversion Helper";
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        if not DimArrayConversionHelper.IsSubscriberExist(Database::"Gen. Jnl. Allocation") then
+            exit;
+
+        IsHandled := false;
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No, IsHandled);
+        CreateDefaultDimSourcesFromDimArray(DefaultDimSource, TableID, No);
+    end;
+
+    local procedure RunEventOnAfterCreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
+    begin
+        CreateDimTableIDs(DefaultDimSource, TableID, No);
+        OnAfterCreateDim(Rec, CurrFieldNo, TableID, No);
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitDefaultDimensionSources(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDim(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimProcedure(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; CurrFieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]);
+    begin
+    end;
+
+#if not CLEAN20
+    [Obsolete('Replaced by new implementation in codeunit Purch. Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var GenJnlAllocation: Record "Gen. Jnl. Allocation"; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var IsHandled: Boolean)
     begin
     end;
 
+    [Obsolete('Replaced by new implementation in codeunit Purch. Post Invoice', '20.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDim(var GenJnlAlloc: Record "Gen. Jnl. Allocation"; CurrentFieldNo: Integer; TableID: array[10] of Integer; No: array[10] of Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var GenJnlAllocation: Record "Gen. Jnl. Allocation")

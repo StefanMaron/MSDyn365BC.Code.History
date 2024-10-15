@@ -18,7 +18,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
     local procedure Initialize()
     begin
         LibraryVATUtils.TearDown; // Cleanup.
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
 
         if isInitialized then
             exit;
@@ -445,7 +445,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
 
     local procedure VerifyGetLn(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     begin
-        Initialize;
+        Initialize();
 
         // Setup + Verify
         LibraryVATUtils.VerifyGetLn(AccountType, DocumentType, GenPostingType, IndividualPerson, Resident, false, UsingFiscalCode);  // UseThreshold = FALSE
@@ -460,7 +460,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
         VATReportHeader: Record "VAT Report Header";
         VATReportLine: Record "VAT Report Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
 

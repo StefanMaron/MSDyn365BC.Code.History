@@ -53,7 +53,7 @@ codeunit 144114 "UT Fiscal Year"
 
         // Verfiy.
         GenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
         GenJournalLine.TestField("Source Currency Amount", 0);  // Amount is 0 since field is uneditable.
     end;
 

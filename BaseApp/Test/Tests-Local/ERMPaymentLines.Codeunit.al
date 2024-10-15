@@ -702,7 +702,7 @@ codeunit 144164 "ERM Payment Lines"
         // [FEATURE] [Blanket Order] [Purchase]
         // [SCENARIO 376665] Payment Line should not be removed after make order from Purchase Blanket Order
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Blanket Order with Payment Line, Quantity = 100, "Qty to Receive" = 1
         CreatePurchaseDocument(PurchHeader, PurchHeader."Document Type"::"Blanket Order", '', FindPaymentTermsCode, '');
@@ -729,7 +729,7 @@ codeunit 144164 "ERM Payment Lines"
         // [FEATURE] [Blanket Order] [Sales]
         // [SCENARIO 376665] Payment Line should not be removed after make order from Sales Blanket Order
 
-        Initialize;
+        Initialize();
         LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Purchase Sales Order with Payment Line, Quantity = 100, "Qty to Receive" = 1
@@ -757,7 +757,7 @@ codeunit 144164 "ERM Payment Lines"
 
         PaymentLines.Init();
         PaymentLines.Type := PaymentLines.Type::"Payment Terms";
-        PaymentLines.Code := LibraryUtility.GenerateGUID;
+        PaymentLines.Code := LibraryUtility.GenerateGUID();
         PaymentLines.SetRecFilter;
 
         asserterror PaymentLines.Insert(true);
@@ -775,7 +775,7 @@ codeunit 144164 "ERM Payment Lines"
         // [FEATURE] [UT]
         // [SCENARIO 378071] It is possible to insert Payment Line with type "Invoice" and calling OnInsert trigger
 
-        Initialize;
+        Initialize();
         SalesHeader.Init();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
         SalesHeader.Insert(true);
@@ -799,7 +799,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -825,7 +825,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -849,7 +849,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -879,7 +879,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -905,7 +905,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Sales]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -932,7 +932,7 @@ codeunit 144164 "ERM Payment Lines"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibraryPurchase.CreateVendor(Vendor);
@@ -958,7 +958,7 @@ codeunit 144164 "ERM Payment Lines"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibraryPurchase.CreateVendor(Vendor);
@@ -982,7 +982,7 @@ codeunit 144164 "ERM Payment Lines"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Terms Code
         LibraryPurchase.CreateVendor(Vendor);
@@ -1012,7 +1012,7 @@ codeunit 144164 "ERM Payment Lines"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibraryPurchase.CreateVendor(Vendor);
@@ -1038,7 +1038,7 @@ codeunit 144164 "ERM Payment Lines"
         Vendor: Record Vendor;
     begin
         // [FEATURE] [Purchase]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Terms Code
         LibraryPurchase.CreateVendor(Vendor);
@@ -1065,7 +1065,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Service]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -1091,7 +1091,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Service]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -1115,7 +1115,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Service]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -1145,7 +1145,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Service]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -1171,7 +1171,7 @@ codeunit 144164 "ERM Payment Lines"
         Customer: Record Customer;
     begin
         // [FEATURE] [Service]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C1" with Payment Terms Code
         LibrarySales.CreateCustomer(Customer);
@@ -1198,7 +1198,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 279058] Payment lines are created when Purchase Header.InitInsert is run
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new purchase header
         PurchHeader.Init();
@@ -1223,7 +1223,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment Terms] [UI]
         // [SCENARIO 314721] Posted Purchase Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');
@@ -1245,7 +1245,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Purchase] [Credit Memo] [Payment Terms] [UI]
         // [SCENARIO 314721] Posted Purchase Credit Memo has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreatePurchaseDocument(
@@ -1268,7 +1268,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment Terms] [UI]
         // [SCENARIO 314721] Posted Sales Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);
@@ -1290,7 +1290,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Sales] [Credit Memo] [Payment Terms] [UI]
         // [SCENARIO 314721] Posted Sales Credit Memo has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo", '', FindPaymentTermsCode);
@@ -1313,7 +1313,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Purchase] [Invoice] [Payment Terms] [Apply] [UI]
         // [SCENARIO 314721] Posted Purchase Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos. and Payment is applied after
-        Initialize;
+        Initialize();
 
         // [GIVEN] Purchase Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', FindPaymentTermsCode, '');
@@ -1341,7 +1341,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Sales] [Invoice] [Payment Terms] [Apply] [UI]
         // [SCENARIO 314721] Posted Sales Invoice has correct Remaining Amount when posted with Payment Terms with 2 Payment Nos.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Header with Payment Terms with 2 payment nos. and Amount = "100"
         DocumentAmount := CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice, '', FindPaymentTermsCode);
@@ -1377,7 +1377,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         // [FEATURE] [Invoice] [Bill]
         // [SCENARIO 352490] When "Use same ABI code" option is selected on Suggest Vendor Bills it only works for vendors with same ABI code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two ABI Codes "C1" and "C2"
         ABICodes[1] := CreateABICodeInRange(10000, 20000);
@@ -1413,7 +1413,7 @@ codeunit 144164 "ERM Payment Lines"
         SuggestVendorBills.InitValues(VendorBillHeader);
         LibraryVariableStorage.Enqueue(true);
         Commit;
-        SuggestVendorBills.Run;
+        SuggestVendorBills.Run();
         // UI handled by SuggestVendorBillsUIHandler
 
         // [THEN] Vendor bill line for "V1" exists
@@ -1430,7 +1430,7 @@ codeunit 144164 "ERM Payment Lines"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -1546,7 +1546,7 @@ codeunit 144164 "ERM Payment Lines"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.SetRange(Type, Type);
-        GenJournalTemplate.FindFirst;
+        GenJournalTemplate.FindFirst();
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
@@ -1742,7 +1742,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.Delete(true);
     end;
 
@@ -1786,7 +1786,7 @@ codeunit 144164 "ERM Payment Lines"
     begin
         VendorBillLine.SetRange("Vendor Bill List No.", VendorBillListNo);
         VendorBillLine.SetFilter("Vendor No.", '<>%1', '');
-        VendorBillLine.FindFirst;
+        VendorBillLine.FindFirst();
         VendorBillLine.Delete(true);
     end;
 
@@ -1801,7 +1801,7 @@ codeunit 144164 "ERM Payment Lines"
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.SetFilter("Payment Nos.", '>1');  // Payment Term Code with multiple Payments is required
-        PaymentTerms.FindFirst;
+        PaymentTerms.FindFirst();
         exit(PaymentTerms.Code);
     end;
 
@@ -1840,7 +1840,7 @@ codeunit 144164 "ERM Payment Lines"
         with PurchLine do begin
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Receive", QtyToReceive);
             Modify(true);
         end;
@@ -1853,7 +1853,7 @@ codeunit 144164 "ERM Payment Lines"
         with SalesLine do begin
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
-            FindFirst;
+            FindFirst();
             Validate("Qty. to Ship", QtyToShip);
             Modify(true);
         end;
@@ -1907,7 +1907,7 @@ codeunit 144164 "ERM Payment Lines"
         SuggestVendorBills.InitValues(VendorBillHeader);
         SuggestVendorBills.SetTableView(VendorLedgerEntry);
         SuggestVendorBills.UseRequestPage(false);
-        SuggestVendorBills.Run;
+        SuggestVendorBills.Run();
     end;
 
     local procedure PostPurchaseInvoiceAndSuggestVendorBills(): Code[20]
@@ -1920,7 +1920,7 @@ codeunit 144164 "ERM Payment Lines"
         // Create and post Purchase Invoice.
         Bill.SetFilter("Vendor Bill List", '<>%1', '');
         Bill.SetFilter("Vend. Bill Source Code", '<>%1', '');
-        Bill.FindFirst;
+        Bill.FindFirst();
         PaymentMethod.SetRange("Bill Code", Bill.Code);
         LibraryERM.FindPaymentMethod(PaymentMethod);
 

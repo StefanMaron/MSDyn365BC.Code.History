@@ -1,4 +1,4 @@
-report 295 "Combine Shipments"
+﻿report 295 "Combine Shipments"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Combine Shipments';
@@ -71,12 +71,12 @@ report 295 "Combine Shipments"
                     begin
                         SalesShipmentLine.SetRange("Document No.", "Document No.");
                         SalesShipmentLine.SetRange(Type, Type::"Charge (Item)");
-                        if SalesShipmentLine.FindSet then
+                        if SalesShipmentLine.FindSet() then
                             repeat
                                 SalesLineInvoice.SetRange("Document Type", SalesLineInvoice."Document Type"::Invoice);
                                 SalesLineInvoice.SetRange("Document No.", SalesHeader."No.");
                                 SalesLineInvoice.SetRange("Shipment Line No.", SalesShipmentLine."Line No.");
-                                if SalesLineInvoice.FindFirst then
+                                if SalesLineInvoice.FindFirst() then
                                     SalesGetShpt.GetItemChargeAssgnt(SalesShipmentLine, SalesLineInvoice."Qty. to Invoice");
                             until SalesShipmentLine.Next() = 0;
                     end;
@@ -200,7 +200,9 @@ report 295 "Combine Shipments"
                     Error(Text000);
                 if DocDateReq = 0D then
                     Error(Text001);
+
                 LocalAppMgt.CheckData(DocDateReq, PostingDateReq, DocumentDateTxt, PostingDateTxt);
+
                 Window.Open(
                   Text002 +
                   Text003 +
@@ -332,15 +334,11 @@ report 295 "Combine Shipments"
         SalesShptLine: Record "Sales Shipment Line";
         SalesSetup: Record "Sales & Receivables Setup";
         Cust: Record Customer;
+        GLSetup: Record "General Ledger Setup";
         Language: Codeunit Language;
         SalesCalcDisc: Codeunit "Sales-Calc. Discount";
         SalesPost: Codeunit "Sales-Post";
         Window: Dialog;
-        PostingDateReq: Date;
-        DocDateReq: Date;
-        CalcInvDisc: Boolean;
-        PostInv: Boolean;
-        OnlyStdPmtTerms: Boolean;
         HasAmount: Boolean;
         HideDialog: Boolean;
         NoOfSalesInvErrors: Integer;
@@ -359,8 +357,15 @@ report 295 "Combine Shipments"
         OperationDateFrom: Date;
         OperationDateTo: Date;
         NoOfskippedShiment: Integer;
-        CopyTextLines: Boolean;
         NotAllInvoicesCreatedMsg: Label 'Not all the invoices were created. A total of %1 invoices were not created.';
+
+    protected var
+        PostingDateReq: Date;
+        DocDateReq: Date;
+        CalcInvDisc: Boolean;
+        PostInv: Boolean;
+        OnlyStdPmtTerms: Boolean;
+        CopyTextLines: Boolean;
 
     local procedure FinalizeSalesInvHeader()
     var
@@ -399,9 +404,10 @@ report 295 "Combine Shipments"
 
     local procedure InsertSalesInvHeader()
     begin
+        GLSetup.Get();
         Clear(SalesHeader);
         with SalesHeader do begin
-            Init;
+            Init();
             "Document Type" := "Document Type"::Invoice;
             "No." := '';
             OnBeforeSalesInvHeaderInsert(SalesHeader, SalesOrderHeader);
@@ -417,6 +423,8 @@ report 295 "Combine Shipments"
             Validate("Payment Terms Code", SalesOrderHeader."Payment Terms Code");
             Validate("Payment Method Code", SalesOrderHeader."Payment Method Code");
             Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
+            if GLSetup."Journal Templ. Name Mandatory" then
+                Validate("Journal Templ. Name", SalesOrderHeader."Journal Templ. Name");
             Validate("Salesperson Code", SalesOrderHeader."Salesperson Code");
             Validate("Fattura Project Code", SalesOrderHeader."Fattura Project Code");
             Validate("Fattura Tender Code", SalesOrderHeader."Fattura Tender Code");
@@ -425,7 +433,7 @@ report 295 "Combine Shipments"
             "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
             "Dimension Set ID" := SalesOrderHeader."Dimension Set ID";
             OnBeforeSalesInvHeaderModify(SalesHeader, SalesOrderHeader);
-            Modify;
+            Modify();
             Commit();
             HasAmount := false;
         end;
@@ -456,6 +464,7 @@ report 295 "Combine Shipments"
           (SalesOrderHeader."Currency Code" <> SalesHeader."Currency Code") or
           (SalesOrderHeader."EU 3-Party Trade" <> SalesHeader."EU 3-Party Trade") or
           (SalesOrderHeader."Dimension Set ID" <> SalesHeader."Dimension Set ID") or
+          (SalesOrderHeader."Journal Templ. Name" <> SalesHeader."Journal Templ. Name") or
           (SalesOrderHeader."Salesperson Code" <> SalesHeader."Salesperson Code") or
           (SalesOrderHeader."Payment Terms Code" <> SalesHeader."Payment Terms Code") or
           (SalesOrderHeader."Payment Method Code" <> SalesHeader."Payment Method Code") or

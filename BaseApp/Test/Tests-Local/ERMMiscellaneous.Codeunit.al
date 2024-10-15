@@ -49,7 +49,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // Test to validate Issued Customer Bill after post Sales Invoice.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForHandler(WorkDate, CreateAndPostSalesInvoice(SalesHeader));  // Enqueue required for IssuingCustomerBillRequestPageHandler.
 
         // Exercise.
@@ -67,7 +67,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // Test to validate error when issue Customer Bill with wrong Posting Date.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueValuesForHandler(
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate), CreateAndPostSalesInvoice(SalesHeader));  // Enqueue required for IssuingCustomerBillRequestPageHandler.
 
@@ -87,7 +87,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // Test to validate values for Account Book Sheet - Print Report with Progressive Balance as True.
         // Setup: Create G/L Account. Create and post General Journal Line.
-        Initialize;
+        Initialize();
         CreateAndPostGeneralJournalLine(GenJournalLine);
         EnqueueValuesForHandler(WorkDate, GenJournalLine."Account No.");  // Enqueue required for AccountBookSheetPrintRequestPageHandler.
 
@@ -112,7 +112,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // Test to validate Job Ledger Entry after post Purchase Credit Memo with Job.
         // Setup.
-        Initialize;
+        Initialize();
         PostedInvoiceNo := CreateAndPostPurchaseInvoiceWithJob(PurchaseLine);
 
         // Exercise.
@@ -136,7 +136,7 @@ codeunit 144127 "ERM  Miscellaneous"
         VendBankAcc: Record "Vendor Bank Account";
     begin
         // [SCENARIO 361754] "Bank Account" on Purchase Header is related to "Pay-to Vendor No."
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor "X", vendor "Y", "X"."Pay-to Vendor No." = "Y"
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Pay-to Vendor No.", LibraryPurchase.CreateVendorNo);
@@ -160,7 +160,7 @@ codeunit 144127 "ERM  Miscellaneous"
         CustBankAcc: Record "Customer Bank Account";
     begin
         // [SCENARIO 361754] "Bank Account" on Sales Header is related to "Bill-to Customer No."
-        Initialize;
+        Initialize();
         // [GIVEN] Customer "X", customer "Y", "X"."Bill-to Customer No." = "Y"
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo);
@@ -184,7 +184,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [UT][Company Information][Fiscal Code]
         // [SCENARIO 375086] "Company Information".GetTaxCode should return "Fiscal Code"if "Fiscal Code"is not blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Company Information" with "Fiscal Code" = "X" and "VAT Registration No." are blank
         CreateCompInfoWithFiscalCodeAndVATRegNo(CompanyInformation, Format(LibraryRandom.RandInt(1000)), '');
@@ -203,7 +203,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [UT][Company Information][Fiscal Code]
         // [SCENARIO 375086] "Company Information".GetTaxCode should return "VAT Registration No." if "Fiscal Code"is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Company Information" with "Fiscal Code" is blank and "VAT Registration No." = "X"
         CreateCompInfoWithFiscalCodeAndVATRegNo(CompanyInformation, '', Format(LibraryRandom.RandInt(1000)));
@@ -222,7 +222,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [UT][Vendor][Fiscal Code]
         // [SCENARIO 375086] Vendor.GetTaxCode should return "Fiscal Code"if "Fiscal Code"is not blank
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor with "Fiscal Code" = "X" and "VAT Registration No." is blank
         CreateVendorWithFiscalCodeAndVATRegNo(Vendor, Format(LibraryRandom.RandInt(1000)), '');
 
@@ -240,7 +240,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [UT][Vendor][Fiscal Code]
         // [SCENARIO 375086] Vendor.GetTaxCode should return "VAT Registration No." if "Fiscal Code"is blank
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor with "Fiscal Code" is blank and "VAT Registration No." = "X"
         CreateVendorWithFiscalCodeAndVATRegNo(Vendor, '', Format(LibraryRandom.RandInt(1000)));
@@ -260,7 +260,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Customer] [Sales]
         // [SCENARIO 219280] If Customer has "Preffered Bank Account Code", it must be populated in Sales Header
-        Initialize;
+        Initialize();
         // [GIVEN] Customer "CCC"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Customer Bank Account "BA111" for customer "CCC"
@@ -286,7 +286,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Vendor] [Purchase]
         // [SCENARIO 219280] If Vendor has "Preffered Bank Account Code", it must be populated in Purchase Header
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor "VVV"
         LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Vendor Bank Account "BA111" for vendor "VVV"
@@ -313,7 +313,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Customer] [Sales]
         // [SCENARIO 219280] If Customer has empty "Preffered Bank Account Code", "Bank Account" in Sales Header must be populated with the 1st Customer Bank Account by Code
-        Initialize;
+        Initialize();
         // [GIVEN] Customer "CCC"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Customer Bank Account "BA111" for customer "CCC"
@@ -341,7 +341,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Vendor] [Purchase]
         // [SCENARIO 219280] If Vendor has empty "Preffered Bank Account Code", "Bank Account" in Purchase Header must be populated with the 1st Vendor Bank Account by Code
-        Initialize;
+        Initialize();
         // [GIVEN] Vendor "VVV"
         LibraryPurchase.CreateVendor(Vendor);
         // [GIVEN] Vendor Bank Account "BA111" for vendor "VVV"
@@ -368,7 +368,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Customer] [Service]
         // [SCENARIO 219280] If Customer has "Preffered Bank Account Code", it must be populated in Service Header
-        Initialize;
+        Initialize();
         // [GIVEN] Customer "CCC"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Customer Bank Account "BA111" for customer "CCC"
@@ -395,7 +395,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Customer] [Service]
         // [SCENARIO 219280] If Customer has empty "Preffered Bank Account Code", "Bank Account" in Service Header must be populated with the 1st Customer Bank Account by Code
-        Initialize;
+        Initialize();
         // [GIVEN] Customer "CCC"
         LibrarySales.CreateCustomer(Customer);
         // [GIVEN] Customer Bank Account "BA111" for customer "CCC"
@@ -428,7 +428,7 @@ codeunit 144127 "ERM  Miscellaneous"
 
         // [GIVEN] Purchase order was created and assigned Posting No.
         LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
-        PurchaseHeader."Posting No." := LibraryUtility.GenerateGUID;
+        PurchaseHeader."Posting No." := LibraryUtility.GenerateGUID();
         PurchaseHeader.Modify(true);
 
         // [GIVEN] Order was posted as receive
@@ -464,7 +464,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         // [FEATURE] [Non-Deductible] [VAT] [Job]
         // [SCENARIO 348104] When you post Non-deductible VAT Credit Memo the Job Ledger Entry gets correct amounts
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Posting Setup with Non-deductible VAT
         LibraryERM.CreateVATPostingSetupWithAccounts(
@@ -477,13 +477,13 @@ codeunit 144127 "ERM  Miscellaneous"
 
         // [THEN] Unit Cost on Job Ledger Entry is Amount Including VAT for original purchase line
         JobLedgerEntry.SetRange("Document No.", PostedCrMemoNo);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField("Total Cost", -PurchaseLine."Amount Including VAT");
     end;
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UpdateGeneralLedgerSetup;
     end;
 
@@ -648,7 +648,7 @@ codeunit 144127 "ERM  Miscellaneous"
         Bill: Record Bill;
     begin
         Bill.SetRange("Allow Issue", true);
-        Bill.FindFirst;
+        Bill.FindFirst();
         exit(Bill.Code);
     end;
 
@@ -678,7 +678,7 @@ codeunit 144127 "ERM  Miscellaneous"
     begin
         JobLedgerEntry.SetRange("Document No.", DocumentNo);
         JobLedgerEntry.SetRange("No.", No);
-        JobLedgerEntry.FindFirst;
+        JobLedgerEntry.FindFirst();
         JobLedgerEntry.TestField(Quantity, Quantity);
         JobLedgerEntry.TestField("Unit Cost", UnitCost);
         JobLedgerEntry.TestField("Total Cost", TotalCost);

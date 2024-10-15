@@ -205,7 +205,7 @@ report 12137 "LIFO Valuation"
     begin
         LIFOBand.CopyFilters("Lifo Band");
         LIFOBand.SetRange(Definitive, false);
-        if LIFOBand.FindFirst then
+        if LIFOBand.FindFirst() then
             NotDefMsg := Text12100;
         OldItem := '';
     end;

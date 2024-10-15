@@ -76,7 +76,7 @@ codeunit 144139 "ERM VAT"
         DirectUnitCost: Decimal;
     begin
         // Test to verify error on Unapply Vendor Invoice after running Calculate and Post VAT Settlement report with Unrealized VAT True.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
         DirectUnitCost := LibraryRandom.RandDecInRange(100, 200, 2);
         UnapplyVendorLedgerEntryError(
@@ -137,7 +137,7 @@ codeunit 144139 "ERM VAT"
         UnitPrice: Decimal;
     begin
         // Test to verify error on Unapply Customer Invoice after running Calculate and Post VAT Settlement report with Unrealized VAT True.
-        Initialize;
+        Initialize();
         Quantity := LibraryRandom.RandDecInRange(10, 20, 2);
         UnitPrice := LibraryRandom.RandDecInRange(100, 200, 2);
         UnapplyCustomerLedgerEntryError(
@@ -202,7 +202,7 @@ codeunit 144139 "ERM VAT"
         // Test to verify Unrealized VAT entry after posting Sales Credit Memo applied to Sales Invoice with Unrealized VAT.
 
         // Setup: Update General Ledger Setup and VAT Posting Setup. Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
@@ -246,7 +246,7 @@ codeunit 144139 "ERM VAT"
         // Test to verify Unrealized VAT entry after posting Purchase Credit Memo applied to Purchase Invoice with Unrealized VAT.
 
         // Setup: Update General Ledger Setup and VAT Posting Setup. Create and Post Purchase Invoice.
-        Initialize;
+        Initialize();
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, CalcDate('<CY - 1Y>', WorkDate));  // Required for test case to set last date of the previous year to Work Date. True for Unrealized VAT.
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
@@ -291,7 +291,7 @@ codeunit 144139 "ERM VAT"
         // Test to verify Service Tariff No. gets updated on Posted Sales Invoice when VAT Product Posting group is changed on the Sales Invoice Line.
 
         // Setup: Create Sales Invoice of two lines with different VAT Posting Setup. Update VAT Product Posting groups on two Sales Invoice Lines.
-        Initialize;
+        Initialize();
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
@@ -334,7 +334,7 @@ codeunit 144139 "ERM VAT"
         // Test to verify Service Tariff No. gets updated on Posted Service Invoice when VAT Product Posting group is changed on the Service Invoice Line.
 
         // Setup: Create Service Invoice of two lines with different VAT Posting Setup. Update VAT Product Posting groups on two Service Invoice Lines.
-        Initialize;
+        Initialize();
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
@@ -378,7 +378,7 @@ codeunit 144139 "ERM VAT"
         // Test to verify Service Tariff No. gets updated on Posted Purchase Invoice when VAT Product Posting group is changed on the Purchase Invoice Line.
 
         // Setup: Create Purchase Invoice of two lines with different VAT Posting Setup. Update VAT Product Posting groups on two Purchase Invoice Lines.
-        Initialize;
+        Initialize();
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(10, 20, 2));
         UpdateVATPostingSetup(
           VATPostingSetup."VAT Bus. Posting Group",
@@ -415,7 +415,7 @@ codeunit 144139 "ERM VAT"
         // Test to verify Amount Including VAT field Caption on VAT Specification Subform.
 
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise: Open VAT Specification Subform.
         VATSpecificationSubform.OpenEdit;
@@ -436,7 +436,7 @@ codeunit 144139 "ERM VAT"
     begin
         // Test to verify that 100% Non-Deductible Reverse Charge VAT posted correctly.
 
-        Initialize;
+        Initialize();
         CreateHundredPctNDReverseChargeVATPostingSetup(VATPostingSetup);
         DocNo := CreatePostPurchInvoiceWithVATSetup(PurchLine, VATPostingSetup);
         VerifyCreditGLEntryExists(
@@ -454,7 +454,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Apply] [Sales]
         // [SCENARIO 381909] Stan gets error when trying to post the payment applied to non-existing sales invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Payment line for 100, which applies to not existing Document
         CreatePaymentLine(
@@ -463,7 +463,7 @@ codeunit 144139 "ERM VAT"
 
         // [GIVEN] Customer Ledger Entry
         CustLedgerEntry.Init();
-        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo;
+        CustLedgerEntry."Customer No." := LibrarySales.CreateCustomerNo();
         CustLedgerEntry."Amount to Apply" := GenJournalLine.Amount;
         CustLedgerEntry.Insert();
 
@@ -484,7 +484,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Apply] [Purchase]
         // [SCENARIO 381909] Stan gets error when trying to post the payment applied to non-existing purchase invoice
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Payment line for 100, which applies to not existing Document
         CreatePaymentLine(
@@ -493,7 +493,7 @@ codeunit 144139 "ERM VAT"
 
         // [GIVEN] Vendor Ledger Entry
         VendorLedgerEntry.Init();
-        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo;
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
         VendorLedgerEntry."Amount to Apply" := GenJournalLine.Amount;
         VendorLedgerEntry.Insert();
 
@@ -514,7 +514,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Apply] [Sales]
         // [SCENARIO 381909] Stan gets error when trying to post the payment applied to closed sales invoice (fully applied).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Document with "Amount incl. VAT" = 100
         LibraryCashFlowHelper.CreateDefaultSalesOrder(SalesHeader);
@@ -550,7 +550,7 @@ codeunit 144139 "ERM VAT"
     begin
         // [FEATURE] [Apply] [Purchase]
         // [SCENARIO 381909] Stan gets error when trying to post the payment applied to closed purchase invoice (fully applied).
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Document with "Amount incl. VAT" = 100
         LibraryCashFlowHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
@@ -1364,8 +1364,8 @@ codeunit 144139 "ERM VAT"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         // Lazy Setup.
         if isInitialized then
             exit;
@@ -1745,7 +1745,7 @@ codeunit 144139 "ERM VAT"
     begin
         PeriodicSettlementVATEntry.SetRange(
           "VAT Period", Format(Date2DMY(PeriodDate, 3)) + '/' + ConvertStr(Format(Date2DMY(PeriodDate, 2), 2), ' ', '0'));  // Value Zero required for VAT Period.
-        PeriodicSettlementVATEntry.FindFirst;
+        PeriodicSettlementVATEntry.FindFirst();
     end;
 
     local procedure FindVATEntries(var VATEntry: array[3] of Record "VAT Entry"; VATPostingSetup: array[3] of Record "VAT Posting Setup"; DocumentNo: array[3] of Code[20]; GenPostingType: Enum "General Posting Type")
@@ -1917,7 +1917,7 @@ codeunit 144139 "ERM VAT"
         PurchaseLine.SetRange("Document Type", PurchaseLine."Document Type"::Invoice);
         PurchaseLine.SetRange("Document No.", DocumentNo);
         PurchaseLine.SetRange("No.", No);
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         PurchaseLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         PurchaseLine.Modify(true);
     end;
@@ -1929,7 +1929,7 @@ codeunit 144139 "ERM VAT"
         SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("No.", No);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         SalesLine.Modify(true);
     end;
@@ -1941,7 +1941,7 @@ codeunit 144139 "ERM VAT"
         ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
         ServiceLine.SetRange("Document No.", DocumentNo);
         ServiceLine.SetRange("No.", No);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         ServiceLine.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         ServiceLine.Modify(true);
     end;
@@ -1970,7 +1970,7 @@ codeunit 144139 "ERM VAT"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
         GLEntry.TestField(Amount, Amount);
     end;
 
@@ -2005,7 +2005,7 @@ codeunit 144139 "ERM VAT"
             SetRange("Document Type", DocType);
             SetRange("Document No.", DocNo);
             SetRange(Type, Type::Purchase);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(0, Base, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Base)));
             Assert.AreEqual(0, Amount, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Amount)));
             Assert.IsTrue(
@@ -2015,7 +2015,7 @@ codeunit 144139 "ERM VAT"
             ExpectedVATBase := -"Nondeductible Base";
             ExpectedVATAmount := -"Nondeductible Amount";
             SetRange(Type, Type::Sale);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(0, "Nondeductible Base", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Nondeductible Base")));
             Assert.AreEqual(0, "Nondeductible Amount", StrSubstNo(WrongValueErr, TableCaption, FieldCaption("Nondeductible Amount")));
             Assert.AreEqual(ExpectedVATBase, Base, StrSubstNo(WrongValueErr, TableCaption, FieldCaption(Base)));
@@ -2029,7 +2029,7 @@ codeunit 144139 "ERM VAT"
     begin
         PurchaseInvoiceLine.SetRange("Document No.", DocumentNo);
         PurchaseInvoiceLine.SetRange("No.", No);
-        PurchaseInvoiceLine.FindFirst;
+        PurchaseInvoiceLine.FindFirst();
         PurchaseInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 
@@ -2039,7 +2039,7 @@ codeunit 144139 "ERM VAT"
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange("No.", No);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         SalesInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 
@@ -2049,7 +2049,7 @@ codeunit 144139 "ERM VAT"
     begin
         ServiceInvoiceLine.SetRange("Customer No.", CustomerNo);
         ServiceInvoiceLine.SetRange("No.", No);
-        ServiceInvoiceLine.FindFirst;
+        ServiceInvoiceLine.FindFirst();
         ServiceInvoiceLine.TestField("Service Tariff No.", ServiceTariffNo);
     end;
 

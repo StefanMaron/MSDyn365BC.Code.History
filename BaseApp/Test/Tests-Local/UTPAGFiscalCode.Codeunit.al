@@ -57,7 +57,7 @@ codeunit 144146 "UT PAG Fiscal Code"
 
         // Verify: Verify Vendor Ledger Entry - Document Number and Posting Date.
         WithholdingTax.SetRange("Vendor No.", VendorLedgerEntry."Vendor No.");
-        WithholdingTax.FindFirst;
+        WithholdingTax.FindFirst();
         WithholdingTax.TestField("Document No.", VendorLedgerEntry."Document No.");
         WithholdingTax.TestField("Payment Date", VendorLedgerEntry."Posting Date");
         VendorLedgerEntries.Close;
@@ -78,7 +78,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry."Entry No." := 1;
-        if VendorLedgerEntry2.FindLast then
+        if VendorLedgerEntry2.FindLast() then
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Posting Date" := WorkDate;
         VendorLedgerEntry."Document Type" := DocumentType;

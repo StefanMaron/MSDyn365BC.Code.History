@@ -38,7 +38,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetFilter("Document No.", SalesHeader."No.");
-        if SalesLine.FindSet then
+        if SalesLine.FindSet() then
             repeat
                 LibrarySales.AutoReserveSalesLine(SalesLine);
             until SalesLine.Next = 0;
@@ -112,7 +112,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         Item.SetFilter("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.SetFilter("Gen. Prod. Posting Group", GenProdPostingGroup);
-        if Item.FindSet then
+        if Item.FindSet() then
             repeat
                 Item.Validate(Blocked, true);
                 Item.Modify(true);
@@ -147,8 +147,8 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATProdPostingGroup: Code[20];
     begin
         GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
-        FinChargeTerms.FindFirst;
-        ReminderTerms.FindFirst;
+        FinChargeTerms.FindFirst();
+        ReminderTerms.FindFirst();
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Gen. Bus. Posting Group", GetGenBusPostingGroupFromSetup(GenProdPostingGroup));
         Customer.Validate("VAT Bus. Posting Group", GetVATBusPostingGroupFromSetup(VATProdPostingGroup));
@@ -260,7 +260,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.SetFilter("Gen. Prod. Posting Group", '<>''''');
         GLAccount.SetFilter("VAT Prod. Posting Group", '<>''''');
-        GLAccount.FindFirst;
+        GLAccount.FindFirst();
 
         GenPostingSetup.Validate("Sales Account", GLAccount."No.");
         GenPostingSetup.Validate("Sales Credit Memo Account", GLAccount."No.");
@@ -652,7 +652,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         BlockItems; // For test cases when Items can't be deleted: block Items with posting groups that will be deleted to prevent other test cases from using them.
 
-        if VATRateChangeConv.FindSet then
+        if VATRateChangeConv.FindSet() then
             repeat
                 if VATRateChangeConv.Type = VATRateChangeConv.Type::"VAT Prod. Posting Group" then begin
                     VATPostingSetup.SetFilter("VAT Prod. Posting Group", '%1|%2', VATRateChangeConv."From Code", VATRateChangeConv."To Code");
@@ -755,7 +755,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         with GenPostingSetup do begin
             SetFilter("Gen. Prod. Posting Group", GenProdPostingGroup);
-            FindLast;
+            FindLast();
             exit("Gen. Bus. Posting Group");
         end;
     end;
@@ -840,9 +840,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
         FieldOption := GetVATChangeSetupUpdateValue(TableNo);
 
         VATRateChangeConvVAT.SetRange(Type, VATRateChangeConvVAT.Type::"VAT Prod. Posting Group");
-        VATRateChangeConvVAT.FindLast;
+        VATRateChangeConvVAT.FindLast();
         VATRateChangeConvGen.SetRange(Type, VATRateChangeConvGen.Type::"Gen. Prod. Posting Group");
-        VATRateChangeConvGen.FindLast;
+        VATRateChangeConvGen.FindLast();
 
         case FieldOption of
             FieldOption::No:
@@ -875,9 +875,9 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeConvGen: Record "VAT Rate Change Conversion";
     begin
         VATRateChangeConvVAT.SetFilter(Type, '%1', VATRateChangeConvVAT.Type::"VAT Prod. Posting Group");
-        VATRateChangeConvVAT.FindLast;
+        VATRateChangeConvVAT.FindLast();
         VATRateChangeConvGen.SetFilter(Type, '%1', VATRateChangeConvGen.Type::"Gen. Prod. Posting Group");
-        VATRateChangeConvGen.FindLast;
+        VATRateChangeConvGen.FindLast();
         VATProdPostingGroup := VATRateChangeConvVAT."From Code";
         GenProdPostingGroup := VATRateChangeConvGen."From Code";
     end;
@@ -935,7 +935,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         with VATPostingSetup do begin
             SetFilter("VAT Prod. Posting Group", VATProdPostingGroup);
-            FindLast;
+            FindLast();
             exit("VAT Bus. Posting Group");
         end;
     end;
@@ -1217,7 +1217,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         WhseReceiptLine.FindSet();
 
         WhseReceiptHeader.SetFilter("No.", WhseReceiptLine."No.");
-        WhseReceiptHeader.FindFirst;
+        WhseReceiptHeader.FindFirst();
         repeat
             if Partially then
                 WhseReceiptLine.Validate("Qty. to Receive", Round(WhseReceiptLine.Quantity / 2, 1))
@@ -1239,7 +1239,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         WhseShipmentLine.FindSet();
 
         WhseShipmentHeader.SetFilter("No.", WhseShipmentLine."No.");
-        WhseShipmentHeader.FindFirst;
+        WhseShipmentHeader.FindFirst();
         repeat
             if Partially then
                 WhseShipmentLine.Validate("Qty. to Ship", Round(WhseShipmentLine.Quantity / 2, 1))
@@ -1516,7 +1516,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     PurchaseLine2.SetRange("Blanket Order Line No.", LineNo);
                     PurchaseLine2.SetFilter("Description 2", '<>''''');
                     TempRecRef.SetView(PurchaseLine2.GetView);
-                    TempRecRef.FindFirst;
+                    TempRecRef.FindFirst();
                     FieldRef := TempRecRef.Field(PurchaseLine2.FieldNo("Blanket Order Line No."));
                     FieldRef.Value(NextLineNo);
                 end;
@@ -1528,7 +1528,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
                     SalesLine2.SetRange("Blanket Order Line No.", LineNo);
                     SalesLine2.SetFilter("Description 2", '<>''''');
                     TempRecRef.SetView(SalesLine2.GetView);
-                    TempRecRef.FindFirst;
+                    TempRecRef.FindFirst();
                     FieldRef := TempRecRef.Field(SalesLine2.FieldNo("Blanket Order Line No."));
                     FieldRef.Value(NextLineNo);
                 end;
@@ -1638,7 +1638,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         with PurchaseLine do
             UpdateLineQtyToHandle(DATABASE::"Purchase Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Receive");
     end;
@@ -1650,7 +1650,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         with SalesLine do
             UpdateLineQtyToHandle(DATABASE::"Sales Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Ship");
     end;
@@ -1662,7 +1662,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
         with ServiceLine do
             UpdateLineQtyToHandle(DATABASE::"Service Line", "Document No.", "Document Type".AsInteger(), "Line No.", "Qty. to Ship");
     end;
@@ -1728,7 +1728,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     var
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup.Validate("Update Unit Price For G/L Acc.", UpdateForGLAccount);
         VATRateChangeSetup.Validate("Upd. Unit Price For Item Chrg.", UpdateForItemCharge);
         VATRateChangeSetup.Validate("Upd. Unit Price For FA", UpdateForFixedAsset);
@@ -1796,7 +1796,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
         VATRateChangeLogEntry.FindSet();
-        if TempRecRef.FindSet then
+        if TempRecRef.FindSet() then
             repeat
                 with VATRateChangeLogEntry do begin
                     TestField(Converted, false);
@@ -1823,7 +1823,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
     begin
         Assert.AreEqual(TempRecRef.Count, VATRateChangeLogEntry.Count, LogEntryErrorCount);
 
-        if TempRecRef.FindSet then
+        if TempRecRef.FindSet() then
             repeat
                 with VATRateChangeLogEntry do begin
                     // Verify log for first line
@@ -1877,7 +1877,7 @@ codeunit 131334 "ERM VAT Tool - Helper"
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
         VerifyRecordsHandled(TempRecRef);
-        if TempRecRef.FindSet then
+        if TempRecRef.FindSet() then
             repeat
                 with VATRateChangeLogEntry do begin
                     SetRange("Table ID", TempRecRef.Number);

@@ -18,7 +18,7 @@ codeunit 12112 "IT - Report Management"
         SalesHeader.SetFilter("Posting No.", '<>%1', '');
         if MaxDate <> 0D then
             SalesHeader.SetFilter("Posting Date", '<=%1', MaxDate);
-        if not SalesHeader.FindFirst then
+        if not SalesHeader.FindFirst() then
             exit;
         if ThrowError then
             Error(
@@ -35,7 +35,7 @@ codeunit 12112 "IT - Report Management"
         PurchHeader.SetFilter("Posting No.", '<>%1', '');
         if MaxDate <> 0D then
             PurchHeader.SetFilter("Posting Date",'<=%1', MaxDate);
-        if not PurchHeader.FindFirst then
+        if not PurchHeader.FindFirst() then
             exit;
 
         if ThrowError then

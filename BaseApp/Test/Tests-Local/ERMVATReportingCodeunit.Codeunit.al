@@ -35,7 +35,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Original Report No. Error comes after doing GetLines when VAT Report Type is Corrective.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Set VAT Report Type to Corrective and run Suggest Lines.
@@ -56,7 +56,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Status Error comes after doing GetLines when the status is released.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Set Status to Release and run Suggest Lines.
@@ -77,7 +77,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check VAT Report Config. Code Error comes after doing GetLines when VAT Report Config. Code is not set to option 1.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Set VAT Report Config. Code to blank and run Suggest Lines.
@@ -101,7 +101,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check VAT Report Suggest Lines report gets run after doing GetLines and no lines come on date less than workdate in VAT Report Lines.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update the start and end date to any date less than workdate and Run Suggest Lines.
@@ -127,7 +127,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // The status is changed to release when the status is open.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
         VATReportHeader.Status := VATReportHeader.Status::Open;
         VATReportHeader.Modify();
@@ -161,7 +161,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // The status is changed to release when the status is open.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 1b. Setup: Create a set of lines of different types. Two lines of one type to check summing
@@ -172,7 +172,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         Types[5] := 'NR';
         Types[6] := 'FN';
         Types[7] := 'SE';
-        VATEntry.FindLast;
+        VATEntry.FindLast();
         for I := 1 to 7 do begin
             CreateVATReportLine(VATReportHeader."No.", VATReportLine[I]);
             VATReportLine[I]."Record Identifier" := Types[I];
@@ -234,7 +234,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Error comes for Not allowed to reopen after submit when the Modify Submitted Reports is False in VAT Report Setup.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update status to submitted and Reopen.
@@ -254,7 +254,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check Status gets updated to open after reopen when the earlier status was released.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update status to Released and Reopen.
@@ -277,7 +277,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Report can be released without any VAT Report Lines, fixed in TFS330857
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Run the Release function.
@@ -299,7 +299,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check the Export Report runs successfully when VAT Report Header status is released.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
 
         // 2. Exercise: Update the status to released.
@@ -320,7 +320,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         // Check that VAT Report Header Status gets changed to released while export when status is open.
 
         // 1. Setup: Create VAT Report Header.
-        Initialize;
+        Initialize();
         CreateVATReportHeader(VATReportHeader);
         CreateVATReportLine(VATReportHeader."No.", VATReportLine);
 
@@ -366,7 +366,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         NextLineNo: Integer;
     begin
         NextLineNo := 1;
-        if VATReportLine.FindLast then
+        if VATReportLine.FindLast() then
             NextLineNo := VATReportLine."Line No." + 1;
 
         VATReportLine.Init();
@@ -394,8 +394,8 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        CompanyInformation.County := LibraryUtility.GenerateGUID;
-        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID;
+        CompanyInformation.County := LibraryUtility.GenerateGUID();
+        CompanyInformation."Fiscal Code" := LibraryUtility.GenerateGUID();
         CompanyInformation."VAT Registration No." := LibraryVATUtils.GenerateVATRegistrationNumber;
         CompanyInformation."Industrial Classification" := '35.11.00';
         CompanyInformation.Modify();

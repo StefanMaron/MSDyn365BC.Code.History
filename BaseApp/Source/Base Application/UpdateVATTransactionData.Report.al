@@ -190,7 +190,7 @@ report 12190 "Update VAT Transaction Data"
     begin
         DataTransmissionThreshold.Reset();
         DataTransmissionThreshold.SetFilter("Starting Date", '..%1', OperationOccurredDate);
-        if DataTransmissionThreshold.FindLast then
+        if DataTransmissionThreshold.FindLast() then
             if CompareAgainstThreshold then begin
                 if Abs(BaseAmount) >= DataTransmissionThreshold."Threshold Amount Excl. VAT" then
                     exit(true);

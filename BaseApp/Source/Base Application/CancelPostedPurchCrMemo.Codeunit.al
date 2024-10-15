@@ -12,6 +12,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         UnapplyEntries(Rec);
         CreateCopyDocument(Rec, PurchHeader);
         CorrectPostedPurchInvoice.UpdateCheckTotal(PurchHeader);
+
         CODEUNIT.Run(CODEUNIT::"Purch.-Post", PurchHeader);
         SetTrackInfoForCancellation(Rec);
 
@@ -47,12 +48,12 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         TestCorrectCrMemoIsAllowed(PurchCrMemoHdr);
         if not CODEUNIT.Run(CODEUNIT::"Cancel Posted Purch. Cr. Memo", PurchCrMemoHdr) then begin
             PurchInvHeader.SetRange("Applies-to Doc. No.", PurchCrMemoHdr."No.");
-            if PurchInvHeader.FindFirst then begin
+            if PurchInvHeader.FindFirst() then begin
                 if Confirm(StrSubstNo(PostingCreditMemoFailedOpenPostedInvQst, GetLastErrorText)) then
                     PAGE.Run(PAGE::"Posted Purchase Invoice", PurchInvHeader);
             end else begin
                 PurchHeader.SetRange("Applies-to Doc. No.", PurchCrMemoHdr."No.");
-                if PurchHeader.FindFirst then begin
+                if PurchHeader.FindFirst() then begin
                     if Confirm(StrSubstNo(PostingCreditMemoFailedOpenInvQst, GetLastErrorText)) then
                         PAGE.Run(PAGE::"Purchase Invoice", PurchHeader);
                 end else
@@ -99,7 +100,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         CancelledDocument: Record "Cancelled Document";
     begin
         PurchInvHeader.SetRange("Applies-to Doc. No.", PurchCrMemoHdr."No.");
-        if PurchInvHeader.FindLast then
+        if PurchInvHeader.FindLast() then
             CancelledDocument.InsertPurchCrMemoToInvCancelledDocument(PurchCrMemoHdr."No.", PurchInvHeader."No.");
     end;
 
@@ -202,7 +203,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             until PurchCrMemoLine.Next() = 0;
     end;
 
-    local procedure TestGLAccount(AccountNo: Code[20]; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    procedure CheckGLAccount(AccountNo: Code[20]; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     var
         GLAccount: Record "G/L Account";
         Item: Record Item;
@@ -255,9 +256,12 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
 
     local procedure TestIfAnyFreeNumberSeries(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
+        PostingNoSeries: Code[20];
     begin
         PostingDate := WorkDate;
         PurchasesPayablesSetup.Get();
@@ -265,7 +269,13 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumInv, PurchCrMemoHdr);
 
-        if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Posted Invoice Nos.", PostingDate) = '' then
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Journal Templ. Name Mandatory" then begin
+            GenJournalTemplate.Get(PurchasesPayablesSetup."P. Invoice Template Name");
+            PostingNoSeries := GenJournalTemplate."Posting No. Series"
+        end else
+            PostingNoSeries := PurchasesPayablesSetup."Posted Invoice Nos.";
+        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
             ErrorHelperHeader(ErrorType::SerieNumPostInv, PurchCrMemoHdr);
     end;
 
@@ -284,7 +294,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     begin
         InventoryPeriod.SetRange(Closed, true);
         InventoryPeriod.SetFilter("Ending Date", '>=%1', PurchCrMemoHdr."Posting Date");
-        if InventoryPeriod.FindFirst then
+        if InventoryPeriod.FindFirst() then
             ErrorHelperHeader(ErrorType::InventoryPostClosed, PurchCrMemoHdr);
     end;
 
@@ -302,15 +312,15 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
             TestField("Purch. Account");
-            TestGLAccount("Purch. Account", PurchCrMemoLine);
+            CheckGLAccount("Purch. Account", PurchCrMemoLine);
             TestField("Purch. Credit Memo Account");
-            TestGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
+            CheckGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
             TestField("Purch. Line Disc. Account");
-            TestGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
+            CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
             if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
                 Item.Get(PurchCrMemoLine."No.");
                 if Item.IsInventoriableType then
-                    TestGLAccount(GetCOGSAccount, PurchCrMemoLine);
+                    CheckGLAccount(GetCOGSAccount, PurchCrMemoLine);
             end;
         end;
     end;
@@ -322,7 +332,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         with VendorPostingGroup do begin
             Get(VendorPostingGr);
             TestField("Payables Account");
-            TestGLAccount("Payables Account", PurchCrMemoLine);
+            CheckGLAccount("Payables Account", PurchCrMemoLine);
         end;
     end;
 
@@ -334,7 +344,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group");
             if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
                 TestField("Purchase VAT Account");
-                TestGLAccount("Purchase VAT Account", PurchCrMemoLine);
+                CheckGLAccount("Purchase VAT Account", PurchCrMemoLine);
             end;
         end;
     end;
@@ -352,12 +362,13 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         with InventoryPostingSetup do begin
             Get(PurchCrMemoLine."Location Code", PurchCrMemoLine."Posting Group");
             TestField("Inventory Account");
-            TestGLAccount("Inventory Account", PurchCrMemoLine);
+            CheckGLAccount("Inventory Account", PurchCrMemoLine);
         end;
     end;
 
     local procedure UnapplyEntries(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
+        ApplyUnapplyParameters: Record "Apply Unapply Parameters";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         VendEntryApplyPostedEntries: Codeunit "VendEntry-Apply Posted Entries";
@@ -368,8 +379,9 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             exit;
 
         FindDetailedApplicationEntry(DetailedVendLedgEntry, VendorLedgerEntry);
-        VendEntryApplyPostedEntries.PostUnApplyVendor(
-          DetailedVendLedgEntry, DetailedVendLedgEntry."Document No.", DetailedVendLedgEntry."Posting Date");
+        ApplyUnapplyParameters."Document No." := DetailedVendLedgEntry."Document No.";
+        ApplyUnapplyParameters."Posting Date" := DetailedVendLedgEntry."Posting Date";
+        VendEntryApplyPostedEntries.PostUnApplyVendor(DetailedVendLedgEntry, ApplyUnapplyParameters);
         TestIfUnapplied(PurchCrMemoHdr);
     end;
 
@@ -377,7 +389,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     begin
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
         VendorLedgerEntry.SetRange("Document No.", DocNo);
-        VendorLedgerEntry.FindLast;
+        VendorLedgerEntry.FindLast();
     end;
 
     local procedure FindDetailedApplicationEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendLedgerEntry: Record "Vendor Ledger Entry")
@@ -387,7 +399,7 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         DetailedVendLedgEntry.SetRange("Document No.", VendLedgerEntry."Document No.");
         DetailedVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgerEntry."Entry No.");
         DetailedVendLedgEntry.SetRange(Unapplied, false);
-        DetailedVendLedgEntry.FindFirst;
+        DetailedVendLedgEntry.FindFirst();
     end;
 
     local procedure AnyDtldVendLedgEntriesExceptInitialAndApplicaltionExists(VendLedgEntryNo: Integer): Boolean

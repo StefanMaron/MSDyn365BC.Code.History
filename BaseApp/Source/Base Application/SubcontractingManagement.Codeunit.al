@@ -44,7 +44,7 @@ codeunit 12152 SubcontractingManagement
         ProdOrdRoutLine.SetRange("Routing No.", ProdOrderLine."Routing No.");
         ProdOrdRoutLine.SetRange("Routing Link Code", ProdOrdComponent."Routing Link Code");
         ProdOrdRoutLine.SetRange(Type, ProdOrdRoutLine.Type::"Work Center");
-        if ProdOrdRoutLine.FindFirst then begin
+        if ProdOrdRoutLine.FindFirst() then begin
             WorkCenter.Get(ProdOrdRoutLine."Work Center No.");
             if WorkCenter."Subcontractor No." <> '' then begin
                 if FindSubcOrder(ProdOrdRoutLine, PurchLine, PurchHeader) then
@@ -71,7 +71,7 @@ codeunit 12152 SubcontractingManagement
         PurchLine.SetRange("Prod. Order Line No.", ProdOrdRoutLine."Routing Reference No.");
         PurchLine.SetRange("Routing No.", ProdOrdRoutLine."Routing No.");
         PurchLine.SetRange("Operation No.", ProdOrdRoutLine."Operation No.");
-        if PurchLine.FindFirst then begin
+        if PurchLine.FindFirst() then begin
             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
             exit(true);
         end;
@@ -97,7 +97,7 @@ codeunit 12152 SubcontractingManagement
             ProdOrdComponent.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrdComponent.SetRange("Prod. Order Line No.", "Routing Reference No.");
             ProdOrdComponent.SetRange("Routing Link Code", "Routing Link Code");
-            if ProdOrdComponent.FindSet then begin
+            if ProdOrdComponent.FindSet() then begin
                 if ShowMsg then
                     if not Confirm(RoutingLinkUpdConfQst, true, "Routing Link Code") then
                         Error(UpdateIsCancelledErr);
@@ -135,7 +135,7 @@ codeunit 12152 SubcontractingManagement
             ProdOrdComponent.SetRange("Prod. Order No.", "Prod. Order No.");
             ProdOrdComponent.SetRange("Prod. Order Line No.", "Routing Reference No.");
             ProdOrdComponent.SetRange("Routing Link Code", "Routing Link Code");
-            if ProdOrdComponent.FindSet then begin
+            if ProdOrdComponent.FindSet() then begin
                 if ShowMsg then
                     if not Confirm(RoutingLinkUpdConfQst, true, "Routing Link Code") then
                         Error(UpdateIsCancelledErr);
@@ -171,7 +171,7 @@ codeunit 12152 SubcontractingManagement
             ProdOrdComponent.SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
             ProdOrdComponent.SetRange("Prod. Order Line No.", ProdOrderRoutingLine."Routing Reference No.");
             ProdOrdComponent.SetRange("Routing Link Code", ProdOrderRoutingLine."Routing Link Code");
-            if ProdOrdComponent.FindSet then begin
+            if ProdOrdComponent.FindSet() then begin
                 if ShowMsg then
                     if not Confirm(RoutingLinkUpdConfQst, true, ProdOrderRoutingLine."Routing Link Code") then
                         Error(UpdateIsCancelledErr);
@@ -209,7 +209,7 @@ codeunit 12152 SubcontractingManagement
 
         TransLine.SetRange("Document No.", TransHeader."No.");
         TransLine.SetRange("Derived From Line No.", 0);
-        if TransLine.FindSet then
+        if TransLine.FindSet() then
             repeat
                 GrossWeight := GrossWeight + (TransLine.Quantity * TransLine."Gross Weight");
                 NetWeight := NetWeight + (TransLine.Quantity * TransLine."Net Weight");
@@ -255,7 +255,7 @@ codeunit 12152 SubcontractingManagement
     begin
         ProdOrderCompReserve.FindReservEntry(ProdOrderComponent, ReservEntry);
 
-        if ReservEntry.FindSet then
+        if ReservEntry.FindSet() then
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();

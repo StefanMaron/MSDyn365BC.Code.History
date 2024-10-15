@@ -70,7 +70,7 @@ codeunit 143001 "Library - Spesometro"
         Vendor.Validate("Country/Region Code", GetCountryCode);
 
         CountryRegion.SetFilter("Foreign Country/Region Code", '<>%1', '');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Vendor.Validate("Country/Region Code", CountryRegion.Code);
         Vendor.Validate(City, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(City), DATABASE::Vendor));
 

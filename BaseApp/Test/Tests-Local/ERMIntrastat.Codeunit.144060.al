@@ -152,7 +152,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup: Create Sales Invoice with EU Customer, create another Sales Header.
-        Initialize;
+        Initialize();
         CustomerNo := CreateEUCustomer;
         ServiceTariffNo := CreateSalesDocument(SalesHeader, CustomerNo, true, SalesHeader."Document Type"::Invoice, '');  // TRUE for EU Service.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -165,7 +165,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify: Verify Service Tariff No of Sales Invoice is also updated on Copied Sales Invoice Line.
         FindSalesLine(SalesLine, SalesHeader2."Document Type", SalesHeader2."No.");
         SalesLine.TestField("Service Tariff No.", ServiceTariffNo);
-        NotificationLifecycleMgt.RecallAllNotifications;
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -177,7 +177,7 @@ codeunit 144060 "ERM Intrastat"
         SalesLine: Record "Sales Line";
     begin
         // Setup: Create Sales Invoice with EU Customer. Update Payment method, Transport Method and Service Tariff No. - Blank.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, CreateEUCustomer, true, SalesHeader."Document Type"::Invoice, '');  // TRUE for EU Service.
         UpdateSalesHeader(SalesHeader, '', '', '');  // Payment method, Transport Method, Service Tariff No. - Blank.
         FindSalesLine(SalesLine, SalesHeader."Document Type", SalesHeader."No.");
@@ -208,7 +208,7 @@ codeunit 144060 "ERM Intrastat"
         ServiceTariffNo: Code[20];
     begin
         // Setup: Create Sales Invoice with EU Customer.
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
         ServiceTariffNo := CreateSalesDocument(SalesHeader, Customer."No.", true, SalesHeader."Document Type"::Invoice, '');  // TRUE for EU Service.
 
@@ -231,7 +231,7 @@ codeunit 144060 "ERM Intrastat"
         SalesHeader: Record "Sales Header";
     begin
         // Setup: Create Sales Invoice with EU Customer. Update Payment method, Transport Method and Service Tariff No. - Blank.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, CreateEUCustomer, true, SalesHeader."Document Type"::Invoice, '');  // TRUE for EU Service.
         UpdateSalesHeader(SalesHeader, '', '', '');  // Payment method, Transport Method, Service Tariff No. - Blank.
 
@@ -257,7 +257,7 @@ codeunit 144060 "ERM Intrastat"
         // [FEATURE] [Purchase]
         // [SCENARIO 376261] If you use the Get Entries function in the Intrastat Journal page for entries created with a purchase of EU services the Document No. field should be filled with Invoice No
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with VAT Setup having Reverse Charge "VAT Posting Type" and No = XXX, "Posting Date" = 10.11.12 and "EU Service" = TRUE
         Vendor.Get(CreateEUVendor);
@@ -277,7 +277,7 @@ codeunit 144060 "ERM Intrastat"
         // [THEN] Line is created in Intrastat Journal with "Document No." = XXX
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         Assert.RecordCount(IntrastatJnlLine, 1);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Document No.", DocumentNo);
     end;
 
@@ -304,7 +304,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup & Exercise: Update Shipment on Invoice on Sales & Receivables Setup. Create and Post Sales Invoice. Create Intrastat Journal Batch. Get Entries on Intrastat Journal.
-        Initialize;
+        Initialize();
         UpdateSalesReceivablesSetupShipmentOnInvoice(ShipmentOnInvoice);
         Customer.Get(CreateEUCustomer);
         DocumentNo := CreateSalesInvoiceIntrastatSetup(IntrastatJnlBatch, Customer."No.", Customer."No.", true, true, WorkDate);  // EU Service, VAT Posting Setup EU Service - TRUE and Document date - Workdate.
@@ -336,7 +336,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup & Exercise: Update Receipt on Invoice on Purchases & Payables Setup. Create and Post Purchase Invoice. Create Intrastat Journal Batch. Get Entries on Intrastat Journal.
-        Initialize;
+        Initialize();
         UpdatePurchasesPayablesSetupReceiptOnInvoice(ReceiptOnInvoice);
         Vendor.Get(CreateEUVendor);
         DocumentNo :=
@@ -357,7 +357,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup & Exercise: Create and Post Purchase Invoice. Create Intrastat Journal Batch with EU service TRUE. Get Entries on Intrastat Journal.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateEUVendor);
         DocumentNo :=
           CreatePurchaseInvoiceIntrastatSetup(IntrastatJnlBatch, Vendor."No.", Vendor."No.", IntrastatJnlBatch.Type::Purchases, true, true);  // EU Service and VAT Posting Setup EU Service - TRUE.
@@ -397,7 +397,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup: Create EU Vendor.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateEUVendor);
 
         // Exercise: Create and Post Purchase Invoice. Create Intrastat Journal Batch with different Type. Get Entries on Intrastat Journal.
@@ -418,7 +418,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup & Exercise: Create and Post Sales Invoice. Create Intrastat Journal Batch with EU service TRUE. Get Entries on Intrastat Journal
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
         DocumentNo := CreateSalesInvoiceIntrastatSetup(IntrastatJnlBatch, Customer."No.", Customer."No.", true, true, WorkDate);  // EU Service, VAT Posting Setup EU Service - TRUE and Document Date - Workdate.
 
@@ -437,7 +437,7 @@ codeunit 144060 "ERM Intrastat"
         DocumentNo: Code[20];
     begin
         // Setup & Exercise : Create and Post Sales Invoice. Create Intrastat Journal Batch with EU service FALSE. Get Entries on Intrastat Journal
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
         DocumentNo := CreateSalesInvoiceIntrastatSetup(IntrastatJnlBatch, Customer."No.", Customer."No.", false, true, WorkDate);  // EU Service - FALSE, VAT Posting Setup EU Service - TRUE and Document Date - Workdate.
 
@@ -457,7 +457,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Country/Region Code on Intrastat Jnl. Line updated from Customer's Ship-to Address.
 
         // Setup: Create and Post Sales Invoice.
-        Initialize;
+        Initialize();
         CreateCustomerShipToAddress(ShipToAddress);
 
         // Exercise: Create Intrastat Journal Batch and Get Entries on Intrastat Journal.
@@ -480,7 +480,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Corrective Entry error while updating Corrective Entry on Intrastat Journal Batch.
 
         // Setup: Create and Post Sales Invoice. Create Intrastat Journal Batch and Get Entries on Intrastat Journal.
-        Initialize;
+        Initialize();
         CreateCustomerShipToAddress(ShipToAddress);
         CreateSalesInvoiceIntrastatSetup(IntrastatJnlBatch, ShipToAddress."Customer No.", ShipToAddress."Customer No.", true, true, WorkDate);  // EU Service, VAT Posting Setup EU Service - TRUE and Document Date - Workdate.
 
@@ -502,7 +502,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify EU Service error while updating EU Service on Intrastat Journal Batch.
 
         // Setup: Create and Post Sales Invoice. Create Intrastat Journal Batch and Get Entries on Intrastat Journal.
-        Initialize;
+        Initialize();
         CreateCustomerShipToAddress(ShipToAddress);
         CreateSalesInvoiceIntrastatSetup(IntrastatJnlBatch, ShipToAddress."Customer No.", ShipToAddress."Customer No.", true, true, WorkDate);  // EU Service, VAT Posting Setup EU Service - TRUE and Document Date - Workdate.
 
@@ -524,7 +524,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify message while updating Service Tariff Number on Sales Header.
 
         // Setup: Create Sales Invoice with EU Customer and update Service Tariff Number.
-        Initialize;
+        Initialize();
         LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
         CreateSalesDocument(SalesHeader, CreateEUCustomer, true, SalesHeader."Document Type"::Invoice, '');  // VAT Posting Setup EU Service - TRUE.
         SalesHeader.Validate("Service Tariff No.", ServiceTariffNumber."No.");
@@ -549,7 +549,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Amount, Date, Service Tariff No and Transport Method, Payment Method Code of VAT Entry is successfully updated on Intrastat Jnl. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
 
         // Exercise: Create and Post Sales Invoice. Create Intrastat Journal Batch with EU service TRUE. Get Entries on Intrastat Journal.
@@ -577,7 +577,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Country/Region Code is successfully updated on Intrastat Jnl. Line.
 
         // Setup.
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
 
         // Exercise: Create and Post Sales Invoice. Create Intrastat Journal Batch with EU service TRUE. Get Entries on Intrastat Journal.
@@ -598,7 +598,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify message while updating Service Tariff Number on Purchase Header.
 
         // Setup: Create Purchase Order with EU Vendor and update Service Tariff Number.
-        Initialize;
+        Initialize();
         LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
         CreatePurchaseDocument(PurchaseHeader, CreateEUVendor, PurchaseHeader."Document Type"::Order, true, '');  // VAT Posting Setup EU Service - TRUE.
         PurchaseHeader.Validate("Service Tariff No.", ServiceTariffNumber."No.");
@@ -621,7 +621,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify VAT Registration from Buy-from Vendor No. of Purchase Invoice updated on Intrastat Jnl. Line.
 
         // Setup: Create Vendor.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateEUVendor);
 
         // Exercise: Create and Post Purchase Invoice. Create Intrastat Journal Batch. Get Entries on Intrastat Journal.
@@ -646,7 +646,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify VAT Registration from Sell-to Customer No. of Sales Invoice updated on Intrastat Jnl. Line.
 
         // Setup: Create Customer.
-        Initialize;
+        Initialize();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         Customer.Get(CreateEUCustomer);
@@ -668,7 +668,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify that Total Weight on Intrastat Journal Page should be a rounded whole value.
 
         // Setup.
-        Initialize;
+        Initialize();
         IntrastatJournal.OpenEdit;
 
         // Exercise: Set values for Quantity and Net Weight on Intrastat Journal Page.
@@ -694,7 +694,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Country/Region Code is successfully updated on Intrastat Jnl. Line from Country/Region's Intrastat Code.
 
         // Setup.
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
         CountryRegion.Get(Customer."Country/Region Code");
 
@@ -719,7 +719,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify that only one line is created from Posted Purchase Invoice on Intrastat Jnl. Line and Posted Purchase Credit Memo line should not found on Intrastat Jnl. Line.
 
         // Setup: Create and Post Purchase Invoice, Purchase Credit Memo.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader."Document Type"::Invoice);
         DocumentNo2 := CreateAndPostPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
 
@@ -746,7 +746,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify that only one line is created from Posted Sales Invoice on Intrastat Jnl. Line and Posted Sales Credit Memo line should not found on Intrastat Jnl. Line.
 
         // Setup: Create and Post Sales Invoice, Sales Credit Memo.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostSalesDocument(SalesHeader."Document Type"::Invoice);
         DocumentNo2 := CreateAndPostSalesDocument(SalesHeader."Document Type"::"Credit Memo");
 
@@ -772,7 +772,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify negative value of Amount should be found on Intrastat Jnl. Line.
 
         // Setup: Create and Post Purchase Credit Memo and modify Intrastat Journal Batch.
-        Initialize;
+        Initialize();
         DocumentNo := CreateAndPostPurchaseDocument(PurchaseHeader."Document Type"::"Credit Memo");
         CreateIntrastatJournalBatch(IntrastatJnlBatch, IntrastatJnlBatch.Type::Purchases, false);  // EU Service - False.
         UpdateIntrastatJnlBatchCorrectiveEntry(IntrastatJnlBatch, true);  // Corrective Entry - TRUE.
@@ -782,7 +782,7 @@ codeunit 144060 "ERM Intrastat"
 
         // Verify: Verify negative value of Amount should be found on Intrastat Jnl. Line.
         PurchCrMemoLine.SetRange("Document No.", DocumentNo);
-        PurchCrMemoLine.FindFirst;
+        PurchCrMemoLine.FindFirst();
         VerifyIntrastatJnlLine(IntrastatJnlBatch.Name, DocumentNo, -PurchCrMemoLine.Amount);
     end;
 
@@ -798,7 +798,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify correct Date updated on Intrastat Journal Line from Sales Invoice Document Date, when EU Service is True on Intrastat Journal Batch.
 
         // Setup.
-        Initialize;
+        Initialize();
         Customer.Get(CreateEUCustomer);
 
         // Exercise: Create and Post Sales Invoice. Create Intrastat Journal Batch with EU service TRUE. Get Entries on Intrastat Journal
@@ -845,7 +845,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify that only one Intrastat line created for two lines of Purchase Document.
 
         // Setup: Create and Post Purchase Document with multiple lines and create Intrastat Journal Batch.
-        Initialize;
+        Initialize();
         CreatePurchaseDocument(PurchaseHeader, CreateEUVendor, DocumentType, true, '');  // EU Service - TRUE.
         Amount := FindAndCreatePurchaseLine(PurchaseHeader);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -893,7 +893,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify that only one Intrastat line created for two lines of Sales Document.
 
         // Setup: Create and Post Sales Document with multiple lines and create Intrastat Journal Batch.
-        Initialize;
+        Initialize();
         CreateSalesDocument(SalesHeader, CreateEUCustomer, true, DocumentType, '');  // EU Service - TRUE.
         Amount := FindAndCreateSalesLine(SalesHeader);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -920,7 +920,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify that Country/Region of Payment Code on Intrastat Jnl. Line must updated from Vendor's Country/Region Code.
 
         // Setup: Create Vendor, create and post Purchase Invoice and create Intrastat Journal Batch.
-        Initialize;
+        Initialize();
         Vendor.Get(CreateEUVendor);
 
         // Exercise: Create and Post Purchase Invoice. Create Intrastat Journal Batch with Type Purchase. Get Entries on Intrastat Journal.
@@ -950,7 +950,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // Verify that count of Intrastat lines matches count of Sales Invoices.
         // Setup: Create and Post Sales Document with multiple lines and create Intrastat Journal Batch.
-        Initialize;
+        Initialize();
 
         for i := 1 to 3 do begin
             CreateSalesDocument(SalesHeader, CreateEUCustomer, false, SalesHeader."Document Type"::Invoice, '');
@@ -964,7 +964,7 @@ codeunit 144060 "ERM Intrastat"
                 ItemNo12 := SalesLine."No.";
                 SalesLine.SetRange("Document No.", SalesHeader."No.");
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-                SalesLine.FindFirst;
+                SalesLine.FindFirst();
                 ItemNo11 := SalesLine."No.";
             end;
 
@@ -972,7 +972,7 @@ codeunit 144060 "ERM Intrastat"
                 ItemNo32 := SalesLine."No.";
                 SalesLine.SetRange("Document No.", SalesHeader."No.");
                 SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-                SalesLine.FindFirst;
+                SalesLine.FindFirst();
                 ItemNo31 := SalesLine."No.";
             end;
 
@@ -1005,7 +1005,7 @@ codeunit 144060 "ERM Intrastat"
         Filename1: Text;
         Filename2: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup. EU Service = FALSE, Corrective = FALSE
         CreateAndPrepareIntrastatJnlLine(
@@ -1036,7 +1036,7 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup. EU Service = FALSE, Corrective = FALSE
         CreateAndPrepareIntrastatJnlLine(IntrastatJnlLine, false, false, '', IntrastatJnlBatchType::Purchase, WorkDate);
@@ -1096,7 +1096,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
-        Initialize;
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         CreateIntrastatJournalBatchWithCorrective(
           IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, false, false, IntrastatJnlBatchType::Sales);
@@ -1126,7 +1126,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         CreateIntrastatJournalBatchWithCorrective(
           IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, false, true, IntrastatJnlBatchType::Sales);
@@ -1156,7 +1156,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
-        Initialize;
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         CreateIntrastatJournalBatchWithCorrective(
           IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, false, false, IntrastatJnlBatchType::Purchase);
@@ -1186,7 +1186,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         CreateIntrastatJournalBatchWithCorrective(
           IntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, false, false, IntrastatJnlBatchType::Purchase);
@@ -1255,7 +1255,7 @@ codeunit 144060 "ERM Intrastat"
         ItemNo: Code[20];
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateAndPostServiceOrder(Qty, Amt, ItemNo, CreateCustomer);
 
         // Exercise: Run Intrastat Journal - Get Entries.
@@ -1283,7 +1283,7 @@ codeunit 144060 "ERM Intrastat"
         FileName: Text;
     begin
         // Verify Progressive No. must be filled before export in case of EU Service = TRUE, Corrective = TRUE
-        Initialize;
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         CreateIntrastatJournalBatchWithCorrective(
           CorrIntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, true, IntrastatJnlBatchType::Purchase);
@@ -1314,7 +1314,7 @@ codeunit 144060 "ERM Intrastat"
         FileName: Text;
     begin
         // Verify exported Progressive No. in case of EU Service = TRUE, Corrective = TRUE
-        Initialize;
+        Initialize();
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         CreateIntrastatJournalBatchWithCorrective(
           CorrIntrastatJnlBatch, IntrastatJnlTemplate.Name, WorkDate, true, true, IntrastatJnlBatchType::Purchase);
@@ -1344,7 +1344,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Get Entries function generates as many line as needed when Purch.Invoice has different Service Tariff Nos in each line
 
         // Setup
-        Initialize;
+        Initialize();
         LinesCount := LibraryRandom.RandIntInRange(2, 5);
         ExpectedAmount := CreatePostPurchInvoiceDiffTariffNo(LinesCount, WorkDate, PostedPurchDocNo);
 
@@ -1369,7 +1369,7 @@ codeunit 144060 "ERM Intrastat"
         // Verify Get Entries function generates as many line as needed when Purch.Invoice has different Service Tariff Nos in each line
 
         // Setup
-        Initialize;
+        Initialize();
         LinesCount := LibraryRandom.RandIntInRange(2, 5);
         ExpectedAmount := -CreatePostSalesInvoiceDiffTariffNo(LinesCount, WorkDate, PostedSalesDocNo);
 
@@ -1395,7 +1395,7 @@ codeunit 144060 "ERM Intrastat"
         Country: Text;
     begin
         // [SCENARIO 376132] Last value of Intrastat export result (scambi.cee file) should be payment country
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Intrastat Journal Line having "Country/Region of Payment Code" of "XX"
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
@@ -1437,7 +1437,7 @@ codeunit 144060 "ERM Intrastat"
         // [FEATURE] [Service Tariff Number]
         // [SCENARIO 379201] If several lines of posted document are united in one Intrastat Line because of the same Service Tariff No., this Intrastat Line should not change its amount after reiterative pressing "Get Entries" button
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with 3 Lines
         CreatePurchInvHeader(PurchaseHeader, VATPostingSetup);
@@ -1511,7 +1511,7 @@ codeunit 144060 "ERM Intrastat"
         // [FEATURE] [Service Tariff Number]
         // [SCENARIO 379201] Intrastat Lines should stay untouched if their deletion was not confirmed after running "Get Entries"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Purchase Invoice with 3 Lines
         CreatePurchInvHeader(PurchaseHeader, VATPostingSetup);
@@ -1584,7 +1584,7 @@ codeunit 144060 "ERM Intrastat"
         // [FEATURE] [Item Charge] [Sales]
         // [SCENARIO 379467] Intrastat should suggest Item Charge Entries from Credit Memos for corrective Batches and should not for non-corrective Batches
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Foreign Customer CCC (e.g. GB)
         CustomerNo := CreateForeignCustomerNo;
@@ -1642,7 +1642,7 @@ codeunit 144060 "ERM Intrastat"
         // [FEATURE] [Item Charge] [Purchase]
         // [SCENARIO 379467] Intrastat should suggest Item Charge Entries from Purchase Credit Memos for corrective Batches and should not for non-corrective Batches
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Foreign Vendor VVV (e.g. GB)
         VendorNo := CreateForeignVendorNo;
@@ -1698,7 +1698,7 @@ codeunit 144060 "ERM Intrastat"
         // [FEATURE] [Item Charge] [Service]
         // [SCENARIO 379467] Intrastat should suggest Item Charge Entries from Service Credit Memos for corrective Batches and should not for non-corrective Batches
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Foreign Customer CCC (e.g. GB)
         CustomerNo := CreateForeignCustomerNo;
@@ -1746,7 +1746,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 379479] Drop shipment Intra-Community sales entry created in the Intrastat Journal by Get Entries function
-        Initialize;
+        Initialize();
 
         // [GIVEN] Drop shipment sales order for customer with EU country "C1" and item "Item"
         ItemNo := CreateSalesOrdersWithDropShipment(SalesHeader);
@@ -1780,7 +1780,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 379479] Drop shipment Intra-Community purchase entry created in the Intrastat Journal by Get Entries function
-        Initialize;
+        Initialize();
 
         // [GIVEN] Drop shipment sales order for customer with EU country "C1" and item "Item"
         ItemNo := CreateSalesOrdersWithDropShipment(SalesHeader);
@@ -1822,7 +1822,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 220495] On export Intrastat Jnl. Lines to file via report 593 "Country/Region of Payment Code" in the end of each line
-        Initialize;
+        Initialize();
         LenCountryCode := 2;
 
         // [GIVEN] Two Intrastat Jnl. Lines with "XX" and "XY" values in "Country/Region of Payment Code" fields
@@ -1866,7 +1866,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 227457] Export rounded amounts, statistical values and total amount of two similar Intrastat Journal Lines with EU Service = FALSE and Corrective Entry = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line[1] with Amount = Statistical Value = 0.01
         // [GIVEN] Intrastat Journal Line[2] copied from Intrastat Journal Line[1]
@@ -1911,7 +1911,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 227457] Export rounded amounts, statistical values and total amount of two Intrastat Journal Lines with EU Service = FALSE and Corrective Entry = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line[1] with Amount = Statistical Value = 0.01
         // [GIVEN] Intrastat Journal Line[2] with Amount = Statistical Value = 1.49
@@ -1962,7 +1962,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 227457] Export rounded amounts, statistical values and total amount of two Intrastat Journal Lines with EU Service = FALSE and Corrective Entry = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line[1] with Amount = 0.01
         // [GIVEN] Intrastat Journal Line[2] with Amount = 1.49
@@ -2013,7 +2013,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 227457] Export rounded amounts, statistical values and total amount of two Intrastat Journal Lines with EU Service = TRUE and Corrective Entry = FALSE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line[1] with Amount = 0.01
         // [GIVEN] Intrastat Journal Line[2] with Amount = 1.49
@@ -2055,7 +2055,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 227457] Export rounded amounts, statistical values and total amount of two Intrastat Journal Lines with EU Service = TRUE and Corrective Entry = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line[1] with Amount = 0.01
         // [GIVEN] Intrastat Journal Line[2] with Amount = 1.49
@@ -2098,7 +2098,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 280801] "Service Tariff No." field of Intrastat Journal Line is cut to first 5 chars, then filled with trailing zeros up to 6 chars, when exported to file.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with "Service Tariff No." = "123456", length is 6 symbols.
         CreateIntrastatJournalBatch(IntrastatJnlBatch, IntrastatJnlBatch.Type::Purchases, true);
@@ -2134,7 +2134,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 280801] "Service Tariff No." field of Intrastat Journal Line is filled with trailing zeros up to 6 chars, when exported to file.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with "Service Tariff No." = "1234", length is 4 symbols.
         CreateIntrastatJournalBatch(IntrastatJnlBatch, IntrastatJnlBatch.Type::Purchases, true);
@@ -2169,7 +2169,7 @@ codeunit 144060 "ERM Intrastat"
         ItemNo: Code[10];
     begin
         // [SCENARIO 272246] The Intrastat Journal Line must contains VAT Registration No. and Country/Region Code from Customer of Service Shipment Header
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer with "VAT Registration No." = "VATRegNo" and "Country/Region Code" = "CRC"
         CreateCustomerWithVATRegNoAndCountryRegion(Customer);
@@ -2200,7 +2200,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 307017] Every line of Intrastat file starts with 'EUROX'.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line.
         CreateIntrastatJournalBatch(IntrastatJnlBatch, IntrastatJnlBatch.Type::Purchases, true);
@@ -2232,7 +2232,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 315978] Intrastat Lines with zero Amount are not exported to intrastat file in case Intrastat Jnl Batch is not corrective.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with Amount = 0 for normal Batch.
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
@@ -2269,7 +2269,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         // [FEATURE] [Export]
         // [SCENARIO 315978] Intrastat Lines with zero Amount are exported to intrastat file in case Intrastat Jnl Batch is corrective.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line with Amount = 0 for Corrective Batch.
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
@@ -2390,9 +2390,9 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         LibraryReportDataset.Reset();
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         IntrastatJnlTemplate.DeleteAll(true);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
         PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
@@ -2401,8 +2401,8 @@ codeunit 144060 "ERM Intrastat"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         SetIntrastatCodeOnCountryRegion;
         SetTariffNoOnItems;
 
@@ -2477,7 +2477,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         LibrarySales.CreateCustomer(Customer);
         CountryRegion.SetFilter("Intrastat Code", '<>''''');
-        CountryRegion.FindFirst;
+        CountryRegion.FindFirst();
         Customer.Validate("Country/Region Code", CountryRegion.Code);
         Customer.Modify(true);
         exit(Customer."No.");
@@ -2508,7 +2508,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
-        Customer.Validate("VAT Registration No.", LibraryUtility.GenerateGUID);
+        Customer.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -2519,7 +2519,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Country/Region Code", CreateVATRegistrationNoFormat);
-        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID);
+        Vendor.Validate("VAT Registration No.", LibraryUtility.GenerateGUID());
         Vendor.Modify(true);
         exit(Vendor."No.");
     end;
@@ -2607,8 +2607,8 @@ codeunit 144060 "ERM Intrastat"
         Vendor.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
         Vendor.Modify(true);
 
-        TransportMethod.FindFirst;
-        PaymentMethod.FindFirst;
+        TransportMethod.FindFirst();
+        PaymentMethod.FindFirst();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         PurchaseHeader.Validate("Transport Method", TransportMethod.Code);
@@ -2658,7 +2658,7 @@ codeunit 144060 "ERM Intrastat"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
         Item.Validate("Tariff No.", TariffNumber."No.");
@@ -2676,7 +2676,7 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlBatch.Validate(Periodicity, IntrastatJnlBatch.Periodicity::Month);
         IntrastatJnlBatch.Validate("EU Service", EUService);
         IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
-        IntrastatJnlBatch.Validate("File Disk No.", LibraryUtility.GenerateGUID);
+        IntrastatJnlBatch.Validate("File Disk No.", LibraryUtility.GenerateGUID());
         IntrastatJnlBatch.Modify(true);
     end;
 
@@ -2741,8 +2741,8 @@ codeunit 144060 "ERM Intrastat"
         TransportMethod: Record "Transport Method";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        TransportMethod.FindFirst;
-        PaymentMethod.FindFirst;
+        TransportMethod.FindFirst();
+        PaymentMethod.FindFirst();
         LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         UpdateSalesHeader(SalesHeader, PaymentMethod.Code, TransportMethod.Code, ServiceTariffNumber."No.");
@@ -2796,7 +2796,7 @@ codeunit 144060 "ERM Intrastat"
         PurchaseLineWithItemCharge: Record "Purchase Line";
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
-        ItemCharge.FindFirst;
+        ItemCharge.FindFirst();
 
         LibraryCashFlowHelper.FindPurchaseLine(PurchaseLineWithItem, PurchaseHeader);
 
@@ -2890,7 +2890,7 @@ codeunit 144060 "ERM Intrastat"
         SalesLineWithItem: Record "Sales Line";
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
-        ItemCharge.FindFirst;
+        ItemCharge.FindFirst();
 
         LibraryCashFlowHelper.FindSalesLine(SalesLineWithItem, SalesHeader);
 
@@ -2915,8 +2915,8 @@ codeunit 144060 "ERM Intrastat"
         TransportMethod: Record "Transport Method";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        TransportMethod.FindFirst;
-        PaymentMethod.FindFirst;
+        TransportMethod.FindFirst();
+        PaymentMethod.FindFirst();
         LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Transport Method", TransportMethod.Code);
@@ -2979,7 +2979,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         Commit();  // Commit required.
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.RunModal;
+        CopySalesDocument.RunModal();
     end;
 
     local procedure CreateVATPostingSetupWithAccounts(VATBusPostingGroupCode: Code[20]; VATPct: Decimal): Code[20]
@@ -2991,11 +2991,11 @@ codeunit 144060 "ERM Intrastat"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroup.Code);
         with VATPostingSetup do begin
             "VAT Calculation Type" := "VAT Calculation Type"::"Reverse Charge VAT";
-            "VAT Identifier" := LibraryUtility.GenerateGUID;
+            "VAT Identifier" := LibraryUtility.GenerateGUID();
             "VAT %" := VATPct;
             "EU Service" := true;
-            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo;
-            "Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo;
+            "Purchase VAT Account" := LibraryERM.CreateGLAccountNo();
+            "Reverse Chrg. VAT Acc." := LibraryERM.CreateGLAccountNo();
             Modify;
             exit("VAT Prod. Posting Group");
         end;
@@ -3029,7 +3029,7 @@ codeunit 144060 "ERM Intrastat"
         with CountryRegion do begin
             SetFilter(Code, '<>%1', CompanyInfo."Country/Region Code");
             SetFilter("Intrastat Code", '<>%1', '');
-            FindFirst;
+            FindFirst();
             exit(Code);
         end;
     end;
@@ -3046,7 +3046,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindFirst();
         Amount := CreatePurchaseLine(PurchaseHeader, PurchaseLine."No.");
         Amount += PurchaseLine.Amount;
     end;
@@ -3054,7 +3054,7 @@ codeunit 144060 "ERM Intrastat"
     local procedure FindIntrastatJournalLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JournalBatchName: Code[10]; DocumentNo: Code[20])
     begin
         FilterIntrastatJournalLine(IntrastatJnlLine, JournalBatchName, DocumentNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
     end;
 
     local procedure FindOrCreateIntrastatArea(): Code[10]
@@ -3080,7 +3080,7 @@ codeunit 144060 "ERM Intrastat"
     local procedure FindPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; DocumentNo: Code[20])
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
-        PurchInvLine.FindFirst;
+        PurchInvLine.FindFirst();
     end;
 
     local procedure FindAndCreateSalesLine(SalesHeader: Record "Sales Header") Amount: Decimal
@@ -3097,19 +3097,19 @@ codeunit 144060 "ERM Intrastat"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange(Type, SalesLine.Type::Item);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20])
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
     end;
 
     local procedure GetEntriesIntrastatJournal()
@@ -3202,8 +3202,8 @@ codeunit 144060 "ERM Intrastat"
         MockIntrastatJnlLineAndPrepare(IntrastatJnlLine, IntrastatJnlBatch, '', '');
         IntrastatJnlLine.Amount := Amount;
         IntrastatJnlLine."Statistical Value" := StatisticalValue;
-        IntrastatJnlLine."Group Code" := LibraryUtility.GenerateGUID;                     // needed for Corrective Entry when not EU Service
-        IntrastatJnlLine."Corrected Intrastat Report No." := LibraryUtility.GenerateGUID; // needed for Corrective Entry when not EU Service
+        IntrastatJnlLine."Group Code" := LibraryUtility.GenerateGUID();                     // needed for Corrective Entry when not EU Service
+        IntrastatJnlLine."Corrected Intrastat Report No." := LibraryUtility.GenerateGUID(); // needed for Corrective Entry when not EU Service
         IntrastatJnlLine.Modify();
     end;
 
@@ -3296,7 +3296,7 @@ codeunit 144060 "ERM Intrastat"
         Clear(SalesDocumentTest);
         SalesHeader.SetRange("No.", No);
         SalesDocumentTest.SetTableView(SalesHeader);
-        SalesDocumentTest.Run;
+        SalesDocumentTest.Run();
     end;
 
     local procedure SetIntrastatCodeOnCountryRegion()
@@ -3325,7 +3325,7 @@ codeunit 144060 "ERM Intrastat"
             IntrastatJnlLine.Validate("Transaction Specification", TransactionSpecification);
             IntrastatJnlLine.Validate("Country/Region of Origin Code", CompanyInfo."Country/Region Code");
             IntrastatJnlLine.Validate(Area, Area);
-            IntrastatJnlLine.Validate("Partner VAT ID", LibraryUtility.GenerateGUID);
+            IntrastatJnlLine.Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
             IntrastatJnlLine.Modify(true);
         until IntrastatJnlLine.Next = 0;
     end;
@@ -3335,7 +3335,7 @@ codeunit 144060 "ERM Intrastat"
         Item: Record Item;
         TariffNumber: Record "Tariff Number";
     begin
-        TariffNumber.FindFirst;
+        TariffNumber.FindFirst();
         Item.SetRange("Tariff No.", '');
         if not Item.IsEmpty() then
             Item.ModifyAll("Tariff No.", TariffNumber."No.");
@@ -3348,12 +3348,12 @@ codeunit 144060 "ERM Intrastat"
         NoSeriesLinePurchase: Record "No. Series Line Purchase";
     begin
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Sales);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         NoSeriesLineSales.SetRange("Series Code", NoSeries.Code);
         NoSeriesLineSales.ModifyAll("Last Date Used", NoSeriesLineSales."Starting Date");
 
         NoSeries.SetRange("No. Series Type", NoSeries."No. Series Type"::Purchase);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         NoSeriesLinePurchase.SetRange("Series Code", NoSeries.Code);
         NoSeriesLinePurchase.ModifyAll("Last Date Used", NoSeriesLinePurchase."Starting Date");
     end;
@@ -3448,7 +3448,7 @@ codeunit 144060 "ERM Intrastat"
         NoSeries.Get(VATBusPostGroup."Default Purch. Operation Type");
 
         RevChargeNoSeries.SetRange("No. Series Type", RevChargeNoSeries."No. Series Type"::Sales);
-        RevChargeNoSeries.FindFirst;
+        RevChargeNoSeries.FindFirst();
         NoSeries.Validate("Reverse Sales VAT No. Series", RevChargeNoSeries.Code);
         NoSeries.Modify(true);
     end;
@@ -3465,11 +3465,11 @@ codeunit 144060 "ERM Intrastat"
         Location.Validate("Country/Region Code", CompanyInfo."Country/Region Code");
         Location.Modify(true);
 
-        if InventoryPostingGroup.FindSet then
+        if InventoryPostingGroup.FindSet() then
             repeat
                 InventoryPostingSetup.SetRange("Location Code", Location.Code);
                 InventoryPostingSetup.SetRange("Invt. Posting Group Code", InventoryPostingGroup.Code);
-                if not InventoryPostingSetup.FindFirst then
+                if not InventoryPostingSetup.FindFirst() then
                     LibraryInventory.CreateInventoryPostingSetup(InventoryPostingSetup, Location.Code, InventoryPostingGroup.Code);
                 InventoryPostingSetup.Validate("Inventory Account", LibraryERM.CreateGLAccountNo);
                 InventoryPostingSetup.Modify(true);
@@ -3552,7 +3552,7 @@ codeunit 144060 "ERM Intrastat"
             SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
             SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
             SetRange("Item No.", ItemNo);
-            FindFirst;
+            FindFirst();
             Assert.AreEqual(ExpectedQty, Quantity, FieldCaption(Quantity));
             Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
         end;
@@ -3622,14 +3622,14 @@ codeunit 144060 "ERM Intrastat"
     begin
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatchName);
         IntrastatJnlLine.SetFilter("Document No.", AcceptableDocNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField(Amount, Amount);
     end;
 
     local procedure VerifyIntrastatJnlLineAmountAndItemDescription(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ServiceTariffNo: Code[10]; Amount: Decimal; ItemDescription: Text[10])
     begin
         IntrastatJnlLine.SetRange("Service Tariff No.", ServiceTariffNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField(Amount, Amount);
         IntrastatJnlLine.TestField("Item Description", ItemDescription);
     end;
@@ -3648,7 +3648,7 @@ codeunit 144060 "ERM Intrastat"
     begin
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
-        IntrastatJnlLine.FindFirst;
+        IntrastatJnlLine.FindFirst();
         IntrastatJnlLine.TestField("Partner VAT ID", Customer."VAT Registration No.");
         IntrastatJnlLine.TestField("Country/Region Code", Customer."Country/Region Code");
     end;

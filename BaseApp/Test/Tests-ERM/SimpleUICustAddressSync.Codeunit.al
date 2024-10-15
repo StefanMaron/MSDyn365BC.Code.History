@@ -34,7 +34,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // [WHEN]User finished editing the header (Sell-to Address fields) and either leaves the page,
         // invokes an action or starts working on the lines
         // [THEN]The address fields on the Sell-to Customer do not get sync-ed with the data from the Sales Header.
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -68,7 +68,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // [WHEN]User finished editing the header (Ship-to Address fields) and either leaves the page,
         // invokes an action or starts working on the lines
         // [THEN]The address fields on the Sell-to Customer do not get sync-ed with the data from the Sales Header.
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -105,7 +105,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // [WHEN] Confirm to replace the Sell-to Customer and not to replace the Bill-to Customer
         // [THEN] Sell-to Address details are cleared from the Sales Invoice
         // [THEN] Bill-to Address details are not cleared from the Sales Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(OriginalCustomer);
@@ -146,7 +146,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // [WHEN] Confirm not to replace the Sell-to Customer and to replace the Bill-to Customer
         // [THEN] Sell-to Address details are not cleared from the Sales Invoice
         // [THEN] Bill-to Address details are cleared from the Sales Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(OriginalCustomer);
@@ -185,7 +185,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // [WHEN] Confirm to replace both Sell-to Customer and Bill-to Customer
         // [THEN] Sell-to Address details are cleared from the Sales Invoice
         // [THEN] Bill-to Address details are cleared from the Sales Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(OriginalCustomer);
@@ -228,7 +228,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         // [THEN] Sell-to Address details are overriden on the Sales Invoice
         // [THEN] Ship-to Address details are overriden on the Sales Invoice
         // [THEN] Bill-to Address details are overriden on the Sales Invoice
-        Initialize;
+        Initialize();
 
         // Setup
         LibrarySales.CreateCustomer(OriginalCustomer);
@@ -260,7 +260,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -278,7 +278,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -296,7 +296,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -314,7 +314,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -332,7 +332,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -350,7 +350,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -368,7 +368,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateCustomer(Customer);
@@ -387,7 +387,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -410,7 +410,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -433,7 +433,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -456,7 +456,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -479,7 +479,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -502,7 +502,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -525,7 +525,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -548,7 +548,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -571,7 +571,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -594,7 +594,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -617,7 +617,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -640,7 +640,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -663,7 +663,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -686,7 +686,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -709,7 +709,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -732,7 +732,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -755,7 +755,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -778,7 +778,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -801,7 +801,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -824,7 +824,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -847,7 +847,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        Initialize;
+        Initialize();
 
         // Setup.
         LibrarySales.CreateSalesDocumentWithItem(
@@ -946,7 +946,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Simple UI: Cust. Address Sync");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
         SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
         if isInitialized then
@@ -954,9 +954,9 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Simple UI: Cust. Address Sync");
 
         if not LibraryFiscalYear.AccountingPeriodsExists then
-            LibraryFiscalYear.CreateFiscalYear;
+            LibraryFiscalYear.CreateFiscalYear();
 
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryApplicationArea.EnableFoundationSetup();
 
         isInitialized := true;
         Commit();
@@ -1012,7 +1012,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         LibraryERM.CreatePostCode(SellToPostCode);
         LibraryERM.CreatePostCode(BillToPostCode);
 
-        SalesInvoice.OpenNew;
+        SalesInvoice.OpenNew();
         SalesInvoice."Posting Date".SetValue(WorkDate);
         SalesInvoice."Sell-to Post Code".SetValue(SellToPostCode.Code);
         SalesInvoice."Sell-to Address".SetValue(GenerateSellToAddress);
@@ -1116,7 +1116,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader.SetCurrentKey("Document Type", "Sell-to Customer No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
     end;
 
     local procedure FindBillToCustomerSalesInvoice(var SalesHeader: Record "Sales Header"; BillToCustomerNo: Code[20])
@@ -1124,7 +1124,7 @@ codeunit 138044 "Simple UI: Cust. Address Sync"
         SalesHeader.SetCurrentKey("Document Type", "Bill-to Customer No.");
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("Bill-to Customer No.", BillToCustomerNo);
-        SalesHeader.FindLast;
+        SalesHeader.FindLast();
     end;
 
     [ConfirmHandler]

@@ -42,7 +42,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [THEN] The user will get an error that he cannot post a Sales invoice that is not approved and released.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -72,7 +72,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [THEN] The user will get an error that he cannot release a Sales invoice that is not approved.
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
 
         LibrarySales.CreateSalesInvoice(SalesHeader);
@@ -104,7 +104,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Invoice is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, SalesHeader, IntermediateApproverUserSetup, LineAmount);
 
@@ -150,7 +150,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [WHEN] Salesperson rejects the approval request.
         // [THEN] Sales Invoice is reopened and approval entries are marked as rejected.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, SalesHeader, IntermediateApproverUserSetup, LineAmount);
 
@@ -198,7 +198,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [WHEN] Approval Request is approved.
         // [THEN] Sales Invoice is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, SalesHeader, IntermediateApproverUserSetup, LineAmount);
 
@@ -257,7 +257,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [WHEN] Sender cancels the approval request.
         // [THEN] Sales Invoice is opend and approval requests are marked as cancelled.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, SalesHeader, IntermediateApproverUserSetup, LineAmount);
 
@@ -299,7 +299,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [THEN] An approval entry is created and approved automatically.
         // [THEN] Sales Invoice is released.
 
-        Initialize;
+        Initialize();
 
         LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.SalesInvoiceCreditLimitApprovalWorkflowCode);
 
@@ -339,7 +339,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         LineAmount := LibraryRandom.RandInt(5000);
@@ -421,7 +421,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     begin
         // [SCENARIO 3] Approval action availability.
         // [GIVEN] SalesHeader approval disabled.
-        Initialize;
+        Initialize();
 
         // [WHEN] SalesHeader card is opened.
         LineAmount := LibraryRandom.RandInt(5000);
@@ -489,7 +489,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [WHEN] Salesperson approves the approval request.
         // [THEN] Sales Invoice is released.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, SalesHeader, IntermediateApproverUserSetup, LineAmount);
 
@@ -542,7 +542,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         // [WHEN] Next approver opens the document.
         // [THEN] The user can only cancel the request if he is an approval administrator.
 
-        Initialize;
+        Initialize();
 
         SendDocForApproval(Workflow, SalesHeader, IntermediateApproverUserSetup, LineAmount);
 
@@ -621,10 +621,10 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
         UserSetup: Record "User Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"WF Demo SalesInv CL Approvals");
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         UserSetup.DeleteAll();
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.CreateVATData();
         LibraryWorkflow.DisableAllWorkflows;
         if IsInitialized then
             exit;
@@ -664,7 +664,7 @@ codeunit 134176 "WF Demo SalesInv CL Approvals"
     local procedure RegetSalesDocument(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.SetRecFilter;
-        SalesHeader.FindFirst;
+        SalesHeader.FindFirst();
     end;
 
     local procedure VerifySalesInvIsReleased(var SalesHeader: Record "Sales Header")

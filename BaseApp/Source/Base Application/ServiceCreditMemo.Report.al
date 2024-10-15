@@ -72,10 +72,10 @@ report 5912 "Service - Credit Memo"
                     column(CompanyInfoGiroNo; CompanyInfo."Giro No.")
                     {
                     }
-                    column(CompanyInfoBankName; CompanyInfo."Bank Name")
+                    column(CompanyInfoBankName; CompanyBankAccount.Name)
                     {
                     }
-                    column(CompanyInfoBankAccNo; CompanyInfo."Bank Account No.")
+                    column(CompanyInfoBankAccNo; CompanyBankAccount."Bank Account No.")
                     {
                     }
                     column(BilltoCustNo_ServiceCrMemoHeader; "Service Cr.Memo Header"."Bill-to Customer No.")
@@ -644,6 +644,9 @@ report 5912 "Service - Credit Memo"
 
                 FormatAddressFields("Service Cr.Memo Header");
                 FormatDocumentFields("Service Cr.Memo Header");
+		
+                if not CompanyBankAccount.Get("Service Cr.Memo Header"."Company Bank Account Code") then
+                    CompanyBankAccount.CopyBankFieldsFromCompanyInfo(CompanyInfo);
 
                 ServiceHeader.TransferFields("Service Cr.Memo Header");
                 ServiceHeader.FindVATExemption(VATExemption, VATExemptionCheck, true);
@@ -718,6 +721,7 @@ report 5912 "Service - Credit Memo"
         Text006: Label 'Page %1';
         GLSetup: Record "General Ledger Setup";
         SalesPurchPerson: Record "Salesperson/Purchaser";
+        CompanyBankAccount: Record "Bank Account";
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -893,7 +897,7 @@ report 5912 "Service - Credit Memo"
         DimTxtArrLength := 0;
         for i := 1 to ArrayLen(DimTxtArr) do
             DimTxtArr[i] := '';
-        if not DimSetEntry.FindSet then
+        if not DimSetEntry.FindSet() then
             exit;
         Separation := '; ';
         repeat

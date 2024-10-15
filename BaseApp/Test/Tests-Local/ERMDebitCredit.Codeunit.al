@@ -378,7 +378,7 @@ codeunit 144162 "ERM Debit Credit"
     begin
         GLBookEntry.SetRange("Document No.", DocumentNo);
         GLBookEntry.SetRange(Positive, Positive);
-        GLBookEntry.FindFirst;
+        GLBookEntry.FindFirst();
         GLBookEntry.CalcFields("Credit Amount", "Debit Amount");
     end;
 
@@ -386,7 +386,7 @@ codeunit 144162 "ERM Debit Credit"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange(Positive, Positive);
-        GLEntry.FindFirst;
+        GLEntry.FindFirst();
     end;
 
     local procedure UpdateCreditAmountOnGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; CreditAmount: Decimal)

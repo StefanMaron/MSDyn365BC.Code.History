@@ -185,7 +185,7 @@ table 12186 "VAT Exemption"
         VATExemption.SetRange("No.", "No.");
         VATExemption.SetFilter("VAT Exempt. No.", '<>%1', "VAT Exempt. No.");
         VATExemption.SetFilter("VAT Exempt. Ending Date", '>=%1', "VAT Exempt. Starting Date");
-        if VATExemption.FindFirst then
+        if VATExemption.FindFirst() then
             Error(Text12101);
     end;
 
@@ -203,11 +203,11 @@ table 12186 "VAT Exemption"
         VATExemption.SetRange("No.", "No.");
         VATExemption.SetFilter("VAT Exempt. No.", '<>%1', "VAT Exempt. No.");
         VATExemption.SetRange("VAT Exempt. Starting Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
-        if VATExemption.FindFirst then
+        if VATExemption.FindFirst() then
             Error(TwoVATExemptionsInOnePeriodErr);
         VATExemption.SetRange("VAT Exempt. Starting Date");
         VATExemption.SetRange("VAT Exempt. Ending Date", "VAT Exempt. Starting Date", "VAT Exempt. Ending Date");
-        if VATExemption.FindFirst then
+        if VATExemption.FindFirst() then
             Error(TwoVATExemptionsInOnePeriodErr);
     end;
 

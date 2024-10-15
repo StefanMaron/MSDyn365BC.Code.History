@@ -117,7 +117,7 @@ codeunit 144088 "Decl. of Intent Export Test"
           'Description of Goods', SigningCompanyOfficials."No.", AmountToDeclare, 0, ExportFlags, false, '', '');
         DeclarationOfIntentReport.SetTableView(VATExemption);
         Commit();
-        DeclarationOfIntentReport.Run;
+        DeclarationOfIntentReport.Run();
 
         // [THEN] The content of report reflects the data in NAV
         // [THEN] Section "Declaration Data" field "Surname or company's name" = "CRONUS Italia S.p.A." (TFS 296019)
@@ -335,7 +335,7 @@ codeunit 144088 "Decl. of Intent Export Test"
     local procedure CreateCompanyOfficial(var CompanyOfficials: Record "Company Officials")
     begin
         CompanyOfficials.Init();
-        CompanyOfficials."No." := LibraryUtility.GenerateGUID;
+        CompanyOfficials."No." := LibraryUtility.GenerateGUID();
         CompanyOfficials."First Name" :=
           LibraryUtility.GenerateRandomCode(CompanyOfficials.FieldNo("First Name"), DATABASE::"Company Officials");
         CompanyOfficials."Last Name" :=

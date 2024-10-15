@@ -81,7 +81,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] Export Sales Invoice with item GTIN
         // [SCENARIO 259342] Export Sales Invoice with customer "PA Code" = "1234567" (private company)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice (Customer with "PA Code" = "123456") with no currency
         CustomerNo := CreateCustomer;
@@ -124,7 +124,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 270181] Export Sales Invoice with blank item GTIN
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice with blank item GTIN
         CustomerNo := CreateCustomer;
@@ -132,7 +132,7 @@ codeunit 144200 "FatturaPA Test"
         SalesInvoiceHeader.SetRange("No.", DocumentNo);
         SalesInvoiceLine.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
-        SalesInvoiceLine.FindFirst;
+        SalesInvoiceLine.FindFirst();
         UpdateItemGTIN(SalesInvoiceLine."No.", '');
 
         // [WHEN] The document is exported to FatturaPA
@@ -162,7 +162,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Credit Memo and a certificate
         CustomerNo := CreateCustomer;
@@ -197,7 +197,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Service Invoice
         CustomerNo := CreateCustomer;
@@ -232,7 +232,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Service Credit Memo
         CustomerNo := CreateCustomer;
@@ -269,7 +269,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice] [Batch]
-        Initialize;
+        Initialize();
         // [GIVEN] Two posted Sales Invoices
         CustomerNo := CreateCustomer;
         DocumentNo1 :=
@@ -307,7 +307,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice] [Batch]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted Service Invoices
         CustomerNo1 := CreateCustomer;
@@ -346,7 +346,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo] [Batch]
-        Initialize;
+        Initialize();
         // [GIVEN] Two posted Sales Credit Memos
         CustomerNo := CreateCustomer;
         DocumentNo1 :=
@@ -384,7 +384,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo] [Batch]
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two posted Service Credit Memos
         CustomerNo1 := CreateCustomer;
@@ -423,7 +423,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 286713] Export Sales Invoice with split payment
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice with Amount = 100 and split payment line with amount = -100
         // [GIVEN VAT Amount  = 18, split payment line VAT Amount = -18
@@ -506,7 +506,7 @@ codeunit 144200 "FatturaPA Test"
         TransmissionIntermediaryVendor: Record Vendor;
     begin
         // [FEATURE] [Sales] [Invoice] [Post And Send] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -551,7 +551,7 @@ codeunit 144200 "FatturaPA Test"
         TransmissionIntermediaryVendor: Record Vendor;
     begin
         // [FEATURE] [Sales] [Credit Memo] [Post And Send] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -595,7 +595,7 @@ codeunit 144200 "FatturaPA Test"
         TransmissionIntermediaryVendor: Record Vendor;
     begin
         // [FEATURE] [Sales] [Invoice] [Post And Send] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -638,7 +638,7 @@ codeunit 144200 "FatturaPA Test"
         TransmissionIntermediaryVendor: Record Vendor;
     begin
         // [FEATURE] [Service] [Credit Memo] [Post And Send] [UI]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -684,7 +684,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Invoice]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -735,7 +735,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Sales] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -788,7 +788,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Invoice]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -839,7 +839,7 @@ codeunit 144200 "FatturaPA Test"
         ServerFileName: Text[250];
     begin
         // [FEATURE] [Service] [Credit Memo]
-        Initialize;
+        Initialize();
 
         // [GIVEN] A new customer with no payment method, payment terms nor name
         // [GIVEN] Company information is cleared
@@ -892,7 +892,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 269125] File Name increments by one when next FatturaPA is exported.
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice.
         CustomerNo := CreateCustomer;
@@ -928,7 +928,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 269121] DatiGenerali has two DatiOrdineAcquisto with RiferimentoNumeroLinea and IdDocumento each when Sales Invoice is posted for two different Shipments.
         // TFS 284906: IDDocumento reported with Customer Purchase Order No. of Sales Invoice
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
 
         // [GIVEN] Create and post two Sales Orders "SO1" and "SO2" as Shipments.
@@ -971,7 +971,7 @@ codeunit 144200 "FatturaPA Test"
         // [SCENARIO 269121] DatiGenerali has one DatiOrdineAcquisto with two RiferimentoNumeroLinea and one IdDocumento when Sales Invoice is posted for Shipment with two lines.
         // TFS 284906: IDDocumento reported with Customer Purchase Order No. of Sales Invoice
 
-        Initialize;
+        Initialize();
         CustomerNo := CreateCustomer;
 
         // [GIVEN] Create and post Sales Order "SO" with two lines as Shipments.
@@ -1013,7 +1013,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Invoice] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice with "Unit Price" = 150 and "Line Discount %" = 30
         CustomerNo := CreateCustomer;
@@ -1053,7 +1053,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Service] [Invoice] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Service Invoice with "Unit Price" = 150 and "Line Discount %" = 30
         CustomerNo := CreateCustomer;
@@ -1094,7 +1094,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Sales] [Credit Memo] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Sales Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Credit Memo with "Unit Price" = 150 and "Line Discount %" = 30
         CustomerNo := CreateCustomer;
@@ -1135,7 +1135,7 @@ codeunit 144200 "FatturaPA Test"
         // [FEATURE] [Service] [Credit Memo] [Line Discount]
         // [SCENARIO 273569] Importo node has value of Unit Price Discount Amount when send Service Invoice
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Service Invoice with "Unit Price" = 150 and "Line Discount %" = 30
         CustomerNo := CreateCustomer;
@@ -1204,7 +1204,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 259342] Export Sales Invoice with customer "PA Code" = "1234567" (private company)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice (Customer with "PA Code" = "1234567")
         CustomerNo := CreatePrivateCompanyCustomer;
@@ -1240,7 +1240,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 287428] A value of "PEC E-mail Address" of Customer used when export Sales Invoice with customer "PA Code" = "0000000" (private company)
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice (Customer with "PA Code" = "0000000", "PEC E-Mail Address" = "private@customer.com")
         CustomerNo := LibraryITLocalization.CreateFatturaCustomerNo(PadStr('', 7, '0'));
@@ -1278,7 +1278,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 284454] Exporting a document with negative quantity doesn't produce an invalid negative quantity element
-        Initialize;
+        Initialize();
 
         // [GIVEN] A posted Sales Invoice with 2 lines, one with positive Quantity, second with negative Quantity, both have Unit Price = X
         CreateAndPostSalesInvoiceWithNegativeLine(UnitPrice, Quantity, DocumentNo, CreatePaymentMethod, CreatePaymentTerms, CreateCustomer);
@@ -1294,14 +1294,14 @@ codeunit 144200 "FatturaPA Test"
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'Quantita');
         Assert.RecordCount(TempXMLBufferPart, 1);
         // [THEN] This element corresponds to Quantity on first line
-        TempXMLBufferPart.FindFirst;
+        TempXMLBufferPart.FindFirst();
         TempXMLBufferPart.TestField(Value, FormatAmount(Quantity));
 
         // [THEN] There are two "PrezzoUnitario" elements, corresponding to both lines.
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'PrezzoUnitario');
         Assert.RecordCount(TempXMLBufferPart, 2);
         // [THEN] The second element corresponds to 'negative' line and must have value of -X.
-        TempXMLBufferPart.FindLast;
+        TempXMLBufferPart.FindLast();
         TempXMLBufferPart.TestField(Value, FormatAmount(-UnitPrice));
     end;
 
@@ -1319,7 +1319,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 334296] Exporting a document with local customer, populates 'CAP' element with its Post Code
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for a local customer
         CustomerNo := CreateCustomer;
@@ -1333,7 +1333,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [THEN] 'CAP' element is populated with local Customer's Post Code
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'CessionarioCommittente/Sede/CAP');
-        TempXMLBufferPart.FindFirst;
+        TempXMLBufferPart.FindFirst();
         TempXMLBufferPart.TestField(Value, GetCustomerPostCode(CustomerNo));
     end;
 
@@ -1352,7 +1352,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 334296] Exporting a document with foreign customer, populates 'CAP' element with '00000'
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Sales Invoice for a foreign customer
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -1367,7 +1367,7 @@ codeunit 144200 "FatturaPA Test"
 
         // [THEN] 'CAP' element is populated with '00000' for a foreign Customer
         TempXMLBuffer.FindNodesByXPath(TempXMLBufferPart, 'CessionarioCommittente/Sede/CAP');
-        TempXMLBufferPart.FindFirst;
+        TempXMLBufferPart.FindFirst();
         TempXMLBufferPart.TestField(Value, '00000');
     end;
 
@@ -1529,7 +1529,7 @@ codeunit 144200 "FatturaPA Test"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         ServiceInvoiceDiscountAmount := 0;
 
         if IsInitialized then
@@ -1604,7 +1604,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         CreateSalesDocument(SalesHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Quantity := SalesLine.Quantity;
         UnitPrice := SalesLine."Unit Price";
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, SalesLine."No.", -1);
@@ -1678,7 +1678,7 @@ codeunit 144200 "FatturaPA Test"
     begin
         CreateAndPostServiceDocument(ServiceHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, ServiceHeader."Document Type"::Invoice);
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         DocumentRecordRef.GetTable(ServiceInvoiceHeader);
         exit(GetDocumentNo(DocumentRecordRef));
     end;
@@ -1691,7 +1691,7 @@ codeunit 144200 "FatturaPA Test"
         CreateAndPostServiceDocument(
           ServiceHeader, PaymentMethodCode, PaymentTermsCode, CustomerNo, ServiceHeader."Document Type"::"Credit Memo");
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         DocumentRecordRef.GetTable(ServiceCrMemoHeader);
         exit(GetDocumentNo(DocumentRecordRef));
     end;
@@ -1704,7 +1704,7 @@ codeunit 144200 "FatturaPA Test"
         CreateAndPostServiceDicWithLineDisc(
           ServiceHeader."Document Type"::Invoice, PaymentMethodCode, PaymentTermsCode, CustomerNo);
         ServiceInvoiceHeader.SetRange("Customer No.", CustomerNo);
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
         DocumentRecordRef.GetTable(ServiceInvoiceHeader);
         exit(GetDocumentNo(DocumentRecordRef));
     end;
@@ -1717,7 +1717,7 @@ codeunit 144200 "FatturaPA Test"
         CreateAndPostServiceDicWithLineDisc(
           ServiceHeader."Document Type"::"Credit Memo", PaymentMethodCode, PaymentTermsCode, CustomerNo);
         ServiceCrMemoHeader.SetRange("Customer No.", CustomerNo);
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
         DocumentRecordRef.GetTable(ServiceCrMemoHeader);
         exit(GetDocumentNo(DocumentRecordRef));
     end;
@@ -1754,8 +1754,8 @@ codeunit 144200 "FatturaPA Test"
     begin
         Customer.Get(CreateCustomer);
         Customer.Validate("Country/Region Code", CountryRegionCode);
-        Customer.Validate(City, LibraryUtility.GenerateGUID);
-        Customer.Validate("Post Code", LibraryUtility.GenerateGUID);
+        Customer.Validate(City, LibraryUtility.GenerateGUID());
+        Customer.Validate("Post Code", LibraryUtility.GenerateGUID());
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -1843,7 +1843,7 @@ codeunit 144200 "FatturaPA Test"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         SalesHeader.Validate("Payment Method Code", CreatePaymentMethod);
         SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
-        SalesHeader.Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID);
+        SalesHeader.Validate("Customer Purchase Order No.", LibraryUtility.GenerateGUID());
         SalesHeader.Modify(true);
 
         SalesShipmentLine.SetRange("Sell-to Customer No.", CustomerNo);
@@ -1857,7 +1857,7 @@ codeunit 144200 "FatturaPA Test"
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
@@ -1909,7 +1909,7 @@ codeunit 144200 "FatturaPA Test"
         VATEntry.SetRange(Type, TypeValue);
         VATEntry.SetRange("Document Type", DocTypeValue);
         VATEntry.SetRange("Document No.", DocNoValue);
-        if VATEntry.FindFirst then
+        if VATEntry.FindFirst() then
             if VATEntry."Unrealized Amount" <> 0 then
                 exit('D');
         exit('I');
@@ -1966,14 +1966,14 @@ codeunit 144200 "FatturaPA Test"
             until LineRecRef.Next = 0;
 
             // fill in LineData
-            LineRecRef.FindFirst;
+            LineRecRef.FindFirst();
             repeat
                 if not IsSplitPaymentLine(LineRecRef) then
                     VerifyLineData(TempXMLBuffer, LineRecRef, ItemGTIN, VATTransactionNature);
             until LineRecRef.Next = 0;
 
             // fill in LineVATData
-            LineRecRef.FindFirst;
+            LineRecRef.FindFirst();
             repeat
                 if not IsSplitPaymentLine(LineRecRef) then
                     VerifyLineVATData(TempXMLBuffer, LineRecRef, IsSplitPayment, VATTransactionNature);
@@ -1988,11 +1988,11 @@ codeunit 144200 "FatturaPA Test"
     begin
         repeat
             if IsSplitPaymentLine(LineRecRef) then begin
-                LineRecRef.FindFirst;
+                LineRecRef.FindFirst();
                 exit(true);
             end;
         until LineRecRef.Next = 0;
-        LineRecRef.FindFirst;
+        LineRecRef.FindFirst();
         exit(false)
     end;
 
@@ -2470,7 +2470,7 @@ codeunit 144200 "FatturaPA Test"
             CustLedgerEntry.SetRange("Document Type", DocumentType);
             CustLedgerEntry.SetRange("Document No.", DocNo);
             CustLedgerEntry.SetRange("Posting Date", PostingDate);
-            CustLedgerEntry.FindFirst;
+            CustLedgerEntry.FindFirst();
             CustLedgerEntry.CalcFields("Amount (LCY)");
 
             FindNodesByXPath(TempXMLBuffer, 'p:FatturaElettronica/FatturaElettronicaBody/DatiPagamento');
@@ -2651,14 +2651,14 @@ codeunit 144200 "FatturaPA Test"
     begin
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetRange("Document No.", ServiceHeader."No.");
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure PostAndSendSalesInvoice(SalesHeader: Record "Sales Header")

@@ -631,7 +631,7 @@ report 12120 "VAT Register - Print"
                         VATBookEntry2: Record "VAT Book Entry";
                     begin
                         VATBookEntryTemp2.SetRange("Entry No.", "Entry No.");
-                        if VATBookEntryTemp2.FindFirst then
+                        if VATBookEntryTemp2.FindFirst() then
                             CurrReport.Skip();
 
                         if "VAT Register".Type = "VAT Register".Type::Purchase then
@@ -1173,7 +1173,7 @@ report 12120 "VAT Register - Print"
             VATBookEntry.SetFilter(Type, '<>%1', VATBookEntry.Type::Settlement);
             NoSeries.Reset();
             NoSeries.SetRange("VAT Register", VATRegister.Code);
-            if NoSeries.FindSet then begin
+            if NoSeries.FindSet() then begin
                 FirstOne := true;
                 repeat
                     if FirstOne then begin
@@ -1185,7 +1185,7 @@ report 12120 "VAT Register - Print"
                 VATBookEntry.SetFilter("No. Series", FilterString);
             end;
 
-            if VATBookEntry.FindFirst then
+            if VATBookEntry.FindFirst() then
                 Error(NotPrintedEntriesErr, VATBookEntry."Entry No.", VATBookEntry."Posting Date");
 
             if not ControlPeriod then
@@ -1428,7 +1428,7 @@ report 12120 "VAT Register - Print"
             SetRange("VAT Deductible %", VATBookEntry."Deductible %");
             SetRange("VAT %", VATBookEntry."VAT %");
 
-            if FindFirst then begin
+            if FindFirst() then begin
                 Base := Base + VATBookEntry.Base;
                 Amount := Amount + VATBookEntry.Amount;
                 "Nondeductible Base" := "Nondeductible Base" + VATBookEntry."Nondeductible Base";

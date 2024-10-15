@@ -37,7 +37,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 294788] Fattura Stamp information exports to DatiBollo XML node for Sales Order
 
-        Initialize;
+        Initialize();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Order, true);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
@@ -61,7 +61,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294788] Fattura Stamp information exports to DatiBollo XML node for Sales Invoice
 
-        Initialize;
+        Initialize();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Invoice, true);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
@@ -85,7 +85,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 294788] Fattura Stamp information exports to DatiBollo XML node for Sales Credit Memo
 
-        Initialize;
+        Initialize();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::"Credit Memo", true);
 
         SalesCrMemoHeader.SetRange("No.", DocNo);
@@ -108,7 +108,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Order]
         // [SCENARIO 294788] Fattura Stamp information exports to DatiBollo XML node for Service Order
 
-        Initialize;
+        Initialize();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Order, true);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
@@ -131,7 +131,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 294788] Fattura Stamp information exports to DatiBollo XML node for Service Invoice
 
-        Initialize;
+        Initialize();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Invoice, true);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
@@ -154,7 +154,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 294788] Fattura Stamp information exports to DatiBollo XML node for Service Credit Memo
 
-        Initialize;
+        Initialize();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", true);
 
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
@@ -178,7 +178,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Order]
         // [SCENARIO 294788] No DatiBollo XML node when Fattura Stamp not specified for Sales Order
 
-        Initialize;
+        Initialize();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Order, false);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
@@ -202,7 +202,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 294788] No DatiBollo XML node when Fattura Stamp not specified for Sales Invoice
 
-        Initialize;
+        Initialize();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Invoice, false);
 
         SalesInvoiceHeader.SetRange("No.", DocNo);
@@ -226,7 +226,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 294788] No DatiBollo XML node when Fattura Stamp not specified for Sales Credit Memo
 
-        Initialize;
+        Initialize();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::"Credit Memo", false);
 
         SalesCrMemoHeader.SetRange("No.", DocNo);
@@ -249,7 +249,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Order]
         // [SCENARIO 294788] No DatiBollo XML node when Fattura Stamp not specified for Service Order
 
-        Initialize;
+        Initialize();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Order, false);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
@@ -272,7 +272,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Invoice]
         // [SCENARIO 294788] No DatiBollo XML node when Fattura Stamp not specified for Service Invoice
 
-        Initialize;
+        Initialize();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Invoice, false);
 
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
@@ -295,7 +295,7 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 294788] No DatiBollo XML node when Fattura Stamp not specified for Service Credit Memo
 
-        Initialize;
+        Initialize();
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", false);
 
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
@@ -316,8 +316,8 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [UI] [Sales] [Order] [UI]
         // [SCENARIO 294788] Fattura Stamp field visible on Sales Order page
 
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Order, true);
 
         SalesOrder.OpenEdit;
@@ -339,8 +339,8 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [UI] [Sales] [Invoice] [UI]
         // [SCENARIO 294788] Fattura Stamp field visible on Sales Invoice Order page
 
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::Invoice, true);
 
         SalesInvoice.OpenEdit;
@@ -362,8 +362,8 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Sales] [Credit Memo] [UI]
         // [SCENARIO 294788] Fattura Stamp field visible on Sales Credit Memo page
 
-        Initialize;
-        LibraryApplicationArea.EnableFoundationSetup;
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
         DocNo := PostSalesDocumentWithStamp(SalesHeader, SalesHeader."Document Type"::"Credit Memo", true);
 
         SalesCreditMemo.OpenEdit;
@@ -385,11 +385,11 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Order] [UI]
         // [SCENARIO 294788] Fattura Stamp field visible on Service Order page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableServiceManagementSetup;
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Order, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         ServiceOrder.OpenEdit;
         ServiceOrder.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
@@ -410,11 +410,11 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Invoice] [UI]
         // [SCENARIO 294788] Fattura Stamp field visible on Service Invoice page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableServiceManagementSetup;
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::Invoice, true);
         ServiceInvoiceHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ServiceInvoiceHeader.FindFirst;
+        ServiceInvoiceHeader.FindFirst();
 
         ServiceInvoice.OpenEdit;
         ServiceInvoice.FILTER.SetFilter("No.", ServiceInvoiceHeader."No.");
@@ -435,11 +435,11 @@ codeunit 144203 "FatturaPA Stamp"
         // [FEATURE] [Service] [Credit Memo] [UI]
         // [SCENARIO 294788] Fattura Stamp field visible on Service Credit Memo page
 
-        Initialize;
+        Initialize();
         LibraryApplicationArea.EnableServiceManagementSetup;
         PostServiceDocumentWithStamp(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", true);
         ServiceCrMemoHeader.SetRange("Bill-to Customer No.", ServiceHeader."Bill-to Customer No.");
-        ServiceCrMemoHeader.FindFirst;
+        ServiceCrMemoHeader.FindFirst();
 
         ServiceCreditMemo.OpenEdit;
         ServiceCreditMemo.FILTER.SetFilter("No.", ServiceCrMemoHeader."No.");
@@ -451,7 +451,7 @@ codeunit 144203 "FatturaPA Stamp"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 

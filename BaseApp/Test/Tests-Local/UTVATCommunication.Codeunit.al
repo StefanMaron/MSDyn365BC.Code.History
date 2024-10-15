@@ -77,7 +77,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         // Purpose of the test is to verify error on Prepmt. CM Refers to Period of Table - 39 Purchase Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, true, PurchaseHeader.Resident::Resident, PurchaseLine."Prepmt. CM Refers to Period"::Current);  // Using value True for Individual Person.
 
         // Exercise.
@@ -97,7 +97,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         // Purpose of the test is to verify error on Prepmt. CM Refers to Period of Table - 37 Sales Line.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine, true, SalesHeader.Resident::Resident, SalesLine."Prepmt. CM Refers to Period"::Current);  // Using value True for Individual Person.
 
         // Exercise.
@@ -148,7 +148,7 @@ codeunit 144117 "UT VAT Communication"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(GenJournalLine, IndividualPerson, Resident);
 
         // Enqueue value for Request Page Handler - GeneralJournalTestRequestPageHandler.
@@ -200,7 +200,7 @@ codeunit 144117 "UT VAT Communication"
         SalesLine: Record "Sales Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine, IndividualPerson, Resident, SalesLine."Prepmt. CM Refers to Period"::Current);
         LibraryVariableStorage.Enqueue(SalesLine."Document No.");  // Enqueue value for Request Page Handler - SalesDocumentTestRequestPageHandler.
 
@@ -249,7 +249,7 @@ codeunit 144117 "UT VAT Communication"
         PurchaseLine: Record "Purchase Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, IndividualPerson, Resident, PurchaseLine."Prepmt. CM Refers to Period"::Current);
         LibraryVariableStorage.Enqueue(PurchaseLine."Document No.");  // Enqueue value for Request Page Handler - PurchaseDocumentTestRequestPageHandler.
 
@@ -298,7 +298,7 @@ codeunit 144117 "UT VAT Communication"
         ServiceLine: Record "Service Line";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateServiceOrder(ServiceLine, IndividualPerson, Resident);
         LibraryVariableStorage.Enqueue(ServiceLine."Document No.");  // Enqueue value for Request Page Handler - ServiceDocumentTestRequestPageHandler.
 
@@ -357,7 +357,7 @@ codeunit 144117 "UT VAT Communication"
         SalesOrder: TestPage "Sales Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreateSalesOrder(SalesLine, true, SalesHeader.Resident::Resident, PrepmtCMRefersToPeriod);  // Using value True for Individual Person.
@@ -380,7 +380,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         // Purpose of the test is to verify error on Prepmt. CM Refers to Period of Table - 36 Sales Header.
         // Setup.
-        Initialize;
+        Initialize();
         CreateSalesOrder(SalesLine, true, SalesHeader.Resident::Resident, SalesLine."Prepmt. CM Refers to Period"::Current);  // Using value True for Individual Person.
         SalesHeader.Get(SalesLine."Document Type"::Order, SalesLine."Document No.");
         LibraryVariableStorage.Enqueue(SalesMsg);  // Enqueue message for PrepmtCMRefersToPeriodMessageHandler.
@@ -443,7 +443,7 @@ codeunit 144117 "UT VAT Communication"
         PurchaseOrder: TestPage "Purchase Order";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         CreatePurchaseOrder(PurchaseLine, true, PurchaseHeader.Resident::Resident, PrepmtCMRefersToPeriod);  // Using value True for Individual Person.
@@ -466,7 +466,7 @@ codeunit 144117 "UT VAT Communication"
     begin
         // Purpose of the test is to verify error on Prepmt. CM Refers to Period of Table - 38 Purchase Header.
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseOrder(PurchaseLine, true, PurchaseHeader.Resident::Resident, PurchaseLine."Prepmt. CM Refers to Period"::Current);  // Using value True for Individual Person.
         PurchaseHeader.Get(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         LibraryVariableStorage.Enqueue(PurchaseMsg);  // Enqueue message for PrepmtCMRefersToPeriodMessageHandler.
@@ -528,7 +528,7 @@ codeunit 144117 "UT VAT Communication"
         VATEntry: Record "VAT Entry";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         CreateVATEntry(VATEntry, Type, TaxRepresentativeType, Resident, EUService);
         LibraryVariableStorage.Enqueue(VATEntry."Operation Occurred Date");  // Enqueue value for VATTransactionRequestPageHandler.
 
@@ -543,8 +543,8 @@ codeunit 144117 "UT VAT Communication"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
-        LibrarySales.DisableWarningOnCloseUnpostedDoc;
+        LibraryVariableStorage.Clear();
+        LibrarySales.DisableWarningOnCloseUnpostedDoc();
     end;
 
     local procedure CreateCustomer(TaxRepresentativeType: Option): Code[20]
@@ -552,7 +552,7 @@ codeunit 144117 "UT VAT Communication"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        CustomerPostingGroup.FindFirst;
+        CustomerPostingGroup.FindFirst();
         Customer."No." := LibraryUTUtility.GetNewCode;
         Customer.Name := Customer."No.";
         Customer."Tax Representative Type" := TaxRepresentativeType;
@@ -666,7 +666,7 @@ codeunit 144117 "UT VAT Communication"
     var
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := Type;
         VATEntry."Posting Date" := WorkDate;

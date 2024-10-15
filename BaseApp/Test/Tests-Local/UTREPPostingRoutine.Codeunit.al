@@ -83,7 +83,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate Detailed Customer Ledger Entry - OnAfterGetRecord Trigger of Report - 12104 Customer Sheet - Print.
 
         // [GIVEN] Create Sales Header with blank Posting Number and Detailed Customer Ledger Entry.
-        Initialize;
+        Initialize();
         CreateCustomerEntries(
           DetailedCustLedgEntry, CreateSalesHeader(''), LibraryUTUtility.GetNewCode,
           DetailedCustLedgEntry."Entry Type"::"Correction of Remaining Amount");  // Document Number, Blank Posting Number.
@@ -108,7 +108,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12108 VAT Register Grouped. with unposted document
 
         // Setup.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(LibraryUTUtility.GetNewCode);  // Code value for Posting Number.
 
         // [WHEN] Run report "VAT Register Grouped"
@@ -127,7 +127,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12108 VAT Register Grouped. with blank Register Company Number
 
         // Setup.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber('');  // Blank Register Company Number.
 
         // [WHEN] Run report "VAT Register Grouped"
@@ -170,7 +170,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         VATRegisterBuffer: Record "VAT Register - Buffer";
     begin
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
         CreateVATRegisterBuffer(VATRegisterBuffer, RegisterType);
 
@@ -193,7 +193,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12109 Account Book Sheet - Print.
 
         // [GIVEN] Create Purchase Header with Posting Number.
-        Initialize;
+        Initialize();
         CreatePurchaseHeaderWithNo(PurchHeader);
         LibraryVariableStorage.Enqueue(CreateGLAccount);  // Enqueue value for handler - AccountBookSheetPrintRequestPageHandler.
 
@@ -221,7 +221,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate GL Book Entry - OnAfterGetRecord Trigger of Report - 12109 Account Book Sheet - Print.
 
         // [GIVEN] Create General Ledger Book Entry and General Ledger Entry.
-        Initialize;
+        Initialize();
         CreateGLBookEntry(
           GLBookEntry, GLBookEntry."Source Type", LibraryUTUtility.GetNewCode,
           CalcDate('<' + Format(-LibraryRandom.RandIntInRange(2, 10)) + 'D>', WorkDate), LibraryRandom.RandInt(10), '');  // Source Number, Official Date less than WORKDATE and Progressive Number.
@@ -249,7 +249,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [SCENARIO] Validate G/L Book Entries posted per one transaction in Report 12109 Account Book Sheet - Print.
 
-        Initialize;
+        Initialize();
         GLBookEntry.DeleteAll();
         AccNo := CreateGLAccount;
 
@@ -282,7 +282,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate Detailed Vendor Ledger Entry - OnAfterGetRecord Trigger of Report - 12110 Vendor Sheet - Print.
 
         // [GIVEN] Create Purchase Header with blank Posting Number and Detailed Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         CreateVendorEntries(
           DetailedVendorLedgEntry, CreatePurchaseHeader(''), DetailedVendorLedgEntry."Entry Type"::"Correction of Remaining Amount",
           LibraryUTUtility.GetNewCode10); // Blank Posting Number.
@@ -309,7 +309,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12104 Customer Sheet - Print.
 
         // [GIVEN] Create Sales Header with Posting Number.
-        Initialize;
+        Initialize();
 
         // [WHEN] Run report "Customer Sheet - Print"
         LibraryVariableStorage.Enqueue(CreateSalesHeaderWithNo(SalesHeader));
@@ -335,7 +335,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12110 Vendor Sheet - Print.
 
         // Setup: Create Purchase Header with Posting Number.
-        Initialize;
+        Initialize();
 
         // [WHEN] Run report "Vendor Sheet - Print"
         LibraryVariableStorage.Enqueue(CreatePurchaseHeaderWithNo(PurchHeader));
@@ -359,7 +359,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12120 VAT Register - Print. with Posting Number
 
         // [GIVEN] Create Purchase Header with Posting Number.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(LibraryUTUtility.GetNewCode);
         LibraryVariableStorage.Enqueue(CreateVATRegister);  // Enqueue value for handler - VATRegisterPrintRequestPageHandler.
 
@@ -378,7 +378,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with Posting Number with unposted document
         // [GIVEN] Create Purchase Header with Posting Number.
-        Initialize;
+        Initialize();
         CreatePurchaseHeader(LibraryUTUtility.GetNewCode);
         EnqueueStartingDateAndEndingDate(WorkDate, WorkDate);  // Enqueue values for handler - GLBookPrintRequestPageHandler.
 
@@ -398,7 +398,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with blank Register Company Number
 
         // [GIVEN] Update Company Information.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber('');  // Blank Register Company Number.
         EnqueueStartingDateAndEndingDate(WorkDate, WorkDate);  // Enqueue values for handler - GLBookPrintRequestPageHandler.
 
@@ -416,7 +416,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure OnPreReportStartingDateGLBookPrintError()
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with blank Starting Date
-        Initialize;
+        Initialize();
         OnPreReportStartingEndingDateGLBookPrint(0D, WorkDate);  // Blank Starting Date, Ending Date - WORKDATE.
     end;
 
@@ -427,7 +427,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure OnPreReportEndingDateGLBookPrintError()
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with blank Ending Date
-        Initialize;
+        Initialize();
         OnPreReportStartingEndingDateGLBookPrint(WorkDate, 0D);  // Starting Date - WORKDATE, blank Ending Date.
     end;
 
@@ -438,7 +438,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure OnPreReportGreaterEndingDateGLBookPrintError()
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print with Ending Date less than Work Date
-        Initialize;
+        Initialize();
         OnPreReportStartingEndingDateGLBookPrint(WorkDate, CalcDate('<' + Format(-LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Starting Date - WORKDATE, Ending Date less than WORKDATE.
     end;
 
@@ -460,7 +460,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure OnPreReportLastPrintingDateGLBookPrintError()
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with Ending Date greater than Work Date
-        Initialize;
+        Initialize();
         OnPreReportLastPrintingDateGLBookPrint(WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>'));  // Last General Journal Printing Date - WORKDATE and Ending Date - greater than WORKDATE.
     end;
 
@@ -471,7 +471,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure OnPreReportWithoutLastPrintingDateGLBookPrintError()
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print. with blank Printing Date
-        Initialize;
+        Initialize();
         OnPreReportLastPrintingDateGLBookPrint(0D, WorkDate);  // Blank Last General Journal Printing Date  and Ending Date - WORKDATE.
     end;
 
@@ -501,7 +501,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12121 G/L Book - Print with blank Source Number
 
         // [GIVEN] Update Company Information - Register Company Number, G/L Setup - Last General Journal Printing Date. Create G/L Book Entry and G/ L Entry.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
         UpdateGLSetupLastGenJourPrintingDate(WorkDate);
         CreateGLBookEntry(
@@ -530,7 +530,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [SCENARIO] Validate GL Book Entry - OnPreDataItem Trigger of Report - 12121 G/L Book - Print.
 
         // [GIVEN] Update Company Information - Register Company Number, G/L Setup - Last General Journal Printing Date. Create G/L Book Entry.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
         UpdateGLSetupLastGenJourPrintingDate(WorkDate);
         CreateGLBookEntry(
@@ -610,7 +610,7 @@ codeunit 144068 "UT REP Posting Routine"
         ReprintInfoFiscalReports: Record "Reprint Info Fiscal Reports";
     begin
         // Setup: Update Company Information - Register Company Number, G/L Setup - Last General Journal Printing Date. Create G/L Book Entry, G/L Entry.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
         UpdateGLSetupLastGenJourPrintingDate(WorkDate);
         CreateGLBookEntry(GLBookEntry, SourceType, SourceNo, WorkDate, LibraryRandom.RandInt(10), DocumentNo);  // Random value for Progressive Number.
@@ -638,7 +638,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure OnPreReportCodeVATRegisterPrintError()
     begin
         // [SCENARIO] Validate OnPreReport Trigger of Report - 12120 VAT Register - Print. with blank VAT Register Code
-        Initialize;
+        Initialize();
         LibraryVariableStorage.Enqueue('');  // Enqueue blank value VAT Register Code for handler - VATRegisterPrintRequestPageHandler.
 
         // [WHEN] Run report "VAT Register - Print"
@@ -655,7 +655,7 @@ codeunit 144068 "UT REP Posting Routine"
     procedure PrintCompanyInfoOnPreDataItemVATRegisterPrintError()
     begin
         // [SCENARIO] Validate Print Company Information - OnPreDataItem Trigger of Report - 12120 VAT Register - Print.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber('');  // Blank Register Company Number.
         LibraryVariableStorage.Enqueue(CreateVATRegister);  // Enqueue value for handler - VATRegisterPrintRequestPageHandler.
 
@@ -697,7 +697,7 @@ codeunit 144068 "UT REP Posting Routine"
         ExpectedAmount: Decimal;
     begin
         // Setup: Update Company Information - Register Company Number, Create VAT Book Entries, Create Vendor entries.
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(VATBookEntry, Type, NoSeries.Code, ReverseVATEntry, CreateVendor);
@@ -733,7 +733,7 @@ codeunit 144068 "UT REP Posting Routine"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         // [SCENARIO] Validate VAT Book Entry - OnAfterGetRecord Trigger of Report - 12120 VAT Register - Print. without Sales Reverse VAT Entry
-        Initialize;
+        Initialize();
         UpdateCompanyInfoRegisterCompanyNumber(LibraryUTUtility.GetNewCode);
         CreateNumberSeries(NoSeries);
         CreateVATBookEntry(VATBookEntry, VATBookEntry.Type::Sale, NoSeries.Code, false, CreateCustomer);  // Reverse VAT Entry - False.
@@ -763,11 +763,11 @@ codeunit 144068 "UT REP Posting Routine"
         // [FEATURE] [Account Book Sheet - Print]
         // [SCENARIO] Report "Account Book Sheet - Print" should print starting and ending balance when net change is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account "A" with net change on WORKDATE - 1
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
-        GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo;
+        GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
         GLEntry."Posting Date" := CalcDate('<-1D>', WorkDate);
         GLEntry.Amount := LibraryRandom.RandDec(1000, 2);
         GLEntry.Insert();
@@ -792,12 +792,12 @@ codeunit 144068 "UT REP Posting Routine"
         // [FEATURE] [Vendor Sheet - Print]
         // [SCENARIO] Report "Vendor Sheet - Print" should print starting and ending balance when net change is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor "V" with net change on WORKDATE - 1
         with DetailedVendorLedgEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor No." := LibraryPurchase.CreateVendorNo;
+            "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Posting Date" := CalcDate('<-1D>', WorkDate);
             "Amount (LCY)" := LibraryRandom.RandDec(1000, 2);
             Insert;
@@ -823,12 +823,12 @@ codeunit 144068 "UT REP Posting Routine"
         // [FEATURE] [Customer Sheet - Print]
         // [SCENARIO] Report "Customer Sheet - Print" should print starting and ending balance when net change is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "C" with net change on WORKDATE - 1
         with DetailedCustLedgEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Customer No." := LibrarySales.CreateCustomerNo;
+            "Customer No." := LibrarySales.CreateCustomerNo();
             "Posting Date" := CalcDate('<-1D>', WorkDate);
             "Amount (LCY)" := LibraryRandom.RandDec(1000, 2);
             Insert;
@@ -855,7 +855,7 @@ codeunit 144068 "UT REP Posting Routine"
         // [FEATURE] [Bank Sheet - Print]
         // [SCENARIO] Report "Bank Sheet - Print" should print starting and ending balance when net change is zero
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Bank Account "A" with net change on WORKDATE - 1
         BankAccLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(BankAccLedgEntry, BankAccLedgEntry.FieldNo("Entry No."));
@@ -884,7 +884,7 @@ codeunit 144068 "UT REP Posting Routine"
         AccNo: Code[20];
     begin
         // [SCENARIO 317680] Debit and Credit Amount of one line doesn't leak to other lines in report "Account Book Sheet - Print".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three G/L Book entries (GLE) and associated G/L entries:
         // [GIVEN] GLE1 with Debit Amount "D1", Credit Amount 0;
@@ -923,7 +923,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [FEATURE] [VAT Report] [Date]
         // [SCENARIO 322953] VAT Fiscal Register - Print report's request page validates proper Quarter PeriodEndingDate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "VAT Settlement Period"::Quarter in General Ledger Setup
         VatEntry.DeleteAll();
@@ -953,7 +953,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [FEATURE] [VAT Report] [Date]
         // [SCENARIO 322953] VAT Fiscal Register - Print report runs with proper PeriodStartingDate and PeriodEndingDate for Quarter period
-        Initialize;
+        Initialize();
 
         // [GIVEN] Set "VAT Settlement Period"::Quarter in General Ledger Setup
         VatEntry.DeleteAll();
@@ -978,7 +978,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [FEATURE] [Vendor Sheet - Print]
         // [SCENARIO 328287] Debit and Credit Amount of one line doesn't leak to other lines in report "Vendor Sheet - Print".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Three Detailed Vendor Ledger entries (DVLE):
         // [GIVEN] DVLE1 with Amount (LCY) "D1" > 0;
@@ -1016,7 +1016,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [FEATURE] [Bank Sheet - Print]
         // [SCENARIO 328287] Debit and Credit Amount of one line doesn't leak to other lines in report "Vendor Sheet - Print".
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Bank Account and three Bank Account Ledger entries:
         // [GIVEN] first and third with positive amounts, second one with negative
@@ -1048,7 +1048,7 @@ codeunit 144068 "UT REP Posting Routine"
     begin
         // [FEATURE] [Bank Sheet - Print]
         // [SCENARIO 328287] Debit and Credit Amount of one line doesn't leak to other lines in report "Vendor Sheet - Print" when run for multiple Bank Accounts
-        Initialize;
+        Initialize();
 
         // [GIVEN] Created Bank Account 1 and three Bank Account Ledger entries:
         // [GIVEN] first and third with positive amounts, second one with negative
@@ -1084,8 +1084,8 @@ codeunit 144068 "UT REP Posting Routine"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
         if isInitialized then
             exit;
 
@@ -1129,7 +1129,7 @@ codeunit 144068 "UT REP Posting Routine"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Posting Date" := WorkDate;
@@ -1139,7 +1139,7 @@ codeunit 144068 "UT REP Posting Routine"
         CustLedgerEntry."Amount (LCY)" := CustLedgerEntry.Amount + LibraryRandom.RandDec(10, 2);
         CustLedgerEntry.Insert();
 
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Customer No." := CustLedgerEntry."Customer No.";
         DetailedCustLedgEntry."Document No." := CustLedgerEntry."Document No.";
@@ -1159,7 +1159,7 @@ codeunit 144068 "UT REP Posting Routine"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate;
@@ -1167,7 +1167,7 @@ codeunit 144068 "UT REP Posting Routine"
         VendorLedgerEntry."Currency Code" := LibraryUTUtility.GetNewCode10;
         VendorLedgerEntry.Insert();
 
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
         DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
@@ -1224,7 +1224,7 @@ codeunit 144068 "UT REP Posting Routine"
         EntryNo: Integer;
     begin
         GLBookEntry.Reset();
-        if GLBookEntry.FindLast then
+        if GLBookEntry.FindLast() then
             EntryNo := GLBookEntry."Entry No.";
         EntryNo += 1;
         GLBookEntry.Init();
@@ -1248,7 +1248,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         GLEntry2: Record "G/L Entry";
     begin
-        GLEntry2.FindLast;
+        GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."Document Type" := GLBookEntry."Document Type"::Invoice;
         GLEntry."Document No." := GLBookEntry."Document No.";
@@ -1354,7 +1354,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
-        VATBookEntry2.FindLast;
+        VATBookEntry2.FindLast();
         VATBookEntry."Entry No." := VATBookEntry2."Entry No." + 1;
         VATBookEntry.Type := Type;
         VATBookEntry."No. Series" := NoSeries;
@@ -1373,7 +1373,7 @@ codeunit 144068 "UT REP Posting Routine"
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
     begin
-        VATEntry2.FindLast;
+        VATEntry2.FindLast();
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry.Type := VATBookEntry.Type;
         VATEntry."No. Series" := VATBookEntry."No. Series";

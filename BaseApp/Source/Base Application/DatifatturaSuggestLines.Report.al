@@ -41,7 +41,7 @@ report 12195 "Datifattura Suggest Lines"
                 VATReportLine: Record "VAT Report Line";
             begin
                 VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-                if VATReportLine.FindLast then;
+                if VATReportLine.FindLast() then;
                 CurrentLineNo := VATReportLine."Line No.";
 
                 SetRange("Posting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
@@ -144,7 +144,7 @@ report 12195 "Datifattura Suggest Lines"
         VATReportLine.SetRange(Type, VATEntry.Type);
         VATReportLine.SetRange("VAT Group Identifier", VATEntry."VAT Identifier");
 
-        RecordFound := VATReportLine.FindFirst;
+        RecordFound := VATReportLine.FindFirst();
 
         if RecordFound then
             FountVATReportLine := VATReportLine;
@@ -196,7 +196,7 @@ report 12195 "Datifattura Suggest Lines"
         VendorLedgerEntry.SetRange("Document Type", VATEntry."Document Type");
         VendorLedgerEntry.SetRange("Document No.", VATEntry."Document No.");
         VendorLedgerEntry.SetRange("Vendor No.", VATEntry."Bill-to/Pay-to No.");
-        VendorLedgerEntry.FindFirst; // foreign Vendor Ledger Entry
+        VendorLedgerEntry.FindFirst(); // foreign Vendor Ledger Entry
         CustomsVATEntry.SetRange("Related Entry No.", VendorLedgerEntry."Entry No.");
         exit(not CustomsVATEntry.IsEmpty);
     end;

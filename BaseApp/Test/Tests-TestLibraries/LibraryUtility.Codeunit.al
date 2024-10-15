@@ -205,7 +205,7 @@ codeunit 131000 "Library - Utility"
     begin
         Field.SetRange(TableNo, TableNo);
         Field.SetRange(FieldName, FieldName);
-        Field.FindFirst;
+        Field.FindFirst();
         exit(Field."No.");
     end;
 
@@ -246,7 +246,7 @@ codeunit 131000 "Library - Utility"
     var
         GLEntry: Record "G/L Entry";
     begin
-        if GLEntry.FindLast then
+        if GLEntry.FindLast() then
             exit(GLEntry."Transaction No.");
 
         exit(0);
@@ -288,7 +288,7 @@ codeunit 131000 "Library - Utility"
             Error(StrSubstNo(KeyNotFoundError, FieldRef.Name, RecRef2.Name));
         end;
 
-        if RecRef2.FindLast then begin
+        if RecRef2.FindLast() then begin
             FieldRef := RecRef2.Field(FieldNo);
             FieldCount := FieldRef.Value;
         end else
@@ -328,13 +328,13 @@ codeunit 131000 "Library - Utility"
         NoSeriesLineSales.SetRange("Series Code", NoSeries.Code);
         NoSeriesLineSales.SetRange("Starting Date", 0D, WorkDate);
         NoSeriesLineSales.SetRange(Open, true);
-        if NoSeriesLineSales.FindLast then
+        if NoSeriesLineSales.FindLast() then
             LastDateUsed := NoSeriesLineSales."Last Date Used"
         else begin
             NoSeriesLineSales2.SetRange("Series Code", NoSeries.Code);
             NoSeriesLineSales2.SetRange("Starting Date", 0D, WorkDate);
             NoSeriesLineSales2.SetRange(Open, true);
-            NoSeriesLineSales2.FindLast;
+            NoSeriesLineSales2.FindLast();
             LastDateUsed := NoSeriesLineSales2."Last Date Used"
         end;
 
@@ -355,7 +355,7 @@ codeunit 131000 "Library - Utility"
         NoSeriesLinePurchase.SetRange("Series Code", NoSeries.Code);
         NoSeriesLinePurchase.SetRange("Starting Date", 0D, WorkDate);
         NoSeriesLinePurchase.SetRange(Open, true);
-        NoSeriesLinePurchase.FindLast;
+        NoSeriesLinePurchase.FindLast();
         if NoSeriesLinePurchase."Last Date Used" = 0D then
             exit(WorkDate);
         exit(CalcDate('<1D>', NoSeriesLinePurchase."Last Date Used"));
@@ -664,7 +664,7 @@ codeunit 131000 "Library - Utility"
 
     procedure FindRecord(var RecRef: RecordRef)
     begin
-        RecRef.FindFirst;
+        RecRef.FindFirst();
     end;
 
     local procedure GetTextValue(ObjectType: Option): Text[30]
@@ -690,7 +690,7 @@ codeunit 131000 "Library - Utility"
         FieldRef: FieldRef;
     begin
         VerifyRecordHasCodeKey(TableID, RecRef, FieldRef);
-        if not RecRef.FindFirst then begin
+        if not RecRef.FindFirst() then begin
             FieldRef.Validate(GenerateRandomCode(FieldRef.Number, TableID));
             RecRef.Insert(true);
         end;

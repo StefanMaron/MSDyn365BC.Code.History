@@ -32,7 +32,7 @@ codeunit 132222 "Library - Notification Mgt."
         NAVAppInstalledApp: Record "NAV App Installed App";
     begin
         NAVAppInstalledApp.SetRange("App ID", 'e868ad92-21b8-4e08-af2b-8975a8b06e04'); // IMAGE ANALYZER app ID
-        if NAVAppInstalledApp.FindFirst then
+        if NAVAppInstalledApp.FindFirst() then
             DisableNotification('e54eb2c9-ebc2-4934-91d9-97af900e89b2',
               'Image Analysis notification name',
               'Image Analysis notification description');

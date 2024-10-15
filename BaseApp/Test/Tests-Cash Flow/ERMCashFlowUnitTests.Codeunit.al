@@ -68,7 +68,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // Yes Yes Yes Yes LE: Cr. Memo No Yes Jan. 01 -100,00 Ledger entry due date and full amount
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix1;
 
@@ -138,7 +138,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // Yes Yes Yes Yes LE: Cr. Memo No No Jan. 01 -100,00 Ledger entry due date and full amount
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix2;
 
@@ -209,7 +209,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // Yes Yes Yes No LE: Cr. Memo No No Jan. 01 -100,00 Ledger entry due date and full amount
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix3;
 
@@ -282,7 +282,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // Yes Yes No No LE: Cr. Memo No No Jan. 01 -100,00 Ledger entry due date and full amount
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix4;
 
@@ -368,7 +368,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // No * Yes * Yes * Yes * * Yes Jan. 06 98,00: Discount date and default discount amount from order or LE
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix9;
 
@@ -423,7 +423,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // No * Yes * Yes * Yes * * Yes Jan. 06 98,00: Discount date and default discount amount from order or LE
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix9;
 
@@ -476,7 +476,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // No * No * * * * * *: Jan. 15 100,00: Due date and full amount from order or LE
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix1;
 
@@ -529,7 +529,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedDate: Date;
     begin
         // No * Yes * Yes * Yes * * No Jan. 15 100,00: Due date and full amount from order or LE
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := Matrix1;
 
@@ -581,7 +581,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // bug 261713
         // CFForecast - no Doc.Date on orders (sales, service and purchase) result in error msg.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := TestForEmptyDocDate;
         Customer.Modify();
@@ -611,7 +611,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // bug 261712:
         // CFForecast - Orders (sales, service, purchase) with doc. date = work date or future and CFForecast payment terms result in wrong CFForecast dates
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         Customer.Address := TestForEmptyDiscDateCalc;
 
@@ -696,7 +696,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Amount: Decimal;
     begin
         Clear(PostedAmount);
-        CashFlowForecast.FindFirst;
+        CashFlowForecast.FindFirst();
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
         CFForecastEntry.DeleteAll();
 
@@ -713,7 +713,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     [Scope('OnPrem')]
     procedure TestCalculateAmountsOnCFLedgEntryFromToDate()
     begin
-        Initialize;
+        Initialize();
         VerifyCalculatedAmountsForPeriod(WorkDate, WorkDate);
     end;
 
@@ -721,7 +721,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     [Scope('OnPrem')]
     procedure TestCalculateAmountsOnCFLedgEntryFromDate()
     begin
-        Initialize;
+        Initialize();
         VerifyCalculatedAmountsForPeriod(WorkDate, 0D);
     end;
 
@@ -729,7 +729,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     [Scope('OnPrem')]
     procedure TestCalculateAmountsOnCFLedgEntryToDate()
     begin
-        Initialize;
+        Initialize();
         VerifyCalculatedAmountsForPeriod(0D, WorkDate);
     end;
 
@@ -737,7 +737,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     [Scope('OnPrem')]
     procedure TestCalculateAmountsOnCFLedgEntryNoDate()
     begin
-        Initialize;
+        Initialize();
         VerifyCalculatedAmountsForPeriod(0D, 0D);
     end;
 
@@ -799,7 +799,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         BusChartBuf: Record "Business Chart Buffer";
         CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
     begin
-        Initialize;
+        Initialize();
         for BusChartBuf."Period Length" := BusChartBuf."Period Length"::Day to BusChartBuf."Period Length"::Year do begin
             SetPeriodLengthInChartSetup(BusChartBuf."Period Length");
             CFChartMgt.UpdateData(BusChartBuf);
@@ -818,7 +818,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
         PostedAmount: array[16, 2] of Decimal;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables.AsInteger()] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
         CashFlowSetup.SetChartRoleCenterCFNo(CashFlowForecast."No.");
@@ -865,7 +865,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
         CFForecastNo: Code[20];
     begin
-        Initialize;
+        Initialize();
 
         CFForecastNo := CashFlowSetup.GetChartRoleCenterCFNo;
         CashFlowSetup.SetChartRoleCenterCFNo('');
@@ -888,7 +888,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
         CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         with CashFlowChartSetup do begin
             if Get(UserId) then
@@ -911,7 +911,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExistingCashFlowChartSetup: Record "Cash Flow Chart Setup";
         CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
     begin
-        Initialize;
+        Initialize();
 
         with CashFlowChartSetup do begin
             SetPeriodLengthInChartSetup("Period Length"::Year);
@@ -937,8 +937,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         BusChartMap: Record "Business Chart Map";
         CFChartMgt: Codeunit "Cash Flow Chart Mgt.";
     begin
-        Initialize;
-        CFForecast.FindFirst;
+        Initialize();
+        CFForecast.FindFirst();
         CFForecastEntry.SetRange("Cash Flow Forecast No.", CFForecast."No.");
         CFForecastEntry.DeleteAll();
 
@@ -964,7 +964,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ActualAmount: Decimal;
         i: Integer;
     begin
-        Initialize;
+        Initialize();
         SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::Combined, CashFlowChartSetup."Group By"::"Source Type");
 
         InsertCFReceivablesPayables(CashFlowForecast, PostedAmount);
@@ -1000,7 +1000,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        Initialize;
+        Initialize();
         SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::Combined, CashFlowChartSetup."Group By"::"Positive/Negative");
         VerifyDateAndSourceTypeOnChartDrillDown(2, CashFlowForecast."Source Type Filter"::" ");
     end;
@@ -1012,7 +1012,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        Initialize;
+        Initialize();
         SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Accumulated Cash", CashFlowChartSetup."Group By"::"Positive/Negative");
         VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::" ");
     end;
@@ -1024,7 +1024,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        Initialize;
+        Initialize();
         SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Change in Cash", CashFlowChartSetup."Group By"::"Positive/Negative");
         VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::Payables);
     end;
@@ -1036,7 +1036,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        Initialize;
+        Initialize();
         SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Change in Cash", CashFlowChartSetup."Group By"::"Source Type");
         VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::Receivables);
     end;
@@ -1048,7 +1048,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         CashFlowChartSetup: Record "Cash Flow Chart Setup";
     begin
-        Initialize;
+        Initialize();
         SetDayColumnGroupByChartSetup(CashFlowChartSetup.Show::"Change in Cash", CashFlowChartSetup."Group By"::"Account No.");
         VerifyDateAndSourceTypeOnChartDrillDown(0, CashFlowForecast."Source Type Filter"::Receivables);
     end;
@@ -1134,13 +1134,13 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ExpectedNoOfSourceTypes: Integer;
         ActualNoOfSourceTypes: Integer;
     begin
-        Initialize;
+        Initialize();
         ExpectedNoOfSourceTypes := LibraryRandom.RandIntInRange(1, 10);
         for SourceType := 1 to ExpectedNoOfSourceTypes do
             ConsiderSource[SourceType] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
 
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         ActualNoOfSourceTypes := CFChartMgt.CollectSourceTypes(CashFlowForecast, BusChartBuf);
 
         Assert.AreEqual(ExpectedNoOfSourceTypes, ActualNoOfSourceTypes, 'Wrong number of collected Source Types');
@@ -1160,14 +1160,14 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ActualNoOfAccounts: Integer;
         SourceType: Integer;
     begin
-        Initialize;
+        Initialize();
         ExpectedNoOfAccounts := LibraryRandom.RandIntInRange(1, 10);
         CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
         for SourceType := 1 to ExpectedNoOfAccounts do
             ConsiderSource[SourceType] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
 
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         ActualNoOfAccounts := CFChartMgt.CollectAccounts(CashFlowForecast, BusChartBuf);
 
         Assert.AreEqual(ExpectedNoOfAccounts, ActualNoOfAccounts, 'Wrong number of collected Accounts');
@@ -1183,10 +1183,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PostedAmount: array[16, 2] of Decimal;
         ActualNoOfPosNeg: Integer;
     begin
-        Initialize;
+        Initialize();
         InsertCFReceivablesPayables(CashFlowForecast, PostedAmount);
 
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         ActualNoOfPosNeg := CFChartMgt.CollectPosNeg(CashFlowForecast, BusChartBuf);
 
         Assert.AreEqual(2, ActualNoOfPosNeg, 'Wrong number of collected Positive-Negative');
@@ -1203,13 +1203,13 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
         ActualNoOfPosNeg: Integer;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables.AsInteger()] := true;
         ConsiderSource[CashFlowForecast."Source Type Filter"::"Sales Orders".AsInteger()] := true;
         ConsiderSource[CashFlowForecast."Source Type Filter"::"Service Orders".AsInteger()] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
 
-        BusChartBuf.Initialize;
+        BusChartBuf.Initialize();
         ActualNoOfPosNeg := CFChartMgt.CollectPosNeg(CashFlowForecast, BusChartBuf);
 
         Assert.AreEqual(1, ActualNoOfPosNeg, 'Wrong number of collected Positive-Negative.');
@@ -1221,9 +1221,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
-        Initialize;
+        Initialize();
         PostJnlLine(1);
-        CFForecastEntry.FindLast;
+        CFForecastEntry.FindLast();
         Assert.IsTrue(CFForecastEntry.Positive, StrSubstNo(PosNegErrMsg, CFForecastEntry.Positive, CFForecastEntry."Amount (LCY)"));
     end;
 
@@ -1233,9 +1233,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
-        Initialize;
+        Initialize();
         PostJnlLine(0);
-        CFForecastEntry.FindLast;
+        CFForecastEntry.FindLast();
         Assert.IsFalse(CFForecastEntry.Positive, StrSubstNo(PosNegErrMsg, CFForecastEntry.Positive, CFForecastEntry."Amount (LCY)"));
     end;
 
@@ -1245,9 +1245,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
     begin
-        Initialize;
+        Initialize();
         PostJnlLine(-1);
-        CFForecastEntry.FindLast;
+        CFForecastEntry.FindLast();
         Assert.IsFalse(CFForecastEntry.Positive, StrSubstNo(PosNegErrMsg, CFForecastEntry.Positive, CFForecastEntry."Amount (LCY)"));
     end;
 
@@ -1259,10 +1259,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWkshRegisterLine: Codeunit "Cash Flow Wksh. -Register Line";
     begin
         with CashFlowWkshLine do begin
-            CashFlowForecast.FindFirst;
+            CashFlowForecast.FindFirst();
             CFAccount.SetRange(Blocked, false);
             CFAccount.SetRange("Account Type", CFAccount."Account Type"::Entry);
-            CFAccount.FindFirst;
+            CFAccount.FindFirst();
             Init;
             "Cash Flow Forecast No." := CashFlowForecast."No.";
             "Cash Flow Account No." := CFAccount."No.";
@@ -1281,7 +1281,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderAllSources(ConsiderSource);
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
@@ -1299,7 +1299,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1318,7 +1318,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1337,7 +1337,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1356,7 +1356,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1375,7 +1375,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1394,7 +1394,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1413,7 +1413,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1432,7 +1432,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1451,7 +1451,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1470,7 +1470,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1490,7 +1490,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true; // consider some unrelated values as well
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
@@ -1511,7 +1511,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderAllSources(ConsiderSource);
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
@@ -1529,7 +1529,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1548,7 +1548,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1567,7 +1567,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1586,7 +1586,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1605,7 +1605,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1624,7 +1624,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1643,7 +1643,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1662,7 +1662,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1681,7 +1681,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1700,7 +1700,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFLedgerEntries: TestPage "Cash Flow Forecast Entries";
         ConsiderSource: array[16] of Boolean;
     begin
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1720,7 +1720,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         // Setup
-        Initialize;
+        Initialize();
         ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] := true;
         ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true; // create some unrelated entries as well
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
@@ -1775,7 +1775,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWkshLine: Record "Cash Flow Worksheet Line";
         GLBudgetName: Record "G/L Budget Name";
     begin
-        Initialize;
+        Initialize();
 
         LibraryERM.CreateGLBudgetName(GLBudgetName);
 
@@ -1797,7 +1797,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecastCard: TestPage "Cash Flow Forecast Card";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         CashFlowForecastCard.OpenView;
@@ -1817,7 +1817,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecastList: TestPage "Cash Flow Forecast List";
     begin
         // Setup
-        Initialize;
+        Initialize();
 
         // Exercise
         CashFlowForecastList.OpenView;
@@ -1847,7 +1847,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         Actual: Integer;
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup."Chart Type" := ChartType;
         CashFlowChartSetup.Modify();
@@ -1864,7 +1864,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         Actual: Date;
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup."Start Date" := CashFlowChartSetup."Start Date"::"Working Date";
         CashFlowChartSetup.Modify();
@@ -1876,7 +1876,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     [Scope('OnPrem')]
     procedure TestGetCurrentSelectionTextFunction()
     begin
-        Initialize;
+        Initialize();
         CreateAndUpdateCashFlowChartSetup(CashFlowChartSetup, CashFlowChartSetup."Start Date"::"First Entry Date",
           CashFlowChartSetup."Period Length"::Week, CashFlowChartSetup.Show::"Change in Cash",
           CashFlowChartSetup."Group By"::"Source Type");
@@ -1890,7 +1890,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFSetup: Record "Cash Flow Setup";
         OldCFNo: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateAndUpdateCashFlowChartSetup(CashFlowChartSetup, CashFlowChartSetup."Start Date"::"First Entry Date",
           CashFlowChartSetup."Period Length"::Quarter, CashFlowChartSetup.Show::"Accumulated Cash",
           CashFlowChartSetup."Group By"::"Positive/Negative");
@@ -1935,7 +1935,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     local procedure SetAndVerifyGroupByValue(GroupBy: Option)
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup.SetGroupBy(GroupBy);
         Assert.AreEqual(
@@ -1946,7 +1946,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     [Scope('OnPrem')]
     procedure TestSetStartDateFunction()
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup.SetStartDate(CashFlowChartSetup."Start Date"::"Working Date");
         Assert.AreEqual(CashFlowChartSetup."Start Date"::"Working Date", CashFlowChartSetup."Start Date",
@@ -1983,7 +1983,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     local procedure SetAndVerifyChartTypeValue(ChartType: Option)
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup.SetChartType(ChartType);
         Assert.AreEqual(
@@ -2013,7 +2013,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     local procedure SetAndVerifyShowValue(ShowOption: Option)
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup.SetShow(ShowOption);
         Assert.AreEqual(ShowOption, CashFlowChartSetup.Show, StrSubstNo(UnexpectedValueInField, CashFlowChartSetup.FieldCaption(Show)));
@@ -2056,7 +2056,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
     local procedure SetAndVerifyPeriodLengthValue(PeriodLength: Option)
     begin
-        Initialize;
+        Initialize();
         CreateCashFlowChartSetup;
         CashFlowChartSetup.SetPeriodLength(PeriodLength);
         Assert.AreEqual(
@@ -2102,7 +2102,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         CFReportSelection: Record "Cash Flow Report Selection";
     begin
-        Initialize;
+        Initialize();
         with CFReportSelection do
             DeleteAll();
 
@@ -2116,7 +2116,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CashFlowForecast: Record "Cash Flow Forecast";
         OldCashFlowForecast: Record "Cash Flow Forecast";
     begin
-        if OldCashFlowForecast.FindFirst then;
+        if OldCashFlowForecast.FindFirst() then;
         asserterror CashFlowForecast.AssistEdit(OldCashFlowForecast);
         Assert.ExpectedError('Unhandled UI: ModalPage 571'); // Can't be completely tested since it's running modal page
     end;
@@ -2228,7 +2228,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // [SCENARIO 226697] "Source No." of receivables Cash Flow Forecast Entry must not allow to set values that are not in "Document No." of Customer Ledger Entries
         CashFlowForecastEntry.Init();
         CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Receivables);
-        SourceNo := LibraryUtility.GenerateGUID;
+        SourceNo := LibraryUtility.GenerateGUID();
         asserterror CashFlowForecastEntry.Validate("Source No.", SourceNo);
         Assert.ExpectedError(StrSubstNo(CustLedgerEntryNotFoundErr, SourceNo));
         Assert.ExpectedErrorCode(NothingInsideFilterTok);
@@ -2245,7 +2245,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // [SCENARIO 226697] "Source No." of receivables Cash Flow Forecast Entry must allow to set values that are in "Document No." of Customer Ledger Entries
         CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
-        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        CustLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         CustLedgerEntry.Insert();
 
         CashFlowForecastEntry.Init();
@@ -2265,7 +2265,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // [SCENARIO 226697] "Source No." of payables Cash Flow Forecast Entry must not allow to set values that are not in "Document No." of Vendor Ledger Entries
         CashFlowForecastEntry.Init();
         CashFlowForecastEntry.Validate("Source Type", CashFlowForecastEntry."Source Type"::Payables);
-        SourceNo := LibraryUtility.GenerateGUID;
+        SourceNo := LibraryUtility.GenerateGUID();
         asserterror CashFlowForecastEntry.Validate("Source No.", SourceNo);
         Assert.ExpectedError(StrSubstNo(VendLedgerEntryNotFoundErr, SourceNo));
         Assert.ExpectedErrorCode(NothingInsideFilterTok);
@@ -2282,7 +2282,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         // [SCENARIO 226697] "Source No." of payables Cash Flow Forecast Entry must allow to set values that are in "Document No." of Vendor Ledger Entries
         VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
-        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID;
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateGUID();
         VendorLedgerEntry.Insert();
 
         CashFlowForecastEntry.Init();
@@ -2344,6 +2344,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     end;
 
     [Test]
+    [Scope('OnPrem')]
     procedure CashFlowManualRevenueAssignDimension()
     var
         CashFlowManualRevenue: Record "Cash Flow Manual Revenue";
@@ -2377,7 +2378,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Cash Flow UnitTests");
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();

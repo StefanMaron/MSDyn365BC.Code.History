@@ -62,7 +62,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord Trigger of Report 12112 (Bank Sheet - Print).
 
         // Setup: Create Bank Ledger Entry.
-        Initialize;
+        Initialize();
         BankAccountNo := CreateBankAccount;
         CreateBankAccountLedgerEntry(BankAccountNo);
         LibraryVariableStorage.Enqueue(BankAccountNo);  // Enqueue Value in BankSheetPrintRequestPageHandler.
@@ -86,7 +86,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to validate Customer - OnAfterGetRecord Trigger of Report 12104 (Customer Sheet - Print).
 
         // Setup: Create Customer with Ledger Entries.
-        Initialize;
+        Initialize();
         CreateCustomer(Customer);
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No."));
         EnqueueValuesForHandlers(Customer."No.", Customer."Date Filter", Customer."Global Dimension 1 Filter", Customer."Currency Code");  // Enqueue values in CustomerSheetPrintRequestPageHandler.
@@ -110,7 +110,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to validate Vendor - OnAfterGetRecord Trigger of Report 12110 (Vendor Sheet - Print).
 
         // Setup: Create Vendor with Ledger Entries.
-        Initialize;
+        Initialize();
         CreateVendor(Vendor);
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No."));
         EnqueueValuesForHandlers(Vendor."No.", Vendor."Date Filter", Vendor."Global Dimension 1 Filter", Vendor."Currency Code");  // Enqueue values in VendorSheetPrintRequestPageHandler.
@@ -148,7 +148,7 @@ codeunit 144169 "UT REP Company Information"
         CompanyInformation: Record "Company Information";
     begin
         // Setup: Enqueue values in CustomerSheetPrintRequestPageHandler, VendorSheetPrintRequestPageHandler.
-        Initialize;
+        Initialize();
         EnqueueValuesForHandlers('', 0D, '', '');  // No, Date Filter, Global Dimension 1 Code and Currency Code as blank.
 
         // Exercise.
@@ -210,7 +210,7 @@ codeunit 144169 "UT REP Company Information"
         ReportType: Option "Test Print";
     begin
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(StartingDate, EndingDate, ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
 
         // Exercise.
@@ -231,7 +231,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of the test is to verify GL Book Entry - OnPreDataItem Trigger of Report 12121 (G/L Book - Print).
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
 
@@ -252,7 +252,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of the test is to verify Integer - OnPreDataItem Trigger of Report 12121 (G/L Book - Print).
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Test Print");  // Enqueue values in GLBookPrintRequestPageHandler.
 
         // Exercise.
@@ -273,7 +273,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of the test is to verify GL Book Entry - OnAfterGetRecord Trigger of Report 12121 (G/L Book - Print).
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::"Final Print");  // Enqueue values in GLBookPrintRequestPageHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
 
@@ -295,7 +295,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of this test is to verify error of Report 12121 (G/L Book Print) with Reprint report type.
         // Setup.
-        Initialize;
+        Initialize();
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, CalcDate('<1D>', WorkDate), ReportType::Reprint);  // Enqueue values in GLBookPrintRequestPageHandler.
         GLBookEntry.SetRange("G/L Account No.", CreateGLBookEntry);
 
@@ -317,7 +317,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of the test is to verify OnPostReport Trigger of Report 12121 (G/L Book - Print).
 
         // Setup: Enqueue values in GLBookPrintRequestPageHandler.
-        Initialize;
+        Initialize();
         ReprintInfoFiscalReportsAfterFinalPrint;
         EnqueueVariablesForGLBookPrintRequestPageHandler(CalcDate('<2D>', WorkDate), CalcDate('<3D>', WorkDate), ReportType::Reprint);   // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
 
@@ -339,7 +339,7 @@ codeunit 144169 "UT REP Company Information"
         // Purpose of this test is to verify error of Report 12121 (G/L Book Print) with Starting Date less than Final Print Ending Date.
 
         // Setup: Enqueue values in GLBookPrintRequestPageHandler.
-        Initialize;
+        Initialize();
         ReprintInfoFiscalReportsAfterFinalPrint;
         EnqueueVariablesForGLBookPrintRequestPageHandler(WorkDate, WorkDate, ReportType::Reprint);  // Taking Fixed Values for Date calculation since Start Date and End Date is based on it. Value important for Test.
 
@@ -357,7 +357,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // Purpose of the test is to verify field values on Company Information Page.
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         UpdateCompanyInformation;
@@ -381,7 +381,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // [FEATURE] [Sales] [Currency] [Adjustment]
         // [SCENARIO 123287] "Customer Sheet - Print" correctly prints Totals in case of "Correction of Remaining Amount" <> 0
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         AmountLCY := Round(Amount / 2);
         CorrOfRemainingAmountLCY := Round(AmountLCY / 2);
@@ -424,7 +424,7 @@ codeunit 144169 "UT REP Company Information"
     begin
         // [FEATURE] [Sales] [Currency] [Adjustment]
         // [SCENARIO 362703] "Customer Sheet - Print" correctly prints Totals after Apply in case of "Correction of Remaining Amount" <> 0
-        Initialize;
+        Initialize();
         Amount := LibraryRandom.RandDecInRange(1000, 2000, 2);
         AmountLCY := Round(Amount / 2);
         CorrOfRemainingAmountLCY := Round(AmountLCY / 2);
@@ -451,7 +451,7 @@ codeunit 144169 "UT REP Company Information"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -489,7 +489,7 @@ codeunit 144169 "UT REP Company Information"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry2.FindLast;
+        CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Customer No." := CustomerNo;
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -505,7 +505,7 @@ codeunit 144169 "UT REP Company Information"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry.Get(EntryNo);
-        DetailedCustLedgEntry2.FindLast;
+        DetailedCustLedgEntry2.FindLast();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Document No." := CustLedgerEntry."Document No.";
         DetailedCustLedgEntry."Customer No." := CustLedgerEntry."Customer No.";
@@ -521,7 +521,7 @@ codeunit 144169 "UT REP Company Information"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         VendorLedgerEntry.Get(EntryNo);
-        DetailedVendorLedgEntry2.FindLast;
+        DetailedVendorLedgEntry2.FindLast();
         DetailedVendorLedgEntry."Entry No." := DetailedVendorLedgEntry2."Entry No." + 1;
         DetailedVendorLedgEntry."Document No." := VendorLedgerEntry."Document No.";
         DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
@@ -545,7 +545,7 @@ codeunit 144169 "UT REP Company Information"
         GLBookEntry2: Record "GL Book Entry";
         EntryNo: Integer;
     begin
-        GLBookEntry2.FindLast;
+        GLBookEntry2.FindLast();
         EntryNo := GLBookEntry2."Entry No." + 1;
         GLBookEntry2.DeleteAll(true);
         GLBookEntry."Entry No." := EntryNo;
@@ -581,7 +581,7 @@ codeunit 144169 "UT REP Company Information"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin
-        VendorLedgerEntry2.FindLast;
+        VendorLedgerEntry2.FindLast();
         VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
@@ -654,7 +654,7 @@ codeunit 144169 "UT REP Company Information"
         LastEntryNo: Integer;
     begin
         with CustLedgerEntry do begin
-            if FindLast then
+            if FindLast() then
                 LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;
@@ -673,7 +673,7 @@ codeunit 144169 "UT REP Company Information"
         LastEntryNo: Integer;
     begin
         with DetailedCustLedgEntry do begin
-            if FindLast then
+            if FindLast() then
                 LastEntryNo := "Entry No.";
             Init;
             "Entry No." := LastEntryNo + 1;

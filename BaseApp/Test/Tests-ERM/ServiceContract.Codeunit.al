@@ -67,7 +67,7 @@ codeunit 136100 "Service Contract"
         ServiceHeader: Record "Service Header";
     begin
         // Refresh Shared Fixture
-        Initialize;
+        Initialize();
 
         // Setup: Create Contract with allow unbalanced Annual Amount = True
         ConfirmType := ConfirmType::Create;
@@ -82,7 +82,7 @@ codeunit 136100 "Service Contract"
         // Assume the Contract No. is unique for this test case.
         ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
         ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
-        if ServiceHeader.FindFirst then
+        if ServiceHeader.FindFirst() then
             Error(InvoiceCreatedForUnbalancedErr);
     end;
 
@@ -94,7 +94,7 @@ codeunit 136100 "Service Contract"
         ServiceContractHeader: Record "Service Contract Header";
     begin
         // Refresh Shared Fixture.
-        Initialize;
+        Initialize();
 
         // Setup: Create Contract with allow unbalanced Annual Amount = True.
         ConfirmType := ConfirmType::Create;
@@ -118,7 +118,7 @@ codeunit 136100 "Service Contract"
         TempServiceContractLine: Record "Service Contract Line" temporary;
     begin
         // Refresh Shared Fixture
-        Initialize;
+        Initialize();
 
         // Setup: Create Contract and save state for later validation
         SetupForContractValueCalculate;
@@ -149,7 +149,7 @@ codeunit 136100 "Service Contract"
         ContractNo1: Code[20];
     begin
         // Refresh Shared Fixture
-        Initialize;
+        Initialize();
 
         // Setup: Create Service Contract
         LibrarySales.CreateCustomer(Customer);
@@ -178,7 +178,7 @@ codeunit 136100 "Service Contract"
         CopyDocMgt: Codeunit "Copy Document Mgt.";
     begin
         // Refresh Shared Fixture
-        Initialize;
+        Initialize();
 
         // Setup: Create Service Contract
         CreateServiceContract(ServiceContractHeaderFrom, false);
@@ -227,7 +227,7 @@ codeunit 136100 "Service Contract"
         // [FEATURE] [Dimension]
         // [SCENARIO 363042] Check that Global Dimension cannot be changed for Locked Service Contract
 
-        Initialize;
+        Initialize();
         // [GIVEN] Signed & Locked Service Contract with Dimension Code = "X"
         ConfirmType := ConfirmType::Create;
         CreateServiceContractWithAnnualAmount(ServiceContractHeader);
@@ -259,7 +259,7 @@ codeunit 136100 "Service Contract"
         // [FEATURE] [UT]
         // [SCENARIO 375949] Amount Per Period should be updated after adding Service Contract Line with Expiration Date before the end of contract
 
-        Initialize;
+        Initialize();
         // [GIVEN] Service Contract with "Invoice Period" = Year, "Next Invoice Date Date" = 01/02, "Expiration Date" = 30/11
         LibrarySales.CreateCustomer(Customer);
         LibraryService.CreateServiceContractHeader(
@@ -286,7 +286,7 @@ codeunit 136100 "Service Contract"
         ServiceContractHeader: Record "Service Contract Header";
     begin
         // [SCENARIO 376507] After changing Service Contract Expiration Date Back and the to future Date Annual Amount is updated
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Contract with Starting Date = 26/01/2017, Expiration Date = 31/01/2018, Annual Amount = 1200.
         CreateServiceContractHeader(ServiceContractHeader, LibrarySales.CreateCustomerNo);
@@ -317,7 +317,7 @@ codeunit 136100 "Service Contract"
         SavedWorkDate: Date;
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = FALSE, "Contract Lines On Invoice" = FALSE
-        Initialize;
+        Initialize();
         SavedWorkDate := WorkDate;
 
         // [GIVEN] Signed Service Contract with line and "Starting Date" = 01-01-2016, "Invoice Period" = Quarter, Prepaid = FALSE, "Contract Lines On Invoice" = FALSE
@@ -361,7 +361,7 @@ codeunit 136100 "Service Contract"
         SavedWorkDate: Date;
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = TRUE, "Contract Lines On Invoice" = FALSE
-        Initialize;
+        Initialize();
         SavedWorkDate := WorkDate;
 
         // [GIVEN] Signed Service Contract with "Starting Date" = 01-01-2016, "Invoice Period" = Quarter,  Prepaid = TRUE, "Contract Lines On Invoice" = FALSE
@@ -405,7 +405,7 @@ codeunit 136100 "Service Contract"
         SavedWorkDate: Date;
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = FALSE, "Contract Lines On Invoice" = TRUE
-        Initialize;
+        Initialize();
         SavedWorkDate := WorkDate;
 
         // [GIVEN] Signed Service Contract with line and "Starting Date" = 01-01-2016, "Invoice Period" = Quarter, Prepaid = FALSE, "Contract Lines On Invoice" = TRUE
@@ -449,7 +449,7 @@ codeunit 136100 "Service Contract"
         SavedWorkDate: Date;
     begin
         // [SCENARIO 379298] Lock Service Contract when adding new line after Invoice + Credit Memo in case of Prepaid = TRUE, "Contract Lines On Invoice" = TRUE
-        Initialize;
+        Initialize();
         SavedWorkDate := WorkDate;
 
         // [GIVEN] Signed Service Contract with "Starting Date" = 01-01-2016, "Invoice Period" = Quarter,  Prepaid = TRUE, "Contract Lines On Invoice" = TRUE
@@ -493,7 +493,7 @@ codeunit 136100 "Service Contract"
         LineAmount: Decimal;
     begin
         // [SCENARIO 379677] Create Service Invoice for Service Contract with Starting Date = 11.06 and Invoice Period = Year and monthly uniform distribution of the total amount
-        Initialize;
+        Initialize();
         SavedWorkDate := WorkDate;
 
         // [GIVEN] Signed and Locked Service Contract with "Starting Date" = 11.06.2016, "Invoice Period" = Year, "Service Period" = 1Y,
@@ -523,7 +523,7 @@ codeunit 136100 "Service Contract"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325156] Payment Method Code is copied from customer 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create customer "CUST" with Payment Method Code "PM"
         LibrarySales.CreateCustomer(Customer);
@@ -547,7 +547,7 @@ codeunit 136100 "Service Contract"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325156] "Direct Debit Mandate ID" is filled in when Payment Method validated on Service Contract
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with DD Mandate "DD"
         UpdateSalesSetupDirectDebitMandateNos();
@@ -583,7 +583,7 @@ codeunit 136100 "Service Contract"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 325156] "Direct Debit Mandate ID" is filled in when Service Invoice is being created from Service Contract
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer "CUST" with DD Mandates "DD1" and "DD2"
         UpdateSalesSetupDirectDebitMandateNos();
@@ -627,7 +627,7 @@ codeunit 136100 "Service Contract"
         LockOpenServContract: Codeunit "Lock-OpenServContract";
     begin
         // [SCENARIO 394609] Unlock then lock signed contract with 100 % line discount
-        Initialize;
+        Initialize();
 
         // [GIVEN] Unlocked signed service contract with several lines, last line has "Line Discount" = 100 %
         CreateServiceContract(ServiceContractHeader, false);
@@ -714,7 +714,7 @@ codeunit 136100 "Service Contract"
         ServiceContractLine.SetFilter("Contract No.", OldServiceContractLine."Contract No.");
         ServiceContractLine.FindSet();
         ServiceContractHeader.SetFilter("Contract No.", OldServiceContractLine."Contract No.");
-        ServiceContractHeader.FindFirst;
+        ServiceContractHeader.FindFirst();
 
         repeat
             case Distribution of
@@ -961,7 +961,7 @@ codeunit 136100 "Service Contract"
         CreateContractInvoices.SetTableView(ServiceContractHeader);
         CreateContractInvoices.SetOptions(PostingDate, PostingDate, 0);
         CreateContractInvoices.UseRequestPage(false);
-        CreateContractInvoices.Run;
+        CreateContractInvoices.Run();
 
         FindServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, ContractNo);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1024,7 +1024,7 @@ codeunit 136100 "Service Contract"
         with ServiceContractLine do begin
             SetRange("Contract Type", "Contract Type"::Contract);
             SetRange("Contract No.", ContractNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1033,7 +1033,7 @@ codeunit 136100 "Service Contract"
         with ServiceHeader do begin
             SetRange("Document Type", DocumentType);
             SetRange("Contract No.", ContractNo);
-            FindFirst;
+            FindFirst();
         end;
     end;
 
@@ -1043,7 +1043,7 @@ codeunit 136100 "Service Contract"
     begin
         ServiceContractLine.SetRange("Contract Type", ServiceContractHeader."Contract Type");
         ServiceContractLine.SetRange("Contract No.", ServiceContractHeader."Contract No.");
-        if ServiceContractLine.FindLast then
+        if ServiceContractLine.FindLast() then
             exit(ServiceContractLine."Line No." + 10000);
         exit(10000);
     end;
@@ -1090,12 +1090,12 @@ codeunit 136100 "Service Contract"
     begin
         ServiceMgtSetup.Get();
         NoSeries.SetRange(Code, ServiceMgtSetup."Service Contract Nos.");
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         NoSeries.Validate("Manual Nos.", false);
         NoSeries.Modify(true);
 
         NoSeriesLine.SetRange("Series Code", ServiceMgtSetup."Service Contract Nos.");
-        NoSeriesLine.FindFirst;
+        NoSeriesLine.FindFirst();
         exit(NoSeriesLine."Last No. Used");
     end;
 
@@ -1126,7 +1126,7 @@ codeunit 136100 "Service Contract"
     begin
         with NoSeriesLineSales do begin
             SetRange("Series Code", LibraryERM.GetDefaultOperationType(CustomerNo, DATABASE::Customer));
-            FindFirst;
+            FindFirst();
             Validate("Last Date Used", 0D);
             Modify(true);
         end;
@@ -1196,7 +1196,7 @@ codeunit 136100 "Service Contract"
         LastNoUsed: Code[20];
     begin
         // 1. Setup: CreateCustomer and get next Service Contract No from No Series.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LastNoUsed := UpdateNoSeriesAndGetLastNoUsed;
 

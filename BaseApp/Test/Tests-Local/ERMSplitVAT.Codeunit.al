@@ -270,7 +270,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT]
         // [SCENARIO 371812] Posting of Split VAT Entries for Full VAT Posting Setup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with VAT Amount = "X". Split VAT line with 'Full VAT' in Split VAT Posting Setup.
         CreateSalesDocWithSplitVATLineFullVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
@@ -294,7 +294,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Invoice]
         // [SCENARIO 376365] "Sales Document - Test" report should not print VAT Reversal line in the Invoice body section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with split VAT line with Full VAT
         CreateSalesDocWithSplitVATLineFullVAT(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice);
@@ -319,7 +319,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT]
         // [SCENARIO 376113] Split VAT line should not be created for Sales Line when type is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Sales Line in Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -354,7 +354,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Service] [Full VAT] [Invoice]
         // [SCENARIO 376310] "Service Document - Test" report should not print VAT Reversal line in the Invoice body section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with Split VAT line with Full VAT
         CreateServiceDocWithSplitVATLineFullVAT(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice);
@@ -380,7 +380,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Service] [Full VAT] [Invoice]
         // [SCENARIO 376310] "Service - Invoice" report should not print VAT Reversal line in the Invoice body section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Invoice with Split VAT line with Full VAT
         CreateServiceDocWithSplitVATLineFullVAT(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice);
@@ -407,7 +407,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Service] [Full VAT] [Credit Memo]
         // [SCENARIO 376310] "Service - Credit Memo" report should not print VAT Reversal line in the Invoice body section
-        Initialize;
+        Initialize();
 
         // [GIVEN] Posted Service Credit Memo with Split VAT line with Full VAT
         CreateServiceDocWithSplitVATLineFullVAT(ServiceHeader, ServiceLine, ServiceHeader."Document Type"::"Credit Memo");
@@ -435,7 +435,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Discount]
         // [SCENARIO 379471] Inv. Discount Amount for Sales document should not be changed after Split VAT line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable SalesSetup Calc. Inv. Discount and Calc. Inv. Discount per VAT ID
         SetSalesSetupCalcInvDiscount;
@@ -474,7 +474,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Service] [Discount]
         // [SCENARIO 379471] Inv. Discount Amount for Service document should not be changed after Split VAT line
-        Initialize;
+        Initialize();
 
         // [GIVEN] Enable SalesSetup Calc. Inv. Discount and Calc. Inv. Discount per VAT ID
         SetSalesSetupCalcInvDiscount;
@@ -512,7 +512,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 284528] The credit memo line copied from posted invoice where it was created by Generate Split VAT Lines has Automatically Generated = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post invoice with Split VAT line
         SalesInvoiceHeader.Get(
@@ -540,7 +540,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Copy Document]
         // [SCENARIO 284528] The invoice line copied from posted credit memo where it was created by Generate Split VAT Lines has Automatically Generated = Yes
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post credit memo with Split VAT line
         SalesCrMemoHeader.Get(
@@ -571,7 +571,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Dimensions]
         // [SCENARIO 284528] Sales line created by Generate Split VAT Lines function has dimensions copied from sales header and from split VAT Setup.Sales VAT Account
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create split VAT Posting Setup with Sales VAT Acctount "ACC"
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -611,7 +611,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Invoice] [Sales]
         // [SCENARIO 306691] Split VAT Sales Line gets deleted when the line it was generated from is deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with Sales Line in Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -643,7 +643,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Credit Memo] [Sales]
         // [SCENARIO 306691] Split VAT Sales Line gets deleted when the line it was generated from is deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Credit Memo with Sales Line in Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -675,7 +675,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Invoice] [Service]
         // [SCENARIO 306691] Split VAT Service Line gets deleted when the line it was generated from is deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Invoice with Service Line in Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -707,7 +707,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Credit Memo] [Service]
         // [SCENARIO 306691] Split VAT Service Line gets deleted when the line it was generated from is deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Service Credit Memo with Service Line in Split VAT Posting Setup
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -740,7 +740,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Full VAT] [Invoice] [Sales]
         // [SCENARIO 306691] Split VAT Sales Line gets updated with correct amount when there were two lines and one is deleted
-        Initialize;
+        Initialize();
 
         // [GIVEN] Sales Invoice with 2 Sales Lines in Split VAT Posting Setup. Second Line has Amount = 10000, VAT is 10%
         CreateVATPostingSetupForSplitVATFullVAT(VATPostingSetup);
@@ -757,7 +757,7 @@ codeunit 144561 "ERM Split VAT"
 
         // [THEN] Split VAT Sales line amount equals negative 10000 * 10 / 100 = -1000
         SalesLine.SetRange("Automatically Generated", true);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Line Amount", -LineAmount * VATPostingSetup."VAT %" / 100);
 
         // Cleanup
@@ -777,7 +777,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -806,7 +806,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -836,7 +836,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -866,7 +866,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -896,7 +896,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -925,7 +925,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -954,7 +954,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesInvoice(SalesHeader, SalesLine, SalesInvoiceSubform, VATPostingSetup);
@@ -983,7 +983,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1012,7 +1012,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1042,7 +1042,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1072,7 +1072,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1102,7 +1102,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1131,7 +1131,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1160,7 +1160,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Sales line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Sales line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInSalesCrMemo(SalesHeader, SalesLine, SalesCrMemoSubform, VATPostingSetup);
@@ -1189,7 +1189,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1218,7 +1218,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1248,7 +1248,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1278,7 +1278,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1308,7 +1308,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1337,7 +1337,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1366,7 +1366,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceInvoice(ServiceHeader, ServiceLine, ServiceInvoiceSubform, VATPostingSetup);
@@ -1395,7 +1395,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Type" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1424,7 +1424,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "No" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1454,7 +1454,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Quantity" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1484,7 +1484,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit of Measure Code" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1514,7 +1514,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Unit Price" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1543,7 +1543,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Discount %" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1572,7 +1572,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         // [FEATURE] [Split VAT]
         // [SCENARIO 333234] Service line is created by Generate Split VAT Lines function. Field "Line Amount" is changed in user's created line.
-        Initialize;
+        Initialize();
 
         // [GIVEN] SplitVAT Service line was automatically created with Unit Price
         OldUnitPrice := SetUpForRecalculateSplitVATInServiceCrMemo(ServiceHeader, ServiceLine, ServiceCreditMemoSubform, VATPostingSetup);
@@ -1691,8 +1691,8 @@ codeunit 144561 "ERM Split VAT"
     local procedure Initialize()
     begin
         Clear(LibraryReportDataset);
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;
@@ -1706,7 +1706,7 @@ codeunit 144561 "ERM Split VAT"
     var
         SplitVATTest: Record "Split VAT Test";
     begin
-        if SplitVATTest.FindSet then
+        if SplitVATTest.FindSet() then
             repeat
                 LibrarySplitVAT.AddSalesLine(SalesHeader, SplitVATTest."VAT Prod. Post Group", SplitVATTest."Amount Excl. VAT");
             until SplitVATTest.Next = 0;
@@ -1882,12 +1882,12 @@ codeunit 144561 "ERM Split VAT"
         SplitVATPostingSetup: Record "VAT Posting Setup";
     begin
         SetSalesLineFilters(SalesLine, SalesHeader, VATPostingSetup, false);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesHeader.GetVATPostingSetup(SplitVATPostingSetup, SalesLine);
 
         SetSalesLineFilters(SalesLine, SalesHeader, SplitVATPostingSetup, true);
         Assert.RecordCount(SalesLine, 1);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         Assert.AreEqual(ExpectedVATAmount, SalesLine.Amount, WrongLineAmountTxt);
 
         Assert.AreEqual(SalesLine.Type::"G/L Account", SalesLine.Type, 'Unexpected line type.');
@@ -1928,7 +1928,7 @@ codeunit 144561 "ERM Split VAT"
         with ServiceInvoiceHeader do begin
             SetRange("Pre-Assigned No.", OriginalDocNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1940,7 +1940,7 @@ codeunit 144561 "ERM Split VAT"
         with ServiceCrMemoHeader do begin
             SetRange("Pre-Assigned No.", OriginalDocNo);
             SetRange("Customer No.", CustomerNo);
-            FindFirst;
+            FindFirst();
             exit("No.");
         end;
     end;
@@ -1951,7 +1951,7 @@ codeunit 144561 "ERM Split VAT"
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT");
-        VATPostingSetup.FindFirst;
+        VATPostingSetup.FindFirst();
         exit(VATPostingSetup."Sales VAT Account");
     end;
 
@@ -1960,7 +1960,7 @@ codeunit 144561 "ERM Split VAT"
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
         SalesLine.SetRange("Automatically Generated", AutomaticallyGenerated);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
     end;
 
     local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; AutomaticallyGenerated: Boolean)
@@ -1968,7 +1968,7 @@ codeunit 144561 "ERM Split VAT"
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);
         ServiceLine.SetRange("Automatically Generated", AutomaticallyGenerated);
-        ServiceLine.FindFirst;
+        ServiceLine.FindFirst();
     end;
 
     local procedure RunSalesDocumentTestReport(DocumentNo: Code[20])
@@ -2013,7 +2013,7 @@ codeunit 144561 "ERM Split VAT"
             SetRange("Document No.", DocumentNo);
             SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            FindFirst;
+            FindFirst();
             TestField(Base, ExpectedBase);
             TestField(Amount, ExpectedAmount);
             TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
@@ -2124,7 +2124,7 @@ codeunit 144561 "ERM Split VAT"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", GLAccountNo);
-        SalesLine.FindFirst;
+        SalesLine.FindFirst();
         SalesLine.TestField("Automatically Generated", true);
     end;
 

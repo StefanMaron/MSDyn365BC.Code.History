@@ -522,7 +522,7 @@ report 12136 "Ledger Entry Details"
                                 PurchLine.Reset();
                                 PurchLine.SetRange("Prod. Order No.", "Order No.");
                                 PurchLine.SetRange("No.", "Item No.");
-                                if PurchLine.FindFirst then
+                                if PurchLine.FindFirst() then
                                     RoutingAmt += Quantity * PurchLine."Direct Unit Cost";
                             end;
                             RoutingAmt += "Overhead Cost";
@@ -532,7 +532,7 @@ report 12136 "Ledger Entry Details"
                             ProdOrdRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
                             ProdOrdRoutingLine.SetRange("Routing Reference No.", ProdOrderLine."Line No.");
                             ProdOrdRoutingLine.SetRange("No.", "No.");
-                            if ProdOrdRoutingLine.FindSet then
+                            if ProdOrdRoutingLine.FindSet() then
                                 repeat
                                     RoutingAmt += ProdOrdRoutingLine."Expected Operation Cost Amt." + ProdOrdRoutingLine."Expected Capacity Ovhd. Cost";
                                 until ProdOrdRoutingLine.Next() = 0;
@@ -1181,7 +1181,7 @@ report 12136 "Ledger Entry Details"
                     AccountingPeriod.Reset();
                     AccountingPeriod.SetRange("New Fiscal Year", true);
                     AccountingPeriod.SetFilter("Starting Date", '<=%1', "Item Cost History"."Competence Year");
-                    if AccountingPeriod.FindLast then
+                    if AccountingPeriod.FindLast() then
                         LastFiscalYearEndDate := AccountingPeriod."Starting Date" - 1;
                     if ItemCostHistory.Get("Item Cost History"."Item No.", LastFiscalYearEndDate) then;
                 end;
@@ -1238,7 +1238,7 @@ report 12136 "Ledger Entry Details"
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
                 ItemLedgEntry.SetRange("Posting Date", 0D, "Competence Year");
                 ItemLedgEntry.SetFilter("Entry Type", '<>%1', ItemLedgEntry."Entry Type"::Transfer);
-                if ItemLedgEntry.FindSet then
+                if ItemLedgEntry.FindSet() then
                     repeat
                         EndYearInv += ItemLedgEntry.Quantity;
                         if EndYearInv <= 0 then

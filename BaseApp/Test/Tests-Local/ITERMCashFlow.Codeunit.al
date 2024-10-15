@@ -33,7 +33,7 @@ codeunit 144022 "IT - ERM Cash Flow"
         // The order must be splitted based on the payment terms settings
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         SetupPaymentLine(PaymentLines1, PaymentTerms.Code, 10, LibraryRandom.RandDec(90, 2), LibraryRandom.RandInt(3));
@@ -73,7 +73,7 @@ codeunit 144022 "IT - ERM Cash Flow"
         // The order must be splitted based on the payment terms settings
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         SetupPaymentLine(PaymentLines1, PaymentTerms.Code, 10, LibraryRandom.RandDec(90, 2), LibraryRandom.RandInt(3));
@@ -112,7 +112,7 @@ codeunit 144022 "IT - ERM Cash Flow"
         // The order must be splitted based on the payment terms settings
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         SetupPaymentLine(PaymentLines1, PaymentTerms.Code, 10, LibraryRandom.RandDec(100, 1), LibraryRandom.RandInt(3));
@@ -153,7 +153,7 @@ codeunit 144022 "IT - ERM Cash Flow"
         // The order must be splitted based on the payment terms settings
 
         // Setup
-        Initialize;
+        Initialize();
         LibraryCashFlowHelper.CreateCashFlowForecastConsiderDiscount(CashFlowForecast);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
         SetupPaymentLine(PaymentLines1, PaymentTerms.Code, 10, LibraryRandom.RandDec(100, 1), LibraryRandom.RandInt(3));
@@ -185,9 +185,9 @@ codeunit 144022 "IT - ERM Cash Flow"
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
         IsInitialized := true;
         Commit();

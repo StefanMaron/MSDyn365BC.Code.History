@@ -77,7 +77,7 @@ codeunit 135099 "OCR Master Data Sync Events"
     [Scope('OnPrem')]
     procedure ClearQueue()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 }
 

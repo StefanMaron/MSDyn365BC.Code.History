@@ -81,7 +81,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         VerifyNotificationMessage(SyncStartedMsg);
 
         // [GIVEN] The Customer '10000' gets "Salesperson Code" = 'XX', not coupled to CRM System User.
-        Customer."Salesperson Code" := LibraryUtility.GenerateGUID;
+        Customer."Salesperson Code" := LibraryUtility.GenerateGUID();
         Customer.Modify();
 
         // [WHEN] The Customer '10000' synchronization has failed, because the Salesperson "XX" is not coupled.
@@ -1133,7 +1133,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         Assert.ExpectedError(NoPermissionToDeleteInCRMErr);
         // [THEN] There is still one line for CRM Account
         TempCRMSynchConflictBuffer.Reset();
-        TempCRMSynchConflictBuffer.FindFirst;
+        TempCRMSynchConflictBuffer.FindFirst();
         Assert.IsTrue(TempCRMSynchConflictBuffer.IsOneRecordDeleted, 'One rec should be deleted in buffer');
         Assert.IsTrue(CRMAccount[1].Find, 'CRM Account does not exist');
     end;
@@ -1415,7 +1415,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] CRM Product 'B', not coupled
         CRMProduct[2].Init();
         CRMProduct[2].ProductId := CreateGuid;
-        CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID;
+        CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID();
         CRMProduct[2].Insert(true);
         // [GIVEN] Open CRM Skipped Records page
         CRMSkippedRecords.OpenEdit;
@@ -1456,7 +1456,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [GIVEN] CRM Product 'B', not coupled
         CRMProduct[2].Init();
         CRMProduct[2].ProductId := CreateGuid;
-        CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID;
+        CRMProduct[2].ProductNumber := LibraryUtility.GenerateGUID();
         CRMProduct[2].Insert(true);
         // [GIVEN] Open CRM Skipped Records page
         CRMSkippedRecords.OpenEdit;
@@ -1517,7 +1517,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         MockTempSkippedCouplings(TempCRMIntegrationRecord);
         Assert.AreEqual(2, TempCRMSynchConflictBuffer.Fill(TempCRMIntegrationRecord), 'initial number of records');
         // [GIVEN] one coupling got "Skipped" = No
-        TempCRMIntegrationRecord.FindFirst;
+        TempCRMIntegrationRecord.FindFirst();
         TempCRMIntegrationRecord.Skipped := false;
         TempCRMIntegrationRecord.Modify();
         CRMID := TempCRMIntegrationRecord."CRM ID";
@@ -1525,7 +1525,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         // [WHEN] run UpdateSourceTable()
         Assert.AreEqual(1, TempCRMSynchConflictBuffer.UpdateSourceTable(TempCRMIntegrationRecord), 'numer of remaining records');
         // [THEN] UpdateSourceTable() removes the record, which source is not skipped
-        TempCRMSynchConflictBuffer.FindFirst;
+        TempCRMSynchConflictBuffer.FindFirst();
         Assert.AreNotEqual(CRMID, TempCRMSynchConflictBuffer."CRM ID", 'this record should be deleted');
     end;
 
@@ -1547,7 +1547,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(SalespersonPurchaser, CRMSystemuser);
 
         // [GIVEN] One coupling was deleted and replaced by not skipped one
-        TempCRMIntegrationRecord.FindFirst;
+        TempCRMIntegrationRecord.FindFirst();
         CRMID := TempCRMIntegrationRecord."CRM ID";
         TempCRMIntegrationRecord.Delete();
         TempCRMIntegrationRecord."CRM ID" := CRMSystemuser.SystemUserId;
@@ -1555,13 +1555,13 @@ codeunit 139186 "CRM Synch. Skipped Records"
         TempCRMIntegrationRecord.Insert();
         // [GIVEN] SynchConflictBuffer points to the deleted coupling
         TempCRMSynchConflictBuffer.SetRange("CRM ID", CRMID);
-        TempCRMSynchConflictBuffer.FindFirst;
+        TempCRMSynchConflictBuffer.FindFirst();
         TempCRMSynchConflictBuffer.Reset();
 
         // [WHEN] run UpdateSourceTable()
         // [THEN] UpdateSourceTable() removes the record, which source coupling was deleted
         Assert.AreEqual(1, TempCRMSynchConflictBuffer.UpdateSourceTable(TempCRMIntegrationRecord), 'numer of remaining records');
-        TempCRMSynchConflictBuffer.FindFirst;
+        TempCRMSynchConflictBuffer.FindFirst();
         Assert.AreNotEqual(CRMID, TempCRMSynchConflictBuffer."CRM ID", 'this record should be deleted');
     end;
 
@@ -1623,8 +1623,8 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
-        LibraryVariableStorage.Clear;
+        LibraryApplicationArea.EnableFoundationSetup();
+        LibraryVariableStorage.Clear();
         LibraryCRMIntegration.ResetEnvironment;
         LibraryCRMIntegration.ConfigureCRM;
         CRMConnectionSetup.Get();
@@ -1813,9 +1813,9 @@ codeunit 139186 "CRM Synch. Skipped Records"
         CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime - 10000;
         CRMIntegrationRecord."Last Synch. CRM Modified On" := CurrentDateTime - 15000;
         CRMIntegrationRecord.Modify();
-        Customer.Name := LibraryUtility.GenerateGUID;
+        Customer.Name := LibraryUtility.GenerateGUID();
         Customer.Modify();
-        CRMAccount.Name := LibraryUtility.GenerateGUID;
+        CRMAccount.Name := LibraryUtility.GenerateGUID();
         CRMAccount.Modify();
     end;
 
@@ -1840,7 +1840,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
             CRMIntegrationRecord.Skipped := true;
             CRMIntegrationRecord."Last Synch. Modified On" := CurrentDateTime - 10000;
             CRMIntegrationRecord.Modify();
-            CRMSystemuser[I].FullName := LibraryUtility.GenerateGUID;
+            CRMSystemuser[I].FullName := LibraryUtility.GenerateGUID();
             CRMSystemuser[I].Modify();
         end;
     end;
@@ -1852,7 +1852,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
         JobQueueLogEntry: Record "Job Queue Log Entry";
     begin
         JobQueueLogEntry.SetRange(ID, JobQueueEntryID);
-        JobQueueLogEntry.FindLast;
+        JobQueueLogEntry.FindLast();
         IntegrationSynchJob[1].SetRange("Job Queue Log Entry No.", JobQueueLogEntry."Entry No.");
         IntegrationSynchJob[1].SetRange("Synch. Direction", IntegrationTableMapping.Direction::FromIntegrationTable);
         Assert.IsTrue(IntegrationSynchJob[1].FindLast, 'IntegrationSynchJob.FromIntTable should be found.');
@@ -1886,7 +1886,7 @@ codeunit 139186 "CRM Synch. Skipped Records"
     begin
         TempCRMSynchConflictBuffer.Reset();
         Assert.AreEqual(1, TempCRMSynchConflictBuffer.Count, 'should be one line in the buffer');
-        TempCRMSynchConflictBuffer.FindFirst;
+        TempCRMSynchConflictBuffer.FindFirst();
         Assert.IsTrue(TempCRMSynchConflictBuffer.DoBothRecordsExist, 'both coupled records should exist');
         Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(RecID), 'coupling should exist');
         CRMIntegrationRecord.TestField(Skipped, true);

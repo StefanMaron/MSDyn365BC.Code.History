@@ -47,7 +47,7 @@ table 308 "No. Series"
                 if not "Date Order" then
                     exit;
                 FindNoSeriesLineToShow(NoSeriesLine);
-                if not NoSeriesLine.FindFirst then
+                if not NoSeriesLine.FindFirst() then
                     exit;
                 if NoSeriesLine."Allow Gaps in Nos." then
                     Error(AllowGapsNotAllowedWithDateOrderErr);
@@ -130,6 +130,9 @@ table 308 "No. Series"
 
     fieldgroups
     {
+        fieldgroup(DropDown; Code, Description)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -251,7 +254,7 @@ table 308 "No. Series"
     begin
         NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, Code, 0D);
 
-        if NoSeriesLine.FindLast then
+        if NoSeriesLine.FindLast() then
             exit;
 
         NoSeriesLine.Reset();
@@ -264,7 +267,7 @@ table 308 "No. Series"
     begin
         NoSeriesMgt.SetNoSeriesLineSalesFilter(NoSeriesLineSales, Code, 0D);
 
-        if NoSeriesLineSales.FindLast then
+        if NoSeriesLineSales.FindLast() then
             exit;
 
         NoSeriesLineSales.Reset();
@@ -277,7 +280,7 @@ table 308 "No. Series"
     begin
         NoSeriesMgt.SetNoSeriesLinePurchaseFilter(NoSeriesLinePurchase, Code, 0D);
 
-        if NoSeriesLinePurchase.FindLast then
+        if NoSeriesLinePurchase.FindLast() then
             exit;
 
         NoSeriesLinePurchase.Reset();

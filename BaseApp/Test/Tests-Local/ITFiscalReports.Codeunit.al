@@ -65,7 +65,7 @@ codeunit 144192 "IT - Fiscal Reports"
         PrintCompanyInfo: Boolean;
         LastPrintingDate: Date;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
         LastPrintingDate := VATRegister."Last Printing Date";
@@ -97,7 +97,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -131,7 +131,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -165,7 +165,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -199,7 +199,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -224,7 +224,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -251,7 +251,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -288,7 +288,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NewEndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -320,7 +320,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NewStartDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
 
@@ -351,7 +351,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
         SetLastPrintedPage(VATRegister, 0);
@@ -384,7 +384,7 @@ codeunit 144192 "IT - Fiscal Reports"
         PrintCompanyInfo: Boolean;
         LastPrintedPage: Integer;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
         LastPrintedPage := LibraryRandom.RandInt(10);
@@ -418,7 +418,7 @@ codeunit 144192 "IT - Fiscal Reports"
         PrintCompanyInfo: Boolean;
         LastPrintedPage: Integer;
     begin
-        Initialize;
+        Initialize();
         // Setup - prepare data
         SelectVATRegister(VATRegister);
         LastPrintedPage := LibraryRandom.RandInt(10);
@@ -451,7 +451,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameter values.
         ReportType := ReportType::Test;
@@ -490,7 +490,7 @@ codeunit 144192 "IT - Fiscal Reports"
         LastGenJnlNo: Integer;
         LastPrintedPageNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameters values
         ReportType := ReportType::Final;
@@ -531,7 +531,7 @@ codeunit 144192 "IT - Fiscal Reports"
         LastGenJnlNo: Integer;
         LastPrintedPageNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameters values
         ReportType := ReportType::Final;
@@ -569,7 +569,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameters values
         ReportType := ReportType::Final;
@@ -600,7 +600,7 @@ codeunit 144192 "IT - Fiscal Reports"
         EndDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameters values
         ReportType := ReportType::Final;
@@ -633,7 +633,7 @@ codeunit 144192 "IT - Fiscal Reports"
         LastGenJnlNo: Integer;
         LastPrintedPageNo: Integer;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameters values
         ReportType := ReportType::Final;
@@ -665,7 +665,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
         PrintCompanyInfo: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         // Setup - set report parameters values
         ReportType := ReportType::Reprint;
@@ -695,7 +695,7 @@ codeunit 144192 "IT - Fiscal Reports"
         // Purpose of the test is to verify that that page numbering works in VAT Register Grouped.
 
         // Setup.
-        Initialize;
+        Initialize();
         SelectVATRegister(VATRegister);
         PeriodStartDate := GetStartDateForVATRegister(VATRegister.Code);
         PeriodEndDate := GetEndDate(PeriodStartDate);
@@ -724,7 +724,7 @@ codeunit 144192 "IT - Fiscal Reports"
     begin
         // [FEATURE] [Services] [Invoice]
         // [SCENARIO 363245] Service Invoice's Customer name and VAT Registration No. should be printed in VAT Fiscal Register report
-        Initialize;
+        Initialize();
 
         SelectSalesVATRegister(VATRegister);
         StartDate := GetStartDateForVATRegisterFiscalYear(VATRegister.Code, false);
@@ -764,7 +764,7 @@ codeunit 144192 "IT - Fiscal Reports"
     begin
         // [FEATURE] [Services] [Credit Memo]
         // [SCENARIO 363245] Service Credit Memo's Customer name and VAT Registration No. should be printed in VAT Fiscal Register report
-        Initialize;
+        Initialize();
 
         SelectSalesVATRegister(VATRegister);
         StartDate := GetStartDateForVATRegisterFiscalYear(VATRegister.Code, false);
@@ -800,7 +800,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with empty Country Code with VAT Calculation Type "Reverse Charge" are shown in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Customer with empty "Country/Region Code".
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -830,7 +830,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with Country Code equal to Company's one with VAT Calculation Type "Reverse Charge" are shown in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Customer with "Country/Region Code" = Company's Country/Region Code 'IT'.
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -860,7 +860,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with Country Code different from Company's one with VAT Calculation Type "Reverse Charge" are filled in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Customer with external "Country/Region Code" 'AT'.
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -889,7 +889,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with empty Country Code with VAT Calculation Type "Reverse Charge" are shown in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Vendor with empty "Country/Region Code".
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -919,7 +919,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with Country Code equal to Company's one with VAT Calculation Type "Reverse Charge" are shown in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Vendor with "Country/Region Code" = Company's Country/Region Code 'IT'.
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -949,7 +949,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with Country Code different from Company's one with VAT Calculation Type "Reverse Charge" are filled in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Vendor with external "Country/Region Code" 'AT'.
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -978,7 +978,7 @@ codeunit 144192 "IT - Fiscal Reports"
         StartDate: Date;
     begin
         // [SCENARIO 375440] Entries with empty Country Code with VAT Calculation Type "Reverse Charge" are shown in report VAT Register with empty field "IntraC".
-        Initialize;
+        Initialize();
 
         // [GIVEN] VAT Book Entry with "VAT Calculation Type" = "Reverse Charge VAT" and Type = Settlement.
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -1014,7 +1014,7 @@ codeunit 144192 "IT - Fiscal Reports"
         Index: Integer;
     begin
         // [SCENARIO 378881] Page numbering "VAT Register - Print" report must not consider Accounting Period settings and must consider calendar year enumerating from first page number
-        Initialize;
+        Initialize();
 
         StartDate := CalcDate('<3Y + CY + 1D>', GetStartDate(true));
         NoSeries.Get(CreateNoSeries(NoSeries."No. Series Type"::Sales, CreateVATRegister));
@@ -1063,7 +1063,7 @@ codeunit 144192 "IT - Fiscal Reports"
 
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
@@ -1119,7 +1119,7 @@ codeunit 144192 "IT - Fiscal Reports"
         NoSeries: Record "No. Series";
     begin
         NoSeries.SetFilter("VAT Register", VATRegisterCode);
-        NoSeries.FindFirst;
+        NoSeries.FindFirst();
         NoSeriesCode := NoSeries.Code;
     end;
 
@@ -1133,7 +1133,7 @@ codeunit 144192 "IT - Fiscal Reports"
         AccPeriod: Record "Accounting Period";
     begin
         AccPeriod.SetFilter("Starting Date", '>%1', GetLastPostingDate);
-        if not AccPeriod.FindFirst then
+        if not AccPeriod.FindFirst() then
             CreateAccountingPeriod(AccPeriod, CalcDate('<CM+1D>', GetLastPostingDate), NewFiscalYear);
         StartDate := AccPeriod."Starting Date";
     end;
@@ -1147,7 +1147,7 @@ codeunit 144192 "IT - Fiscal Reports"
         LastPostingDate := GLSetup."Last Gen. Jour. Printing Date"; // G/L Book Entries are either Printed or Deleted.
         if LastPostingDate = 0D then begin
             GLEntry.SetCurrentKey("Official Date");
-            GLEntry.FindLast;
+            GLEntry.FindLast();
             LastPostingDate := GLEntry."Posting Date";
         end;
     end;
@@ -1175,7 +1175,7 @@ codeunit 144192 "IT - Fiscal Reports"
         GLBookEntry.SetCurrentKey("Official Date");
         GLBookEntry.SetFilter("Progressive No.", '<>%1', 0);
         GLBookEntry.SetFilter("Official Date", '..%1', ClosingDate(EndDate));
-        GLBookEntry.FindLast;
+        GLBookEntry.FindLast();
         exit(GLBookEntry."Progressive No.");
     end;
 
@@ -1189,9 +1189,9 @@ codeunit 144192 "IT - Fiscal Reports"
         VATBookEntry.SetFilter(Type, '<>%1', VATBookEntry.Type::Settlement);
         VATBookEntry.CalcFields("No. Series");
         VATBookEntry.SetFilter("No. Series", GetNoSeries(VATRegisterCode));
-        VATBookEntry.FindFirst;
+        VATBookEntry.FindFirst();
         AccountingPeriod.SetFilter("Starting Date", '<=%1', VATBookEntry."Posting Date");
-        AccountingPeriod.FindLast;
+        AccountingPeriod.FindLast();
         StartDate := AccountingPeriod."Starting Date";
     end;
 
@@ -1201,7 +1201,7 @@ codeunit 144192 "IT - Fiscal Reports"
     begin
         StartDate := GetStartDateForVATRegister(VATRegisterCode);
         AccountingPeriod.SetRange("Starting Date", StartDate);
-        AccountingPeriod.FindFirst;
+        AccountingPeriod.FindFirst();
         AccountingPeriod.Validate("New Fiscal Year", NewFiscalYear);
         AccountingPeriod.Modify(true);
     end;
@@ -1259,7 +1259,7 @@ codeunit 144192 "IT - Fiscal Reports"
         GLBookPrint.SaveAsExcel(TemporaryPath + LibraryUtility.GenerateGUID + XlsxTok);
         UpdateLastPageNo;
 
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
     end;
 
     local procedure RunVATRegisterReport(VATRegister: Record "VAT Register"; ReportType: Option; StartDate: Date; EndDate: Date; PrintCompanyInfo: Boolean)
@@ -1269,7 +1269,7 @@ codeunit 144192 "IT - Fiscal Reports"
     begin
         GetCompanyInformation(CompanyInformation);
         VATRegisterPrint.InitializeRequest(VATRegister, ReportType, StartDate, EndDate, PrintCompanyInfo, CompanyInformation);
-        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
+        LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         VATRegisterPrint.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
@@ -1283,7 +1283,7 @@ codeunit 144192 "IT - Fiscal Reports"
         VATBookEntry.SetFilter(Type, '<>%1', VATBookEntry.Type::Settlement);
         VATBookEntry.CalcFields("No. Series");
         VATBookEntry.SetFilter("No. Series", '<>''''');
-        VATBookEntry.FindLast;
+        VATBookEntry.FindLast();
         VATBookEntry.CalcFields("No. Series");
         NoSeries.Get(VATBookEntry."No. Series");
         VATRegister.Get(NoSeries."VAT Register");
@@ -1299,7 +1299,7 @@ codeunit 144192 "IT - Fiscal Reports"
             SetRange(Type, Type::Sale);
             CalcFields("No. Series");
             SetFilter("No. Series", '<>''''');
-            FindLast;
+            FindLast();
             CalcFields("No. Series");
             NoSeries.Get("No. Series")
         end;

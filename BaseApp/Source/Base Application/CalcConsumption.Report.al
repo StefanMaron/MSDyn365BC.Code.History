@@ -52,7 +52,7 @@ report 5405 "Calc. Consumption"
             begin
                 ItemJnlLine.SetRange("Journal Template Name", ToTemplateName);
                 ItemJnlLine.SetRange("Journal Batch Name", ToBatchName);
-                if ItemJnlLine.FindLast then
+                if ItemJnlLine.FindLast() then
                     NextConsumpJnlLineNo := ItemJnlLine."Line No." + 10000
                 else
                     NextConsumpJnlLineNo := 10000;
