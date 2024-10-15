@@ -21,7 +21,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RecRef.IsTemporary then
             exit;
 
-        RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
+        SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
         if RestrictedRecord.FindFirst() then begin
             RestrictedRecord.Details := CopyStr(RestrictionDetails, 1, MaxStrLen(RestrictedRecord.Details));
             RestrictedRecord.Modify(true);
@@ -86,7 +86,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RestrictedRecord.IsEmpty() then
             exit;
 
-        RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
+        SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
         RestrictedRecord.LockTable(true);
         RestrictedRecord.DeleteAll(true);
     end;
@@ -106,7 +106,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RestrictedRecord.IsEmpty() then
             exit;
 
-        RestrictedRecord.SetRange("Record ID", xRecRef.RecordId);
+        SetRestrictedRecordFiltersForRecRef(RestrictedRecord, xRecRef);
         RestrictedRecord.ModifyAll("Record ID", RecRef.RecordId);
     end;
 
@@ -167,7 +167,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RestrictedRecord.IsEmpty() then
             exit;
 
-        RestrictedRecord.SetRange("Record ID", RecRef.RecordId);
+        SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
         if not RestrictedRecord.FindFirst() then
             exit;
 
@@ -177,6 +177,12 @@ codeunit 1550 "Record Restriction Mgt."
             Format(Format(RestrictedRecord."Record ID", 0, 1))) + '\\' + RestrictedRecord.Details;
 
         Error(ErrorMessage);
+    end;
+
+    local procedure SetRestrictedRecordFiltersForRecRef(var RestrictedRecord: Record "Restricted Record"; RecordRef: RecordRef)
+    begin
+        RestrictedRecord.SetRange("Record ID", RecordRef.RecordId);
+        OnAfterSetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecordRef);
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnCheckSalesPostRestrictions', '', false, false)]
@@ -590,6 +596,11 @@ codeunit 1550 "Record Restriction Mgt."
             exit;
 
         CheckRecordHasUsageRestrictions(Sender);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetRestrictedRecordFiltersForRecRef(var RestrictedRecord: Record "Restricted Record"; RecordRef: RecordRef)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -26,7 +26,7 @@ codeunit 1330 "Instruction Mgt."
         ClosingUnreleasedOrdersNotificationDescriptionTxt: Label 'Show a warning when you close an order that requires warehouse handling but has not been released.';
         ClosingUnreleasedOrdersConfirmQst: Label 'The document has not been released.\Are you sure you want to exit?';
         DefaultDimPrioritiesMissingTxt: Label 'Notify user about missing Default Dimension Priorities.';
-        DefaultDimPrioritiesMissingDescriptionTxt: Label 'Show notification when Default Dimension Priorities are not defined, and than header dimension will have priority over lines default dimensions.';
+        DefaultDimPrioritiesMissingDescriptionTxt: Label 'Show notification when Default Dimension Priorities are not defined, and then header dimension will have priority over lines default dimensions.';
 
     procedure ShowConfirm(ConfirmQst: Text; InstructionType: Code[50]): Boolean
     begin

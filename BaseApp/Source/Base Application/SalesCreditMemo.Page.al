@@ -63,6 +63,11 @@ page 44 "Sales Credit Memo"
                         exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
+                field("Posting Description"; Rec."Posting Description")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies additional posting information for the document. After you post the document, the description can add detail to vendor and customer ledger entries.';
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -183,11 +188,6 @@ page 44 "Sales Credit Memo"
                     Caption = 'Contact';
                     Editable = "Sell-to Customer No." <> '';
                     ToolTip = 'Specifies the name of the person to contact at the customer.';
-                }
-                field("Posting Description"; Rec."Posting Description")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies a description of the document. The posting description also appers on customer and G/L entries.';
                 }
                 field("Your Reference"; Rec."Your Reference")
                 {
@@ -611,15 +611,6 @@ page 44 "Sales Credit Memo"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
-                }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
                 }
                 field("Language Code"; Rec."Language Code")
                 {

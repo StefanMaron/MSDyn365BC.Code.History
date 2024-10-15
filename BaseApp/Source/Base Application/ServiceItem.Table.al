@@ -187,6 +187,7 @@ table 5940 "Service Item"
             trigger OnValidate()
             var
                 ConfirmManagement: Codeunit "Confirm Management";
+                ShouldConfirmChange: Boolean;
             begin
                 if "Ship-to Code" <> xRec."Ship-to Code" then begin
                     if CheckifActiveServContLineExist() then
@@ -194,9 +195,11 @@ table 5940 "Service Item"
                           Text004,
                           FieldCaption("Ship-to Code"), "Ship-to Code", TableCaption(), "No.");
                     ServItemLinesExistErr(FieldCaption("Ship-to Code"));
-                    if ServLedgEntryExist() then
+                    ShouldConfirmChange := ServLedgEntryExist();
+                    OnValidateShiptoCodeOnAfterCalcShouldConfirmChange(Rec, CurrFieldNo, ShouldConfirmChange);
+                    if ShouldConfirmChange then
                         if not ConfirmManagement.GetResponseOrDefault(
-                             StrSubstNo(Text017, TableCaption(), FieldCaption("Customer No.")), true)
+                             StrSubstNo(Text017, TableCaption(), FieldCaption("Ship-to Code")), true)
                         then begin
                             "Ship-to Code" := xRec."Ship-to Code";
                             exit;
@@ -1238,6 +1241,11 @@ table 5940 "Service Item"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCustomerNoOnAfterCalcShouldConfirmChange(var ServiceItem: Record "Service Item"; CurrFieldNo: Integer; var ShouldConfirmChange: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShiptoCodeOnAfterCalcShouldConfirmChange(var ServiceItem: Record "Service Item"; CurrFieldNo: Integer; var ShouldConfirmChange: Boolean)
     begin
     end;
 }

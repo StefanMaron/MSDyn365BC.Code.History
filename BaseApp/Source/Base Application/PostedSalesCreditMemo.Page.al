@@ -31,6 +31,14 @@ page 134 "Posted Sales Credit Memo"
                     TableRelation = Customer.Name;
                     ToolTip = 'Specifies the name of the customer that you shipped the items on the credit memo to.';
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -443,16 +451,6 @@ page 134 "Posted Sales Credit Memo"
                     ApplicationArea = BasicEU;
                     Editable = false;
                     ToolTip = 'Specifies the area code used in the credit memo.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = VAT;
-                    Editable = false;
-                    ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '20.0';

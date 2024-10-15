@@ -282,7 +282,13 @@
             trigger OnValidate()
             var
                 UOMMgt: Codeunit "Unit of Measure Management";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckIsNotAsmToOrder();
                 TestStatusOpen();
 
@@ -830,16 +836,17 @@
         end;
     end;
 
-    local procedure GetNoSeriesCode(): Code[20]
+    local procedure GetNoSeriesCode() Result: Code[20]
     begin
         case "Document Type" of
             "Document Type"::Quote:
-                exit(AssemblySetup."Assembly Quote Nos.");
+                Result := AssemblySetup."Assembly Quote Nos.";
             "Document Type"::Order:
-                exit(AssemblySetup."Assembly Order Nos.");
+                Result := AssemblySetup."Assembly Order Nos.";
             "Document Type"::"Blanket Order":
-                exit(AssemblySetup."Blanket Assembly Order Nos.");
+                Result := AssemblySetup."Blanket Assembly Order Nos.";
         end;
+        OnAfterGetNoSeriesCode(Rec, Result);
     end;
 
     local procedure GetPostingNoSeriesCode(): Code[20]
@@ -1217,10 +1224,16 @@
         PAGE.Run(PAGE::"Assembly BOM", BOMComponent);
     end;
 
-    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text): Decimal
+    local procedure CalcBaseQty(Qty: Decimal; FromFieldName: Text; ToFieldName: Text) Result: Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBaseQty(Rec, Qty, FromFieldName, ToFieldName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(UOMMgt.CalcBaseQty(
             "Item No.", "Variant Code", "Unit of Measure Code", Qty, "Qty. per Unit of Measure", "Qty. Rounding Precision (Base)", FieldCaption("Qty. Rounding Precision"), FromFieldName, ToFieldName));
     end;
@@ -1230,6 +1243,7 @@
         UOMMgt: Codeunit "Unit of Measure Management";
     begin
         Qty := UOMMgt.RoundQty(Qty, "Qty. Rounding Precision");
+        OnAfterRoundQty(Rec, Qty);
     end;
 
     local procedure GetSKU()
@@ -1978,6 +1992,11 @@
 #endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNoSeriesCode(AssemblyHeader: Record "Assembly Header"; var Result: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetSKU(AssemblyHeader: Record "Assembly Header"; var Result: Boolean)
     begin
     end;
@@ -2004,6 +2023,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRemaining(var AssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRoundQty(AssemblyHeader: Record "Assembly Header"; var Qty: Decimal)
     begin
     end;
 
@@ -2088,6 +2112,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantity(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; FieldNumber: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnBeforeUpdateAssemblyLines(var AssemblyHeader: Record "Assembly Header"; xAssemblyHeader: Record "Assembly Header"; CurrentFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -2099,6 +2128,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAssemblyLinesAndVerifyReserveQuantity(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer; CurrentFieldNum: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBaseQty(var AssemblyHeader: Record "Assembly Header"; Qty: Decimal; FromFieldName: Text; ToFieldName: Text; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 

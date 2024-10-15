@@ -622,7 +622,7 @@ page 6520 "Item Tracing"
         UpdateTraceText();
 
         ItemTracingMgt.ExpandAll(TempTrackEntry, Rec);
-	    OnFindRecordsOnBeforeCurrPageUpdate(Rec);
+        OnFindRecordsOnBeforeCurrPageUpdate(Rec);
         CurrPage.Update(false)
     end;
 
@@ -754,7 +754,7 @@ page 6520 "Item Tracing"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindRecordsOnBeforeItemTracingMgtFindRecords(var ItemTracingBuffer: Record "Item Tracing Buffer"; var ItemTracingBufferRec: Record "Item Tracing Buffer"; SerialNoFilter: Text; LotNoFilter: Text; PackageNoFilter: Text; ItemNoFilter: Text; VariantFilter: Text; Direction: Option; ShowComponents: Option; var IsHandled: Boolean)
     begin
     end;
@@ -764,7 +764,7 @@ page 6520 "Item Tracing"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnRecallHistoryOnBeforeItemTracingMgtRecallHistory(Steps: Integer; var ItemTracingBuffer: Record "Item Tracing Buffer"; var ItemTracingBufferRec: Record "Item Tracing Buffer"; var SerialNoFilter: Text; var LotNoFilter: Text; var PackageNoFilter: Text; var ItemNoFilter: Text; var VariantFilter: Text; var TraceMethod: Option; var ShowComponents: Option; var IsHandled: Boolean)
     begin
     end;

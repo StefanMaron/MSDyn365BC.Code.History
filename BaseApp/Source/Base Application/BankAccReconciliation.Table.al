@@ -504,6 +504,12 @@ table 273 "Bank Acc. Reconciliation"
         BankOrIssBankStatHeaderExistsErr: Label 'Cannot create Payment Reconciliation Journal because exist Bank Statement Header or Issued Bank Statement Header for Bank Account No. value: %1.', Comment = '%1=number of bank account';
 #endif
         NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
+        BankReconciliationFeatureNameTelemetryTxt: Label 'Bank reconciliation', Locked = true;
+
+    internal procedure GetBankReconciliationTelemetryFeatureName(): Text
+    begin
+        exit(BankReconciliationFeatureNameTelemetryTxt);
+    end;
 
 #if not CLEAN20
     [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]

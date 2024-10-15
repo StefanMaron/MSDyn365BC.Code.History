@@ -35,6 +35,12 @@ report 19 "VAT- VIES Declaration Tax Auth"
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
+            column(CompanyAddr7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddr8; CompanyAddr[8])
+            {
+            }
             column(CountryRegionCode; VATEntriesBaseAmtSum.EU_Country_Region_Code)
             {
             }

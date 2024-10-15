@@ -201,13 +201,17 @@ codeunit 396 NoSeriesManagement
     procedure DoGetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date; ModifySeries: Boolean; NoErrorsOrWarnings: Boolean): Code[20]
     var
         NoSeriesLine: Record "No. Series Line";
+        CurrNoSeriesLine: Record "No. Series Line";
     begin
         OnBeforeDoGetNextNo(NoSeriesCode, SeriesDate, ModifySeries, NoErrorsOrWarnings);
 
         if SeriesDate = 0D then
             SeriesDate := WorkDate();
 
-        if ModifySeries or (LastNoSeriesLine."Series Code" = '') then begin
+        SetNoSeriesLineFilter(CurrNoSeriesLine, NoSeriesCode, SeriesDate);
+        if ModifySeries or (LastNoSeriesLine."Series Code" = '') or
+        ((LastNoSeriesLine."Line No." <> CurrNoSeriesLine."Line No.") and (LastNoSeriesLine."Series Code" = NoSeriesCode))
+        then begin
             NoSeries.Get(NoSeriesCode);
             SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, SeriesDate);
             if not NoSeriesLine.FindFirst() then begin

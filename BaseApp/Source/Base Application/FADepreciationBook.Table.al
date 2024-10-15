@@ -903,50 +903,54 @@
     procedure CalcDeprPeriod()
     var
         DeprBook2: Record "Depreciation Book";
+        IsHandled: Boolean;
     begin
-        if "Depreciation Starting Date" = 0D then begin
-            "Depreciation Ending Date" := 0D;
-            "No. of Depreciation Years" := 0;
-            "No. of Depreciation Months" := 0;
-        end;
-        if ("Depreciation Starting Date" = 0D) or ("Depreciation Ending Date" = 0D) then begin
-            "No. of Depreciation Years" := 0;
-            "No. of Depreciation Months" := 0;
-        end else begin
-            if "Depreciation Starting Date" > "Depreciation Ending Date" then
-                Error(
-                  Text002,
-                  FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
-            DeprBook2.Get("Depreciation Book Code");
-            if DeprBook2."Fiscal Year 365 Days" then begin
-                "No. of Depreciation Months" := 0;
+        IsHandled := false;
+        OnBeforeCalcDeprPeriod(Rec, IsHandled);
+        if not IsHandled then begin
+            if "Depreciation Starting Date" = 0D then begin
+                "Depreciation Ending Date" := 0D;
                 "No. of Depreciation Years" := 0;
+                "No. of Depreciation Months" := 0;
             end;
-            if not DeprBook2."Fiscal Year 365 Days" then begin
-                "No. of Depreciation Months" :=
-                  DepreciationCalc.DeprDays("Depreciation Starting Date", "Depreciation Ending Date", false) / 30;
-                "No. of Depreciation Months" := Round("No. of Depreciation Months", 0.00000001);
-                "No. of Depreciation Years" := Round("No. of Depreciation Months" / 12, 0.00000001);
+            if ("Depreciation Starting Date" = 0D) or ("Depreciation Ending Date" = 0D) then begin
+                "No. of Depreciation Years" := 0;
+                "No. of Depreciation Months" := 0;
+            end else begin
+                if "Depreciation Starting Date" > "Depreciation Ending Date" then
+                    Error(
+                      Text002,
+                      FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
+                DeprBook2.Get("Depreciation Book Code");
+                if DeprBook2."Fiscal Year 365 Days" then begin
+                    "No. of Depreciation Months" := 0;
+                    "No. of Depreciation Years" := 0;
+                end;
+                if not DeprBook2."Fiscal Year 365 Days" then begin
+                    "No. of Depreciation Months" :=
+                      DepreciationCalc.DeprDays("Depreciation Starting Date", "Depreciation Ending Date", false) / 30;
+                    "No. of Depreciation Months" := Round("No. of Depreciation Months", 0.00000001);
+                    "No. of Depreciation Years" := Round("No. of Depreciation Months" / 12, 0.00000001);
+                end;
+                "Straight-Line %" := 0;
+                "Fixed Depr. Amount" := 0;
             end;
-            "Straight-Line %" := 0;
-            "Fixed Depr. Amount" := 0;
         end;
-
         OnAfterCalcDeprPeriod(Rec);
     end;
 
-    local procedure CalcEndingDate(): Date
-    var
-        EndingDate: Date;
+    local procedure CalcEndingDate() EndingDate: Date
     begin
         if "No. of Depreciation Years" = 0 then
-            exit(0D);
-        EndingDate := FADateCalc.CalculateDate(
-            "Depreciation Starting Date", Round("No. of Depreciation Years" * 360, 1), false);
-        EndingDate := DepreciationCalc.Yesterday(EndingDate, false);
-        if EndingDate < "Depreciation Starting Date" then
-            EndingDate := "Depreciation Starting Date";
-        exit(EndingDate);
+            EndingDate := 0D
+        else begin
+            EndingDate := FADateCalc.CalculateDate(
+                "Depreciation Starting Date", Round("No. of Depreciation Years" * 360, 1), false);
+            EndingDate := DepreciationCalc.Yesterday(EndingDate, false);
+            if EndingDate < "Depreciation Starting Date" then
+                EndingDate := "Depreciation Starting Date";
+        end;
+        OnAfterCalcEndingDate(Rec, EndingDate);
     end;
 
     procedure GetExchangeRate(): Decimal
@@ -961,13 +965,14 @@
         exit(DeprBook."Default Exchange Rate");
     end;
 
-    protected procedure LinearMethod(): Boolean
+    protected procedure LinearMethod() Result: Boolean
     begin
-        exit(
+        Result :=
           "Depreciation Method" in
           ["Depreciation Method"::"Straight-Line",
            "Depreciation Method"::"DB1/SL",
-           "Depreciation Method"::"DB2/SL"]);
+           "Depreciation Method"::"DB2/SL"];
+        OnAfterLinearMethod(Rec, Result);
     end;
 
     protected procedure DecliningMethod(): Boolean
@@ -980,9 +985,10 @@
            "Depreciation Method"::"DB2/SL"]);
     end;
 
-    protected procedure UserDefinedMethod(): Boolean
+    protected procedure UserDefinedMethod() Result: Boolean
     begin
-        exit("Depreciation Method" = "Depreciation Method"::"User-Defined");
+        Result := Rec."Depreciation Method" = Rec."Depreciation Method"::"User-Defined";
+        OnAfterUserDefinedMethod(Rec, Result);
     end;
 
     protected procedure TestHalfYearConventionMethod()
@@ -1047,7 +1053,13 @@
     var
         TempFALedgEntry: Record "FA Ledger Entry" temporary;
         FALedgEntry: Record "FA Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowBookValueAfterDisposal(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Disposal Date" > 0D then begin
             Clear(TempFALedgEntry);
             TempFALedgEntry.DeleteAll();
@@ -1062,7 +1074,14 @@
     end;
 
     procedure CalcBookValue()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBookValue(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Disposal Date" > 0D then
             "Book Value" := 0
         else
@@ -1075,6 +1094,7 @@
         FALedgEntry.SetRange("FA No.", "FA No.");
         FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");
         FALedgEntry.SetRange("Part of Book Value", true);
+        OnAfterSetBookValueFiltersOnFALedgerEntry(FALedgEntry);
     end;
 
     procedure LineIsReadyForAcquisition(FANo: Code[20]): Boolean
@@ -1106,7 +1126,14 @@
     end;
 
     procedure UpdateBookValue()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateBookValue(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Disposal Date" > 0D then
             "Book Value" := 0;
     end;
@@ -1134,7 +1161,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcDeprPeriod(var FADepreciationBook: Record "FA Depreciation Book");
+    local procedure OnAfterCalcDeprPeriod(var FADepreciationBook: Record "FA Depreciation Book")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLinearMethod(var FADepreciationBook: Record "FA Depreciation Book"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcEndingDate(FADepreciationBook: Record "FA Depreciation Book"; var EndingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUserDefinedMethod(FADepreciationBook: Record "FA Depreciation Book"; var Result: Boolean)
     begin
     end;
 
@@ -1145,6 +1187,31 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAdjustLinearMethod(var FADepreciationBook: Record "FA Depreciation Book"; var Amount1: Decimal; var Amount2: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetBookValueFiltersOnFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowBookValueAfterDisposal(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcDeprPeriod(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBookValue(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBookValue(var FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
     begin
     end;
 

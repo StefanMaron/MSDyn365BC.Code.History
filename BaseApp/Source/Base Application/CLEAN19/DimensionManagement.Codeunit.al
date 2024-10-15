@@ -35,6 +35,7 @@ codeunit 408 DimensionManagement
         DimValueNotAllowedForAccountTypeErr: Label 'Dimension value %1 %2 is not allowed for account type %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 - table caption.';
         NoAllowedValuesSelectedErr: Label 'There are no allowed dimension values selected.';
         DefaultDimPrioritiesMissingLbl: Label 'Default Dimension Priorities are not defined for Source Code: %1.', Comment = '%1 = Source Code';
+        AllowedDimensionValueConfirmTxt: Label 'Do you want dimension value %1 to be included in %2 in %3 default dimensions? Updating default dimensions may take some time.', Comment = '%1 = Dimension Value, %2 = Allowed Values Filter, %3 = No. of Default Dimension records that will be updated.';
         HideNotificationTxt: Label 'Don''t show again';
         OpenDefaultDimPrioritiesLbl: Label 'Do you want to initialize Dimension Priorities?';
         LastErrorMessage: Record "Error Message";
@@ -670,18 +671,18 @@ codeunit 408 DimensionManagement
     begin
         IsHandled := false;
         OnBeforeUpdateDefaultDim(TableID, No, GlobalDim1Code, GlobalDim2Code, IsHandled);
-        if IsHandled then
-            exit;
-
-        GetGLSetup(GLSetupShortcutDimCode);
-        if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[1]) then
-            GlobalDim1Code := DefaultDim."Dimension Value Code"
-        else
-            GlobalDim1Code := '';
-        if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[2]) then
-            GlobalDim2Code := DefaultDim."Dimension Value Code"
-        else
-            GlobalDim2Code := '';
+        if not IsHandled then begin
+            GetGLSetup(GLSetupShortcutDimCode);
+            if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[1]) then
+                GlobalDim1Code := DefaultDim."Dimension Value Code"
+            else
+                GlobalDim1Code := '';
+            if DefaultDim.Get(TableID, No, GLSetupShortcutDimCode[2]) then
+                GlobalDim2Code := DefaultDim."Dimension Value Code"
+            else
+                GlobalDim2Code := '';
+        end;
+        OnAfterUpdateDefaultDim(TableID, No, GlobalDim1Code, GlobalDim2Code);
     end;
 
 #if not CLEAN20
@@ -834,13 +835,15 @@ codeunit 408 DimensionManagement
                                                 InsertTempDimBufEntry(TempDimBuf, DefaultDim."Table ID", 0, DefaultDim."Dimension Code", DefaultDim."Dimension Value Code");
                                             end;
                                         end else
-                                            if InstructionMgt.IsEnabled(InstructionMgt.DefaultDimPrioritiesCode()) then
-                                                InitializeDefaultDimPrioritiesMissingNotification(SourceCode);
+                                            if DefDimPrioritiesNotExist(SourceCode) and (SourceCode <> '') then
+                                                if InstructionMgt.IsEnabled(InstructionMgt.DefaultDimPrioritiesCode()) then
+                                                    InitializeDefaultDimPrioritiesMissingNotification(SourceCode);
                                     if GLSetupShortcutDimCode[1] = TempDimBuf."Dimension Code" then
                                         GlobalDim1Code := TempDimBuf."Dimension Value Code";
                                     if GLSetupShortcutDimCode[2] = TempDimBuf."Dimension Code" then
                                         GlobalDim2Code := TempDimBuf."Dimension Value Code";
                                 end;
+                                OnGetDefaultDimIDOnAfterAttributeGlobalDims(GlobalDim1Code, GlobalDim2Code);
                             until DefaultDim.Next() = 0;
                     end;
                 end;
@@ -1121,25 +1124,25 @@ codeunit 408 DimensionManagement
     begin
         IsHandled := false;
         OnBeforeValidateDimValueCode(FieldNumber, ShortcutDimCode, IsHandled, GLSetupShortcutDimCode, DimVal);
-        if IsHandled then
-            exit;
-
-        GetGLSetup(GLSetupShortcutDimCode);
-        if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
-            Error(Text002, GLSetup.TableCaption());
-        DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
-        if ShortcutDimCode <> '' then begin
-            DimVal.SetRange(Code, ShortcutDimCode);
-            if not DimVal.FindFirst() then begin
-                DimVal.SetFilter(Code, StrSubstNo('%1*', ShortcutDimCode));
-                if DimVal.FindFirst() then
-                    ShortcutDimCode := DimVal.Code
-                else
-                    Error(
-                      Text003,
-                      ShortcutDimCode, DimVal.FieldCaption(Code));
+        if not IsHandled then begin
+            GetGLSetup(GLSetupShortcutDimCode);
+            if (GLSetupShortcutDimCode[FieldNumber] = '') and (ShortcutDimCode <> '') then
+                Error(Text002, GLSetup.TableCaption());
+            DimVal.SetRange("Dimension Code", GLSetupShortcutDimCode[FieldNumber]);
+            if ShortcutDimCode <> '' then begin
+                DimVal.SetRange(Code, ShortcutDimCode);
+                if not DimVal.FindFirst() then begin
+                    DimVal.SetFilter(Code, StrSubstNo('%1*', ShortcutDimCode));
+                    if DimVal.FindFirst() then
+                        ShortcutDimCode := DimVal.Code
+                    else
+                        Error(
+                          Text003,
+                          ShortcutDimCode, DimVal.FieldCaption(Code));
+                end;
             end;
         end;
+        OnAfterValidateDimValueCode(FieldNumber, ShortcutDimCode, GLSetupShortcutDimCode, DimVal);
     end;
 
     procedure ValidateShortcutDimValues(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var DimSetID: Integer)
@@ -1486,34 +1489,33 @@ codeunit 408 DimensionManagement
         exit(true);
     end;
 
-    procedure CheckDimValue(DimCode: Code[20]; DimValCode: Code[20]): Boolean
+    procedure CheckDimValue(DimCode: Code[20]; DimValCode: Code[20]) Result: Boolean
     var
         DimVal: Record "Dimension Value";
         IsHandled: Boolean;
-        Result: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckDimValue(DimCode, DimValCode, Result, IsHandled, DimVal);
-        if IsHandled then
-            exit(Result);
-
-        if (DimCode <> '') and (DimValCode <> '') then
-            if DimVal.Get(DimCode, DimValCode) then begin
-                if DimVal.Blocked then begin
+        if not IsHandled then begin
+            if (DimCode <> '') and (DimValCode <> '') then
+                if DimVal.Get(DimCode, DimValCode) then begin
+                    if DimVal.Blocked then begin
+                        LogError(
+                          DimVal.RecordId, DimVal.FieldNo(Blocked),
+                          StrSubstNo(DimValueBlockedErr, DimVal.TableCaption(), DimCode, DimValCode), '');
+                        exit(false);
+                    end;
+                    if not CheckDimValueAllowed(DimVal) then
+                        exit(false);
+                end else begin
                     LogError(
-                      DimVal.RecordId, DimVal.FieldNo(Blocked),
-                      StrSubstNo(DimValueBlockedErr, DimVal.TableCaption(), DimCode, DimValCode), '');
+                      DATABASE::"Dimension Value", 0,
+                      StrSubstNo(DimValueMissingErr, DimVal.TableCaption(), DimCode, DimValCode), '');
                     exit(false);
                 end;
-                if not CheckDimValueAllowed(DimVal) then
-                    exit(false);
-            end else begin
-                LogError(
-                  DATABASE::"Dimension Value", 0,
-                  StrSubstNo(DimValueMissingErr, DimVal.TableCaption(), DimCode, DimValCode), '');
-                exit(false);
-            end;
-        exit(true);
+            Result := true;
+        end;
+        OnAfterCheckDimValue(DimCode, DimValCode, Result);
     end;
 
     local procedure CheckDimValueAllowed(DimVal: Record "Dimension Value") Result: Boolean
@@ -2709,15 +2711,31 @@ codeunit 408 DimensionManagement
     procedure AddDefaultDimensionAllowedDimensionValue(DimensionValue: Record "Dimension Value")
     var
         DefaultDimension: Record "Default Dimension";
+        ConfirmManagement: Codeunit "Confirm Management";
+        Confirmed: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddDefaultDimensionAllowedDimensionValue(DimensionValue, IsHandled);
+        if IsHandled then
+            exit;
+
         DefaultDimension.SetRange("Dimension Code", DimensionValue."Dimension Code");
         DefaultDimension.SetRange("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
         DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
-        if DefaultDimension.FindSet(true) then
-            repeat
-                DefaultDimension.CreateDimValuePerAccountFromDimValue(DimensionValue);
+        OnAddDefaultDimensionAllowedDimensionValueOnAfterSetFilters(DefaultDimension);
+
+        if DefaultDimension.IsEmpty() then
+            exit;
+
+        Confirmed := ConfirmManagement.GetResponseOrDefault(StrSubstNo(AllowedDimensionValueConfirmTxt, DimensionValue.Code, DefaultDimension.FieldCaption("Allowed Values Filter"), DefaultDimension.Count()), false);
+
+        DefaultDimension.FindSet(true);
+        repeat
+            DefaultDimension.CreateDimValuePerAccountFromDimValue(DimensionValue, Confirmed);
+            if not Confirmed then
                 DefaultDimension.UpdateDefaultDimensionAllowedValuesFilter();
-            until DefaultDimension.Next() = 0;
+        until DefaultDimension.Next() = 0;
     end;
 
     procedure UpdateDefaultDimensionAllowedDimensionValues(DimensionValue: Record "Dimension Value")
@@ -2780,6 +2798,15 @@ codeunit 408 DimensionManagement
         if not DefaultDim.IsEmpty() then exit(true);
     end;
 
+    local procedure DefDimPrioritiesNotExist(SourceCode: Code[20]): Boolean
+    var
+        DefaultDimPriority: Record "Default Dimension Priority";
+    begin
+        DefaultDimPriority.SetRange("Source Code", SourceCode);
+        if DefaultDimPriority.IsEmpty() then
+            exit(true);
+    end;
+
     local procedure InitializeDefaultDimPrioritiesMissingNotification(SourceCode: Code[20])
     var
         MyNotifications: Record "My Notifications";
@@ -2809,11 +2836,9 @@ codeunit 408 DimensionManagement
     procedure OpenDefaultDimPriorities(DefaultDimPrioritiesNotification: Notification)
     var
         DefaultDimPriority: Record "Default Dimension Priority";
-        DefaultDimPriorities: Page "Default Dimension Priorities";
     begin
-        DefaultDimPriority.SetRange("Source Code", DefaultDimPrioritiesNotification.GetData('SourceCode'));
-        DefaultDimPriorities.SetTableView(DefaultDimPriority);
-        DefaultDimPriorities.Run();
+        DefaultDimPriority."Source Code" := CopyStr(DefaultDimPrioritiesNotification.GetData('SourceCode'), 1, MaxStrLen(DefaultDimPriority."Source Code"));
+        Page.Run(Page::"Default Dimension Priorities", DefaultDimPriority);
     end;
 
 #if not CLEAN20
@@ -2966,6 +2991,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimValue(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterConvertDimtoICDim(FromDim: Code[20]; var ICDimCode: Code[20])
     begin
     end;
@@ -3042,7 +3072,27 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDefaultDim(TableID: Integer; No: Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateDimValueCode(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var GLSetupShortcutDimCode: array[8] of Code[20]; DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimValues(FieldNumber: Integer; var ShortcutDimCode: Code[20]; var DimSetID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddDefaultDimensionAllowedDimensionValueOnAfterSetFilters(var DefaultDimension: Record "Default Dimension")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddDefaultDimensionAllowedDimensionValue(DimensionValue: Record "Dimension Value"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3247,6 +3297,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckICDimValueAllowed(ICDimVal: Record "IC Dimension Value"; var DimValueAllowed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDimIDOnAfterAttributeGlobalDims(var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
     begin
     end;
 

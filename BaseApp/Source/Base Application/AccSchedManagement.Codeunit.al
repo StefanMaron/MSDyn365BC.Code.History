@@ -233,10 +233,16 @@ codeunit 8 AccSchedManagement
         if TempColumnLayout.Find('-') then;
     end;
 
-    procedure LookupColumnName(CurrentColumnName: Code[10]; var EntrdColumnName: Text[10]): Boolean
+    procedure LookupColumnName(CurrentColumnName: Code[10]; var EntrdColumnName: Text[10]) Result: Boolean
     var
         ColumnLayoutName: Record "Column Layout Name";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupColumnName(CurrentColumnName, EntrdColumnName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         ColumnLayoutName.Name := CurrentColumnName;
         if PAGE.RunModal(0, ColumnLayoutName) <> ACTION::LookupOK then
             exit(false);
@@ -1217,7 +1223,7 @@ codeunit 8 AccSchedManagement
             end;
         end;
 
-        OnAfterSetGLAccColumnFilters(GLAcc, AccSchedLine2, ColumnLayout)
+        OnAfterSetGLAccColumnFilters(GLAcc, AccSchedLine2, ColumnLayout, StartDate, EndDate);
     end;
 
     procedure SetCFAccColumnFilter(var CFAccount: Record "Cash Flow Account"; AccSchedLine2: Record "Acc. Schedule Line"; var ColumnLayout2: Record "Column Layout")
@@ -1283,7 +1289,7 @@ codeunit 8 AccSchedManagement
             end;
         end;
 
-        OnAfterSetCFAccColumnFilter(CFAccount, AccSchedLine2, ColumnLayout2);
+        OnAfterSetCFAccColumnFilter(CFAccount, AccSchedLine2, ColumnLayout2, StartDate, EndDate);
     end;
 
     local procedure SetCFEntryFilters(var CFAccount: Record "Cash Flow Account"; var CFForecastEntry: Record "Cash Flow Forecast Entry"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
@@ -2923,12 +2929,12 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLAccColumnFilters(var GLAccount: Record "G/L Account"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    local procedure OnAfterSetGLAccColumnFilters(var GLAccount: Record "G/L Account"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; StartDate: Date; EndDate: Date)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetCFAccColumnFilter(var CashFlowAccount: Record "Cash Flow Account"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout")
+    local procedure OnAfterSetCFAccColumnFilter(var CashFlowAccount: Record "Cash Flow Account"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; StartDate: Date; EndDate: Date)
     begin
     end;
 
@@ -3019,6 +3025,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEvaluateExpression(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var MaxLevel: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupColumnName(CurrentColumnName: Code[10]; var EntrdColumnName: Text[10]; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -29,6 +29,14 @@ page 6660 "Posted Return Receipt"
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the customer.';
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 field("Sell-to Contact No."; Rec."Sell-to Contact No.")
                 {
                     ApplicationArea = SalesReturnOrder;

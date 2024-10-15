@@ -3468,7 +3468,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
             FinishPosting(GenJnlLine);
 
-            OnAfterCustPostApplyCustLedgEntry(GenJnlLine, GLReg);
+            OnAfterCustPostApplyCustLedgEntry(GenJnlLine, GLReg, CustLedgEntry);
         end;
     end;
 
@@ -7021,6 +7021,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         AmtToDeferACY: Decimal;
         EmptyDeferralLine: Boolean;
         IsHandled: Boolean;
+        DeferralSourceCode: Code[10];
     begin
         IsHandled := false;
         OnBeforePostDeferral(GenJournalLine, AccountNo, IsHandled);
@@ -7069,10 +7070,12 @@ codeunit 12 "Gen. Jnl.-Post Line"
             else
                 Error(NoDeferralScheduleErr, "Line No.", "Deferral Code");
 
+            DeferralSourceCode := GetGeneralDeferralSourceCode();
             InitGLEntry(
               GenJournalLine, GLEntry, AccountNo,
               -DeferralHeader."Amount to Defer (LCY)", -DeferralHeader."Amount to Defer", true, true);
             GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, AccountNo);
+            GLEntry."Source Code" := DeferralSourceCode;
             OnPostDeferralOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralLine, GLEntry);
             InsertGLEntry(GenJournalLine, GLEntry, true);
 
@@ -7080,6 +7083,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
               GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
               DeferralHeader."Amount to Defer (LCY)", DeferralHeader."Amount to Defer", true, true);
             GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, DeferralTemplate."Deferral Account");
+            GLEntry."Source Code" := DeferralSourceCode;
             OnPostDeferralOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralLine, GLEntry);
             InsertGLEntry(GenJournalLine, GLEntry, true);
 
@@ -7100,6 +7104,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                       TempDeferralLine."Amount (LCY)", TempDeferralLine.Amount, true, true);
                     GLEntry."Posting Date" := PerPostDate;
                     GLEntry.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, AccountNo);
+                    GLEntry."Source Code" := DeferralSourceCode;
                     OnPostDeferralOnBeforeInsertGLEntryDeferralLineForGLAccount(GenJournalLine, TempDeferralLine, GLEntry);
                     InsertGLEntry(GenJournalLine, GLEntry, true);
 
@@ -7108,6 +7113,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                       -TempDeferralLine."Amount (LCY)", -TempDeferralLine.Amount, true, true);
                     GLEntry."Posting Date" := PerPostDate;
                     GLEntry.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, DeferralTemplate."Deferral Account");
+                    GLEntry."Source Code" := DeferralSourceCode;
                     OnPostDeferralOnBeforeInsertGLEntryDeferralLineForDeferralAccount(GenJournalLine, TempDeferralLine, GLEntry);
                     InsertGLEntry(GenJournalLine, GLEntry, true);
                     PeriodicCount := PeriodicCount + 1;
@@ -7138,16 +7144,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLEntry: Record "G/L Entry";
         PostDate: Date;
         IsHandled: Boolean;
+        DeferralSourceCode: Code[10];
     begin
         IsHandled := false;
         OnBeforePostDeferralPostBuffer(GenJournalLine, IsHandled);
         if not IsHandled then
             with GenJournalLine do begin
-                if "Source Type" = "Source Type"::Customer then
-                    DeferralDocType := DeferralDocType::Sales
-                else
+                if "Source Type" = "Source Type"::Customer then begin
+                    DeferralDocType := DeferralDocType::Sales;
+                    DeferralSourceCode := GetSalesDeferralSourceCode();
+                end else begin
                     DeferralDocType := DeferralDocType::Purchase;
-
+                    DeferralSourceCode := GetPurchaseDeferralSourceCode();
+                end;
                 DeferralPostingBuffer.SetRange("Deferral Doc. Type", DeferralDocType);
                 DeferralPostingBuffer.SetRange("Document No.", "Document No.");
                 DeferralPostingBuffer.SetRange("Deferral Line No.", "Deferral Line No.");
@@ -7170,6 +7179,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                             GLEntry."Posting Date" := PostDate;
                             GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."G/L Account");
                             GLEntry.CopyFromDeferralPostBuffer(DeferralPostingBuffer);
+                            GLEntry."Source Code" := DeferralSourceCode;
                             OnPostDeferralPostBufferOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
                             InsertGLEntry(GenJournalLine, GLEntry, true);
                         end;
@@ -7180,6 +7190,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                 -DeferralPostingBuffer."Amount (LCY)", -DeferralPostingBuffer.Amount, true, true);
                             GLEntry."Posting Date" := PostDate;
                             GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."Deferral Account");
+                            GLEntry."Source Code" := DeferralSourceCode;
                             OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
                             InsertGLEntry(GenJournalLine, GLEntry, true);
                         end;
@@ -7208,6 +7219,33 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         SourceCodeSetup.Get();
         GLSourceCode := SourceCodeSetup."General Journal";
+    end;
+
+    local procedure GetGeneralDeferralSourceCode(): Code[10]
+    var
+        SourceCodeSetupLoc: Record "Source Code Setup";
+    begin
+        SourceCodeSetupLoc.Get();
+        SourceCodeSetupLoc.TestField("General Deferral");
+        exit(SourceCodeSetupLoc."General Deferral");
+    end;
+
+    local procedure GetSalesDeferralSourceCode(): Code[10]
+    var
+        SourceCodeSetupLoc: Record "Source Code Setup";
+    begin
+        SourceCodeSetupLoc.Get();
+        SourceCodeSetupLoc.TestField("Sales Deferral");
+        exit(SourceCodeSetupLoc."Sales Deferral");
+    end;
+
+    local procedure GetPurchaseDeferralSourceCode(): Code[10]
+    var
+        SourceCodeSetupLoc: Record "Source Code Setup";
+    begin
+        SourceCodeSetupLoc.Get();
+        SourceCodeSetupLoc.TestField("Purchase Deferral");
+        exit(SourceCodeSetupLoc."Purchase Deferral");
     end;
 
     local procedure DeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
@@ -9133,7 +9171,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustPostApplyCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var GLReg: Record "G/L Register")
+    local procedure OnAfterCustPostApplyCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var GLReg: Record "G/L Register"; CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
     end;
 

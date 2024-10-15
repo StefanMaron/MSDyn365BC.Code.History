@@ -130,6 +130,9 @@ table 1012 "Job Resource Price"
         field(9; "Line Discount %"; Decimal)
         {
             Caption = 'Line Discount %';
+            DecimalPlaces = 0 : 5;
+            MaxValue = 100;
+            MinValue = 0;
         }
         field(10; Description; Text[100])
         {

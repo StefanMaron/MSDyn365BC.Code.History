@@ -12,7 +12,7 @@ codeunit 441 "Prepayment Mgt."
         StatusOfPurchaseOrderIsChangedTxt: Label 'The status of the purchase order %1 is changed from Pending Prepayment to Release.', Comment = '%1 - purchase order no.';
         UpdateSalesOrderStatusTxt: Label 'Update sales order status.';
         UpdatePurchaseOrderStatusTxt: Label 'Update purchase order status.';
-        PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.';
+        PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.\\Prepayment amount to be posted is %1. It differs from document amount %2 by %3 in related lines. If the difference is related to rounding, please adjust amounts in lines related to prepayments.', Comment = '%1 - prepayment amount; %2 = document amount; %3 = difference amount';
         PrepaymentInvoicesNotPaidErr: Label 'You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid.';
 
     procedure AssertPrepmtAmountNotMoreThanDocAmount(DocumentTotalInclVAT: Decimal; PrepmtTotalInclVAT: Decimal; CurrencyCode: Code[10]; InvoiceRoundingSetup: Boolean)
@@ -25,7 +25,7 @@ codeunit 441 "Prepayment Mgt."
               Round(DocumentTotalInclVAT, CurrencyLcl."Invoice Rounding Precision", CurrencyLcl.InvoiceRoundingDirection());
         end;
         if Abs(PrepmtTotalInclVAT) > Abs(DocumentTotalInclVAT) then
-            Error(PrepaymentAmountHigherThanTheOrderErr);
+            Error(PrepaymentAmountHigherThanTheOrderErr, Abs(PrepmtTotalInclVAT), Abs(DocumentTotalInclVAT), Abs(PrepmtTotalInclVAT) - Abs(DocumentTotalInclVAT));
     end;
 
     procedure SetSalesPrepaymentPct(var SalesLine: Record "Sales Line"; Date: Date)

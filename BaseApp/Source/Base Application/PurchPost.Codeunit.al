@@ -4240,8 +4240,6 @@ codeunit 90 "Purch.-Post"
             "Item Charge No." := TempItemChargeAssgntPurch."Item Charge No.";
             "Item No." := TempItemChargeAssgntPurch."Item No.";
             "Qty. Assigned" := TempItemChargeAssgntPurch."Qty. to Handle";
-            "Qty. to Assign" -= TempItemChargeAssgntPurch."Qty. to Handle";
-            "Amount to Assign" -= TempItemChargeAssgntPurch."Amount to Handle";
             "Qty. to Handle" := 0;
             "Amount to Handle" := 0;
             Description := TempItemChargeAssgntPurch.Description;

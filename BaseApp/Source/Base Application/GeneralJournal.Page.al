@@ -2019,6 +2019,7 @@ page 39 "General Journal"
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 

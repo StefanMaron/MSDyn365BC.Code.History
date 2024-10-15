@@ -257,6 +257,11 @@ page 118 "General Ledger Setup"
 #endif
                     ToolTip = 'Specifies whether Business Central validates the data you enter in documents and journals while you type. For documents, you can turn on the check and messages will be shown in the Document Check FactBox. For journals, messages are always shown in the Journal Check FactBox.';
                 }
+                field("VAT Reporting Date Usage"; Rec."VAT Reporting Date Usage")
+                {
+                    ApplicationArea = VAT;
+                    ToolTip = 'Specifies the usage of VAT date.';
+                }
             }
             group(Control1900309501)
             {

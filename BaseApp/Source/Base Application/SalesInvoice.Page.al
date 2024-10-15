@@ -888,15 +888,6 @@ page 43 "Sales Invoice"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the country or region of origin for the purpose of Intrastat reporting.';
                 }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
                 field("Language Code"; Rec."Language Code")
                 {
                     ApplicationArea = Basic, Suite;

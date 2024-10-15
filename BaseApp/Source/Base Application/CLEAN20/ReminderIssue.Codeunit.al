@@ -345,8 +345,17 @@ codeunit 393 "Reminder-Issue"
     end;
 
     procedure ChangeDueDate(var ReminderEntry2: Record "Reminder/Fin. Charge Entry"; NewDueDate: Date; OldDueDate: Date)
+    var
+        IsHandled: Boolean;
     begin
-        ReminderEntry2."Due Date" := ReminderEntry2."Due Date" + (NewDueDate - OldDueDate);
+        OnBeforeChangeDueDate(ReminderEntry2, NewDueDate, OldDueDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NewDueDate < ReminderEntry2."Due Date" then
+            exit;
+
+        ReminderEntry2.Validate("Due Date", NewDueDate);
         ReminderEntry2.Modify();
     end;
 
@@ -701,6 +710,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteHeaderOnBeforeIssuedReminderLineInsert(var IssuedReminderLine: Record "Issued Reminder Line"; IssuedReminderHeader: Record "Issued Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeDueDate(var ReminderEntry2: Record "Reminder/Fin. Charge Entry"; NewDueDate: Date; OldDueDate: Date; var IsHandled: Boolean)
     begin
     end;
 }

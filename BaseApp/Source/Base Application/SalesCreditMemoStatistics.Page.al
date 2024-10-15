@@ -300,6 +300,7 @@ page 398 "Sales Credit Memo Statistics"
             exit;
 
         SalesCrMemoLine.SetRange("Document No.", "No.");
+        OnCalculateTotalsOnAfterSalesCrMemoLineSetFilters(SalesCrMemoLine, Rec);
         if SalesCrMemoLine.Find('-') then
             repeat
                 CustAmount += SalesCrMemoLine.Amount;
@@ -336,6 +337,11 @@ page 398 "Sales Credit Memo Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateTotals(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var CustAmount: Decimal; var AmountInclVAT: Decimal; var InvDiscAmount: Decimal; var CostLCY: Decimal; var TotalAdjCostLCY: Decimal; var LineQty: Decimal; var TotalNetWeight: Decimal; var TotalGrossWeight: Decimal; var TotalVolume: Decimal; var TotalParcels: Decimal; var IsHandled: Boolean; var VATpercentage: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateTotalsOnAfterSalesCrMemoLineSetFilters(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     begin
     end;
 

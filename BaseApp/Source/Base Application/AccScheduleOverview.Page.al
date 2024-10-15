@@ -164,6 +164,7 @@ page 490 "Acc. Schedule Overview"
                         Rec.SetFilter("Date Filter", DateFilter);
                         DateFilter := Rec.GetFilter("Date Filter");
                         TempFinancialReport.DateFilter := DateFilter;
+                        HasAccountingPeriodExist(DateFilter);
                         CurrPage.Update();
                     end;
                 }
@@ -1062,6 +1063,7 @@ page 490 "Acc. Schedule Overview"
         Text000Tok: Label 'DEFAULT', MaxLength = 10;
         Text005Tok: Label '1,6,,Dimension %1 Filter';
         EditModeMessage: Label 'All changes made to this page are permanent and visible to all users immediately';
+        AccountPeriodErr: Label 'Accounting period doesn''t exist for the Date Filter: %1', Comment = '%1= Date Filter';
         // Other page state
         [InDataSet]
         Dim1FilterEnable: Boolean;
@@ -1179,15 +1181,20 @@ page 490 "Acc. Schedule Overview"
                 AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
             end;
 
-        AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType);
+        SetFinancialReportDateFilter();
         ApplyShowFilter();
         UpdateDimFilterControls();
-        if TempFinancialReport.DateFilter = '' then
-            DateFilter := Rec.GetFilter("Date Filter")
-        else
-            DateFilter := TempFinancialReport.DateFilter;
+        DateFilter := Rec.GetFilter("Date Filter");
         OnBeforeCurrentColumnNameOnAfterValidate(TempFinancialReport."Financial Report Column Group");
         OnAfterOnOpenPage(Rec, TempFinancialReport."Financial Report Column Group");
+    end;
+
+    local procedure SetFinancialReportDateFilter()
+    begin
+        if TempFinancialReport.DateFilter = '' then
+            AccSchedManagement.FindPeriod(Rec, '', TempFinancialReport.PeriodType)
+        else
+            Rec.SetFilter("Date Filter", TempFinancialReport.DateFilter);
     end;
 
     local procedure LoadFinancialReportFilters(FinancialReportCode: Code[10]; var FinancialReportToLoadTemp: Record "Financial Report" temporary): Boolean
@@ -1206,7 +1213,6 @@ page 490 "Acc. Schedule Overview"
         // Transfer filters from FinancialReport
         FinancialReportToLoadTemp.Init();
         FinancialReportToLoadTemp.TransferFields(FinancialReport);
-        FinancialReport.DateFilter := Rec.GetFilter("Date Filter");
         if not ViewOnlyMode then
             exit(true);
         UserIDCode := CopyStr(UserId(), 1, MaxStrLen(UserIDCode));
@@ -1830,6 +1836,66 @@ page 490 "Acc. Schedule Overview"
             12:
                 ColumnStyle12 := ColumnStyle;
         end;
+    end;
+
+    local procedure HasAccountingPeriodExist(DateFilterTxt: text);
+    var
+        AccountingPeriod: Record "Accounting Period";
+        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
+        StartDate: Date;
+        EndDate: Date;
+        FiscalStartDate: Date;
+        FiscalEndDate: Date;
+        ErrorExist: Boolean;
+    begin
+        if DateFilterTxt = '' then
+            exit;
+
+        GetDateRange(DateFilterTxt, StartDate, EndDate);
+
+        if EndDate <> 0D then begin
+            if StartDate > EndDate then
+                ErrorExist := true;
+
+            AccountingPeriod.SetFilter("Starting Date", '<=%1', StartDate);
+            if AccountingPeriod.IsEmpty then
+                ErrorExist := true;
+
+            AccountingPeriod.Reset();
+            AccountingPeriod.SetFilter("Starting Date", '>=%1', EndDate);
+            if AccountingPeriod.IsEmpty then
+                ErrorExist := true;
+        end else begin
+            FiscalStartDate := AccountingPeriodMgt.FindFiscalYear(StartDate);
+            FiscalEndDate := AccountingPeriodMgt.FindEndOfFiscalYear(StartDate);
+            if not ((FiscalStartDate <= StartDate) and (FiscalEndDate >= StartDate)) then begin
+                AccountingPeriod.Reset();
+                AccountingPeriod.SetFilter("Starting Date", '0D');
+                if AccountingPeriod.IsEmpty then
+                    ErrorExist := true;
+            end;
+        end;
+
+        if ErrorExist then
+            Error(AccountPeriodErr, DateFilterTxt);
+    end;
+
+    local procedure GetDateRange(DateFilterTxt: Text; var StartDate: Date; var EndDate: Date)
+    var
+        StartDatetxt: Text;
+        EndDateTxt: Text;
+        Pos: Integer;
+    begin
+        Pos := StrPos(DateFilterTxt, '..');
+        if Pos > 0 then begin
+            StartDatetxt := CopyStr(DateFilterTxt, 1, Pos - 1);
+            EndDateTxt := CopyStr(DateFilterTxt, Pos + 2, StrLen((DateFilterTxt)));
+        end else
+            StartDatetxt := DatefilterTxt;
+
+        Evaluate(StartDate, StartDatetxt);
+        if EndDateTxt <> '' then
+            Evaluate(EndDate, EndDateTxt);
     end;
 
     [IntegrationEvent(false, false)]

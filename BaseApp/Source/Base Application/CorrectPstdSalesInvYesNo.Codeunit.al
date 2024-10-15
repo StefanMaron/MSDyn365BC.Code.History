@@ -52,7 +52,7 @@ codeunit 1322 "Correct PstdSalesInv (Yes/No)"
         if ConfirmManagement.GetResponse(CorrectPostedInvoiceQst, false) then begin
             CorrectPostedSalesInvoice.CancelPostedInvoiceCreateNewInvoice(SalesInvoiceHeader, SalesHeader);
             IsHandled := false;
-            OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(SalesHeader, IsHandled);
+            OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(SalesHeader, IsHandled, SalesInvoiceHeader);
             if not IsHandled then
                 PAGE.Run(PAGE::"Sales Invoice", SalesHeader);
             exit(true);
@@ -109,7 +109,7 @@ codeunit 1322 "Correct PstdSalesInv (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnCorrectInvoiceOnBeforeOpenSalesInvoicePage(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 

@@ -148,6 +148,7 @@ codeunit 6400 "Flow Service Management"
         exit(FlowTemplateDestinationDetailsTxt);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure IsUserReadyForFlow(): Boolean
     begin
@@ -218,6 +219,7 @@ codeunit 6400 "Flow Service Management"
         end;
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetEnvironments(var TempFlowUserEnvironmentBuffer: Record "Flow User Environment Buffer" temporary)
     var
@@ -311,6 +313,7 @@ codeunit 6400 "Flow Service Management"
         FlowUserEnvironmentConfig.Insert();
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetSelectedFlowEnvironmentIDToDefault()
     var

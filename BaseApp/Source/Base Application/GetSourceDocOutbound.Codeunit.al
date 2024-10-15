@@ -19,7 +19,7 @@ codeunit 5752 "Get Source Doc. Outbound"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest, Result, IsHandled);
+        OnBeforeCreateWhseShipmentHeaderFromWhseRequest(WarehouseRequest, Result, IsHandled, GetSourceDocuments);
         if IsHandled then
             exit(Result);
 
@@ -640,7 +640,7 @@ codeunit 5752 "Get Source Doc. Outbound"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCreateWhseShipmentHeaderFromWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var Rusult: Boolean; var IsHandled: Boolean; var GetSourceDocuments: Report "Get Source Documents")
     begin
     end;
 

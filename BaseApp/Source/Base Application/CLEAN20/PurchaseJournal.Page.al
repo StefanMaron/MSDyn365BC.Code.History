@@ -1195,6 +1195,7 @@ page 254 "Purchase Journal"
         LastGenJnlBatch: Code[10];
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 

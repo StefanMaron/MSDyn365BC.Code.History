@@ -1044,8 +1044,8 @@ page 283 "Recurring General Journal"
     begin
         OnBeforeOnOpenPage();
 
-
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 

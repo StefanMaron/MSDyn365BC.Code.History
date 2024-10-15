@@ -1233,6 +1233,7 @@ page 253 "Sales Journal"
         IsHandled: Boolean;
     begin
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+
         if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::ODataV4 then
             exit;
 

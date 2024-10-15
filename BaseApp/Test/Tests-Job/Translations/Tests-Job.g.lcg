@@ -230,6 +230,15 @@
       <Cmt Name="Dev"><![CDATA[Cashflow is a name of Cash Flow Forecast No. Series.]D;]A;(LookupHint=Codeunit Job Batch Jobs - NamedType XJOBWIPTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3269525534 - NamedType 2256008624" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Qty. is not transfer to right field on Job Planning Line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption - Planning - NamedType WrongQtyOnPlanningLineMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 154797126 - NamedType 2917405081" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Usage will not be linked to the job planning line because the Line Type field is empty.\\Do you want to continue?]]></Val>

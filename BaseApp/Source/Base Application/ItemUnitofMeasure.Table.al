@@ -160,6 +160,11 @@ table 5404 "Item Unit of Measure"
         end;
     end;
 
+    trigger OnInsert()
+    begin
+        TestField(Code);
+    end;
+
     trigger OnRename()
     begin
         TestItemUOM();

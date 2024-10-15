@@ -137,6 +137,7 @@ codeunit 392 "Reminder-Make"
         OpenEntriesOnHoldTranslated: Text[100];
         IsHandled: Boolean;
         IsGracePeriodExpired: Boolean;
+        ShouldMakeDoc: Boolean;
     begin
         IsHandled := false;
         OnBeforeMakeReminder(ReminderHeader, CurrencyCode, RetVal, IsHandled, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, HeaderExists, Cust);
@@ -155,7 +156,9 @@ codeunit 392 "Reminder-Make"
             ReminderLevel.SetRange("No.", 1, MaxLineLevel);
             if not ReminderLevel.FindLast() then
                 ReminderLevel.Init();
-            if MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)") then begin
+            ShouldMakeDoc := MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)");
+            OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq, ReminderHeader, Cust, ShouldMakeDoc);
+            if ShouldMakeDoc then begin
                 if CheckCustomerIsBlocked(Cust) then
                     exit(false);
                 ReminderLine.LockTable();
@@ -228,6 +231,7 @@ codeunit 392 "Reminder-Make"
                     repeat
                         AddRemiderLinesFromCustLedgEntryWithNoReminderLevelFilter(ReminderLine, ReminderLevel, LineLevel, ReminderDueDate, NextLineNo, OpenEntriesNotDueTranslated, StartLineInserted)
                     until CustLedgEntry.Next() = 0;
+                OnMakeReminderOnAfterAddRemiderLinesFromCustLedgEntriesWithNoReminderLevelFilter(CustLedgEntry, Cust, ReminderHeader, MaxReminderLevel, OverdueEntriesOnly);
 
                 if IncludeEntriesOnHold then
                     if TempCustLedgerEntryOnHold.FindSet() then begin
@@ -561,7 +565,13 @@ codeunit 392 "Reminder-Make"
     local procedure RemoveLinesOfNegativeReminder(var ReminderHeader: Record "Reminder Header")
     var
         ReminderTotal: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRemoveLinesOfNegativeReminder(ReminderHeader, ReminderHeaderReq, Cust, IsHandled);
+        if IsHandled then
+            exit;
+
         ReminderHeader.CalcFields(
           "Remaining Amount", "Interest Amount", "Additional Fee", "VAT Amount");
 
@@ -697,6 +707,11 @@ codeunit 392 "Reminder-Make"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemoveLinesOfNegativeReminder(var ReminderHeader: Record "Reminder Header"; ReminderHeaderReq: Record "Reminder Header"; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReminderHeaderFind(var ReminderHeader: Record "Reminder Header"; ReminderHeaderReq: Record "Reminder Header"; ReminderTerms: Record "Reminder Terms"; Customer: Record Customer)
     begin
     end;
@@ -723,6 +738,16 @@ codeunit 392 "Reminder-Make"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindAndMarkReminderCandidatesOnBeforeCustLedgEntryLoop(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnAfterCalcShouldMakeDoc(ReminderHeaderReq: Record "Reminder Header"; ReminderHeader: Record "Reminder Header"; Customer: Record Customer; var ShouldMakeDoc: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMakeReminderOnAfterAddRemiderLinesFromCustLedgEntriesWithNoReminderLevelFilter(var CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer; ReminderHeader: Record "Reminder Header"; MaxReminderLevel: Integer; var OverdueEntriesOnly: Boolean)
     begin
     end;
 

@@ -34,6 +34,14 @@ page 132 "Posted Sales Invoice"
                     TableRelation = Customer.Name;
                     ToolTip = 'Specifies the name of the customer that you shipped the items on the invoice to.';
                 }
+                field("VAT Registration No."; Rec."VAT Registration No.")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s VAT registration number for customers.';
+                    Visible = false;
+                }
                 group("Sell-to")
                 {
                     Caption = 'Sell-to';
@@ -667,16 +675,6 @@ page 132 "Posted Sales Invoice"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the transaction type for the customer record. This information is used for Intrastat reporting.';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-                    ObsoleteTag = '20.0';
-                    Visible = false;
-                }
-                field("VAT Registration No."; Rec."VAT Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Editable = false;
-                    ToolTip = 'Specifies the VAT registration number. The field will be used when you do business with partners from EU countries/regions.';
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '20.0';

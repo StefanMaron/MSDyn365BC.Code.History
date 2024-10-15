@@ -199,6 +199,12 @@ codeunit 2 "Company-Initialize"
         InvtOrderTxt: Label 'INVTORDER', Comment = 'INVENTORY ORDERS';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
+        SourceCodeGeneralDeferralLbl: Label 'Gen-Defer';
+        SourceCodeSalesDeferralLbl: Label 'Sal-Defer';
+        SourceCodePurchaseDeferralLbl: Label 'Pur-Defer';
+        SourceCodeGeneralDeferralTxt: Label 'General Deferral';
+        SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
+        SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
         OPBALANCETxt: Label 'OPBALANCE';
         OpenBalanceSheetTxt: Label 'Open Balance Sheet';
         CLBALANCETxt: Label 'CLBALANCE';
@@ -473,6 +479,9 @@ codeunit 2 "Company-Initialize"
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
                 InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
                 InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
+                InsertSourceCode("General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
+                InsertSourceCode("Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
+                InsertSourceCode("Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
                 InsertSourceCode("Open Balance Sheet", OPBALANCETxt, OpenBalanceSheetTxt); // NAVCZ
                 InsertSourceCode("Close Balance Sheet", CLBALANCETxt, CloseBalanceSheetTxt); // NAVCZ
                 Insert();

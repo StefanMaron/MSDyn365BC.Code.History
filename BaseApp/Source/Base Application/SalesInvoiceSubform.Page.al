@@ -1214,6 +1214,11 @@ page 47 "Sales Invoice Subform"
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
+        Rec.AddLoadFields(
+            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
+            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
+            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
+
         DocumentTotals.SalesCheckAndClearTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         exit(Find(Which));
     end;
@@ -1309,11 +1314,6 @@ page 47 "Sales Invoice Subform"
         Location: Record Location;
     begin
         OnBeforeSetOpenPage();
-
-        AddLoadFields(
-            "Price Calculation Method", "Sell-to Customer No.", "Customer Disc. Group", "Customer Price Group",
-            "VAT %", "VAT Calculation Type", "VAT Bus. Posting Group", "VAT Prod. Posting Group",
-            "Dimension Set ID", "Currency Code", "Qty. per Unit of Measure", "Allow Line Disc.");
 
         if Location.ReadPermission then
             LocationCodeVisible := not Location.IsEmpty();

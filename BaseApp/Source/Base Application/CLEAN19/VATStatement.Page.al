@@ -205,7 +205,13 @@ page 317 "VAT Statement"
     trigger OnOpenPage()
     var
         StmtSelected: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnOpenPage(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         OpenedFromBatch := ("Statement Name" <> '') and ("Statement Template Name" = '');
         if OpenedFromBatch then begin
             CurrentStmtName := "Statement Name";
@@ -229,6 +235,11 @@ page 317 "VAT Statement"
         CurrPage.SaveRecord();
         VATStmtManagement.SetName(CurrentStmtName, Rec);
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnOpenPage(var VATStatementLine: Record "VAT Statement Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

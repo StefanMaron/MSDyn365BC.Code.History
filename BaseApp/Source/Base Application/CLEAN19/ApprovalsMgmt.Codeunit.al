@@ -547,7 +547,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Created);
         ApprovalEntry.SetRange("Workflow Step Instance ID", WorkflowStepInstance.ID);
         IsHandled := false;
-        OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef, IsHandled);
+        OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(ApprovalEntry, RecRef, IsHandled, WorkflowStepInstance);
         if IsHandled then
             exit;
 
@@ -1331,14 +1331,28 @@ codeunit 1535 "Approvals Mgmt."
             WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode()));
     end;
 
-    procedure IsGeneralJournalBatchApprovalsWorkflowEnabled(var GenJournalBatch: Record "Gen. Journal Batch"): Boolean
+    procedure IsGeneralJournalBatchApprovalsWorkflowEnabled(var GenJournalBatch: Record "Gen. Journal Batch") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsGeneralJournalBatchApprovalsWorkflowEnabled(GenJournalBatch, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(WorkflowManagement.CanExecuteWorkflow(GenJournalBatch,
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalBatchForApprovalCode()));
     end;
 
-    procedure IsGeneralJournalLineApprovalsWorkflowEnabled(var GenJournalLine: Record "Gen. Journal Line"): Boolean
+    procedure IsGeneralJournalLineApprovalsWorkflowEnabled(var GenJournalLine: Record "Gen. Journal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsGeneralJournalLineApprovalsWorkflowEnabled(GenJournalLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         exit(WorkflowManagement.CanExecuteWorkflow(GenJournalLine,
             WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode()));
     end;
@@ -1872,10 +1886,12 @@ codeunit 1535 "Approvals Mgmt."
     var
         LinesSent: Integer;
     begin
+        OnBeforeTrySendJournalLineApprovalRequests(GenJournalLine);
         if GenJournalLine.Count = 1 then
             CheckGeneralJournalLineApprovalsWorkflowEnabled(GenJournalLine);
 
         repeat
+            OnTrySendJournalLineApprovalRequestsOnBeforeLoopIteration(GenJournalLine);
             if WorkflowManagement.CanExecuteWorkflow(GenJournalLine,
                  WorkflowEventHandling.RunWorkflowOnSendGeneralJournalLineForApprovalCode()) and
                not HasOpenApprovalEntries(GenJournalLine.RecordId)
@@ -2354,6 +2370,16 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsGeneralJournalBatchApprovalsWorkflowEnabled(var GenJournalBatch: Record "Gen. Journal Batch"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsGeneralJournalLineApprovalsWorkflowEnabled(var GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIsPurchaseApprovalsWorkflowEnabled(var PurchaseHeader: Record "Purchase Header");
     begin
     end;
@@ -2400,6 +2426,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunApprovalCommentsPage(var ApprovalCommentLine: Record "Approval Comment Line"; WorkflowStepInstanceID: Guid; var IsHandle: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTrySendJournalLineApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 
@@ -2519,7 +2550,7 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef; var IsHandled: Boolean)
+    local procedure OnSendApprovalRequestFromRecordOnAfterSetApprovalEntryFilters(var ApprovalEntry: Record "Approval Entry"; RecRef: RecordRef; var IsHandled: Boolean; WorkflowStepInstance: Record "Workflow Step Instance")
     begin
     end;
 
@@ -2545,6 +2576,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnSubstituteUserIdForApprovalEntryOnBeforeAssignApproverID(ApprovalEntry: Record "Approval Entry"; var UserSetup: Record "User Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTrySendJournalLineApprovalRequestsOnBeforeLoopIteration(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 

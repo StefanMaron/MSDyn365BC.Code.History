@@ -907,7 +907,7 @@
                     "VAT Calculation Type"::"Reverse Charge VAT":
                         begin
                             "VAT Base Amount" :=
-                              Round(Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                              Round(Amount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
                               Round(Amount + "VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
                             OnValidateAmountOnAfterCalculateNormalVAT(Rec, SalesHeader, Currency);
@@ -953,10 +953,10 @@
                             Amount :=
                               Round(
                                 "Amount Including VAT" /
-                                (1 + (1 - SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100),
+                                (1 + (1 - GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100),
                                 Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
-                              Round(Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                              Round(Amount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
                             OnValidateAmountIncludingVATOnAfterCalculateNormalVAT(Rec, SalesHeader, Currency);
                         end;
                     "VAT Calculation Type"::"Full VAT":
@@ -1282,6 +1282,11 @@
             var
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateDropShipment(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Document Type", "Document Type"::Order);
                 TestField(Type, Type::Item);
                 TestField("Quantity Shipped", 0);
@@ -3709,6 +3714,7 @@
             SalesLine2.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
             SalesLine2.SetRange("Blanket Order No.", "Document No.");
             SalesLine2.SetRange("Blanket Order Line No.", "Line No.");
+            OnModifyOnAfterSetFilters(Rec, SalesLine2);
             if SalesLine2.FindSet() then
                 repeat
                     SalesLine2.TestField(Type, Type);
@@ -4060,16 +4066,19 @@
     end;
 
     local procedure CopyFromGLAccount()
+#if not CLEAN22
     var
         IsHandled: Boolean;
+#endif
     begin
         GLAcc.Get("No.");
         GLAcc.CheckGLAcc();
+#if not CLEAN22
         IsHandled := false;
         OnCopyFromGLAccountOnBeforeTestDirectPosting(Rec, GLAcc, SalesHeader, IsHandled);
         if not IsHandled then begin
-            if not "System-Created Entry" then
-                GLAcc.TestField("Direct Posting", true);
+#endif
+            TestDirectPosting();
             Description := GLAcc.Name;
             "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
             "VAT Prod. Posting Group" := GLAcc."VAT Prod. Posting Group";
@@ -4077,8 +4086,23 @@
             "Allow Invoice Disc." := false;
             "Allow Item Charge Assignment" := false;
             InitDeferralCode();
+#if not CLEAN22
         end;
+#endif
         OnAfterAssignGLAccountValues(Rec, GLAcc, SalesHeader);
+    end;
+
+    local procedure TestDirectPosting()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestDirectPosting(Rec, GLAcc, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if not "System-Created Entry" then
+            GLAcc.TestField("Direct Posting", true);
     end;
 
     local procedure CopyFromItem()
@@ -4121,6 +4145,7 @@
         PrepaymentMgt.SetSalesPrepaymentPct(Rec, SalesHeader."Posting Date");
         if IsInventoriableItem() then
             PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
+        OnCopyFromItemOnAfterCheckInvtPostingSetupInventoryAccount(Rec, Item);
 
         if SalesHeader."Language Code" <> '' then
             GetItemTranslation();
@@ -4151,7 +4176,7 @@
         Res.Get("No.");
         Res.CheckResourcePrivacyBlocked(false);
         IsHandled := false;
-        OnCopyFromResourceOnBeforeTestBlocked(Res, IsHandled);
+        OnCopyFromResourceOnBeforeTestBlocked(Res, IsHandled, Rec);
         if not IsHandled then
             Res.TestField(Blocked, false);
         Res.TestField("Gen. Prod. Posting Group");
@@ -4163,6 +4188,7 @@
         "VAT Prod. Posting Group" := Res."VAT Prod. Posting Group";
         "Tax Group Code" := Res."Tax Group Code";
         "Allow Item Charge Assignment" := false;
+        OnCopyFromResourceOnBeforeApplyResUnitCost(Rec, Res, SalesHeader);
         ApplyResUnitCost(FieldNo("No."));
         InitDeferralCode();
         OnAfterAssignResourceValues(Rec, Res, SalesHeader);
@@ -5051,7 +5077,7 @@
             end;
 
             OnUpdateVATAmountsOnBeforeCalcAmounts(
-                Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount, TotalVATBaseAmount, TotalQuantityBase, IsHandled);
+                Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount, TotalVATBaseAmount, TotalQuantityBase, IsHandled, TotalVATDifference);
             if IsHandled then
                 exit;
 
@@ -5067,12 +5093,12 @@
                               TotalAmount;
                             "VAT Base Amount" :=
                               Round(
-                                Amount * (1 - SalesHeader."VAT Base Discount %" / 100),
+                                Amount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100),
                                 Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
                               TotalLineAmount + "Line Amount" -
                               Round(
-                                (TotalAmount + Amount) * (SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
+                                (TotalAmount + Amount) * (GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT - TotalInvDiscAmount - "Inv. Discount Amount";
                         end;
@@ -5104,11 +5130,11 @@
                         begin
                             Amount := Round(CalcLineAmount(), Currency."Amount Rounding Precision");
                             "VAT Base Amount" :=
-                              Round(Amount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                              Round(Amount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
                             "Amount Including VAT" :=
                               TotalAmount + Amount +
                               Round(
-                                (TotalAmount + Amount) * (1 - SalesHeader."VAT Base Discount %" / 100) * "VAT %" / 100,
+                                (TotalAmount + Amount) * (1 - GetVatBaseDiscountPct(SalesHeader) / 100) * "VAT %" / 100,
                                 Currency."Amount Rounding Precision", Currency.VATRoundingDirection()) -
                               TotalAmountInclVAT + TotalVATDifference;
                         end;
@@ -5525,7 +5551,7 @@
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
         IsHandled := false;
-        OnBeforeCreateDim(IsHandled, Rec);
+        OnBeforeCreateDim(IsHandled, Rec, CurrFieldNo, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -5559,7 +5585,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(IsHandled, Rec);
+        OnBeforeCreateDim(IsHandled, Rec, CurrFieldNo, DefaultDimSource);
         if IsHandled then
             exit;
 
@@ -6225,7 +6251,7 @@
                                       Round(VATAmount, Currency."Amount Rounding Precision");
                                     NewVATBaseAmount :=
                                       Round(
-                                        NewAmount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                                        NewAmount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
                                 end else begin
                                     if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
                                         VATAmount := CalcLineAmount();
@@ -6235,7 +6261,7 @@
                                         NewAmount := CalcLineAmount();
                                         NewVATBaseAmount :=
                                           Round(
-                                            NewAmount * (1 - SalesHeader."VAT Base Discount %" / 100), Currency."Amount Rounding Precision");
+                                            NewAmount * (1 - GetVatBaseDiscountPct(SalesHeader) / 100), Currency."Amount Rounding Precision");
                                         if VATAmountLine."VAT Base" = 0 then
                                             VATAmount := 0
                                         else
@@ -6513,6 +6539,12 @@
               VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, IsPositive1));
         exit(
           VATAmountLine.Get(SalesLine."VAT Identifier", SalesLine."VAT Calculation Type", SalesLine."Tax Group Code", false, IsPositive2));
+    end;
+
+    internal procedure GetVatBaseDiscountPct(SalesHeader: Record "Sales Header") Result: Decimal
+    begin
+        Result := SalesHeader."VAT Base Discount %";
+        OnAfterGetVatBaseDiscountPct(Rec, SalesHeader, Result);
     end;
 
     procedure CalcInvDiscToInvoice()
@@ -6984,13 +7016,7 @@
         OnCheckApplFromItemLedgEntryOnBeforeTestFieldType(Rec);
         TestField(Type, Type::Item);
         TestField(Quantity);
-        if IsCreditDocType() then begin
-            if Quantity < 0 then
-                FieldError(Quantity, Text029);
-        end else begin
-            if Quantity > 0 then
-                FieldError(Quantity, Text030);
-        end;
+        CheckQuantitySignOnApplicationFrom();
 
         ItemLedgEntry.Get("Appl.-from Item Entry");
         ItemLedgEntry.TestField(Positive, false);
@@ -7073,6 +7099,24 @@
             "Prepmt Amt to Deduct" := 0;
         // NAVCZ
 #endif
+    end;
+
+    local procedure CheckQuantitySignOnApplicationFrom()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckQuantitySignOnApplicationFrom(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if IsCreditDocType() then begin
+            if Quantity < 0 then
+                FieldError(Quantity, Text029);
+        end else begin
+            if Quantity > 0 then
+                FieldError(Quantity, Text030);
+        end;
     end;
 
     procedure IsFinalInvoice(): Boolean
@@ -7524,19 +7568,21 @@
         exit(0);
     end;
 
-    procedure IsAsmToOrderAllowed(): Boolean
+    procedure IsAsmToOrderAllowed() Result: Boolean
     begin
+        Result := true;
+
         if not ("Document Type" in ["Document Type"::Quote, "Document Type"::"Blanket Order", "Document Type"::Order]) then
-            exit(false);
+            Result := false;
         if Quantity < 0 then
-            exit(false);
+            Result := false;
         if Type <> Type::Item then
-            exit(false);
+            Result := false;
         if "No." = '' then
-            exit(false);
+            Result := false;
         if "Drop Shipment" or "Special Order" then
-            exit(false);
-        exit(true)
+            Result := false;
+        OnAfterIsAsmToOrderAllowed(Rec, Result);
     end;
 
     procedure IsAsmToOrderRequired(): Boolean
@@ -7660,15 +7706,15 @@
                             ICPartner.Get(SalesHeader."Bill-to IC Partner Code");
                         case ICPartner."Outbound Sales Item No. Type" of
                             ICPartner."Outbound Sales Item No. Type"::"Common Item No.":
-                                Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Common Item No.");
+                                SetICPartnerRefType(Rec."IC Partner Ref. Type"::"Common Item No.");
                             ICPartner."Outbound Sales Item No. Type"::"Internal No.":
                                 begin
-                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::Item);
+                                    SetICPartnerRefType(Rec."IC Partner Ref. Type"::Item);
                                     "IC Partner Reference" := "No.";
                                 end;
                             ICPartner."Outbound Sales Item No. Type"::"Cross Reference":
                                 begin
-                                    Validate("IC Partner Ref. Type", "IC Partner Ref. Type"::"Cross Reference");
+                                    SetICPartnerRefType(Rec."IC Partner Ref. Type"::"Cross Reference");
                                     UpdateICPartnerItemReference();
                                 end;
                         end;
@@ -7687,6 +7733,18 @@
             end;
 
         OnAfterUpdateICPartner(Rec, SalesHeader);
+    end;
+
+    local procedure SetICPartnerRefType(NewType: Enum "IC Partner Reference Type")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetICPartnerRefType(Rec, NewType, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.Validate("IC Partner Ref. Type", NewType);
     end;
 
     local procedure UpdateICPartnerItemReference()
@@ -9031,13 +9089,21 @@
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
     begin
-        if not DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then exit;
         InitDefaultDimensionSources(DefaultDimSource, FieldNo);
-        CreateDim(DefaultDimSource);
+        if DimMgt.IsDefaultDimDefinedForTable(GetTableValuePair(FieldNo)) then
+            CreateDim(DefaultDimSource);
+        OnAfterCreateDimFromDefaultDim(Rec, xRec, SalesHeader, CurrFieldNo, FieldNo);
     end;
 
     local procedure GetTableValuePair(FieldNo: Integer) TableValuePair: Dictionary of [Integer, Code[20]]
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitTableValuePair(TableValuePair, FieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             FieldNo = Rec.FieldNo("No."):
                 TableValuePair.Add(DimMgt.SalesLineTypeToTableID(Type), Rec."No.");
@@ -9048,6 +9114,7 @@
             FieldNo = Rec.FieldNo("Location Code"):
                 TableValuePair.Add(Database::Location, Rec."Location Code");
         end;
+        OnAfterInitTableValuePair(TableValuePair, FieldNo);
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -9312,6 +9379,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDimFromDefaultDim(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; CurrFieldNo: Integer; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var SalesLine: Record "Sales Line"; Item: Record Item; CurrentFieldNo: Integer; xSalesLine: Record "Sales Line")
     begin
     end;
@@ -9360,6 +9432,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVatBaseDiscountPct(SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemTranslation(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemTranslation: Record "Item Translation")
     begin
     end;
@@ -9391,6 +9468,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSalesSetup(var SalesLine: Record "Sales Line"; var SalesSetup: Record "Sales & Receivables Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAsmToOrderAllowed(SalesLine: Record "Sales Line"; var Result: Boolean)
     begin
     end;
 
@@ -9670,6 +9752,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetICPartnerRefType(var SalesLine: Record "Sales Line"; NewType: Enum "IC Partner Reference Type"; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalesHeader(SalesHeader: record "Sales Header");
     begin
     end;
@@ -9776,6 +9863,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateQtyToAsmFromSalesLineQtyToShip(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDropShipment(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -10252,7 +10344,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyFromResourceOnBeforeTestBlocked(var Resoiurce: Record Resource; var IsHandled: Boolean)
+    local procedure OnCopyFromItemOnAfterCheckInvtPostingSetupInventoryAccount(var SalesLine: Record "Sales Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromResourceOnBeforeTestBlocked(var Resoiurce: Record Resource; var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyFromResourceOnBeforeApplyResUnitCost(var SalesLine: Record "Sales Line"; Resource: Record Resource; SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -10465,6 +10567,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnModifyOnAfterSetFilters(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATAmountsOnAfterSetSalesLineFilters(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -10475,7 +10582,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATAmountsOnBeforeCalcAmounts(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var TotalAmount: Decimal; TotalAmountInclVAT: Decimal; var TotalLineAmount: Decimal; var TotalInvDiscAmount: Decimal; var TotalVATBaseAmount: Decimal; var TotalQuantityBase: Decimal; var IsHandled: Boolean);
+    local procedure OnUpdateVATAmountsOnBeforeCalcAmounts(var SalesLine: Record "Sales Line"; var SalesLine2: Record "Sales Line"; var TotalAmount: Decimal; TotalAmountInclVAT: Decimal; var TotalLineAmount: Decimal; var TotalInvDiscAmount: Decimal; var TotalVATBaseAmount: Decimal; var TotalQuantityBase: Decimal; var IsHandled: Boolean; TotalVATDifference: Decimal)
     begin
     end;
 
@@ -10485,7 +10592,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateAmountIncludingVATOnAfterAssignAmounts(var SalesLine: Record "Sales Line"; Currency: Record Currency);
+    local procedure OnValidateAmountIncludingVATOnAfterAssignAmounts(var SalesLine: Record "Sales Line"; Currency: Record Currency)
     begin
     end;
 
@@ -10505,17 +10612,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnBeforeCheckReceiptOrderStatus(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
+    local procedure OnValidateQuantityOnBeforeCheckReceiptOrderStatus(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnBeforeSalesLineVerifyChange(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
+    local procedure OnValidateQuantityOnBeforeSalesLineVerifyChange(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnBeforeValidateQtyToAssembleToOrder(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean);
+    local procedure OnValidateQuantityOnBeforeValidateQtyToAssembleToOrder(var SalesLine: Record "Sales Line"; StatusCheckSuspended: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -10555,7 +10662,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCreateDim(var IsHandled: Boolean; var SalesLine: Record "Sales Line")
+    local procedure OnBeforeCreateDim(var IsHandled: Boolean; var SalesLine: Record "Sales Line"; FieldNo: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     begin
     end;
 
@@ -10660,6 +10767,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckQuantitySignOnApplicationFrom(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckReservedQtyBase(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
@@ -10671,6 +10783,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowReturnedUnitsError(var SalesLine: Record "Sales Line"; var ItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestDirectPosting(var SalesLine: Record "Sales Line"; var GLAccount: Record "G/L Account"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -10704,10 +10821,13 @@
     begin
     end;
 
+#if not CLEAN22
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnBeforeTestDirectPosting() with same params', '22.0')]
     local procedure OnCopyFromGLAccountOnBeforeTestDirectPosting(var SalesLine: Record "Sales Line"; var GLAccount: Record "G/L Account"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateTypeOnBeforeInitRec(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
@@ -10901,6 +11021,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATAmountsOnBeforeIfLineIsInvDiscountAmount(var SalesLine: Record "Sales Line"; var LineIsInvDiscountAmount: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitTableValuePair(var TableValuePair: Dictionary of [Integer, Code[20]]; FieldNo: Integer)
     begin
     end;
 

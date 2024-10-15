@@ -361,7 +361,7 @@ codeunit 64 "Sales-Get Shipment"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateInvLines(var SalesShipmentLine2: Record "Sales Shipment Line"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; SalesShipmentHeader: Record "Sales Shipment Header"; var IsHandled: Boolean)
     begin
     end;

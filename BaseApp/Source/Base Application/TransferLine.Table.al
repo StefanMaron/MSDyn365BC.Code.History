@@ -996,6 +996,7 @@ table 5741 "Transfer Line"
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
 #endif
     begin
+        OnBeforeOnDelete(Rec);
 #if not CLEAN21
         DeleteRelatedTransferLines(Rec, false); // NAVCZ
 #else
@@ -2100,6 +2101,11 @@ table 5741 "Transfer Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var TransferLine: Record "Transfer Line")
     begin
     end;
 
