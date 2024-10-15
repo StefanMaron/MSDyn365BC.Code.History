@@ -25,7 +25,8 @@ codeunit 9057 "Plan Upgrade"
         AddPremiumPartnerSandbox();
         AddMicrosoft365();
         AddEssentialAttach();
-        
+        AddBCAdmin();
+
         AddDefaultPlanConfigurations();
     end;
 
@@ -200,6 +201,39 @@ codeunit 9057 "Plan Upgrade"
         CreatePlan(PlanId, PlanName, RoleCenterId);
 
         UpgradeTag.SetUpgradeTag(PlanUpgradeTag.GetMicrosoft365UpgradeTag());
+    end;
+
+    [NonDebuggable]
+    local procedure AddBCAdmin()
+    var
+        Plan: Record Plan;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        PlanUpgradeTag: Codeunit "Plan Upgrade Tag";
+        PlanIds: Codeunit "Plan Ids";
+        PlanId: Guid;
+        PlanName: Text[50];
+        RoleCenterId: Integer;
+    begin
+        if UpgradeTag.HasUpgradeTag(PlanUpgradeTag.GetBCAdminUpgradeTag()) then
+            exit;
+
+        // Create internal plan
+        PlanId := PlanIds.GetBCAdminPlanId();
+        PlanName := 'Internal BC Administrator';
+        RoleCenterId := 9022;
+
+        if not Plan.Get(PlanId) then
+            CreatePlan(PlanId, PlanName, RoleCenterId);
+
+        // Create delegated plan
+        PlanId := PlanIds.GetDelegatedBCAdminPlanId();
+        PlanName := 'Delegated BC Admin agent - Partner';
+        RoleCenterId := 9022;
+
+        if not Plan.Get(PlanId) then
+            CreatePlan(PlanId, PlanName, RoleCenterId);
+
+        UpgradeTag.SetUpgradeTag(PlanUpgradeTag.GetBCAdminUpgradeTag());
     end;
 
     local procedure AddDefaultPlanConfigurations()
