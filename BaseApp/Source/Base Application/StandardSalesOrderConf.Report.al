@@ -941,6 +941,7 @@
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
 
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                FormatAddr.SetLanguageCode("Language Code");
 
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;

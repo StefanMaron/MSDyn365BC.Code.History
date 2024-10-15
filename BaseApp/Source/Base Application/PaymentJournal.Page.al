@@ -954,6 +954,7 @@ page 256 "Payment Journal"
                                 if BankAccount."Last Remittance Advice No." = '' then
                                     Rec.InsertPaymentFileError(LastRemittanceErr);
 
+                                GenJnlLine."Document No." := '';
                                 if GenJnlLine.HasPaymentFileErrorsInBatch() then begin
                                     Commit();
                                     Error(HasErrorsErr);

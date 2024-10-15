@@ -17,6 +17,7 @@ codeunit 142066 "UT REP Sales Tax"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryService: Codeunit "Library - Service";
         AreaFiltersCap: Label 'AreaFilters';
         CompanyAddressCap: Label 'CompanyAddress1';
         CopyNoCap: Label 'CopyNo';
@@ -41,6 +42,7 @@ codeunit 142066 "UT REP Sales Tax"
         UnitPriceCap: Label 'AmountExclInvDisc';
         QtyErr: Label 'Quantity is not correct in %1';
         AmountIncludingVATErr: Label 'Amount Including VAT is not correct in %1';
+        IncorrectLineCountErr: Label 'Service Invoice-Sales Tax report prints incorrect entries';
 
     [Test]
     [HandlerFunctions('SalesTaxesCollectedRequestPageHandler')]
@@ -1586,6 +1588,98 @@ codeunit 142066 "UT REP Sales Tax"
         LibraryReportDataset.AssertElementTagWithValueExists('TaxAmount', '16.45');
     end;
 
+    [Test]
+    [HandlerFunctions('RHStandardPurchaseOrder')]
+    [Scope('OnPrem')]
+    procedure StandardPurchaseWithVAT()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATCalculationType: Enum "Tax Calculation Type";
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 468347] Run report Standard Purchase - Order to verify VAT Amount is printing in the report.
+        Initialize();
+
+        // [GIVEN] Find VAT Posting Setup
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType::"Normal VAT");
+
+        // [GIVEN] Create Vendor With VAT Bus Posting Group
+        VendorNo := LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group");
+
+        // [GIVEN] Create a Purchase Header and line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
+
+        // [GIVEN] Create a Purchase Line
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            LibraryInventory.CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"),
+            LibraryRandom.RandIntInRange(1, 10));
+
+        // [GIVEN] Update Direct Unit Cost in Purchase Line
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(1, 30));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Save the transaction.
+        Commit();
+
+        // [WHEN] Run report "Standard Purchase - Order"
+        Report.Run(Report::"Standard Purchase - Order", true, false, PurchaseHeader);
+
+        // [THEN] Verify Report has the TaxAmount value.
+        PurchaseHeader.CalcFields("Amount Including VAT", Amount);
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            TaxAmountCap,
+            Format(PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('ServiceInvoiceSalesTaxRequestPageHandler,ConfirmHandlerTrue,ContractTemplateListHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyServiceInvoiceReportShowingAllAddedDescriptionLinesOnServiceInvoice()
+    var
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+        SignServContractDoc: Codeunit SignServContractDoc;
+    begin
+        // [SCENARIO 472642] Service Invoice Report 10474 does not show all the added Description lines from a Service Invoice
+        Initialize();
+
+        // [GIVEN] Create Service Contract and Contract Line
+        LibraryService.CreateServiceContractHeader(
+            ServiceContractHeader,
+            ServiceContractHeader."Contract Type"::Contract,
+            LibrarySales.CreateCustomerNo());
+        CreateServiceContractLine(ServiceContractLine, ServiceContractHeader);
+
+        // [GIVEN] Sign the bnewly create Service Contract
+        AmountsInServiceContractHeader(ServiceContractHeader);
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [WHEN] Post the Service Invoice for Service Contract by adding description lines before posting
+        PostServiceInvoice(ServiceContractHeader."Contract No.");
+
+        // [THEN] Find Posted Service Invoice
+        FindFirstServiceInvoiceOnServiceContract(ServiceInvoiceHeader, ServiceContractHeader."Contract No.");
+        EnqueueValuesForServiceInvoiceAndCreditMemo(ServiceInvoiceHeader."No.", true, 0);
+        Commit();
+
+        // [WHEN] Run report "Service Invoice-Sales Tax" for Posted Service Invoice
+        Report.Run(Report::"Service Invoice-Sales Tax");
+
+        // [VERIFY] Verify: Report prints only all the Service Invoice Lines lines on the "Service Invoice-Sales Tax" report
+        ServiceInvoiceLine.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        ServiceInvoiceLine.FindSet();
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(ServiceInvoiceLine.Count, LibraryReportDataset.RowCount, IncorrectLineCountErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2184,6 +2278,91 @@ codeunit 142066 "UT REP Sales Tax"
         end;
     end;
 
+    local procedure CreateServiceContractLine(var ServiceContractLine: Record "Service Contract Line"; ServiceContractHeader: Record "Service Contract Header")
+    var
+        ServiceItem: Record "Service Item";
+        ServicePeriod: DateFormula;
+    begin
+        LibraryService.CreateServiceItem(ServiceItem, ServiceContractHeader."Customer No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+
+        // Use Random because value is not important.
+        ServiceContractLine.Validate("Line Cost", 1000 * LibraryRandom.RandDecInRange(5, 10, 2));
+        ServiceContractLine.Validate("Line Value", 1000 * LibraryRandom.RandDecInRange(5, 10, 2));
+        Evaluate(ServicePeriod, '<' + Format(LibraryRandom.RandIntInRange(5, 10)) + 'M>');
+        ServiceContractLine.Validate("Service Period", ServicePeriod);
+        ServiceContractLine.Modify(true);
+    end;
+
+    local procedure AmountsInServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header")
+    begin
+        ServiceContractHeader.CalcFields("Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
+        ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
+        ServiceContractHeader.Modify(true);
+    end;
+
+    local procedure PostServiceInvoice(ServiceContractNo: Code[20])
+    var
+        ServiceDocumentRegister: Record "Service Document Register";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // Find the Service Invoice by searching in Service Document Register.
+        ServiceDocumentRegister.SetRange("Source Document Type", ServiceDocumentRegister."Source Document Type"::Contract);
+        ServiceDocumentRegister.SetRange("Source Document No.", ServiceContractNo);
+        ServiceDocumentRegister.SetRange("Destination Document Type", ServiceDocumentRegister."Destination Document Type"::Invoice);
+        ServiceDocumentRegister.FindFirst();
+        ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, ServiceDocumentRegister."Destination Document No.");
+
+        // Update
+        ServiceLine.SetCurrentKey("Contract No.", "Line No.");
+        ServiceLine.SetRange("Contract No.", ServiceContractNo);
+        ServiceLine.SetAscending("Line No.", true);
+        if ServiceLine.FindLast() then
+            CreateNewServiceLineWithBlankType(ServiceLine);
+
+        LibraryService.PostServiceOrder(ServiceHeader, false, false, false);
+    end;
+
+    local procedure CreateNewServiceLineWithBlankType(ServiceLine: Record "Service Line")
+    var
+        ServiceLine1: Record "Service Line";
+        i: Integer;
+        LineNo: Integer;
+    begin
+        LineNo := ServiceLine."Line No." - 10;
+        for i := 0 to 4 do begin
+            ServiceLine1.Init();
+            ServiceLine1."Document Type" := ServiceLine."Document Type"::Invoice;
+            ServiceLine1."Document No." := ServiceLine."Document No.";
+            ServiceLine1."Line No." := LineNo;
+            ServiceLine1.Type := ServiceLine1.Type::" ";
+            ServiceLine1.Description := LibraryRandom.RandText(20);
+            ServiceLine1.Insert();
+            LineNo -= 10;
+        end;
+
+        LineNo := ServiceLine."Line No." + 10;
+        for i := 0 to 4 do begin
+            ServiceLine1.Init();
+            ServiceLine1."Document Type" := ServiceLine."Document Type"::Invoice;
+            ServiceLine1."Document No." := ServiceLine."Document No.";
+            ServiceLine1."Line No." := LineNo;
+            ServiceLine1.Type := ServiceLine1.Type::" ";
+            ServiceLine1.Description := LibraryRandom.RandText(20);
+            ServiceLine1.Insert();
+            LineNo += 10;
+        end;
+    end;
+
+    local procedure FindFirstServiceInvoiceOnServiceContract(var ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceContractNo: Code[20])
+    begin
+        ServiceInvoiceHeader.SetRange("Contract No.", ServiceContractNo);
+        ServiceInvoiceHeader.FindFirst();
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
@@ -2496,6 +2675,26 @@ codeunit 142066 "UT REP Sales Tax"
     begin
         ServiceCreditMemo."Service Cr.Memo Header".SetFilter("No.", LibraryVariableStorage.DequeueText);
         ServiceCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerTrue(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContractTemplateListHandler(var ServiceContractTemplateList: Page "Service Contract Template List"; var Response: Action)
+    begin
+        Response := Action::LookupOK;
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure MessageHandler(Message: Text[1024])
+    begin
     end;
 }
 

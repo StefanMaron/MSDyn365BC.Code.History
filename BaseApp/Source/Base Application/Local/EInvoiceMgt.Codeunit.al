@@ -4574,11 +4574,15 @@
           (DocumentLine."Unit Price/Direct Unit Cost" + Power(10, -DecimalsUnitPrice) / 2 - Power(10, -12));
         MaxValue := Round(MaxValue, 0.000001, '>');
 
+        InRange := (DocumentLine.Amount > MinValue) and (DocumentLine.Amount <= MaxValue);
+        if InRange then
+            exit;
+
         Amount := DocumentLine.Quantity * DocumentLine."Unit Price/Direct Unit Cost";
         RoundingPrecision := 0.01;
         InRange := false;
         repeat
-            TestAmount := Round(Amount, RoundingPrecision);
+            TestAmount := Round(Amount, RoundingPrecision, '<');
             InRange := (TestAmount > MinValue) and (TestAmount <= MaxValue);
             RoundingPrecision := RoundingPrecision / 10;
         until InRange or (RoundingPrecision = 0.000001);
@@ -4859,11 +4863,13 @@
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         CustLedgerEntryLoc: Record "Cust. Ledger Entry";
         CustLedgerEntryLoc2: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntryAppln: Record "Detailed Cust. Ledg. Entry";
     begin
         StampedAmount := 0;
         PaymentNo := 1;
         DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
         DetailedCustLedgEntry.SetRange("Initial Document Type", DetailedCustLedgEntry."Initial Document Type"::Invoice);
+        DetailedCustLedgEntry.SetRange(Unapplied, false);
         if DetailedCustLedgEntry.FindFirst() then begin
             CustLedgerEntryLoc.SetRange("Entry No.", DetailedCustLedgEntry."Cust. Ledger Entry No.");
             if CustLedgerEntryLoc.FindFirst() then begin
@@ -4872,8 +4878,17 @@
                 CustLedgerEntryLoc2.SetCurrentKey("Entry No.");
                 if CustLedgerEntryLoc2.FindSet() then
                     repeat
-                        StampedAmount += CustLedgerEntryLoc2."Closed by Amount";
                         PaymentNo += 1;
+                        if ConvertCurrency(CustLedgerEntryLoc."Currency Code") = ConvertCurrency(CustLedgerEntryLoc2."Currency Code") then
+                            StampedAmount += CustLedgerEntryLoc2."Closed by Amount"
+                        else begin
+                            DetailedCustLedgEntryAppln.SetRange("Entry Type", DetailedCustLedgEntryAppln."Entry Type"::Application);
+                            DetailedCustLedgEntryAppln.SetRange("Cust. Ledger Entry No.", CustLedgerEntryLoc."Entry No.");
+                            DetailedCustLedgEntryAppln.SetRange("Applied Cust. Ledger Entry No.", CustLedgerEntryLoc2."Entry No.");
+                            DetailedCustLedgEntryAppln.SetRange(Unapplied, false);
+                            if DetailedCustLedgEntryAppln.FindFirst() then
+                                StampedAmount += DetailedCustLedgEntryAppln.Amount;
+                        end;
                     until CustLedgerEntryLoc2.Next() = 0;
             end;
         end;
@@ -5170,7 +5185,7 @@
 
             AddElementPago(XMLCurrNode, 'Pago', '', DocNameSpace, XMLNewChild);
             XMLCurrNode := XMLNewChild;
-            AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 0T, ''));
+            AddAttribute(XMLDoc, XMLCurrNode, 'FechaPago', FormatAsDateTime("Posting Date", 120000T, ''));
             AddAttribute(XMLDoc, XMLCurrNode, 'FormaDePagoP', SATUtilities.GetSATPaymentMethod("Payment Method Code"));
             AddAttribute(XMLDoc, XMLCurrNode, 'MonedaP', ConvertCurrency("Currency Code"));
             TipoCambioP := Round(PaymentAmountLCY / PaymentAmount, 0.000001);
@@ -5316,7 +5331,7 @@
             AddStrPagoTotales(TempVATAmountLineTotal, OutStream);
             WriteOutStr(OutStream, FormatAmount(PaymentAmountLCY) + '|');// Totales/MontoTotalPagos
 
-            WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 0T, '') + '|');// FechaPagoSetToPD
+            WriteOutStr(OutStream, FormatAsDateTime("Posting Date", 120000T, '') + '|');// FechaPagoSetToPD
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|');// FormaDePagoP
             WriteOutStr(OutStream, ConvertCurrency("Currency Code") + '|');// MonedaP
 
@@ -5924,6 +5939,7 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
         Location: Record Location;
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
+        SATUtilities: Codeunit "SAT Utilities";
         CurrencyFactor: Decimal;
     begin
         if not DocumentHeader."Foreign Trade" then
@@ -5961,6 +5977,8 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
 
         AddElementCCE(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
+        if (SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX') and (Customer."RFC No." = GetForeignRFCNo()) then
+            AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
         AddElementCCE(XMLCurrNode, 'Domicilio', '', DocNameSpace, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         Location.Get(DocumentHeader."Transit-to Location");
@@ -5982,11 +6000,11 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
             UnitOfMeasure.Get(TempDocumentLine."Unit of Measure Code");
             AddAttribute(XMLDoc, XMLCurrNode, 'UnidadAduana', UnitOfMeasure."SAT Customs Unit");
             AddAttribute(
-              XMLDoc, XMLCurrNode, 'ValorDolares',
-              FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2));
-            AddAttribute(
               XMLDoc, XMLCurrNode, 'ValorUnitarioAduana',
               FormatDecimal(Round(TempDocumentLine."Unit Price/Direct Unit Cost" * CurrencyFactor, 0.000001), 2));
+            AddAttribute(
+              XMLDoc, XMLCurrNode, 'ValorDolares',
+              FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2));
             XMLCurrNode := XMLCurrNode.ParentNode; // Mercancia
         until TempDocumentLine.Next() = 0;
         XMLCurrNode := XMLCurrNode.ParentNode; // Mercancias
@@ -6000,6 +6018,7 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
         Location: Record Location;
         Item: Record Item;
         UnitOfMeasure: Record "Unit of Measure";
+        SATUtilities: Codeunit "SAT Utilities";
         CurrencyFactor: Decimal;
     begin
         if not DocumentHeader."Foreign Trade" then
@@ -6023,6 +6042,8 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
         AddStrDomicilio(Location, OutStr);
 
         // Receptor/Domicilio
+        if (SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX') and (Customer."RFC No." = GetForeignRFCNo()) then
+            WriteOutStr(OutStr, Customer."VAT Registration No." + '|'); // NumRegIdTrib
         Location.Get(DocumentHeader."Transit-to Location");
         AddStrDomicilio(Location, OutStr);
 
@@ -6036,9 +6057,9 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
             UnitOfMeasure.Get(TempDocumentLine."Unit of Measure Code");
             WriteOutStr(OutStr, UnitOfMeasure."SAT Customs Unit" + '|'); // UnidadAduana
             WriteOutStr(OutStr,
-              FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2) + '|'); // ValorDolares
-            WriteOutStr(OutStr,
               FormatDecimal(Round(TempDocumentLine."Unit Price/Direct Unit Cost" * CurrencyFactor, 0.000001), 2) + '|'); // ValorUnitarioAduana
+            WriteOutStr(OutStr,
+              FormatDecimal(Round(TempDocumentLine.Amount * CurrencyFactor, 0.000001), 2) + '|'); // ValorDolares
         until TempDocumentLine.Next() = 0;
     end;
 
@@ -6415,6 +6436,11 @@ AddElementCFDI(XMLCurrNode, 'Retencion', '', DocNameSpace, XMLNewChild);
             exit('01');
 
         exit('02');
+    end;
+
+    local procedure GetForeignRFCNo(): Code[13]
+    begin
+        exit('XEXX010101000');
     end;
 
     local procedure GetTaxCategoryExempt(): Code[10]

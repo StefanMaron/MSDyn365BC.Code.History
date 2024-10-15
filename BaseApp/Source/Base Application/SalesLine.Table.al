@@ -4016,7 +4016,7 @@
         else
             "Unit of Measure Code" := Item."Base Unit of Measure";
 
-        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order] then
+        if "Document Type" in ["Document Type"::Quote, "Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Blanket Order"] then
             Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item, CurrFieldNo, xRec);
 
@@ -4644,17 +4644,16 @@
         if IsHandled then
             exit;
 
-        if (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) then
+        if (Rec.Quantity <> 0) and (Rec."Outstanding Quantity" = 0) and (Rec."Qty. Shipped Not Invoiced" = 0) then
             if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then
                 exit;
 
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then begin
-                "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
-                if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") then
-                    "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
-            end;
+            if not PrePaymentLineAmountEntered then
+                "Prepmt. Line Amount" := Round(
+                    ("Line Amount" - "Inv. Discount Amount") * "Prepayment %" / 100,
+                    Currency."Amount Rounding Precision");
             PrePaymentLineAmountEntered := false;
         end;
 
