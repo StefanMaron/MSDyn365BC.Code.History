@@ -466,7 +466,7 @@ report 11013 "Intrastat - Checklist DE"
         Country__Intrastat_Code_CaptionLbl: Label 'Country Code';
         Country_of_Origin_CodeCaption_Control1140043Lbl: Label 'Country of Origin';
         SumTotalWeightCaptionLbl: Label 'Total';
-        No__of_EntriesCaptionLbl: Label 'No. of Entries';
+        No__of_EntriesCaptionLbl: Label 'No. of Combined Entries';
         TotalCaptionLbl: Label 'Total';
         TotalCaption_Control1140070Lbl: Label 'Total';
         NoOfRecords_Control1140075CaptionLbl: Label 'No. of Entries';

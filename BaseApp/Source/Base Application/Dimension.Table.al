@@ -1,4 +1,4 @@
-table 348 Dimension
+﻿table 348 Dimension
 {
     Caption = 'Dimension';
     DataCaptionFields = "Code", Name;
@@ -171,7 +171,10 @@ table 348 Dimension
     end;
 
     trigger OnRename()
+    var
+        DimValuePerAccount: Record "Dim. Value per Account";
     begin
+        DimValuePerAccount.RenameDimension(xRec.Code, Code);
         SetLastModifiedDateTime;
     end;
 
