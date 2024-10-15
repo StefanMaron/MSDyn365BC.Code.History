@@ -365,7 +365,6 @@
                 field("Tax Area Code"; "Tax Area Code")
                 {
                     ApplicationArea = SalesTax;
-                    ShowMandatory = true;
                     ToolTip = 'Specifies the tax area that is used to calculate and post sales tax.';
                 }
                 field("Invoice Copies"; "Invoice Copies")
