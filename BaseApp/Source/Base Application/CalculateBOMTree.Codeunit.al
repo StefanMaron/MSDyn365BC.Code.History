@@ -264,7 +264,8 @@ codeunit 5870 "Calculate BOM Tree"
             IsHandled := false;
             OnBeforeFilterByQuantityPer(ProdBOMLine, IsHandled);
             if not IsHandled then
-                SetFilter("Quantity per", '>%1', 0);
+                if TreeType <> TreeType::Cost then
+                    SetFilter("Quantity per", '>%1', 0);
             if FindSet then begin
                 if ParentItem."Replenishment System" <> ParentItem."Replenishment System"::"Prod. Order" then
                     exit(true);

@@ -129,7 +129,7 @@ page 9082 "Customer Statistics FactBox"
             field("Balance Due (LCY)"; CalcOverdueBalance)
             {
                 ApplicationArea = Basic, Suite;
-                CaptionClass = Format(StrSubstNo(Text000, Format(WorkDate)));
+                CaptionClass = Text000;
                 Caption = 'Balance Due (LCY)';
 
                 trigger OnDrillDown()
@@ -187,7 +187,7 @@ page 9082 "Customer Statistics FactBox"
     end;
 
     var
-        Text000: Label 'Overdue Amounts (LCY) as of %1';
+        Text000: Label 'Overdue Amounts (LCY)';
         ShowCustomerNo: Boolean;
 
     local procedure ShowDetails()
