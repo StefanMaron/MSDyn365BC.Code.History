@@ -85,6 +85,7 @@
                 AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
                 TempSalesLine := Rec;
                 Init;
+                SystemId := TempSalesLine.SystemId;
                 if xRec."Line Amount" <> 0 then
                     "Recalculate Invoice Disc." := true;
 
@@ -179,6 +180,7 @@
                 OnValidateNoOnBeforeInitRec(Rec, xRec, CurrFieldNo);
                 TempSalesLine := Rec;
                 Init;
+                SystemId := TempSalesLine.SystemId;
                 if xRec."Line Amount" <> 0 then
                     "Recalculate Invoice Disc." := true;
                 Type := TempSalesLine.Type;
@@ -731,11 +733,7 @@
                 IsHandled: Boolean;
             begin
                 GetLocation("Location Code");
-                if (CurrFieldNo <> 0) and (Type = Type::Item) and (not "Drop Shipment") then begin
-                    if Location."Require Shipment" and ("Qty. to Ship" <> 0) then
-                        CheckWarehouse();
-                    WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
-                end;
+                CheckWarehouseForQtyToShip();
                 OnValidateQtyToShipOnAfterCheck(Rec, CurrFieldNo);
 
                 if "Qty. to Ship" = "Outstanding Quantity" then
@@ -4639,6 +4637,7 @@
     procedure UpdateAmounts()
     var
         VATBaseAmount: Decimal;
+        LineAmount: Decimal;
         LineAmountChanged: Boolean;
         IsHandled: Boolean;
     begin
@@ -4663,8 +4662,11 @@
                 "VAT Correction" := false; // NAVCZ
                 LineAmountChanged := true;
             end;
-        if "Line Amount" <> Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") - "Line Discount Amount" then begin
-            "Line Amount" := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") - "Line Discount Amount";
+
+        LineAmount := Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") - "Line Discount Amount";
+        OnUpdateAmountsOnAfterCalcLineAmount(Rec, LineAmount);
+        if "Line Amount" <> LineAmount then begin
+            "Line Amount" := LineAmount;
             "VAT Difference" := 0;
             "VAT Difference (LCY)" := 0; // NAVCZ
             "VAT Correction" := false; // NAVCZ
@@ -6014,6 +6016,7 @@
                                             end;
                                     end;
 
+                                    OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(SalesHeader, SalesLine, VATAmountLine, IncludePrepayments, QtyType, QtyToHandle, AmtToHandle);
                                     if IncludePrepayments then
                                         AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle)
                                     else
@@ -6294,6 +6297,22 @@
         end;
 
         HandleDedicatedBin(true);
+    end;
+
+    local procedure CheckWarehouseForQtyToShip()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckWarehouseForQtyToShip(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (CurrFieldNo <> 0) and IsInventoriableItem() and (not "Drop Shipment") then begin
+            if Location."Require Shipment" and ("Qty. to Ship" <> 0) then
+                CheckWarehouse();
+            WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
+        end;
     end;
 
     procedure UpdateDates()
@@ -6633,8 +6652,15 @@
         exit(SignedXX("Quantity (Base)") < 0);
     end;
 
-    local procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal): Decimal
+    local procedure GetAbsMin(QtyToHandle: Decimal; QtyHandled: Decimal) Result: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetAbsMin(Rec, QtyToHandle, QtyHandled, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if Abs(QtyHandled) < Abs(QtyToHandle) then
             exit(QtyHandled);
 
@@ -7084,6 +7110,8 @@
             else
                 SetFilter("Quantity (Base)", '>0');
         SetRange("Job No.", ' ');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
     end;
 
     local procedure DateFormularZero(var DateFormularValue: DateFormula; CalledByFieldNo: Integer; CalledByFieldCaption: Text[250])
@@ -8792,6 +8820,11 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var SalesLine: Record "Sales Line"; ReservationEntry: Record "Reservation Entry"; DocumentType: Enum "Sales Document Type"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '16.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFindResUnitCost(var SalesLine: Record "Sales Line"; var ResourceCost: Record "Resource Cost")
@@ -8968,6 +9001,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatType(SalesLine: Record "Sales Line"; var FormattedType: Text[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetAbsMin(SalesLine: Record "Sales Line"; QtyToHandle: Decimal; QtyHandled: Decimal; var Result: Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -9178,6 +9216,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeZeroAmountLine(var SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing,Shipping; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeAssignAmtToHandle(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; IncludePrepayments: Boolean; QtyType: Option; var QtyToHandle: Decimal; var AmtToHandle: Decimal)
     begin
     end;
 
@@ -9513,7 +9556,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWarehouseOnAfterSetLocation2(var SalesLine: Record "Sales Line"; Location2: Record Location)
+    local procedure OnCheckWarehouseOnAfterSetLocation2(var SalesLine: Record "Sales Line"; var Location2: Record Location)
     begin
     end;
 
@@ -9627,6 +9670,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateAmountsOnAfterCalcLineAmount(var SalesLine: Record "Sales Line"; var LineAmount: Decimal)
     begin
     end;
 
@@ -9783,6 +9831,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWarehouse(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckWarehouseForQtyToShip(SalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

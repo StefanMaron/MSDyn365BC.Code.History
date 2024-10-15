@@ -966,7 +966,7 @@ table 31000 "Sales Advance Letter Header"
         ModifyCustomerAddressNotificationLbl: Label 'Update the address';
         ModifyCustomerAddressNotificationMsg: Label 'The address you entered for %1 is different from the customer''s existing address.', Comment = '%1 = customer name';
         DontShowAgainActionLbl: Label 'Don''t show again';
-        ValidVATNoMsg: Label 'The VAT registration number is valid.';
+        ValidVATNoMsg: Label 'The specified VAT registration number is valid.';
         InvalidVatRegNoMsg: Label 'The VAT registration number is not valid. Try entering the number again.';
 
     [Scope('OnPrem')]
@@ -1337,7 +1337,7 @@ table 31000 "Sales Advance Letter Header"
         end;
     end;
 
-    local procedure UpdateCurrencyFactor()
+    procedure UpdateCurrencyFactor()
     begin
         if "Currency Code" <> '' then begin
             CurrencyDate := "Posting Date";

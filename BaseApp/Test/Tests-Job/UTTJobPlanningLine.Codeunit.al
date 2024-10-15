@@ -1370,6 +1370,63 @@ codeunit 136353 "UT T Job Planning Line"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure QuantityValidationUpdatesUnitPriceByCostFactor()
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        UnitPrice: Decimal;
+    begin
+        // [SCENARIO 405107] Quantity modification updates "Unit Price calculated by "Cost Factor" 
+        Initialize();
+        // [GIVEN] A job with job tasks containing one job planning line, where "Unit Price" is 15, calculated by "Cost Factor"
+        LibraryJob.CreateJob(Job);
+        LibraryJob.CreateJobTask(Job, JobTask);
+        LibraryJob.CreateJobPlanningLine(
+            JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.TestField("Unit Cost");
+        JobPlanningLine.Validate("Cost Factor", LibraryRandom.RandDec(10, 1));
+        JobPlanningLine.TestField("Unit Price");
+        UnitPrice := JobPlanningLine."Unit Price";
+
+        // [WHEN] blank "Unit Price" and increase Quantity by 5
+        JobPlanningLine.Validate("Unit Price", 0);
+        JobPlanningLine.Validate(Quantity, JobPlanningLine.Quantity + 5);
+
+        // [THEN] "Unit Price" is still 15
+        JobPlanningLine.TestField("Unit Price", UnitPrice);
+    end;
+
+    [Test]
+    procedure OpenJobPlanningLinesForJobNo20CharsWithSpecialSymbols()
+    var
+        Job: Record Job;
+        JobCard: TestPage "Job Card";
+        JobPlanningLines: TestPage "Job Planning Lines";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 404933] Open job planning lines for the job having 20 chars "No." including symbol "&"
+
+        // [GIVEN] Job card with "No." = "ACTPT&G-CRM-GM (T&M)"
+        Job.Init();
+        Job.Validate("No.", 'ACTPT&G-CRM-GM (T&M)');
+        Job.Insert(true);
+        Job.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Job.Modify(true);
+
+        // [WHEN] Invoke action on Job Card Lines -> Job -> Job Planning Lines
+        Job.SetRecFilter();
+        JobCard.Trap();
+        Page.Run(Page::"Job Card", Job);
+        JobPlanningLines.Trap();
+        JobCard.JobTaskLines.JobPlanningLines.Invoke();
+
+        // [THEN] Job plannig lines is opened
+        JobPlanningLines.Close();
+        JobCard.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

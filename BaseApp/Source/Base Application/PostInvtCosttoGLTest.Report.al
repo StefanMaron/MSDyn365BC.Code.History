@@ -115,6 +115,7 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 begin
                     InvtPostToGL.SetRunOnlyCheck(false, true, true);
                     TempCapValueEntry.DeleteAll();
+                    OnAfterPostValueEntryToGLOnPreDataItem(PostValueEntryToGL, CompanyName);
                 end;
             }
             dataitem(InvtPostToGLTestBuf; "Integer")
@@ -622,6 +623,11 @@ report 1003 "Post Invt. Cost to G/L - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOnPreDataItem(var PostValueEntryToGL: Record "Post Value Entry to G/L"; CompanyName: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostValueEntryToGLOnPreDataItem(var PostValueEntryToGL: Record "Post Value Entry to G/L"; CompanyName: Text)
     begin
     end;
 

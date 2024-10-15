@@ -148,7 +148,7 @@ report 31065 "Intrastat Declaration Export"
         FileName := TierMgt.ServerTempFileName('.csv');
 
         OutputFile.TextMode(true);
-        OutputFile.Create(FileName);
+        OutputFile.Create(FileName, TextEncoding::UTF8);
 
         Month := CopyStr(IntrastatJnlBatch."Statistics Period", 3);
         Year := '20' + CopyStr(IntrastatJnlBatch."Statistics Period", 1, 2);

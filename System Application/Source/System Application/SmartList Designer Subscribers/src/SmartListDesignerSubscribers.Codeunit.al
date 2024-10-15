@@ -22,6 +22,7 @@ codeunit 2888 "SmartList Designer Subscribers"
     begin
     end;
 
+#if not CLEAN17
     /// <summary>
     /// Notifies that the Default On Create For Table procedure has been invoked.
     /// This should open up the designer and initialize it for creating a new SmartList
@@ -34,6 +35,7 @@ codeunit 2888 "SmartList Designer Subscribers"
     internal procedure OnBeforeDefaultOnCreateForTable(var Handled: Boolean; TableId: Integer)
     begin
     end;
+#endif
 
     /// <summary>
     /// Notifies that the Default On Create For Table And View procedure has been invoked.

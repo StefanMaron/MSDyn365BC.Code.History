@@ -543,7 +543,7 @@ table 370 "Excel Buffer"
               Bold, Italic, Underline, "Double Underline", "Font Color", "Foreground Color", "Font Name", Decorator); // NAVCZ
 
             CellTextValue := "Cell Value as Text";
-            CALCFIELDS("Cell Value as Blob");
+            
             if "Cell Value as Blob".HasValue then begin
                 "Cell Value as Blob".CreateInStream(InStream, TextEncoding::Windows);
                 InStream.Read(CellTextValue);

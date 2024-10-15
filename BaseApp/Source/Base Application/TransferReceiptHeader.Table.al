@@ -316,7 +316,13 @@ table 5746 "Transfer Receipt Header"
     var
         ReportSelection: Record "Report Selections";
         TransRcptHeader: Record "Transfer Receipt Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintRecords(Rec, ShowRequestForm, IsHandled);
+        if IsHandled then
+            exit;
+
         with TransRcptHeader do begin
             Copy(Rec);
             ReportSelection.PrintWithDialogForCust(
@@ -376,6 +382,11 @@ table 5746 "Transfer Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromTransferHeader(var TransferReceiptHeader: Record "Transfer Receipt Header"; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var TransferReceiptHeader: Record "Transfer Receipt Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

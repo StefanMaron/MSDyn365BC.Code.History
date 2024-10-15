@@ -393,7 +393,7 @@ page 11716 "Payment Order"
                     Promoted = true;
                     PromotedCategory = Process;
                     PromotedIsBig = true;
-                    ToolTip = 'Opens cash document';
+                    ToolTip = 'Reopen the document to change it after it has been approved. Approved documents have the Approved status and must be opened before they can be changed.';
 
                     trigger OnAction()
                     var

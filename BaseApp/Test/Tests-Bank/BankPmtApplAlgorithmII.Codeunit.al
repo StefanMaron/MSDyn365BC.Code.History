@@ -492,6 +492,56 @@ codeunit 134259 "Bank Pmt. Appl. Algorithm II"
         VerifyReconciliation(BankPmtApplRule, TempBankStatementMatchingBuffer, BankAccReconciliationLine."Statement Line No.");
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    procedure MatchDDCollectWhenCustLedgerEntryTransactionIDLengthGreaterMaxLengthDDEntryTransactionID()
+    var
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        BankAccount: Record "Bank Account";
+        TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+        DirectDebitCollection: Record "Direct Debit Collection";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        TransactionIDLengthsDifference: Integer;
+    begin
+        // [FEATURE] [CAMT] [Direct Debit]
+        // [SCENARIO 400296] Match Direct Debit Collection Entry in case of Customer Ledger Entry has "Transaction ID" with length greater than maximum length of DD Collection Entry's "Transaction ID".
+        Initialize();
+
+        // [GIVEN] Opened Customer Ledger Entry with "Entry No." = "E1", Amount = "A1", "Document No." = "D1".
+        CreateAndPostSalesInvoice(
+            GenJournalLine, LibrarySales.CreateCustomerNo(), LibraryUtility.GenerateGUID, '', LibraryRandom.RandDecInRange(100, 200, 2));
+        LibraryERM.FindCustomerLedgerEntry(
+            CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJournalLine."Document No.");
+
+        // [GIVEN] Bank Account with "Bank Statement Import Format" = "SEPA CAMT".
+        CreateBankAccWithBankStatementImportFormat(BankAccount, CreateBankExportImportSetupCAMT);
+
+        // [GIVEN] Direct Debit Collection with Status = "File Created".
+        // [GIVEN] Direct Debit Collection Entry with "Applies-to Entry No." = "E1", "Transaction ID" = "abcd" (value has 35 chars - max length of the field), Status = "File Created".
+        MockDirectDebitCollectionEntry(
+            DirectDebitCollectionEntry, BankAccount."No.", CustLedgerEntry."Entry No.",
+            DirectDebitCollection.Status::"File Created", DirectDebitCollectionEntry.Status::"File Created");
+        DirectDebitCollectionEntry."Transaction ID" := LibraryUtility.GenerateRandomXMLText(MaxStrLen(DirectDebitCollectionEntry."Transaction ID"));
+        DirectDebitCollectionEntry.Modify();
+
+        // [GIVEN] Reconciliation Line with "Transaction ID" = "abcdXYZ" - the first 35 chars are from DD Collect. Entry "Transaction ID", the next 15 chars are random.
+        // [GIVEN] Amount <> "A1", "Document No." <> "D1".
+        TransactionIDLengthsDifference := MaxStrLen(BankAccReconciliationLine."Transaction ID") - MaxStrLen(DirectDebitCollectionEntry."Transaction ID");
+        CreateBankReconciliation(BankAccReconciliation, BankAccount."No.");
+        CreateBankReconciliationLine(
+            BankAccReconciliation, BankAccReconciliationLine, GenJournalLine.Amount / 2, '', '',
+            DirectDebitCollectionEntry."Transaction ID" + LibraryUtility.GenerateRandomXMLText(TransactionIDLengthsDifference));
+
+        // [WHEN] Run matching procedure.
+        RunMatch(BankAccReconciliation, TempBankStatementMatchingBuffer, true);
+
+        // [THEN] A match was not found.
+        Assert.RecordIsEmpty(TempBankStatementMatchingBuffer);
+    end;
+
     local procedure Initialize()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";

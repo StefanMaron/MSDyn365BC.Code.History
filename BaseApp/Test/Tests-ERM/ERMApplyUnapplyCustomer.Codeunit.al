@@ -1851,6 +1851,95 @@ codeunit 134006 "ERM Apply Unapply Customer"
         Assert.RecordCount(TempCustLedgerEntry, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,AdjustExchangeRatesReportHandler')]
+    [Scope('OnPrem')]
+    procedure UnapplyPaymentAppliedToMultipleInvoicesWithDifferentExchangeRates()
+    var
+        Currency: Record Currency;
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryPayment: Record "Cust. Ledger Entry";
+        CustLedgerEntryInvoice: Record "Cust. Ledger Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustEntryApplyPostedEntries: Codeunit "CustEntry-Apply Posted Entries";
+    begin
+        // [FEATURE] [Adjust Exchange Rate] [FCY] [Unapply] [Apply]
+        // [SCENARIO 399430] Stan can Unapply customer's payment that is applied to multiple invoices with different currency rates and multiple currency rate adjustment.
+        Initialize();
+
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 8, 2020), 0.12901, 0.12901);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 9, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 10, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 11, 2020), 0.12905, 0.12905);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 12, 2020), 0.12903, 0.12903);
+        LibraryERM.CreateExchangeRate(Currency.Code, DMY2Date(1, 1, 2021), 0.12903, 0.12903);
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+
+        SelectGenJournalBatch(GenJournalBatch, false);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(19, 8, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 400);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(30, 9, 2020), DMY2Date(30, 9, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 850);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(12, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 250);
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(17, 11, 2020),
+          GenJournalLine."Document Type"::Invoice, Customer."No.", Currency.Code, 244140);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(30, 11, 2020), DMY2Date(30, 11, 2020));
+
+        CreateAndPostGenJnlLineWithCurrency(
+          GenJournalLine, GenJournalBatch, DMY2Date(7, 1, 2021),
+          GenJournalLine."Document Type"::Payment, Customer."No.", Currency.Code, -77280);
+
+        CustLedgerEntryPayment.SetRange("Customer No.", Customer."No.");
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntryPayment, CustLedgerEntryPayment."Document Type"::Payment, GenJournalLine."Document No.");
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryPayment);
+
+        CustLedgerEntryInvoice.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntryInvoice.SetRange("Document Type", CustLedgerEntryInvoice."Document Type"::Invoice);
+
+        LibraryERM.SetAppliestoIdCustomer(CustLedgerEntryInvoice);
+
+        LibraryERM.PostCustLedgerApplication(CustLedgerEntryPayment);
+
+        LibraryERM.RunAdjustExchangeRatesSimple(Currency.Code, DMY2Date(31, 12, 2020), DMY2Date(31, 12, 2020));
+
+        Commit();
+
+        CustLedgerEntryPayment.Find();
+        CustLedgerEntryPayment.TestField(Open, false);
+
+        DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
+        DetailedCustLedgEntry.SetRange("Document No.", CustLedgerEntryPayment."Document No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
+        DetailedCustLedgEntry.FindLast();
+
+        CustEntryApplyPostedEntries.PostUnApplyCustomer(
+          DetailedCustLedgEntry, CustLedgerEntryPayment."Document No.", CustLedgerEntryPayment."Posting Date");
+
+        CustLedgerEntryPayment.Find();
+        CustLedgerEntryPayment.TestField(Open, true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -53,7 +53,7 @@
         LineNoTAppliedErr: Label 'The line with transaction date %1 and transaction text ''%2'' is not applied. You must apply all lines.', Comment = '%1 - transaction date, %2 - arbitrary text';
         TransactionAlreadyReconciledErr: Label 'The line with transaction date %1 and transaction text ''%2'' is already reconciled.\\You must remove it from the payment reconciliation journal before posting.', Comment = '%1 - transaction date, %2 - arbitrary text';
 
-    local procedure InitPost(BankAccRecon: Record "Bank Acc. Reconciliation")
+    local procedure InitPost(var BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
         OnBeforeInitPost(BankAccRecon);
         with BankAccRecon do
@@ -258,6 +258,7 @@
           "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
         BankAccLedgEntry.SetRange("Statement No.", BankAccReconLine."Statement No.");
         BankAccLedgEntry.SetRange("Statement Line No.", BankAccReconLine."Statement Line No.");
+        OnCloseBankAccLedgEntryOnAfterBankAccLedgEntrySetFilters(BankAccLedgEntry, BankAccReconLine);
         if BankAccLedgEntry.Find('-') then
             repeat
                 AppliedAmount += BankAccLedgEntry."Remaining Amount";
@@ -620,7 +621,6 @@
         BankAccStmt: Record "Bank Account Statement";
         BankAccStmtLine: Record "Bank Account Statement Line";
         BankAccReconLine: Record "Bank Acc. Reconciliation Line";
-        PreviousStatementEndingBalance: Decimal;
         BankAccStmtExists: Boolean;
         IsHandled: Boolean;
     begin
@@ -628,10 +628,6 @@
         OnBeforeTransferToBankStmt(BankAccRecon, IsHandled);
         if IsHandled then
             exit;
-
-        BankAccStmt.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
-        if BankAccStmt.FindLast() then
-            PreviousStatementEndingBalance := BankAccStmt."Statement Ending Balance";
 
         BankAccStmtExists := BankAccStmt.Get(BankAccRecon."Bank Account No.", BankAccRecon."Statement No.");
         BankAccStmt.Init();
@@ -649,8 +645,6 @@
         BankAccStmtLine.SetRange("Bank Account No.", BankAccStmt."Bank Account No.");
         BankAccStmtLine.SetRange("Statement No.", BankAccStmt."Statement No.");
         BankAccStmtLine.CalcSums("Statement Amount");
-        BankAccStmt."Balance Last Statement" := PreviousStatementEndingBalance;
-        BankAccStmt."Statement Ending Balance" := PreviousStatementEndingBalance + BankAccStmtLine."Statement Amount";
 
         OnBeforeBankAccStmtInsert(BankAccStmt, BankAccRecon);
         BankAccStmt.Insert();
@@ -963,6 +957,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCloseBankAccLedgEntryOnBeforeBankAccLedgEntryModify(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseBankAccLedgEntryOnAfterBankAccLedgEntrySetFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 

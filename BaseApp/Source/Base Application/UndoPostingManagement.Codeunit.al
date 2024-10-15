@@ -589,9 +589,7 @@
             // NAVCZ
 
             // Quantity is filled in according to UOM:
-            ItemTrackingMgt.AdjustQuantityRounding(
-              NonDistrQuantity, ItemJnlLine.Quantity,
-              NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
+            AdjustQuantityRounding(ItemJnlLine, NonDistrQuantity, NonDistrQuantityBase);
 
             NonDistrQuantity := NonDistrQuantity - ItemJnlLine.Quantity;
             NonDistrQuantityBase := NonDistrQuantityBase - ItemJnlLine."Quantity (Base)";
@@ -609,6 +607,21 @@
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next() = 0;
+    end;
+
+    local procedure AdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal)
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAdjustQuantityRounding(ItemJnlLine, NonDistrQuantity, NonDistrQuantityBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemTrackingMgt.AdjustQuantityRounding(
+          NonDistrQuantity, ItemJnlLine.Quantity,
+          NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
     end;
 
     [Scope('OnPrem')]
@@ -1300,6 +1313,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateServLine(var ServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

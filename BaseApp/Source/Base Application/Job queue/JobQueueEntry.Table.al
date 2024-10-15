@@ -501,6 +501,9 @@ table 472 "Job Queue Entry"
         key(Key4; "Recurring Job")
         {
         }
+        key(Key5; "System Task ID")
+        {
+        }
     }
 
     fieldgroups
@@ -744,7 +747,7 @@ table 472 "Job Queue Entry"
         CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", Rec);
     end;
 
-    local procedure CheckRequiredPermissions()
+    internal procedure CheckRequiredPermissions()
     var
         DummyJobQueueLogEntry: Record "Job Queue Log Entry";
         DummyErrorMessageRegister: Record "Error Message Register";
@@ -1118,7 +1121,7 @@ table 472 "Job Queue Entry"
         OldParams := GetReportParameters();
         Params := REPORT.RunRequestPage("Object ID to Run", OldParams);
 
-        if (Params <> '') and (Params <> OldParams) then begin
+        if(Params <> '') and (Params <> OldParams) then begin
             "User ID" := UserId();
             SetReportParameters(Params);
         end;

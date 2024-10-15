@@ -1,4 +1,4 @@
-table 296 "Reminder Line"
+﻿table 296 "Reminder Line"
 {
     Caption = 'Reminder Line';
 
@@ -773,6 +773,8 @@ table 296 "Reminder Line"
         "Tax Group Code" := GLAcc."Tax Group Code";
         "Gen. Prod. Posting Group" := GLAcc."Gen. Prod. Posting Group";
         Validate("VAT Prod. Posting Group", GLAcc."VAT Prod. Posting Group");
+
+        OnAfterFillLineWithGLAccountData(Rec, ReminderHeader, GLAcc);
     end;
 
     procedure GetNoOfReminderForCustLedgEntry(EntryNo: Integer): Integer
@@ -864,6 +866,11 @@ table 296 "Reminder Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcFinChrg(var ReminderLine: Record "Reminder Line"; var ReminderHeader: Record "Reminder Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillLineWithGLAccountData(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; GLAccount: Record "G/L Account")
     begin
     end;
 

@@ -53,6 +53,24 @@ codeunit 11713 "Cash Document Approv. Mgt. CZP"
         exit(true);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Management CZL", 'OnSetStatusToApproved', '', false, false)]
+    local procedure SetCashDocumentStatusToApproved(InputRecordRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
+    var
+        ApprovedCashDocumentHeaderCZP: Record "Cash Document Header CZP";
+    begin
+        if IsHandled then
+            exit;
+
+        if InputRecordRef.Number = Database::"Cash Document Header CZP" then begin
+            InputRecordRef.SetTable(ApprovedCashDocumentHeaderCZP);
+            ApprovedCashDocumentHeaderCZP.Validate(Status, ApprovedCashDocumentHeaderCZP.Status::Approved);
+            ApprovedCashDocumentHeaderCZP.Modify();
+            Variant := ApprovedCashDocumentHeaderCZP;
+            IsHandled := true;
+        end;
+    end;
+
+    [Obsolete('The function is replaced by the SetCashDocumentStatusToApproved subscriber.', '19.0')]
     procedure SetStatusToApproved(var Variant: Variant)
     var
         ApprovalEntry: Record "Approval Entry";
@@ -68,7 +86,9 @@ codeunit 11713 "Cash Document Approv. Mgt. CZP"
                     ApprovalEntry := Variant;
                     TargetRecordRef.Get(ApprovalEntry."Record ID to Approve");
                     Variant := TargetRecordRef;
+#pragma warning disable AL0432
                     SetStatusToApproved(Variant);
+#pragma warning restore AL0432
                 end;
             Database::"Cash Document Header CZP":
                 begin
@@ -80,6 +100,7 @@ codeunit 11713 "Cash Document Approv. Mgt. CZP"
         end;
     end;
 
+    [Obsolete('The function is discontinued, use the DeleteApprovalEntries function from "Approvals Mgmt." instead.', '19.0')]
     procedure DeleteApprovalEntryForRecord(Variant: Variant)
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -117,11 +138,15 @@ codeunit 11713 "Cash Document Approv. Mgt. CZP"
     var
         ApprovedCashDocumentHeaderCZP: Record "Cash Document Header CZP";
     begin
+        if IsHandled then
+            exit;
+
         if RecRef.Number = Database::"Cash Document Header CZP" then begin
             RecRef.SetTable(ApprovedCashDocumentHeaderCZP);
             ApprovedCashDocumentHeaderCZP.Validate(Status, ApprovedCashDocumentHeaderCZP.Status::"Pending Approval");
             ApprovedCashDocumentHeaderCZP.Modify(true);
             Variant := ApprovedCashDocumentHeaderCZP;
+            IsHandled := true;
         end;
     end;
 

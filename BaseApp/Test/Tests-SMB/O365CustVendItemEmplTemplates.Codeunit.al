@@ -23,6 +23,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryHumanResource: Codeunit "Library - Human Resource";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -203,6 +204,44 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.IsTrue(Vendor.Blocked = Vendor.Blocked::Payment, InsertedVendorErr);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplAdditionalFields()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        Location: Record Location;
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        VendorTemplCard: TestPage "Vendor Templ. Card";
+        PartnerType: Enum "Partner Type";
+        ShipmentMethodCode: Code[10];
+    begin
+        // [SCENARIO 406122] Additional fields copied between Vendor and Vendor Templ.
+        Initialize();
+        VendorTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+        // [GIVEN] Template with "Partner Type","Location Code", "Shipment Method Code"
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        VendorTemplCard.OpenEdit();
+        VendorTemplCard.Filter.SetFilter(Code, VendorTempl.Code);
+        VendorTemplCard."Partner Type".SetValue(PartnerType::Person);
+        LibraryWarehouse.CreateLocation(Location);
+        VendorTemplCard."Location Code".SetValue(Location.Code);
+        ShipmentMethodCode := CreateShipmentMethodCode();
+        VendorTemplCard."Shipment Method Code".SetValue(ShipmentMethodCode);
+        VendorTemplCard.Close();
+
+        // [WHEN] Create new Vendor
+        VendorTemplMgt.InsertVendorFromTemplate(Vendor);
+
+        // [THEN] Vendor contains fields: "Partner Type","Location Code", "Shipment Method Code"
+        Vendor.TestField("Partner Type", PartnerType::Person);
+        Vendor.TestField("Location Code", Location.Code);
+        Vendor.TestField("Shipment Method Code", ShipmentMethodCode);
     end;
 
     [Test]
@@ -411,6 +450,40 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CustomerTemplAdditionalFields()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        Location: Record Location;
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        CustomerTemplCard: TestPage "Customer Templ. Card";
+        PartnerType: Enum "Partner Type";
+    begin
+        // [SCENARIO 406122] Additional fields copied between Customer and Customer Templ.
+        Initialize();
+        CustomerTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+        // [GIVEN] Template with "Partner Type","Location Code"
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        CustomerTemplCard.OpenEdit();
+        CustomerTemplCard.Filter.SetFilter(Code, CustomerTempl.Code);
+        CustomerTemplCard."Partner Type".SetValue(PartnerType::Company);
+        LibraryWarehouse.CreateLocation(Location);
+        CustomerTemplCard."Location Code".SetValue(Location.Code);
+        CustomerTemplCard.Close();
+
+        // [WHEN] Create new Customer
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
+
+        // [THEN] Customer contains fields: "Partner Type","Location Code"
+        Customer.TestField("Partner Type", PartnerType::Company);
+        Customer.TestField("Location Code", Location.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ItemTemplValidateTemplateGlobalDimensionCodeUT()
     var
         ItemTempl: Record "Item Templ.";
@@ -582,6 +655,45 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.IsTrue(Item."Purchasing Blocked", InsertedItemErr);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplAdditionalFields()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        ItemTemplCard: TestPage "Item Templ. Card";
+        ItemTrackingCode: Record "Item Tracking Code";
+        SerialNosCode: Code[20];
+        LotNosCode: Code[20];
+    begin
+        // [SCENARIO 406122] Additional fields copied between Item and Item Templ.
+        Initialize();
+        ItemTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+        // [GIVEN] Template with "Item Tracking Code", "Serial Nos.", "Lot Nos."
+        LibraryTemplates.CreateItemTemplate(ItemTempl);
+        ItemTemplCard.OpenEdit();
+        ItemTemplCard.Filter.SetFilter(Code, ItemTempl.Code);
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        ItemTemplCard."Item Tracking Code".SetValue(ItemTrackingCode.Code);
+        SerialNosCode := LibraryERM.CreateNoSeriesCode();
+        ItemTemplCard."Serial Nos.".SetValue(SerialNosCode);
+        LotNosCode := LibraryERM.CreateNoSeriesCode();
+        ItemTemplCard."Lot Nos.".SetValue(LotNosCode);
+        ItemTemplCard.Close();
+
+        // [WHEN] Create new Item
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] Item contains fields: "Item Tracking Code", "Serial Nos.", "Lot Nos." 
+        Item.TestField("Item Tracking Code", ItemTrackingCode.Code);
+        Item.TestField("Serial Nos.", SerialNosCode);
+        Item.TestField("Lot Nos.", LotNosCode);
     end;
 
     [Test]
@@ -1576,8 +1688,9 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     begin
         // [SCENARIO 383147] Create new Customer with template using GetCustNo() procedure from "Customer" record
         Initialize();
+        Customer.DeleteAll();
         BindSubscription(CustVendItemEmplTemplates);
-        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
 
         // [GIVEN] Template "T" with data and dimensions
         LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
@@ -1867,6 +1980,16 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         NonstockItem.Validate("Item Templ. Code", ItemTemplCode);
         NonstockItem.Validate(Description, NonstockItem."Entry No.");
         NonstockItem.Modify(true);
+    end;
+
+    local procedure CreateShipmentMethodCode(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), DATABASE::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
     end;
 
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])

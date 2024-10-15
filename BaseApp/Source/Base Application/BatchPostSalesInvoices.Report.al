@@ -132,7 +132,10 @@ report 297 "Batch Post Sales Invoices"
         trigger OnOpenPage()
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                exit;
             SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;

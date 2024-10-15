@@ -135,6 +135,31 @@
             Enum::"Email Scenario"::Default));
     end;
 
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyInstream: InStream; EmailSubject: Text; ToEmailAddress: Text; HideDialog: Boolean; EmailScenario: Enum "Email Scenario"; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        FileManagement: Codeunit "File Management";
+        HtmlBodyFilePath: Text;
+    begin
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
+        HtmlBodyFilePath := FileManagement.InstreamExportToServerFile(HtmlBodyInstream, 'html');
+
+        exit(EmailFileInternal(
+            TempEmailItem,
+            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
+            CopyStr(EmailSubject, 1, MaxStrLen(TempEmailItem.Subject)),
+            CopyStr(ToEmailAddress, 1, MaxStrLen(TempEmailItem."Send to")),
+            '',
+            '',
+            HideDialog,
+            -1,
+            false,
+            '',
+            EmailScenario));
+    end;
+
     procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyFilePath: Text[250]; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
     var
         TempEmailItem: Record "Email Item" temporary;
@@ -145,6 +170,31 @@
         exit(EmailFileInternal(
             TempEmailItem,
             HtmlBodyFilePath,
+            '',
+            ToEmailAddress,
+            PostedDocNo,
+            EmailDocName,
+            HideDialog,
+            ReportUsage,
+            true,
+            '',
+            Enum::"Email Scenario"::Default));
+    end;
+
+    procedure EmailFile(AttachmentStream: Instream; AttachmentName: Text; HtmlBodyInstream: Instream; PostedDocNo: Code[20]; ToEmailAddress: Text[250]; EmailDocName: Text[250]; HideDialog: Boolean; ReportUsage: Integer; SourceTables: List of [Integer]; SourceIDs: List of [Guid]; SourceRelationTypes: List of [Integer]): Boolean
+    var
+        TempEmailItem: Record "Email Item" temporary;
+        FileManagement: Codeunit "File Management";
+        HtmlBodyFilePath: Text;
+    begin
+        TempEmailItem.SetSourceDocuments(SourceTables, SourceIDs, SourceRelationTypes);
+        TempEmailItem.AddAttachment(AttachmentStream, AttachmentName);
+
+        HtmlBodyFilePath := FileManagement.InstreamExportToServerFile(HtmlBodyInstream, 'html');
+
+        exit(EmailFileInternal(
+            TempEmailItem,
+            CopyStr(HtmlBodyFilePath, 1, MaxStrLen(TempEmailItem."Body File Path")),
             '',
             ToEmailAddress,
             PostedDocNo,

@@ -28,6 +28,7 @@ codeunit 7320 "Whse. Undo Quantity"
             if WhseEntry.Find('+') then
                 repeat
                     TempWhseJnlLine.Init();
+                    OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(ItemJnlLine, WhseEntry, TempWhseJnlLine);
                     if WhseEntry."Entry Type" = WhseEntry."Entry Type"::"Positive Adjmt." then
                         "Entry Type" := "Entry Type"::"Negative Adjmt."
                     else
@@ -551,6 +552,11 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Integer; var WhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTempWhseJnlLineOnAfterTempWhseJnlLineInit(var ItemJnlLine: Record "Item Journal Line"; var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 

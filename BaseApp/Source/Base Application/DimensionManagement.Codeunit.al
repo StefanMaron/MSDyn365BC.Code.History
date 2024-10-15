@@ -368,7 +368,7 @@ codeunit 408 DimensionManagement
     begin
         IsChecked := false;
         IsHandled := false;
-        OnBeforeCheckDimValuePosting(TableID, No, DimSetID, IsChecked, IsHandled);
+        OnBeforeCheckDimValuePosting(TableID, No, DimSetID, IsChecked, IsHandled, DimSetEntry);
         if IsHandled then
             exit(IsChecked);
 
@@ -524,6 +524,8 @@ codeunit 408 DimensionManagement
         Separator: Text;
         LastErrorID: Integer;
     begin
+        OnBeforeCheckDimComb(DimComb);
+
         if not TempDimCombInitialized then begin
             TempDimCombInitialized := true;
             if DimComb.IsEmpty() then
@@ -575,6 +577,8 @@ codeunit 408 DimensionManagement
     var
         DimValueCombination: Record "Dimension Value Combination";
     begin
+        OnBeforeCheckDimValueComb(DimValueCombination);
+
         if DimValueCombination.Get(Dim1, Dim1Value, Dim2, Dim2Value) then begin
             LogError(
               DimValueCombination.RecordId, 0, StrSubstNo(Text001, Dim1, Dim1Value, Dim2, Dim2Value), '');
@@ -1400,7 +1404,7 @@ codeunit 408 DimensionManagement
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckDim(DimCode, Result, IsHandled);
+        OnBeforeCheckDim(DimCode, Result, IsHandled, Dim);
         if IsHandled then
             EXIT(Result);
 
@@ -2847,7 +2851,17 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDim(DimCode: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckDim(DimCode: Code[20]; var Result: Boolean; var IsHandled: Boolean; var Dimension: Record Dimension)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimComb(DimensionCombination: Record "Dimension Combination")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValueComb(DimensionValueCombination: Record "Dimension Value Combination")
     begin
     end;
 
@@ -2857,7 +2871,7 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckDimValuePosting(TableID: array[10] of Integer; No: array[10] of Code[20]; DimSetID: Integer; var IsChecked: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckDimValuePosting(TableID: array[10] of Integer; No: array[10] of Code[20]; DimSetID: Integer; var IsChecked: Boolean; var IsHandled: Boolean; var DimensionSetEntry: Record "Dimension Set Entry")
     begin
     end;
 

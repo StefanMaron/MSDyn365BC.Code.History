@@ -123,7 +123,9 @@ page 346 "Item Picture"
         TestField("No.");
         TestField(Description);
 
-        Camera.AddPicture(Rec, Rec.FieldNo(Picture));
+        OnAfterTakeNewPicture(
+            Rec,
+            Camera.AddPicture(Rec, Rec.FieldNo(Picture)));
     end;
 
     [Scope('OnPrem')]
@@ -150,6 +152,7 @@ page 346 "Item Picture"
         Clear(Picture);
         Picture.ImportFile(FileName, ClientFileName);
         Modify(true);
+        OnImportFromDeviceOnAfterModify(Rec);
 
         if FileManagement.DeleteServerFile(FileName) then;
     end;
@@ -178,6 +181,23 @@ page 346 "Item Picture"
 
         Clear(Picture);
         Modify(true);
+
+        OnAfterDeleteItemPicture(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteItemPicture(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTakeNewPicture(var Item: Record Item; IsPictureAdded: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnImportFromDeviceOnAfterModify(var Item: Record Item)
+    begin
     end;
 }
 

@@ -213,7 +213,7 @@
                     AdjustItemAvgCost();
                     PostAdjmtBuf(TempAvgCostAdjmtEntryPoint);
                     UpdateItemUnitCost(TempAvgCostAdjmtEntryPoint, IsFirstTime);
-                    OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded);
+                    OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(TheItem, TempAvgCostAdjmtEntryPoint, LevelExceeded, IsOnlineAdjmt);
                 until (TheItem.Next() = 0) or LevelExceeded;
     end;
 
@@ -2937,7 +2937,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var LevelExceeded: Boolean)
+    local procedure OnMakeSingleLevelAdjmtOnAfterUpdateItemUnitCost(var TheItem: Record Item; var TempAvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point" temporary; var LevelExceeded: Boolean; IsOnlineAdjmt: Boolean)
     begin
     end;
 

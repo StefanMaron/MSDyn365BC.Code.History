@@ -182,7 +182,8 @@
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -193,7 +194,8 @@
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1047,6 +1049,8 @@
             SetFilter("Remaining Quantity (Base)", '>0')
         else
             SetFilter("Remaining Quantity (Base)", '<0');
+
+        OnAfterFilterLinesForReservation(Rec, ReservationEntry, DocumentType, AvailabilityFilter, Positive);
     end;
 
     [Scope('OnPrem')]
@@ -1400,6 +1404,7 @@
     var
         ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
     begin
+        OnBeforeValidateDueDate(Rec, NewDueDate);
         "Due Date" := NewDueDate;
         CheckIsNotAsmToOrder;
         TestStatusOpen;
@@ -1804,6 +1809,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterLinesForReservation(var AssemblyHeader: Record "Assembly Header"; ReservEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToAssemble(var AssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer)
     begin
     end;
@@ -1830,6 +1840,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoValidateDates(var AssemblyHeader: Record "Assembly Header"; var xAssemblyHeader: Record "Assembly Header"; FieldNumToCalculateFrom: Integer; NewDueDate: Date; NewEndDate: Date; NewStartDate: Date; var ValidateConfirmed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateDueDate(var AssemblyHeader: Record "Assembly Header"; NewDueDate: Date)
     begin
     end;
 

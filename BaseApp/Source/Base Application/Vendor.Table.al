@@ -153,7 +153,8 @@
         {
             CaptionClass = '1,1,1';
             Caption = 'Global Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -164,7 +165,8 @@
         {
             CaptionClass = '1,1,2';
             Caption = 'Global Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1639,6 +1641,7 @@
         SocialListeningSearchTopic: Record "Social Listening Search Topic";
         CustomReportSelection: Record "Custom Report Selection";
         IntrastatSetup: Record "Intrastat Setup";
+        ItemReference: Record "Item Reference";
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         RegistrationLogMgt: Codeunit "Registration Log Mgt.";
     begin
@@ -1660,6 +1663,11 @@
             OrderAddr.DeleteAll();
 
         CheckOutstandingPurchaseDocuments();
+
+        ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", Rec."No.");
+        ItemReference.DeleteAll();
 
         UpdateContFromVend.OnDelete(Rec);
 
@@ -1727,6 +1735,8 @@
 
         UpdateReferencedIds;
         SetLastModifiedDateTime;
+
+        OnAfterOnInsert(Rec);
     end;
 
     trigger OnModify()
@@ -2246,12 +2256,18 @@
         Vendor.MarkedOnly(true);
     end;
 
-    local procedure CreateNewVendor(VendorName: Text[100]; ShowVendorCard: Boolean): Code[20]
+    local procedure CreateNewVendor(VendorName: Text[100]; ShowVendorCard: Boolean) Result: Code[20]
     var
         Vendor: Record Vendor;
         VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
         VendorCard: Page "Vendor Card";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateNewVendor(VendorName, ShowVendorCard, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not VendorTemplMgt.InsertVendorFromTemplate(Vendor) then
             Error(SelectVendorErr);
 
@@ -2676,6 +2692,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInsert(var Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAssistEditOnBeforeExit(var Vendor: Record Vendor)
     begin
     end;
@@ -2709,6 +2730,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckOutstandingPurchaseDocuments(Vendor: Record Vendor; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateNewVendor(VendorName: Text[100]; ShowVendorCard: Boolean; var Result: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

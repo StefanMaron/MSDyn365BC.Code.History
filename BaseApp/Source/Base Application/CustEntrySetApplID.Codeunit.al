@@ -42,8 +42,12 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         LinkedNotUsedAmt: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID);
+        IsHandled := false;
+        OnBeforeUpdateCustLedgerEntry(TempCustLedgerEntry, ApplyingCustLedgerEntry, AppliesToID, IsHandled);
+        if IsHandled then
+            exit;
 
         CustLedgerEntry.Copy(TempCustLedgerEntry);
         CustLedgerEntry.TestField(Open, true);
@@ -79,7 +83,7 @@ codeunit 101 "Cust. Entry-SetAppl.ID"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]);
+    local procedure OnBeforeUpdateCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; ApplyingCustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50]; var IsHandled: Boolean);
     begin
     end;
 

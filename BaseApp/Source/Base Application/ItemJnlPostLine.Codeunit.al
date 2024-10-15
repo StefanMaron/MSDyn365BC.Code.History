@@ -139,6 +139,8 @@
 
         PrepareItem(ItemJnlLine2);
         TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine2, TempTrackingSpecification);
+        OnRunWithCheckOnAfterRetrieveItemTracking(
+            ItemJnlLine2, TempTrackingSpecification, TrackingSpecExists, PostponeReservationHandling);
         exit(PostSplitJnlLine(ItemJnlLine2, TrackingSpecExists));
     end;
 
@@ -473,6 +475,8 @@
         SkipPost: Boolean;
         ShouldFlushOperation: Boolean;
     begin
+        OnBeforePostOutput(ItemJnlLine);
+
         with ItemJnlLine do begin
             if "Stop Time" <> 0 then begin
                 InsertCapLedgEntry(CapLedgEntry, "Stop Time", "Stop Time");
@@ -666,7 +670,10 @@
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforePostItem(ItemJnlLine, IsHandled, CalledFromAdjustment);
+        if IsHandled then
+            exit;
 
         with ItemJnlLine do begin
             SKUExists := SKU.Get("Location Code", "Item No.", "Variant Code");
@@ -704,8 +711,11 @@
             end else
                 AverageTransfer := false;
 
-            if "Job Contract Entry No." <> 0 then
-                TransReserveFromJobPlanningLine("Job Contract Entry No.", ItemJnlLine);
+            IsHandled := false;
+            OnPostItemOnBeforeTransferReservFromJobPlanningLine(ItemJnlLine, IsHandled);
+            if not IsHandled then
+                if "Job Contract Entry No." <> 0 then
+                    TransReserveFromJobPlanningLine("Job Contract Entry No.", ItemJnlLine);
 
             if Item."Costing Method" = Item."Costing Method"::Standard then begin
                 "Overhead Rate" := Item."Overhead Rate";
@@ -743,10 +753,7 @@
                     CorrectOutputValuationDate(GlobalItemLedgEntry);
                     InitValueEntry(GlobalValueEntry, GlobalItemLedgEntry);
                 end;
-            if ((Quantity <> 0) or ("Invoiced Quantity" <> 0)) and
-               not (Adjustment and (Amount = 0) and ("Amount (ACY)" = 0))
-            then
-                ItemValuePosting;
+            CheckRunItemValuePosting();
 
             OnPostItemOnBeforeUpdateUnitCost(ItemJnlLine, GlobalItemLedgEntry);
 
@@ -893,6 +900,7 @@
         CapLedgerEntry.SetRange("Routing No.", ItemJnlLine."Routing No.");
         CapLedgerEntry.SetRange("Routing Reference No.", ItemJnlLine."Routing Reference No.");
         CapLedgerEntry.SetRange("Operation No.", ItemJnlLine."Operation No.");
+        OnCalcCapLedgerEntriesSetupRunTimeOnAfterCapLedgerEntrySetFilters(CapLedgerEntry, ItemJnlLine);
 
         CapLedgerEntry.CalcSums("Setup Time", "Run Time");
         TotalSetupTime := CapLedgerEntry."Setup Time";
@@ -1200,6 +1208,22 @@
         end;
     end;
 
+    local procedure CheckRunItemValuePosting()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckRunItemValuePosting(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ItemJnlLine do
+            if ((Quantity <> 0) or ("Invoiced Quantity" <> 0)) and
+                not (Adjustment and (Amount = 0) and ("Amount (ACY)" = 0))
+            then
+                ItemValuePosting();
+    end;
+
     procedure ItemValuePosting()
     var
         IsCostNotTracedDirectly: Boolean;
@@ -1425,6 +1449,7 @@
             "Gen. Bus. Posting Group" := OldItemJnlLine."Gen. Bus. Posting Group";
             // NAVCZ
             "Gen. Prod. Posting Group" := CompItem."Gen. Prod. Posting Group";
+            OnPostFlushedConsumpOnAfterCopyProdOrderFieldsToItemJnlLine(ItemJnlLine, OldItemJnlLine, ProdOrderLine, ProdOrderComp, CompItem);
 
             OldTempTrackingSpecification.Reset();
             OldTempTrackingSpecification.DeleteAll();
@@ -1442,6 +1467,7 @@
 
             PrepareItem(ItemJnlLine);
             TrackingSpecExists := ItemTrackingMgt.RetrieveItemTracking(ItemJnlLine, TempTrackingSpecification);
+            OnPostFlushedConsumpOnBeforeSetupSplitJnlLine(ItemJnlLine);
             PostItemJnlLine := SetupSplitJnlLine(ItemJnlLine, TrackingSpecExists);
 
             while SplitItemJnlLine(ItemJnlLine, PostItemJnlLine) do begin
@@ -2246,8 +2272,9 @@
             ItemLedgEntry."Unit of Measure Code" := "Unit of Measure Code";
             ItemLedgEntry."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
             ItemLedgEntry."Derived from Blanket Order" := "Derived from Blanket Order";
-
+#if not CLEAN17
             ItemLedgEntry."Cross-Reference No." := "Cross-Reference No.";
+#endif
             ItemLedgEntry."Item Reference No." := "Item Reference No.";
             ItemLedgEntry."Originally Ordered No." := "Originally Ordered No.";
             ItemLedgEntry."Originally Ordered Var. Code" := "Originally Ordered Var. Code";
@@ -3203,7 +3230,7 @@
               Round(OverheadAmountACY, Currency."Amount Rounding Precision");
 
         IsHandled := false;
-        OnInsertOHValueEntryOnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, IsHandled);
+        OnInsertOHValueEntryOnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, IsHandled, GlobalItemLedgEntry, ValueEntryNo);
         if not IsHandled then
             InsertValueEntry(ValueEntry, GlobalItemLedgEntry, false);
 
@@ -4668,6 +4695,8 @@
         if GlobalItemTrackingSetup."Lot No. Required" and (ItemJnlLine."Lot No." = '') then
             Error(GetTextStringWithLineNo(LotNoRequiredErr, ItemJnlLine."Item No.", ItemJnlLine."Line No."));
 
+        OnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJnlLine, GlobalItemTrackingSetup);
+
         if ItemJnlLine."Entry Type" = ItemJnlLine."Entry Type"::Transfer then
             ItemJnlLine.CheckNewTrackingIfRequired(GlobalItemTrackingSetup);
 
@@ -5042,8 +5071,15 @@
         end;
     end;
 
-    local procedure IsInterimRevaluation(): Boolean
+    local procedure IsInterimRevaluation() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsInterimRevaluation(ItemJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ItemJnlLine do
             exit(("Value Entry Type" = "Value Entry Type"::Revaluation) and (Quantity <> 0));
     end;
@@ -5391,6 +5427,8 @@
         ItemTrackingSetup2 := GlobalItemTrackingSetup;
         ItemTrackingSetup2.CopyTrackingFromTrackingSpec(TempHandlingSpecification);
         ItemJnlLine.CheckTrackingIfRequired(ItemTrackingSetup2);
+
+        OnAfterCheckItemTrackingOfComp(TempHandlingSpecification, ItemJnlLine);
     end;
 
     local procedure MaxConsumptionValuationDate(ItemLedgerEntry: Record "Item Ledger Entry"): Date
@@ -5813,6 +5851,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckRunItemValuePosting(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCreateItemJnlLineFromEntry(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -6193,6 +6236,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyItemJnlLineAsembleToOrder(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUndoQuantityPosting(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -6268,7 +6316,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertConsumpEntry(var WarehouseJournalLine: Record "Warehouse Journal Line"; ProdOrderComponent: Record "Prod. Order Component"; QtyBase: Decimal; PostWhseJnlLine: Boolean; var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNo: Integer)
+    local procedure OnAfterInsertConsumpEntry(var WarehouseJournalLine: Record "Warehouse Journal Line"; var ProdOrderComponent: Record "Prod. Order Component"; QtyBase: Decimal; PostWhseJnlLine: Boolean; var ItemJnlLine: Record "Item Journal Line"; ItemLedgEntryNo: Integer)
     begin
     end;
 
@@ -6368,7 +6416,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnInsertOHValueEntryOnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnInsertOHValueEntryOnBeforeInsertValueEntry(var ValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer)
     begin
     end;
 
@@ -6418,7 +6466,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostFlushedConsumpOnAfterCopyProdOrderFieldsToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; var OldItemJournalLine: Record "Item Journal Line"; ProdOrderLine: Record "Prod. Order Line"; ProdOrderComponent: Record "Prod. Order Component"; CompItem: record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostFlushedConsumpOnBeforeProdOrderCompReserveTransferPOCompToItemJnlLine(ItemJournalLine: Record "Item Journal Line"; ProdOrderComponent: Record "Prod. Order Component")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostFlushedConsumpOnBeforeSetupSplitJnlLine(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -6747,7 +6805,14 @@
     end;
 
     local procedure VerifyItemJnlLineAsembleToOrder(var ItemJournalLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyItemJnlLineAsembleToOrder(ItemJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJournalLine.TestField("Applies-to Entry");
 
         ItemJournalLine.CalcFields("Reserved Qty. (Base)");
@@ -6885,6 +6950,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemTrackingOfComp(TempHandlingSpecification: Record "Tracking Specification"; ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetOutputProdOrder(var ProdOrder: Record "Production Order"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -6905,6 +6975,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsInterimRevaluation(ItemJnlLine: Record "Item Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPostingDateWithExpirationDate(var ItemLedgEntry: Record "Item Ledger Entry"; ItemTrackingCode: Record "Item Tracking Code"; OldItemLedgEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
@@ -6915,7 +6990,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostOutput(var ItemJnlLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostOutputUpdateProdOrderRtngLine(var ProdOrderRtngLine: Record "Prod. Order Routing Line"; ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcCapLedgerEntriesSetupRunTimeOnAfterCapLedgerEntrySetFilters(var CapLedgerEntry: Record "Capacity Ledger Entry"; ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -7049,7 +7134,7 @@
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnItemValuePostingOnBeforeInsertOHValueEntry(var ItemJnlLine: Record "Item Journal Line"; var GlobalValueEntry: Record "Value Entry"; var GlobalItemLedgEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -7116,6 +7201,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowFixedApplicationError(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemOnBeforeTransferReservFromJobPlanningLine(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunWithCheckOnAfterRetrieveItemTracking(var ItemJournalLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification"; var TrackingSpecExists: Boolean; PostponeReservationHandling: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckItemTrackingOnAfterCheckRequiredTrackingNos(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup")
     begin
     end;
 }

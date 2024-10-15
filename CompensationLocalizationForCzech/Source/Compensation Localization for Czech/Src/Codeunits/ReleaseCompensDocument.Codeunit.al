@@ -24,7 +24,7 @@ codeunit 31278 "Release Compens. Document CZC"
             exit;
 
         OnBeforeReleaseCompensationCZC(CompensationHeaderCZC);
-        CompensationHeaderCZC.OnCheckCompensationReleaseRestrictions();
+        CompensationHeaderCZC.CheckCompensationReleaseRestrictions();
         CheckCompensationBalance(CompensationHeaderCZC);
         CheckCompensationLines(CompensationHeaderCZC);
 

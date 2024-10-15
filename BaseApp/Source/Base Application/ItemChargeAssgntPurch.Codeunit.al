@@ -421,7 +421,11 @@
         ItemChargeAssgntPurch.SetRange("Document Type", PurchLine."Document Type");
         ItemChargeAssgntPurch.SetRange("Document No.", PurchLine."Document No.");
         ItemChargeAssgntPurch.SetRange("Document Line No.", PurchLine."Line No.");
-        if ItemChargeAssgntPurch.FindFirst() then
+
+        if ItemChargeAssgntPurch.FindFirst() then begin
+            ItemChargeAssgntPurch.ModifyAll("Amount to Assign", 0);
+            ItemChargeAssgntPurch.ModifyAll("Qty. to Assign", 0);
+
             case SelectionTxt of
                 AssignEquallyMenuText():
                     AssignEqually(ItemChargeAssgntPurch, Currency, TotalQtyToAssign, TotalAmtToAssign);
@@ -438,6 +442,7 @@
                             Error(ItemChargesNotAssignedErr);
                     end;
             end;
+        end;
     end;
 
     procedure AssignEquallyMenuText(): Text

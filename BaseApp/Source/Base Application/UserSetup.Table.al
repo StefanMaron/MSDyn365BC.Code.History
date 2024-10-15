@@ -50,15 +50,10 @@ table 91 "User Setup"
             TableRelation = "Salesperson/Purchaser";
 
             trigger OnValidate()
-            var
-                UserSetup: Record "User Setup";
             begin
                 if "Salespers./Purch. Code" <> '' then begin
                     ValidateSalesPersonPurchOnUserSetup(Rec);
-                    UserSetup.SetCurrentKey("Salespers./Purch. Code");
-                    UserSetup.SetRange("Salespers./Purch. Code", "Salespers./Purch. Code");
-                    if UserSetup.FindFirst then
-                        Error(Text001, "Salespers./Purch. Code", UserSetup."User ID");
+                    EnsureUniqueSalesPersonPurchCode();
                     UpdateSalesPerson(FieldNo("Salespers./Purch. Code"));
                 end;
             end;
@@ -561,6 +556,22 @@ table 91 "User Setup"
         if ApprovalUserSetup.Insert() then;
     end;
 
+    local procedure EnsureUniqueSalesPersonPurchCode()
+    var
+        UserSetup: Record "User Setup";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureUniqueSalesPersonPurchCode(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        UserSetup.SetCurrentKey("Salespers./Purch. Code");
+        UserSetup.SetRange("Salespers./Purch. Code", "Salespers./Purch. Code");
+        if UserSetup.FindFirst then
+            Error(Text001, "Salespers./Purch. Code", UserSetup."User ID");
+    end;
+
     procedure GetDefaultSalesAmountApprovalLimit(): Integer
     var
         UserSetup: Record "User Setup";
@@ -762,6 +773,11 @@ table 91 "User Setup"
     begin
     end;
 #endif
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureUniqueSalesPersonPurchCode(var UserSetup: Record "User Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateApprovalAdministrator(var UserSetup: Record "User Setup"; var IsHandled: Boolean)
     begin

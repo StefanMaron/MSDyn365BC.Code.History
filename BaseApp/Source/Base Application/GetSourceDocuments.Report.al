@@ -222,7 +222,7 @@ report 5753 "Get Source Documents"
                 begin
                     BreakReport := false;
                     SkipRecord := false;
-                    OnAfterPurchaseHeaderOnAfterGetRecord("Purchase Header", SkipRecord, BreakReport, "Warehouse Request");
+                    OnAfterPurchaseHeaderOnAfterGetRecord("Purchase Header", SkipRecord, BreakReport, "Warehouse Request", WhseReceiptHeader, OneHeaderCreated);
                     if BreakReport then
                         CurrReport.Break();
                     if SkipRecord then
@@ -697,7 +697,7 @@ report 5753 "Get Source Documents"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeVerifySalesItemNotBlocked(SalesHeader, SalesLine, IsHandled);
+        OnBeforeVerifySalesItemNotBlocked(SalesHeader, SalesLine, IsHandled, SkipBlockedItem);
         if not IsHandled then
             VerifyItemNotBlocked(SalesLine."No.")
     end;
@@ -860,7 +860,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchaseHeaderOnAfterGetRecord(PurchaseHeader: Record "Purchase Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request")
+    local procedure OnAfterPurchaseHeaderOnAfterGetRecord(PurchaseHeader: Record "Purchase Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request"; var WhseReceiptHeader: Record "Warehouse Receipt Header"; OneHeaderCreated: Boolean)
     begin
     end;
 
@@ -950,7 +950,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeVerifySalesItemNotBlocked(SalesHeaer: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeVerifySalesItemNotBlocked(SalesHeaer: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean; SkipBlockedItem: Boolean)
     begin
     end;
 

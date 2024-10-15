@@ -347,10 +347,10 @@ report 31096 "Sales - Invoice CZ"
                     column(UnitofMeasure_SalesInvoiceLine; "Unit of Measure")
                     {
                     }
-                    column(UnitPrice_SalesInvoiceLineCaption; FieldCaption("Unit Price"))
+                    column(UnitPrice_SalesInvoiceLineCaption; UnitPriceExclVATLbl)
                     {
                     }
-                    column(UnitPrice_SalesInvoiceLine; "Unit Price")
+                    column(UnitPrice_SalesInvoiceLine; UnitPriceExclVAT)
                     {
                     }
                     column(LineDiscount_SalesInvoiceLineCaption; FieldCaption("Line Discount %"))
@@ -377,6 +377,11 @@ report 31096 "Sales - Invoice CZ"
                     column(InvDiscountAmount_SalesInvoiceLine; "Inv. Discount Amount")
                     {
                     }
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        UnitPriceExclVAT := 100 * "Sales Invoice Line"."Unit Price" / (100 + "Sales Invoice Line"."VAT %");
+                    end;
                 }
                 dataitem(SalesInvoiceAdvance; "Sales Invoice Line")
                 {
@@ -672,6 +677,7 @@ report 31096 "Sales - Invoice CZ"
         PaymentSymbolLabel: array[2] of Text;
         CalculatedExchRate: Decimal;
         PrepaymentAmt: Decimal;
+        UnitPriceExclVAT: Decimal;
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         LogInteraction: Boolean;
@@ -699,6 +705,7 @@ report 31096 "Sales - Invoice CZ"
         PrepayedLbl: Label 'Prepayed Advances';
         TotalAfterPrepayedLbl: Label 'Total after Prepayed Advances';
         PaymentsLbl: Label 'Payments List';
+        UnitPriceExclVATLbl: Label 'Unit Price Excl. VAT';
         [InDataSet]
         LogInteractionEnable: Boolean;
         DisplayAdditionalFeeNote: Boolean;

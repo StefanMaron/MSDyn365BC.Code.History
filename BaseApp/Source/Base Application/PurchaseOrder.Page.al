@@ -57,8 +57,7 @@ page 50 "Purchase Order"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupBuyfromVendorName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupBuyFromVendorName(Text));
                     end;
                 }
                 group("Buy-from")
@@ -2427,6 +2426,7 @@ page 50 "Purchase Order"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

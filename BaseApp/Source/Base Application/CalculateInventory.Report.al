@@ -132,6 +132,7 @@ report 790 "Calculate Inventory"
                 DefaultDim: Record "Default Dimension";
                 DimEntryNo: Integer;
             begin
+                OnBeforeItemOnAfterGetRecord(Item);
                 if not HideValidationDialog then
                     Window.Update;
                 TempSKU.DeleteAll();
@@ -961,6 +962,11 @@ report 790 "Calculate Inventory"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemJnlLineOnBeforeInit(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeItemOnAfterGetRecord(var Item: Record Item)
     begin
     end;
 

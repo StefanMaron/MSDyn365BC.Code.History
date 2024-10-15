@@ -147,7 +147,10 @@ report 496 "Batch Post Purchase Orders"
         trigger OnOpenPage()
         var
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                exit;
             PurchasesPayablesSetup.Get();
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;

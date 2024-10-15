@@ -63,8 +63,7 @@ page 44 "Sales Credit Memo"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        if LookupSellToCustomerName() then
-                            CurrPage.Update();
+                        exit(Rec.LookupSellToCustomerName(Text));
                     end;
                 }
                 group("Sell-to")
@@ -1678,6 +1677,7 @@ page 44 "Sales Credit Memo"
 
     local procedure PricesIncludingVATOnAfterValid()
     begin
+        CurrPage.SalesLines.Page.ForceTotalsCalculation();
         CurrPage.Update();
     end;
 

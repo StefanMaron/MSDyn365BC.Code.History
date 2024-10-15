@@ -494,7 +494,7 @@ page 161 "Purchase Statistics"
         PurchPost.SumPurchLinesTemp(
           Rec, TempPurchLine, 0, TotalPurchLine, TotalPurchLineLCY, VATAmount, VATAmountText);
 
-        OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(Rec, TempPurchLine, AllowVATDifference);
+        OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(Rec, TempPurchLine, AllowVATDifference, TotalAmount1, TotalAmount2);
 
         if "Prices Including VAT" then begin
             TotalAmount2 := TotalPurchLine.Amount;
@@ -607,7 +607,7 @@ page 161 "Purchase Statistics"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(var PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line"; var AllowVATDifference: Boolean)
+    local procedure OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(var PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line"; var AllowVATDifference: Boolean; var TotalAmount1: Decimal; var TotalAmount2: Decimal)
     begin
     end;
 

@@ -20,13 +20,15 @@ codeunit 1305 "Sales-Quote to Invoice"
         if "Bill-to Customer No." = '' then
             Error(SpecifyBillToCustomerNoErr, FieldCaption("Bill-to Customer No."));
 
+        OnCheckSalesPostRestrictions();
+
         Cust.Get("Sell-to Customer No.");
         Cust.CheckBlockedCustOnDocs(Cust, "Document Type"::Quote, true, false);
         CalcFields("Amount Including VAT", "Invoice Discount Amount", "Work Description");
 
         ValidateSalesPersonOnSalesHeader(Rec, true, false);
 
-        CheckForBlockedLines;
+        CheckForBlockedLines();
         CheckForAssembleToOrderLines(Rec);
 
         SalesInvoiceHeader := Rec;
@@ -50,8 +52,8 @@ codeunit 1305 "Sales-Quote to Invoice"
 
         OnBeforeDeletionOfQuote(Rec, SalesInvoiceHeader);
 
-        DeleteLinks;
-        Delete;
+        DeleteLinks();
+        Delete();
 
         Commit();
         Clear(CustCheckCrLimit);

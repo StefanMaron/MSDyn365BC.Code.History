@@ -47,6 +47,8 @@ page 9657 "Customer Report Selections"
                             Usage2::"Adv. Cr.Memo":
                                 Usage := Usage::"S.Adv.CrM";
                         // NAVCZ
+                            else
+                                OnValidateUsage2OnCaseElse(Rec, Usage2);
                         end;
                     end;
                 }
@@ -236,6 +238,8 @@ page 9657 "Customer Report Selections"
             CustomReportSelection.Usage::"S.Adv.CrM":
                 Usage2 := Usage2::"Adv. Cr.Memo";
         // NAVCZ
+            else
+                OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection, Usage2);
         end;
     end;
 
@@ -256,6 +260,16 @@ page 9657 "Customer Report Selections"
             CustomReportSelection.Usage::"S.Adv.Let",
             CustomReportSelection.Usage::"S.Adv.Inv",
             CustomReportSelection.Usage::"S.Adv.CrM");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMapTableUsageValueToPageValueOnCaseElse(CustomReportSelection: Record "Custom Report Selection"; var ReportUsage: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUsage2OnCaseElse(var CustomReportSelection: Record "Custom Report Selection"; ReportUsage: Option)
+    begin
     end;
 }
 

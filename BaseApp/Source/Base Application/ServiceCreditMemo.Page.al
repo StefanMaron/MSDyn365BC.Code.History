@@ -1,4 +1,4 @@
-page 5935 "Service Credit Memo"
+﻿page 5935 "Service Credit Memo"
 {
     Caption = 'Service Credit Memo';
     PageType = Document;
@@ -747,9 +747,7 @@ page 5935 "Service Credit Memo"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
-                        PAGE.RunModal(PAGE::"Service Statistics", Rec);
+                        OpenStatistics();
                     end;
                 }
                 action(Card)

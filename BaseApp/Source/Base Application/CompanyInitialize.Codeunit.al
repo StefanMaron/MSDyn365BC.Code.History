@@ -27,7 +27,8 @@
                   TableData "Electronically Govern. Setup" = i,
                   TableData "Credits Setup" = i,
                   tabledata "Trial Balance Setup" = i,
-                  TableData "Stat. Reporting Setup" = i;
+                  TableData "Stat. Reporting Setup" = i,
+                  TableData "User Group Member" = d;
 
     trigger OnRun()
     var

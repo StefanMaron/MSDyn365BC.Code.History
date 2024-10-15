@@ -1,4 +1,4 @@
-table 302 "Finance Charge Memo Header"
+﻿table 302 "Finance Charge Memo Header"
 {
     Caption = 'Finance Charge Memo Header';
     DataCaptionFields = "No.", Name;
@@ -61,6 +61,7 @@ table 302 "Finance Charge Memo Header"
                 "Tax Liable" := Cust."Tax Liable";
                 Validate("Fin. Charge Terms Code", Cust."Fin. Charge Terms Code");
                 UpdateBankInfo; // NAVCZ
+                OnValidateCustomerNoOnAfterAssignCustomerValues(Rec, Cust);
 
                 CreateDim(DATABASE::Customer, "Customer No.");
             end;
@@ -167,7 +168,8 @@ table 302 "Finance Charge Memo Header"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(1),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -178,7 +180,8 @@ table 302 "Finance Charge Memo Header"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2));
+            TableRelation = "Dimension Value".Code WHERE("Global Dimension No." = CONST(2),
+                                                          Blocked = CONST(false));
 
             trigger OnValidate()
             begin
@@ -1128,6 +1131,11 @@ table 302 "Finance Charge Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinanceChargeRounding(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnAfterAssignCustomerValues(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; Customer: Record "Customer")
     begin
     end;
 }

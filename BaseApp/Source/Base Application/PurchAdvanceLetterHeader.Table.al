@@ -1361,7 +1361,7 @@ table 31020 "Purch. Advance Letter Header"
         end;
     end;
 
-    local procedure UpdateCurrencyFactor()
+    procedure UpdateCurrencyFactor()
     begin
         if "Currency Code" <> '' then begin
             CurrencyDate := "Posting Date";
@@ -1373,7 +1373,7 @@ table 31020 "Purch. Advance Letter Header"
         ClearVATCorrection;
     end;
 
-    local procedure UpdateVATCurrencyFactor()
+    procedure UpdateVATCurrencyFactor()
     begin
         if "Currency Code" = '' then
             "VAT Currency Factor" := 0

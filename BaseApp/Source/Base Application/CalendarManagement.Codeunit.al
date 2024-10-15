@@ -118,6 +118,7 @@ codeunit 7600 "Calendar Management"
     var
         ShippingAgentServices: Record "Shipping Agent Services";
     begin
+        OnBeforeSetSourceShippingAgentServices(ShippingAgentServices);
         RecRef.SetTable(ShippingAgentServices);
         CustomCalendarChange.SetSource(
             CustomCalendarChange."Source Type"::"Shipping Agent", ShippingAgentServices."Shipping Agent Code",
@@ -680,6 +681,11 @@ codeunit 7600 "Calendar Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcTimeSubtract(SubstractTime: Time; SubstractValue: Integer; var Result: Time; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSourceShippingAgentServices(var ShippingAgentServices: Record "Shipping Agent Services")
     begin
     end;
 

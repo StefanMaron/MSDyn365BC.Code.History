@@ -1,4 +1,4 @@
-codeunit 5802 "Inventory Posting To G/L"
+﻿codeunit 5802 "Inventory Posting To G/L"
 {
     Permissions = TableData "G/L Account" = r,
                   TableData "Invt. Posting Buffer" = rimd,
@@ -104,7 +104,7 @@ codeunit 5802 "Inventory Posting To G/L"
         Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeBufferInvtPosting(ValueEntry, Result, IsHandled, RunOnlyCheck);
+        OnBeforeBufferInvtPosting(ValueEntry, Result, IsHandled, RunOnlyCheck, CalledFromTestReport);
         if IsHandled then
             exit(Result);
 
@@ -131,7 +131,7 @@ codeunit 5802 "Inventory Posting To G/L"
             end;
             CalcCostToPost(CostToPost, "Cost Amount (Actual)", "Cost Posted to G/L", PostToGL);
             CalcCostToPost(CostToPostACY, "Cost Amount (Actual) (ACY)", "Cost Posted to G/L (ACY)", PostToGL);
-            OnAfterCalcCostToPostFromBuffer(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY);
+            OnAfterCalcCostToPostFromBuffer(ValueEntry, CostToPost, CostToPostACY, ExpCostToPost, ExpCostToPostACY, PostToGL);
             PostBufDimNo := 0;
 
             RunOnlyCheckSaved := RunOnlyCheck;
@@ -930,7 +930,7 @@ codeunit 5802 "Inventory Posting To G/L"
                 end;
 
 
-            OnSetAccNoOnBeforeCheckAccNo(InvtPostBuf, InvtPostingSetup, GenPostingSetup, CalledFromItemPosting);
+            OnSetAccNoOnBeforeCheckAccNo(InvtPostBuf, InvtPostingSetup, GenPostingSetup, CalledFromItemPosting, ValueEntry);
             CheckAccNo("Account No.");
 
             OnAfterSetAccNo(InvtPostBuf, ValueEntry, CalledFromItemPosting);
@@ -1159,7 +1159,7 @@ codeunit 5802 "Inventory Posting To G/L"
 #endif
                             PostGenJnlLine(GenJnlLine);
                         end else begin
-                            OnBeforeCheckInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine);
+                            OnBeforeCheckInvtPostBuf(GenJnlLine, GlobalInvtPostBuf, ValueEntry, GenJnlPostLine, GenJnlCheckLine);
 #if not CLEAN18
                             GenJnlCheckLine.xSetCallFromAdjust(true); // NAVCZ
 #endif
@@ -1431,7 +1431,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcCostToPostFromBuffer(var ValueEntry: Record "Value Entry"; var CostToPost: Decimal; var CostToPostACY: Decimal; var ExpCostToPost: Decimal; var ExpCostToPostACY: Decimal)
+    local procedure OnAfterCalcCostToPostFromBuffer(var ValueEntry: Record "Value Entry"; var CostToPost: Decimal; var CostToPostACY: Decimal; var ExpCostToPost: Decimal; var ExpCostToPostACY: Decimal; var PostToGL: Boolean)
     begin
     end;
 
@@ -1476,7 +1476,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeBufferInvtPosting(var ValueEntry: Record "Value Entry"; var Result: Boolean; var IsHandled: Boolean; RunOnlyCheck: Boolean)
+    local procedure OnBeforeBufferInvtPosting(var ValueEntry: Record "Value Entry"; var Result: Boolean; var IsHandled: Boolean; RunOnlyCheck: Boolean; CalledFromTestReport: Boolean)
     begin
     end;
 
@@ -1506,7 +1506,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckInvtPostBuf(var GenJournalLine: Record "Gen. Journal Line"; var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    local procedure OnBeforeCheckInvtPostBuf(var GenJournalLine: Record "Gen. Journal Line"; var InvtPostingBuffer: Record "Invt. Posting Buffer"; ValueEntry: Record "Value Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line")
     begin
     end;
 
@@ -1596,7 +1596,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetAccNoOnBeforeCheckAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; InvtPostingSetup: Record "Inventory Posting Setup"; GenPostingSetup: Record "General Posting Setup"; CalledFromItemPosting: Boolean)
+    local procedure OnSetAccNoOnBeforeCheckAccNo(var InvtPostBuf: Record "Invt. Posting Buffer"; InvtPostingSetup: Record "Inventory Posting Setup"; GenPostingSetup: Record "General Posting Setup"; CalledFromItemPosting: Boolean; var ValueEntry: Record "Value Entry")
     begin
     end;
 

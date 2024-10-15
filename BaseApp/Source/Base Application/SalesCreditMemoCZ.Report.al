@@ -350,10 +350,10 @@ report 31097 "Sales - Credit Memo CZ"
                     column(UnitofMeasure_SalesCrMemoLine; "Unit of Measure")
                     {
                     }
-                    column(UnitPrice_SalesCrMemoLineCaption; FieldCaption("Unit Price"))
+                    column(UnitPrice_SalesCrMemoLineCaption; UnitPriceExclVATLbl)
                     {
                     }
-                    column(UnitPrice_SalesCrMemoLine; "Unit Price")
+                    column(UnitPrice_SalesCrMemoLine; UnitPriceExclVAT)
                     {
                     }
                     column(LineDiscount_SalesCrMemoLineCaption; FieldCaption("Line Discount %"))
@@ -380,6 +380,11 @@ report 31097 "Sales - Credit Memo CZ"
                     column(InvDiscountAmount_SalesCrMemoLine; "Inv. Discount Amount")
                     {
                     }
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        UnitPriceExclVAT := 100 * "Sales Cr.Memo Line"."Unit Price" / (100 + "Sales Cr.Memo Line"."VAT %");
+                    end;
                 }
                 dataitem(VATCounter; "Integer")
                 {
@@ -610,6 +615,7 @@ report 31097 "Sales - Credit Memo CZ"
         PaymentSymbolLabel: array[2] of Text;
         DocumentLbl: Text;
         CalculatedExchRate: Decimal;
+        UnitPriceExclVAT: Decimal;
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         LogInteraction: Boolean;
@@ -638,6 +644,7 @@ report 31097 "Sales - Credit Memo CZ"
         VATAmtLbl: Label 'VAT Amount';
         TotalLbl: Label 'total';
         VATLbl: Label 'VAT';
+        UnitPriceExclVATLbl: Label 'Unit Price Excl. VAT';
         Type2Text1Lbl: Label 'According to Law 235/2004 Collection of Value Added Tax confirm receipt of Corrective Tax Document.';
         Type2Text2Lbl: Label 'Delivery Date';
         Type2Text3Lbl: Label 'Signature and Stamp of the Customer';

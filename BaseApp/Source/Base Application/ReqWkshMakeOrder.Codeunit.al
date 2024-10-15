@@ -325,6 +325,9 @@ codeunit 333 "Req. Wksh.-Make Order"
                         SalesLine."Document No.",
                         SalesLine."Line No."));
 
+            if IsDropShipment() then
+                CheckLocation(ReqLine2);
+
             if Purchasing.Get("Purchasing Code") then
                 if Purchasing."Drop Shipment" or Purchasing."Special Order" then begin
                     SalesLine.Get(SalesLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.");
@@ -1118,6 +1121,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                     else
                         if not TryCarryOutReqLineAction(ReqLine) then begin
                             SetFailedReqLine(ReqLine);
+                            OnProcessReqLineActionsOnAfterSetFailedReqLine(ReqLine);
                             CounterFailed := CounterFailed + 1;
                         end;
                 until Next() = 0;
@@ -1184,7 +1188,9 @@ codeunit 333 "Req. Wksh.-Make Order"
     local procedure CheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header"; UpdateAddressDetails: Boolean): Boolean
     var
         CheckInsert: Boolean;
+        CheckAddressDetailsResult: Boolean;
     begin
+        CheckAddressDetailsResult := CheckAddressDetails(RequisitionLine."Sales Order No.", RequisitionLine."Sales Order Line No.", UpdateAddressDetails);
         with RequisitionLine do
             CheckInsert :=
               (PurchOrderHeader."Buy-from Vendor No." <> "Vendor No.") or
@@ -1193,9 +1199,9 @@ codeunit 333 "Req. Wksh.-Make Order"
               (PurchOrderHeader."Order Address Code" <> "Order Address Code") or
               (PurchOrderHeader."Currency Code" <> "Currency Code") or
               (PrevPurchCode <> "Purchasing Code") or
-              CheckAddressDetails("Sales Order No.", "Sales Order Line No.", UpdateAddressDetails);
+              CheckAddressDetailsResult;
 
-        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails);
+        OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine, PurchOrderHeader, CheckInsert, OrderCounter, PrevPurchCode, PrevLocationCode, PrevShipToCode, UpdateAddressDetails, CheckAddressDetailsResult);
         exit(CheckInsert);
     end;
 
@@ -1376,7 +1382,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean)
+    local procedure OnBeforeCheckInsertFinalizePurchaseOrderHeader(RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var CheckInsert: Boolean; var OrderCounter: Integer; var PrevPurchCode: Code[10]; PrevLocationCode: Code[10]; var PrevShipToCode: Code[10]; var UpdateAddressDetails: Boolean; var CheckAddressDetailsResult: Boolean)
     begin
     end;
 
@@ -1552,6 +1558,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertPurchOrderLineOnBeforeSalesOrderLineValidateUnitCostLCY(var PurchOrderLine: Record "Purchase Line"; var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessReqLineActionsOnAfterSetFailedReqLine(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 

@@ -11,7 +11,7 @@ codeunit 31269 "Compensation - Post CZC"
         i: Integer;
     begin
         OnBeforePostCompensationCZC(Rec);
-        Rec.OnCheckCompensationPostRestrictions();
+        Rec.CheckCompensationPostRestrictions();
 
         if Rec.Status <> Rec.Status::Released then
             Codeunit.Run(Codeunit::"Release Compens. Document CZC", Rec);

@@ -519,6 +519,7 @@ table 179 "Reversal Entry"
         FADeprBook: Record "FA Depreciation Book";
         DeprCalc: Codeunit "Depreciation Calculation";
     begin
+        OnBeforeCheckFA(FALedgEntry);
         Error(CheckFaErr); // NAVCZ
     end;
 
@@ -527,6 +528,7 @@ table 179 "Reversal Entry"
         FA: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
     begin
+        OnBeforeCheckMaintenance(MaintenanceLedgEntry);
         FA.Get(MaintenanceLedgEntry."FA No.");
         CheckPostingDate(
           MaintenanceLedgEntry."Posting Date", MaintenanceLedgEntry.TableCaption, MaintenanceLedgEntry."Entry No.");
@@ -1538,6 +1540,16 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckEmpl(var EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckFA(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckMaintenance(var MaintenanceLedgerEntry: Record "Maintenance Ledger Entry")
     begin
     end;
 

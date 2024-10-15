@@ -261,6 +261,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
+                        OnGetReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, PurchRcptLine, PurchLine);
 
                         ReceiptLines.SetTableView(PurchRcptLine);
                         if ItemChargeAssgntPurch.FindLast then
@@ -293,6 +294,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         TransferRcptLine.SetFilter("Item No.", '<>%1', '');
                         TransferRcptLine.SetFilter(Quantity, '<>0');
                         TransferRcptLine.FilterGroup(0);
+                        OnGetTransferReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, TransferRcptLine, PurchLine);
 
                         PostedTransferReceiptLines.SetTableView(TransferRcptLine);
                         if ItemChargeAssgntPurch.FindLast then
@@ -320,6 +322,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
+                        OnGetReturnShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnShptLine, PurchLine);
 
                         ShipmentLines.SetTableView(ReturnShptLine);
                         if ItemChargeAssgntPurch.FindLast then
@@ -347,6 +350,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
+                        OnGetSalesShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, SalesShptLine, PurchLine);
 
                         SalesShipmentLines.SetTableView(SalesShptLine);
                         if ItemChargeAssgntPurch.FindLast then
@@ -374,6 +378,7 @@ page 5805 "Item Charge Assignment (Purch)"
                         ItemChargeAssgntPurch.SetRange("Document Type", "Document Type");
                         ItemChargeAssgntPurch.SetRange("Document No.", "Document No.");
                         ItemChargeAssgntPurch.SetRange("Document Line No.", "Document Line No.");
+                        OnGetReturnReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(Rec, ReturnRcptLine, PurchLine);
 
                         ReturnRcptLines.SetTableView(ReturnRcptLine);
                         if ItemChargeAssgntPurch.FindLast then
@@ -633,6 +638,31 @@ page 5805 "Item Charge Assignment (Purch)"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitialize(var PurchaseLine: Record "Purchase Line"; var AssgntAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var PurchReceiptLines: Record "Purch. Rcpt. Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetReturnReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ReturnRcptLine: Record "Return Receipt Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetReturnShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var ReturnShptLine: Record "Return Shipment Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSalesShipmentLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var SalesShptLine: Record "Sales Shipment Line"; PurchLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetTransferReceiptLinesOnActionOnAfterItemChargeAssgntPurchSetFilters(var ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TransferRcptLine: Record "Transfer Receipt Line"; PurchLine: Record "Purchase Line")
     begin
     end;
 }

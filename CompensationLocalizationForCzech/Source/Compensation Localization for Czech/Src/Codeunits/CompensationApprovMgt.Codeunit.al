@@ -1,7 +1,6 @@
 codeunit 31276 "Compensation Approv. Mgt. CZC"
 {
     var
-        CompensationHeaderCZC: Record "Compensation Header CZC";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
         NoWorkflowEnabledErr: Label 'No approval workflow for this record type is enabled.';
@@ -53,6 +52,24 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
         exit(true);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Management CZL", 'OnSetStatusToApproved', '', false, false)]
+    local procedure SetCompensationDocumentStatusToApproved(InputRecordRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
+    var
+        CompensationHeaderCZC: Record "Compensation Header CZC";
+    begin
+        if IsHandled then
+            exit;
+
+        if InputRecordRef.Number = Database::"Compensation Header CZC" then begin
+            InputRecordRef.SetTable(CompensationHeaderCZC);
+            CompensationHeaderCZC.Validate(Status, CompensationHeaderCZC.Status::Approved);
+            CompensationHeaderCZC.Modify();
+            Variant := CompensationHeaderCZC;
+            IsHandled := true;
+        end;
+    end;
+
+    [Obsolete('The function is replaced by the SetCompensationDocumentStatusToApproved subscriber.', '19.0')]
     procedure SetStatusToApproved(var Variant: Variant)
     var
         ApprovalEntry: Record "Approval Entry";
@@ -68,7 +85,9 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
                     ApprovalEntry := Variant;
                     TargetRecordRef.Get(ApprovalEntry."Record ID to Approve");
                     Variant := TargetRecordRef;
+#pragma warning disable AL0432
                     SetStatusToApproved(Variant);
+#pragma warning restore AL0432
                 end;
             Database::"Compensation Header CZC":
                 begin
@@ -80,6 +99,7 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
         end;
     end;
 
+    [Obsolete('The function is discontinued, use the DeleteApprovalEntries function from "Approvals Mgmt." instead.', '19.0')]
     procedure DeleteApprovalEntryForRecord(Variant: Variant)
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -92,6 +112,8 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnPopulateApprovalEntryArgument', '', false, false)]
     local procedure ApprovalsMgmtOnPopulateApprovalEntryArgument(var RecRef: RecordRef; var ApprovalEntryArgument: Record "Approval Entry")
+    var
+        CompensationHeaderCZC: Record "Compensation Header CZC";
     begin
         if RecRef.Number = Database::"Compensation Header CZC" then begin
             RecRef.SetTable(CompensationHeaderCZC);
@@ -115,13 +137,17 @@ codeunit 31276 "Compensation Approv. Mgt. CZC"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Approvals Mgmt.", 'OnSetStatusToPendingApproval', '', false, false)]
     local procedure ApprovalsMgmtOnSetStatusToPendingApproval(RecRef: RecordRef; var Variant: Variant; var IsHandled: Boolean)
     var
-        ApprovedCompensationHeaderCZC: Record "Compensation Header CZC";
+        CompensationHeaderCZC: Record "Compensation Header CZC";
     begin
+        if IsHandled then
+            exit;
+
         if RecRef.Number = Database::"Compensation Header CZC" then begin
-            RecRef.SetTable(ApprovedCompensationHeaderCZC);
-            ApprovedCompensationHeaderCZC.Validate(Status, ApprovedCompensationHeaderCZC.Status::"Pending Approval");
-            ApprovedCompensationHeaderCZC.Modify(true);
-            Variant := ApprovedCompensationHeaderCZC;
+            RecRef.SetTable(CompensationHeaderCZC);
+            CompensationHeaderCZC.Validate(Status, CompensationHeaderCZC.Status::"Pending Approval");
+            CompensationHeaderCZC.Modify(true);
+            Variant := CompensationHeaderCZC;
+            IsHandled := true;
         end;
     end;
 

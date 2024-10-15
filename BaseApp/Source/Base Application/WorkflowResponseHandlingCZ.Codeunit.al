@@ -1,5 +1,8 @@
 codeunit 31111 "Workflow Response Handling CZ"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The codeunit is replaced by codeunits in CZ applications.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -9,8 +12,8 @@ codeunit 31111 "Workflow Response Handling CZ"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowEventHandlingCZ: Codeunit "Workflow Event Handling CZ";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
-        SetStatusToApprovedTxt: Label 'Set document status to Approved.';
-        CheckReleaseDocumentTxt: Label 'Check release the document.';
+        SetStatusToApprovedTxt: Label 'Set document status to Approved (Obsolete)';
+        CheckReleaseDocumentTxt: Label 'Check release the document (Obsolete)';
         UnsupportedRecordTypeErr: Label 'Record type %1 is not supported by this workflow response.', Comment = 'Record type Customer is not supported by this workflow response.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Response Handling", 'OnAddWorkflowResponsesToLibrary', '', false, false)]

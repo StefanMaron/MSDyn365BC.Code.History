@@ -271,6 +271,12 @@ page 31160 "Cash Document CZP"
                 ApplicationArea = Notes;
                 Visible = true;
             }
+            part(PendingApprovalFactBox; "Pending Approval FactBox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Table ID" = const(11732), "Document No." = field("No.");
+                Visible = OpenApprovalEntriesExistForCurrUser;
+            }
             part(WorkflowStatusFactBox; "Workflow Status FactBox")
             {
                 ApplicationArea = All;

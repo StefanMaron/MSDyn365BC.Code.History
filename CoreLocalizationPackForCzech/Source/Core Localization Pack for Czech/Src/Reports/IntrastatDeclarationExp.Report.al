@@ -74,7 +74,7 @@ report 31107 "Intrastat Declaration Exp. CZL"
             VATRegNo := CopyStr(CompanyInformation."VAT Registration No.", 1, 10);
 
         Clear(TempBlob);
-        TempBlob.CreateOutStream(OutStream, TextEncoding::Windows);
+        TempBlob.CreateOutStream(OutStream, TextEncoding::UTF8);
     end;
 
     local procedure MainLoop()

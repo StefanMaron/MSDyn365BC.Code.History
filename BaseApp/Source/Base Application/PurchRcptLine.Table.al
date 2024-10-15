@@ -813,6 +813,7 @@ table 121 "Purch. Rcpt. Line"
         TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         TranslationHelper: Codeunit "Translation Helper";
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         NextLineNo: Integer;
         ExtTextLine: Boolean;
         IsHandled: Boolean;
@@ -864,6 +865,7 @@ table 121 "Purch. Rcpt. Line"
                 then
                     PurchOrderHeader.Get(PurchOrderLine."Document Type"::Order, "Order No.");
 
+                PrepaymentMgt.TestPurchaseOrderLineForGetRcptLines(PurchOrderLine);
                 InitCurrency("Currency Code");
 
                 if PurchInvHeader."Prices Including VAT" then begin

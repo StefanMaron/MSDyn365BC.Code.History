@@ -145,6 +145,12 @@ page 31272 "Compensation Card CZC"
                 Caption = 'Attachments';
                 SubPageLink = "Table ID" = const(31272), "No." = field("No.");
             }
+            part(PendingApprovalFactBox; "Pending Approval FactBox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Table ID" = const(31272), "Document No." = field("No.");
+                Visible = OpenApprovalEntriesExistForCurrUser;
+            }
             part(WorkflowStatus; "Workflow Status FactBox")
             {
                 ApplicationArea = All;
@@ -187,14 +193,13 @@ page 31272 "Compensation Card CZC"
                 ApplicationArea = Suite;
                 Caption = 'A&pprovals';
                 Image = Approvals;
-                ToolTip = 'Relations to the workflow.';
+                ToolTip = 'This function opens the approvals entries.';
 
                 trigger OnAction()
                 var
-                    ApprovalEntries: Page "Approval Entries";
+                    ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                 begin
-                    ApprovalEntries.Setfilters(Database::"Compensation Header CZC", 0, Rec."No.");
-                    ApprovalEntries.Run();
+                    ApprovalsMgmt.OpenApprovalEntriesPage(Rec.RecordId);
                 end;
             }
             action(DocAttach)
