@@ -22,6 +22,7 @@ page 1366 "Field Monitoring Setup"
         {
             group(General)
             {
+                Caption = 'General';
                 field("User ID"; Rec."User Id")
                 {
                     ToolTip = 'Specifies the user ID';

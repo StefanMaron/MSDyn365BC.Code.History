@@ -330,7 +330,8 @@ page 9660 "Report Layouts"
                     // selected layout is the default layout. In this case we confirm the deletion.
                     if not ReportLayoutsImpl.ConfirmDeleteDefaultLayoutSelection(Rec, TenantReportLayoutSelection) then
                         exit(false);
-            TenantReportLayout.Delete(true);
+            
+            ReportLayoutsImpl.DeleteReportLayout(TenantReportLayout);
         end else
             Error(ModifyNonUserLayoutErr);
 

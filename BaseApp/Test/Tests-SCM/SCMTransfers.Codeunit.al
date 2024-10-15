@@ -29,7 +29,7 @@
         DummyTransferOrderPage: TestPage "Transfer Order";
         LocationCode: array[5] of Code[10];
         SourceDocument: Option ,"S. Order","S. Invoice","S. Credit Memo","S. Return Order","P. Order","P. Invoice","P. Credit Memo","P. Return Order","Inb. Transfer","Outb. Transfer","Prod. Consumption","Item Jnl.","Phys. Invt. Jnl.","Reclass. Jnl.","Consumption Jnl.","Output Jnl.","BOM Jnl.","Serv. Order","Job Jnl.","Assembly Consumption","Assembly Order";
-        TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
+        TrackingOption: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries,AssignManualLotNos;
         isInitialized: Boolean;
         ErrNoOfLinesMustBeEqual: Label 'No. of Line Must Be Equal.';
         TransferOrderCountErr: Label 'Wrong Transfer Order''s count';
@@ -49,6 +49,7 @@
         DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
         IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
         ApplToItemEntryErr: Label '%1 must be %2 in %3.', Comment = '%1 is Appl-to Item Entry, %2 is Item Ledger Entry No. and %3 is Transfer Line';
+        ItemLedgerEntryMustBeFoundErr: Label 'Item Ledger Entry must be found.';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3678,6 +3679,141 @@
                 TransferLine.TableCaption));
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,ItemTrackingLinesModalPageHandlerGeneric,CreateInvtPickPutAwayRequestPageHandler,ConfirmHandlerYes')]
+    procedure InvPutAwayIsPostedFromTransferOrderHavingLotAndSerialTracking()
+    var
+        Item: Record Item;
+        Location, Location2, Location3 : Record Location;
+        Bin: Record Bin;
+        Vendor: Record Vendor;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        InventoryPutawayPage: TestPage "Inventory Put-away";
+        LotNo, LotNo2 : Code[20];
+    begin
+        // [SCENARIO 498778] Inventory Put-away created from a Transfer Order having Lot and Serial Tracking is posted without any error.
+        Initialize();
+
+        // [GIVEN] Create Location and Validate Put-away Bin Policy, Always Create Put-away Line and Pick According to FEFO.
+        LibraryWarehouse.CreateLocationWMS(Location, true, true, true, false, false);
+        Location.Validate("Put-away Bin Policy", Location."Put-away Bin Policy"::"Default Bin");
+        Location.Validate("Always Create Put-away Line", true);
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify();
+
+        // [GIVEN] Create Location 2.
+        LibraryWarehouse.CreateLocationWMS(Location2, false, true, false, false, false);
+
+        // [GIVEN] Create Bin.
+        LibraryWarehouse.CreateBin(Bin, Location.Code, Bin.Code, '', '');
+
+        // [GIVEN] Create In Transit Location 3.
+        LibraryWarehouse.CreateInTransitLocation(Location3);
+
+        // [GIVEN] Create Item Tracking code and Validate Use Expiration Dates, Man. Expir. Date Entry Reqd.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Warehouse Employees for Location and Location 2.
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location2.Code, false);
+
+        // [GIVEN] Create Item and Validate Item Tracking Code.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Item Tracking Code", ItemTrackingCode.Code);
+        Item.Modify(true);
+
+        // [GIVEN] Create Purchase Header and Validate Location Code.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create Purchase Line.
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandIntInRange(5, 5));
+
+        // [GIVEN] Generate and save Lot No and Lot No 2 in two different Variables.
+        LotNo := LibraryUtility.GenerateGUID();
+        LotNo2 := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Open Item Tracking Lines page.
+        LibraryVariableStorage.Enqueue(TrackingOption::AssignManualLotNos);
+        LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(LotNo2);
+        PurchaseLine.OpenItemTrackingLines();
+
+        // [GIVEN] Releases Purchase Order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create Inventory Put-away.
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Purchase Order", PurchaseHeader."No.", true, false, false);
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Find and update Purchase Put-away Warehouse Activity Line.
+        FindAndUpdatePurchPutAwayWarehouseActivityLine(WarehouseActivityLine, Item, Bin);
+
+        // [GIVEN] Post Inventory Put-away.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [GIVEN] Create Transfer Order.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location.Code, Location2.Code, Location3.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", LibraryRandom.RandIntInRange(5, 5));
+
+        // [GIVEN] Releases Transfer Order.
+        LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
+        Commit();
+
+        // [GIVEN] Create Inventory Pick.
+        LibraryVariableStorage.Enqueue(true);
+        TransferHeader.CreateInvtPutAwayPick();
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Find and update Transfer Pick Warehouse Activity Line.
+        FindAndUpdateTransferPickWarehouseActivityLine(WarehouseActivityLine, Item);
+
+        // [GIVEN] Post Inventory Pick.
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+
+        // [GIVEN] Create Inventory Put-away.
+        LibraryVariableStorage.Enqueue(false);
+        TransferHeader.CreateInvtPutAwayPick();
+
+        // [GIVEN] Find Warehouse Activity Header.
+        WarehouseActivityHeader.SetRange("Location Code", Location2.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] Find and update Transfer Put-away Warehouse Activity line.
+        FindAndUpdateTransferPutAwayWarehouseActivityLine(WarehouseActivityLine, Item);
+
+        // [GIVEN] Open Inventory Put-away page and run Post action.
+        InventoryPutawayPage.OpenEdit();
+        InventoryPutawayPage.GoToRecord(WarehouseActivityHeader);
+        InventoryPutawayPage."P&ost".Invoke();
+
+        // [WHEN] Find Item Ledger Entry.
+        ItemLedgerEntry.SetRange("Location Code", Location2.Code);
+        ItemLedgerEntry.FindFirst();
+
+        // [THEN] Item Ledger Entry is found.
+        Assert.IsFalse(ItemLedgerEntry.IsEmpty(), ItemLedgerEntryMustBeFoundErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5236,6 +5372,46 @@
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
     end;
 
+    local procedure UpdateItemTrackingLine(var ItemTrackingLines: TestPage "Item Tracking Lines"; LotNo: Code[20]; SerialNo: Code[20])
+    begin
+        ItemTrackingLines."Lot No.".SetValue(LotNo);
+        ItemTrackingLines."Serial No.".SetValue(SerialNo);
+        ItemTrackingLines."Quantity (Base)".SetValue(1);
+    end;
+
+    local procedure FindAndUpdatePurchPutAwayWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; Item: Record Item; Bin: Record Bin)
+    begin
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+                WarehouseActivityLine.Validate("Expiration Date", CalcDate('<CM>', WorkDate()));
+                WarehouseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
+                WarehouseActivityLine.Modify(true);
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure FindAndUpdateTransferPickWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; Item: Record Item)
+    begin
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
+                WarehouseActivityLine.Modify(true);
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
+    local procedure FindAndUpdateTransferPutAwayWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; Item: Record Item)
+    begin
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        if WarehouseActivityLine.FindSet() then
+            repeat
+                WarehouseActivityLine.Validate("Expiration Date", CalcDate('<CM>', WorkDate()));
+                WarehouseActivityLine.Validate("Qty. to Handle", LibraryRandom.RandInt(0));
+                WarehouseActivityLine.Modify(true);
+            until WarehouseActivityLine.Next() = 0;
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -5259,6 +5435,19 @@
     procedure CreateInvtPickRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
     begin
         CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
+        CreateInvtPutawayPickMvmt.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPickPutAwayRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    var
+        Pick: Boolean;
+    begin
+        Pick := LibraryVariableStorage.DequeueBoolean();
+        if Pick then
+            CreateInvtPutawayPickMvmt.CInvtPick.SetValue(true)
+        else
+            CreateInvtPutawayPickMvmt.CreateInventorytPutAway.SetValue(true);
         CreateInvtPutawayPickMvmt.OK().Invoke();
     end;
 
@@ -5347,12 +5536,15 @@
     [ModalPageHandler]
     procedure ItemTrackingLinesModalPageHandlerGeneric(var ItemTrackingLines: TestPage "Item Tracking Lines")
     var
-        OptionString: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries;
+        OptionString: Option AssignLotNo,AssignSerialNo,SelectEntries,ShowEntries,VerifyEntries,AssignManualLotNos;
         TrackingOption: Option;
         OptionValue: Variant;
         QtyVar: Variant;
         TrackingQtyToHandle: Decimal;
         TrackingQty: Decimal;
+        LotNo: Code[20];
+        SerialNo: Integer;
+        Next: Boolean;
     begin
         LibraryVariableStorage.Dequeue(OptionValue);  // Dequeue variable.
         TrackingOption := OptionValue;  // To convert Variant into Option.
@@ -5374,6 +5566,22 @@
                     LibraryVariableStorage.Dequeue(QtyVar);
                     TrackingQty := QtyVar;
                     Assert.AreEqual(TrackingQty, ItemTrackingLines.Quantity_ItemTracking.AsDecimal(), 'Wrong quantity using tracking on Item Tracking Lines page');
+                end;
+            OptionString::AssignManualLotNos:
+                begin
+                    TrackingQty := LibraryVariableStorage.DequeueDecimal();
+                    repeat
+                        SerialNo += 1;
+                        if not Next then
+                            LotNo := Format(LibraryVariableStorage.DequeueText());
+                        UpdateItemTrackingLine(ItemTrackingLines, LotNo, Format(SerialNo));
+                        ItemTrackingLines.Next();
+                        TrackingQty -= 1;
+                        if not Next then begin
+                            Next := true;
+                            LotNo := Format(LibraryVariableStorage.DequeueText());
+                        end;
+                    until TrackingQty = 0;
                 end;
         end;
     end;

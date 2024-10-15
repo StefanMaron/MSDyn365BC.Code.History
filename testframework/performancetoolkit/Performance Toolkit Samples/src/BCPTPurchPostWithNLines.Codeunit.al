@@ -15,7 +15,9 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
     trigger OnRun();
     var
         PurchHeader: Record "Purchase Header";
+        PurchSetup: Record "Purchases & Payables Setup";
         PurchPost: Codeunit "Purch.-Post";
+        PurchasePostViaJobQueue: Codeunit "Purchase Post Via Job Queue";
         PurchHeaderId: Guid;
     begin
         if not IsInitialized or true then begin
@@ -27,7 +29,12 @@ codeunit 149119 "BCPT Purch. Post with N Lines" implements "BCPT Test Param. Pro
         PurchHeader.Validate(Receive, true);
         PurchHeader.Validate(Invoice, true);
         PurchHeader.Validate("Vendor Invoice No.", PurchHeader."No.");
-        PurchPost.Run(PurchHeader);
+
+        PurchSetup.Get();
+        if PurchSetup."Post with Job Queue" then
+            PurchasePostViaJobQueue.EnqueuePurchDoc(PurchHeader)
+        else
+            PurchPost.Run(PurchHeader);
     end;
 
     var

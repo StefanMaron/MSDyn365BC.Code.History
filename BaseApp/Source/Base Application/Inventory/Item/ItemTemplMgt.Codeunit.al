@@ -44,11 +44,11 @@ codeunit 1336 "Item Templ. Mgt."
 
         Item.Init();
         InitItemNo(Item, ItemTempl);
-	
+
         InventorySetup.SetLoadFields("Default Costing Method");
         InventorySetup.Get();
         Item."Costing Method" := InventorySetup."Default Costing Method";
-	
+
         Item.Insert(true);
 
         ApplyItemTemplate(Item, ItemTempl, true);
@@ -200,11 +200,13 @@ codeunit 1336 "Item Templ. Mgt."
                 DestDefaultDimension.Validate("Dimension Code", SourceDefaultDimension."Dimension Code");
                 DestDefaultDimension.Validate("Dimension Value Code", SourceDefaultDimension."Dimension Value Code");
                 DestDefaultDimension.Validate("Value Posting", SourceDefaultDimension."Value Posting");
+                SetAllowedValuesFilterInDefaultDimension(DestDefaultDimension, SourceDefaultDimension);
                 if not DestDefaultDimension.Get(DestDefaultDimension."Table ID", DestDefaultDimension."No.", DestDefaultDimension."Dimension Code") then
                     DestDefaultDimension.Insert(true)
                 else
                     if DestDefaultDimension."Value Posting" = DestDefaultDimension."Value Posting"::" " then begin
                         DestDefaultDimension."Value Posting" := SourceDefaultDimension."Value Posting";
+                        SetAllowedValuesFilterInDefaultDimension(DestDefaultDimension, SourceDefaultDimension);
                         DestDefaultDimension.Modify(true);
                     end;
             until SourceDefaultDimension.Next() = 0;
@@ -538,6 +540,17 @@ codeunit 1336 "Item Templ. Mgt."
     local procedure UpdateDefaultCostingMethodToEmptyItemTemplateRecRef(var EmptyItemTemplRecordRef: RecordRef; ItemCostingMethodFieldNo: Integer; InventorySetup: Record "Inventory Setup")
     begin
         EmptyItemTemplRecordRef.Field(ItemCostingMethodFieldNo).Value := InventorySetup."Default Costing Method";
+    end;
+
+    local procedure SetAllowedValuesFilterInDefaultDimension(var DestDefaultDimension: Record "Default Dimension"; SourceDefaultDimension: Record "Default Dimension")
+    begin
+        if SourceDefaultDimension."Allowed Values Filter" = '' then
+            exit;
+
+        if DestDefaultDimension."Value Posting" <> DestDefaultDimension."Value Posting"::"Code Mandatory" then
+            exit;
+
+        DestDefaultDimension.Validate("Allowed Values Filter", SourceDefaultDimension."Allowed Values Filter");
     end;
 
     [IntegrationEvent(false, false)]

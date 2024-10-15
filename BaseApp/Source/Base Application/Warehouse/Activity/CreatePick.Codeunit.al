@@ -1426,6 +1426,7 @@ codeunit 7312 "Create Pick"
         WhseDocCreated: Boolean;
         IsHandled: Boolean;
     begin
+        OnBeforeCreateWhseDocumentOnBeforeFindTempActivityLine(TempWarehouseActivityLine, CreatePickParameters."Whse. Document", IsHandled, IsMovementWorksheet, FirstWhseDocNo, LastWhseDocNo, CreatePickParameters, CalledFromWksh);
         TempWarehouseActivityLine.Reset();
         if not TempWarehouseActivityLine.Find('-') then begin
             OnCreateWhseDocumentOnBeforeShowError(ShowError);
@@ -1527,13 +1528,18 @@ codeunit 7312 "Create Pick"
     end;
 
     local procedure CreateNewWhseDoc(OldNo: Code[20]; OldSourceNo: Code[20]; OldLocationCode: Code[10]; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; var NoOfSourceDoc: Integer; var NoOfLines: Integer; var WhseDocCreated: Boolean)
+    var
+        CreateNewWhseActivHeader: Boolean;
     begin
         OnBeforeCreateNewWhseDoc(
           TempWarehouseActivityLine, OldNo, OldSourceNo, OldLocationCode, FirstWhseDocNo, LastWhseDocNo, NoOfSourceDoc, NoOfLines, WhseDocCreated);
 
-        if (TempWarehouseActivityLine."No." <> OldNo) or
-           (TempWarehouseActivityLine."Location Code" <> OldLocationCode)
-        then begin
+        CreateNewWhseActivHeader := (TempWarehouseActivityLine."No." <> OldNo) or
+           (TempWarehouseActivityLine."Location Code" <> OldLocationCode);
+
+        OnCreateNewWhseDocOnAfterCheckCreateNewWhseActivHeader(TempWarehouseActivityLine, CreateNewWhseActivHeader);
+
+        if CreateNewWhseActivHeader then begin
             CreateWhseActivHeader(
               TempWarehouseActivityLine."Location Code", FirstWhseDocNo, LastWhseDocNo,
               NoOfSourceDoc, NoOfLines, WhseDocCreated);
@@ -2106,7 +2112,7 @@ codeunit 7312 "Create Pick"
         ShipmentMethodCode := ShipmentMethodCode2;
         SetSource(WarehouseShipmentLine2."Source Type", WarehouseShipmentLine2."Source Subtype", WarehouseShipmentLine2."Source No.", WarehouseShipmentLine2."Source Line No.", 0);
 
-        OnAfterSetWhseShipment(CurrWarehouseShipmentLine, TempNo2, ShippingAgentCode2, ShippingAgentServiceCode2, ShipmentMethodCode2);
+        OnAfterSetWhseShipment(CurrWarehouseShipmentLine, TempNo2, ShippingAgentCode, ShippingAgentServiceCode, ShipmentMethodCode);
     end;
 
     procedure SetWhseInternalPickLine(WhseInternalPickLine2: Record "Whse. Internal Pick Line"; TempNo2: Integer)
@@ -4643,6 +4649,16 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateQuantitiesToPick(QtyAvailableBase: Decimal; FromQtyPerUOM: Decimal; var FromQtyToPick: Decimal; var FromQtyToPickBase: Decimal; ToQtyPerUOM: Decimal; var ToQtyToPick: Decimal; var ToQtyToPickBase: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseDocumentOnBeforeFindTempActivityLine(var TempWarehouseActivLine: Record "Warehouse Activity Line" temporary; WhseSource: Option "Pick Worksheet",Shipment,"Movement Worksheet","Internal Pick",Production,Assembly; var IsHandled: Boolean; IsMovementWorksheet: Boolean; var FirstWhseDocNo: Code[20]; var LastWhseDocNo: Code[20]; CreatePickParameters: Record "Create Pick Parameters"; CalledFromWksh: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewWhseDocOnAfterCheckCreateNewWhseActivHeader(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; var CreateNewWhseActivHeader: Boolean)
     begin
     end;
 }
