@@ -600,6 +600,7 @@ page 7345 "Pick Worksheet"
         QtyCrossDockedUOM := 0;
         if Rec."Qty. per Unit of Measure" <> 0 then
             QtyCrossDockedUOM := Round(QtyCrossDockedUOMBase / Rec."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+        WhseDocumentType := Rec."Whse. Document Type";
     end;
 
     trigger OnDeleteRecord(): Boolean

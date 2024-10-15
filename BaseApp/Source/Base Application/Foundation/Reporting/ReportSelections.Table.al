@@ -21,6 +21,7 @@ using Microsoft.Sales.Reminder;
 using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Email;
+using System.Environment.Configuration;
 using System.IO;
 using System.Reflection;
 #if not CLEAN22
@@ -58,7 +59,7 @@ table 77 "Report Selections"
         field(4; "Report Caption"; Text[250])
         {
             CalcFormula = lookup("Report Metadata".Caption where(ID = field("Report ID")));
-            Caption = 'Report Caption';
+            Caption = 'Report Name';
             Editable = false;
             FieldClass = Flowfield;
         }
@@ -66,7 +67,7 @@ table 77 "Report Selections"
         {
             Caption = 'Custom Report Layout Code';
             Editable = false;
-            TableRelation = "Custom Report Layout".Code where(Code = field("Custom Report Layout Code"));
+            TableRelation = "Custom Report Layout".Code where(Code = field("Custom Report Layout Code"), "Built-In" = const(false));
         }
         field(19; "Use for Email Attachment"; Boolean)
         {
@@ -96,8 +97,7 @@ table 77 "Report Selections"
         field(21; "Email Body Layout Code"; Code[20])
         {
             Caption = 'Email Body Custom Layout Code';
-            TableRelation = if ("Email Body Layout Type" = const("Custom Report Layout")) "Custom Report Layout".Code where(Code = field("Email Body Layout Code"),
-                                                                                                                           "Report ID" = field("Report ID"))
+            TableRelation = if ("Email Body Layout Type" = const("Custom Report Layout")) "Custom Report Layout".Code where(Code = field("Email Body Layout Code"), "Report ID" = field("Report ID"), "Built-In" = const(false))
             else
             if ("Email Body Layout Type" = const("HTML Layout")) "O365 HTML Template".Code;
 
@@ -179,7 +179,99 @@ table 77 "Report Selections"
         {
             Caption = 'Email Body Layout Publisher';
             FieldClass = FlowField;
-            CalcFormula = lookup("Report Layout List"."Layout Publisher" where("Report ID" = field("Report ID")));
+            CalcFormula = lookup("Report Layout List"."Layout Publisher" where("Report ID" = field("Report ID"), Name = field("Email Body Layout Name")));
+            Editable = false;
+        }
+        field(29; "Email Body Layout Caption"; Text[250])
+        {
+            Caption = 'Email Body Layout';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Report Layout List".Caption where("Report ID" = field("Report ID"), Name = field("Email Body Layout Name")));
+
+            trigger OnLookup()
+            var
+                ReportLayoutList: Record "Report Layout List";
+                ReportManagement: Codeunit ReportManagement;
+                Handled: Boolean;
+            begin
+                ReportLayoutList.SetRange("Report ID", Rec."Report ID");
+                ReportManagement.OnSelectReportLayout(ReportLayoutList, Handled);
+                if not Handled then
+                    exit;
+                "Email Body Layout Name" := ReportLayoutList.Name;
+                "Email Body Layout AppID" := ReportLayoutList."Application ID";
+            end;
+        }
+        field(30; "Report Layout Name"; Text[250])
+        {
+            Caption = 'Report Layout name';
+            TableRelation = "Report Layout List".Name where("Report ID" = field("Report ID"));
+
+            trigger OnLookup()
+            var
+                ReportLayoutList: Record "Report Layout List";
+                ReportManagement: Codeunit ReportManagement;
+                Handled: Boolean;
+            begin
+                ReportLayoutList.SetRange("Report ID", Rec."Report ID");
+                ReportManagement.OnSelectReportLayout(ReportLayoutList, Handled);
+                if not Handled then
+                    exit;
+                "Report Layout Name" := ReportLayoutList.Name;
+                "Report Layout AppID" := ReportLayoutList."Application ID";
+            end;
+
+            trigger OnValidate()
+            var
+                ReportLayoutList: Record "Report Layout List";
+            begin
+                if "Report Layout Name" <> '' then begin
+                    "Use for Email Attachment" := true;
+                    ReportLayoutList.SetRange(Name, "Report Layout Name");
+                    ReportLayoutList.SetRange("Report ID", Rec."Report ID");
+                    if not IsNullGuid("Report Layout AppID") then
+                        ReportLayoutList.SetRange("Application ID", "Report Layout AppID");
+                    if not ReportLayoutList.FindFirst() then begin
+                        ReportLayoutList.SetRange("Application ID");
+                        ReportLayoutList.FindFirst();
+                    end;
+                    if IsNullGuid("Report Layout AppID") then
+                        Rec."Report Layout AppID" := ReportLayoutList."Application ID";
+                end;
+            end;
+        }
+        field(31; "Report Layout AppID"; Guid)
+        {
+            Caption = 'Report Layout App ID';
+            Editable = false;
+        }
+        field(32; "Report Layout Caption"; Text[250])
+        {
+            Caption = 'Report Layout';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Report Layout List".Caption where("Report ID" = field("Report ID"), Name = field("Report Layout Name")));
+
+            trigger OnLookup()
+            var
+                ReportLayoutList: Record "Report Layout List";
+                ReportManagement: Codeunit ReportManagement;
+                Handled: Boolean;
+            begin
+                ReportLayoutList.SetRange("Report ID", Rec."Report ID");
+                ReportManagement.OnSelectReportLayout(ReportLayoutList, Handled);
+                if not Handled then
+                    exit;
+                "Report Layout Name" := ReportLayoutList.Name;
+                "Report Layout AppID" := ReportLayoutList."Application ID";
+                if "Report Layout Name" <> '' then
+                    "Use for Email Attachment" := true;
+            end;
+        }
+        field(33; "Report Layout Publisher"; Text[250])
+        {
+            Caption = 'Report Layout Publisher';
+            FieldClass = FlowField;
+            CalcFormula = lookup("Report Layout List"."Layout Publisher" where("Report ID" = field("Report ID"), "Application ID" = field("Report Layout AppID")));
             Editable = false;
         }
     }
@@ -221,6 +313,7 @@ table 77 "Report Selections"
         RecordDoesNotMatchErr: Label 'The record that will be sent does not match the original record. The original record was changed or deleted. Please verify that the record exists, or try to re-send the remittance advice from the vendor ledger entries.';
         JobQueueParameterStringTok: Label '%1|%2|%3|%4|%5|%6', Locked = true;
         ReportSelectionsMustBeTemporaryErr: Label 'The Report Selections parameter must be temporary.';
+        PlatformSelectionEnabledLbl: Label 'EnablePlatformBasedReportSelection', Locked = true;
 #if not CLEAN22
         JobQueueNewParameterStringTok: Label '%1|%2|%3|%4|%5|%6|%7', Locked = true;
 #endif
@@ -269,6 +362,20 @@ table 77 "Report Selections"
                    ReportLayoutSelection.Type::"RDLC (built-in)"
                 then
                     Error(CannotBeUsedAsAnEmailBodyErr, "Report ID", ReportLayoutSelection.Type);
+        end;
+    end;
+
+    internal procedure DrillDownToSelectLayout(var SelectedLayoutName: Text[250]; var SelectedLayoutAppID: Guid)
+    var
+        ReportLayoutListSelection: Record "Report Layout List";
+        ReportManagementCodeunit: Codeunit ReportManagement;
+        IsReportLayoutSelected: Boolean;
+    begin
+        ReportLayoutListSelection.SetRange("Report ID", Rec."Report ID");
+        ReportManagementCodeunit.OnSelectReportLayout(ReportLayoutListSelection, IsReportLayoutSelected);
+        if IsReportLayoutSelected then begin
+            SelectedLayoutName := ReportLayoutListSelection."Name";
+            SelectedLayoutAppID := ReportLayoutListSelection."Application ID";
         end;
     end;
 
@@ -459,10 +566,12 @@ table 77 "Report Selections"
           RecordVariant, TempReportSelections, TempNameValueBuffer, WithCheck, ReportUsage.AsInteger(), TableNo);
         if TempReportSelections.FindSet() then
             repeat
-                if TempReportSelections."Custom Report Layout Code" <> '' then
-                    ReportLayoutSelection.SetTempLayoutSelected(TempReportSelections."Custom Report Layout Code")
+                ReportLayoutSelection.ClearTempLayoutSelected();
+                if TempReportSelections."Report Layout Name" <> '' then
+                    ReportLayoutSelection.SetTempLayoutSelectedName(TempReportSelections."Report Layout Name", TempReportSelections."Report Layout AppID")
                 else
-                    ReportLayoutSelection.ClearTempLayoutSelected();
+                    if TempReportSelections."Custom Report Layout Code" <> '' then
+                        ReportLayoutSelection.SetTempLayoutSelected(TempReportSelections."Custom Report Layout Code");
 
                 TempNameValueBuffer.FindSet();
                 AccountNoFilter := GetAccountNoFilterForCustomReportLayout(TempReportSelections, TempNameValueBuffer, TableNo);
@@ -1794,8 +1903,10 @@ table 77 "Report Selections"
         OutStream: OutStream;
     begin
         OnBeforeSetReportLayout(RecordVariant, ReportUsage.AsInteger());
-
-        ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
+        if Rec."Report Layout Name" <> '' then
+            ReportLayoutSelectionLocal.SetTempLayoutSelectedName(Rec."Report Layout Name", Rec."Report Layout AppID")
+        else
+            ReportLayoutSelectionLocal.SetTempLayoutSelected(LayoutCode);
         OnBeforeSaveReportAsPDF(ReportID, RecordVariant, LayoutCode, IsHandled, '', ReportUsage, true, TempBlob, Rec);
         if not IsHandled then begin
             TempBlob.CreateOutStream(OutStream);
@@ -1906,6 +2017,8 @@ table 77 "Report Selections"
                 TempToReportSelections."Email Body Layout AppID" := CustomReportSelection."Email Body Layout AppID";
                 TempToReportSelections."Use for Email Attachment" := CustomReportSelection."Use for Email Attachment";
                 TempToReportSelections."Use for Email Body" := CustomReportSelection."Use for Email Body";
+                TempToReportSelections."Report Layout Name" := CustomReportSelection."Email Attachment Layout Name";
+                TempToReportSelections."Report Layout AppID" := CustomReportSelection."Email Attachment Layout AppID";
                 OnCopyToReportSelectionOnBeforInsertToReportSelections(TempToReportSelections, CustomReportSelection);
                 TempToReportSelections.Insert();
             until CustomReportSelection.Next() = 0;
@@ -2137,7 +2250,17 @@ table 77 "Report Selections"
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
+        CustomReportLayout.SetRange("Built-In", false);
         exit(not CustomReportLayout.IsEmpty());
+    end;
+
+    internal procedure UsePlatformLayoutSelection(): Boolean
+    var
+        FeatureManagementFacade: Codeunit "Feature Management Facade";
+    begin
+        if FeatureManagementFacade.IsEnabled(PlatformSelectionEnabledLbl) then
+            exit(true);
+        exit(not Rec.DoesAnyCustomLayotExist());
     end;
 
     [IntegrationEvent(false, false)]
