@@ -772,6 +772,7 @@ report 393 "Suggest Vendor Payments"
                             if SummarizePerVend then begin
                                 TempPaymentBuffer."Vendor Ledg. Entry No." :=
                                   GetVendorEntryNoSummarized(TempPayableVendorLedgerEntry, PayableVendLedgEntry);
+                                TempPaymentBuffer."Applies-to Ext. Doc. No." := '';
                                 if TempPaymentBuffer.Find then begin
                                     TempPaymentBuffer.Amount := TempPaymentBuffer.Amount + PayableVendLedgEntry.Amount;
                                     TempPaymentBuffer.Modify();
