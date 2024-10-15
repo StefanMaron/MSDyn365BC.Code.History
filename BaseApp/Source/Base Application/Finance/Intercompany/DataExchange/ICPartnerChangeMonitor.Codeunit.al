@@ -31,6 +31,9 @@ codeunit 489 "IC Partner Change Monitor"
         UserPermissions: Codeunit "User Permissions";
         CurrentModuleInfo: ModuleInfo;
     begin
+        if not GuiAllowed() then
+            exit;
+
         if UserPermissions.IsSuper(UserSecurityId()) then
             exit;
 

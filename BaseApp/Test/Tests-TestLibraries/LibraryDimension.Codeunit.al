@@ -458,6 +458,13 @@ codeunit 131001 "Library - Dimension"
         OnGetTableNosWithGlobalDimensionCode(TableBuffer);
     end;
 
+    procedure ChunkDimSetFilters(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary): List of [Text]
+    var
+        DimensionManagement: Codeunit DimensionManagement;
+    begin
+        exit(DimensionManagement.ChunkDimSetFilters(TempDimensionSetEntry));
+    end;
+
     local procedure AddTable(var TableBuffer: Record "Integer" temporary; TableID: Integer)
     begin
         if not TableBuffer.Get(TableID) then begin
