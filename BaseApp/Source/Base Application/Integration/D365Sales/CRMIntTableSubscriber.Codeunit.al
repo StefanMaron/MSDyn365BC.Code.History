@@ -1760,7 +1760,7 @@ codeunit 5341 "CRM Int. Table. Subscriber"
                     if CRMSalesorderdetail.IsEmpty() then begin
                         CRMIntegrationRecord.Delete();
                         SalesLine2.GetBySystemId(SalesLine.SystemId);
-                        Salesline2.Delete();
+                        SalesLine2.Delete(true);
                     end;
                 end;
             until SalesLine.Next() = 0;
@@ -3056,9 +3056,12 @@ codeunit 5341 "CRM Int. Table. Subscriber"
         if not IsNullGuid(CRMSalesorder.QuoteId) then
             if CRMQuote.Get(CRMSalesOrder.QuoteId) then begin
                 QuoteSalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
+
+                OnBeforeFindQuoteSalesHeader(QuoteSalesHeader);
                 if QuoteSalesHeader.FindLast() then begin
                     SalesHeader."Quote No." := QuoteSalesHeader."No.";
                     ArchiveManagement.ArchSalesDocumentNoConfirm(QuoteSalesHeader);
+                    OnAfterArchSalesDocumentNoConfirm(QuoteSalesHeader);
                 end;
             end;
         DestinationRecordRef.GetTable(SalesHeader);
@@ -3218,6 +3221,16 @@ codeunit 5341 "CRM Int. Table. Subscriber"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplySalesLineTaxOnBeforeSetTax(var CRMSalesorderdetail: Record "CRM Salesorderdetail"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterArchSalesDocumentNoConfirm(var QuoteSalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindQuoteSalesHeader(var QuoteSalesHeader: Record "Sales Header")
     begin
     end;
 }

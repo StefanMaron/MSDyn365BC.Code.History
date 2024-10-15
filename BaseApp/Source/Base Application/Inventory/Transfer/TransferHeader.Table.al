@@ -1344,11 +1344,14 @@ table 5740 "Transfer Header"
         if TransferLine.FindLast() then;
         LineNo := TransferLine."Line No.";
 
-        if PurchRcptLine.FindSet() then
+        if PurchRcptLine.FindSet() then begin
+            OnBeforeCreateTransferLinesFromSelectedReceiptLines(PurchRcptLine, LineNo, Rec);
             repeat
                 LineNo := LineNo + 10000;
                 AddTransferLineFromReceiptLine(PurchRcptLine, LineNo);
             until PurchRcptLine.Next() = 0;
+            OnAfterCreateTransferLinesFromSelectedReceiptLines(PurchRcptLine, LineNo, Rec);
+        end;
     end;
 
     local procedure AddTransferLineFromReceiptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer)
@@ -1800,6 +1803,16 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddTransferLineFromReceiptLine(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line"; var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTransferLinesFromSelectedReceiptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var LineNo: Integer; TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateTransferLinesFromSelectedReceiptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; LineNo: Integer; TransferHeader: Record "Transfer Header")
     begin
     end;
 }

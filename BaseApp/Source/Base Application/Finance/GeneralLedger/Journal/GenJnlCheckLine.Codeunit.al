@@ -608,8 +608,22 @@ codeunit 11 "Gen. Jnl.-Check Line"
            (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Electronic Payment-IAT")
         then begin
             GenJnlLine.TestField("Exported to Payment File", true, ErrorInfo.Create());
-            GenJnlLine.TestField("Check Transmitted", true, ErrorInfo.Create());
+            if CheckTransmitted(GenJnlLine) then
+                GenJnlLine.TestField("Check Transmitted", true, ErrorInfo.Create());
         end;
+    end;
+
+    local procedure CheckTransmitted(GenJnlLine: Record "Gen. Journal Line"): Boolean
+    var
+        BankAccount: Record "Bank Account";
+    begin
+        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::"Bank Account" then
+            if BankAccount.Get(GenJnlLine."Account No.") then
+                exit(BankAccount."Check Transmitted");
+        if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account" then
+            if BankAccount.Get(GenJnlLine."Bal. Account No.") then
+                exit(BankAccount."Check Transmitted");
+        exit(false);
     end;
 
     local procedure CheckJobNoIsEmpty(GenJnlLine: Record "Gen. Journal Line")

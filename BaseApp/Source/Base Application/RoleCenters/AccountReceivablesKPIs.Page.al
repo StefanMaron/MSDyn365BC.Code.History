@@ -27,8 +27,7 @@ page 1318 "Account Receivables KPIs"
                         CustomerLedgerEntries: Page "Customer Ledger Entries";
                     begin
                         CustLedgerEntry.SetRange(Open, true);
-                        CustLedgerEntry.SetFilter("Remaining Amount", '>%1', 0);
-                        CustLedgerEntry.SetFilter("Due Date", '<=%1', WorkDate());
+                        CustLedgerEntry.SetFilter("Due Date", '<=%1', Today());
                         CustomerLedgerEntries.SetTableView(CustLedgerEntry);
                         CustomerLedgerEntries.Run();
                     end;
@@ -43,7 +42,6 @@ page 1318 "Account Receivables KPIs"
                         CustomerLedgerEntries: Page "Customer Ledger Entries";
                     begin
                         CustLedgerEntry.SetRange(Open, true);
-                        CustLedgerEntry.SetFilter("Remaining Amount", '>%1', 0);
                         CustomerLedgerEntries.SetTableView(CustLedgerEntry);
                         CustomerLedgerEntries.Run();
                     end;
@@ -93,12 +91,12 @@ page 1318 "Account Receivables KPIs"
         SalesInvoicesDueNextWeekStyleExpr: Text;
         AverageCollectionDays: Decimal;
 
-    trigger OnInit()
+    trigger OnOpenPage()
     var
         CuesAndKPIs: Codeunit "Cues And KPIs";
         SalesInvoicesDueNextWeekStyle: Enum "Cues And KPIs Style";
     begin
-        Rec.SetRange("Overdue Date Filter", 0D, WorkDate());
+        Rec.SetRange("Overdue Date Filter", 0D, Today());
         if not Rec.Get() then begin
             Clear(Rec);
             Rec.Insert();
@@ -113,11 +111,7 @@ page 1318 "Account Receivables KPIs"
         CuesAndKPIs.SetCueStyle(Database::"Activities Cue", ActivitiesCue.FieldNo("Sales Invoices Due Next Week"), ActivitiesCue."Sales Invoices Due Next Week", SalesInvoicesDueNextWeekStyle);
         SalesInvoicesDueNextWeekStyleExpr := Format(SalesInvoicesDueNextWeekStyle);
         Rec."AR Accounts Balance" := ActivitiesMgt.CalcARAccountsBalances();
-        Rec.Modify();
-    end;
 
-    trigger OnOpenPage()
-    begin
         AverageCollectionDays := ActivitiesMgt.CalcAverageCollectionDays();
     end;
 }
