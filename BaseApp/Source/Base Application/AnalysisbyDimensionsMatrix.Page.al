@@ -618,7 +618,6 @@ page 9249 "Analysis by Dimensions Matrix"
                     Image = ExportToExcel;
                     Promoted = true;
                     PromotedCategory = Process;
-                    Visible = Not IsSaaS;
                     ToolTip = 'Export the information in the analysis report to Excel.';
 
                     trigger OnAction()
@@ -712,13 +711,10 @@ page 9249 "Analysis by Dimensions Matrix"
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         GLAcc: Record "G/L Account";
-        EnvironmentInfo: Codeunit "Environment Information";
     begin
         MATRIX_NoOfMatrixColumns := ArrayLen(MATRIX_CellData);
 
         ValidateAnalysisViewCode;
-
-        IsSaaS := EnvironmentInfo.IsSaaS;
 
         InitRecord(Rec, AnalysisByDimParameters."Line Dim Option");
         InitRecord(MatrixRecord, AnalysisByDimParameters."Column Dim Option");
@@ -828,7 +824,6 @@ page 9249 "Analysis by Dimensions Matrix"
         Field31Visible: Boolean;
         [InDataSet]
         Field32Visible: Boolean;
-        IsSaaS: Boolean;
         Text003: Label 'Unsupported Account Source %1.';
         Emphasize: Boolean;
 
@@ -1580,6 +1575,7 @@ page 9249 "Analysis by Dimensions Matrix"
     var
         DimensionValue: Record "Dimension Value";
     begin
+        OnBeforeInitDimValue(DimensionValue);
         if DimensionCode <> '' then begin
             DimensionValue.SetRange("Dimension Code", DimensionCode);
             if DimensionFilter <> '' then
@@ -1644,6 +1640,11 @@ page 9249 "Analysis by Dimensions Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetDimBudgetFiltersProcedure(var TheAnalysisViewBudgetEntry: Record "Analysis View Budget Entry"; AnalysisView: Record "Analysis View"; DimOption: Enum "Analysis Dimension Option"; var DimCodeBuf: Record "Dimension Code Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeInitDimValue(var DimensionValue: Record "Dimension Value")
     begin
     end;
 

@@ -6,7 +6,13 @@ codeunit 5922 "Serv-Quote to Order (Yes/No)"
     var
         ConfirmManagement: Codeunit "Confirm Management";
         HideMessage: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Rec.TestField("Document Type", Rec."Document Type"::Quote);
         Rec.TestField("Customer No.");
         Rec.TestField("Bill-to Customer No.");
@@ -27,6 +33,11 @@ codeunit 5922 "Serv-Quote to Order (Yes/No)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowMessage(var Rec: Record "Service Header"; OrderNo: Code[20]; var HideMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

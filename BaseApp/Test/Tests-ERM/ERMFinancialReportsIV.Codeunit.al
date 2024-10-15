@@ -550,7 +550,80 @@ codeunit 134992 "ERM Financial Reports IV"
         asserterror LibraryReportDataset.RunReportAndLoad(Report::"G/L - VAT Reconciliation", VATStatementName, RequestPageXML);
 
         // [THEN] Both lines Sale and Purchase are printed
-        Assert.ExpectedError('The VAT Entry table with filter <G/L Account No.: ''''> must not contain records.');
+        Assert.ExpectedError('The VAT Entry table with filter');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('GLVATReconciliationWithDateFilterRequestPageHandler,ConfirmHandlerWithVariable')]
+    [Scope('OnPrem')]
+    procedure PrintGLVATReconciliationWithinDateRange()
+    var
+        VATStatementTemplate: Record "VAT Statement Template";
+        VATStatementName: Record "VAT Statement Name";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATStatementLine: array[2] of Record "VAT Statement Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
+        CustomerNo: Code[20];
+        VendorNo: Code[20];
+        RequestPageXML: Text;
+    begin
+        // [FEATURE] [Report] [G/L VAT Reconciliation]
+        // [SCENARIO 436837] "G/L VAT Reconciliation" report doesn't adjust VAT Entries that are filtered out by user's setup on request page
+        Initialize();
+
+        // [GIVEN] VAT Statement "V"
+        CreateVATPostingSetupWithBlankVATBusPostingGroup(VATPostingSetup);
+        CreateVATStatementTemplateAndName(VATStatementTemplate, VATStatementName);
+
+        // [GIVEN] VAT Statement line 1 with "Row No." = "AAA" and "General Posting Type" = Sale
+        CreateVATStatementLine(VATStatementLine[1], VATStatementTemplate, VATStatementName, VATPostingSetup, "General Posting Type"::Sale);
+        VATStatementLine[1]."Row No." := 'AAA';
+        VATStatementLine[1].Description := 'Sale';
+        VATStatementLine[1].Modify();
+        // [GIVEN] Document posted for Customer "A" at Posting Date = "01 Jan 2020"
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+        CreateAndPostGeneralJournalLine(
+            VATPostingSetup, GenJournalLine."Account Type"::Customer, CustomerNo, GenJournalLine."Gen. Posting Type"::Sale, 1, false);
+
+        // [GIVEN] VAT Statement line 2 with "Row No." = "AAA" and "General Posting Type" = Purchase
+        CreateVATStatementLine(VATStatementLine[2], VATStatementTemplate, VATStatementName, VATPostingSetup, "General Posting Type"::Purchase);
+        VATStatementLine[2]."Row No." := 'AAA';
+        VATStatementLine[2].Description := 'Purchase';
+        VATStatementLine[2].Modify();
+        VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group");
+        // [GIVEN] Document posted for Vendor "B" at Posting Date = "31 Dec 2019"
+        CreateAndPostGeneralJournalLine(
+            VATPostingSetup, WorkDate() - 1, GenJournalLine."Account Type"::Vendor, VendorNo, GenJournalLine."Gen. Posting Type"::Purchase, -1, false);
+
+        // [WHEN] Print report "G/L VAT Reconciliation" for VAT Statement "V" with date range = "1 Jan 2020"
+        LibraryVariableStorage.Enqueue(PeriodSelection::"Within Period");
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(true);
+        Commit();
+        RequestPageXML := Report.RunRequestPage(Report::"G/L - VAT Reconciliation", RequestPageXML);
+        LibraryReportDataset.RunReportAndLoad(Report::"G/L - VAT Reconciliation", VATStatementName, RequestPageXML);
+
+        // [THEN] Line Sale is printed and Purchase are printed
+        LibraryReportDataset.AssertElementWithValueExists('VAT_Statement_Line_Description', VATStatementLine[1].Description);
+        // [THEN] Line Purchase is not printed
+        LibraryReportDataset.AssertElementWithValueNotExist('VAT_Statement_Line_Description', VATStatementLine[2].Description);
+
+        // [THEN] Sales VAT Entry is adjusted
+        VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine[1]."VAT Bus. Posting Group");
+        VATEntry.SetRange("Bill-to/Pay-to No.", CustomerNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("G/L Acc. No.");
+
+        // [THEN] Purchase VAT Entry is not adjusted
+        VATEntry.SetRange("VAT Bus. Posting Group", VATStatementLine[2]."VAT Bus. Posting Group");
+        VATEntry.SetRange("Bill-to/Pay-to No.", VendorNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("G/L Acc. No.", '');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -623,6 +696,11 @@ codeunit 134992 "ERM Financial Reports IV"
     end;
 
     local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; FindVATPostingSetup: Boolean)
+    begin
+        CreateAndPostGeneralJournalLine(VATPostingSetup, WorkDate(), AccountType, AccountNo, GenPostingType, SignFactor, FindVATPostingSetup);
+    end;
+
+    local procedure CreateAndPostGeneralJournalLine(var VATPostingSetup: Record "VAT Posting Setup"; PostingDate: Date; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; SignFactor: Integer; FindVATPostingSetup: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -635,6 +713,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           AccountType, AccountNo, SignFactor * LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Bal. Account No.", CreateGLAccountWithVAT(VATPostingSetup, GenPostingType));
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -951,6 +1030,16 @@ codeunit 134992 "ERM Financial Reports IV"
     [Scope('OnPrem')]
     procedure GLVATReconciliationRequestPageHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
     begin
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure GLVATReconciliationWithDateFilterRequestPageHandler(var GLVATReconciliation: TestRequestPage "G/L - VAT Reconciliation")
+    begin
+        GLVATReconciliation.PeriodSelection.SetValue(LibraryVariableStorage.DequeueInteger());
+        GLVATReconciliation.StartDate.SetValue(LibraryVariableStorage.DequeueDate());
+        GLVATReconciliation.EndDateReq.SetValue(LibraryVariableStorage.DequeueDate());
+        GLVATReconciliation.OK().Invoke();
     end;
 
     [ConfirmHandler]

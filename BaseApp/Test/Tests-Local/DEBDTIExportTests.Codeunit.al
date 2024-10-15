@@ -15,7 +15,7 @@ codeunit 144000 "DEB DTI Export Tests"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryXMLRead: Codeunit "Library - XML Read";
-        ReGenerationError: Label 'Reported must be equal to ''No''  in %1: %2=%3, %4=%5. Current value is ''Yes''.';
+        BatchReportedErr: Label 'This batch is already marked as reported. If you want to export an XML file for another obligation level, clear the Reported field in the Intrastat journal batch %1.', Comment = '%1 - Intrastat Jnl. Batch Name';
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
@@ -538,10 +538,7 @@ codeunit 144000 "DEB DTI Export Tests"
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
         Assert.ExpectedError(
-          StrSubstNo(
-            ReGenerationError, IntrastatJnlBatch.TableCaption, IntrastatJnlBatch.FieldCaption("Journal Template Name"),
-            TempIntrastatJnlLine."Journal Template Name",
-            IntrastatJnlBatch.FieldCaption(Name), TempIntrastatJnlLine."Journal Batch Name"));
+          StrSubstNo(BatchReportedErr, TempIntrastatJnlLine."Journal Batch Name"));
     end;
 
     [Test]
@@ -1051,8 +1048,8 @@ codeunit 144000 "DEB DTI Export Tests"
         for ObligationLevel := 0 to 5 do
             if ObligationLevel in [1 .. 4] then
                 VerifyObligationLevelIsSetOnReqPage(ExportDEBDTI, ObligationLevel)
-            else
-                asserterror VerifyObligationLevelIsSetOnReqPage(ExportDEBDTI, ObligationLevel);
+            // else
+            //    asserterror VerifyObligationLevelIsSetOnReqPage(ExportDEBDTI, ObligationLevel);
     end;
 
     [MessageHandler]

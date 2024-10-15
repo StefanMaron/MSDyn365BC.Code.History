@@ -147,6 +147,7 @@
         MaintenanceLedgEntry := MaintenanceLedgEntry2;
         with MaintenanceLedgEntry do begin
             DeprBook.Get("Depreciation Book Code");
+            OnInsertMaintenanceOnAfterDeprBookGet(DeprBook);
             FA.Get("FA No.");
             CheckMainAsset;
             "Entry No." := NextMaintenanceEntryNo;
@@ -749,6 +750,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertFAOnBeforeCheckFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertMaintenanceOnAfterDeprBookGet(var DeprBook: Record "Depreciation Book")
     begin
     end;
 }

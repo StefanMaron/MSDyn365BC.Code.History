@@ -8,6 +8,7 @@ codeunit 1385 "Vendor Templ. Mgt."
 
     var
         UpdateExistingValuesQst: Label 'You are about to apply the template to selected records. Data from the template will replace data for the records. Do you want to continue?';
+        OpenBlankCardQst: Label 'Do you want to open the blank vendor card?';
 
     procedure CreateVendorFromTemplate(var Vendor: Record Vendor; var IsHandled: Boolean) Result: Boolean
     var
@@ -88,7 +89,9 @@ codeunit 1385 "Vendor Templ. Mgt."
                 VendorFldRef := VendorRecRef.Field(VendorTemplFldRef.Number);
                 EmptyVendorFldRef := EmptyVendorRecRef.Field(VendorTemplFldRef.Number);
                 EmptyVendorTemplFldRef := EmptyVendorTemplRecRef.Field(VendorTemplFldRef.Number);
-                if (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value) or UpdateExistingValues then
+                if (not UpdateExistingValues and (VendorFldRef.Value = EmptyVendorFldRef.Value) and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value)) or
+                   (UpdateExistingValues and (VendorTemplFldRef.Value <> EmptyVendorTemplFldRef.Value))
+                then
                     VendorFldRef.Value := VendorTemplFldRef.Value;
             end;
         end;
@@ -375,6 +378,13 @@ codeunit 1385 "Vendor Templ. Mgt."
             Result := ConfirmManagement.GetResponseOrDefault(UpdateExistingValuesQst, false);
     end;
 
+    procedure IsOpenBlankCardConfirmed(): Boolean
+    var
+        ConfirmManagement: Codeunit "Confirm Management";
+    begin
+        exit(ConfirmManagement.GetResponse(OpenBlankCardQst, false));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsEnabled(var Result: Boolean)
     begin
@@ -517,5 +527,24 @@ codeunit 1385 "Vendor Templ. Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetUpdateExistingValuesParam(var Result: Boolean; var IsHandled: Boolean)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Config. Template Management", 'OnBeforeInsertRecordWithKeyFields', '', false, false)]
+    local procedure OnBeforeInsertRecordWithKeyFieldsHandler(var RecRef: RecordRef; ConfigTemplateHeader: Record "Config. Template Header")
+    var
+        Vendor: Record Vendor;
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        FldRef: FieldRef;
+    begin
+        if RecRef.Number = Database::Vendor then begin
+            if ConfigTemplateHeader."Instance No. Series" = '' then
+                exit;
+
+            NoSeriesManagement.InitSeries(ConfigTemplateHeader."Instance No. Series", '', 0D, Vendor."No.", Vendor."No. Series");
+            FldRef := RecRef.Field(Vendor.FieldNo("No."));
+            FldRef.Value := Vendor."No.";
+            FldRef := RecRef.Field(Vendor.FieldNo("No. Series"));
+            FldRef.Value := Vendor."No. Series";
+        end;
     end;
 }

@@ -190,6 +190,7 @@
                       GenJnlLine."Additional-Currency Posting"::None;
                     GenJnlLine.Validate(Amount, TotalAmount);
                     GenJnlLine."Source Currency Amount" := TotalAmountAddCurr;
+                    OnGLAccountOnOnPostDataItemOnAfterGenJnlLinePopulateFields(GenJnlLine, RetainedEarningsGLAcc);
                     HandleGenJnlLine;
                     Window.Update(1, GenJnlLine."Account No.");
                 end;
@@ -696,6 +697,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleGenJnlLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGLAccountOnOnPostDataItemOnAfterGenJnlLinePopulateFields(var GenJournalLine: Record "Gen. Journal Line"; RetainedEarningsGLAcc: Record "G/L Account")
     begin
     end;
 

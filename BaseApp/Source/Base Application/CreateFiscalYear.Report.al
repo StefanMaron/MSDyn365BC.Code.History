@@ -87,6 +87,8 @@ report 93 "Create Fiscal Year"
             if (FiscalYearStartDate <= FirstPeriodStartDate) and (i = NoOfPeriods + 1) then
                 exit;
 
+            OnPreReportOnBeforeAccountingPeriodInit(FiscalYearStartDate, PeriodLength, NoOfPeriods, FirstPeriodStartDate, FirstPeriodLocked, i);
+
             AccountingPeriod.Init();
             AccountingPeriod."Starting Date" := FiscalYearStartDate;
             AccountingPeriod.Validate("Starting Date");
@@ -138,6 +140,11 @@ report 93 "Create Fiscal Year"
     procedure HideConfirmationDialog(NewHideDialog: Boolean)
     begin
         HideDialog := NewHideDialog;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPreReportOnBeforeAccountingPeriodInit(FiscalYearStartDate: Date; PeriodLength: DateFormula; NoOfPeriods: Integer; FirstPeriodStartDate: Date; FirstPeriodLocked: Boolean; LoopCounter: Integer)
+    begin
     end;
 }
 

@@ -29,8 +29,7 @@ codeunit 5703 "Catalog Item Management"
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
     begin
         OnBeforeNonstockAutoItem(NonStock2);
-        if NewItem.Get(NonStock2."Item No.") then
-            Error(Text000, NonStock2."Item No.");
+        CheckItemAlreadyExists(NonStock2);
 
         NonStock2."Item No." :=
           GetNewItemNo(
@@ -41,8 +40,7 @@ codeunit 5703 "Catalog Item Management"
 
         CheckNonStockItem(NonStock2);
 
-        if NewItem.Get(NonStock2."Item No.") then
-            Error(Text000, NonStock2."Item No.");
+        CheckItemAlreadyExists(NonStock2);
 
         CreateNewItem(NonStock2."Item No.", NonStock2);
         OnNonstockAutoItemOnAfterCreateNewItem(NewItem);
@@ -54,6 +52,19 @@ codeunit 5703 "Catalog Item Management"
             NonstockItemReference(NonStock2);
 
         OnAfterNonstockAutoItem(NonStock2, NewItem);
+    end;
+
+    local procedure CheckItemAlreadyExists(NonStock2: Record "Nonstock Item")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemAlreadyExists(NonStock2, IsHandled);
+        if IsHandled then
+            exit;
+
+        if NewItem.Get(NonStock2."Item No.") then
+            Error(Text000, NonStock2."Item No.");
     end;
 
     local procedure ShowItemCreatedMessage(NonStock2: Record "Nonstock Item")
@@ -462,47 +473,49 @@ codeunit 5703 "Catalog Item Management"
     begin
         OnBeforeGetNewItemNo(NonstockItem, Length1, Length2, NewItemNo, IsHandled);
         if IsHandled then
-            exit(NewItemNo);
+            exit(NewItemNo)
+        else begin
 
-        NonstockItemSetupMy.Get();
-        case NonstockItemSetupMy."No. Format" of
-            NonstockItemSetupMy."No. Format"::"Vendor Item No.":
-                NewItemNo := NonstockItem."Vendor Item No.";
-            NonstockItemSetupMy."No. Format"::"Mfr. + Vendor Item No.":
-                if NonstockItemSetupMy."No. Format Separator" = '' then begin
-                    if Length1 + Length2 <= 20 then
-                        Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Vendor Item No.")
-                    else
-                        Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Entry No.");
-                end else begin
-                    if Length1 + Length2 < 20 then
-                        Evaluate(
-                          NewItemNo,
-                          NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Vendor Item No.")
-                    else
-                        Evaluate(
-                          NewItemNo,
-                          NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Entry No.");
-                end;
-            NonstockItemSetupMy."No. Format"::"Vendor Item No. + Mfr.":
-                if NonstockItemSetupMy."No. Format Separator" = '' then begin
-                    if Length1 + Length2 <= 20 then
-                        Evaluate(NewItemNo, NonstockItem."Vendor Item No." + NonstockItem."Manufacturer Code")
-                    else
-                        Evaluate(NewItemNo, NonstockItem."Entry No." + NonstockItem."Manufacturer Code");
-                end else begin
-                    if Length1 + Length2 < 20 then
-                        Evaluate(
-                          NewItemNo,
-                          NonstockItem."Vendor Item No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code")
-                    else
-                        Evaluate(
-                          NewItemNo,
-                          NonstockItem."Entry No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code");
-                end;
-            NonstockItemSetupMy."No. Format"::"Entry No.":
-                NewItemNo := NonstockItem."Entry No.";
+            NonstockItemSetupMy.Get();
+            case NonstockItemSetupMy."No. Format" of
+                NonstockItemSetupMy."No. Format"::"Vendor Item No.":
+                    NewItemNo := NonstockItem."Vendor Item No.";
+                NonstockItemSetupMy."No. Format"::"Mfr. + Vendor Item No.":
+                    if NonstockItemSetupMy."No. Format Separator" = '' then begin
+                        if Length1 + Length2 <= 20 then
+                            Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Vendor Item No.")
+                        else
+                            Evaluate(NewItemNo, NonstockItem."Manufacturer Code" + NonstockItem."Entry No.");
+                    end else
+                        if Length1 + Length2 < 20 then
+                            Evaluate(
+                              NewItemNo,
+                              NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Vendor Item No.")
+                        else
+                            Evaluate(
+                              NewItemNo,
+                              NonstockItem."Manufacturer Code" + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Entry No.");
+                NonstockItemSetupMy."No. Format"::"Vendor Item No. + Mfr.":
+                    if NonstockItemSetupMy."No. Format Separator" = '' then begin
+                        if Length1 + Length2 <= 20 then
+                            Evaluate(NewItemNo, NonstockItem."Vendor Item No." + NonstockItem."Manufacturer Code")
+                        else
+                            Evaluate(NewItemNo, NonstockItem."Entry No." + NonstockItem."Manufacturer Code");
+                    end else
+                        if Length1 + Length2 < 20 then
+                            Evaluate(
+                              NewItemNo,
+                              NonstockItem."Vendor Item No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code")
+                        else
+                            Evaluate(
+                              NewItemNo,
+                              NonstockItem."Entry No." + NonstockItemSetupMy."No. Format Separator" + NonstockItem."Manufacturer Code");
+                NonstockItemSetupMy."No. Format"::"Entry No.":
+                    NewItemNo := NonstockItem."Entry No.";
+            end;
         end;
+
+        OnAfterGetNewItemNo(NonstockItem, NewItemNo);
     end;
 
     procedure CreateNewItem(ItemNo: Code[20]; NonstockItem: Record "Nonstock Item")
@@ -578,6 +591,11 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetNewItemNo(NonstockItem: Record "Nonstock Item"; var NewItemNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterItemReferenceInsert(var ItemReference: Record "Item Reference"; NonstockItem: Record "Nonstock Item")
     begin
     end;
@@ -609,6 +627,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     procedure OnBeforeCheckNonStockItem(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnBeforeCheckItemAlreadyExists(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
 

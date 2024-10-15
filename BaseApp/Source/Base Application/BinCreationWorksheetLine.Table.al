@@ -622,6 +622,13 @@ table 7338 "Bin Creation Worksheet Line"
             if UOMCode <> UOM.Code then
                 if UOM.Get(UOMCode) then;
         UOMDescription := UOM.Description;
+
+        OnAfterGetUnitOfMeasureDescr(UOMCode, UOMDescription);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUnitOfMeasureDescr(UOMCode: Code[10]; var UOMDescription: Text[50])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

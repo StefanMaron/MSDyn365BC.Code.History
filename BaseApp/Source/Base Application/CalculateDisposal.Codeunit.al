@@ -20,6 +20,7 @@ codeunit 5605 "Calculate Disposal"
         I: Integer;
         IsHandled: Boolean;
     begin
+        OnBeforeCalcGainLoss(FANo, DeprBookCode, EntryAmounts);
         ClearAll;
         Clear(EntryAmounts);
         DeprBook.Get(DeprBookCode);
@@ -135,7 +136,7 @@ codeunit 5605 "Calculate Disposal"
             SetRange("FA Posting Type", "FA Posting Type"::"Proceeds on Disposal");
             if Find('-') then begin
                 repeat
-                    DisposalMethod := "Disposal Calculation Method";
+                    DisposalMethod := GetDisposalMethod(FALedgEntry);
                     if "Disposal Entry No." > MaxDisposalNo then begin
                         MaxDisposalNo := "Disposal Entry No.";
                         SalesEntryNo := "Entry No.";
@@ -155,6 +156,13 @@ codeunit 5605 "Calculate Disposal"
         end;
     end;
 
+    local procedure GetDisposalMethod(FALedgEntry: Record "FA Ledger Entry") DisposalMethod: Option " ",Net,Gross
+    begin
+        DisposalMethod := FALedgEntry."Disposal Calculation Method";
+
+        OnAfterGetDisposalMethod(DisposalMethod);
+    end;
+    
     procedure GetErrorDisposal(FANo: Code[20]; DeprBookCode: Code[10]; OnlyGainLoss: Boolean; MaxDisposalNo: Integer; var EntryAmounts: array[15] of Decimal; var EntryNumbers: array[15] of Integer)
     var
         FALedgEntry: Record "FA Ledger Entry";
@@ -294,6 +302,16 @@ codeunit 5605 "Calculate Disposal"
         var EntryAmounts: array[14] of Decimal;
         var GainLoss: Decimal;
         var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDisposalMethod(var DisposalMethod: Option " ",Net,Gross)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcGainLoss(FANo: Code[20]; DeprBookCode: Code[10]; var EntryAmounts: array[14] of Decimal)
     begin
     end;
 }
