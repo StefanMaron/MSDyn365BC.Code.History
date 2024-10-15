@@ -136,19 +136,31 @@
                     "Item Reference No." := '';
                     "Item Reference Type" := "Item Reference Type"::" ";
                     "Item Reference Type No." := '';
-                    if "Variant Code" <> '' then begin
-                        ItemVariant.Get("No.", "Variant Code");
-                        Description := ItemVariant.Description;
-                        "Description 2" := ItemVariant."Description 2";
-                    end else begin
-                        Item.Get("No.");
-                        Description := Item.Description;
-                        "Description 2" := Item."Description 2";
-                    end;
+                    FillDescription(PurchLine2);
                     GetItemTranslation();
                     OnAfterPurchItemItemRefNotFound(PurchLine2, ItemVariant);
                 end;
             end;
+    end;
+
+    local procedure FillDescription(var PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFillDescription(PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchaseLine."Variant Code" <> '' then begin
+            ItemVariant.Get(PurchaseLine."No.", PurchaseLine."Variant Code");
+            PurchaseLine.Description := ItemVariant.Description;
+            PurchaseLine."Description 2" := ItemVariant."Description 2";
+        end else begin
+            Item.Get(PurchaseLine."No.");
+            PurchaseLine.Description := Item.Description;
+            PurchaseLine."Description 2" := Item."Description 2";
+        end;
     end;
 
     procedure ReferenceLookupPurchaseItem(var PurchLine2: Record "Purchase Line"; var ReturnedItemReference: Record "Item Reference"; ShowDialog: Boolean)
@@ -680,6 +692,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindItemReferenceForSalesLine(SalesLine: Record "Sales Line"; var ItemReference: Record "Item Reference"; var Found: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillDescription(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

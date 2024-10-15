@@ -35,14 +35,27 @@ codeunit 229 "Document-Print"
 
     local procedure DoPrintSalesHeaderToDocumentAttachment(SalesHeader: Record "Sales Header"; ShowNotificationAction: Boolean);
     var
-        ReportSelections: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
     begin
         ReportUsage := GetSalesDocTypeUsage(SalesHeader);
 
         SalesHeader.SetRecFilter();
         CalcSalesDisc(SalesHeader);
-        ReportSelections.SaveAsDocumentAttachment(ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+    end;
+
+    local procedure RunSaveAsDocumentAttachment(ReportUsage: Integer; RecordVariant: Variant; DocumentNo: Code[20]; AccountNo: Code[20]; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunSaveAsDocumentAttachment(ReportUsage, RecordVariant, ShowNotificationAction, IsHandled);
+        if IsHandled then
+            exit;
+
+        ReportSelections.SaveAsDocumentAttachment(ReportUsage, RecordVariant, DocumentNo, AccountNo, ShowNotificationAction);
     end;
 
     procedure PrintSalesInvoiceToDocumentAttachment(var SalesHeader: Record "Sales Header"; SalesInvoicePrintToAttachmentOption: Integer)
@@ -119,8 +132,7 @@ codeunit 229 "Document-Print"
     begin
         SalesHeader.SetRecFilter();
         CalcSalesDisc(SalesHeader);
-        ReportSelections.SaveAsDocumentAttachment(
-            ReportSelections.Usage::"Pro Forma S. Invoice".AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+        RunSaveAsDocumentAttachment(ReportSelections.Usage::"Pro Forma S. Invoice".AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
     end;
 
     procedure PrintSalesOrderToAttachment(var SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction")
@@ -136,7 +148,6 @@ codeunit 229 "Document-Print"
 
     local procedure DoPrintSalesOrderToAttachment(SalesHeader: Record "Sales Header"; Usage: Option "Order Confirmation","Work Order","Pick Instruction"; ShowNotificationAction: Boolean)
     var
-        ReportSelections: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
     begin
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
@@ -147,8 +158,7 @@ codeunit 229 "Document-Print"
         SalesHeader.SetRange("No.", SalesHeader."No.");
         CalcSalesDisc(SalesHeader);
 
-        ReportSelections.SaveAsDocumentAttachment(
-            ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), SalesHeader, SalesHeader."No.", SalesHeader.GetBillToNo(), ShowNotificationAction);
     end;
 
     local procedure DoPrintSalesHeader(SalesHeader: Record "Sales Header"; SendAsEmail: Boolean)
@@ -206,14 +216,13 @@ codeunit 229 "Document-Print"
 
     local procedure DoPrintPurchaseHeaderToDocumentAttachment(PurchaseHeader: Record "Purchase Header"; ShowNotificationAction: Boolean)
     var
-        ReportSelections: Record "Report Selections";
         ReportUsage: Enum "Report Selection Usage";
     begin
         ReportUsage := GetPurchDocTypeUsage(PurchaseHeader);
 
         PurchaseHeader.SetRecFilter();
         CalcPurchDisc(PurchaseHeader);
-        ReportSelections.SaveAsDocumentAttachment(ReportUsage.AsInteger(), PurchaseHeader, PurchaseHeader."No.", PurchaseHeader."Pay-to Vendor No.", ShowNotificationAction);
+        RunSaveAsDocumentAttachment(ReportUsage.AsInteger(), PurchaseHeader, PurchaseHeader."No.", PurchaseHeader."Pay-to Vendor No.", ShowNotificationAction);
     end;
 
     procedure PrintBankAccStmt(BankAccStmt: Record "Bank Account Statement")
@@ -915,6 +924,11 @@ codeunit 229 "Document-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintProformaSalesInvoice(var SalesHeader: Record "Sales Header"; ReportUsage: Integer; var IsPrinted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSaveAsDocumentAttachment(ReportUsage: Integer; RecordVariant: Variant; ShowNotificationAction: Boolean; var IsHandled: Boolean)
     begin
     end;
 

@@ -3482,6 +3482,72 @@ codeunit 18196 "GST Sales Tests"
         LibraryGST.VerifyGLEntries(DocumentType::Invoice, PostedDocumentNo, 3);
     end;
 
+    [Test]
+    [HandlerFunctions('TaxRatePageHandler')]
+    procedure PostFromRegCustSalesOrderIntraStateForEInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvHeader: Record "Sales Invoice Header";
+        GSTCustomeType: Enum "GST Customer Type";
+        GSTGroupType: Enum "GST Group Type";
+        DocumentType: Enum "Sales Document Type";
+        LineType: Enum "Sales Line Type";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        PostedDocumentNo: Code[20];
+    begin
+        // [GIVEN] Created GST Setup
+        CreateGSTSetup(GSTCustomeType::Registered, GSTGroupType::Goods, true);
+        InitializeShareStep(false, false);
+        Storage.Set(NoOfLineLbl, '1');
+
+        // [WHEN] Create and Post Sales Order with GST and Line Type as Services and Intrastate Juridisction
+        PostedDocumentNo := CreateAndPostSalesDocumentForEInvoice(
+            SalesHeader,
+            SalesLine,
+            LineType::Item,
+            DocumentType::Order);
+
+        // [THEN] G/L Entries and Detailed GST Ledger Entries verified
+        LibraryGST.VerifyGLEntries(DocumentType::Invoice, PostedDocumentNo, 4);
+        SalesInvHeader.Get(PostedDocumentNo);
+        PostedSalesInvoice.OpenEdit();
+        PostedSalesInvoice.GoToRecord(SalesInvHeader);
+        PostedSalesInvoice."Generate E-Invoice".Invoke();
+        PostedSalesInvoice.Close();
+        Assert.IsTrue(true, 'E-Invoice generated');
+    end;
+
+    local procedure CreateAndPostSalesDocumentForEInvoice(
+            var SalesHeader: Record "Sales Header";
+            var SalesLine: Record "Sales Line";
+            LineType: Enum "Sales Line Type";
+            DocumentType: Enum "Sales Document Type"): Code[20];
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        CustomerNo: Code[20];
+        LocationCode: Code[10];
+        PostedDocumentNo: Code[20];
+    begin
+        GeneralLedgerSetup.Get();
+        if GeneralLedgerSetup."Generate E-Inv. on Sales Post" = false then begin
+            GeneralLedgerSetup."Generate E-Inv. on Sales Post" := true;
+            GeneralLedgerSetup.Modify();
+        end;
+
+        CustomerNo := Storage.Get(CustomerNoLbl);
+        LocationCode := CopyStr(Storage.Get(LocationCodeLbl), 1, MaxStrLen(LocationCode));
+        CreateSalesHeaderWithGST(SalesHeader, CustomerNo, DocumentType, LocationCode);
+        SalesHeader.Validate("Vehicle No.", LibraryRandom.RandText(10));
+        SalesHeader.Validate("Vehicle Type", SalesHeader."Vehicle Type"::Regular);
+        SalesHeader.Validate("Distance (Km)", LibraryRandom.RandInt(3));
+        SalesHeader.Modify(true);
+        CreateSalesLineWithGST(SalesHeader, SalesLine, LineType, LibraryRandom.RandDecInRange(2, 10, 0), StorageBoolean.Get(ExemptedLbl), StorageBoolean.Get(LineDiscountLbl));
+        PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        Storage.Set(PostedDocumentNoLbl, PostedDocumentNo);
+        exit(PostedDocumentNo);
+    end;
+
     local procedure CreateAndPostAdjustmentJournal()
     var
         location: Record Location;

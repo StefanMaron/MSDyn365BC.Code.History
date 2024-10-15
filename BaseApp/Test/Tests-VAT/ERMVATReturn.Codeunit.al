@@ -721,6 +721,7 @@ codeunit 134096 "ERM VAT Return"
             "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
             Type := Type::Sale;
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             Closed := FALSE;
             "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
             "VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";

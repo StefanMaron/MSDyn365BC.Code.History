@@ -157,6 +157,59 @@ codeunit 136314 "Job Quote Report Tests"
         SendJobQuoteFromJobCardInternal();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCurrencyValueOnJobQuoteReport()
+    var
+        Job: Record Job;
+        JobTaskLine: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+        Resource: Record Resource;
+        LibraryJob: Codeunit "Library - Job";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryResource: Codeunit "Library - Resource";
+        LibraryRandom: Codeunit "Library - Random";
+        JobCard: TestPage "Job Card";
+        ResQuantity: Decimal;
+        UnitPrice: Decimal;
+        DocNo: Code[20];
+        ValueNotFoundErr: Label 'Value must exist.';
+    begin
+        // [SCENARIO 454648] Missing currecy identifier in the job quote preview report
+        Initialize();
+
+        // [GIVEN] Create Job:
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandInt(5), LibraryRandom.RandInt(5)));
+        Job.Modify();
+
+        // [GIVEN] Job Task Line:
+        LibraryJob.CreateJobTask(Job, JobTaskLine);
+        JobTaskLine.Modify();
+
+        // [GIVEN] Job Planning Line:
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine.Type::Resource, JobTaskLine, JobPlanningLine);
+        LibraryResource.CreateResource(Resource, '');
+        ResQuantity := LibraryRandom.RandDec(100, 2);
+        UnitPrice := 10 + LibraryRandom.RandDec(10, 2);
+        DocNo := LibraryUtility.GenerateRandomCode20(JobPlanningLine.FieldNo("Document No."), Database::"Job Planning Line");
+        JobPlanningLine.Validate("Document No.", DocNo);
+        JobPlanningLine.Validate("No.", Resource."No.");
+        JobPlanningLine.Validate(Quantity, ResQuantity);
+        JobPlanningLine.Validate("Unit Price", UnitPrice);
+        JobPlanningLine.Validate("Unit Cost", UnitPrice);
+        JobPlanningLine.Modify();
+
+        // [WHEN] Run Jobs Quote Report:
+        RunJobQuoteReport(Job."No.");
+
+        // [THEN] Result
+        LibraryReportDataset.GetLastRow;
+        Assert.AreEqual(LibraryReportValidation.CheckIfDecimalValueExists(JobPlanningLine."Total Price"), true, ValueNotFoundErr);
+    end;
+
     procedure SendJobQuoteFromJobCardInternal()
     var
         JobPlanningLine: Record "Job Planning Line";
