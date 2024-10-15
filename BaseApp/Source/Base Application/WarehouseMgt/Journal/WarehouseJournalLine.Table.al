@@ -584,8 +584,10 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnValidate()
             begin
-                if "Serial No." <> '' then
+                if "Serial No." <> '' then begin
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
+                    InitExpirationDate();
+                end;
 
                 CheckSerialNoTrackedQuantity();
             end;
@@ -601,10 +603,10 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnValidate()
             begin
-                if "Lot No." <> '' then
+                if "Lot No." <> '' then begin
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
-
-                InitExpirationDate();
+                    InitExpirationDate();
+                end;
             end;
         }
         field(6502; "Warranty Date"; Date)
@@ -644,8 +646,10 @@ table 7311 "Warehouse Journal Line"
 
             trigger OnValidate()
             begin
-                if "Package No." <> '' then
+                if "Package No." <> '' then begin
                     ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
+                    InitExpirationDate();
+                end;
             end;
         }
         field(6516; "New Package No."; Code[50])
@@ -741,7 +745,7 @@ table 7311 "Warehouse Journal Line"
         Text003: Label 'Default Journal';
         Text005: Label 'The location %1 of warehouse journal batch %2 is not enabled for user %3.';
         Text006: Label '%1 must be 0 or 1 for an Item tracked by Serial Number.';
-        LotTrackedItemErr: Label '%1 must not change for an Item tracked by Lot Number.', Comment = '%1 = Field Caption';
+        ItemTrackedItemErr: Label '%1 must not change for tracked item.', Comment = '%1 = Field Caption';
         OpenFromBatch: Boolean;
         StockProposal: Boolean;
 
@@ -1503,39 +1507,94 @@ table 7311 "Warehouse Journal Line"
 
     procedure InitExpirationDate()
     var
-        Location2: Record Location;
+        WhseEntry: Record "Warehouse Entry";
         ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
         ExpDate: Date;
+        EntriesExist: Boolean;
     begin
-        if (Rec."Lot No." = '') or ("Location Code" = '') then
-            "Expiration Date" := 0D
-        else begin
-            Location2.Get("Location Code");
-            if ItemTrackingManagement.GetWhseExpirationDate("Item No.", "Variant Code", Location2, ItemTrackingSetup, ExpDate) then
-                "Expiration Date" := ExpDate;
-        end;
-    end;
-
-    procedure CheckExpirationDateExists(): Boolean
-    var
-        Location2: Record Location;
-        ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingManagement: Codeunit "Item Tracking Management";
-        ExpDate: Date;
-    begin
-        if (Rec."Lot No." = '') or ("Location Code" = '') then
+        if ("Location Code" = '') or ("Item No." = '') then
             exit;
 
-        Location2.Get("Location Code");
-        if ItemTrackingManagement.GetWhseExpirationDate("Item No.", "Variant Code", Location2, ItemTrackingSetup, ExpDate) then
-            exit(true);
+        "Expiration Date" := 0D;
+
+        if CopyTrackingFromWhseEntryToItemTrackingSetup(WhseEntry, ItemTrackingSetup) then begin
+            ExpDate := ItemTrackingMgt.ExistingExpirationDate(WhseJnlLine."Item No.", WhseJnlLine."Variant Code", ItemTrackingSetup, false, EntriesExist);
+            if EntriesExist then
+                "Expiration Date" := ExpDate
+            else
+                "Expiration Date" := WhseEntry."Expiration Date";
+        end
     end;
 
     local procedure CheckLotNoTrackedExpirationDate()
     begin
-        if ("Lot No." <> '') and (CheckExpirationDateExists()) then
-            Error(LotTrackedItemErr, FieldCaption("Expiration Date"));
+        if CheckExpirationDateExists() then
+            Error(ItemTrackedItemErr, FieldCaption("Expiration Date"));
+    end;
+
+    procedure CheckExpirationDateExists(): Boolean
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        WhseEntry: Record "Warehouse Entry";
+        Location2: Record Location;
+        ExpDate: Date;
+    begin
+        if ("Location Code" = '') or ("Item No." = '') then
+            exit;
+
+        if CopyTrackingFromWhseEntryToItemTrackingSetup(WhseEntry, ItemTrackingSetup) then begin
+            Location2.Get("Location Code");
+            if ItemTrackingMgt.GetWhseExpirationDate("Item No.", "Variant Code", Location2, ItemTrackingSetup, ExpDate) then
+                exit(true);
+        end;
+    end;
+
+    local procedure CopyTrackingFromWhseEntryToItemTrackingSetup(var WhseEntry: Record "Warehouse Entry"; var ItemTrackingSetup: Record "Item Tracking Setup"): Boolean
+    begin
+        if not GetWhseEntry(WhseEntry) then
+            exit(false);
+
+        if CheckItemTrackingEnabled("Item No.") then
+            WhseEntry.SetTrackingFilterFromWhseEntryForSerialOrLotTrackedItem(WhseEntry)
+        else
+            WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
+
+        if CheckWhseTrackings(WhseEntry) then begin
+            ItemTrackingSetup.CopyTrackingFromWhseEntry(WhseEntry);
+            exit(true);
+        end;
+    end;
+
+    local procedure GetWhseEntry(var WhseEntry: Record "Warehouse Entry"): Boolean
+    begin
+        WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code", "Unit of Measure Code", "Lot No.", "Serial No.", "Package No.");
+        WhseEntry.SetRange("Item No.", "Item No.");
+        WhseEntry.SetRange("Bin Code", "Bin Code");
+        WhseEntry.SetRange("Location Code", "Location Code");
+        WhseEntry.SetRange("Variant Code", "Variant Code");
+        WhseEntry.SetRange("Unit of Measure Code", "Unit of Measure Code");
+        exit(WhseEntry.FindFirst());
+    end;
+
+    local procedure CheckWhseTrackings(WhseEntry: Record "Warehouse Entry"): Boolean
+    begin
+        if (Rec."Lot No." <> '') and (Rec."Lot No." = WhseEntry."Lot No.") then
+            exit(true);
+
+        if (Rec."Serial No." <> '') and (Rec."Serial No." = WhseEntry."Serial No.") then
+            exit(true);
+
+        if (Rec."Package No." <> '') and (Rec."Package No." = WhseEntry."Package No.") then
+            exit(true);
+    end;
+
+    local procedure CheckItemTrackingEnabled(ItemNo: Code[20]): Boolean
+    var
+        PhysInvTrackingMgt: Codeunit "Phys. Invt. Tracking Mgt.";
+    begin
+        Item.Get(ItemNo);
+        if PhysInvTrackingMgt.GetTrackingNosFromWhse(Item) then
+            exit(true);
     end;
 
     local procedure DeleteWhseItemTracking()
