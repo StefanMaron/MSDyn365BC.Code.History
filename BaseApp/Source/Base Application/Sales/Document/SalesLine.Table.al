@@ -172,12 +172,6 @@ table 37 "Sales Line"
                 if not (CheckQuoteMgtPermission or (CopyStr(SerialNumber, 7, 3) = '000')) then
                     if Type.AsInteger() > Type::Title.AsInteger() then
                         Error(Text90803, Type);
-                if Type = Type::Item then begin
-                    if SalesHeader.InventoryPickConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
-                        Error(Text056, SalesHeader."Shipping Advice");
-                    if SalesHeader.WhseShipmentConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
-                        Error(Text052, SalesHeader."Shipping Advice");
-                end;
             end;
         }
         field(6; "No."; Code[20])
@@ -345,11 +339,14 @@ table 37 "Sales Line"
                 OnValidateNoOnAfterCreateDimFromDefaultDim(Rec, xRec, SalesHeader, CurrFieldNo);
 
                 if "No." <> xRec."No." then begin
-                    if Type = Type::Item then
+                    if Type = Type::Item then begin
                         if (Quantity <> 0) and ItemExists(xRec."No.") then begin
                             VerifyChangeForSalesLineReserve(FieldNo("No."));
                             SalesWarehouseMgt.SalesLineVerifyChange(Rec, xRec);
                         end;
+                        CheckItemCanBeAddedToSalesLine();
+                    end;
+
                     GetDefaultBin();
                     Rec.AutoAsmToOrder();
                     DeleteItemChargeAssignment("Document Type", "Document No.", "Line No.");
@@ -2385,7 +2382,6 @@ table 37 "Sales Line"
             TableRelation = if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false), "Sales Blocked" = const(false))
             else
             if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
-            ValidateTableRelation = false;
 
             trigger OnValidate()
             var
@@ -2399,14 +2395,11 @@ table 37 "Sales Line"
                     IsHandled := false;
                     OnValidateVariantCodeBeforeCheckBlocked(Rec, IsHandled);
                     if not IsHandled then begin
-                        ItemVariant.SetLoadFields(Blocked, "Sales Blocked");
+                        ItemVariant.SetLoadFields("Sales Blocked");
                         ItemVariant.Get(Rec."No.", Rec."Variant Code");
-                        ItemVariant.TestField(Blocked, false);
                         if ItemVariant."Sales Blocked" then
                             if IsCreditDocType() then
-                                SendBlockedItemVariantNotification()
-                            else
-                                Error(SalesBlockedErr, ItemVariant.TableCaption());
+                                SendBlockedItemVariantNotification();
                     end;
                 end;
                 TestStatusOpen();
@@ -2418,7 +2411,6 @@ table 37 "Sales Line"
 
                     TestField("Return Qty. Rcd. Not Invd.", 0);
                     TestField("Return Receipt No.", '');
-
 
                     InitItemAppl(false);
                 end;
@@ -3635,9 +3627,6 @@ table 37 "Sales Line"
             DeleteItemChargeAssignment("Document Type", "Document No.", "Line No.");
         end;
 
-        if Type = Type::"Charge (Item)" then
-            DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
-
         if ("Document Type" = "Document Type"::Order) then
             CapableToPromise.RemoveReqLines("Document No.", "Line No.", 0, false);
 
@@ -3676,6 +3665,9 @@ table 37 "Sales Line"
             UpdateAmounts();
         end;
 
+        if Type = Type::"Charge (Item)" then
+            DeleteChargeChargeAssgnt("Document Type", "Document No.", "Line No.");
+
         if "Deferral Code" <> '' then
             DeferralUtilities.DeferralCodeOnDelete(
                 Enum::"Deferral Document Type"::Sales.AsInteger(), '', '',
@@ -3691,7 +3683,7 @@ table 37 "Sales Line"
         end;
         LockTable();
         SalesHeader."No." := '';
-        if Type = Type::Item then
+        if (Type = Type::Item) and ("No." <> '') then
             CheckInventoryPickConflict();
         OnInsertOnAfterCheckInventoryConflict(Rec, xRec, SalesLine2, SalesLineBuffer);
         if CheckQuoteMgtPermission or (CopyStr(SerialNumber, 7, 3) = '000') then begin
@@ -3832,15 +3824,15 @@ table 37 "Sales Line"
         Text048: Label 'You cannot use item tracking on a %1 created from a %2.';
         Text049: Label 'cannot be %1.';
         Text051: Label 'You cannot use %1 in a %2.';
-        Text052: Label 'You cannot add an item line because an open warehouse shipment exists for the sales header and Shipping Advice is %1.\\You must add items as new lines to the existing warehouse shipment or change Shipping Advice to Partial.';
         Text053: Label 'You have changed one or more dimensions on the %1, which is already shipped. When you post the line with the changed dimension to General Ledger, amounts on the Inventory Interim account will be out of balance when reported per dimension.\\Do you want to keep the changed dimension?';
         Text054: Label 'Cancelled.';
         Text055: Label '%1 must not be greater than the sum of %2 and %3.', Comment = 'Quantity Invoiced must not be greater than the sum of Qty. Assigned and Qty. to Assign.';
-        Text056: Label 'You cannot add an item line because an open inventory pick exists for the Sales Header and because Shipping Advice is %1.\\You must first post or delete the inventory pick or change Shipping Advice to Partial.';
         Text057: Label 'must have the same sign as the shipment';
         Text058: Label 'The quantity that you are trying to invoice is greater than the quantity in shipment %1.';
         Text059: Label 'must have the same sign as the return receipt';
         Text060: Label 'The quantity that you are trying to invoice is greater than the quantity in return receipt %1.';
+        CanNotAddItemWhsShipmentExistErr: Label 'You cannot add an item line because an open warehouse shipment exists for the sales header and Shipping Advice is %1.\\You must add items as new lines to the existing warehouse shipment or change Shipping Advice to Partial.', Comment = '%1- Shipping Advice';
+        CanNotAddItemPickExistErr: Label 'You cannot add an item line because an open inventory pick exists for the Sales Header and because Shipping Advice is %1.\\You must first post or delete the inventory pick or change Shipping Advice to Partial.', Comment = '%1- Shipping Advice';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         SalesLineCompletelyShippedErr: Label 'You cannot change the purchasing code for a sales line that has been completely shipped.';
         Text90800: Label 'Variant may only be used for G/L accounts, items and resources.';
@@ -8759,8 +8751,9 @@ table 37 "Sales Line"
         if IsHandled then
             exit;
 
-        if SalesHeader.InventoryPickConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
-            Error(Text056, SalesHeader."Shipping Advice");
+        if IsInventoriableItem() then
+            if SalesHeader.InventoryPickConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
+                Error(CanNotAddItemPickExistErr, SalesHeader."Shipping Advice");
     end;
 
     local procedure CheckQuantitySign()
@@ -9131,6 +9124,18 @@ table 37 "Sales Line"
         end;
         if CalculationDate = 0D then
             CalculationDate := WorkDate();
+    end;
+
+    local procedure CheckItemCanBeAddedToSalesLine()
+    begin
+        if Type = Type::Item then
+            if "No." <> '' then
+                if IsInventoriableItem() then begin
+                    if SalesHeader.InventoryPickConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
+                        Error(CanNotAddItemPickExistErr, SalesHeader."Shipping Advice");
+                    if SalesHeader.WhseShipmentConflict("Document Type", "Document No.", SalesHeader."Shipping Advice") then
+                        Error(CanNotAddItemWhsShipmentExistErr, SalesHeader."Shipping Advice");
+                end;
     end;
 
     local procedure SetLoadFieldsForInvDiscoundCalculation(var SalesLine: Record "Sales Line")

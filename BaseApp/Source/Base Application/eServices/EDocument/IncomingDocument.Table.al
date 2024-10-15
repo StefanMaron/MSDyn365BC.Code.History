@@ -939,7 +939,13 @@ table 130 "Incoming Document"
         GenJnlLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
         PurchaseHeader: Record "Purchase Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestIfAlreadyExists(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case "Document Type" of
             "Document Type"::Journal:
                 begin
@@ -2462,6 +2468,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCanReplaceMainAttachment(var CanReplaceMainAttachment: Boolean; IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestIfAlreadyExists(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 }
