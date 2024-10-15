@@ -21,6 +21,7 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryItemTracking: Codeunit "Library - Item Tracking";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryERM: Codeunit "Library - ERM";
         SNMissingErr: Label 'You must assign a serial number for item', Comment = '%1 - Item No.';
         LNMissingErr: Label 'You must assign a lot number for item', Comment = '%1 - Item No.';
         WrongSNErr: Label 'SN different from what expected';
@@ -401,6 +402,114 @@ codeunit 137926 "SCM Assembly Item Tracking"
         LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure VerifyConsumptionEntriesAreGroupedCorrectlyOnItemTracingForPostedAndUndoPostedAssemblyOrderWithLotTrackedItem()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        PostedAssemblyHeader: Record "Posted Assembly Header";
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        ReservEntry: Record "Reservation Entry";
+        NoSeriesManagement: Codeunit NoSeriesManagement;
+        ItemTracingPage: TestPage "Item Tracing";
+        QtyPer, Qty : Decimal;
+        LotNoCode, LotNo : Code[20];
+    begin
+        // [SCENARIO 453007] Verify Consumption Entries are grouped correctly on Item Tracing for Posted and Undo Posted Assembly Order with Lot Tracked Item         
+        Initialize();
+
+        // [GIVEN] Generate Random Qty.
+        QtyPer := LibraryRandom.RandIntInRange(2, 5);
+        Qty := LibraryRandom.RandIntInRange(5, 10);
+
+        // [GIVEN] Create Lot No. no series
+        LotNoCode := LibraryERM.CreateNoSeriesCode();
+        LotNo := NoSeriesManagement.GetNextNo(LotNoCode, WorkDate(), false);
+
+        // [GIVEN] Create Assembly Item, Component Item and BOM Component
+        CreateAssemblyAndComponentItem(AsmItem, CompItem, QtyPer);
+
+        // [GIVEN] Add Component Item on Inventory
+        AddItemToInventory(CompItem, 100, '', '');
+
+        // [GIVEN] Create Assembly Order and Line
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, LibraryRandom.RandDate(30), AsmItem."No.", '', Qty, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", CompItem."Base Unit of Measure", Qty, QtyPer, '');
+
+        // [GIVEN] Create Item Tracking Line for Assembly Header
+        LibraryItemTracking.CreateAssemblyHeaderItemTracking(ReservEntry, AssemblyHeader, '', LotNo, Qty);
+
+        // [GIVEN] Post Assembly Order
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [GIVEN] Undo Posted Assembly Order
+        FindPostedAssemblyHeaderNotReversed(PostedAssemblyHeader, AssemblyHeader."No.");
+        LibraryAssembly.UndoPostedAssembly(PostedAssemblyHeader, true, '');
+
+        // [WHEN] Open Item Tracing for Posted and Undo Posted Assembly Order
+        OpenItemTracing(ItemTracingPage, AsmItem."No.", LotNo);
+
+        // [THEN] Validate Item Tracing Lines
+        ValidateItemTracingLine(ItemTracingPage, LotNo, AsmItem, CompItem, Qty, QtyPer);
+    end;
+
+    local procedure ValidateItemTracingLine(var ItemTracingPage: TestPage "Item Tracing"; LNParent: Code[50]; ItemParent: Record Item; ItemChild: Record Item; Quantity: Decimal; QtyPer: Decimal)
+    begin
+        ItemTracingPage.Expand(true);
+        ValidateItemTracingLine(ItemTracingPage, 'Assembly Output', '', LNParent, ItemParent."No.", Quantity * (-1));
+
+        ItemTracingPage.Next();
+        ItemTracingPage.Expand(true);
+        ValidateItemTracingLine(ItemTracingPage, 'Assembly Consumption', '', '', ItemChild."No.", Quantity * QtyPer);
+
+        ItemTracingPage.Next();
+        ItemTracingPage.Expand(true);
+        ValidateItemTracingLine(ItemTracingPage, 'Assembly Consumption', '', '', ItemChild."No.", Quantity * QtyPer);
+
+        ItemTracingPage.Next();
+        ItemTracingPage.Expand(true);
+        ValidateItemTracingLine(ItemTracingPage, 'Assembly Output', '', LNParent, ItemParent."No.", Quantity);
+
+        ItemTracingPage.Next();
+        ItemTracingPage.Expand(true);
+        ValidateItemTracingLine(ItemTracingPage, 'Assembly Consumption', '', '', ItemChild."No.", Quantity * QtyPer * (-1));
+
+        ItemTracingPage.Next();
+        ItemTracingPage.Expand(true);
+        ValidateItemTracingLine(ItemTracingPage, 'Assembly Consumption', '', '', ItemChild."No.", Quantity * QtyPer * (-1));
+    end;
+
+    local procedure OpenItemTracing(var ItemTracingPage: TestPage "Item Tracing"; ItemNo: Code[20]; LotNo: Code[20])
+    begin
+        ItemTracingPage.OpenEdit;
+        ItemTracingPage.ItemNoFilter.SetValue(ItemNo);
+        ItemTracingPage.LotNoFilter.SetValue(LotNo);
+        ItemTracingPage.TraceMethod.SetValue('Usage -> Origin');
+        ItemTracingPage.ShowComponents.SetValue('All');
+        ItemTracingPage.Trace.Invoke; // Trace
+    end;
+
+    local procedure FindPostedAssemblyHeaderNotReversed(var PostedAssemblyHeader: Record "Posted Assembly Header"; SourceAssemblyHeaderNo: Code[20])
+    begin
+        Clear(PostedAssemblyHeader);
+        PostedAssemblyHeader.SetRange("Order No.", SourceAssemblyHeaderNo);
+        PostedAssemblyHeader.SetRange(Reversed, false);
+        PostedAssemblyHeader.FindFirst();
+    end;
+
+    local procedure CreateAssemblyAndComponentItem(var AsmItem: Record Item; var CompItem: Record Item; QtyPer: Decimal)
+    var
+        BOMComponent: Record "BOM Component";
+    begin
+        LibraryItemTracking.CreateLotItem(AsmItem);
+        LibraryInventory.CreateItem(CompItem);
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", QtyPer, CompItem."Base Unit of Measure");
     end;
 
     local procedure WhseScenario(WhseType: Option WMS,BW; UsePickWorksheet: Boolean; SN: Boolean; LN: Boolean; AssignITOn: Option AsmLine,Pick,InvtMovement,PickWorksheet)
