@@ -19,6 +19,12 @@ page 134123 "Mock Price List Line"
                 field("Source No."; "Source No.")
                 {
                 }
+                field("Assign-to Parent No."; "Assign-to Parent No.")
+                {
+                }
+                field("Assign-to No."; "Assign-to No.")
+                {
+                }
                 field("Source ID"; "Source ID")
                 {
                 }
@@ -26,6 +32,9 @@ page 134123 "Mock Price List Line"
                 {
                 }
                 field("Asset No."; "Asset No.")
+                {
+                }
+                field("Product No."; "Product No.")
                 {
                 }
                 field("Variant Code"; "Variant Code")

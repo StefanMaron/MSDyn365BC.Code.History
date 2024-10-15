@@ -2192,7 +2192,7 @@ Cstr(Fields!PlusGiroNoCaption.Value)
         <Height>8.8822cm</Height>
         <Style />
       </Body>
-      <Width>19cm</Width>
+      <Width>18cm</Width>
       <Page>
         <PageHeader>
           <Height>10.36462cm</Height>
@@ -3567,7 +3567,7 @@ Cstr(Fields!PlusGiroNoCaption.Value)
                 </Image>
               </ReportItems>
               <KeepTogether>true</KeepTogether>
-              <Left>15cm</Left>
+              <Left>14cm</Left>
               <Height>14mm</Height>
               <Width>40mm</Width>
               <ZIndex>50</ZIndex>

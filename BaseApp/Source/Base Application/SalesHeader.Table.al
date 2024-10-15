@@ -481,6 +481,7 @@
                 then
                     PriceMessageIfSalesLinesExist(FieldCaption("Posting Date"));
 
+                OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(Rec, xRec);
                 ResetInvoiceDiscountValue();
 
                 NeedUpdateCurrencyFactor := "Currency Code" <> '';
@@ -2281,9 +2282,10 @@
                         if ("Salesperson Code" = '') and (Cont."Salesperson Code" <> '') then
                             Validate("Salesperson Code", Cont."Salesperson Code");
 
-                UpdateSellToCust("Sell-to Contact No.");
-                UpdateSellToCustTemplateCode;
-                UpdateShipToContact;
+                if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") then
+                    UpdateSellToCust("Sell-to Contact No.");
+                UpdateSellToCustTemplateCode();
+                UpdateShipToContact();
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])
@@ -2452,7 +2454,7 @@
             var
                 SellToCustTemplate: Record "Customer Templ.";
             begin
-                TestField("Document Type", "Document Type"::Quote);
+                EnsureDocumentTypeIsQuote();
                 TestStatusOpen();
 
                 if not InsertMode and
@@ -3425,6 +3427,18 @@
         exit(CheckNoAndShowConfirm(SourceCode));
     end;
 
+    local procedure EnsureDocumentTypeIsQuote()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeEnsureDocumentTypeIsQuote(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Document Type", "Document Type"::Quote);
+    end;
+
     local procedure CheckNoAndShowConfirm(SourceCode: Record "Source Code") Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -3458,6 +3472,8 @@
 
     procedure GetCust(CustNo: Code[20]): Record Customer
     begin
+        OnBeforeGetCust(Rec, Cust, CustNo);
+
         if not (("Document Type" = "Document Type"::Quote) and (CustNo = '')) then begin
             if CustNo <> Cust."No." then
                 Cust.Get(CustNo);
@@ -4468,11 +4484,7 @@
                 SkipSellToContact := false;
             end;
 
-            if (Cont."E-Mail" = '') and ("Sell-to E-Mail" <> '') and GuiAllowed then begin
-                if Confirm(ConfirmEmptyEmailQst, false, Cont."No.", "Sell-to E-Mail") then
-                    Validate("Sell-to E-Mail", Cont."E-Mail");
-            end else
-                Validate("Sell-to E-Mail", Cont."E-Mail");
+            UpdateSellToEmail(Cont);
             Validate("Sell-to Phone No.", Cont."Phone No.");
         end else begin
             if "Document Type" = "Document Type"::Quote then begin
@@ -4520,6 +4532,22 @@
             Validate("Bill-to Contact No.", "Sell-to Contact No.");
 
         OnAfterUpdateSellToCust(Rec, Cont);
+    end;
+
+    local procedure UpdateSellToEmail(Contact: Record Contact)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSellToEmail(Rec, Contact, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (Contact."E-Mail" = '') and ("Sell-to E-Mail" <> '') and GuiAllowed then begin
+            if Confirm(ConfirmEmptyEmailQst, false, Contact."No.", "Sell-to E-Mail") then
+                Validate("Sell-to E-Mail", Contact."E-Mail");
+        end else
+            Validate("Sell-to E-Mail", Contact."E-Mail");
     end;
 
     local procedure UpdateSellToCustContact(Customer: Record Customer; Cont: Record Contact)
@@ -4839,7 +4867,7 @@
         OldDimSetID := "Dimension Set ID";
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2', "Document Type", "No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         OnShowDocDimOnBeforeUpdateSalesLines(Rec, xRec);
         if OldDimSetID <> "Dimension Set ID" then begin
@@ -5785,7 +5813,7 @@
     var
         IsHandled: Boolean;
     begin
-        OnBeforeCreateSalesLine(TempSalesLine, IsHandled, Rec);
+        OnBeforeCreateSalesLine(TempSalesLine, IsHandled, Rec, SalesLine);
         if IsHandled then
             exit;
 
@@ -6117,38 +6145,45 @@
     end;
 
     local procedure CopySellToCustomerAddressFieldsFromCustomer(var SellToCustomer: Record Customer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, IsHandled);
+        if not IsHandled then begin
 #if not CLEAN18
-        "Sell-to Customer Template Code" := '';
+            "Sell-to Customer Template Code" := '';
 #endif
-        "Sell-to Customer Templ. Code" := '';
-        "Sell-to Customer Name" := Cust.Name;
-        "Sell-to Customer Name 2" := Cust."Name 2";
-        "Sell-to Phone No." := Cust."Phone No.";
-        "Sell-to E-Mail" := Cust."E-Mail";
-        if SellToCustomerIsReplaced() or
-            ShouldCopyAddressFromSellToCustomer(SellToCustomer) or
-            (HasDifferentSellToAddress(SellToCustomer) and SellToCustomer.HasAddress())
-        then begin
-            "Sell-to Address" := SellToCustomer.Address;
-            "Sell-to Address 2" := SellToCustomer."Address 2";
-            "Sell-to City" := SellToCustomer.City;
-            "Sell-to Post Code" := SellToCustomer."Post Code";
-            "Sell-to County" := SellToCustomer.County;
-            "Sell-to Country/Region Code" := SellToCustomer."Country/Region Code";
+            "Sell-to Customer Templ. Code" := '';
+            "Sell-to Customer Name" := Cust.Name;
+            "Sell-to Customer Name 2" := Cust."Name 2";
+            "Sell-to Phone No." := Cust."Phone No.";
+            "Sell-to E-Mail" := Cust."E-Mail";
+            if SellToCustomerIsReplaced() or
+                ShouldCopyAddressFromSellToCustomer(SellToCustomer) or
+                (HasDifferentSellToAddress(SellToCustomer) and SellToCustomer.HasAddress())
+            then begin
+                "Sell-to Address" := SellToCustomer.Address;
+                "Sell-to Address 2" := SellToCustomer."Address 2";
+                "Sell-to City" := SellToCustomer.City;
+                "Sell-to Post Code" := SellToCustomer."Post Code";
+                "Sell-to County" := SellToCustomer.County;
+                "Sell-to Country/Region Code" := SellToCustomer."Country/Region Code";
+                OnCopySellToCustomerAddressFieldsFromCustomerOnAfterAssignSellToCustomerAddress(Rec, SellToCustomer);
+            end;
+            if not SkipSellToContact then
+                "Sell-to Contact" := SellToCustomer.Contact;
+            "Gen. Bus. Posting Group" := SellToCustomer."Gen. Bus. Posting Group";
+            "VAT Bus. Posting Group" := SellToCustomer."VAT Bus. Posting Group";
+            "Tax Area Code" := SellToCustomer."Tax Area Code";
+            "Tax Liable" := SellToCustomer."Tax Liable";
+            "VAT Registration No." := SellToCustomer."VAT Registration No.";
+            "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
+            "Shipping Advice" := SellToCustomer."Shipping Advice";
+            "Responsibility Center" := UserSetupMgt.GetRespCenter(0, SellToCustomer."Responsibility Center");
+            OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(Rec, SellToCustomer, CurrFieldNo);
+            UpdateLocationCode(SellToCustomer."Location Code");
         end;
-        if not SkipSellToContact then
-            "Sell-to Contact" := SellToCustomer.Contact;
-        "Gen. Bus. Posting Group" := SellToCustomer."Gen. Bus. Posting Group";
-        "VAT Bus. Posting Group" := SellToCustomer."VAT Bus. Posting Group";
-        "Tax Area Code" := SellToCustomer."Tax Area Code";
-        "Tax Liable" := SellToCustomer."Tax Liable";
-        "VAT Registration No." := SellToCustomer."VAT Registration No.";
-        "VAT Country/Region Code" := SellToCustomer."Country/Region Code";
-        "Shipping Advice" := SellToCustomer."Shipping Advice";
-        "Responsibility Center" := UserSetupMgt.GetRespCenter(0, SellToCustomer."Responsibility Center");
-        OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(Rec, SellToCustomer, CurrFieldNo);
-        UpdateLocationCode(SellToCustomer."Location Code");
 
         OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo, SkipBillToContact);
     end;
@@ -6185,7 +6220,7 @@
         "Shipping Agent Code" := SellToCustomer."Shipping Agent Code";
         "Shipping Agent Service Code" := SellToCustomer."Shipping Agent Service Code";
 
-        OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer);
+        OnAfterCopyShipToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, xRec);
     end;
 
     local procedure SetCustomerLocationCode(SellToCustomer: Record Customer)
@@ -6212,6 +6247,7 @@
     procedure SetShipToCustomerAddressFieldsFromShipToAddr(ShipToAddr: Record "Ship-to Address")
     var
         IsHandled: Boolean;
+        ShouldCopyLocationCode: Boolean;
     begin
         IsHandled := false;
         OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(Rec, ShipToAddr, IsHandled);
@@ -6227,7 +6263,9 @@
         "Ship-to County" := ShipToAddr.County;
         Validate("Ship-to Country/Region Code", ShipToAddr."Country/Region Code");
         "Ship-to Contact" := ShipToAddr.Contact;
-        if ShipToAddr."Location Code" <> '' then
+        ShouldCopyLocationCode := ShipToAddr."Location Code" <> '';
+        OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(Rec, xRec, ShipToAddr, ShouldCopyLocationCode);
+        if ShouldCopyLocationCode then
             Validate("Location Code", ShipToAddr."Location Code");
         "Shipping Agent Code" := ShipToAddr."Shipping Agent Code";
         "Shipping Agent Service Code" := ShipToAddr."Shipping Agent Service Code";
@@ -6263,6 +6301,7 @@
             "Bill-to Post Code" := BillToCustomer."Post Code";
             "Bill-to County" := BillToCustomer.County;
             "Bill-to Country/Region Code" := BillToCustomer."Country/Region Code";
+            OnSetBillToCustomerAddressFieldsFromCustomerOnAfterAssignBillToCustomerAddress(Rec, BillToCustomer);
         end;
         if not SkipBillToContact then
             "Bill-to Contact" := BillToCustomer.Contact;
@@ -6302,7 +6341,7 @@
         if ("Ship-to Code" = '') or ("Sell-to Customer No." <> BillToCustomer."No.") then
             "Tax Liable" := BillToCustomer."Tax Liable";
 
-        OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer, xRec);
+        OnAfterSetFieldsBilltoCustomer(Rec, BillToCustomer, xRec, SkipBillToContact);
     end;
 
     procedure SetShipToAddress(ShipToName: Text[100]; ShipToName2: Text[50]; ShipToAddress: Text[100]; ShipToAddress2: Text[50]; ShipToCity: Text[30]; ShipToPostCode: Code[20]; ShipToCounty: Text[30]; ShipToCountryRegionCode: Code[10])
@@ -6993,7 +7032,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeShouldSearchForCustomerByName(CustomerNo, Result, IsHandled);
+        OnBeforeShouldSearchForCustomerByName(CustomerNo, Result, IsHandled, CurrFieldNo);
         if IsHandled then
             exit(Result);
 
@@ -7649,7 +7688,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; xSalesHeader: Record "Sales Header")
+    local procedure OnAfterSetFieldsBilltoCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; xSalesHeader: Record "Sales Header"; SkipBillToContact: Boolean)
     begin
     end;
 
@@ -7687,7 +7726,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyShipToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; SellToCustomer: Record Customer)
+    local procedure OnAfterCopyShipToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; SellToCustomer: Record Customer; xSalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -7797,6 +7836,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopySellToCustomerAddressFieldsFromCustomer(var SalesHeader: Record "Sales Header"; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyShipToCustomerAddressFieldsFromShipToAddr(var SalesHeader: Record "Sales Header"; var ShipToAddress: Record "Ship-to Address"; var IsHandled: Boolean)
     begin
     end;
@@ -7812,7 +7856,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateSalesLine(var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean; var SalesHeader: record "Sales Header")
+    local procedure OnBeforeCreateSalesLine(var TempSalesLine: Record "Sales Line" temporary; var IsHandled: Boolean; var SalesHeader: record "Sales Header"; var SalesLine: record "Sales Line")
     begin
     end;
 
@@ -7833,6 +7877,16 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeDeleteRecordInApprovalRequest(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnsureDocumentTypeIsQuote(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCust(var SalesHeader: Record "Sales Header"; var Customer: Record Customer; CustNo: Code[20])
     begin
     end;
 
@@ -7972,7 +8026,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeShouldSearchForCustomerByName(CustomerNo: Code[20]; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeShouldSearchForCustomerByName(CustomerNo: Code[20]; var Result: Boolean; var IsHandled: Boolean; var CallingFieldNo: Integer)
     begin
     end;
 
@@ -7988,6 +8042,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateBillToCont(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; var SkipBillToContact: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSellToEmail(var SalesHeader: Record "Sales Header"; Contact: Record Contact; var IsHandled: Boolean)
     begin
     end;
 
@@ -8178,6 +8237,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCopySelltoCustomerAddressFieldsFromCustomerOnAfterAssignRespCenter(var SalesHeader: Record "Sales Header"; Customer: Record Customer; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    procedure OnCopySellToCustomerAddressFieldsFromCustomerOnAfterAssignSellToCustomerAddress(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
     begin
     end;
 
@@ -8408,6 +8472,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    procedure OnSetBillToCustomerAddressFieldsFromCustomerOnAfterAssignBillToCustomerAddress(var SalesHeader: Record "Sales Header"; Customer: Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetShipToCustomerAddressFieldsFromShipToAddrOnAfterCalcShouldCopyLocationCode(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header"; ShipToAddress: Record "Ship-to Address"; var ShouldCopyLocationCode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnTestStatusIsNotPendingApproval(SalesHeader: Record "Sales Header"; var NotPending: Boolean)
     begin
     end;
@@ -8499,6 +8573,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePostingDateOnBeforeAssignDocumentDate(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePostingDateOnBeforeResetInvoiceDiscountValue(var SalesHeader: Record "Sales Header"; xSalesHeader: Record "Sales Header")
     begin
     end;
 

@@ -1,4 +1,4 @@
-page 9255 "Tasks Matrix"
+﻿page 9255 "Tasks Matrix"
 {
     Caption = 'Tasks Matrix';
     DataCaptionExpression = Format(SelectStr(OutputOption + 1, Text001));
@@ -620,6 +620,8 @@ page 9255 "Tasks Matrix"
                       "System Task Type Filter", "System Task Type Filter"::"Contact Attendee");
                 end;
         end;
+
+        OnAfterSetFilters(Rec, Task, TableOption);
     end;
 
     local procedure FindRec(TableOpt: Option Salesperson,Teams,Campaign,Contact; var RMMatrixMgt: Record "RM Matrix Management"; Which: Text[250]): Boolean
@@ -950,6 +952,11 @@ page 9255 "Tasks Matrix"
     local procedure FormatLine()
     begin
         StyleIsStrong := Type = Type::Company;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetFilters(var RMMatrixManagement: Record "RM Matrix Management"; var Task: Record "To-do"; TableOption: Option Salesperson,Team,Campaign,Contact)
+    begin
     end;
 }
 

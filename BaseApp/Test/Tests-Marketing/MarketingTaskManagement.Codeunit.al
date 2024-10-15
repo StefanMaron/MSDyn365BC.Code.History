@@ -1207,6 +1207,50 @@ codeunit 136203 "Marketing Task Management"
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Invalid editable state for Team Task');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreateTaskSalesPersonEnablePhoneCallTeamTodo()
+    var
+        Todo: Array[2] of Record "To-do";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Team: Record Team;
+        CreateTask: TestPage "Create Task";
+    begin
+        // [SCENARIO 430127] Salesperson should be enabled on Create Task page when "Team To-do" = false
+        Initialize();
+
+        // [GIVEN] Task "T1" with "Team To-do" = false
+        CreateTeamWithSalesperson(Team, SalespersonPurchaser);
+        LibraryMarketing.CreateTask(Todo[1]);
+        Todo[1].Validate(Date, WorkDate());
+        Todo[1].Validate("Team To-do", False);
+        Todo[1].Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Todo[1].Modify(true);
+
+        // [GIVEN] Task "T2" with "Team To-do" = true
+        LibraryMarketing.CreateTask(Todo[2]);
+        Todo[2].Validate(Date, WorkDate());
+        Todo[2].Validate("Team To-do", true);
+        Todo[2].Validate("Team Code", Team.Code);
+        Todo[2].Modify(true);
+
+        // [WHEN] "Create Task" page opened for Task "T1" and Type set to "Phone Call"
+        CreateTask.OpenEdit();
+        CreateTask.GoToRecord(Todo[1]);
+        CreateTask.TypeOnPrem.SetValue(Todo[1].Type::"Phone Call");
+        // [THEN] "Salesperson Code" is enabled 
+        Assert.IsTrue(CreateTask."Salesperson Code".Enabled(), 'Salesperson Code is not enabled');
+        CreateTask.Close();
+
+        // [WHEN] "Create Task" page opened for Task "T2" and Type set to "Phone Call"
+        CreateTask.OpenEdit();
+        CreateTask.GoToRecord(Todo[2]);
+        CreateTask.TypeOnPrem.SetValue(Todo[2].Type::"Phone Call");
+        // [THEN] "Salesperson Code" is not enabled 
+        Assert.IsFalse(CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should not be enabled');
+        CreateTask.Close();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

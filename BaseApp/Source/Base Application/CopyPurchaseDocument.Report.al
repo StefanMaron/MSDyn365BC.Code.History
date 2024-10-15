@@ -438,6 +438,7 @@ report 492 "Copy Purchase Document"
     begin
         RecalculateLines :=
           (FromDocType in [FromDocType::"Posted Receipt", FromDocType::"Posted Return Shipment"]) or not IncludeHeader;
+        OnAfterValidateIncludeHeader(RecalculateLines, IncludeHeader);
     end;
 
     procedure SetParameters(NewFromDocType: Enum "Purchase Document Type From"; NewFromDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
@@ -450,6 +451,11 @@ report 492 "Copy Purchase Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateIncludeHeader(var RecalculateLines: Boolean; IncludeHeader: Boolean)
     begin
     end;
 
