@@ -17,6 +17,14 @@ codeunit 139193 "CDS Connection String"
         UserNameMustInclDomainErr: Label 'The user name must include the domain when the authentication type is set to Active Directory.';
         UserNameMustBeEmailErr: Label 'The user name must be a valid email address when the authentication type is set to Office 365.';
         IsNotFoundOnThePageErr: Label 'is not found on the page';
+        PasswordConnectionStringFormatTxt: Label 'Url=%1; UserName=%2; Password=%3; ProxyVersion=%4; %5;', Locked = true;
+        PasswordAuthTxt: Label 'AuthType=AD', Locked = true;
+        ClientSecretConnectionStringFormatTxt: Label '%1; Url=%2; ClientId=%3; ClientSecret=%4; ProxyVersion=%5', Locked = true;
+        ClientSecretAuthTxt: Label 'AuthType=ClientSecret', Locked = true;
+        UserTok: Label '{USER}', Locked = true;
+        PasswordTok: Label '{PASSWORD}', Locked = true;
+        ClientIdTok: Label '{CLIENTID}', Locked = true;
+        ClientSecretTok: Label '{CLIENTSECRET}', Locked = true;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -632,6 +640,84 @@ codeunit 139193 "CDS Connection String"
         CDSConnectionSetup.Find();
         // [THEN] No error appear and the value is saved
         Assert.AreEqual('', CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Wrong connection string value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithPassword()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CDS Connection Setup record is "8"
+        OldVersion := 8;
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Is Enabled" := false;
+        CDSConnectionSetup."Server Address" := '@@test@@';
+        CDSConnectionSetup."Proxy Version" := OldVersion;
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::AD;
+        CDSConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CDSConnectionSetup."Server Address", UserTok, PasswordTok, OldVersion, PasswordAuthTxt);
+        CDSIntegrationImpl.SetConnectionString(CDSConnectionSetup, OldConnectionString);
+        CDSConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CDSConnectionSetup.Validate("Proxy Version", NewVersion);
+        CDSConnectionSetup.Modify();
+
+        // [THEN] Proxy Version in CDS Connection Setup record is "9.1", other parts are unchanged
+        CDSConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(PasswordConnectionStringFormatTxt, CDSConnectionSetup."Server Address", UserTok, PasswordTok, NewVersion, PasswordAuthTxt);
+        Assert.AreEqual(NewConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected new connection string');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdatSDKVersionInConnectionStringWithClientSecret()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        OldConnectionString: Text;
+        NewConnectionString: Text;
+        OldVersion: Integer;
+        NewVersion: Integer;
+    begin
+        // [FEATURE] [Multiple SDK]
+        // [SCENARIO] Changing SDK version updates the connection string with the new version
+
+        // [WHEN] SDK Version in CDS Connection Setup record is "8"
+        OldVersion := 8;
+        CDSConnectionSetup.DeleteAll();
+        CDSConnectionSetup.Init();
+        CDSConnectionSetup."Is Enabled" := false;
+        CDSConnectionSetup."Server Address" := '@@test@@';
+        CDSConnectionSetup."Proxy Version" := OldVersion;
+        CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
+        CDSConnectionSetup.Insert();
+        OldConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, OldVersion);
+        CDSIntegrationImpl.SetConnectionString(CDSConnectionSetup, OldConnectionString);
+        CDSConnectionSetup.Get();
+        Assert.AreEqual(OldConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected old connection string');
+
+        // [WHEN] SDK Version is set to "9.1"
+        NewVersion := 91;
+        CDSConnectionSetup.Validate("Proxy Version", NewVersion);
+        CDSConnectionSetup.Modify();
+
+        // [THEN] Proxy Version in CDS Connection Setup record is "9.1", other parts are unchanged
+        CDSConnectionSetup.Get();
+        NewConnectionString := StrSubstNo(ClientSecretConnectionStringFormatTxt, ClientSecretAuthTxt, CDSConnectionSetup."Server Address", ClientIdTok, ClientSecretTok, NewVersion);
+        Assert.AreEqual(NewConnectionString, CDSIntegrationImpl.GetConnectionString(CDSConnectionSetup), 'Unexpected new connection string');
     end;
 
     local procedure Initialize()
