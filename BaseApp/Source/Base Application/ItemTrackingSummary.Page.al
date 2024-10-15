@@ -238,7 +238,7 @@ page 6500 "Item Tracking Summary"
                 TempReservEntry.Insert();
             until ReservEntry.Next() = 0;
 
-        xEntrySummary.SetView(Rec.GetView());
+        xEntrySummary.Copy(Rec);
         OnSetSourcesOnAfterxEntrySummarySetview(xEntrySummary);
 
         Rec.Reset;
@@ -252,6 +252,7 @@ page 6500 "Item Tracking Summary"
             until EntrySummary.Next() = 0;
         Rec.SetView(xEntrySummary.GetView());
         UpdateSelectedQuantity();
+        if Rec.Get(xEntrySummary."Entry No.") then;
     end;
 
     procedure SetSelectionMode(SelectionMode: Boolean)

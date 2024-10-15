@@ -82,6 +82,9 @@ codeunit 142006 "Export Business Data"
         WrongNoOfLinesErr: Label 'Wrong number of %1 in setup';
         WrongIndentErr: Label 'Indentation is not correct.';
         OptionValueErr: Label 'Wrong option value in file.';
+        GLAccTxt: Label 'GLAcc 2022';
+        FAAccTxt: Label 'FAAcc 2022';
+        ItemAccTxt: Label 'Item 2022';
 
     [Test]
     [Scope('OnPrem')]
@@ -987,8 +990,8 @@ codeunit 142006 "Export Business Data"
         FileName[2] := DataExportRecordSource."Export File Name";
         TableName[2] := DataExportRecordSource."Export Table Name";
 
-        // [THEN] Generated a new table name - xyz1.txt
-        Assert.AreEqual(TableName[1] + '1', TableName[2], DataExportRecordSource.FieldName("Export Table Name"));
+        // [THEN] Generated a new table name - xyz 1
+        Assert.AreEqual(TableName[1] + ' 1', TableName[2], DataExportRecordSource.FieldName("Export Table Name"));
         // [THEN] Generated a new file name - xyz1.txt
         Assert.AreEqual(
           InsStr(FileName[1], '1', StrPos(FileName[1], '.')), FileName[2], DataExportRecordSource.FieldName("Export File Name"));
@@ -1023,8 +1026,8 @@ codeunit 142006 "Export Business Data"
         FileName[2] := DataExportRecordSource."Export File Name";
         TableName[2] := DataExportRecordSource."Export Table Name";
 
-        // [THEN] Generated a new table name - xyz1
-        Assert.AreEqual(TableName[1] + '1', TableName[2], DataExportRecordSource.FieldName("Export Table Name"));
+        // [THEN] Generated a new table name - xyz 1
+        Assert.AreEqual(TableName[1] + ' 1', TableName[2], DataExportRecordSource.FieldName("Export Table Name"));
         // [THEN] Generated a new file name - xyz1.txt
         Assert.AreEqual(
           InsStr(FileName[1], '1', StrPos(FileName[1], '.')), FileName[2], DataExportRecordSource.FieldName("Export File Name"));
@@ -1164,7 +1167,7 @@ codeunit 142006 "Export Business Data"
     begin
         // [FEATURE] Digital Audit
         // [SCENARIO 100] Indentation - Cannot indent a single parent.
-        DataExportRecordSource.DeleteAll();
+        DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
 
         // [GIVEN] There is one Data Export Record Source X available.
@@ -1188,7 +1191,7 @@ codeunit 142006 "Export Business Data"
     begin
         // [FEATURE] Digital Audit
         // [SCENARIO 101] Indentation - Able to indent records under a parent.
-        DataExportRecordSource.DeleteAll();
+        DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
         TableNoArr[1] := GLAccTableNo;
         TableNoArr[2] := GLEntryTableNo;
@@ -1215,7 +1218,7 @@ codeunit 142006 "Export Business Data"
     begin
         // [FEATURE] Digital Audit
         // [SCENARIO 102] Indentation - Indentation level 3, indented with level 2.
-        DataExportRecordSource.DeleteAll();
+        DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
         TableNoArr[1] := GLAccTableNo;
         TableNoArr[2] := GLEntryTableNo;
@@ -1250,7 +1253,7 @@ codeunit 142006 "Export Business Data"
     begin
         // [FEATURE] Digital Audit
         // [SCENARIO 103] Indentation - Unindent record level 2.
-        DataExportRecordSource.DeleteAll();
+        DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
         TableNoArr[1] := GLAccTableNo;
         TableNoArr[2] := GLEntryTableNo;
@@ -1278,7 +1281,7 @@ codeunit 142006 "Export Business Data"
     begin
         // [FEATURE] Digital Audit
         // [SCENARIO 104] Indentation - Unindent Record level 2 which has an indented level 3 record.
-        DataExportRecordSource.DeleteAll();
+        DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
         TableNoArr[1] := GLAccTableNo;
         TableNoArr[2] := GLEntryTableNo;
@@ -1316,7 +1319,7 @@ codeunit 142006 "Export Business Data"
     begin
         // [FEATURE] Digital Audit
         // [SCENARIO 105] Indentation - Unindent would remove a relation if exists.
-        DataExportRecordSourceParent.DeleteAll();
+        DataExportRecordSourceParent.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
 
         // [GIVEN] There is un-indented Data Export Record Source X.
@@ -1491,24 +1494,24 @@ codeunit 142006 "Export Business Data"
         // [FEATURE] [UT]
         // [SCENARIO 313218] Export Table Name modified to be unique, if record with such value exists
 
-        // [GIVEN] Data Export Record Definition with Record Source RS1 = "Vendor" and RS2 = "CVLedgerEntryBuffer"
+        // [GIVEN] Data Export Record Definition with Record Source RS1 = "Vendor" and RS2 = "CV Ledger Entry Buffer"
         CreateDataExportRecordSources(DataExportRecordDefinition);
 
-        // [WHEN] Validate RS1."Export Table Name" = 'CVLedgerEntryBuffer'
+        // [WHEN] Validate RS1."Export Table Name" = 'CV Ledger Entry Buffer'
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
         DataExportRecordSource.FindFirst;
-        DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
+        DataExportRecordSource.Validate("Export Table Name", 'CV Ledger Entry Buffer');
 
-        // [THEN] Validates to 'CVLedgerEntryBuffer1'
-        DataExportRecordSource.TestField("Export Table Name", 'CVLedgerEntryBuffer1');
+        // [THEN] Validates to 'CV Ledger Entry Buffer 1'
+        DataExportRecordSource.TestField("Export Table Name", 'CV Ledger Entry Buffer 1');
         DataExportRecordSource.Modify(true);
         DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::"Detailed CV Ledg. Entry Buffer");
         DataExportRecordSource.FindFirst;
-        DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
-        DataExportRecordSource.TestField("Export Table Name", 'CVLedgerEntryBuffer2');
+        DataExportRecordSource.Validate("Export Table Name", 'CV Ledger Entry Buffer');
+        DataExportRecordSource.TestField("Export Table Name", 'CV Ledger Entry Buffer 2');
     end;
 
     [Test]
@@ -1521,25 +1524,25 @@ codeunit 142006 "Export Business Data"
         // [FEATURE] [UT]
         // [SCENARIO 313218] Export Table Name modified to be unique by numeric increment, if record with such value exists
 
-        // [GIVEN] Data Export Record Definition with Record Source RS1 = "Vendor" and RS2 = "CVLedgerEntryBuffer", RS3 = 'DetailedCVLedgEntryBuffer'
+        // [GIVEN] Data Export Record Definition with Record Source RS1 = "Vendor" and RS2 = "CV Ledger Entry Buffer", RS3 = 'Detailed CV Ledg Entry Buffer'
         CreateDataExportRecordSources(DataExportRecordDefinition);
 
-        // [GIVEN] RS1."Export Table Name" = 'CVLedgerEntryBuffer1'
+        // [GIVEN] RS1."Export Table Name" = 'CV Ledger Entry Buffer 1'
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::Vendor);
         DataExportRecordSource.FindFirst;
-        DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
+        DataExportRecordSource.Validate("Export Table Name", 'CV Ledger Entry Buffer');
         DataExportRecordSource.Modify(true);
 
-        // [WHEN] Validate RS3."Export Table Name" = 'CVLedgerEntryBuffer'
+        // [WHEN] Validate RS3."Export Table Name" = 'CV Ledger Entry Buffer'
         DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", DataExportRecordDefinition."Data Export Code");
         DataExportRecordSource.SetRange("Table No.", DATABASE::"Detailed CV Ledg. Entry Buffer");
         DataExportRecordSource.FindFirst;
-        DataExportRecordSource.Validate("Export Table Name", 'CVLedgerEntryBuffer');
+        DataExportRecordSource.Validate("Export Table Name", 'CV Ledger Entry Buffer');
 
-        // [THEN] Validates to 'CVLedgerEntryBuffer2'
-        DataExportRecordSource.TestField("Export Table Name", 'CVLedgerEntryBuffer2');
+        // [THEN] Validates to 'CV Ledger Entry Buffer 2'
+        DataExportRecordSource.TestField("Export Table Name", 'CV Ledger Entry Buffer 2');
     end;
 
     [Test]
@@ -1779,6 +1782,123 @@ codeunit 142006 "Export Business Data"
         // [THEN] index.xml has exactly 2 'VariablePrimaryKey' tags and 4 'VariableColumn' tags.
         VerifyElementCountInIndexXML(FolderName, 'VariablePrimaryKey', 2);
         VerifyElementCountInIndexXML(FolderName, 'VariableColumn', 4);
+    end;
+
+    [Test]
+    procedure RunExportBusinessDataOnGLAcc2022()
+    var
+        DataExportRecDef: Record "Data Export Record Definition";
+        DataExportSetup: Record "Data Export Setup";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        DataExports: TestPage "Data Exports";
+        FilesNames: List of [Text];
+    begin
+        // [SCENARIO 418608] Data is exported with Data Export "GLAcc 2022".
+
+        // [GIVEN] Data Export with code "GLAcc 2022".
+        // [GIVEN] Data Export Record Definition with Data Export Code and Data Export Rec Type Code "GLAcc 2022".
+        DataExports.OpenEdit();
+        DataExports.Close();
+
+        // [GIVEN] Dtd file is attached to the Data Export Record Definition.
+        DataExportRecDef.Get(GLAccTxt, GLAccTxt);
+        CreateDummyDTDFileBlob(DataExportRecDef);
+
+        // [WHEN] Run Export Business Data report on the Data Export Record Definition.
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        RunExportBusinessDataZipStreamOutput(DataExportRecDef);
+        UnbindSubscription(LibraryFileMgtHandler);
+
+        // [THEN] Zip file is created, it contains index.xml, dtd file and files for exported table data.
+        FilesNames.AddRange(IndexFileTxt, DefaultDTDFileTxt, LogFileTxt);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyFileNamesAndCountInZip(TempBlob, FilesNames, 17);
+
+        // tear down
+        DeleteDataExportRecord(GLAccTxt, GLAccTxt);
+        DeleteDataExportRecord(FAAccTxt, FAAccTxt);
+        DeleteDataExportRecord(ItemAccTxt, ItemAccTxt);
+        DataExportSetup.DeleteAll(true);
+    end;
+
+    [Test]
+    procedure RunExportBusinessDataOnFAAcc2022()
+    var
+        DataExportRecDef: Record "Data Export Record Definition";
+        DataExportSetup: Record "Data Export Setup";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        DataExports: TestPage "Data Exports";
+        FilesNames: List of [Text];
+    begin
+        // [SCENARIO 418608] Data is exported with Data Export "FAAcc 2022".
+
+        // [GIVEN] Data Export with code "FAAcc 2022".
+        // [GIVEN] Data Export Record Definition with Data Export Code and Data Export Rec Type Code "FAAcc 2022".
+        DataExports.OpenEdit();
+        DataExports.Close();
+
+        // [GIVEN] Dtd file is attached to the Data Export Record Definition.
+        DataExportRecDef.Get(FAAccTxt, FAAccTxt);
+        CreateDummyDTDFileBlob(DataExportRecDef);
+
+        // [WHEN] Run Export Business Data report on the Data Export Record Definition.
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        RunExportBusinessDataZipStreamOutput(DataExportRecDef);
+        UnbindSubscription(LibraryFileMgtHandler);
+
+        // [THEN] Zip file is created, it contains index.xml, dtd file and files for exported table data.
+        FilesNames.AddRange(IndexFileTxt, DefaultDTDFileTxt, LogFileTxt);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyFileNamesAndCountInZip(TempBlob, FilesNames, 7);
+
+        // tear down
+        DeleteDataExportRecord(GLAccTxt, GLAccTxt);
+        DeleteDataExportRecord(FAAccTxt, FAAccTxt);
+        DeleteDataExportRecord(ItemAccTxt, ItemAccTxt);
+        DataExportSetup.DeleteAll(true);
+    end;
+
+    [Test]
+    procedure RunExportBusinessDataOnItemAcc2022()
+    var
+        DataExportRecDef: Record "Data Export Record Definition";
+        DataExportSetup: Record "Data Export Setup";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        TempBlob: Codeunit "Temp Blob";
+        DataExports: TestPage "Data Exports";
+        FilesNames: List of [Text];
+    begin
+        // [SCENARIO 418608] Data is exported with Data Export "Item 2022".
+
+        // [GIVEN] Data Export with code "Item 2022".
+        // [GIVEN] Data Export Record Definition with Data Export Code and Data Export Rec Type Code "Item 2022".
+        DataExports.OpenEdit();
+        DataExports.Close();
+
+        // [GIVEN] Dtd file is attached to the Data Export Record Definition.
+        DataExportRecDef.Get(ItemAccTxt, ItemAccTxt);
+        CreateDummyDTDFileBlob(DataExportRecDef);
+
+        // [WHEN] Run Export Business Data report on the Data Export Record Definition.
+        LibraryFileMgtHandler.SetBeforeDownloadFromStreamHandlerActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+        RunExportBusinessDataZipStreamOutput(DataExportRecDef);
+        UnbindSubscription(LibraryFileMgtHandler);
+
+        // [THEN] Zip file is created, it contains index.xml, dtd file and files for exported table data.
+        FilesNames.AddRange(IndexFileTxt, DefaultDTDFileTxt, LogFileTxt);
+        LibraryFileMgtHandler.GetTempBlob(TempBlob);
+        VerifyFileNamesAndCountInZip(TempBlob, FilesNames, 7);
+
+        // tear down
+        DeleteDataExportRecord(GLAccTxt, GLAccTxt);
+        DeleteDataExportRecord(FAAccTxt, FAAccTxt);
+        DeleteDataExportRecord(ItemAccTxt, ItemAccTxt);
+        DataExportSetup.DeleteAll(true);
     end;
 
     local procedure GetPKFieldIndex(): Integer
@@ -2305,7 +2425,7 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource: Record "Data Export Record Source";
         TableNoArr: array[10] of Integer;
     begin
-        DataExportRecordSource.DeleteAll();
+        DataExportRecordSource.DeleteAll(true);
         CreateRecDefinition(DataExportRecordDefinition);
         TableNoArr[1] := DATABASE::Vendor;
         TableNoArr[2] := DATABASE::"CV Ledger Entry Buffer";
@@ -2343,6 +2463,17 @@ codeunit 142006 "Export Business Data"
             Find;
             Delete(true);
         end;
+    end;
+
+    local procedure DeleteDataExportRecord(DataExportCode: Code[10]; DataExportRecTypeCode: Code[10])
+    var
+        DataExport: Record "Data Export";
+        DataExportRecType: Record "Data Export Record Type";
+    begin
+        DataExport.Get(DataExportCode);
+        DataExport.Delete(true);
+        DataExportRecType.Get(DataExportRecTypeCode);
+        DataExportRecType.Delete(true);
     end;
 
     local procedure AddField(var DataExportRecField: Record "Data Export Record Field"; FieldID: Integer)
@@ -2550,6 +2681,19 @@ codeunit 142006 "Export Business Data"
                 Assert.IsTrue(EntryList.Contains(ExportedFileName[i]), StrSubstNo(CannotFindFileErr, ExportedFileName[i]));
     end;
 
+    local procedure VerifyFileNamesAndCountInZip(var TempBlob: Codeunit "Temp Blob"; FilesNames: List of [Text]; FilesNumber: Integer)
+    var
+        DataCompression: Codeunit "Data Compression";
+        ZipEntryList: List of [Text];
+        FileName: Text;
+    begin
+        DataCompression.OpenZipArchive(TempBlob, false);
+        DataCompression.GetEntryList(ZipEntryList);
+        Assert.AreEqual(FilesNumber, ZipEntryList.Count, '');
+        foreach FileName in FilesNames do
+            Assert.IsTrue(ZipEntryList.Contains(FileName), '');
+    end;
+
     local procedure VerifyEntryNosInDataFile(ZipFilePath: Text; ExportedFileName: Text; var TempEntryNo: Record "Integer" temporary; FirstLineOnly: Boolean)
     var
         TempBlob: Codeunit "Temp Blob";
@@ -2746,6 +2890,18 @@ codeunit 142006 "Export Business Data"
             Run;
         end;
         Exit(FileMgt.CombinePath(PathName, ZipFileName));
+    end;
+
+    local procedure RunExportBusinessDataZipStreamOutput(DataExportRecDef: Record "Data Export Record Definition")
+    var
+        ExportBusinessData: Report "Export Business Data";
+    begin
+        Commit();
+        DataExportRecDef.SetRecFilter();
+        ExportBusinessData.SetTableView(DataExportRecDef);
+        ExportBusinessData.SetClientFileName('');
+        ExportBusinessData.UseRequestPage(false);
+        ExportBusinessData.Run();
     end;
 
     local procedure DefaultFilePathName(): Text[250]

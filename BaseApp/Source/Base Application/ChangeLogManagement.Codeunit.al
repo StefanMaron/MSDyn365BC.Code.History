@@ -31,6 +31,9 @@ codeunit 423 "Change Log Management"
         if IsHandled then
             exit;
 
+        if LogDelete and LogInsert and LogModify and LogRename then
+            exit;
+
         if CompanyName = '' then
             exit;
 
@@ -70,12 +73,10 @@ codeunit 423 "Change Log Management"
         if not MonitorSensitiveFieldData.CheckIfTableIsMonitored(TempChangeLogSetupTable, FieldMonitoringSetup, ChangeLogSetup) then
             exit;
 
-        with TempChangeLogSetupTable do begin
-            LogInsert := "Log Insertion" <> "Log Insertion"::" ";
-            LogModify := "Log Modification" <> "Log Modification"::" ";
-            LogRename := "Log Modification" <> "Log Modification"::" ";
-            LogDelete := "Log Deletion" <> "Log Deletion"::" ";
-        end;
+        LogInsert := LogInsert or (TempChangeLogSetupTable."Log Insertion" <> TempChangeLogSetupTable."Log Insertion"::" ");
+        LogModify := LogModify or (TempChangeLogSetupTable."Log Modification" <> TempChangeLogSetupTable."Log Modification"::" ");
+        LogRename := LogRename or (TempChangeLogSetupTable."Log Modification" <> TempChangeLogSetupTable."Log Modification"::" ");
+        LogDelete := LogDelete or (TempChangeLogSetupTable."Log Deletion" <> TempChangeLogSetupTable."Log Deletion"::" ");
 
         OnAfterGetDatabaseTableTriggerSetup(TempChangeLogSetupTable, LogInsert, LogModify, LogDelete, LogRename);
     end;

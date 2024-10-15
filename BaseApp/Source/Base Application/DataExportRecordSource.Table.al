@@ -25,19 +25,21 @@ table 11004 "Data Export Record Source"
             TableRelation = AllObj."Object ID" WHERE("Object Type" = CONST(Table));
 
             trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
             begin
                 TestField("Table No.");
                 if (xRec."Table No." <> 0) and (xRec."Table No." <> "Table No.") then
                     Error(CannotModifyErr, FieldCaption("Table No."));
 
-                CalcFields("Table Name");
-                Validate("Export Table Name", "Table Name");
+                AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Table, "Table No.");
+                Validate("Export Table Name", AllObjWithCaption."Object Name");
                 FindDataFilterField;
             end;
         }
         field(4; "Table Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table No.")));
             Caption = 'Table Name';
             Editable = false;
@@ -58,7 +60,7 @@ table 11004 "Data Export Record Source"
         }
         field(6; "Fields Selected"; Boolean)
         {
-            CalcFormula = Exist ("Data Export Record Field" WHERE("Data Export Code" = FIELD("Data Export Code"),
+            CalcFormula = Exist("Data Export Record Field" WHERE("Data Export Code" = FIELD("Data Export Code"),
                                                                   "Data Exp. Rec. Type Code" = FIELD("Data Exp. Rec. Type Code"),
                                                                   "Table No." = FIELD("Table No.")));
             Caption = 'Fields Selected';
@@ -73,7 +75,7 @@ table 11004 "Data Export Record Source"
         }
         field(8; "Relation To Table Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Relation To Table No.")));
             Caption = 'Relation To Table Name';
             Editable = false;
@@ -108,7 +110,7 @@ table 11004 "Data Export Record Source"
         }
         field(10; "Period Field Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Period Field No.")));
             Caption = 'Period Field Name';
             Editable = false;
@@ -116,7 +118,7 @@ table 11004 "Data Export Record Source"
         }
         field(11; "Table Relation Defined"; Boolean)
         {
-            CalcFormula = Exist ("Data Export Table Relation" WHERE("Data Export Code" = FIELD("Data Export Code"),
+            CalcFormula = Exist("Data Export Table Relation" WHERE("Data Export Code" = FIELD("Data Export Code"),
                                                                     "Data Exp. Rec. Type Code" = FIELD("Data Exp. Rec. Type Code"),
                                                                     "To Table No." = FIELD("Table No."),
                                                                     "From Table No." = FIELD("Relation To Table No.")));
@@ -215,10 +217,12 @@ table 11004 "Data Export Record Source"
             Caption = 'Export Table Name';
 
             trigger OnValidate()
+            var
+                DataExportManagement: Codeunit "Data Export Management";
             begin
                 "Export Table Name" := CopyStr(FindUniqueTableName, 1, MaxStrLen("Export Table Name"));
                 TestField("Export Table Name");
-                Validate("Export File Name", "Export Table Name" + '.txt');
+                Validate("Export File Name", DataExportManagement.FormatFileName("Export Table Name") + '.txt');
             end;
         }
     }
@@ -325,7 +329,7 @@ table 11004 "Data Export Record Source"
             if Evaluate(PostfixInt, Postfix) and (PostfixInt > LargestPostfix) then
                 LargestPostfix := PostfixInt;
         until DataExportRecordSource.Next() = 0;
-        exit(StrSubstNo('%1%2', "Export Table Name", LargestPostfix + 1));
+        exit(StrSubstNo('%1 %2', "Export Table Name", LargestPostfix + 1));
     end;
 
     local procedure FindUniqueFileName(): Text

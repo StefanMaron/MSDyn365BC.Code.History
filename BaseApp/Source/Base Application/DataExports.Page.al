@@ -50,5 +50,14 @@ page 11002 "Data Exports"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        DataExportManagement: Codeunit "Data Export Management";
+    begin
+        DataExportManagement.CreateDataExportForPersonalAndGLAccounting();
+        DataExportManagement.CreateDataExportForFAAccounting();
+        DataExportManagement.CreateDataExportForInvoiceAndItemAccounting();
+    end;
 }
 

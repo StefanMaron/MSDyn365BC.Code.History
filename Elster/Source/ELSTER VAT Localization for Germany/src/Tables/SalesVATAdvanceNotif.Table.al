@@ -250,10 +250,16 @@ table 11021 "Sales VAT Advance Notif."
     }
 
     trigger OnInsert()
+    var
+        CompanyInformation: Record "Company Information";
     begin
         if xRec.FindLast() then;
         Period := xRec.Period;
         "Contact for Tax Office" := xRec."Contact for Tax Office";
+        if "Contact for Tax Office" = '' then begin
+            CompanyInformation.Get();
+            "Contact for Tax Office" := CopyStr(CompanyInformation."VAT Representative", 1, MaxStrLen("Contact for Tax Office"));
+        end;
 
         if "No." = '' then begin
             ElecVATDeclSetup.Get();
