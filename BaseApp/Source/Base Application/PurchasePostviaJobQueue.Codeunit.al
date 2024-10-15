@@ -10,6 +10,7 @@ codeunit 98 "Purchase Post via Job Queue"
         RecRef: RecordRef;
         RecRefToPrint: RecordRef;
         SavedLockTimeout: Boolean;
+        IsHandled: Boolean;
     begin
         TestField("Record ID to Process");
         RecRef.Get("Record ID to Process");
@@ -22,7 +23,10 @@ codeunit 98 "Purchase Post via Job Queue"
         SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::Posting, Rec);
         if not Codeunit.Run(Codeunit::"Purch.-Post", PurchHeader) then begin
             SetJobQueueStatus(PurchHeader, PurchHeader."Job Queue Status"::Error, Rec);
-            BatchProcessingMgt.ResetBatchID;
+            IsHandled := false;
+            OnBeforeBatchProcessingErrorReset(Rec, IsHandled);
+            if not IsHandled THEN
+                BatchProcessingMgt.ResetBatchID();
             Error(GetLastErrorText);
         end;
         if PurchHeader."Print Posted Documents" then begin
@@ -104,6 +108,7 @@ codeunit 98 "Purchase Post via Job Queue"
             FillJobEntryFromPurchSetup(JobQueueEntry);
             FillJobEntryPurchDescription(JobQueueEntry, PurchHeader);
             "User Session ID" := SessionId;
+            OnEnqueueJobEntryOnBeforeRunJobQueueEnqueue(PurchHeader, JobQueueEntry);
             CODEUNIT.Run(CODEUNIT::"Job Queue - Enqueue", JobQueueEntry);
             exit(ID);
         end;
@@ -200,6 +205,16 @@ codeunit 98 "Purchase Post via Job Queue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetJobQueueStatus(PurchaseHeader: Record "Purchase Header"; NewJobQueueStatus: Option " ","Scheduled for Posting",Error,Posting; JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEnqueueJobEntryOnBeforeRunJobQueueEnqueue(PurchaseHeader: Record "Purchase Header"; var JobQueueEntry: Record "Job Queue Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBatchProcessingErrorReset(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
     begin
     end;
 }

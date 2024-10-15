@@ -38,6 +38,7 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         DimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for G/L Account %2.', Comment = '%1 - dimension code, %2 - account number';
         DisabledFeatureErr: Label 'Enabled must be equal to ''All Users''  in Feature Key: ID=JournalErrorBackgroundCheck';
         OnBeforeRunCheckTxt: Label 'OnBeforeRunCheck', Locked = true;
+        ExpectedErrorTxt: Label 'Expected should be : %1', Comment = '%1 - Expected error message';
 
     [Test]
     [Scope('OnPrem')]
@@ -1987,6 +1988,54 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
             StrSubstNo(TestFieldMustHaveValueErr, GenJournalLine[2].FieldCaption("Document No.")),
             ErrorMessages.Description.Value);
         Assert.AreEqual(Format(GenJournalLine[2].RecordId), ErrorMessages.Context.Value, 'Invalid context');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CheckGeneralJournalErrorUpdateOnAmount()
+    var
+        Customer: Record Customer;
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DummyGeneralJournal: TestPage "General Journal";
+        Error1: Text;
+        Error2: Text;
+    begin
+        // [SCENARIO 443559] General Journal page should not show message for blank amount if amount is populated.
+        Initialize();
+
+        //[GIVEN] Create Customer,Journal batch and General Journal Line without Bal.Account No.
+        LibrarySales.CreateCustomer(Customer);
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("Enable Data Check", true);
+        GeneralLedgerSetup.Modify(true);
+
+        //[WHEN] Creating General Journal and amount is non blank
+        LibraryJournals.CreateGenJournalLine(
+            GenJournalLine,
+            GenJournalBatch."Journal Template Name",
+            GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::Customer,
+            Customer."No.",
+            GenJournalLine."Bal. Account Type"::"G/L Account",
+            '',
+            LibraryRandom.RandDecInRange(1000, 2000, 0));
+
+        DummyGeneralJournal.Trap();
+        PAGE.Run(PAGE::"General Journal", GenJournalLine);
+
+        Error1 := DummyGeneralJournal.JournalErrorsFactBox.Error1.Value();
+        Error2 := StrSubstNo(
+            DocumentOutOfBalanceErr,
+            GenJournalLine."Document No.",
+            GenJournalLine.GetDocumentBalance(GenJournalLine));
+
+        //[THEN] Error for Amount blank should be gone.
+        Assert.AreEqual(Error2, Error1, StrSubstNo(ExpectedErrorTxt, Error2));
     end;
 
     local procedure Initialize()

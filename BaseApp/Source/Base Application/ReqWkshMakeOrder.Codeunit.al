@@ -377,7 +377,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCarryOutReqLineAction(ReqLine, Failed, IsHandled, SuppressCommit, OrderCounter);
+        OnBeforeCarryOutReqLineAction(ReqLine, Failed, IsHandled, SuppressCommit, OrderCounter, PrintPurchOrders);
         if Failed then begin
             SetFailedReqLine(ReqLine);
             exit;
@@ -1386,7 +1386,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line"; var Failed: Boolean; var IsHandled: Boolean; SuppressCommit: Boolean; var OrderCounter: Integer)
+    local procedure OnBeforeCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line"; var Failed: Boolean; var IsHandled: Boolean; SuppressCommit: Boolean; var OrderCounter: Integer; PrintPurchOrders: Boolean)
     begin
     end;
 

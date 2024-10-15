@@ -2658,7 +2658,7 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeEnsureCorrectStartingFinishingTimes(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; Ishandled: Boolean)
+    local procedure OnBeforeEnsureCorrectStartingFinishingTimes(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

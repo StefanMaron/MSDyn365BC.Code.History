@@ -5724,16 +5724,13 @@
             LockTable();
             if FindSet() then
                 repeat
-                    if not ZeroAmountLine(QtyType) and
-                       ((SalesHeader."Document Type" <> SalesHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
-                    then begin
+                    if not ZeroAmountLine(QtyType) then begin
                         if ReverseChargeApplies and "Reverse Charge Item" then begin
                             "Reverse Charge" := "Amount Including VAT" - Amount;
                             SuspendStatusCheck(true);
                             GetSalesSetup();
                             Validate("VAT Bus. Posting Group", SalesSetup."Reverse Charge VAT Posting Gr.");
                         end;
-
                         DeferralAmount := GetDeferralAmount();
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Line Amount" >= 0);
                         if VATAmountLine.Modified then begin
