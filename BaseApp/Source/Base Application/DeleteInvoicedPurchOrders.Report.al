@@ -63,7 +63,7 @@ report 499 "Delete Invoiced Purch. Orders"
                         PurchLine.CalcFields("Qty. Assigned");
                         if PurchLine."Qty. Assigned" <> PurchLine."Quantity Invoiced" then
                             ItemChargeComplete := false;
-                    until (PurchLine.Next() = 0) and ItemChargeComplete;
+                    until (PurchLine.Next() = 0) or not ItemChargeComplete;
 
                 PurchLine.SetRange(Type);
                 if not ItemChargeComplete then

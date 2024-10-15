@@ -240,7 +240,7 @@
     {
     }
 
-    procedure CreateNewRequest(EntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option ,Payment,Invoice,"Credit Memo"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
+    procedure CreateNewRequest(EntryNo: Integer; DocumentSource: Option "Customer Ledger","Vendor Ledger","Detailed Customer Ledger","Detailed Vendor Ledger"; DocumentType: Option; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)
     begin
         CreateNewRequestInternal(
             EntryNo, 0, "SII Doc. Upload State Document Source".FromInteger(DocumentSource),
@@ -293,10 +293,22 @@
           PmtEntryNo, InvEntryNo, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Payment, DocumentNo, '', PostingDate);
     end;
 
+    procedure CreateNewVendRefundRequest(PmtEntryNo: Integer; CrEntryNo: Integer; DocumentNo: Code[35]; PostingDate: Date)
+    begin
+        CreateNewRequestInternal(
+          PmtEntryNo, CrEntryNo, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Refund, DocumentNo, '', PostingDate);
+    end;
+
     procedure CreateNewCustPmtRequest(PmtEntryNo: Integer; InvEntryNo: Integer; DocumentNo: Code[30]; PostingDate: Date)
     begin
         CreateNewRequestInternal(
           PmtEntryNo, InvEntryNo, "Document Source"::"Detailed Customer Ledger", "Document Type"::Payment, DocumentNo, '', PostingDate);
+    end;
+
+    procedure CreateNewCustRefundRequest(PmtEntryNo: Integer; CrEntryNo: Integer; DocumentNo: Code[30]; PostingDate: Date)
+    begin
+        CreateNewRequestInternal(
+          PmtEntryNo, CrEntryNo, "Document Source"::"Detailed Customer Ledger", "Document Type"::Refund, DocumentNo, '', PostingDate);
     end;
 
     local procedure CreateNewRequestInternal(EntryNo: Integer; InvEntryNo: Integer; DocumentSource: Enum "SII Doc. Upload State Document Source"; DocumentType: Enum "SII Doc. Upload State Document Type"; DocumentNo: Code[35]; ExternalDocumentNo: Code[35]; PostingDate: Date)

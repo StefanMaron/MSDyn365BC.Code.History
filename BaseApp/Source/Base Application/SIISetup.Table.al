@@ -98,6 +98,10 @@
             InitValue = 100000000;
             MinValue = 0;
         }
+        field(21; "Do Not Export Negative Lines"; Boolean)
+        {
+            Caption = 'Do Not Export Negative Lines';
+        }
         field(30; "Starting Date"; Date)
         {
             Caption = 'Starting Date';

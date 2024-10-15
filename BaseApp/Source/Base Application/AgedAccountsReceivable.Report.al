@@ -214,6 +214,7 @@ report 120 "Aged Accounts Receivable"
                     begin
                         SetRange("Posting Date", EndingDate + 1, DMY2Date(31, 12, 9999));
                         CopyDimFiltersFromCustomer("Cust. Ledger Entry");
+                        Customer.CopyFilter("Currency Filter", "Currency Code");
                     end;
                 }
                 dataitem(OpenCustLedgEntry; "Cust. Ledger Entry")
@@ -236,6 +237,7 @@ report 120 "Aged Accounts Receivable"
                             SetFilter("Remaining Amt. (LCY)", '<>0');
                         end;
                         CopyDimFiltersFromCustomer(OpenCustLedgEntry);
+                        Customer.CopyFilter("Currency Filter", "Currency Code");
                     end;
                 }
                 dataitem(CurrencyLoop; "Integer")
@@ -368,26 +370,32 @@ report 120 "Aged Accounts Receivable"
                         }
                         column(TotalCLE5RemAmt; TotalCustLedgEntry[5]."Remaining Amount")
                         {
+                            AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
                         column(TotalCLE4RemAmt; TotalCustLedgEntry[4]."Remaining Amount")
                         {
+                            AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
                         column(TotalCLE3RemAmt; TotalCustLedgEntry[3]."Remaining Amount")
                         {
+                            AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
                         column(TotalCLE2RemAmt; TotalCustLedgEntry[2]."Remaining Amount")
                         {
+                            AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
                         column(TotalCLE1RemAmt; TotalCustLedgEntry[1]."Remaining Amount")
                         {
+                            AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
                         column(TotalCLE1Amt; TotalCustLedgEntry[1].Amount)
                         {
+                            AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
                         column(TotalCheck; CustFilterCheck)

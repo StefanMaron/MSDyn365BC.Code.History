@@ -222,7 +222,7 @@ page 5850 "Posted Sales Document Lines"
             2:
                 begin
                     CurrPage.PostedReturnRcpts.PAGE.GetSelectedLine(FromReturnRcptLine);
-                    CopyDocMgt.SetProperties(false, true, false, false, true, true, OriginalQuantity);
+                    CopyDocMgt.SetProperties(false, false, false, false, true, true, OriginalQuantity);
                     CopyDocMgt.CopySalesLinesToDoc(
                       "Sales Document Type From"::"Posted Return Receipt".AsInteger(), ToSalesHeader,
                       FromSalesShptLine, FromSalesInvLine, FromReturnRcptLine, FromSalesCrMemoLine, LinesNotCopied, MissingExCostRevLink);

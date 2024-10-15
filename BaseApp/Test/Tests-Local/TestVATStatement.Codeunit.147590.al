@@ -32,22 +32,6 @@ codeunit 147590 "Test VAT Statement"
         TotalVATAmtTok: Label 'TotalVATAmt';
         TotalBaseTok: Label 'TotalBase';
 
-    local procedure Initialize()
-    var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-    begin
-        LibraryVariableStorage.Clear;
-        if IsInitialized then
-            exit;
-
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        GLSetup.Get();
-
-        IsInitialized := true;
-        Commit();
-    end;
-
     [Test]
     [HandlerFunctions('TemplateSelectionModalPageHandler')]
     [Scope('OnPrem')]
@@ -57,7 +41,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatementLine: Record "VAT Statement Line";
         VATStatement: TestPage "VAT Statement";
     begin
-        // Setup
+        // [FEATURE] [UI]
         Initialize;
 
         CreateVATStatement(VATStatementName);
@@ -82,7 +66,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatement: TestPage "VAT Statement";
         TransferenceFormat: TestPage "Transference Format";
     begin
-        // Setup
+        // [FEATURE] [UI]
         Initialize;
 
         CreateVATStatement(VATStatementName);
@@ -111,7 +95,7 @@ codeunit 147590 "Test VAT Statement"
         VATStatement: TestPage "VAT Statement";
         XMLTransferenceFormat: TestPage "XML Transference Format";
     begin
-        // Setup
+        // [FEATURE] [UI]
         Initialize;
 
         CreateVATStatement(VATStatementName);
@@ -1135,6 +1119,195 @@ codeunit 147590 "Test VAT Statement"
         Assert.AreEqual(AEATTransferenceFormat.Length, GeneratedTextFromFile.Length, 'Amount is not set correctly.');
     end;
 
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementPreviewNoTaxablePurchase()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+    begin
+        // [FEATURE] [UI] [Purchase]
+        // [SCENARIO 399436] Drilldown purchase No Taxable entries from VAT Statement Preview
+        Initialize();
+
+        // [GIVEN] Two purchase invoices with No Taxable VAT and amount of 100 and 200
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        CreatePostPurchInvoice(PurchaseHeader1, VATPostingSetup);
+        CreatePostPurchInvoice(PurchaseHeader2, VATPostingSetup);
+
+        // [GIVEN] VAT Statement Lines for No Taxable VAT Posting Setup with Amount type = Amount and Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, '');
+
+        // [GIVEN] VAT Statement Preview shows 0 and 300 in VAT Statement Lines lines respectively
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap;
+        NoTaxableEntries.Trap;
+        VATStatement.OpenEdit;
+        VATStatement."P&review".Invoke;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(0);
+        VATStatementPreview.VATStatementLineSubForm.Next;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(PurchaseHeader1.Amount + PurchaseHeader2.Amount);
+
+        // [WHEN] Drill Down on Column Value of 'Base' line
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.DrillDown;
+
+        // [THEN] No Taxable Entries opened with two lines according to posted invoices of amount = 100 and 200
+        NoTaxableEntries.First;
+        NoTaxableEntries.Base.AssertEquals(PurchaseHeader1.Amount);
+        NoTaxableEntries.Next;
+        NoTaxableEntries.Base.AssertEquals(PurchaseHeader2.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementPreviewNoTaxableSales()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatement: TestPage "VAT Statement";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        NoTaxableEntries: TestPage "No Taxable Entries";
+    begin
+        // [FEATURE] [UI] [Sales]
+        // [SCENARIO 399436] Drilldown sales No Taxable entries from VAT Statement Preview
+        Initialize();
+
+        // [GIVEN] Two sales invoices with No Taxable VAT and amount of 100 and 200
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader1, VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader2, VATPostingSetup);
+
+        // [GIVEN] VAT Statement Lines for No Taxable VAT Posting Setup with Amount type = Amount and Base
+        CreateVATStatement(VATStatementName);
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '');
+
+        // [GIVEN] VAT Statement Preview shows 0 and -300 in VAT Statement Lines lines respectively
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        VATStatementPreview.Trap;
+        NoTaxableEntries.Trap;
+        VATStatement.OpenEdit;
+        VATStatement."P&review".Invoke;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(0);
+        VATStatementPreview.VATStatementLineSubForm.Next;
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.AssertEquals(-SalesHeader1.Amount - SalesHeader2.Amount);
+
+        // [WHEN] Drill Down on Column Value of 'Base' line
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.DrillDown;
+
+        // [THEN] No Taxable Entries opened with two lines according to posted invoices of amount = -100 and -200
+        NoTaxableEntries.First;
+        NoTaxableEntries.Base.AssertEquals(-SalesHeader1.Amount);
+        NoTaxableEntries.Next;
+        NoTaxableEntries.Base.AssertEquals(-SalesHeader2.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('VATStatementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementTwoColumnsNoTaxable()
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetupNormal: Record "VAT Posting Setup";
+        SalesHeader1: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
+        PurchaseHeader1: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 399436] VAT Statement report for No Taxable VAT with Template Type = Two Columns
+        Initialize();
+
+        // [GIVEN] Purchase Invoice of Normal VAT with VAT Amount = 50
+        CreateVATPostingSetup(VATPostingSetupNormal);
+        VATPostingSetupNormal.Validate("EC %", 0);
+        VATPostingSetupNormal.Modify(true);
+        CreatePostPurchInvoice(PurchaseHeader, VATPostingSetupNormal);
+
+        // [GIVEN] Two sales invoices with No Taxable VAT of amounts 100 and 200
+        CreateVATPostingSetupNoTaxable(VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader1, VATPostingSetup);
+        CreatePostSalesInvoice(SalesHeader2, VATPostingSetup);
+        // [GIVEN] Two purchase invoices with No Taxable VAT of amounts 300 and 400
+        CreatePostPurchInvoice(PurchaseHeader1, VATPostingSetup);
+        CreatePostPurchInvoice(PurchaseHeader2, VATPostingSetup);
+
+        // [GIVEN] VAT Statement Name with "Template Type" = "Two Columns Report"
+        // [GIVEN] VAT Statement Lines for purchase with normal VAT with "Amount Type" = Amount
+        // [GIVEN] Two VAT Statement Lines for sales with "Amount Type" = Amount, Base
+        // [GIVEN] Two VAT Statement Lines for purchases with "Amount Type" = Amount, Base
+        CreateVATStatementNameWithTemplateType(VATStatementName, VATStatementName."Template Type"::"Two Columns Report");
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '0', VATPostingSetupNormal,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '1', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '2', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Sale, VATStatementLine."Amount Type"::Base, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '3', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, '');
+        CreateVATStatementLineVATTotalling(
+          VATStatementLine, VATStatementName, '4', VATPostingSetup,
+          VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Base, '');
+        Commit();
+
+        // [WHEN] Run VAT Statement report
+        RunVatStatementReport(VATStatementLine, VATStatementName);
+
+        // [THEN] TotalAmount from VAT Statement Line for purchase with normal VAT = 50
+        // [THEN] VAT Statement Lines for sales with No Taxable VAT has 'TotalAmount' = 0, 'TotalBase' type = 300
+        // [THEN] VAT Statement Lines for purchase with No Taxable VAT has 'TotalAmount' = 0, 'TotalBase' type = 700
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyVATStatementLineForRow(PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount, 0, '0');
+        VerifyVATStatementLineForRow(0, 0, '1');
+        VerifyVATStatementLineForRow(0, -SalesHeader1.Amount - SalesHeader2.Amount, '2');
+        VerifyVATStatementLineForRow(0, 0, '3');
+        VerifyVATStatementLineForRow(0, PurchaseHeader1.Amount + PurchaseHeader2.Amount, '4');
+    end;
+
+    local procedure Initialize()
+    var
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+    begin
+        LibraryVariableStorage.Clear;
+        if IsInitialized then
+            exit;
+
+        LibraryERMCountryData.CreateVATData;
+        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        GLSetup.Get();
+
+        IsInitialized := true;
+        Commit();
+    end;
+
     local procedure TransferenceXMLAskIsFilledAndInFile(Type: Option)
     var
         VATStatementName: Record "VAT Statement Name";
@@ -1437,6 +1610,20 @@ codeunit 147590 "Test VAT Statement"
         VATPostingSetup.Modify(true);
     end;
 
+    local procedure CreateVATPostingSetupNoTaxable(var VATPostingSetup: Record "VAT Posting Setup")
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
+        VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"No Taxable VAT");
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Modify(true);
+    end;
+
     local procedure CreateGLAccountWithVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; PostingType: Enum "General Posting Type"): Code[20]
     begin
         VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
@@ -1602,11 +1789,55 @@ codeunit 147590 "Test VAT Statement"
         end;
     end;
 
+    local procedure CreatePostPurchInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        PurchaseHeader.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup);
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Modify(true);
+        PurchaseHeader.CalcFields(Amount, "Amount Including VAT");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
+    local procedure CreatePostSalesInvoice(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup")
+    var
+        SalesLine: Record "Sales Line";
+        GLAccount: Record "G/L Account";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
+        SalesHeader.CalcFields(Amount);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure RunVatStatementReport(VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name")
     begin
         VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
         VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
         REPORT.Run(REPORT::"VAT Statement", true, false, VATStatementLine);
+    end;
+
+    local procedure VerifyVATStatementLineForRow(TotalAmount: Decimal; TotalBase: Decimal; RowNo: Variant)
+    begin
+        LibraryReportDataset.SetRange('RowNo_VATStatementLine', RowNo);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals(TotalAmtTok, TotalAmount);
+        LibraryReportDataset.AssertCurrentRowValueEquals(TotalBaseTok, TotalBase);
     end;
 
     [ModalPageHandler]

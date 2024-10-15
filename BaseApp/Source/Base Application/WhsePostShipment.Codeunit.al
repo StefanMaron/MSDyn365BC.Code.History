@@ -53,7 +53,6 @@
         Text007: Label 'is not within your range of allowed posting dates';
         InvoiceService: Boolean;
         FullATONotPostedErr: Label 'Warehouse shipment %1, Line No. %2 cannot be posted, because the full assemble-to-order quantity on the source document line must be shipped first.';
-        WrongQuantityValueErr: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         SuppressCommit: Boolean;
 
     local procedure "Code"()
@@ -1006,16 +1005,11 @@
     var
         IsHandled: Boolean;
     begin
+        // shipping advice check is performed when posting a source document
         IsHandled := false;
         OnBeforeCheckShippingAdviceComplete(WhseShptLine, IsHandled);
         if IsHandled then
             exit;
-
-        with WhseShptLine do
-            if ("Shipping Advice" = "Shipping Advice"::Complete) and
-               ("Qty. (Base)" <> "Qty. to Ship (Base)" + "Qty. Shipped (Base)")
-            then
-                Error(WrongQuantityValueErr);
     end;
 
     local procedure HandleSalesLine(var WhseShptLine: Record "Warehouse Shipment Line")

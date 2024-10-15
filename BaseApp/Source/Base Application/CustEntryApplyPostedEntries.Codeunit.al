@@ -35,7 +35,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         Text1100002: Label 'To apply a set of entries containing bills, rejected invoices or invoices to cartera, the cursor should be positioned on an entry different than bill type, rejected invoice or invoices to cartera.';
         UnapplyBlankedDocTypeErr: Label 'You cannot unapply the entries because one entry has a blank document type.';
         DetailedCustLedgEntryPreviewContext: Record "Detailed Cust. Ledg. Entry";
-        SIIJobUploadPendingDocs: Codeunit "SII Job Upload Pending Docs.";
         ApplicationDatePreviewContext: Date;
         DocumentNoPreviewContext: Code[20];
         RunOptionPreview: Option Apply,Unapply;
@@ -77,7 +76,6 @@ codeunit 226 "CustEntry-Apply Posted Entries"
                 DocumentNo := "Document No.";
 
             CustPostApplyCustLedgEntry(CustLedgEntry, DocumentNo, ApplicationDate);
-            SIIJobUploadPendingDocs.OnCustomerEntriesApplied(CustLedgEntry);
             exit(true);
         end;
     end;
@@ -564,6 +562,44 @@ codeunit 226 "CustEntry-Apply Posted Entries"
         DocumentNoPreviewContext := DocumentNo;
         DetailedCustLedgEntryPreviewContext := DetailedCustLedgEntry;
         RunOptionPreviewContext := RunOptionPreview::Unapply;
+    end;
+
+    procedure GetAppliedCustLedgerEntries(var TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary; CustLedgerEntryNo: Integer)
+    var
+        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        ApplnDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        DtldCustLedgEntry.SetCurrentKey("Cust. Ledger Entry No.");
+        DtldCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntryNo);
+        DtldCustLedgEntry.SetFilter("Applied Cust. Ledger Entry No.", '<>%1', 0);
+        DtldCustLedgEntry.SetRange(Unapplied, false);
+        if DtldCustLedgEntry.FindSet() then
+            repeat
+                if DtldCustLedgEntry."Cust. Ledger Entry No." =
+                   DtldCustLedgEntry."Applied Cust. Ledger Entry No."
+                then begin
+                    ApplnDtldCustLedgEntry.SetCurrentKey("Applied Cust. Ledger Entry No.", "Entry Type");
+                    ApplnDtldCustLedgEntry.SetRange(
+                        "Applied Cust. Ledger Entry No.", DtldCustLedgEntry."Applied Cust. Ledger Entry No.");
+                    ApplnDtldCustLedgEntry.SetRange("Entry Type", ApplnDtldCustLedgEntry."Entry Type"::Application);
+                    ApplnDtldCustLedgEntry.SetRange(Unapplied, false);
+                    if ApplnDtldCustLedgEntry.FindSet() then
+                        repeat
+                            if ApplnDtldCustLedgEntry."Cust. Ledger Entry No." <>
+                               ApplnDtldCustLedgEntry."Applied Cust. Ledger Entry No."
+                            then
+                                if CustLedgerEntry.Get(ApplnDtldCustLedgEntry."Cust. Ledger Entry No.") then begin
+                                    TempAppliedCustLedgerEntry := CustLedgerEntry;
+                                    if TempAppliedCustLedgerEntry.Insert(false) then;
+                                end;
+                        until ApplnDtldCustLedgEntry.Next() = 0;
+                end else
+                    if CustLedgerEntry.Get(DtldCustLedgEntry."Applied Cust. Ledger Entry No.") then begin
+                        TempAppliedCustLedgerEntry := CustLedgerEntry;
+                        if TempAppliedCustLedgerEntry.Insert(false) then;
+                    end;
+            until DtldCustLedgEntry.Next() = 0;
     end;
 
     local procedure CheckunappliedEntries(DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")

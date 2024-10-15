@@ -1145,6 +1145,7 @@ codeunit 147523 "SII Documents With EU Service"
         VATPostingSetup: Record "VAT Posting Setup";
         SalesHeader: Record "Sales Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATClause: Record "VAT Clause";
         XMLDoc: DotNet XmlDocument;
         ItemNo: Code[20];
     begin
@@ -1160,7 +1161,7 @@ codeunit 147523 "SII Documents With EU Service"
         // [GIVEN] Sales Line where "VAT Calculation Type" = "Normal VAT", "EU Service" is enabled, "VAT Clause" is specified
         VATPostingSetup.Get(
           SalesHeader."VAT Bus. Posting Group",
-          LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group"));
+          LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(Customer."VAT Bus. Posting Group", VATClause."SII Exemption Code"::"E1 Exempt on account of Article 20"));
         VATPostingSetup.Validate("EU Service", true);
         VATPostingSetup.Modify(true);
 

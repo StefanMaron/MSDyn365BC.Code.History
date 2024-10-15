@@ -1744,9 +1744,10 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate: Date;
     begin
         // [FEATURE] [Purchase] [Non Taxable VAT]
-        // [SCENARIO 380389] Purchase Credit Memo with "No Taxable" VAT deducts from Invoice amount as correction entry confirmed and selected when running declaration 349
-
+        // [SCENARIO 380389] Purchase Credit Memo with "No Taxable" VAT with 'Original Declared Amount' in correction entry
+        // [SCENARIO 380389] is substructed from Invoice's amount when running declaration 349
         Initialize;
+
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
         CreateNoTaxableVATPostingSetup(VATPostingSetup, false);
         VendorNo :=
@@ -1765,6 +1766,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostPurchaseCrMemoWithCustomAmount(
           VendorNo, ItemNo, FindLastPurchInvNo(VendorNo), PostingDate, CrMemoAmount);
 
+        // [GIVEN] 'Original Declared Amount' = 30 in Customer/Vendor Warnings 349
         SetCustVendWarningsDataForHandler(PostingDate, VendorNo, CrMemoAmount);
 
         // [WHEN] Run 349 Declaration
@@ -1793,9 +1795,10 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate: Date;
     begin
         // [FEATURE] [Purchase] [Non Taxable VAT] [EU Service]
-        // [SCENARIO 380389] Purchase Credit Memo with "No Taxable" and "EU Service" VAT deducts from Invoice amount as correction entry confirmed and selected when running declaration 349
-
+        // [SCENARIO 380389] Purchase Credit Memo with "No Taxable" and "EU Service" VAT with 'Original Declared Amount' in correction entry
+        // [SCENARIO 380389] is substructed from Invoice's amount when running declaration 349
         Initialize;
+
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT" and "EU Service"
         CreateNoTaxableVATPostingSetup(VATPostingSetup, true);
         VendorNo :=
@@ -1814,6 +1817,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostPurchaseCrMemoWithCustomAmount(
           VendorNo, ItemNo, FindLastPurchInvNo(VendorNo), PostingDate, CrMemoAmount);
 
+        // [GIVEN] 'Original Declared Amount' = 30 in Customer/Vendor Warnings 349
         SetCustVendWarningsDataForHandler(PostingDate, VendorNo, CrMemoAmount);
 
         // [WHEN] Run 349 Declaration
@@ -1975,7 +1979,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate: Date;
     begin
         // [FEATURE] [Sales] [Non Taxable VAT]
-        // [SCENARIO 380389] Sales Credit Memo with "No Taxable" VAT deducts from Invoice amount as correction entry confirmed and selected when running declaration 349
+        // [SCENARIO 380389] Sales Credit Memo with "No Taxable" VAT with 'Original Declared Amount' in correction entry
+        // [SCENARIO 380389] is substructed from Invoice's amount when running declaration 349
 
         Initialize;
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
@@ -1996,7 +2001,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostSalesCrMemoWithCustomAmount(
           CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
 
-        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, CrMemoAmount);
+        // [GIVEN] 'Original Declared Amount' = 30 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, -CrMemoAmount);
 
         // [WHEN] Run 349 Declaration
         FileName := RunMake349DeclarationWithDate(PostingDate);
@@ -2024,7 +2030,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate: Date;
     begin
         // [FEATURE] [Sales] [Non Taxable VAT] [EU Service]
-        // [SCENARIO 380389] Sales Credit Memo with "No Taxable" and "EU Service" VAT deducts from Invoice amount as correction entry confirmed and selected when running declaration 349
+        // [SCENARIO 380389] Sales Credit Memo with "No Taxable" and "EU Service" VAT with 'Original Declared Amount' in correction entry
+        // [SCENARIO 380389] is substructed from Invoice's amount when running declaration 349
 
         Initialize;
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT" and "EU Service"
@@ -2045,7 +2052,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostSalesCrMemoWithCustomAmount(
           CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
 
-        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, CrMemoAmount);
+        // [GIVEN] 'Original Declared Amount' = 30 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, -CrMemoAmount);
 
         // [WHEN] Run 349 Declaration
         FileName := RunMake349DeclarationWithDate(PostingDate);
@@ -2073,7 +2081,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate: Date;
     begin
         // [FEATURE] [Sales] [Non Taxable VAT] [EU 3-Party Trade]
-        // [SCENARIO 380389] Sales Credit Memo with "No Taxable" and "EU 3-Party Trade" VAT deducts from Invoice amount as correction entry confirmed and selected when running declaration 349
+        // [SCENARIO 380389] Sales Credit Memo with "No Taxable" and "EU 3-Party Trade" with 'Original Declared Amount' in correction entry
+        // [SCENARIO 380389] is substructed from Invoice's amount when running declaration 349
 
         Initialize;
         // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
@@ -2094,7 +2103,8 @@ codeunit 144117 "ERM Make 349 Declaration"
         CreateAndPostSalesCrMemoWithCustomAmount(
           CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
 
-        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, CrMemoAmount);
+        // [GIVEN] 'Original Declared Amount' = 30 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, -CrMemoAmount);
 
         // [WHEN] Run 349 Declaration
         FileName := RunMake349DeclarationWithDate(PostingDate);
@@ -2424,6 +2434,294 @@ codeunit 144117 "ERM Make 349 Declaration"
     end;
 
     [Test]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchCreditMemoWithNoTaxableVATSameFYCorrection()
+    var
+        VATPostingSetup1: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine1: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        VendorNo: Code[20];
+        FileName: Text[1024];
+        Line: Text[1024];
+        InvAmount: Decimal;
+        CrMemoAmount: Decimal;
+        EntryAmount: Decimal;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Non Taxable VAT]
+        // [SCENARIO 398163] Purchase Credit Memo with "No Taxable" VAT in correction entry
+        // [SCENARIO 398163] is substructed from Invoice's amount when running declaration 349
+        Initialize();
+
+        // [GIVEN] Two different VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
+        CreateNoTaxableVATPostingSetup(VATPostingSetup1, false);
+        CreateVATPostingSetupForBusGroup(VATPostingSetup2, VATPostingSetup1."VAT Bus. Posting Group");
+        VATPostingSetup2.Validate("VAT Calculation Type", VATPostingSetup2."VAT Calculation Type"::"No Taxable VAT");
+        VATPostingSetup2.Modify(true);
+        VendorNo :=
+          CreateVendor(EUCountryCodeTxt, VATPostingSetup1."VAT Bus. Posting Group",
+            LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+
+        // [GIVEN] Purchase Invoice has two lines with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 100
+        PostingDate := GetNewWorkDate;
+        ItemNo1 := CreateItem(VATPostingSetup1."VAT Prod. Posting Group");
+        ItemNo2 := CreateItem(VATPostingSetup2."VAT Prod. Posting Group");
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo, PostingDate);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine1, PurchaseHeader, PurchaseLine1.Type::Item,
+          CreateItem(VATPostingSetup1."VAT Prod. Posting Group"), LibraryRandom.RandIntInRange(10, 20));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, ItemNo2, LibraryRandom.RandIntInRange(10, 20));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        InvAmount := PurchaseLine1."Amount Including VAT" + PurchaseLine2."Amount Including VAT";
+
+        // [GIVEN] Purchase Credit Memo has two lines with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 30
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo, PostingDate);
+        PurchaseHeader.Validate("Corrected Invoice No.", FindLastPurchInvNo(VendorNo));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine1, PurchaseHeader, PurchaseLine1.Type::Item, ItemNo1, LibraryRandom.RandIntInRange(1, 5));
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, ItemNo2, LibraryRandom.RandIntInRange(1, 5));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        CrMemoAmount := PurchaseLine1."Amount Including VAT" + PurchaseLine2."Amount Including VAT";
+
+        // [GIVEN] 'Original Declared Amount' = 0 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, VendorNo, 0);
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Entry Amount = 70 (Invoice Amount - Cr. Memo Amount) exists in output file
+        Line := ReadLineWithCustomerOrVendor(FileName, VendorNo, 0);
+        EntryAmount := ReadEntryAmount(Line);
+        Assert.AreEqual((InvAmount - CrMemoAmount) * 100, EntryAmount, IncorrectValueErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [Scope('OnPrem')]
+    procedure PurchCreditMemoWithNoTaxableEUServiceVATSameFYCorrection()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        ItemNo: Code[20];
+        FileName: Text[1024];
+        Line: Text[1024];
+        InvAmount: Decimal;
+        CrMemoAmount: Decimal;
+        EntryAmount: Decimal;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Purchase] [Non Taxable VAT] [EU Service]
+        // [SCENARIO 398163] Purchase Credit Memo with "No Taxable" VAT and "EU Service"
+        // [SCENARIO 398163] is substructed from Invoice's amount when running declaration 349
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT" and "EU Service"
+        CreateNoTaxableVATPostingSetup(VATPostingSetup, true);
+        VendorNo :=
+          CreateVendor(EUCountryCodeTxt, VATPostingSetup."VAT Bus. Posting Group",
+            LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+
+        // [GIVEN] Purchase Invoice with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 100
+        PostingDate := GetNewWorkDate;
+        ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
+        InvAmount :=
+          CreateAndPostPurchaseDocument(
+            PurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, PostingDate);
+
+        // [GIVEN] Purchase Credit Memo with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 30
+        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CreateAndPostPurchaseCrMemoWithCustomAmount(
+          VendorNo, ItemNo, FindLastPurchInvNo(VendorNo), PostingDate, CrMemoAmount);
+
+        // [GIVEN] 'Original Declared Amount' = 0 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, VendorNo, 0);
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Entry Amount = 70 (Invoice Amount - Cr. Memo Amount) exists in output file
+        Line := ReadLineWithCustomerOrVendor(FileName, VendorNo, 0);
+        EntryAmount := ReadEntryAmountCustomPosition(Line, 142);
+        Assert.AreEqual((InvAmount - CrMemoAmount) * 100, EntryAmount, IncorrectValueErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoWithNoTaxableVATSameFYCorrection()
+    var
+        VATPostingSetup1: Record "VAT Posting Setup";
+        VATPostingSetup2: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        CustomerNo: Code[20];
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        FileName: Text[1024];
+        Line: Text[1024];
+        InvAmount: Decimal;
+        CrMemoAmount: Decimal;
+        EntryAmount: Decimal;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Sales] [Non Taxable VAT]
+        // [SCENARIO 398163] Sales Credit Memo with "No Taxable" VAT in correction entry
+        // [SCENARIO 398163] is substructed from Invoice's amount when running declaration 349
+        Initialize();
+
+        // [GIVEN] Two different VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
+        CreateNoTaxableVATPostingSetup(VATPostingSetup1, false);
+        CreateVATPostingSetupForBusGroup(VATPostingSetup2, VATPostingSetup1."VAT Bus. Posting Group");
+        VATPostingSetup2.Validate("VAT Calculation Type", VATPostingSetup2."VAT Calculation Type"::"No Taxable VAT");
+        VATPostingSetup2.Modify(true);
+        CustomerNo :=
+          CreateCustomer(EUCountryCodeTxt, VATPostingSetup1."VAT Bus. Posting Group",
+            LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+
+        // [GIVEN] Sales Invoice has two lines with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 100
+        PostingDate := GetNewWorkDate;
+        ItemNo1 := CreateItem(VATPostingSetup1."VAT Prod. Posting Group");
+        ItemNo2 := CreateItem(VATPostingSetup2."VAT Prod. Posting Group");
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo, PostingDate, false);
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, ItemNo1, LibraryRandom.RandIntInRange(10, 20));
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, ItemNo2, LibraryRandom.RandIntInRange(10, 20));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        InvAmount := SalesLine1."Amount Including VAT" + SalesLine2."Amount Including VAT";
+
+        // [GIVEN] Sales Credit Memo has two lines with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 30
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo, PostingDate, false);
+        SalesHeader.Validate("Corrected Invoice No.", FindLastSalesInvNo(CustomerNo));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine1, SalesHeader, SalesLine1.Type::Item, ItemNo1, LibraryRandom.RandIntInRange(1, 5));
+        LibrarySales.CreateSalesLine(SalesLine2, SalesHeader, SalesLine2.Type::Item, ItemNo2, LibraryRandom.RandIntInRange(1, 5));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        CrMemoAmount := SalesLine1."Amount Including VAT" + SalesLine2."Amount Including VAT";
+
+        // [GIVEN] 'Original Declared Amount' = 0 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, 0);
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Entry Amount = 70 (Invoice Amount - Cr. Memo Amount) exists in output file
+        Line := ReadLineWithCustomerOrVendor(FileName, CustomerNo, 0);
+        EntryAmount := ReadEntryAmount(Line);
+        Assert.AreEqual((InvAmount - CrMemoAmount) * 100, EntryAmount, IncorrectValueErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoWithNoTaxableEUServiceVATSameFYCorrection()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        FileName: Text[1024];
+        Line: Text[1024];
+        InvAmount: Decimal;
+        CrMemoAmount: Decimal;
+        EntryAmount: Decimal;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Sales] [Non Taxable VAT] [EU Service]
+        // [SCENARIO 398163] Sales Credit Memo with "No Taxable" VAT and "EU Service"
+        // [SCENARIO 398163] is substructed from Invoice's amount when running declaration 349
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT" and "EU Service" in correction entry
+        CreateNoTaxableVATPostingSetup(VATPostingSetup, true);
+        CustomerNo :=
+          CreateCustomer(EUCountryCodeTxt, VATPostingSetup."VAT Bus. Posting Group",
+            LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+
+        // [GIVEN] Sales Invoice with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 100
+        PostingDate := GetNewWorkDate;
+        ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
+        InvAmount :=
+          CreateAndPostSalesDocument(
+            SalesHeader."Document Type"::Invoice, CustomerNo, ItemNo, PostingDate, false);
+
+        // [GIVEN] Sales Credit Memo with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 30
+        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CreateAndPostSalesCrMemoWithCustomAmount(
+          CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
+
+        // [GIVEN] 'Original Declared Amount' = 0 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, 0);
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Entry Amount = 70 (Invoice Amount - Cr. Memo Amount) exists in output file
+        Line := ReadLineWithCustomerOrVendor(FileName, CustomerNo, 0);
+        EntryAmount := ReadEntryAmountCustomPosition(Line, 142);
+        Assert.AreEqual((InvAmount - CrMemoAmount) * 100, EntryAmount, IncorrectValueErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349CustomPeriodPageHandler')]
+    [Scope('OnPrem')]
+    procedure SalesCreditMemoWithNoTaxableEUThirdPartyTradeVATSameFYCorrection()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        ItemNo: Code[20];
+        FileName: Text[1024];
+        Line: Text[1024];
+        InvAmount: Decimal;
+        CrMemoAmount: Decimal;
+        EntryAmount: Decimal;
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Sales] [Non Taxable VAT] [EU 3-Party Trade]
+        // [SCENARIO 398163] Sales Credit Memo with "No Taxable" VAT and "EU 3-Party Trade" in correction entry
+        // [SCENARIO 398163] is substructed from Invoice's amount when running declaration 349
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "VAT Calculation Type" = "No Taxable VAT"
+        CreateNoTaxableVATPostingSetup(VATPostingSetup, true);
+        CustomerNo :=
+          CreateCustomer(EUCountryCodeTxt, VATPostingSetup."VAT Bus. Posting Group",
+            LibraryERM.GenerateVATRegistrationNo(EUCountryCodeTxt));
+
+        // [GIVEN] Sales Invoice with "No Taxable VAT", "EU 3-Party Trade", "Posting Date" = 01.01.16 and Amount = 100
+        PostingDate := GetNewWorkDate;
+        ItemNo := CreateItem(VATPostingSetup."VAT Prod. Posting Group");
+        InvAmount :=
+          CreateAndPostSalesDocument(
+            SalesHeader."Document Type"::Invoice, CustomerNo, ItemNo, PostingDate, true);
+
+        // [GIVEN] Sales Credit Memo with "No Taxable VAT", "Posting Date" = 01.01.16 and Amount = 30
+        CrMemoAmount := Round(InvAmount / LibraryRandom.RandIntInRange(3, 10));
+        CreateAndPostSalesCrMemoWithCustomAmount(
+          CustomerNo, ItemNo, FindLastSalesInvNo(CustomerNo), PostingDate, false, CrMemoAmount);
+
+        // [GIVEN] 'Original Declared Amount' = 0 in Customer/Vendor Warnings 349
+        SetCustVendWarningsDataForHandler(PostingDate, CustomerNo, 0);
+
+        // [WHEN] Run 349 Declaration
+        FileName := RunMake349DeclarationWithDate(PostingDate);
+
+        // [THEN] Entry Amount = 70 (Invoice Amount - Cr. Memo Amount) exists in output file
+        Line := ReadLineWithCustomerOrVendor(FileName, CustomerNo, 0);
+        EntryAmount := ReadEntryAmountCustomPosition(Line, 142);
+        Assert.AreEqual((InvAmount - CrMemoAmount) * 100, EntryAmount, IncorrectValueErr);
+    end;
+
+    [Test]
     [HandlerFunctions('Make349DeclarationRequestPageHandler,GenericMessageHandler,ConfirmHandler,CustomerVendorWarnings349ChangeOrigDeclarPeriodPageHandler')]
     [Scope('OnPrem')]
     procedure UI_CorrectiveSalesCreditMemoDoesNotConsiderWhenPrevDeclarationAmtCalcInDiffPeriod()
@@ -2583,7 +2881,7 @@ codeunit 144117 "ERM Make 349 Declaration"
         PostingDate := CalcDate('<1M>', PostingDate);
         CreateAndPostCorrectiveSalesCrMemo(CustomerNo, ItemNo, PostingDate, InvNo);
 
-        SetCustVendWarningsOrigDeclarPeriodChangeForHandler(PostingDate, PrevPostingDate, CustomerNo, InvAmount - CrMemoAmount);
+        SetCustVendWarningsOrigDeclarPeriodChangeForHandler(PostingDate, PrevPostingDate, CustomerNo, -InvAmount + CrMemoAmount);
 
         // [GIVEN] 349 Declaration report on period "03" (March) is invoked and page "Customer/Vendor Warnings 349" with "CR2" included into correction is shown
         asserterror RunMake349DeclarationWithDate(PostingDate);
@@ -4905,6 +5203,8 @@ codeunit 144117 "ERM Make 349 Declaration"
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        Item.Validate("Last Direct Cost", LibraryRandom.RandDec(100, 2));
         Item.Modify(true);
         exit(Item."No.");
     end;

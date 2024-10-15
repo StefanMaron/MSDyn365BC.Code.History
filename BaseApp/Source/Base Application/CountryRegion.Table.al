@@ -102,7 +102,7 @@ table 9 "Country/Region"
         {
             AutoFormatType = 0;
             Caption = 'VAT Registration No. digits';
-            InitValue = 9;
+            InitValue = 15;
         }
     }
 

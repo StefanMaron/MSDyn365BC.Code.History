@@ -16,6 +16,7 @@ codeunit 147555 "SII Unrealized VAT"
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
         XPathPurchBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:DesgloseFactura/sii:DesgloseIVA/sii:DetalleIVA/';
@@ -37,7 +38,10 @@ codeunit 147555 "SII Unrealized VAT"
 
         Initialize;
 
-        // [GIVEN] Posted purchase invoice with Unrealized VAT Setup and single line with G/L Account with amount = 100
+        // [GIVEN] Enable "Include Importe Total" in SII Setup
+        SetIncludeImporteTotal();
+
+        // [GIVEN] Posted purchase invoice with Unrealized VAT Setup and single line with G/L Account with amount = 100,amount including VAT = 121
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
         PostPurchInvWithVATPostingSetupAndGLAcc(VendorLedgerEntry, PurchaseLine, VATPostingSetup);
 
@@ -50,6 +54,10 @@ codeunit 147555 "SII Unrealized VAT"
 
         // [THEN] Only one BaseImponible node exports
         LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
+
+        // [THEN] ImporteTotal = 121
+        // TFS ID 395297: ImporteTotal has value of unrealized amount
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(PurchaseLine."Amount Including VAT"));
 
         // Tear down
         LibrarySII.DisableCashBased(VATPostingSetup);
@@ -70,7 +78,10 @@ codeunit 147555 "SII Unrealized VAT"
 
         Initialize;
 
-        // [GIVEN] Posted sales invoice with Unrealized VAT Setup and single line with G/L Account with amount = 100
+        // [GIVEN] Enable "Include Importe Total" in SII Setup
+        SetIncludeImporteTotal();
+
+        // [GIVEN] Posted sales invoice with Unrealized VAT Setup and single line with G/L Account with amount = 100,amount including VAT = 121
         Library340347Declaration.CreateVATPostingSetup(VATPostingSetup, true, true);
         PostSalesInvWithVATPostingSetupAndGLAcc(CustLedgerEntry, SalesLine, VATPostingSetup);
 
@@ -84,18 +95,34 @@ codeunit 147555 "SII Unrealized VAT"
         // [THEN] Only one BaseImponible node exports
         LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:BaseImponible', 1);
 
+        // [THEN] ImporteTotal = 100
+        // TFS ID 395297: ImporteTotal has value of unrealized amount
+        LibrarySII.ValidateElementByName(XMLDoc, 'sii:ImporteTotal', SIIXMLCreator.FormatNumber(SalesLine."Amount Including VAT"));
+
         // Tear down
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
 
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
         LibrarySII.InitSetup(true, false);
         LibrarySII.BindSubscriptionJobQueue;
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.Save(DATABASE::"SII Setup");
         IsInitialized := true;
+    end;
+
+    local procedure SetIncludeImporteTotal()
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        SIISetup.Get();
+        SIISetup.Validate("Include ImporteTotal", true);
+        SIISetup.Modify(true);
     end;
 
     local procedure PostPurchInvWithVATPostingSetupAndGLAcc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup")
@@ -105,6 +132,8 @@ codeunit 147555 "SII Unrealized VAT"
     begin
         Library340347Declaration.CreateVendor(Vendor, VATPostingSetup."VAT Bus. Posting Group");
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader.Validate("Invoice Type", PurchaseHeader."Invoice Type"::"F2 Simplified Invoice"); // to enable importetotal
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
           SetVATProdPostGroupForGLAcc(LibraryERM.CreateGLAccountWithPurchSetup, VATPostingSetup."VAT Prod. Posting Group"),
@@ -122,6 +151,8 @@ codeunit 147555 "SII Unrealized VAT"
     begin
         Library340347Declaration.CreateCustomer(Customer, VATPostingSetup."VAT Bus. Posting Group");
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Invoice Type", SalesHeader."Invoice Type"::"F2 Simplified Invoice"); // to enable importetotal
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
           SetVATProdPostGroupForGLAcc(LibraryERM.CreateGLAccountWithSalesSetup, VATPostingSetup."VAT Prod. Posting Group"),

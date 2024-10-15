@@ -4602,9 +4602,6 @@
         if IsHandled then
             exit;
 
-        if Reserve = Reserve::Always then
-            exit;
-
         if "Shipment Date" = 0D then begin
             GetSalesHeader();
             if SalesHeader."Shipment Date" <> 0D then
@@ -4732,6 +4729,7 @@
             TestField("Shipment Date");
             ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Shipment Date", QtyToReserve, QtyToReserveBase);
+            CalcFields("Reserved Quantity");
             Find();
             SalesSetup.Get();
             if (not FullAutoReservation) and (not SalesSetup."Skip Manual Reservation") then begin

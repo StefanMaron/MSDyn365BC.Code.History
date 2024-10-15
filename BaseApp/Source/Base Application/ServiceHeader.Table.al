@@ -68,7 +68,7 @@
 
                         IsHandled := false;
                         OnValidateCustomerNoOnBeforeDeleteLines(Rec, IsHandled);
-                        if IsHandled then begin
+                        if not IsHandled then begin
                             ServLine.LockTable();
                             ServLine.Reset();
                             ServLine.SetRange("Document Type", "Document Type");

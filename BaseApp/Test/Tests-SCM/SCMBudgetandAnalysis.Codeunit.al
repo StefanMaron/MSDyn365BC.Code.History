@@ -14,6 +14,7 @@ codeunit 137403 "SCM Budget and Analysis"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         AnalysisColumnTemplateName: Code[10];
         AnalysisLineTemplateName: Code[10];
@@ -299,12 +300,43 @@ codeunit 137403 "SCM Budget and Analysis"
         Assert.ExpectedError(StrSubstNo(CanUseValueTypeErr, AnalysisType.FieldCaption("Item Ledger Entry Type Filter"), AnalysisType."Value Type"));
     end;
 
+    [Test]
+    [HandlerFunctions('AnalysisColumnSetShowValueHandler')]
+    [Scope('OnPrem')]
+    procedure AnalysisColumnShowValueReselection()
+    var
+        AnalysisColumnTemplate: Record "Analysis Column Template";
+        AnalysisColumn: Record "Analysis Column";
+        AnalysisColumnTemplates: TestPage "Analysis Column Templates";
+    begin
+        // [SCENARIO 395017] Analysis Column line "Show" field default value can be reselected
+        Initialize;
+
+        // [GIVEN] Analysis Column line with "Show" = Always set as default
+        LibraryInventory.CreateAnalysisColumnTemplate(AnalysisColumnTemplate, AnalysisColumnTemplate."Analysis Area"::Sales);
+        AnalysisColumnTemplateName := AnalysisColumnTemplate.Name;
+
+        // [GIVEN] Analysis Column line "Show" = Never. Page closed
+        LibraryVariableStorage.Enqueue(AnalysisColumn.Show::Never);
+        AnalysisColumnTemplates.OpenEdit;
+        AnalysisColumnTemplates.FILTER.SetFilter("Analysis Area", Format(AnalysisColumnTemplate."Analysis Area"));
+        AnalysisColumnTemplates.FILTER.SetFilter(Name, AnalysisColumnTemplate.Name);
+        AnalysisColumnTemplates.Columns.Invoke;
+
+        // [WHEN] Analysis Columns Line "Show" set to "Always
+        // [THEN] "Show" field value can be successfully selected
+        // Checked in AnalysisColumnSetShowValueHandler handler
+        LibraryVariableStorage.Enqueue(AnalysisColumn.Show::Always);
+        AnalysisColumnTemplates.Columns.Invoke;
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Budget and Analysis");
         Clear(AnalysisColumnTemplateName);
         Clear(AnalysisLineTemplateName);
         Clear(NewRowNo);
+        LibraryVariableStorage.Clear;
 
         if IsInitialized then
             exit;
@@ -399,6 +431,19 @@ codeunit 137403 "SCM Budget and Analysis"
     procedure AnalysisColumnHandler(var AnalysisColumns: TestPage "Analysis Columns")
     begin
         AnalysisColumns.CurrentColumnName.AssertEquals(AnalysisColumnTemplateName);
+        AnalysisColumns.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure AnalysisColumnSetShowValueHandler(var AnalysisColumns: TestPage "Analysis Columns")
+    var
+        AnalysisColumn: Record "Analysis Column";
+        ShowValue: Integer;
+    begin
+        ShowValue := LibraryVariableStorage.DequeueInteger();
+        AnalysisColumns.Show.SetValue(ShowValue);
+        AnalysisColumns.Show.AssertEquals(ShowValue);
         AnalysisColumns.OK.Invoke;
     end;
 

@@ -98,6 +98,11 @@ table 10732 "Customer/Vendor Warning 349"
             Caption = 'EU Service';
             Editable = false;
         }
+        field(10740; "No Taxable Entry No."; Integer)
+        {
+            Caption = 'No Taxable Entry No.';
+            TableRelation = "No Taxable Entry";
+        }
     }
 
     keys

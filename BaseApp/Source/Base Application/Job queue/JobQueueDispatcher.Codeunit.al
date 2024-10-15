@@ -108,7 +108,7 @@ codeunit 448 "Job Queue Dispatcher"
                 if DoesSystemTaskExist(JobQueueEntry."System Task ID") then
                     exit(true)
                 else // stale job queue entry with status in process but no system task behind it.
-                    JobQueueEntry.Delete();
+                    Reschedule(JobQueueEntry);
             until JobQueueEntry.Next() = 0;
     end;
 

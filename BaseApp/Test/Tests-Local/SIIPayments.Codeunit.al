@@ -22,6 +22,7 @@ codeunit 147529 "SII Payments"
         LibraryCarteraReceivables: Codeunit "Library - Cartera Receivables";
         LibraryCarteraPayables: Codeunit "Library - Cartera Payables";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
         XmlType: Option Invoice,"Intra Community",Payment;
         IsInitialized: Boolean;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
@@ -38,6 +39,7 @@ codeunit 147529 "SII Payments"
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         XMLDoc: DotNet XmlDocument;
         DocumentNo: Code[20];
         Amount: Decimal;
@@ -72,7 +74,10 @@ codeunit 147529 "SII Payments"
         LibrarySII.VerifyXml(XMLDoc, DetailedCustLedgEntry, XmlType::Payment, true, false);
 
         // [THEN] SII Doc. Upload State of Cash Based Payment has "Inv. Entry No." = 123, "Document No." = "X"
-        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry."Entry No.");
+        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry."Entry No.", SIIDocUploadState."Document Type"::Payment);
+
+        // [THEN] Two job queue entries have been initiated, one for invoice and one for payment
+        VerifyUploadPendingDocsJobQueueEntryCount(2);
 
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
@@ -86,6 +91,7 @@ codeunit 147529 "SII Payments"
         VATPostingSetup: Record "VAT Posting Setup";
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         XMLDoc: DotNet XmlDocument;
         DocumentNo: Code[20];
         Amount: Decimal;
@@ -122,7 +128,10 @@ codeunit 147529 "SII Payments"
         LibrarySII.VerifyXml(XMLDoc, DetailedVendorLedgEntry, XmlType::Payment, true, false);
 
         // [THEN] SII Doc. Upload State of Cash Based Payment has "Inv. Entry No." = 123, "Document No." = "Y"
-        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry."Entry No.");
+        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry."Entry No.", SIIDocUploadState."Document Type"::Payment);
+
+        // [THEN] Two job queue entries have been initiated, one for invoice and one for payment
+        VerifyUploadPendingDocsJobQueueEntryCount(2);
 
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
@@ -801,7 +810,9 @@ codeunit 147529 "SII Payments"
         Assert.IsTrue(SIIManagement.FindPaymentDetailedCustomerLedgerEntries(FoundDetailedCustLedgEntry, CustLedgerEntry), '');
         with FoundDetailedCustLedgEntry do begin
             Assert.AreEqual(Format(CustLedgerEntry."Entry No."), GetFilter("Cust. Ledger Entry No."), '');
-            Assert.AreEqual(Format("Document Type"::Payment), GetFilter("Document Type"), '');
+            // TFS ID 398897: VAT Cash refunds
+            Assert.AreEqual(
+              StrSubstNo('%1|%2', Format("Document Type"::Payment), Format("Document Type"::Refund)), GetFilter("Document Type"), '');
             Assert.AreEqual(Format(false), GetFilter(Unapplied), '');
         end;
     end;
@@ -825,7 +836,9 @@ codeunit 147529 "SII Payments"
         Assert.IsTrue(SIIManagement.FindPaymentDetailedVendorLedgerEntries(FoundDetailedVendorLedgEntry, VendorLedgerEntry), '');
         with FoundDetailedVendorLedgEntry do begin
             Assert.AreEqual(Format(VendorLedgerEntry."Entry No."), GetFilter("Vendor Ledger Entry No."), '');
-            Assert.AreEqual(Format("Document Type"::Payment), GetFilter("Document Type"), '');
+            // TFS ID 398897: VAT Cash refunds
+            Assert.AreEqual(
+              StrSubstNo('%1|%2', Format("Document Type"::Payment), Format("Document Type"::Refund)), GetFilter("Document Type"), '');
             Assert.AreEqual(Format(false), GetFilter(Unapplied), '');
         end;
     end;
@@ -883,6 +896,7 @@ codeunit 147529 "SII Payments"
         VATPostingSetup: Record "VAT Posting Setup";
         DetailedCustLedgEntry: array[4] of Record "Detailed Cust. Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         XMLDoc: DotNet XmlDocument;
         CustomerNo: Code[20];
         DocumentNo: Code[20];
@@ -904,7 +918,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] The xml has been created with one "Cobro" (received payment) node
         VerifyXMLSeveralSalesPayments(XMLDoc, DetailedCustLedgEntry, 1);
-        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry[1]."Entry No.");
+        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry[1]."Entry No.", SIIDocUploadState."Document Type"::Payment);
 
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
@@ -916,6 +930,7 @@ codeunit 147529 "SII Payments"
         VATPostingSetup: Record "VAT Posting Setup";
         DetailedVendorLedgEntry: array[4] of Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         XMLDoc: DotNet XmlDocument;
         VendorNo: Code[20];
         DocumentNo: Code[20];
@@ -938,7 +953,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] The xml has been created with one "Pago" (emitted payment) node
         VerifyXMLSeveralPurchPayments(XMLDoc, DetailedVendorLedgEntry, 1);
-        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry[1]."Entry No.");
+        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry[1]."Entry No.", SIIDocUploadState."Document Type"::Payment);
 
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
@@ -950,6 +965,7 @@ codeunit 147529 "SII Payments"
         VATPostingSetup: Record "VAT Posting Setup";
         DetailedCustLedgEntry: array[4] of Record "Detailed Cust. Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         XMLDoc: DotNet XmlDocument;
         CustomerNo: Code[20];
         DocumentNo: Code[20];
@@ -971,7 +987,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] The xml has been created with one "Cobro" (received payment) node
         VerifyXMLSeveralSalesPayments(XMLDoc, DetailedCustLedgEntry, 1);
-        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry[1]."Entry No.");
+        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry[1]."Entry No.", SIIDocUploadState."Document Type"::Payment);
 
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
@@ -983,6 +999,7 @@ codeunit 147529 "SII Payments"
         VATPostingSetup: Record "VAT Posting Setup";
         DetailedVendorLedgEntry: array[4] of Record "Detailed Vendor Ledg. Entry";
         GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
         XMLDoc: DotNet XmlDocument;
         VendorNo: Code[20];
         DocumentNo: Code[20];
@@ -1005,7 +1022,7 @@ codeunit 147529 "SII Payments"
 
         // [THEN] The xml has been created with one "Pago" (emitted payment) node
         VerifyXMLSeveralPurchPayments(XMLDoc, DetailedVendorLedgEntry, 1);
-        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry[1]."Entry No.");
+        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry[1]."Entry No.", SIIDocUploadState."Document Type"::Payment);
 
         LibrarySII.DisableCashBased(VATPostingSetup);
     end;
@@ -1522,14 +1539,103 @@ codeunit 147529 "SII Payments"
         TempDetailedCustLedgEntry.Find;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashBasedSalesRefund()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        DocumentNo: Code[20];
+        Amount: Decimal;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 398897] Stan can send the sales VAT cash refund to the SII
+
+        Initialize();
+
+        CreateCustomer(Customer, VATPostingSetup, 0);
+
+        // [GIVEN] Cash based sales credit memo
+        DocumentNo :=
+          Library340347Declaration.CreateAndPostSalesCrMemo(VATPostingSetup, Customer."No.", WorkDate(), Amount, '');
+
+        // [GIVEN] Refund applied to credit memo
+        DocumentNo :=
+          Library340347Declaration.CreateAndPostPaymentForSI(
+            Customer."No.", GenJournalLine."Document Type"::"Credit Memo", DocumentNo, WorkDate(), -Amount);
+
+        // [WHEN] We create the xml to be transmitted for that refund
+        GenerateXmlForDetailedCustomerLedgerEntry(XMLDoc, DetailedCustLedgEntry, DocumentNo);
+
+        // [THEN] The structure of the XML file for the refund is correct
+        LibrarySII.VerifyXml(XMLDoc, DetailedCustLedgEntry, XmlType::Payment, true, false);
+
+        // [THEN] SII Doc. Upload State of Cash Based refund has been created
+        VerifyDocUploadStateCustomerPmt(DetailedCustLedgEntry."Entry No.", SIIDocUploadState."Document Type"::Refund);
+
+        // [THEN] Two job queue entries have been initiated, one for credit memo and one for refund
+        VerifyUploadPendingDocsJobQueueEntryCount(2);
+
+        LibrarySII.DisableCashBased(VATPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CashBasedPurchaseRefund()
+    var
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        SIIDocUploadState: Record "SII Doc. Upload State";
+        XMLDoc: DotNet XmlDocument;
+        DocumentNo: Code[20];
+        Amount: Decimal;
+        ExtDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 398897] Stan can send the purchase VAT cash refund to the SII
+
+        Initialize();
+
+        CreateVendor(Vendor, VATPostingSetup, 0);
+
+        // [GIVEN] Cash based purchase credit memo
+        DocumentNo :=
+          Library340347Declaration.CreateAndPostPurchaseCrMemo(VATPostingSetup, Vendor."No.", WorkDate(), Amount, ExtDocumentNo, '');
+
+        // [GIVEN] Refund applied to credit memo
+        DocumentNo := Library340347Declaration.CreateAndPostPaymentForPI(
+            Vendor."No.", GenJournalLine."Document Type"::"Credit Memo", DocumentNo, WorkDate(), -Amount);
+
+        // [WHEN] We create the xml to be transmitted for that refund
+        GenerateXmlForDetailedVendorLedgerEntry(XMLDoc, DetailedVendorLedgEntry, DocumentNo);
+
+        // [THEN] The structure of the XML file for the refund is correct
+        LibrarySII.VerifyXml(XMLDoc, DetailedVendorLedgEntry, XmlType::Payment, true, false);
+
+        // [THEN] SII Doc. Upload State of Cash Based refund has been created
+        VerifyDocUploadStateVendorPmt(DetailedVendorLedgEntry."Entry No.", SIIDocUploadState."Document Type"::Refund);
+
+        // [THEN] Two job queue entries have been initiated, one for credit memo and one for refund
+        VerifyUploadPendingDocsJobQueueEntryCount(2);
+
+        LibrarySII.DisableCashBased(VATPostingSetup);
+    end;
+
     local procedure Initialize()
     begin
         Clear(SIIXMLCreator);
+        Clear(LibraryJobQueue);
+        BindSubscription(LibraryJobQueue);
         if IsInitialized then
             exit;
 
         LibrarySII.InitSetup(true, false);
-        LibrarySII.BindSubscriptionJobQueue;
         UpdatePmtBatchNoSeries;
 
         IsInitialized := true;
@@ -2084,7 +2190,7 @@ codeunit 147529 "SII Payments"
         LedgerEntryRecRef.Close;
     end;
 
-    local procedure VerifyDocUploadStateCustomerPmt(PmtDtldEntryNo: Integer)
+    local procedure VerifyDocUploadStateCustomerPmt(PmtDtldEntryNo: Integer; DocumentType: Option)
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -2096,11 +2202,12 @@ codeunit 147529 "SII Payments"
           SIIDocUploadState, SIIDocUploadState."Document Source"::"Detailed Customer Ledger", PmtDtldEntryNo);
 
         SIIDocUploadState.TestField("Inv. Entry No", DetailedCustLedgEntry."Cust. Ledger Entry No.");
+        SIIDocUploadState.TestField("Document Type", DocumentType);
         SIIDocUploadState.TestField("Document No.", CustLedgerEntry."Document No.");
         VerifySIIHistoryCount(SIIDocUploadState.Id, 1);
     end;
 
-    local procedure VerifyDocUploadStateVendorPmt(PmtDtldEntryNo: Integer)
+    local procedure VerifyDocUploadStateVendorPmt(PmtDtldEntryNo: Integer; DocumentType: Option)
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -2112,6 +2219,7 @@ codeunit 147529 "SII Payments"
           SIIDocUploadState, SIIDocUploadState."Document Source"::"Detailed Vendor Ledger", PmtDtldEntryNo);
 
         SIIDocUploadState.TestField("Inv. Entry No", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
+        SIIDocUploadState.TestField("Document Type", DocumentType);
         SIIDocUploadState.TestField("Document No.", VendorLedgerEntry."External Document No.");
         VerifySIIHistoryCount(SIIDocUploadState.Id, 1);
     end;
@@ -2134,6 +2242,16 @@ codeunit 147529 "SII Payments"
         for i := 1 to ExpectedNodeCount do
             LibrarySII.ValidateElementByNameAt(
               XMLDoc, 'sii:Importe', SIIXMLCreator.FormatNumber(Abs(DetailedVendorLedgEntry[i].Amount)), i - 1);
+    end;
+
+    local procedure VerifyUploadPendingDocsJobQueueEntryCount(ExpectedCount: Integer)
+    var
+        TempJobQueueEntry: Record "Job Queue Entry" temporary;
+    begin
+        LibraryJobQueue.GetCollectedJobQueueEntries(TempJobQueueEntry);
+        TempJobQueueEntry.SetRange("Object Type to Run", TempJobQueueEntry."Object Type to Run"::Codeunit);
+        TempJobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"SII Job Upload Pending Docs.");
+        Assert.RecordCount(TempJobQueueEntry, ExpectedCount);
     end;
 }
 

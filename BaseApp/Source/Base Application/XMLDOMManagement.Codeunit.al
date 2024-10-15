@@ -805,6 +805,26 @@ codeunit 6224 "XML DOM Management"
         DotNet_XslCompiledTransform.Transform(DotNet_XmlDocument, DotNet_XsltArgumentList, DestinationStream);
     end;
 
+    [Scope('OnPrem')]
+    procedure XMLTextIndent(InputXMLText: Text): Text
+    var
+        TempBlob: Codeunit "Temp Blob";        
+        TypeHelper: Codeunit "Type Helper";
+        XMLDocument: DotNet XmlDocument;
+        OutStream: OutStream;
+        InStream: InStream;
+    begin
+        // Format input XML text: append indentations
+        if LoadXMLDocumentFromText(InputXMLText, XMLDocument) then begin
+            TempBlob.CreateOutStream(OutStream, TEXTENCODING::UTF8);
+            XMLDocument.Save(OutStream);
+            TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
+            exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.CRLFSeparator()));
+        end;
+        ClearLastError();
+        exit(InputXMLText);
+    end;
+	
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddElementWithPrefix(var NodeName: Text)
     begin

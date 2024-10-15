@@ -19,12 +19,14 @@ codeunit 147562 "SII Special Scheme Code Tests"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
         UploadType: Option Regular,Intracommunity,RetryAccepted;
         IncorrectXMLDocErr: Label 'The XML document was not generated properly.';
         XPathSalesFacturaExpedidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/';
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         CannotInsertMoreThanThreeCodesErr: Label 'You cannot specify more than three special scheme codes for each document.';
+        InconsitencyOfRegimeCodeAndVATClauseErr: Label 'If the sales special scheme code is 01 General, the SII exemption code of the VAT clause must not be equal to E2 or E3.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1277,6 +1279,319 @@ codeunit 147562 "SII Special Scheme Code Tests"
           XMLDoc, XPathPurchFacturaRecibidaTok, 'sii:ClaveRegimenEspecialOTrascendenciaAdicional2', '03');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_NotPossibleToAssignGeneralSalesSpecialSchemeCodeInVATPostingSetupWithE2ExemptCode()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+        VATClauseCode: Code[20];
+    begin
+        // [FEATURE] [UI] [Sales]
+        // [SCENARIO 399176] Stan cannot assign "01 General" value for the "Special Scheme Code" in the VAT Posting Setup when "SII Exemption Code" of the related VAT clause is "E2"
+
+        Initialize;
+        VATClauseCode :=
+          LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21");
+        Commit;
+        VATPostingSetup.Init;
+        VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
+        asserterror VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
+        Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
+
+        VATPostingSetup.Init;
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
+        asserterror VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
+        Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_NotPossibleToAssignGeneralSalesSpecialSchemeCodeInVATPostingSetupWithE3ExemptCode()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+        VATClauseCode: Code[20];
+    begin
+        // [FEATURE] [UI] [Sales]
+        // [SCENARIO 399176] Stan cannot assign "01 General" value for the "Special Scheme Code" in the VAT Posting Setup when "SII Exemption Code" of the related VAT clause is "E3"
+
+        Initialize;
+        VATClauseCode :=
+          LibrarySII.CreateVATClauseWithSIIExemptionCode(VATClause."SII Exemption Code"::"E3 Exempt on account of Article 22");
+        Commit;
+        VATPostingSetup.Init;
+        VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
+        asserterror VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
+        Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
+
+        VATPostingSetup.Init;
+        VATPostingSetup.Validate("Sales Special Scheme Code", VATPostingSetup."Sales Special Scheme Code"::"01 General");
+        asserterror VATPostingSetup.Validate("VAT Clause Code", VATClauseCode);
+
+        Assert.ExpectedError(InconsitencyOfRegimeCodeAndVATClauseErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UI_SpecialSchemeCodeVisibleInVATPostingSetupPages()
+    var
+        VATPostingSetup: TestPage "VAT Posting Setup";
+        VATPostingSetupCard: TestPage "VAT Posting Setup Card";
+    begin
+        // [FEATURE] [UI] [Sales] [Purchase]
+        // [SCENARIO 399176] Stan can access "Sales Special Scheme Code" and "Purch. Special Scheme Code" fields in the VAT Posting Setup list and card pages
+
+        Initialize;
+        LibraryApplicationArea.EnableFoundationSetup;
+        VATPostingSetup.OpenView;
+        Assert.IsTrue(VATPostingSetup."Sales Special Scheme Code".Visible, 'Special scheme code field is not visible');
+        Assert.IsTrue(VATPostingSetup."Purch. Special Scheme Code".Visible, 'Special scheme code field is not visible');
+        VATPostingSetupCard.OpenView;
+        Assert.IsTrue(VATPostingSetupCard."Sales Special Scheme Code".Visible, 'Special scheme code field is not visible');
+        Assert.IsTrue(VATPostingSetupCard."Purch. Special Scheme Code".Visible, 'Special scheme code field is not visible');
+
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesDocInheritsSpecialSchemeCodesFromVATPostingSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 399176] Special scheme codes specified in the VAT Posting Setup assign to the sales document
+
+        Initialize;
+
+        // [GIVEN] Sales invoice with three lines
+        // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
+        // [GIVEN] Second line has VAT Posting Setup with "Sales Special Scheme Code" = "04"
+        // [GIVEN] Third line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              SalesHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"03 Special System")));
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              SalesHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"04 Gold")));
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              SalesHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"03 Special System")));
+
+        // [WHEN] Post sales invoice
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Two SII sales document scheme codes created for the posted invoice. One with "03" and the other one with "04"
+        SIISalesDocumentSchemeCode.SetRange("Entry Type", SIISalesDocumentSchemeCode."Entry Type"::Sales);
+        SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
+        SIISalesDocumentSchemeCode.SetRange("Document No.", DocNo);
+        Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
+        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.TestField(
+          "Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"03 Special System");
+        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"04 Gold");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MixOfSalesSpecialSchemeCodesFromVATPostingSetupAndDefaultExportCodeFromVATExemption()
+    var
+        SalesHeader: Record "Sales Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATClause: Record "VAT Clause";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 399176] Both Special scheme codes specified in the VAT Posting Setup and default "02 Export" code of the VAT exemption assign to the sales document
+
+        Initialize;
+
+        // [GIVEN] Sales invoice with two lines
+        // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "01"
+        // [GIVEN] Second line has VAT Posting Setup with the related VAT Clause that has "SII exemption Code" = "E2"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              SalesHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"01 General")));
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(
+              SalesHeader."VAT Bus. Posting Group", VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21")));
+
+        // [WHEN] Post sales invoice
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Two SII sales document scheme codes created for the posted invoice. One with "01" and the other one with "02"
+        SIISalesDocumentSchemeCode.SetRange("Entry Type", SIISalesDocumentSchemeCode."Entry Type"::Sales);
+        SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
+        SIISalesDocumentSchemeCode.SetRange("Document No.", DocNo);
+        Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
+        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"01 General");
+        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.TestField(
+          "Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServDocInheritsSpecialSchemeCodesFromVATPostingSetup()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 399176] Special scheme codes specified in the VAT Posting Setup assign to the service document
+
+        Initialize;
+
+        // [GIVEN] Ser invoice with three lines
+        // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
+        // [GIVEN] Second line has VAT Posting Setup with "Sales Special Scheme Code" = "04"
+        // [GIVEN] Third line has VAT Posting Setup with "Sales Special Scheme Code" = "03"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySII.CreateServiceLineWithUnitPrice(
+          ServiceHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              ServiceHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"03 Special System")));
+        LibrarySII.CreateServiceLineWithUnitPrice(
+          ServiceHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              ServiceHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"04 Gold")));
+        LibrarySII.CreateServiceLineWithUnitPrice(
+          ServiceHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              ServiceHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"03 Special System")));
+
+        // [WHEN] Post service invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        LibraryService.FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+
+        // [THEN] Two SII service document scheme codes created for the posted invoice. One with "03" and the other one with "04"
+        SIISalesDocumentSchemeCode.SetRange("Entry Type", SIISalesDocumentSchemeCode."Entry Type"::Service);
+        SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
+        SIISalesDocumentSchemeCode.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
+        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"03 Special System");
+        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"04 Gold");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MixOfServSpecialSchemeCodesFromVATPostingSetupAndDefaultExportCodeFromVATExemption()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIISalesDocumentSchemeCode: Record "SII Sales Document Scheme Code";
+        VATClause: Record "VAT Clause";
+    begin
+        // [FEATURE] [Service]
+        // [SCENARIO 399176] Both Special scheme codes specified in the VAT Posting Setup and default "02 Export" code of the VAT exemption assign to the service document
+
+        Initialize;
+
+        // [GIVEN] Sales invoice with two lines
+        // [GIVEN] First line has VAT Posting Setup with "Sales Special Scheme Code" = "01"
+        // [GIVEN] Second line has VAT Posting Setup with the related VAT Clause that has "SII exemption Code" = "E2"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySII.CreateServiceLineWithUnitPrice(
+          ServiceHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              ServiceHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"01 General")));
+        LibrarySII.CreateServiceLineWithUnitPrice(
+          ServiceHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            LibrarySII.CreateVATPostingSetupWithSIIExemptVATClause(
+              ServiceHeader."VAT Bus. Posting Group", VATClause."SII Exemption Code"::"E2 Exempt on account of Article 21")));
+
+        // [WHEN] Post service invoice
+        LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
+        LibraryService.FindServiceInvoiceHeader(ServiceInvoiceHeader, ServiceHeader."No.");
+
+        // [THEN] Two SII service document scheme codes created for the posted invoice. One with "01" and the other one with "02"
+        SIISalesDocumentSchemeCode.SetRange("Entry Type", SIISalesDocumentSchemeCode."Entry Type"::Service);
+        SIISalesDocumentSchemeCode.SetRange("Document Type", SIISalesDocumentSchemeCode."Document Type"::"Posted Invoice");
+        SIISalesDocumentSchemeCode.SetRange("Document No.", ServiceInvoiceHeader."No.");
+        Assert.RecordCount(SIISalesDocumentSchemeCode, 2);
+        SIISalesDocumentSchemeCode.FindSet;
+        SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"01 General");
+        SIISalesDocumentSchemeCode.Next;
+        SIISalesDocumentSchemeCode.TestField("Special Scheme Code", SIISalesDocumentSchemeCode."Special Scheme Code"::"02 Export");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchDocInheritsSpecialSchemeCodesFromVATPostingSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VATPostingSetup: Record "VAT Posting Setup";
+        SIIPurchDocSchemeCode: Record "SII Purch. Doc. Scheme Code";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 399176] Special scheme codes specified in the VAT Posting Setup assign to the Purchase document
+
+        Initialize;
+
+        // [GIVEN] Purchase invoice with three lines
+        // [GIVEN] First line has VAT Posting Setup with "Purch. Special Scheme Code" = "03"
+        // [GIVEN] Second line has VAT Posting Setup with "Purch. Special Scheme Code" = "04"
+        // [GIVEN] Third line has VAT Posting Setup with "Purch. Special Scheme Code" = "03"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibrarySII.CreatePurchLineWithUnitCost(
+          PurchaseHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithPurchSpecialSchemeCode(
+              PurchaseHeader."VAT Bus. Posting Group", VATPostingSetup."Purch. Special Scheme Code"::"03 Special System")));
+        LibrarySII.CreatePurchLineWithUnitCost(
+          PurchaseHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithPurchSpecialSchemeCode(
+              PurchaseHeader."VAT Bus. Posting Group", VATPostingSetup."Purch. Special Scheme Code"::"04 Gold")));
+        LibrarySII.CreatePurchLineWithUnitCost(
+          PurchaseHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithPurchSpecialSchemeCode(
+              PurchaseHeader."VAT Bus. Posting Group", VATPostingSetup."Purch. Special Scheme Code"::"03 Special System")));
+
+        // [WHEN] Post purchase invoice
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Two SII purchase document scheme codes created for the posted invoice. One with "03" and the other one with "04"
+        SIIPurchDocSchemeCode.SetRange("Document Type", SIIPurchDocSchemeCode."Document Type"::"Posted Invoice");
+        SIIPurchDocSchemeCode.SetRange("Document No.", DocNo);
+        Assert.RecordCount(SIIPurchDocSchemeCode, 2);
+        SIIPurchDocSchemeCode.FindSet;
+        SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"03 Special System");
+        SIIPurchDocSchemeCode.Next;
+        SIIPurchDocSchemeCode.TestField("Special Scheme Code", SIIPurchDocSchemeCode."Special Scheme Code"::"04 Gold");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SII Special Scheme Code Tests");
@@ -1374,6 +1689,35 @@ codeunit 147562 "SII Special Scheme Code Tests"
           ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(100));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         ServiceLine.Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetupWithSalesSpecialSchemeCode(VATBusPostGroupCode: Code[20]; SpecialSchemeCode: Option): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        exit(CreateVATPostingSetup(VATBusPostGroupCode, SpecialSchemeCode, VATPostingSetup."Purch. Special Scheme Code"::" "));
+    end;
+
+    local procedure CreateVATPostingSetupWithPurchSpecialSchemeCode(VATBusPostGroupCode: Code[20]; SpecialSchemeCode: Option): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        exit(CreateVATPostingSetup(VATBusPostGroupCode, VATPostingSetup."Sales Special Scheme Code"::" ", SpecialSchemeCode));
+    end;
+
+    local procedure CreateVATPostingSetup(VATBusPostGroupCode: Code[20]; SalesSpecialSchemeCode: Option; PurchSpecialSchemeCode: Option): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup."VAT Bus. Posting Group" := VATBusPostGroupCode;
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup.Validate("Sales Special Scheme Code", SalesSpecialSchemeCode);
+        VATPostingSetup.Validate("Purch. Special Scheme Code", PurchSpecialSchemeCode);
+        VATPostingSetup.Insert(true);
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure FindPostedCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustNo: Code[20])

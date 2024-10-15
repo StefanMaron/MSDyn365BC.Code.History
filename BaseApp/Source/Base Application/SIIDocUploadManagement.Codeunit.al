@@ -274,6 +274,9 @@
                 // Customer Payment
                 UploadDocumentsPerTransactionFilter(
                   SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Customer Ledger", "Document Type"::Payment, '');
+                // Customer Refund
+                UploadDocumentsPerTransactionFilter(
+                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Customer Ledger", "Document Type"::Refund, '');
                 // Vendor Invoice
                 UploadDocumentsPerTransactionFilter(
                   SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Vendor Ledger", "Document Type"::Invoice, '');
@@ -286,6 +289,9 @@
                 // Vendor Payment
                 UploadDocumentsPerTransactionFilter(
                   SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Payment, '');
+                // Vendor Refund
+                UploadDocumentsPerTransactionFilter(
+                  SIIDocUploadState, TempSIIHistoryBuffer, "Document Source"::"Detailed Vendor Ledger", "Document Type"::Refund, '');
 
                 Reset;
                 SetDocStateFilters(SIIDocUploadState, IsManual);

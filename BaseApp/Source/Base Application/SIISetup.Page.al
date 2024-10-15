@@ -67,6 +67,11 @@ page 10751 "SII Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether the ImporteTotal XML node must be exported to the XML file.';
                 }
+                field("Do Not Export Negative Lines"; "Do Not Export Negative Lines")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies if you want to exclude lines that are negative from the export to the SII file.';
+                }
             }
             group(Certificate)
             {

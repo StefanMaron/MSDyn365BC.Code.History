@@ -196,9 +196,12 @@ codeunit 10757 "SII Recreate Missing Entries"
 
         if LastEntryNo <> 0 then
             DetailedVendorLedgEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
-        DetailedVendorLedgEntry.SetRange("Document Type", DetailedVendorLedgEntry."Document Type"::Payment);
+        DetailedVendorLedgEntry.SetFilter(
+          "Document Type", '%1|%2', DetailedVendorLedgEntry."Document Type"::Payment, DetailedVendorLedgEntry."Document Type"::Refund);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::Application);
-        DetailedVendorLedgEntry.SetFilter("Initial Document Type", '<>%1', DetailedVendorLedgEntry."Initial Document Type"::Payment);
+        DetailedVendorLedgEntry.SetFilter(
+          "Initial Document Type", '<>%1&<>%2',
+          DetailedVendorLedgEntry."Initial Document Type"::Payment, DetailedVendorLedgEntry."Initial Document Type"::Refund);
         DetailedVendorLedgEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
         DetailedVendorLedgEntry.SetRange(Unapplied, false);
@@ -272,9 +275,12 @@ codeunit 10757 "SII Recreate Missing Entries"
 
         if LastEntryNo <> 0 then
             DetailedCustLedgEntry.SetFilter("Entry No.", '>%1', LastEntryNo);
-        DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
+        DetailedCustLedgEntry.SetFilter(
+          "Document Type", '%1|%2', DetailedCustLedgEntry."Document Type"::Payment, DetailedCustLedgEntry."Document Type"::Refund);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::Application);
-        DetailedCustLedgEntry.SetFilter("Initial Document Type", '<>%1', DetailedCustLedgEntry."Initial Document Type"::Payment);
+        DetailedCustLedgEntry.SetFilter(
+          "Initial Document Type", '<>%1&<>%2',
+          DetailedCustLedgEntry."Initial Document Type"::Payment, DetailedCustLedgEntry."Initial Document Type"::Refund);
         DetailedCustLedgEntry.SetFilter(
           "Posting Date", '>%1', GetMaxDate(SIIInitialDocUpload.GetInitialEndDate, CalcDate('<-1D>', RecreateFromDate)));
         DetailedCustLedgEntry.SetRange(Unapplied, false);

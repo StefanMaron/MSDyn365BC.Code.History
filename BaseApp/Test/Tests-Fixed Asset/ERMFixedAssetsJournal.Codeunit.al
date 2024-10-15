@@ -63,7 +63,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryLowerPermissions.AddO365Setup;
 
         // Exercise
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
 
         // Veryfication happens inside the notification handler
 
@@ -99,7 +99,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
         // Setup
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
         LibraryLowerPermissions.SetO365FAEdit;
         LibraryLowerPermissions.AddO365FASetup;
         LibraryLowerPermissions.AddJournalsEdit;
@@ -143,7 +143,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
         // Setup
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
         LibraryPurchase.CreateVendor(Vendor);
         LibraryLowerPermissions.SetO365FAEdit;
         LibraryLowerPermissions.AddO365FASetup;
@@ -2611,6 +2611,61 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalLine.TestField(Amount, Round(FAJournalLineAmount, LibraryERM.GetAmountRoundingPrecision()));
     end;
 
+    [HandlerFunctions('ConfirmHandler')]
+    [Test]
+    procedure AcquireFixedAssetNoNotificationForBudgeted()
+    var
+        FixedAsset: Record "Fixed Asset";
+        DefaultDepreciationBookCode: Code[10];
+    begin
+        // [FEATURE] [UI] [Notification]
+        // [SCENARIO 389630] The fixed asset acquisition wizard is not shown for budgeted assets
+        Initialize;
+
+        // [GIVEN] A depreciation book
+        DefaultDepreciationBookCode := GetDefaultDepreciationBook;
+
+        // [WHEN] Create a new budgeted Fixed Asset in the Fixed Asset Card
+        CreateFAAcquisitionSetupForWizard(FixedAsset, true);
+
+        // [THEN] No notification pops up
+
+        // Cleanup
+        SetDefaultDepreciationBook(DefaultDepreciationBookCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler,ConfirmHandler,FixedAssetGLJournalPageHandler')]
+    [Scope('OnPrem')]
+    procedure FAAcquisitionWizardHandleCurrency()
+    var
+        FixedAsset: Record "Fixed Asset";
+        Vendor: Record Vendor;
+        CurrencyExchangeRate: Record "Currency Exchange Rate";
+    begin
+        // [SCENARIO 389714] User can set Currency Code in Fixed Asset Acquision Wizard for Vendor and F/A Gen. Journal Line contains Currency Code
+        Initialize;
+
+        // [GIVEN] Vendor
+        // [GIVEN] Currency "C" with exchange rate
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
+
+        // [GIVEN] Fixed Asset "FA"
+        DeleteFAJournalTemplateWithPageID(PAGE::"Fixed Asset Journal");
+        CreateFAJnlTemplateForFAAccWizard;
+        CreateFASetupWithAcquisitionAllocations(FixedAsset);
+        LibraryVariableStorage.Enqueue(CurrencyExchangeRate."Currency Code");
+
+        // [WHEN] Run Fixed Asset Acquire wizard for Vendor
+        RunFAAcquire(FixedAsset."No.", Vendor."No.", CurrencyExchangeRate."Currency Code", true);
+
+        // [THEN] There is F/A Gen. Journal Line with "Currency Code" = "C"
+        // Verification is in FixedAssetGLJournalPageHandler
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3225,29 +3280,35 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     local procedure RunFAAcquire(FANo: Code[20]; BalAccountNo: Code[20])
+    begin
+        RunFAAcquire(FANo, BalAccountNo, '', false);
+    end;
+
+    local procedure RunFAAcquire(FANo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[20]; OpenFAGLJournal: Boolean)
     var
         TempGenJournalLine: Record "Gen. Journal Line" temporary;
         FixedAssetAcquisitionWizard: TestPage "Fixed Asset Acquisition Wizard";
     begin
         TempGenJournalLine.SetRange("Account No.", FANo);
-        FixedAssetAcquisitionWizard.Trap;
-        PAGE.Run(PAGE::"Fixed Asset Acquisition Wizard", TempGenJournalLine);
+        FixedAssetAcquisitionWizard.Trap();
+        Page.Run(Page::"Fixed Asset Acquisition Wizard", TempGenJournalLine);
 
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandDec(1000, 2));
-        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate);
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
         FixedAssetAcquisitionWizard.BalancingAccountNo.SetValue(BalAccountNo);
-        FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID);
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.PreviousPage.Invoke;
-        FixedAssetAcquisitionWizard.NextPage.Invoke;
-        FixedAssetAcquisitionWizard.OpenFAGLJournal.SetValue(false);
+        FixedAssetAcquisitionWizard.ExternalDocNo.SetValue(LibraryUtility.GenerateGUID());
+        FixedAssetAcquisitionWizard.AcquisitionCurrencyCode.SetValue(CurrencyCode);
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
+        FixedAssetAcquisitionWizard.AcquisitionCost.SetValue(LibraryRandom.RandDec(1000, 2));
+        FixedAssetAcquisitionWizard.AcquisitionDate.SetValue(WorkDate());
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
+        FixedAssetAcquisitionWizard.PreviousPage.Invoke();
+        FixedAssetAcquisitionWizard.NextPage.Invoke();
+        FixedAssetAcquisitionWizard.OpenFAGLJournal.SetValue(OpenFAGLJournal);
 
         // COMMIT is enforced because the Finish action is invoking a codeunit and uses the return value.
         Commit();
 
-        FixedAssetAcquisitionWizard.Finish.Invoke;
+        FixedAssetAcquisitionWizard.Finish.Invoke();
     end;
 
     local procedure SetAllowCorrectionOfDisposal(DepreciationBookCode: Code[10])
@@ -3777,7 +3838,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FASetup.Modify();
     end;
 
-    local procedure CreateFAAcquisitionSetupForWizard(var FixedAsset: Record "Fixed Asset")
+    local procedure CreateFAAcquisitionSetupForWizard(var FixedAsset: Record "Fixed Asset"; Budgeted: Boolean)
     var
         FASubclass: Record "FA Subclass";
         DepreciationBook: Record "Depreciation Book";
@@ -3786,6 +3847,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
     begin
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
         LibraryFixedAsset.CreateFASubclass(FASubclass);
+        FixedAsset.Validate("Budgeted Asset", Budgeted);
+        FixedAsset.Modify(true);
         CreateJournalSetupDepreciation(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
         IndexationAndIntegrationInBook(DepreciationBook.Code);
@@ -3820,7 +3883,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
         // Setup
         DefaultDepreciationBookCode := GetDefaultDepreciationBook;
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
 
         RunFAAcquire(FixedAsset."No.", BalAccountNo);
 
@@ -3912,7 +3975,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     var
         FAPostingGroup: Record "FA Posting Group";
     begin
-        CreateFAAcquisitionSetupForWizard(FixedAsset);
+        CreateFAAcquisitionSetupForWizard(FixedAsset, false);
         FindFAPostingGroup(FAPostingGroup, FixedAsset."No.");
         CreateFAAllocationAcquisitions(FAPostingGroup.Code, FAPostingGroup."Acquisition Cost Account");
         exit(FAPostingGroup."Acquisition Cost Account");
@@ -4016,6 +4079,21 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Verify: FA Journal Page open with the same value of created batch when open through batches.
         Assert.AreEqual(FixedAssetJournal.CurrentJnlBatchName.Value, FAJnlBatchName, StrSubstNo(ExpectedBatchError, FAJnlBatchName));
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure FixedAssetGLJournalPageHandler(var FixedAssetGLJournal: TestPage "Fixed Asset G/L Journal")
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CurrencyCode: Text;
+    begin
+        CurrencyCode := LibraryVariableStorage.DequeueText();
+
+        GenJournalLine.SetRange("Account Type", FixedAssetGLJournal."Account Type".AsInteger());
+        GenJournalLine.SetRange("Account No.", FixedAssetGLJournal."Account No.".Value);
+        GenJournalLine.FindFirst();
+        GenJournalLine.TestField("Currency Code", CurrencyCode);
     end;
 }
 

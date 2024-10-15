@@ -1541,6 +1541,72 @@ codeunit 134417 "ERM Delete Documents"
         Assert.IsTrue(PurchaseLine[2].Find, '');
     end;
 
+    [Test]
+    procedure DeleteInvoicedPurchOrderWithItemChargeNotFullyAssigned()
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        ItemPurchaseLine: array[2] of Record "Purchase Line";
+        ItemChargePurchaseLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [Delete Documents] [Item Charge]
+        // [SCENARIO 400059] Do not delete purchase order with not fully assigned item charge.
+        Initialize();
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Purchase order with two item lines "L1", "L2" and item charge line "IC".
+        // [GIVEN] "L1".Quantity = 2, "L2".Quantity = 1, "IC".Quantity = 1.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, ItemPurchaseLine[1], PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), 2, '', WorkDate());
+        LibraryPurchase.CreatePurchaseLine(
+          ItemPurchaseLine[2], PurchaseHeader, ItemPurchaseLine[2].Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryPurchase.CreatePurchaseLine(
+          ItemChargePurchaseLine, PurchaseHeader, ItemChargePurchaseLine.Type::"Charge (Item)", ItemCharge."No.", 1);
+        ItemChargePurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        ItemChargePurchaseLine.Modify(true);
+
+        // [GIVEN] Set 1 pc on line "L1" to receive and invoice.
+        UpdateQtyToReceiveOnPurchaseLine(ItemPurchaseLine[1], 1);
+        UpdateQtyToReceiveOnPurchaseLine(ItemPurchaseLine[2], 0);
+        UpdateQtyToReceiveOnPurchaseLine(ItemChargePurchaseLine, 0);
+
+        // [GIVEN] Receive and invoice line "L1".
+        PostPurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Set 1 pc on lines "L2" and "IC" to receive and invoice.
+        UpdateQtyToReceiveOnPurchaseLine(ItemPurchaseLine[1], 0);
+        UpdateQtyToReceiveOnPurchaseLine(ItemPurchaseLine[2], 1);
+        UpdateQtyToReceiveOnPurchaseLine(ItemChargePurchaseLine, 1);
+
+        // [GIVEN] Assign item charge equally to both item lines "L1" and "L2".
+        CreateItemChargeAssignmentPurch(ItemChargePurchaseLine, ItemPurchaseLine[1], ItemCharge, 0.5);
+        CreateItemChargeAssignmentPurch(ItemChargePurchaseLine, ItemPurchaseLine[2], ItemCharge, 0.5);
+
+        // [GIVEN] Receive and invoice lines "L2" and "IC".
+        PostPurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Set quantity = 1 on line "L1" so it becomes fully received and invoiced.
+        ItemPurchaseLine[1].Find();
+        ItemPurchaseLine[1].Validate(Quantity, 1);
+        ItemPurchaseLine[1].Modify(true);
+
+        // [WHEN] Delete fully invoiced purchase order via report 499.
+        DeleteInvoicePurchOrder(PurchaseHeader);
+
+        // [THEN] The purchase order has not been deleted.
+        PurchaseHeader.Find();
+
+        // [THEN] None of purchase lines have been deleted.
+        ItemPurchaseLine[1].Find();
+        ItemPurchaseLine[2].Find();
+        ItemChargePurchaseLine.Find();
+
+        // [THEN] That is because the item charge line "IC" has remaining quantity to assign.
+        ItemChargePurchaseLine.CalcFields("Qty. to Assign");
+        ItemChargePurchaseLine.TestField("Qty. to Assign", 0.5);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1761,6 +1827,17 @@ codeunit 134417 "ERM Delete Documents"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure CreateItemChargeAssignmentPurch(ItemChargePurchaseLine: Record "Purchase Line"; ItemPurchaseLine: Record "Purchase Line"; ItemCharge: Record "Item Charge"; Qty: Decimal)
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        LibraryPurchase.CreateItemChargeAssignment(
+          ItemChargeAssignmentPurch, ItemChargePurchaseLine, ItemCharge,
+          ItemPurchaseLine."Document Type", ItemPurchaseLine."Document No.", ItemPurchaseLine."Line No.", ItemPurchaseLine."No.", Qty,
+          ItemChargePurchaseLine."Direct Unit Cost");
+        ItemChargeAssignmentPurch.Insert(true);
+    end;
+
     local procedure FilterPurchaseHeaders(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
@@ -1926,6 +2003,14 @@ codeunit 134417 "ERM Delete Documents"
         end;
     end;
 
+    local procedure PostPurchaseDocument(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.Find();
+        PurchaseHeader.Validate("Vendor Invoice No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+    end;
+
     local procedure ReleaseAndArchiveSalesDoc(var SalesHeader: Record "Sales Header"; var NoOfArchivedVerAfterRelease: Integer)
     begin
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -2000,6 +2085,13 @@ codeunit 134417 "ERM Delete Documents"
         OldStockOutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", NewStockOutWarning);
         SalesReceivablesSetup.Modify(true);
+    end;
+
+    local procedure UpdateQtyToReceiveOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; QtyToReceive: Decimal)
+    begin
+        PurchaseLine.Find();
+        PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+        PurchaseLine.Modify(true);
     end;
 
     local procedure VerifyPurchaseLineArchive(PurchaseLine: Record "Purchase Line"; PostedDocumentNo: Code[20])

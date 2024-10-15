@@ -15,7 +15,7 @@
         DataTypeManagement: Codeunit "Data Type Management";
         LastXMLNode: DotNet XmlNode;
         ErrorMsg: Text;
-        DetailedLedgerEntryShouldBePaymentErr: Label 'Expected the detailed ledger entry to have a Payment document type, but got %1 instead.', Comment = '%1 is the actual value of the Detailed Ledger Entry document type';
+        DetailedLedgerEntryShouldBePaymentOrRefundErr: Label 'Expected the detailed ledger entry to have a Payment or Refund document type, but got %1 instead.', Comment = '%1 is the actual value of the Detailed Ledger Entry document type';
         RegistroDelPrimerSemestreTxt: Label 'Registro del primer semestre';
         IsInitialized: Boolean;
         RetryAccepted: Boolean;
@@ -65,16 +65,20 @@
             DATABASE::"Detailed Cust. Ledg. Entry":
                 begin
                     RecRef.SetTable(DetailedCustLedgEntry);
-                    if DetailedCustLedgEntry."Document Type" <> DetailedCustLedgEntry."Document Type"::Payment then
-                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentErr, Format(DetailedCustLedgEntry."Document Type"));
+                    if not (DetailedCustLedgEntry."Document Type" in
+                            [DetailedCustLedgEntry."Document Type"::Payment, DetailedCustLedgEntry."Document Type"::Refund])
+                    then
+                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentOrRefundErr, Format(DetailedCustLedgEntry."Document Type"));
                     CustLedgerEntry.Get(DetailedCustLedgEntry."Cust. Ledger Entry No.");
                     exit(CreateReceivedPaymentsXml(CustLedgerEntry, XMLDocOut))
                 end;
             DATABASE::"Detailed Vendor Ledg. Entry":
                 begin
                     RecRef.SetTable(DetailedVendorLedgEntry);
-                    if DetailedVendorLedgEntry."Document Type" <> DetailedVendorLedgEntry."Document Type"::Payment then
-                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentErr, Format(DetailedVendorLedgEntry."Document Type"));
+                    if not (DetailedVendorLedgEntry."Document Type" in
+                            [DetailedVendorLedgEntry."Document Type"::Payment, DetailedVendorLedgEntry."Document Type"::Refund])
+                    then
+                        ErrorMsg := StrSubstNo(DetailedLedgerEntryShouldBePaymentOrRefundErr, Format(DetailedVendorLedgEntry."Document Type"));
                     VendorLedgerEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                     exit(CreateEmittedPaymentsXml(VendorLedgerEntry, XMLDocOut))
                 end
@@ -186,7 +190,8 @@
                         repeat
                             AddPayment(
                               XMLNode, 'Pago', PaymentDetailedVendorLedgEntry."Posting Date",
-                              PaymentDetailedVendorLedgEntry.Amount, VendorLedgerEntry."Payment Method Code");
+                              PaymentDetailedVendorLedgEntry.Amount, VendorLedgerEntry."Payment Method Code",
+                              1, VendorLedgerEntry."Document Type" = VendorLedgerEntry."Document Type"::Refund);
                         until PaymentDetailedVendorLedgEntry.Next = 0;
                 until VendorLedgerEntry.Next = 0;
         end;
@@ -207,21 +212,28 @@
                         repeat
                             AddPayment(
                               XMLNode, 'Cobro', PaymentDetailedCustLedgEntry."Posting Date",
-                              PaymentDetailedCustLedgEntry.Amount, CustLedgerEntry."Payment Method Code");
+                              PaymentDetailedCustLedgEntry.Amount, CustLedgerEntry."Payment Method Code",
+                              -1, CustLedgerEntry."Document Type" = CustLedgerEntry."Document Type"::Refund);
                         until PaymentDetailedCustLedgEntry.Next = 0;
                 until CustLedgerEntry.Next = 0;
         end;
     end;
 
-    local procedure AddPayment(var XMLNode: DotNet XmlNode; PmtHeaderTxt: Text; PostingDate: Date; Amount: Decimal; PaymentMethodCode: Code[10])
+    local procedure AddPayment(var XMLNode: DotNet XmlNode; PmtHeaderTxt: Text; PostingDate: Date; Amount: Decimal; PaymentMethodCode: Code[10]; EntryTypeSign: Integer; Refund: Boolean)
     var
         TempXMLNode: DotNet XmlNode;
         BaseXMLNode: DotNet XmlNode;
+        DocTypeSign: Integer;
     begin
         BaseXMLNode := XMLNode;
         XMLDOMManagement.AddElementWithPrefix(XMLNode, PmtHeaderTxt, '', 'sii', SiiTxt, XMLNode);
         XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Fecha', FormatDate(PostingDate), 'sii', SiiTxt, TempXMLNode);
-        XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Importe', FormatNumber(Abs(Amount)), 'sii', SiiTxt, TempXMLNode);
+        if Refund then
+            DocTypeSign := -1
+        else
+            DocTypeSign := 1;
+        XMLDOMManagement.AddElementWithPrefix(
+          XMLNode, 'Importe', FormatNumber(EntryTypeSign * DocTypeSign * Amount), 'sii', SiiTxt, TempXMLNode);
         InsertMedioNode(XMLNode, PaymentMethodCode);
         XMLNode := BaseXMLNode;
     end;
@@ -1011,6 +1023,12 @@
         NonTaxableAmount := CalculateNonTaxableAmountVendor(VendLedgEntry);
         if NonTaxableAmount = 0 then
             exit;
+        SIISetup.Get();
+        if SIISetup."Do Not Export Negative Lines" then
+            if ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice) and (NonTaxableAmount < 0)) or
+               ((VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::"Credit Memo") and (NonTaxableAmount > 0))
+            then
+                exit;
 
         TempVATEntryCalculated.Reset();
         if TempVATEntryCalculated.FindLast then;
@@ -1649,12 +1667,12 @@
 
         if SIIManagement.FindVatEntriesFromLedger(LedgerEntryRecRef, VATEntry) then begin
             repeat
-                TotalBaseAmount += VATEntry.Base;
+                TotalBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
                 if VATEntry."VAT %" <> 0 then
-                    TotalNonExemptVATBaseAmount += VATEntry.Base;
+                    TotalNonExemptVATBaseAmount += VATEntry.Base + VATEntry."Unrealized Base";
                 if VATEntry."VAT Calculation Type" <> VATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
-                    TotalVATAmount += VATEntry.Amount;
-            until VATEntry.Next = 0;
+                    TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
+            until VATEntry.Next() = 0;
         end;
     end;
 
@@ -1770,10 +1788,10 @@
                     if SalesInvoiceLine.FindSet() then
                         repeat
                             if SalesInvoiceLine."Shipment No." = '' then begin
-                                if (SalesInvoiceLine."Shipment Date" > LastShipDate) and
-                                   (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
-                                then
-                                    LastShipDate := SalesInvoiceLine."Shipment Date";
+                                if SalesInvoiceLine."Shipment Date" <> 0D then
+                                    if (SalesInvoiceLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesInvoiceLine."Shipment Date", 3) = Date2DMY(SalesInvoiceHeader."Posting Date", 3))
+                                    then
+                                        LastShipDate := SalesInvoiceLine."Shipment Date";
                             end else
                                 if SalesShipmentLine.Get(SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Line No.") then
                                     if (SalesShipmentLine."Posting Date" > LastShipDate) and
@@ -1791,10 +1809,10 @@
                     if SalesCrMemoLine.FindSet() then
                         repeat
                             if SalesCrMemoLine."Return Receipt No." = '' then begin
-                                if (SalesCrMemoLine."Shipment Date" > LastShipDate) and
-                                   (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
-                                then
-                                    LastShipDate := SalesCrMemoLine."Shipment Date";
+                                if SalesCrMemoLine."Shipment Date" <> 0D then
+                                    if (SalesCrMemoLine."Shipment Date" > LastShipDate) and (Date2DMY(SalesCrMemoLine."Shipment Date", 3) = Date2DMY(SalesCrMemoHeader."Posting Date", 3))
+                                    then
+                                        LastShipDate := SalesCrMemoLine."Shipment Date";
                             end else
                                 if ReturnReceiptLine.Get(SalesCrMemoLine."Return Receipt No.", SalesCrMemoLine."Return Receipt Line No.") then
                                     if (ReturnReceiptLine."Posting Date" > LastShipDate) and
@@ -2018,12 +2036,16 @@
         StopExemptLoop: Boolean;
         BaseAmount: Decimal;
         ExemptionEntryIndex: Integer;
+        ExentaExported: Boolean;
     begin
         for ExemptionEntryIndex := 1 to ArrayLen(ExemptionCausePresent) do
             if ExemptionCausePresent[ExemptionEntryIndex] and (not StopExemptLoop) then begin
                 StopExemptLoop := false;
 
-                XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Exenta', '', 'sii', SiiTxt, XMLNode);
+                if not ExentaExported then begin
+                    XMLDOMManagement.AddElementWithPrefix(XMLNode, 'Exenta', '', 'sii', SiiTxt, XMLNode);
+                    ExentaExported := true;
+                end;
                 if IncludeChangesVersion11 then
                     XMLDOMManagement.AddElementWithPrefix(XMLNode, 'DetalleExenta', '', 'sii', SiiTxt, XMLNode);
 
@@ -2043,8 +2065,9 @@
                   'sii',
                   SiiTxt, TempXmlNode);
                 XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
-                XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
             end;
+        if ExentaExported then
+            XMLDOMManagement.FindNode(XMLNode, '..', XMLNode);
     end;
 
     local procedure CalcTotalDiffAmounts(var TotalBaseAmountDiff: Decimal; var TotalVATAmountDiff: Decimal; var TotalECPercentDiff: Decimal; var TotalECAmountDiff: Decimal; var TempOldVATEntryPerPercent: Record "VAT Entry" temporary; var TempVATEntryPerPercent: Record "VAT Entry" temporary)

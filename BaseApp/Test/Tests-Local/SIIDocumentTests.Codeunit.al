@@ -2453,6 +2453,124 @@ codeunit 147520 SIIDocumentTests
         WorkDate := OldWorkDate;
     end;
     
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoFechaOperacionNodeForSalesPrepaymentInvoice()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Prepayment]
+        // [SCENARIO 220565] A FechaOperacion xml node does not generate for the sales prepayment invoice
+
+        Initialize();
+
+        // [GIVEN] Sales Order with "Prepayment %"
+        CreateSalesPrepaymentOrder(SalesHeader);
+
+        // [GIVEN] Post prepayment invoice
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
+
+        // [WHEN] Generate xml file for the posted prepayment invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoFechaOperacionNodeForSalesPrepaymentCrMemo()
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Sales] [Prepayment]
+        // [SCENARIO 220565] A FechaOperacion xml node does not generate for the sales prepayment credit memo
+
+        Initialize();
+
+        // [GIVEN] Sales Order with "Prepayment %"
+        CreateSalesPrepaymentOrder(SalesHeader);
+
+        // [GIVEN] Post prepayment invoice
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Post prepayment credit memo
+        LibrarySales.PostSalesPrepaymentCrMemo(SalesHeader);
+        CustLedgerEntry.SetRange("Customer No.", SalesHeader."Bill-to Customer No.");
+        CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
+        CustLedgerEntry.FindFirst();
+
+        // [WHEN] Generate xml file for the posted prepayment credit memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoFechaOperacionNodeForPurchPrepaymentInvoice()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Prepayment]
+        // [SCENARIO 220565] A FechaOperacion xml node does not generate for the purchase prepayment invoice
+
+        Initialize();
+
+        // [GIVEN] Purchase Order with "Prepayment %"
+        CreatePurchPrepaymentOrder(PurchaseHeader);
+
+        // [GIVEN] Post prepayment invoice
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader));
+
+        // [WHEN] Generate xml file for the posted prepayment invoice
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoFechaOperacionNodeForPurchPrepaymentCrMemo()
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        PurchaseHeader: Record "Purchase Header";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [FEATURE] [Purchase] [Prepayment]
+        // [SCENARIO 220565] A FechaOperacion xml node does not generate for the sales purchase credit memo
+
+        Initialize();
+
+        // [GIVEN] Purchase Order with "Prepayment %"
+        CreatePurchPrepaymentOrder(PurchaseHeader);
+
+        // [GIVEN] Post prepayment invoice
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Post prepayment credit memo
+        LibraryPurchase.PostPurchasePrepaymentCrMemo(PurchaseHeader);
+        VendorLedgerEntry.SetRange("Vendor No.", PurchaseHeader."Pay-to Vendor No.");
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::"Credit Memo");
+        VendorLedgerEntry.FindFirst();
+
+        // [WHEN] Generate xml file for the posted prepayment credit memo
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] FechaOperacion tag is not included in XML file
+        LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -2616,6 +2734,19 @@ codeunit 147520 SIIDocumentTests
         exit(CreateAndPostSalesDocWithDate(DummySalesHeader."Document Type"::Invoice, CustomerNo, WorkDate, ''));
     end;
 
+    local procedure CreateSalesPrepaymentOrder(var SalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandInt(50));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLineWithShipmentDate(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), WorkDate(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+    end;
+
     local procedure CreatePurchDocument(IsInvoice: Boolean; VendorCountryCode: Code[10]; CreditMemoType: Option " ",Replacement,Difference,Removal; AddCorrectedInvoiceNo: Boolean): Code[20]
     var
         Vendor: Record Vendor;
@@ -2690,6 +2821,19 @@ codeunit 147520 SIIDocumentTests
         PurchaseLine.Validate("VAT Prod. Posting Group",
           CreateVATProductGroupConsistentWithVATBusPostingGroup(PurchaseHeader."VAT Bus. Posting Group"));
         PurchaseLine.Validate("Direct Unit Cost", UnitCost);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchPrepaymentOrder(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
+        PurchaseHeader.Validate("Prepayment %", LibraryRandom.RandInt(50));
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
     end;
 
