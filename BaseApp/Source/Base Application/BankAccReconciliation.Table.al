@@ -408,6 +408,12 @@ table 273 "Bank Acc. Reconciliation"
         PostHighConfidentLinesQst: Label 'All imported bank statement lines were applied with high confidence level.\Do you want to post the payment applications?';
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
         NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
+        BankReconciliationFeatureNameTelemetryTxt: Label 'Bank reconciliation', Locked = true;
+
+    internal procedure GetBankReconciliationTelemetryFeatureName(): Text
+    begin
+        exit(BankReconciliationFeatureNameTelemetryTxt);
+    end;
 
 #if not CLEAN20
     [Obsolete('Replaced by CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])', '20.0')]

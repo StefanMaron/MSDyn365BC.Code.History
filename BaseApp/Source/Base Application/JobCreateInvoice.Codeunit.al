@@ -405,6 +405,7 @@ codeunit 1002 "Job Create-Invoice"
         Job: Record Job;
         Factor: Integer;
         IsHandled: Boolean;
+        ShouldUpdateCurrencyFactor: Boolean;
     begin
         OnBeforeCreateSalesLine(JobPlanningLine, SalesHeader, SalesHeader2, JobInvCurrency);
 
@@ -418,7 +419,9 @@ codeunit 1002 "Job Create-Invoice"
         SalesLine."Document Type" := SalesHeader2."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
 
-        if (not JobInvCurrency) and (JobPlanningLine.Type <> JobPlanningLine.Type::Text) then begin
+        ShouldUpdateCurrencyFactor := (not JobInvCurrency) and (JobPlanningLine.Type <> JobPlanningLine.Type::Text);
+        OnCreateSalesLineOnAfterCalcShouldUpdateCurrencyFactor(JobPlanningLine, Job, SalesHeader, SalesHeader2, JobInvCurrency, ShouldUpdateCurrencyFactor);
+        if ShouldUpdateCurrencyFactor then begin
             SalesHeader.TestField("Currency Code", JobPlanningLine."Currency Code");
             if (Job."Currency Code" <> '') and (JobPlanningLine."Currency Factor" <> SalesHeader."Currency Factor") then
                 if Confirm(Text011) then begin
@@ -1075,6 +1078,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestTransferred(var JobPlanningLine: Record "Job Planning Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLineOnAfterCalcShouldUpdateCurrencyFactor(var JobPlanningLine: Record "Job Planning Line"; var Job: Record Job; var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; var JobInvCurrency: Boolean; var ShouldUpdateCurrencyFactor: Boolean)
     begin
     end;
 

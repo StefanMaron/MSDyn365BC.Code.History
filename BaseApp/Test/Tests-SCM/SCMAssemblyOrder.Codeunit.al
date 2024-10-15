@@ -1746,6 +1746,67 @@ codeunit 137908 "SCM Assembly Order"
         VerifyDimensionIsNotReInitializedOnLine(AssemblyLineItem, DimensionValue2);
     end;
 
+    [Test]
+    procedure VerifyPostAssemblyOrderForComponentItemWithAdditionalUoM()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        NonBaseUOM: Record "Unit of Measure";
+        ItemUOM: Record "Item Unit of Measure";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SCENARIO 463373] Verify Post Assembly Order for Component Item with Additional Unit of Measure 
+        Initialize();
+
+        // [GIVEN] Create Assembly and Component Item
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(AsmItem);
+
+        // [GIVEN] Create additional UoM for Component Item
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, CompItem."No.", NonBaseUOM.Code, 0.001);
+
+        // [GIVEN] Value required for Inventory
+        CreateAndPostItemJournalLine(CompItem."No.", 1000, '');
+
+        // [GIVEN] Create Assembly Order 
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate2, AsmItem."No.", '', 570, '');
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, CompItem."No.", NonBaseUOM.Code, 197900.0043, 0, '');
+
+        // [WHEN] Update Quantity to Consume on Assembly Line
+        OpenAssemblyOrderAndUpdateQuantityToConsume(AssemblyHeader, 197900);
+
+        // [THEN] Post Assembly Order
+        AssemblyHeader.Get(AssemblyHeader."Document Type", AssemblyHeader."No.");
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+    end;
+
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; VariantCode: Code[10])
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name,
+          ItemJournalLine."Entry Type"::"Positive Adjmt.", ItemNo, Quantity);
+        ItemJournalLine.Validate("Variant Code", VariantCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
+    end;
+
+    local procedure OpenAssemblyOrderAndUpdateQuantityToConsume(AssemblyHeader: Record "Assembly Header"; QuantityToConsume: Decimal)
+    var
+        AssemblyOrder: TestPage "Assembly Order";
+    begin
+        AssemblyOrder.OpenEdit();
+        AssemblyOrder.GoToKey(AssemblyHeader."Document Type"::Order, AssemblyHeader."No.");
+        AssemblyOrder.Lines."Quantity to Consume".SetValue(QuantityToConsume);
+        AssemblyOrder.Close();
+    end;
+
     local procedure VerifyDimensionIsNotReInitializedOnLine(var AssemblyLine: Record "Assembly Line"; var DimensionValue: Record "Dimension Value")
     begin
         AssemblyLine.Get(AssemblyLine."Document Type", AssemblyLine."Document No.", AssemblyLine."Line No.");

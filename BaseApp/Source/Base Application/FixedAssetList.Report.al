@@ -200,8 +200,12 @@ report 5601 "Fixed Asset - List"
             }
 
             trigger OnAfterGetRecord()
+            var
+                ShouldSkipAsset: Boolean;
             begin
-                if Inactive then
+                ShouldSkipAsset := Inactive;
+                OnFixedAssetOnAfterGetRecordOnAfterCalcShouldSkipAsset("Fixed Asset", ShouldSkipAsset);
+                if ShouldSkipAsset then
                     CurrReport.Skip();
                 if "Main Asset/Component" <> "Main Asset/Component"::" " then
                     ComponentFieldname := FieldCaption("Component of Main Asset")
@@ -308,5 +312,10 @@ report 5601 "Fixed Asset - List"
         FADeprBookEndDateCustomCptnLbl: Label 'Depr. Ending Date (Custom 1)';
         GlobalDim1CodeCaption: Text[80];
         GlobalDim2CodeCaption: Text[80];
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFixedAssetOnAfterGetRecordOnAfterCalcShouldSkipAsset(FixedAsset: Record "Fixed Asset"; var ShouldSkipAsset: Boolean)
+    begin
+    end;
 }
 
