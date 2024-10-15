@@ -2,7 +2,7 @@
     "id":  "050f6146-bffd-40de-942c-d0dd510ec20f",
     "name":  "India Reports",
     "publisher":  "Microsoft",
-    "version":  "21.3.51409.51464",
+    "version":  "21.3.51409.52692",
     "brief":  "Contains reports for taxation in India.",
     "description":  "This feature provides reports for taxation in India, such as Goods and Services Tax (GST), Tax Deducted at Source (TDS), and Tax Collected at Source (TCS), on transactions such as purchases, sales, returns, transfers, and so on. It also provides reports that generate data for tax returns.",
     "privacyStatement":  "https://go.microsoft.com/fwlink/?LinkId=724009",
