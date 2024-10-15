@@ -19,6 +19,7 @@ report 6646 "Sales - Return Receipt"
 {
     Caption = 'Sales - Return Receipt';
     DefaultRenderingLayout = "SalesReturnReceipt.rdlc";
+    WordMergeDataItem = "Return Receipt Header";
 
     dataset
     {

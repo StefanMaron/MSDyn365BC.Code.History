@@ -21,6 +21,7 @@ report 417 "Arch.Purch. Return Order"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Archive/ArchPurchReturnOrder.rdlc';
     Caption = 'Arch.Purch. Return Order';
+    WordMergeDataItem = "Purchase Header Archive";
 
     dataset
     {

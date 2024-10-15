@@ -20,6 +20,7 @@ report 6636 "Purchase - Return Shipment"
     RDLCLayout = './Purchases/Document/ReturnShipment.rdlc';
     Caption = 'Purchase - Return Shipment';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Return Shipment Header";
 
     dataset
     {

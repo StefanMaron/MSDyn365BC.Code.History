@@ -187,7 +187,7 @@ codeunit 423 "Change Log Management"
         OnAfterIsFieldLogActive(TableNumber, FieldNumber, TypeOfChange, TempChangeLogSetupField, IsActive);
     end;
 
-    local procedure IsAlwaysLoggedTable(TableID: Integer) AlwaysLogTable: Boolean
+    procedure IsAlwaysLoggedTable(TableID: Integer) AlwaysLogTable: Boolean
     begin
         AlwaysLogTable :=
           TableID in

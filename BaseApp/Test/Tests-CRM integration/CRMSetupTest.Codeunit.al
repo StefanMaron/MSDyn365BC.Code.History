@@ -14,13 +14,11 @@ codeunit 139160 "CRM Setup Test"
         URLNamePswNeededErr: Label 'A %1 URL and user name are required to enable a connection';
         ConnectionErr: Label 'The connection setup cannot be validated. Verify the settings and try again.';
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         OnlyBasicAppAreaMsg: Label 'You do not have access to this page, because your experience is set to Basic.';
         UnfavorableCRMSolutionInstalledMsg: Label 'The %1 Integration Solution was not detected.';
         FavorableCRMSolutionInstalledMsg: Label 'The %1 Integration Solution is installed in %2.';
         WebClientUrlResetMsg: Label 'The %1 Web Client URL has been reset to the default value.';
-        CurrentuserIsNotMappedToCRMUserMsg: Label 'the authentication email must match the primary email of a %1 user.', Comment = '%1 = Current User ID';
         ConnectionSuccessMsg: Label 'The connection test was successful';
         LCYMustMatchBaseCurrencyErr: Label '%1 does not match any ISO Currency Code in the Dataverse currency table.', Comment = '%1 - ISO currency code';
         CRMSetupTest: Codeunit "CRM Setup Test";
@@ -1070,7 +1068,7 @@ codeunit 139160 "CRM Setup Test"
         SimulateIntegrationSyncJobsExecution();
 
         // [THEN] Jobs are created for each mapping and direction
-        Assert.AreEqual(42, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
+        Assert.AreEqual(40, IntegrationSynchJob.Count, 'Expected a job to be created for each mapping and direction');
         CRMConnectionSetup.DeleteAll();
         InitializeCDSConnectionSetup();
     end;

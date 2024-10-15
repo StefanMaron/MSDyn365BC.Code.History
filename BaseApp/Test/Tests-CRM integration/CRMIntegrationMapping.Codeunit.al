@@ -1744,19 +1744,12 @@ codeunit 139183 "CRM Integration Mapping"
     procedure ResetIntegrationTableMappingConfiguration()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        Customer: Record Customer;
         CRMSystemUser: Record "CRM Systemuser";
         CRMAccount: Record "CRM Account";
         CRMContact: Record "CRM Contact";
-        Contact: Record Contact;
         CRMTransactionCurrency: Record "CRM Transactioncurrency";
         CRMProduct: Record "CRM Product";
-        Item: Record Item;
         CRMOpportunity: Record "CRM Opportunity";
-        Opportunity: Record Opportunity;
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        Resource: Record Resource;
         CRMInvoice: Record "CRM Invoice";
         CRMInvoiceDetail: Record "CRM Invoicedetail";
         CRMUomschedule: Record "CRM Uomschedule";
@@ -1883,19 +1876,12 @@ codeunit 139183 "CRM Integration Mapping"
     procedure ResetIntegrationTableMappingConfigurationExtendedPrice()
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
-        CRMConnectionSetup: Record "CRM Connection Setup";
-        Customer: Record Customer;
         CRMSystemUser: Record "CRM Systemuser";
         CRMAccount: Record "CRM Account";
         CRMContact: Record "CRM Contact";
-        Contact: Record Contact;
         CRMTransactionCurrency: Record "CRM Transactioncurrency";
         CRMProduct: Record "CRM Product";
-        Item: Record Item;
         CRMOpportunity: Record "CRM Opportunity";
-        Opportunity: Record Opportunity;
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-        Resource: Record Resource;
         CRMInvoice: Record "CRM Invoice";
         CRMInvoiceDetail: Record "CRM Invoicedetail";
         CRMUomschedule: Record "CRM Uomschedule";

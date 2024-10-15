@@ -12,6 +12,7 @@ report 5053 "Contact - Person Summary"
     ApplicationArea = RelationshipMgmt;
     Caption = 'Contact - Person Summary';
     UsageCategory = ReportsAndAnalysis;
+    WordMergeDataItem = Contact;
 
     dataset
     {

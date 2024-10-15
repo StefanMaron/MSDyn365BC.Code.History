@@ -241,6 +241,8 @@ report 2000005 "File SEPA Payments"
         EBSetup.Get();
         CompanyInfo.Get();
 
+        OnBeforePreReport("Payment Journal Line", GenJnlLine, AutomaticPosting, IncludeDimText, ExecutionDate, FileName);
+
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8"?><Document></Document>', XMLDomDoc);
         XMLRootElement := XMLDomDoc.DocumentElement;
         XMLRootElement.SetAttribute('xmlns', 'urn:iso:std:iso:20022:tech:xsd:pain.001.001.03');
@@ -895,6 +897,11 @@ report 2000005 "File SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDownloadXmlFile(var TempBlob: Codeunit "Temp Blob"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePreReport(var PaymentJournalLine: Record "Payment Journal Line"; var GenJournalLine: Record "Gen. Journal Line"; var AutomaticPosting: Boolean; var IncludeDimText: Text[250]; var ExecutionDate: Date; var FileName: Text)
     begin
     end;
 }

@@ -38,7 +38,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
         PostingCodeunitId: Integer;
         PostingDateIsNotSetErr: Label 'Enter the posting date.';
-        BatchPostingMsg: Label 'Bacth posting of purchase documents.';
+        BatchPostingMsg: Label 'Batch posting of purchase documents.';
         ApprovalPendingErr: Label 'Cannot post purchase document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
         ApprovalWorkflowErr: Label 'Cannot post purchase document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
         InterCompanyZipFileNamePatternTok: Label 'Purchase IC Batch - %1.zip', Comment = '%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip';

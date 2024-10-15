@@ -85,6 +85,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Encryption;
+using System.Security.User;
 using System.Telemetry;
 using System.Threading;
 using System.Upgrade;
@@ -146,6 +147,7 @@ codeunit 104000 "Upgrade - BaseApp"
         CopyRecordLinkURLsIntoOneField();
         UpgradeSharePointConnection();
         CreateDefaultAADApplication();
+        CreatePowerPagesAAdApplications();
         UpgradePowerBIOptin();
     end;
 
@@ -247,6 +249,7 @@ codeunit 104000 "Upgrade - BaseApp"
 #if not CLEAN22
         UpgradeTimesheetExperience();
 #endif
+        UpgradeVATSetupAllowVATDate();
     end;
 
     local procedure ClearTemporaryTables()
@@ -4094,6 +4097,18 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetLocationGranularWarehouseHandlingSetupsUpgradeTag());
     end;
 
+    local procedure CreatePowerPagesAAdApplications()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        AADApplicationSetup: Codeunit "AAD Application Setup";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultPowerPagesAADApplicationsTag()) then
+            exit;
+        AADApplicationSetup.CreatePowerPagesAAdApplications();
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCreateDefaultPowerPagesAADApplicationsTag());
+    end;
+    
     local procedure UpgradeVATSetup()
     var
         VATSetup: Record "VAT Setup";
@@ -4134,4 +4149,45 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewTimeSheetExperienceUpgradeTag());
     end;
 #endif
+
+    local procedure UpgradeVATSetupAllowVATDate()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATSetup: Record "VAT Setup";
+        UserSetup: Record "User Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        DataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag()) then
+            exit;
+
+        if not GeneralLedgerSetup.Get() then
+            exit;
+        
+        if not VATSetup.Get() then
+            VATSetup.Insert();
+
+        if not UserSetup.Get() then
+            UserSetup.Insert();
+
+        if (UserSetup."Allow VAT Date From" <> 0D) or (UserSetup."Allow VAT Date To" <> 0D) then
+            exit;
+
+        if (VATSetup."Allow VAT Date From" <> 0D) or (VATSetup."Allow VAT Date To" <> 0D) then 
+            exit;
+        
+        VATSetup."Allow VAT Date From" := GeneralLedgerSetup."Allow Posting From";
+        VATSetup."Allow VAT Date To" := GeneralLedgerSetup."Allow Posting To";
+        VATSetup.Modify();
+
+        DataTransfer.SetTables(Database::"User Setup", Database::"User Setup");
+        DataTransfer.AddFieldValue(UserSetup.FieldNo("Allow Posting From"), UserSetup.FieldNo("Allow VAT Date From"));
+        DataTransfer.AddFieldValue(UserSetup.FieldNo("Allow Posting To"), UserSetup.FieldNo("Allow VAT Date To"));
+        DataTransfer.CopyFields();
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATSetupAllowVATDateTag());
+    end;
+
+
 }

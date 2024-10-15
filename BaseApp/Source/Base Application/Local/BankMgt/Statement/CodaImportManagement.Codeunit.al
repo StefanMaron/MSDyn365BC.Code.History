@@ -77,10 +77,16 @@ codeunit 2000040 "Coda Import Management"
         OnAfterInitCodaImport(BankAcc, EnterpriseNo, LineCounter, TotalDebit, TotalCredit);
     end;
 
-    procedure CheckCodaHeader(var CodedBankStmtSrcLine: Record "CODA Statement Source Line"): Boolean
+    procedure CheckCodaHeader(var CodedBankStmtSrcLine: Record "CODA Statement Source Line") Result: Boolean
     var
         EnterpriseNum: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCodaHeader(CodedBankStmtSrcLine, Result, IsHandled);
+	    if IsHandled then
+		    exit(Result);
+
         CodBankStmtSrcLine := CodedBankStmtSrcLine;
         with CodBankStmtSrcLine do begin
             if ID <> ID::Header then begin
@@ -530,6 +536,11 @@ codeunit 2000040 "Coda Import Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitCodaImport(var BankAcc: record "Bank Account"; var EnterpriseNo: Text[11]; var LineCounter: array[2] of Integer; var TotalDebit: array[2] of Decimal; var TotalCredit: array[2] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCodaHeader(var CodaStatementSourceLine: Record "CODA Statement Source Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

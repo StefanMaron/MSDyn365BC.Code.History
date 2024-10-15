@@ -13,6 +13,7 @@ report 400 "Remittance Advice - Entries"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Reports/RemittanceAdviceEntries.rdlc';
     Caption = 'Remittance Advice - Entries';
+    WordMergeDataItem = "Vendor Ledger Entry";
 
     dataset
     {
@@ -143,6 +144,7 @@ report 400 "Remittance Advice - Entries"
             column(DocumentDateCaption; DocDateCaptionLbl)
             {
             }
+            column(PostingDateCaption; PostingDateCaptionLbl) { }
             dataitem(VendLedgEntry2; "Vendor Ledger Entry")
             {
                 DataItemTableView = sorting("Entry No.");
@@ -178,6 +180,7 @@ report 400 "Remittance Advice - Entries"
                 column(DocDateFormat_VendLedgEntry2; Format("Document Date"))
                 {
                 }
+                column(PostingDateFormat_VendLedgEntry2; Format(VendLedgEntry2."Posting Date")) { }
                 column(LAmountWDiscCur; LAmountWDiscCur)
                 {
                 }
@@ -207,6 +210,9 @@ report 400 "Remittance Advice - Entries"
                     {
                     }
                     column(VendLedgEntry3DocDateFormat; Format(VendLedgEntry3."Document Date"))
+                    {
+                    }
+                    column(VendLedgEntry3PostingDateFormat; Format(VendLedgEntry3."Posting Date"))
                     {
                     }
                     column(VendLedgEntry3ExtDocNo; VendLedgEntry3."External Document No.")
@@ -368,6 +374,7 @@ report 400 "Remittance Advice - Entries"
         OurDocNoCaptionLbl: Label 'Our Document No.';
         CurrCodeCaptionLbl: Label 'Curr. Code';
         DocDateCaptionLbl: Label 'Document Date';
+        PostingDateCaptionLbl: Label 'Posting Date';
         TotalCaptionLbl: Label 'Total';
 
     procedure CurrencyCode(SrcCurrCode: Code[10]): Code[10]

@@ -346,7 +346,7 @@ table 6660 "Return Receipt Header"
         }
         field(86; "Bill-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+            CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
@@ -364,7 +364,7 @@ table 6660 "Return Receipt Header"
         }
         field(89; "Sell-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Sell-to Country/Region Code";
+            CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
         }
         field(90; "Sell-to Country/Region Code"; Code[10])
@@ -382,7 +382,7 @@ table 6660 "Return Receipt Header"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
@@ -599,7 +599,7 @@ table 6660 "Return Receipt Header"
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
-        TestField("No. Printed");
+        CheckNoPrinted();
         LockTable();
         PostSalesDelete.DeleteSalesRcptLines(Rec);
 
@@ -689,6 +689,18 @@ table 6660 "Return Receipt Header"
             ReportSelection.Usage::"S.Ret.Rcpt.", ReturnRcptHeader, ShowDialog, FieldNo("Bill-to Customer No."));
     end;
 
+    procedure CheckNoPrinted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoPrinted(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("No. Printed");
+    end;
+
     procedure EmailRecords(ShowDialog: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -772,6 +784,11 @@ table 6660 "Return Receipt Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoPrinted(var ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
     begin
     end;
 }

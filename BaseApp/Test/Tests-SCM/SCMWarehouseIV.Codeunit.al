@@ -48,6 +48,8 @@ codeunit 137407 "SCM Warehouse IV"
         BinMandatoryTxt: Label 'Bin Mandatory must be equal to ''No''  in Location';
         DateError: Label '%1 must be equal to %2 in Service Item Table.', Comment = '%1 = Warranty Date fields caption, %2 = Expected Date values';
         ItemTrackingMode: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty;
+        ItemTrackingModeWithVerification: Option AssignLotNo,AssignSerialNo,SelectEntries,AssignLotAndQty,VerifyWarrantyDate;
+        WarrantyDateError: Label 'Warranty Date must be %1';
 
     [Test]
     [Scope('OnPrem')]
@@ -3855,6 +3857,41 @@ codeunit 137407 "SCM Warehouse IV"
         VerifyWarrantyDatesOnServiceItem(Item."No.", WarrantyStartDate, WarrantyDateFormula, DefaultWarrantyDuration);
     end;
 
+    [Test]
+    [HandlerFunctions('VerifyNewItemTrackingLinesHandler,EnterQuantityToCreateHandler,MessageHandler,ItemTrackingSummaryPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyWarrantyDateOnSeriallyTrackedSalesOrder()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        Location: Record Location;
+        PurchaseLine: Record "Purchase Line";
+        SalesLine: Record "Sales Line";
+        Qty: Decimal;
+    begin
+        // [SCENARIO 481733] Warranty Date is not copied when selecting serially tracked item on Sales Order
+        Initialize();
+
+        // [GIVEN] WMS location "L" with mandatory shipment and pick.
+        CreateAndUpdateLocationWithSetup(Location, true, true, true);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        // [GIVEN] Item "I" with serial no. tracking.
+        CreateItemWithItemTrackingCode(Item, true, false);
+
+        // [GIVEN] X serial nos. "S1" of "I" are purchased
+        LibraryVariableStorage.Enqueue(ItemTrackingModeWithVerification::AssignSerialNo);
+        CreateAndPostPurchaseOrderWithItemTrackingLines(PurchaseLine, true, Item."No.", Location.Code, Bin.Code);
+
+        // [WHEN] Sales Order Created with Serially Tracked Item
+        Qty := LibraryRandom.RandInt(5);
+        CreateAndReleaseSalesOrderWithSelectEntriesForItemTrackingLines(SalesLine, true, WorkDate(), Item."No.", Location.Code, Bin.Code, Qty);
+
+        // [VERIFY] Verify: Warranty Date on Item Tracking Line
+        LibraryVariableStorage.Enqueue(ItemTrackingModeWithVerification::VerifyWarrantyDate);
+        SalesLine.OpenItemTrackingLines();
+    end;
+
     local procedure Initialize()
     var
         WarehouseSetup: Record "Warehouse Setup";
@@ -5110,6 +5147,39 @@ codeunit 137407 "SCM Warehouse IV"
         Assert.IsTrue((ServiceItem."Warranty Ending Date (Labor)" = CalcDate(DefaultWarrantyDuration, WarrantyStartDate)), StrSubstNo(DateError, ServiceItem."Warranty Ending Date (Parts)", CalcDate(DefaultWarrantyDuration, WarrantyStartDate)));
     end;
 
+    local procedure CreateAndPostPurchaseOrderWithItemTrackingLines(var PurchaseLine: Record "Purchase Line"; IsTracking: Boolean; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20])
+    var
+        PurchaseHeader: Record "Purchase Header";
+        Vendor: Record Vendor;
+    begin
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        CreateAndUpdatePurchaseLine(PurchaseLine, PurchaseHeader, 1, ItemNo, LocationCode, BinCode);  // Integer Value required.
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Validate("Qty. to Receive", PurchaseLine.Quantity);
+        PurchaseLine.Modify(true);
+        if IsTracking then
+            CreatePurchaseTrackingLine(PurchaseLine, WorkDate());
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure CreateAndReleaseSalesOrderWithSelectEntriesForItemTrackingLines(var SalesLine: Record "Sales Line"; IsTracking: Boolean; ExpirationDate: Date; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Quantity: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
+        SalesLine.Validate("Location Code", LocationCode);
+        SalesLine.Validate("Bin Code", BinCode);
+        SalesLine.Modify(true);
+        if IsTracking then begin
+            LibraryVariableStorage.Enqueue(ItemTrackingMode::SelectEntries);
+            SalesLine.OpenItemTrackingLines();
+            UpdateReservationEntry(SalesLine."No.", ExpirationDate);
+        end;
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandlerFalse(ConfirmMessage: Text[1024]; var Reply: Boolean)
@@ -5292,6 +5362,59 @@ codeunit 137407 "SCM Warehouse IV"
         SalesList.FILTER.SetFilter("Sell-to Customer No.", LibraryVariableStorage.DequeueText);
         SalesList.First;
         SalesList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VerifyNewItemTrackingLinesHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    var
+        ReservationEntry: Record "Reservation Entry";
+        SerialNo: Code[50];
+    begin
+        case LibraryVariableStorage.DequeueInteger() of
+            ItemTrackingModeWithVerification::AssignLotNo:
+                ItemTrackingLines."Assign Lot No.".Invoke();
+            ItemTrackingModeWithVerification::AssignSerialNo:
+                begin
+                    ItemTrackingLines."Assign Serial No.".Invoke();
+                    SerialNo := Format(ItemTrackingLines."Serial No.");
+                end;
+            ItemTrackingModeWithVerification::SelectEntries:
+                ItemTrackingLines."Select Entries".Invoke();
+            ItemTrackingModeWithVerification::AssignLotAndQty:
+                begin
+                    ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+                    ItemTrackingLines."Quantity (Base)".SetValue(LibraryVariableStorage.DequeueDecimal());
+                end;
+            ItemTrackingModeWithVerification::VerifyWarrantyDate:
+                begin
+                    ReservationEntry.SetRange("Serial No.", Format(ItemTrackingLines."Serial No."));
+                    if ReservationEntry.FindFirst() then
+                        Assert.AreEqual(
+                            WorkDate(),
+                            ReservationEntry."Warranty Date",
+                            StrSubstNo(
+                                WarrantyDateError,
+                                ReservationEntry."Warranty Date"));
+                end;
+        end;
+
+        ItemTrackingLines.OK().Invoke();
+
+        if SerialNo <> '' then begin
+            ReservationEntry.SetRange("Serial No.", SerialNo);
+            if ReservationEntry.FindFirst() then begin
+                ReservationEntry."Warranty Date" := WorkDate();
+                ReservationEntry.Modify(true);
+            end;
+        end;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingSummaryPageHandler(var ItemTrackingSummary: TestPage "Item Tracking Summary")
+    begin
+        ItemTrackingSummary.OK().Invoke();
     end;
 
     [RequestPageHandler]

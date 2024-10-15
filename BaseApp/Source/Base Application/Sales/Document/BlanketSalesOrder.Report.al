@@ -28,6 +28,7 @@ report 210 "Blanket Sales Order"
     RDLCLayout = './Sales/Document/BlanketSalesOrder.rdlc';
     Caption = 'Blanket Sales Order';
     PreviewMode = PrintLayout;
+    WordMergeDataItem = "Sales Header";
 
     dataset
     {

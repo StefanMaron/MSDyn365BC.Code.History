@@ -1435,10 +1435,11 @@ codeunit 444 "Purchase-Post Prepayments"
         ApplyFilter(PurchHeader, 1, PurchLine);
         if PurchLine.FindSet() then
             repeat
-                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then begin
-                    PurchLines := PurchLine;
-                    PurchLines.Insert();
-                end;
+                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then
+                    if not PurchLines.Get(PurchLine.RecordId) then begin
+                        PurchLines := PurchLine;
+                        PurchLines.Insert();
+                    end;
             until PurchLine.Next() = 0;
     end;
 

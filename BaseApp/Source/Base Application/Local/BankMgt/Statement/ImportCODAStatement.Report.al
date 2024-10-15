@@ -81,8 +81,10 @@ report 2000030 "Import CODA Statement"
         VersionCode: Text[1];
         AccountType: Text[1];
         Text000: Label 'Line is not valid\%1.';
-        FileName: Text;
         Text: Text[128];
+
+    protected var
+        FileName: Text;
 
     [Scope('OnPrem')]
     procedure SetBankAcc(var Bank: Record "Bank Account")

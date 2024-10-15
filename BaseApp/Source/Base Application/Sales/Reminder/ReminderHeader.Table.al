@@ -81,7 +81,7 @@ table 295 "Reminder Header"
                 "Country/Region Code" := Cust."Country/Region Code";
                 "Language Code" := Cust."Language Code";
                 "Format Region" := Cust."Format Region";
-                "Currency Code" := Cust."Currency Code";
+                Validate("Currency Code", Cust."Currency Code");
                 "Shortcut Dimension 1 Code" := Cust."Global Dimension 1 Code";
                 "Shortcut Dimension 2 Code" := Cust."Global Dimension 2 Code";
                 "VAT Registration No." := Cust."VAT Registration No.";
@@ -711,6 +711,7 @@ table 295 "Reminder Header"
         CurrencyForReminderLevel: Record "Currency for Reminder Level";
         TranslationHelper: Codeunit "Translation Helper";
         AdditionalFee: Decimal;
+        IsHandled: Boolean;
     begin
         CurrencyForReminderLevel.Init();
         ReminderLevel.SetRange("Reminder Terms Code", "Reminder Terms Code");
@@ -752,10 +753,16 @@ table 295 "Reminder Header"
                     TranslationHelper.GetTranslatedFieldCaption(
                       "Language Code", DATABASE::"Currency for Reminder Level",
                       CurrencyForReminderLevel.FieldNo("Additional Fee")), 1, 100);
-                ReminderLine.Validate(Amount, AdditionalFee);
+
+                IsHandled := false;
+                OnInsertLinesOnBeforeValidateAmount(Rec, ReminderLine, IsHandled);
+                if not IsHandled then
+                    ReminderLine.Validate(Amount, AdditionalFee);
                 ReminderLine."Line Type" := ReminderLine."Line Type"::"Additional Fee";
-                OnInsertLinesOnBeforeReminderLineInsert(Rec, ReminderLine);
-                ReminderLine.Insert();
+                IsHandled := false;
+                OnInsertLinesOnBeforeReminderLineInsert(Rec, ReminderLine, IsHandled);
+                if not IsHandled then
+                    ReminderLine.Insert();
                 if TransferExtendedText.ReminderCheckIfAnyExtText(ReminderLine, false) then
                     TransferExtendedText.InsertReminderExtText(ReminderLine);
             end;
@@ -891,6 +898,7 @@ table 295 "Reminder Header"
                 InsertBlankLine(ReminderLine."Line Type"::"Ending Text");
             if ReminderHeader."Fin. Charge Terms Code" <> '' then
                 FinChrgTerms.Get(ReminderHeader."Fin. Charge Terms Code");
+            OnInsertTextLinesOnAfterGetFinChrgTerms(ReminderHeader, FinChrgTerms);
             if not ReminderLevel."Calculate Interest" then
                 FinChrgTerms."Interest Rate" := 0;
             ReminderHeader.CalcFields(
@@ -958,7 +966,13 @@ table 295 "Reminder Header"
     var
         ReminderHeader: Record "Reminder Header";
         ReportSelection: Record "Report Selections";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePrintRecords(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReminderHeader do begin
             Copy(Rec);
             FindFirst();
@@ -1008,10 +1022,13 @@ table 295 "Reminder Header"
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
-
-        DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if not IsHandled then
+            DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
@@ -1282,7 +1299,7 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertLinesOnBeforeReminderLineInsert(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line")
+    local procedure OnInsertLinesOnBeforeReminderLineInsert(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1347,7 +1364,7 @@ table 295 "Reminder Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var ReminderHeader: Record "Reminder Header"; var xReminderHeader: Record "Reminder Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var ReminderHeader: Record "Reminder Header"; var xReminderHeader: Record "Reminder Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -1388,6 +1405,21 @@ table 295 "Reminder Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostCode(var ReminderHeader: Record "Reminder Header"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTextLinesOnAfterGetFinChrgTerms(var ReminderHeader: Record "Reminder Header"; var FinanceChargeTerms: Record "Finance Charge Terms")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLinesOnBeforeValidateAmount(var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(var ReminderHeader: Record "Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 }
