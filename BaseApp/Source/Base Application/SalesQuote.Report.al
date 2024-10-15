@@ -4,6 +4,8 @@ report 204 "Sales - Quote"
     RDLCLayout = './SalesQuote.rdlc';
     Caption = 'Sales - Quote';
     PreviewMode = PrintLayout;
+    ObsoleteReason = 'Replaced with report 1304 Standard Sales - Quote';
+    ObsoleteState = Pending;
 
     dataset
     {

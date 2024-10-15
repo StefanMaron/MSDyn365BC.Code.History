@@ -649,6 +649,7 @@ table 32 "Item Ledger Entry"
         SetFilter("Global Dimension 2 Code", Item.GetFilter("Global Dimension 2 Filter"));
         if NetChange then
             SetFilter("Posting Date", Item.GetFilter("Date Filter"));
+        SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
         OnAfterFilterLinesWithItemToPlan(Rec, Item);
     end;

@@ -25,11 +25,12 @@ codeunit 221 "Resource-Find Price"
     local procedure FindResPrice(): Boolean
     var
         IsHandled: Boolean;
+        Result: Boolean;
     begin
         IsHandled := false;
-        OnBeforeFindResPrice(ResPrice, IsHandled);
+        OnBeforeFindResPrice(ResPrice, IsHandled, Result);
         if IsHandled then
-            exit;
+            exit(Result);
 
         with ResPrice do begin
             if ResPrice2.Get(Type::Resource, Code, "Work Type Code", "Currency Code") then
@@ -61,7 +62,7 @@ codeunit 221 "Resource-Find Price"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindResPrice(var ResourcePrice: Record "Resource Price"; var IsHandled: Boolean)
+    local procedure OnBeforeFindResPrice(var ResourcePrice: Record "Resource Price"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 }

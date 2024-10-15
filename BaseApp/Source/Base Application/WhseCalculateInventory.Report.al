@@ -38,6 +38,8 @@ report 7390 "Whse. Calculate Inventory"
 
                 SetRange("Location Code", WhseJnlLine."Location Code");
 
+                OnBinContentOnBeforePreDataItem("Bin Content", WhseJnlLine);
+
                 WhseJnlTemplate.Get(WhseJnlLine."Journal Template Name");
                 WhseJnlBatch.Get(
                   WhseJnlLine."Journal Template Name",
@@ -179,6 +181,11 @@ report 7390 "Whse. Calculate Inventory"
     labels
     {
     }
+
+    trigger OnPostReport()
+    begin
+        OnAfterOnPostReport(WhseJnlLine);
+    end;
 
     var
         Text001: Label 'Enter the %1.';
@@ -358,12 +365,22 @@ report 7390 "Whse. Calculate Inventory"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPostReport(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterWhseJnlLineInsert(var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseJnlLineInsert(var WarehouseJournalLine: Record "Warehouse Journal Line"; var WarehouseEntry: Record "Warehouse Entry"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBinContentOnBeforePreDataItem(var BinContent: Record "Bin Content"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 }

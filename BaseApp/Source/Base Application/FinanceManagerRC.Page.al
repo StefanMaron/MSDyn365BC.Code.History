@@ -48,12 +48,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'VAT Returns';
                         RunObject = page "VAT Report List";
                     }
-                    // action("ECSL Report")
-                    // {
-                    //     ApplicationArea = Basic, Suite;
-                    //     Caption = 'EC Sales List Reports';
-                    //     RunObject = page "EC Sales List Reports"
-                    // }
+                    action("ECSL Report")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'EC Sales List Reports';
+                        RunObject = page "EC Sales List Reports";
+                    }
                     group("Group2")
                     {
                         Caption = 'Reports';
@@ -110,6 +110,18 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Day Book Vendor Ledger Entry';
                             RunObject = report "Day Book Vendor Ledger Entry";
+                        }
+                        action("VAT Reconciliation A")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'VAT Reconciliation A';
+                            RunObject = report 10940;
+                        }
+                        action("VAT Reconciliation Report")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'VAT Balancing Report';
+                            RunObject = report 10941;
                         }
                     }
                 }
@@ -360,7 +372,6 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Comp. - Prev. Year';
                             RunObject = report "Balance Comp. - Prev. Year";
-
                         }
                         action("Balance Sheet")
                         {
@@ -389,6 +400,18 @@ page 8901 "Finance Manager Role Center"
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
                             AccessByPermission = tabledata 15 = R;
+                        }
+                        action("IRS Details")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'IRS Details';
+                            RunObject = report 10911;
+                        }
+                        action("Trial Balance - IRS Number")
+                        {
+                            ApplicationArea = Basic, Suite;
+                            Caption = 'Trial Balance - IRS Number';
+                            RunObject = report 10912;
                         }
                     }
                     group("Group10")
@@ -493,6 +516,24 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Report Setup';
                         RunObject = page "VAT Report Setup";
+                    }
+                    action("IRS Group")
+                    {
+                        ApplicationArea =;
+                        Caption = 'IRS Group';
+                        RunObject = page 10901;
+                    }
+                    action("IRS Type")
+                    {
+                        ApplicationArea =;
+                        Caption = 'IRS Type';
+                        RunObject = page 10902;
+                    }
+                    action("IRS Number")
+                    {
+                        ApplicationArea =;
+                        Caption = 'IRS Number';
+                        RunObject = page 10911;
                     }
                 }
             }
@@ -692,6 +733,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection - Bank Acc.")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Bank Account';
                         RunObject = page "Report Selection - Bank Acc.";
                     }
@@ -849,6 +891,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Cost Journal Templates")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Cost Journal Templates';
                         RunObject = page "Cost Journal Templates";
                     }
@@ -1150,6 +1193,7 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Report Selection Reminder and")
                     {
+                        ApplicationArea = Basic, Suite;
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = page "Report Selection - Reminder";
                     }
@@ -1271,12 +1315,12 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Employee Ledger Entries';
                         RunObject = page "Employee Ledger Entries";
                     }
-                    // action("Detailed Employee Ledger Entries")
-                    // {
-                    //     ApplicationArea = BasicHR;
-                    //     Caption = 'Detailed Employee Ledger Entries';
-                    //     RunObject = page "Detailed Empl. Ledger Entries";
-                    // }
+                    action("Detailed Employee Ledger Entries")
+                    {
+                        ApplicationArea = BasicHR;
+                        Caption = 'Detailed Employee Ledger Entries';
+                        RunObject = page "Detailed Empl. Ledger Entries";
+                    }
                 }
                 group("Group40")
                 {
@@ -1939,6 +1983,7 @@ page 8901 "Finance Manager Role Center"
                 }
                 action("Incoming Documents Setup")
                 {
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Incoming Documents Setup';
                     RunObject = page "Incoming Documents Setup";
                 }

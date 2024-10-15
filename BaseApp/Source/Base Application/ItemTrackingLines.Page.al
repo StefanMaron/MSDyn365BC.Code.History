@@ -800,7 +800,7 @@ page 6510 "Item Tracking Lines"
             exit(false);
         "Entry No." := NextEntryNo;
         if (not InsertIsBlocked) and (not ZeroLineExists) then
-            if VerifyNewTrackingSpecification then begin
+            if not TestTempSpecificationExists then begin
                 TempItemTrackLineInsert.TransferFields(Rec);
                 OnInsertRecordOnBeforeTempItemTrackLineInsert(TempItemTrackLineInsert, Rec);
                 TempItemTrackLineInsert.Insert;
@@ -824,7 +824,7 @@ page 6510 "Item Tracking Lines"
             then
                 exit(false);
 
-        if VerifyNewTrackingSpecification then begin
+        if not TestTempSpecificationExists then begin
             Modify;
 
             if (xRec."Lot No." <> "Lot No.") or (xRec."Serial No." <> "Serial No.") then begin
@@ -1003,7 +1003,6 @@ page 6510 "Item Tracking Lines"
         WarrantyDateEditable: Boolean;
         ExcludePostedEntries: Boolean;
         ProdOrderLineHandling: Boolean;
-        DifferentExpDateMsg: Label 'A tracking specification exists for lot number %1 and expiration date %2. All items with this lot number must have the same expiration date.', Comment = '%1 = Lot no., %2 = Item expiration date (Example: A tracking specification exists for lot number ''L001'' and expiration date 25.01.2019.)';
         UnincrementableStringErr: Label 'The value in the %1 field must have a number so that we can assign the next number in the series.', Comment = '%1 = serial number';
 
     procedure SetFormRunMode(Mode: Option ,Reclass,"Combined Ship/Rcpt","Drop Shipment",Transfer)
@@ -1234,7 +1233,7 @@ page 6510 "Item Tracking Lines"
                             TempTrackingSpecification."Qty. to Invoice (Base)" := 0;
                         end;
                         TempTrackingSpecification."Buffer Status" := Color;
-                        OnAddReservEntriesToTempRecSetOnBeforeInsert(TempTrackingSpecification, ReservEntry);
+                        OnAddReservEntriesToTempRecSetOnBeforeInsert(TempTrackingSpecification, ReservEntry, SwapSign, Color);
                         TempTrackingSpecification.Insert;
                     end;
                 end;
@@ -1280,7 +1279,7 @@ page 6510 "Item Tracking Lines"
                         end;
                     end;
 
-                    OnBeforeAddToGlobalRecordSet(Rec, EntriesExist);
+                    OnBeforeAddToGlobalRecordSet(Rec, EntriesExist, CurrentSignFactor);
                     Insert;
 
                     if "Buffer Status" = 0 then begin
@@ -2287,36 +2286,6 @@ page 6510 "Item Tracking Lines"
                 Message(Text012, "Serial No.");
     end;
 
-    local procedure TestExpirationDateMismatchOnTempSpec() Mismatch: Boolean
-    var
-        TrackingSpecification: Record "Tracking Specification";
-    begin
-        if ("Expiration Date" = 0D) or ("Lot No." = '') then
-            exit(false);
-
-        TrackingSpecification.Copy(Rec);
-        SetFilter("Entry No.", '<>%1', "Entry No.");
-        if IsEmpty then
-            Mismatch := false
-        else begin
-            SetRange("Lot No.", "Lot No.");
-            SetFilter("Expiration Date", '<>%1', "Expiration Date");
-            SetRange("Buffer Status", 0);
-            Mismatch := not IsEmpty;
-        end;
-        Copy(TrackingSpecification);
-        if Mismatch and CurrentPageIsOpen then
-            Message(DifferentExpDateMsg, "Lot No.", "Expiration Date");
-    end;
-
-    local procedure VerifyNewTrackingSpecification(): Boolean
-    begin
-        if TestTempSpecificationExists then
-            exit(false);
-
-        exit(not TestExpirationDateMismatchOnTempSpec);
-    end;
-
     local procedure QtySignFactor(): Integer
     begin
         if SourceQuantityArray[1] < 0 then
@@ -2855,7 +2824,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAddToGlobalRecordSet(var TrackingSpecification: Record "Tracking Specification"; EntriesExist: Boolean)
+    local procedure OnBeforeAddToGlobalRecordSet(var TrackingSpecification: Record "Tracking Specification"; EntriesExist: Boolean; CurrentSignFactor: Integer)
     begin
     end;
 
@@ -2915,7 +2884,7 @@ page 6510 "Item Tracking Lines"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAddReservEntriesToTempRecSetOnBeforeInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationEntry: Record "Reservation Entry")
+    local procedure OnAddReservEntriesToTempRecSetOnBeforeInsert(var TempTrackingSpecification: Record "Tracking Specification" temporary; ReservationEntry: Record "Reservation Entry"; SwapSign: Boolean; Color: Integer)
     begin
     end;
 

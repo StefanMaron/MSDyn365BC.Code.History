@@ -216,7 +216,7 @@ codeunit 9002 "Permission Manager"
     /// This procedure retrieves a Default Profile ID to be used for a user, in case there is no valid 
     /// custom profile set for them in their User Personalization. 
     /// </summary>
-    /// <param name=UserSecurityID>The SID for the User to find a default profile for/param>
+    /// <param name=UserSecurityID>The SID for the User to find a default profile for</param>
     /// <param name=AllProfile>The returned AllProfile that is the default for the specified user</param>
     /// <returns>
     /// <list type="number">

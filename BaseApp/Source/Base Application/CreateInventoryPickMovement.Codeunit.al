@@ -236,7 +236,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                               NewWhseActivLine."Source Document"::"Purchase Return Order";
                             RemQtyToPickBase := "Return Qty. to Ship (Base)";
                         end;
-                        OnBeforeNewWhseActivLineInsertFromPurchase(NewWhseActivLine, PurchLine);
+                        OnBeforeNewWhseActivLineInsertFromPurchase(NewWhseActivLine, PurchLine, WhseActivHeader, RemQtyToPickBase);
                         CalcFields("Reserved Quantity");
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase, "Outstanding Qty. (Base)", "Reserved Quantity" <> 0);
@@ -315,7 +315,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                             NewWhseActivLine."Source Document" := NewWhseActivLine."Source Document"::"Sales Return Order";
                             RemQtyToPickBase := -"Return Qty. to Receive (Base)";
                         end;
-                        OnBeforeNewWhseActivLineInsertFromSales(NewWhseActivLine, SalesLine);
+                        OnBeforeNewWhseActivLineInsertFromSales(NewWhseActivLine, SalesLine, WhseActivHeader, RemQtyToPickBase);
                         CalcFields("Reserved Quantity");
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase, "Outstanding Qty. (Base)", "Reserved Quantity" <> 0);
@@ -406,7 +406,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Destination Type" := NewWhseActivLine."Destination Type"::Location;
                         NewWhseActivLine."Destination No." := TransferHeader."Transfer-to Code";
                         RemQtyToPickBase := "Qty. to Ship (Base)";
-                        OnBeforeNewWhseActivLineInsertFromTransfer(NewWhseActivLine, TransferLine);
+                        OnBeforeNewWhseActivLineInsertFromTransfer(NewWhseActivLine, TransferLine, WhseActivHeader, RemQtyToPickBase);
                         CalcFields("Reserved Quantity Outbnd.");
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase,
@@ -490,7 +490,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                             RemQtyToPickBase := "Remaining Qty. (Base)"
                         else
                             RemQtyToPickBase := "Expected Qty. (Base)" - "Qty. Picked (Base)";
-                        OnBeforeNewWhseActivLineInsertFromComp(NewWhseActivLine, ProdOrderComp);
+                        OnBeforeNewWhseActivLineInsertFromComp(NewWhseActivLine, ProdOrderComp, WhseActivHeader, RemQtyToPickBase);
                         CalcFields("Reserved Quantity");
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase, RemQtyToPickBase, "Reserved Quantity" <> 0);
@@ -544,7 +544,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                         NewWhseActivLine."Destination No." := AssemblyHeader."Item No.";
                         RemQtyToPickBase := "Quantity (Base)" - "Remaining Quantity (Base)" +
                           "Quantity to Consume (Base)" - "Qty. Picked (Base)";
-                        OnBeforeNewWhseActivLineInsertFromAssembly(NewWhseActivLine, AssemblyLine);
+                        OnBeforeNewWhseActivLineInsertFromAssembly(NewWhseActivLine, AssemblyLine, WhseActivHeader, RemQtyToPickBase);
                         CalcFields("Reserved Quantity");
                         CreatePickOrMoveLine(
                           NewWhseActivLine, RemQtyToPickBase, RemQtyToPickBase, "Reserved Quantity" <> 0);
@@ -1635,27 +1635,27 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromPurchase(var WarehouseActivityLine: Record "Warehouse Activity Line"; PurchaseLine: Record "Purchase Line")
+    local procedure OnBeforeNewWhseActivLineInsertFromPurchase(var WarehouseActivityLine: Record "Warehouse Activity Line"; var PurchaseLine: Record "Purchase Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromSales(var WarehouseActivityLine: Record "Warehouse Activity Line"; SalesLine: Record "Sales Line")
+    local procedure OnBeforeNewWhseActivLineInsertFromSales(var WarehouseActivityLine: Record "Warehouse Activity Line"; var SalesLine: Record "Sales Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromTransfer(var WarehouseActivityLine: Record "Warehouse Activity Line"; TransferLine: Record "Transfer Line")
+    local procedure OnBeforeNewWhseActivLineInsertFromTransfer(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TransferLine: Record "Transfer Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromAssembly(var WarehouseActivityLine: Record "Warehouse Activity Line"; AssemblyLine: Record "Assembly Line")
+    local procedure OnBeforeNewWhseActivLineInsertFromAssembly(var WarehouseActivityLine: Record "Warehouse Activity Line"; var AssemblyLine: Record "Assembly Line"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; ProdOrderComp: Record "Prod. Order Component")
+    local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; var ProdOrderComp: Record "Prod. Order Component"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
     begin
     end;
 

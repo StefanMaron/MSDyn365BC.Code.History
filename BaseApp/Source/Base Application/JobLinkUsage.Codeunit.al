@@ -66,7 +66,13 @@ codeunit 1026 "Job Link Usage"
         TotalRemainingQtyPrePostBase: Decimal;
         PostedQtyBase: Decimal;
         TotalQtyBase: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeMatchUsageSpecified(JobPlanningLine, JobJournalLine, JobLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         JobPlanningLine.Get(JobLedgerEntry."Job No.", JobLedgerEntry."Job Task No.", JobJournalLine."Job Planning Line No.");
         if not JobPlanningLine."Usage Link" then
             Error(Text001, JobPlanningLine.TableCaption, JobPlanningLine.FieldCaption("Usage Link"));
@@ -208,6 +214,11 @@ codeunit 1026 "Job Link Usage"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeJobPlanningLineUse(var JobPlanningLine: Record "Job Planning Line"; JobLedgerEntry: Record "Job Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMatchUsageSpecified(var JobPlanningLine: Record "Job Planning Line"; var JobJournalLine: Record "Job Journal Line"; var JobLedgerEntry: Record "Job Ledger Entry"; var IsHandled: Boolean);
     begin
     end;
 

@@ -326,6 +326,64 @@ codeunit 134907 "ERM Invoice and Reminder"
         ReminderFinChargeEntry.TestField("Interest Posted", false);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestReminderLinesWithCorrectCalculationReminderLevel()
+    var
+        Customer: Record Customer;
+        DummyCustLedgerEntry: Record "Cust. Ledger Entry";
+        ReminderLine: Record "Reminder Line";
+        ReminderHeader: Record "Reminder Header";
+        WeekDateFormula: DateFormula;
+        InvoiceDocNo: array[3] of Code[20];
+        ReminderPostingDate: array[3] of Date;
+    begin
+        // [FEATURE] [Payment Terms]
+        Initialize;
+
+        // [GIVEN] Reminder Terms "RT" with 3 levels where summary of "Due Date Calculation" = 3W
+        // [GIVEN] Level[1] with "Grace Period" = 1W,"Due Date Calculation" = 1W, Fee = "F"
+        // [GIVEN] Level[2] with "Grace Period" = <blank>,"Due Date Calculation" = 1W, Fee = 2*"F"
+        // [GIVEN] Level[3] with "Grace Period" = <blank>,"Due Date Calculation" = 1W, Fee = 3*"F"
+        // [GIVEN] Payment Terms "PT" where "Due Date Calculation" = 1W
+        // [GIVEN] Customer "C" where "Payment Terms Code" = "PT" and "Reminder Terms Code" = "RT"
+        Evaluate(WeekDateFormula, '<1W>');
+        ReminderPostingDate[1] := CalcDate('<1M+5D>', WorkDate);
+        ReminderPostingDate[2] := CalcDate('<1W+5D>', ReminderPostingDate[1]);
+        ReminderPostingDate[3] := CalcDate('<1W>', ReminderPostingDate[2]);
+
+        CreateCustomerWithPaymentAndReminderTerms(Customer, WeekDateFormula);
+
+        // [GIVEN] Posted invoice "I[1]" for customer "C" where "Posting Date" = 01/01/17, "Due Date = 18/01/17
+        InvoiceDocNo[1] := PostSalesInvoiceWithDueDate(Customer."No.", WorkDate, CalcDate('<2W+4D>', WorkDate));
+
+        // [GIVEN] Posted invoice "I[2]" for customer "C" where "Posting Date" = 01/01/17, "Due Date = 12/02/17
+        InvoiceDocNo[2] := PostSalesInvoiceWithDueDate(Customer."No.", WorkDate, CalcDate('<1M+1W+5D>', WorkDate));
+
+        // [GIVEN] Issued reminder for invoice "I[1]" where "Posting Date" = 05/02/17
+        RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[1]);
+        ReminderHeader.SetRange("No.", ReminderLine."Reminder No.");
+        REPORT.RunModal(REPORT::"Issue Reminders", false, true, ReminderHeader);
+
+        // [GIVEN] Issued reminder for invoice "I[2]" where "Posting Date" = 17/02/17
+        RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[2]);
+        ReminderHeader.SetRange("No.", ReminderLine."Reminder No.");
+        REPORT.RunModal(REPORT::"Issue Reminders", false, true, ReminderHeader);
+
+        // [GIVEN] Reminder for customer "C" with "Posting Date" = 24/02/17
+        // [WHEN] Run report "Create Reminders" where "Overdues Only" = FALSE
+        RunCreateReminders(Customer, DummyCustLedgerEntry, false, ReminderPostingDate[3]);
+
+        ReminderLine.SetRange("Document No.", InvoiceDocNo[1]);
+        ReminderLine.FindFirst;
+        ReminderHeader.SetRange("No.", ReminderLine."Reminder No.");
+        ReminderHeader.FindFirst;
+        ReminderHeader.CalcFields("Additional Fee");
+
+        // [THEN] ReminderHeader."Reminder Level" is equal to 1.
+        Assert.AreEqual(ReminderHeader."Reminder Level", 1, 'ReminderHeader."Reminder Level"');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -660,6 +718,21 @@ codeunit 134907 "ERM Invoice and Reminder"
         IssuedReminderHeader.CalcFields("Remaining Amount");
         LibraryReportDataset.AssertElementWithValueExists('RemainingAmountText', Format(IssuedReminderHeader."Remaining Amount"));
         LibraryReportDataset.AssertElementWithValueExists('AmtDueText', StrSubstNo(AmtDueLbl, IssuedReminderHeader."Due Date"));
+    end;
+
+    local procedure PostSalesInvoiceWithDueDate(CustomerNo: Code[20]; PostingDate: Date; DueDate: Date): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Due Date", DueDate);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
     end;
 
     [RequestPageHandler]
