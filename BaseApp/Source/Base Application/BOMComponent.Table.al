@@ -71,6 +71,12 @@
             Caption = 'Quantity per';
             DecimalPlaces = 0 : 5;
             MinValue = 0;
+
+            trigger OnValidate()
+            begin
+                if "Quantity per" < 0 then
+                    Error(QtyPerCannotBeNegativeErr);
+            end;
         }
         field(9; Position; Code[10])
         {
@@ -246,6 +252,7 @@
         ItemVariant: Record "Item Variant";
         BOMComp: Record "BOM Component";
         AssemblyBOM: Page "Assembly BOM";
+        QtyPerCannotBeNegativeErr: Label 'Quantity per cannot be negative.';
 
     procedure ValidateAgainstRecursion(ItemNo: Code[20])
     var
