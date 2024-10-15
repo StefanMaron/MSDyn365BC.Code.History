@@ -9,6 +9,7 @@ using Microsoft.FixedAssets.Posting;
 using Microsoft.FixedAssets.Insurance;
 using Microsoft.FixedAssets.Maintenance;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.HumanResources.Employee;
 
 permissionset 8787 "D365 FA, EDIT"
 {
@@ -20,6 +21,7 @@ permissionset 8787 "D365 FA, EDIT"
     Permissions = tabledata "Currency Exchange Rate" = RIM,
                   tabledata "Depreciation Book" = IMD,
                   tabledata "Depreciation Table Buffer" = IMD,
+                  tabledata Employee = r,
                   tabledata "FA Buffer Projection" = IMD,
                   tabledata "FA Depreciation Book" = im,
                   tabledata "FA G/L Posting Buffer" = IMD,

@@ -714,12 +714,89 @@ codeunit 137298 "SCM Prod. Whse. Handling"
         WarehouseActivityLine: Record "Warehouse Activity Line";
         WhseProdRelease: Codeunit "Whse.-Production Release";
     begin
-        // [SCENARIO 487478] Check Source Document on inventory put-away created for negative consumption.
+        // [SCENARIO 487478] Check Source Document on inventory put-away created for negative consumption. The put-away template is set up for finding a fixed bin.
         Initialize();
 
         // [GIVEN] Location with bin mandatory, put-away bin policy = put-away template, and set up for consumption posting via inventory pick.
         LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
         LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, true, false, false, false, false, false);
+        CreateLocationSetupWithBins(Location, false, false, false, false, true, 2, false);
+        Location."Put-away Bin Policy" := Location."Put-away Bin Policy"::"Put-away Template";
+        Location."Put-away Template Code" := PutAwayTemplateHeader.Code;
+        Location."Prod. Consump. Whse. Handling" := "Prod. Consump. Whse. Handling"::"Inventory Pick/Movement";
+        Location."Always Create Put-away Line" := true;
+        Location.Modify(true);
+        LibraryWarehouse.FindBin(Bin, Location.Code, '', 1);
+
+        // [GIVEN] Released production order at the location.
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, "Production Order Status"::Released, "Prod. Order Source Type"::Item, LibraryInventory.CreateItemNo(), 1);
+        ProductionOrder.Validate("Location Code", Location.Code);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+
+        // [GIVEN] Create prod. order component with negative quantity.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionOrderComponent(
+          ProdOrderComponent, ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
+        ProdOrderComponent.Validate("Item No.", Item."No.");
+        ProdOrderComponent.Validate("Location Code", ProdOrderLine."Location Code");
+        ProdOrderComponent.Validate("Quantity per", -1);
+        ProdOrderComponent.Modify(true);
+
+        WhseProdRelease.ReleaseLine(ProdOrderComponent, xProdOrderComponent);
+
+        // [WHEN] Create inventory put-away to post the negative consumption.
+        Commit();
+        LibraryWarehouse.CreateInvtPutPickMovement("Warehouse Request Source Document"::"Prod. Consumption", ProductionOrder."No.", true, false, false);
+
+        // [THEN] Source document fields on the inventory put-away match the production order.
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, ProductionOrder."No.", WarehouseActivityLine."Activity Type"::"Invt. Put-away",
+          Location.Code, WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.TestField("Source Type", Database::"Prod. Order Component");
+        WarehouseActivityLine.Testfield("Source Subtype", 3);
+        WarehouseActivityLine.TestField("Source No.", ProductionOrder."No.");
+
+        // [THEN] The inventory put-away can be posted.
+        WarehouseActivityLine.Validate("Bin Code", Bin.Code);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.AutoFillQtyInventoryActivity(WarehouseActivityHeader);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SimpleMessageHandler')]
+    procedure NegativeConsumptionAsInventoryPutaway_FloatingBin()
+    var
+        PutawayTemplateHeader: Record "Put-away Template Header";
+        PutawayTemplateLine: Record "Put-away Template Line";
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        xProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseProdRelease: Codeunit "Whse.-Production Release";
+    begin
+        // [SCENARIO 487478] Check Source Document on inventory put-away created for negative consumption. The put-away template is set up for finding a floating bin.
+        Initialize();
+
+        // [GIVEN] Location with bin mandatory, put-away bin policy = put-away template, and set up for consumption posting via inventory pick.
+        LibraryWarehouse.CreatePutAwayTemplateHeader(PutAwayTemplateHeader);
+        LibraryWarehouse.CreatePutAwayTemplateLine(PutAwayTemplateHeader, PutAwayTemplateLine, false, true, false, false, false, false);
         CreateLocationSetupWithBins(Location, false, false, false, false, true, 2, false);
         Location."Put-away Bin Policy" := Location."Put-away Bin Policy"::"Put-away Template";
         Location."Put-away Template Code" := PutAwayTemplateHeader.Code;

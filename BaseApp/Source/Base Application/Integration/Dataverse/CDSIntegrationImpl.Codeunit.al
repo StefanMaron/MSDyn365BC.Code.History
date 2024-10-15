@@ -293,8 +293,7 @@ codeunit 7201 "CDS Integration Impl."
         AttemptingClientCredentialsTokenFromCacheWithClientSecretTxt: Label 'Attempting to acquire a CDS access token via client credentials flow from cache, with a client secret', Locked = true;
         SuccessfulJITProvisioningTelemetryMsg: Label 'Service principal successfully provisioned for tenant.', Locked = true;
         ConnectionStringEmptyTxt: Label 'Connection string is is empty.', Locked = true;
-        VTEnableAppTxt: Label 'Enable virtual tables app.', Locked = true;
-        PPEnableAppTxt: Label 'Enable power pages for virtual tables apps.', Locked = true;
+        VTEnableAppTxt: Label 'Enable Entra app: %1', Locked = true;
         VTConfigureNonProdTxt: Label 'Configure virtual tables in non-production.', Locked = true;
         VTEmptyTenantIdTxt: Label 'Tetant Id is empty.', Locked = true;
         VTEmptyAadUserIdTxt: Label 'User Id is empty.', Locked = true;
@@ -777,6 +776,7 @@ codeunit 7201 "CDS Integration Impl."
     internal procedure SetupVirtualTables(var CDSConnectionSetup: Record "CDS Connection Setup"; var CrmHelper: DotNet CrmHelper; AccessToken: Text; var ConfigId: Guid)
     var
         TempAdminCDSConnectionSetup: Record "CDS Connection Setup" temporary;
+        AADApplicationSetup: Codeunit "AAD Application Setup";
         TempConnectionString: Text;
     begin
         Session.LogMessage('0000GBF', VTConfigureTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -814,22 +814,21 @@ codeunit 7201 "CDS Integration Impl."
         FindOrCreateIntegrationUser(CDSConnectionSetup, '', '', AccessToken);
         AssignVirtualTablesIntegrationRole(CrmHelper, CDSConnectionSetup."User Name");
 
-        EnableVirtualTablesApp();
-        EnablePowerPagesApps();
-        Commit(); // for at an plugin in Dataverse can connect to BC with the VT app while saving VT config by the below procedure
+        EnableAADApp(AADApplicationSetup.GetD365BCForVEAppId());
+        EnableAADApp(AADApplicationSetup.GetPowerPagesAnonymousAppId());
+        EnableAADApp(AADApplicationSetup.GetPowerPagesAuthenticatedAppId());
+        
+        // for at an plugin in Dataverse can connect to BC with the VT app, configure the VT config
         ConfigureVirtualTables(TempAdminCDSConnectionSetup, ConfigId);
     end;
 
-    local procedure EnableVirtualTablesApp()
+    local procedure EnableAADApp(AppId: Guid)
     var
         AADApplication: Record "AAD Application";
-        AADApplicationSetup: Codeunit "AAD Application Setup";
         IdentityManagement: Codeunit "Identity Management";
-        AppId: Guid;
         Validate: Boolean;
     begin
-        Session.LogMessage('0000GEW', VTEnableAppTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-        AppId := AADApplicationSetup.GetD365BCForVEAppId();
+        Session.LogMessage('0000GEW', StrSubstNo(VTEnableAppTxt, AppId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
         AADApplication.Get(AppId);
         Validate := EnvironmentInfo.IsSaaSInfrastructure();
         if not Validate then
@@ -839,36 +838,7 @@ codeunit 7201 "CDS Integration Impl."
         else
             AADApplication.State := AADApplication.State::Enabled;
         AADApplication.Modify();
-    end;
-
-    local procedure EnablePowerPagesApps()
-    var
-        AADApplication: Record "AAD Application";
-        AADApplicationSetup: Codeunit "AAD Application Setup";
-        IdentityManagement: Codeunit "Identity Management";
-        AppId: Guid;
-        Validate: Boolean;
-    begin
-        Validate := EnvironmentInfo.IsSaaSInfrastructure();
-        if not Validate then
-            Validate := IdentityManagement.IsUserNamePasswordAuthentication();
-           
-        Session.LogMessage('0000LHI', PPEnableAppTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-        AppId := AADApplicationSetup.GetPowerPagesAuthenticatedAppId();
-        AADApplication.Get(AppId);
-        if Validate then
-            AADApplication.Validate(State, AADApplication.State::Enabled)
-        else
-            AADApplication.State := AADApplication.State::Enabled;
-        AADApplication.Modify();
-
-        AppId := AADApplicationSetup.GetPowerPagesAnonymousAppId();
-        AADApplication.Get(AppId);
-        if Validate then
-            AADApplication.Validate(State, AADApplication.State::Enabled)
-        else
-            AADApplication.State := AADApplication.State::Enabled;
-        AADApplication.Modify();
+        Commit();
     end;
 
     [NonDebuggable]

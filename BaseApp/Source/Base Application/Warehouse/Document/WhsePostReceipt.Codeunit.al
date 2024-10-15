@@ -34,7 +34,7 @@ codeunit 5760 "Whse.-Post Receipt"
 
     trigger OnRun()
     begin
-        OnBeforeRun(Rec, SuppressCommit);
+        OnBeforeRun(Rec, SuppressCommit, PreviewMode);
 
         WhseRcptLine.Copy(Rec);
         Code();
@@ -1406,7 +1406,7 @@ codeunit 5760 "Whse.-Post Receipt"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRun(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var SuppressCommit: Boolean)
+    local procedure OnBeforeRun(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; var SuppressCommit: Boolean; PreviewMode: Boolean)
     begin
     end;
 

@@ -7538,6 +7538,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = field, %2 = table]D;]A;(LookupHint=Codeunit ERM Sales Order - NamedType CurrencyErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3999279336 - NamedType 431846035" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot create this type of document when Customer %1 is blocked with type %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Order - NamedType CustomerBlockedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3999279336 - NamedType 4159551858" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Dimension Set ID has changed on Sales Order]]></Val>
@@ -8069,6 +8078,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType CannotCancelSalesInvInventoryPeriodClosedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4208132312 - NamedType 1517275207" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. should not be blank.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purch. Correct. Docs - NamedType NoShouldNotBeBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4208132312 - NamedType 1357064048" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot correct this posted purchase invoice because G/L Account %1 is blocked.]]></Val>
@@ -8141,6 +8159,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Application - NamedType BatchMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 586932656 - NamedType 964003467" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Cust. Ledger Entry must be Close.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Application - NamedType CustLedgerEntryOpenErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 586932656 - NamedType 139611804" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The document amount is not correct.  Expected:  %1, Actual:  %2]]></Val>
@@ -8157,6 +8184,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Application - NamedType PurchaseJournalDefaultsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 586932656 - NamedType 3288670887" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Remaining Amount must be 0.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales/Purchase Application - NamedType RemainingAmountErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 586932656 - NamedType 2298561624" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12299,6 +12335,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType CreateInvoiceMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 1825634146" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to create an invoice for the contract?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType CreateServiceInvoiceQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1134171456 - NamedType 3078169258" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[New Service Order must be created.]]></Val>
@@ -12306,6 +12351,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType CreateServiceOrderBatchErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 3569966352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 - %2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Start Date of Month, %2 = End Date of Month]D;]A;(LookupHint=Codeunit Service Contracts II - NamedType DescriptionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1134171456 - NamedType 3300324833" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description must match.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Service Contracts II - NamedType DescriptionMustMatchErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1134171456 - NamedType 3794037818" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -15078,6 +15141,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Whse. Rcpt. Post Prev. - NamedType WrongPostPreviewErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3079842503 - Method 2725168517 - NamedType 331638123" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[New Expiration Date must be equal to '%1'  in Tracking Specification]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Expiration Date]D;]A;(LookupHint=Codeunit Test Whse. Rcpt. Post Prev. - Method CheckTransferOrderPostingWithLotItemAndUpdatingExpirationDate - NamedType ErrorMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2658618222 - NamedType 2789727144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

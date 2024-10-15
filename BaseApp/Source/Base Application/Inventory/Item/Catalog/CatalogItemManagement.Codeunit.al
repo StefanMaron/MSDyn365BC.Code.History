@@ -660,6 +660,7 @@ codeunit 5703 "Catalog Item Management"
         Item."Gross Weight" := NonstockItem."Gross Weight";
         Item."Manufacturer Code" := NonstockItem."Manufacturer Code";
         Item."Created From Nonstock Item" := true;
+        OnCreateNewItemOnBeforeItemModify(Item, NonstockItem);
         Item.Modify();
 
         ItemTemplMgt.InsertDimensions(Item."No.", NonstockItem."Item Templ. Code", Database::Item, Database::"Item Templ.");
@@ -929,6 +930,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNonStockFSMOnBeforeProgWindowClose(var IsHandled: Boolean; ServiceLine2: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewItemOnBeforeItemModify(var Item: Record Item; NonstockItem: Record "Nonstock Item")
     begin
     end;
 }

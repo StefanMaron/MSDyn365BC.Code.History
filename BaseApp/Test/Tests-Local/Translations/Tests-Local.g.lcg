@@ -59,6 +59,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Import Tests - NamedType IBANTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4016493091 - NamedType 489703441" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 %2 of %3 %4 does not match %5 of %6 record.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Import Tests - NamedType ImportCodaFileErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4016493091 - NamedType 3618194571" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Information must not be equal to Zero]]></Val>
@@ -66,6 +75,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Import Tests - NamedType InformationErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 4016493091 - NamedType 3961714108" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Header]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CODA Import Tests - NamedType ParseIdTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4016493091 - NamedType 3448835929" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

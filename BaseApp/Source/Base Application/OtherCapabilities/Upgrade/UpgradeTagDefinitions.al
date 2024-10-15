@@ -174,6 +174,9 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetLocationGranularWarehouseHandlingSetupsUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATSetupUpgradeTag());
         PerCompanyUpgradeTags.Add(GetVATSetupAllowVATDateTag());
+        PerCompanyUpgradeTags.Add(GetCustomReportLayoutUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetFixedAssetLocationIdUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetFixedAssetResponsibleEmployeeIdUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -208,6 +211,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerDatabaseUpgradeTags.Add(GetCustLedgerEntryYourReferenceUpdateTag());
         PerDatabaseUpgradeTags.Add(GetEssentialAttachUserGroupUpgradeTag());
         PerDatabaseUpgradeTags.Add(GetRenderWordReportsInPlatformFeatureKeyUpgradeTag());
+        PerDatabaseUpgradeTags.Add(GetRegisterBankAccRecCopilotCapabilityUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"API Data Upgrade", 'OnGetAPIUpgradeTags', '', false, false)]
@@ -1220,6 +1224,11 @@ codeunit 9998 "Upgrade Tag Definitions"
         exit('MS-325010-PurchasesPayablesAndSalesReceivablesSetupsUpgrade-20230414');
     end;
 
+    procedure GetRegisterBankAccRecCopilotCapabilityUpgradeTag(): Code[250]
+    begin
+        exit('MS-491277-RegisterBankAccRecCopilotCapability-20231113');
+    end;
+
     internal procedure GetReceivedFromCountryCodeUpgradeTag(): Code[250]
     begin
         exit('MS-474260-ReceivedFromCountryCode-20230531');
@@ -1261,9 +1270,24 @@ codeunit 9998 "Upgrade Tag Definitions"
     begin
         exit('MS-474992-VATSetupAllowVATDateUpgrade-20230905');
     end;
-    
+
     internal procedure GetRenderWordReportsInPlatformFeatureKeyUpgradeTag(): Code[250]
     begin
         exit('MS-487929-TurnOnRenderWordReportsInPlatformFeatureKey-20231018');
+    end;
+
+    internal procedure GetCustomReportLayoutUpgradeTag(): Code[250]
+    begin
+        exit('MS-491178-CustomReportLayoutUpgradeTag-20231110');
+    end;
+
+    internal procedure GetFixedAssetLocationIdUpgradeTag(): Code[250]
+    begin
+        exit('MS-490888-FixedAssetLocationIdUpgradeTag-20231114');
+    end;
+
+    internal procedure GetFixedAssetResponsibleEmployeeIdUpgradeTag(): Code[250]
+    begin
+        exit('MS-490888-FixedAssetResponsibleEmployeeIdUpgradeTag-20231114');
     end;
 }

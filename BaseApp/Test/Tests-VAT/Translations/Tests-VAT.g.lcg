@@ -725,6 +725,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non Ded. VAT Misc. - NamedType IncorrectGLEntryAmtErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2320631175 - NamedType 648351519" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Amount must be equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Non-Deductible Purch. Posting - NamedType AmountMustBeEqualErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2320631175 - NamedType 495267396" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot post prepayment that contains Non-Deductible VAT.]]></Val>

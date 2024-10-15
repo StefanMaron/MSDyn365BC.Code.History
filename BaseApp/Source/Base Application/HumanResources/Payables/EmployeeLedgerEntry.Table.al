@@ -330,8 +330,6 @@ table 5222 "Employee Ledger Entry"
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
-
             trigger OnValidate()
             begin
                 if "Payment Reference" <> '' then

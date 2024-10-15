@@ -752,6 +752,42 @@ codeunit 137207 "SCM Archive Orders"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,ReportHandlerPurchArchivedOrder')]
+    [Scope('OnPrem')]
+    procedure VerifyArchivedPurchaseOrderReportExecutedWithDifferentDocNoOccurence()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO: 491374] Error when Printing Archived Purchase Order If the document is of the same versions but has different Doc. No. Occurrence
+        Initialize();
+
+        // [GIVEN] Setup: Create Purchase Header and Purchase Line with Type Item, Archive Purchase Order.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+
+        // [THEN] Archive Purchase Order 1 and create Purchase Order 2 using deleted Purchase Order 1
+        PurchaseHeader2 := PurchaseHeader;
+        PurchaseOrderPageOpenArchiveAndDelete(PurchaseHeader);
+        PurchaseHeader2.Insert(true);
+
+        // [THEN] Add line item to Purchase Order 2, and archive the Purchase Order 2 and create Purchase Order 3
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader2, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        PurchaseHeader3 := PurchaseHeader2;
+        PurchaseOrderPageOpenArchiveAndDelete(PurchaseHeader2);
+        PurchaseHeader3.Insert(true);
+
+        // [THEN] Add line item to Sales Order 3, and archive the Sales Order 3
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader3, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
+        PurchaseOrderPageOpenArchiveAndDelete(PurchaseHeader3);
+
+        // [VERIFY] Verify: Archived Purchase Order Report runs without any issue
+        RunArchivedPurchOrderReport(PurchaseHeader3);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1072,6 +1108,31 @@ codeunit 137207 "SCM Archive Orders"
         // Verify there are no un-archived lines.
         TempPurchaseLine.Reset();
         Assert.RecordIsEmpty(TempPurchaseLine);
+    end;
+
+    local procedure PurchaseOrderPageOpenArchiveAndDelete(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        PurchaseOrder.OpenView();
+        PurchaseOrder.Filter.SetFilter("Document Type", Format(PurchaseHeader."Document Type"::Order));
+        PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseOrder."Archive Document".Invoke();
+        PurchaseOrder.Close();
+
+        PurchaseHeader.Delete(true);
+    end;
+
+    local procedure RunArchivedPurchOrderReport(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseHeaderArchive: Record "Purchase Header Archive";
+        ArchivedPurchaseOrder: Report "Archived Purchase Order";
+    begin
+        Commit(); // Required to run report with request page.
+        PurchaseHeaderArchive.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseHeaderArchive.SetRange("No.", PurchaseHeader."No.");
+        ArchivedPurchaseOrder.SetTableView(PurchaseHeaderArchive);
+        ArchivedPurchaseOrder.Run();
     end;
 
     [ConfirmHandler]

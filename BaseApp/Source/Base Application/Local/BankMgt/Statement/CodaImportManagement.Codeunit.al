@@ -21,7 +21,7 @@ codeunit 2000040 "Coda Import Management"
         Text000: Label 'The enterprise number that is specified in the company information is not valid.';
         Text001: Label 'CODA statement source line %1 is not a %2 line.', Comment = 'Parameter 1 - integer number, 2 - type (Header,Old Balance,Movement,Information,Free Message,,,,New Balance,Trailer)';
         Text002: Label 'Enterprise number %1 does not match ID %2 of %3 record.';
-        Text003: Label 'Protocol number %1 of bank account %2 does not match protocol number %3 of %4 record.';
+        Text003: Label '%1 %2 of %3 %4 does not match %5 of %6 record.';
         Text005: Label '%1 of %2 %3 does not match %1 of %4 record.';
         Text006: Label '%1 records read, %2 records expected.';
         Text007: Label 'Debet total is %1, expected %2.';

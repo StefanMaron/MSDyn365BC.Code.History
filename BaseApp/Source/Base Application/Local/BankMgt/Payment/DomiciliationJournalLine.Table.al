@@ -459,7 +459,7 @@ table 2000022 "Domiciliation Journal Line"
 
         "Applies-to Doc. Type" := CustLedgEntry."Document Type";
         "Applies-to Doc. No." := CustLedgEntry."Document No.";
-        "Message 1" := CustLedgEntry."Document No.";
+        "Message 1" := CopyStr(CustLedgEntry."Document No.", 1, MaxStrLen("Message 1"));
         "Message 2" := CopyStr(CustLedgEntry.Description, 1, MaxStrLen("Message 2"));
         Reference := DomiciliationJnlMgt.CreateReference(CustLedgEntry);
         "Direct Debit Mandate ID" := CustLedgEntry."Direct Debit Mandate ID";

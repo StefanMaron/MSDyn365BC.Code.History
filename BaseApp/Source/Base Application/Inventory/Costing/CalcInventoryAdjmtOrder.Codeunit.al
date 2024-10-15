@@ -213,31 +213,31 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         if IsHandled then
             exit;
 
-        with OutputValueEntry do begin
-            SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
-            if Find('-') then
-                repeat
-                    case "Entry Type" of
-                        "Entry Type"::"Direct Cost":
-                            InvtAdjmtEntryOrder.AddDirectCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                        "Entry Type"::"Indirect Cost":
-                            InvtAdjmtEntryOrder.AddIndirectCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                        "Entry Type"::Variance:
-                            case "Variance Type" of
-                                "Variance Type"::Material:
-                                    InvtAdjmtEntryOrder.AddSingleLvlMaterialCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                                "Variance Type"::Capacity:
-                                    InvtAdjmtEntryOrder.AddSingleLvlCapacityCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                                "Variance Type"::"Capacity Overhead":
-                                    InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                                "Variance Type"::"Manufacturing Overhead":
-                                    InvtAdjmtEntryOrder.AddSingleLvlMfgOvhdCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                                "Variance Type"::Subcontracted:
-                                    InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
-                            end;
-                    end;
-                until Next() = 0;
-        end;
+        OutputValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
+        OutputValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntryNo);
+        OutputValueEntry.SetLoadFields("Entry Type", "Variance Type", "Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
+        if OutputValueEntry.FindSet() then
+            repeat
+                case OutputValueEntry."Entry Type" of
+                    OutputValueEntry."Entry Type"::"Direct Cost":
+                        InvtAdjmtEntryOrder.AddDirectCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                    OutputValueEntry."Entry Type"::"Indirect Cost":
+                        InvtAdjmtEntryOrder.AddIndirectCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                    OutputValueEntry."Entry Type"::Variance:
+                        case OutputValueEntry."Variance Type" of
+                            OutputValueEntry."Variance Type"::Material:
+                                InvtAdjmtEntryOrder.AddSingleLvlMaterialCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                            OutputValueEntry."Variance Type"::Capacity:
+                                InvtAdjmtEntryOrder.AddSingleLvlCapacityCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                            OutputValueEntry."Variance Type"::"Capacity Overhead":
+                                InvtAdjmtEntryOrder.AddSingleLvlCapOvhdCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                            OutputValueEntry."Variance Type"::"Manufacturing Overhead":
+                                InvtAdjmtEntryOrder.AddSingleLvlMfgOvhdCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                            OutputValueEntry."Variance Type"::Subcontracted:
+                                InvtAdjmtEntryOrder.AddSingleLvlSubcontrdCost(OutputValueEntry."Cost Amount (Actual)", OutputValueEntry."Cost Amount (Actual) (ACY)");
+                        end;
+                end;
+            until OutputValueEntry.Next() = 0;
     end;
 
     local procedure CalcActualMaterialCosts(var InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)")
@@ -285,6 +285,7 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     var
         ValueEntry: Record "Value Entry";
     begin
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.", "Entry Type");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntryNo);
         ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::Revaluation);
         ValueEntry.CalcSums("Cost Amount (Actual)", "Cost Amount (Actual) (ACY)");
@@ -333,23 +334,19 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
     var
         ItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgEntry do begin
-            SetCurrentKey("Order Type", "Order No.", "Order Line No.");
-            SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
-            SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
-            SetFilter("Entry Type", '%1|%2',
-              "Entry Type"::Output,
-              "Entry Type"::"Assembly Output");
-            if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
-                SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
-            OnCalcOutputQtyOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
-            if Find('-') then
-                repeat
-                    OutputQty += Quantity;
-                    if OnlyInbounds and not Positive then
-                        OutputQty -= Quantity;
-                until Next() = 0;
-        end;
+        ItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
+        ItemLedgEntry.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type");
+        ItemLedgEntry.SetRange("Order No.", InvtAdjmtEntryOrder."Order No.");
+        ItemLedgEntry.SetFilter("Entry Type", '%1|%2',
+          ItemLedgEntry."Entry Type"::Output,
+          ItemLedgEntry."Entry Type"::"Assembly Output");
+        if InvtAdjmtEntryOrder."Order Type" = InvtAdjmtEntryOrder."Order Type"::Production then
+            ItemLedgEntry.SetRange("Order Line No.", InvtAdjmtEntryOrder."Order Line No.");
+        if OnlyInbounds then
+            ItemLedgEntry.SetRange(Positive, true);
+        OnCalcOutputQtyOnAfterSetFilters(ItemLedgEntry, InvtAdjmtEntryOrder);
+        ItemLedgEntry.CalcSums(Quantity);
+        OutputQty := ItemLedgEntry.Quantity;
     end;
 
     local procedure CalcShareOfCapCost(InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)") ShareOfCapCost: Decimal
@@ -382,32 +379,27 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
 
     local procedure CopyILEToILE(var FromItemLedgEntry: Record "Item Ledger Entry"; var ToItemLedgEntry: Record "Item Ledger Entry")
     begin
-        with ToItemLedgEntry do begin
-            Reset();
-            DeleteAll();
-            if FromItemLedgEntry.FindSet() then
-                repeat
-                    ToItemLedgEntry := FromItemLedgEntry;
-                    Insert();
-                until FromItemLedgEntry.Next() = 0;
-        end;
+        ToItemLedgEntry.Reset();
+        ToItemLedgEntry.DeleteAll();
+        if FromItemLedgEntry.FindSet() then
+            repeat
+                ToItemLedgEntry := FromItemLedgEntry;
+                ToItemLedgEntry.Insert();
+            until FromItemLedgEntry.Next() = 0;
     end;
 
-    local procedure OutputItemLedgEntryExist(SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ToItemLedgEntry: Record "Item Ledger Entry"): Boolean
+    local procedure OutputItemLedgEntryExist(SourceInvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)"; var ToItemLedgEntry: Record "Item Ledger Entry")
     var
         FromItemLedgEntry: Record "Item Ledger Entry";
     begin
-        with FromItemLedgEntry do begin
-            SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
-            SetRange("Order Type", SourceInvtAdjmtEntryOrder."Order Type");
-            SetRange("Order No.", SourceInvtAdjmtEntryOrder."Order No.");
-            SetFilter("Entry Type", '%1|%2', "Entry Type"::Output, "Entry Type"::"Assembly Output");
-            if SourceInvtAdjmtEntryOrder."Order Type" = SourceInvtAdjmtEntryOrder."Order Type"::Production then
-                SetRange("Order Line No.", SourceInvtAdjmtEntryOrder."Order Line No.");
-            OnOutputItemLedgEntryExistOnAfterSetFilters(FromItemLedgEntry, SourceInvtAdjmtEntryOrder);
-            CopyILEToILE(FromItemLedgEntry, ToItemLedgEntry);
-            exit(ToItemLedgEntry.FindFirst());
-        end;
+        FromItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
+        FromItemLedgEntry.SetRange("Order Type", SourceInvtAdjmtEntryOrder."Order Type");
+        FromItemLedgEntry.SetRange("Order No.", SourceInvtAdjmtEntryOrder."Order No.");
+        FromItemLedgEntry.SetFilter("Entry Type", '%1|%2', FromItemLedgEntry."Entry Type"::Output, FromItemLedgEntry."Entry Type"::"Assembly Output");
+        if SourceInvtAdjmtEntryOrder."Order Type" = SourceInvtAdjmtEntryOrder."Order Type"::Production then
+            FromItemLedgEntry.SetRange("Order Line No.", SourceInvtAdjmtEntryOrder."Order Line No.");
+        OnOutputItemLedgEntryExistOnAfterSetFilters(FromItemLedgEntry, SourceInvtAdjmtEntryOrder);
+        CopyILEToILE(FromItemLedgEntry, ToItemLedgEntry);
     end;
 
     local procedure CalcExactCostReversingQty(ItemLedgEntry: Record "Item Ledger Entry") Qty: Decimal
@@ -416,20 +408,25 @@ codeunit 5896 "Calc. Inventory Adjmt. - Order"
         ItemApplnEntry: Record "Item Application Entry";
         TempItemLedgEntryInChain: Record "Item Ledger Entry" temporary;
     begin
+        OutbndItemLedgEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
+        OutbndItemLedgEntry.SetRange("Order Type", ItemLedgEntry."Order Type");
+        OutbndItemLedgEntry.SetRange("Order No.", ItemLedgEntry."Order No.");
+        OutbndItemLedgEntry.SetRange("Order Line No.", ItemLedgEntry."Order Line No.");
+        OutbndItemLedgEntry.SetRange("Entry Type", ItemLedgEntry."Entry Type");
+        OutbndItemLedgEntry.SetRange(Positive, false);
+        OutbndItemLedgEntry.SetFilter("Applies-to Entry", '<>0');
+        if OutbndItemLedgEntry.IsEmpty() then
+            exit(0);
+
         ItemApplnEntry.GetVisitedEntries(ItemLedgEntry, TempItemLedgEntryInChain, true);
-        with TempItemLedgEntryInChain do begin
-            SetRange("Order Type", ItemLedgEntry."Order Type");
-            SetRange("Order No.", ItemLedgEntry."Order No.");
-            SetRange("Order Line No.", ItemLedgEntry."Order Line No.");
-            SetRange("Entry Type", ItemLedgEntry."Entry Type");
-            SetRange(Positive, false);
-            if FindSet() then
-                repeat
-                    OutbndItemLedgEntry.Get("Entry No.");
-                    if OutbndItemLedgEntry."Applies-to Entry" <> 0 then
-                        Qty += OutbndItemLedgEntry.Quantity;
-                until Next() = 0;
-        end;
+        TempItemLedgEntryInChain.SetRange("Order Type", ItemLedgEntry."Order Type");
+        TempItemLedgEntryInChain.SetRange("Order No.", ItemLedgEntry."Order No.");
+        TempItemLedgEntryInChain.SetRange("Order Line No.", ItemLedgEntry."Order Line No.");
+        TempItemLedgEntryInChain.SetRange("Entry Type", ItemLedgEntry."Entry Type");
+        TempItemLedgEntryInChain.SetRange(Positive, false);
+        TempItemLedgEntryInChain.SetFilter("Applies-to Entry", '<>0');
+        TempItemLedgEntryInChain.CalcSums(Quantity);
+        Qty := TempItemLedgEntryInChain.Quantity;
     end;
 
     local procedure HasNewCost(NewCost: Decimal; NewCostACY: Decimal): Boolean

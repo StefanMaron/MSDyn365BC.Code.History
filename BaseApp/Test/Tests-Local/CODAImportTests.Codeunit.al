@@ -24,6 +24,8 @@ codeunit 144015 "CODA Import Tests"
         IBANTxt: Label 'BE 29 7340 2822 2864';
         ExpectedValueAsZero: Label '0';
         InformationErr: Label 'Information must not be equal to Zero';
+        ImportCodaFileErr: Label '%1 %2 of %3 %4 does not match %5 of %6 record.';
+        ParseIdTxt: Label 'Header';
 
     [Test]
     [HandlerFunctions('RequestPageHandlerPostCODAStatementLines,CODAStatementLineRequestPageHandler')]
@@ -664,6 +666,40 @@ codeunit 144015 "CODA Import Tests"
             InformationErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCodaFileImportErrorContent()
+    var
+        BankAccount: Record "Bank Account";
+        ImportCODAStatement: Report "Import CODA Statement";
+    begin
+        // [SCENARIO 490155] Incorrect errors when Bank Account info does not match CODA File contents.
+
+        // [GIVEN] Update Company Information.
+        UpdateCompanyInformation(EnterpriseNoTxt);
+
+        // [GIVEN] Create a bank account and configure according Coda File.
+        FindBankAccount(BankAccount, LibraryRandom.RandText(5));
+        UpdateBankAccountDetails(BankAccount);
+        UpdateBankAccountVersionCode(BankAccount);
+        UpdateElectronicBanking(true);
+
+        // [GIVEN] Run Import coda Statement Batch to Import the Coda File.
+        ImportCODAStatement.SetBankAcc(BankAccount);
+        ImportCODAStatement.InitializeRequest(LibraryCODADataProvider.ImportAccountTypeTestDataFile());
+        asserterror ImportCODAStatement.Run();
+
+        // [VERIFY] verify the expected Coda file Import error message.
+        Assert.ExpectedError(
+            StrSubstNo(
+                ImportCodaFileErr,
+                BankAccount.FieldCaption("Version Code"),
+                BankAccount."Version Code",
+                BankAccount.TableCaption(),
+                BankAccount."No.",
+                VersionCodeTxt, ParseIdTxt));
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure RequestPageHandlerPostCODAStatementLines(var PostCODAStatementLines: TestRequestPage "Post CODA Stmt. Lines")
@@ -982,6 +1018,12 @@ codeunit 144015 "CODA Import Tests"
             until CODAStatementLine.Next() = 0;
 
         exit(TotalInformationValue);
+    end;
+
+    local procedure UpdateBankAccountVersionCode(var BankAccount: Record "Bank Account")
+    begin
+        BankAccount.Validate("Version Code", Format(LibraryRandom.RandIntInRange(3, 9)));
+        BankAccount.Modify(true)
     end;
 
     [RequestPageHandler]
