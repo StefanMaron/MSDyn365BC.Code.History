@@ -22,7 +22,14 @@ report 111 "Customer - Top 10 List"
             RequestFilterFields = "No.", "Customer Posting Group", "Currency Code", "Date Filter";
 
             trigger OnAfterGetRecord()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeCustomerOnAfterGetRecord(Window, Customer, TempCustomerAmount, ShowType, NoOfRecordsToPrint, TotalSales, TotalBalance, ChartTypeNo, ShowTypeNo, IsHandled);
+                if IsHandled then
+                    CurrReport.Skip();
+
                 Window.Update(1, "No.");
                 CalcFields("Sales (LCY)", "Balance (LCY)");
                 if ("Sales (LCY)" = 0) and ("Balance (LCY)" = 0) then
@@ -133,6 +140,8 @@ report 111 "Customer - Top 10 List"
                 if MaxAmount = 0 then
                     MaxAmount := TempCustomerAmount."Amount (LCY)";
                 TempCustomerAmount."Amount (LCY)" := -TempCustomerAmount."Amount (LCY)";
+
+                OnAfterIntegerOnAfterGetRecord(TempCustomerAmount);
             end;
 
             trigger OnPreDataItem()
@@ -244,6 +253,16 @@ report 111 "Customer - Top 10 List"
         ChartType := SetChartType;
         ShowType := SetShowType;
         NoOfRecordsToPrint := NoOfRecords;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCustomerOnAfterGetRecord(var Window: Dialog; var Customer: Record Customer; var TempCustomerAmount: Record "Customer Amount" temporary; var ShowType: Option; var NoOfRecordsToPrint: Integer; var TotalSales: Decimal; var TotalBalance: Decimal; var ChartTypeNo: Integer; var ShowTypeNo: Integer; var SkipDataItem: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIntegerOnAfterGetRecord(var TempCustomerAmount: Record "Customer Amount" temporary)
+    begin
     end;
 }
 

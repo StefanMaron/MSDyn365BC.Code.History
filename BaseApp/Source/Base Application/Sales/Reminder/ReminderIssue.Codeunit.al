@@ -367,7 +367,13 @@ codeunit 393 "Reminder-Issue"
     end;
 
     procedure DeleteHeader(ReminderHeader: Record "Reminder Header"; var IssuedReminderHeader: Record "Issued Reminder Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteHeader(ReminderHeader, IssuedReminderHeader, IsHandled);
+        if IsHandled then
+            exit;
         with ReminderHeader do begin
             TestDeleteHeader(ReminderHeader, IssuedReminderHeader);
             if IssuedReminderHeader."No." <> '' then begin
@@ -764,6 +770,11 @@ codeunit 393 "Reminder-Issue"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeChangeDueDate(var ReminderEntry2: Record "Reminder/Fin. Charge Entry"; NewDueDate: Date; OldDueDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteHeader(ReminderHeader: Record "Reminder Header"; var IssuedReminderHeader: Record "Issued Reminder Header"; var IsHandled: Boolean)
     begin
     end;
 }

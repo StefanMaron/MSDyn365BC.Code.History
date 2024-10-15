@@ -315,7 +315,7 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
         Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."VAT Amount", AmountMustBeEqualErr);
     end;
-
+    
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -42,6 +42,7 @@ codeunit 6133 "E-Document Background Jobs"
             EDocumentService."Batch Recurrent Job Id" := JobQueueEntry.ID;
             EDocumentService.Modify();
 
+            JobQueueEntry."Rerun Delay (sec.)" := 600;
             JobQueueEntry."No. of Attempts to Run" := 0;
             JobQueueEntry."Job Queue Category Code" := JobQueueCategoryTok;
             JobQueueEntry.Modify();
@@ -51,6 +52,8 @@ codeunit 6133 "E-Document Background Jobs"
             JobQueueEntry."No. of Minutes between Runs" := EDocumentService."Batch Minutes between runs";
             JobQueueEntry."No. of Attempts to Run" := 0;
             JobQueueEntry.Modify();
+            if not JobQueueEntry.IsReadyToStart() then
+                JobQueueEntry.Restart();
         end;
         TelemetryDimensions.Add('Job Queue Id', JobQueueEntry.ID);
         TelemetryDimensions.Add('Codeunit Id', Format(Codeunit::"E-Document Import Job"));
@@ -74,6 +77,7 @@ codeunit 6133 "E-Document Background Jobs"
             EDocumentService."Import Recurrent Job Id" := JobQueueEntry.ID;
             EDocumentService.Modify();
 
+            JobQueueEntry."Rerun Delay (sec.)" := 600;
             JobQueueEntry."No. of Attempts to Run" := 0;
             JobQueueEntry."Job Queue Category Code" := JobQueueCategoryTok;
             JobQueueEntry.Modify();
@@ -83,6 +87,8 @@ codeunit 6133 "E-Document Background Jobs"
             JobQueueEntry."No. of Minutes between Runs" := EDocumentService."Import Minutes between runs";
             JobQueueEntry."No. of Attempts to Run" := 0;
             JobQueueEntry.Modify();
+            if not JobQueueEntry.IsReadyToStart() then
+                JobQueueEntry.Restart();
         end;
         TelemetryDimensions.Add('Job Queue Id', JobQueueEntry.ID);
         TelemetryDimensions.Add('Codeunit Id', Format(Codeunit::"E-Document Import Job"));
@@ -113,7 +119,7 @@ codeunit 6133 "E-Document Background Jobs"
             RemoveJob(EDocumentService."Import Recurrent Job Id");
     end;
 
-    local procedure RemoveJob(JobId: Guid)
+    procedure RemoveJob(JobId: Guid)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -139,10 +145,7 @@ codeunit 6133 "E-Document Background Jobs"
         if IsNullGuid(JobId) then
             exit(false);
 
-        if not JobQueueEntry.Get(JobId) then
-            exit(false);
-
-        exit(JobQueueEntry.IsReadyToStart());
+        exit(JobQueueEntry.Get(JobId));
     end;
 
     local procedure ScheduleEDocumentJob(CodeunitId: Integer; JobRecordId: RecordId; EarliestStartDateTime: Integer): Guid

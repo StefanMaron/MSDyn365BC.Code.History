@@ -358,6 +358,8 @@ table 64 "Merge Duplicates Buffer"
                 MergeCustomers();
             DATABASE::Vendor:
                 MergeVendors();
+            else
+                OnMergeOnElseCase(Rec);
         end;
         exit(true);
     end;
@@ -365,34 +367,55 @@ table 64 "Merge Duplicates Buffer"
     local procedure MergeContacts()
     var
         Contact: array[2] of Record Contact;
+        IsHandled: Boolean;
     begin
-        Contact[2].Get(Current);
-        Contact[1].Get(Duplicate);
+        IsHandled := false;
+        OnBeforeMergeContacts(Rec, IsHandled);
+        if not IsHandled then begin
+            Contact[2].Get(Current);
+            Contact[1].Get(Duplicate);
 
-        MergeRecords(Contact[1].RecordId, Contact[2].RecordId, 0);
-        Contact[2].Find();
-        Contact[2].UpdateBusinessRelation();
-        Contact[2].Modify();
+            MergeRecords(Contact[1].RecordId, Contact[2].RecordId, 0);
+            Contact[2].Find();
+            Contact[2].UpdateBusinessRelation();
+            Contact[2].Modify();
+        end;
+
+        OnAfterMergeContacts(Rec, Contact);
     end;
 
     local procedure MergeCustomers()
     var
         Customer: array[2] of Record Customer;
+        IsHandled: Boolean;
     begin
-        Customer[1].Get(Duplicate);
-        Customer[2].Get(Current);
-        MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Customer, Customer[1]."No.", Customer[2]."No.");
-        MergeRecords(Customer[1].RecordId, Customer[2].RecordId, Customer[1].FieldNo(SystemId));
+        IsHandled := false;
+        OnBeforeMergeCustomers(Rec, IsHandled);
+        if not IsHandled then begin
+            Customer[1].Get(Duplicate);
+            Customer[2].Get(Current);
+            MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Customer, Customer[1]."No.", Customer[2]."No.");
+            MergeRecords(Customer[1].RecordId, Customer[2].RecordId, Customer[1].FieldNo(SystemId));
+        end;
+
+        OnAfterMergeCustomers(Rec, Customer);
     end;
 
     local procedure MergeVendors()
     var
         Vendor: array[2] of Record Vendor;
+        IsHandled: Boolean;
     begin
-        Vendor[2].Get(Current);
-        Vendor[1].Get(Duplicate);
-        MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Vendor, Vendor[1]."No.", Vendor[2]."No.");
-        MergeRecords(Vendor[1].RecordId, Vendor[2].RecordId, Vendor[1].FieldNo(SystemId));
+        IsHandled := false;
+        OnBeforeMergeVendors(Rec, IsHandled);
+        if not IsHandled then begin
+            Vendor[2].Get(Current);
+            Vendor[1].Get(Duplicate);
+            MoveCommentLinesFromDuplicateToCurrent("Comment Line Table Name"::Vendor, Vendor[1]."No.", Vendor[2]."No.");
+            MergeRecords(Vendor[1].RecordId, Vendor[2].RecordId, Vendor[1].FieldNo(SystemId));
+        end;
+
+        OnAfterMergeVendors(Rec, Vendor);
     end;
 
     local procedure MergeRecords(DuplicateRecID: RecordID; CurrentRecID: RecordID; IdFieldId: Integer)
@@ -680,6 +703,41 @@ table 64 "Merge Duplicates Buffer"
 
     [IntegrationEvent(false, false)]
     local procedure OnRemoveConflictingRecordOnBeforeDelete(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; RecordRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMergeOnElseCase(var MergeDuplicatesBuffer: Record "Merge Duplicates Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMergeContacts(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMergeContacts(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var Contact: array[2] of Record Contact)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMergeCustomers(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMergeCustomers(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var Customer: array[2] of Record Customer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMergeVendors(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMergeVendors(MergeDuplicatesBuffer: Record "Merge Duplicates Buffer"; var Vendor: array[2] of Record Vendor)
     begin
     end;
 }
