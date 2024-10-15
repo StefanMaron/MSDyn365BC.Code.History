@@ -128,7 +128,7 @@ codeunit 10095 "Export EFT (RB)"
         ACHRBHeader."Client Name" := BankAccount."Client Name";
         ACHRBHeader."Federal ID No." := DelChr(FedID, '=', ' .,-');
         ACHRBHeader."File Creation Number" := BankAccount."Last E-Pay File Creation No.";
-        ACHRBHeader."File Creation Date" := CalculateJulianDate(FileDate);
+        ACHRBHeader."File Creation Date" := JulianDate(FileDate);
         ACHRBHeader.Validate("Settlement Date", TempEFTExportWorkset.UserSettleDate);
         // if can find the column definition, get the value of the Data Format and assign it to DateFormat variable
         FindDataExchColumnDefWithMapping(
@@ -456,33 +456,6 @@ codeunit 10095 "Export EFT (RB)"
             exit;
 
         if DataExchColumnDef.Get(DataExch."Data Exch. Def Code", DataExch."Data Exch. Line Def Code", DataExchFieldMapping."Column No.") then;
-    end;
-
-    local procedure CalculateJulianDate(NormalDate: Date): Integer
-    var
-        Year: Integer;
-        Day: Integer;
-        CalculatedDate: Integer;
-    begin
-        Year := Date2DMY(NormalDate, 3);
-        Day := (NormalDate - DMY2Date(1, 1, Year)) + 1;
-        Evaluate(CalculatedDate, GetFormattedJulainDate(Format(Day), Format(Year)));
-        exit(CalculatedDate);
-    end;
-
-    local procedure GetFormattedJulainDate(Day: Text; Year: Text): Text
-    var
-        ReturnDate: Text;
-    begin
-        case StrLen(Day) of
-            1:
-                ReturnDate := Year + '00' + Day;
-            2:
-                ReturnDate := Year + '0' + Day;
-            else
-                ReturnDate := Year + Day;
-        end;
-        exit(ReturnDate);
     end;
 
     [IntegrationEvent(false, false)]

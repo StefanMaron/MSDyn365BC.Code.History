@@ -115,12 +115,23 @@ page 122 "G/L Entries Preview"
                     ToolTip = 'Specifies the total of the ledger entries that represent credits.';
                     Visible = false;
                 }
+                field("Source Currency Code"; Rec."Source Currency Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the source currency code for G/L entries.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
+                }
                 field("Source Currency Amount"; Rec."Source Currency Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the source currency amount for G/L entries.';
-                    Visible = false;
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
                 }
                 field("Additional-Currency Amount"; Rec."Additional-Currency Amount")
                 {
@@ -133,6 +144,15 @@ page 122 "G/L Entries Preview"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
+                }
+                field("Source Currency VAT Amount"; Rec."Source Currency VAt Amount")
+                {
+                    ApplicationArea = VAT;
+                    Editable = false;
+                    ToolTip = 'Specifies the source currency VAT amount for G/L entries.';
+#if not CLEAN24
+                    Visible = SourceCurrencyVisible;
+#endif
                 }
                 field(NonDeductibleVATAmount; Rec."Non-Deductible VAT Amount")
                 {
@@ -311,14 +331,24 @@ page 122 "G/L Entries Preview"
     }
 
     trigger OnOpenPage()
+    var
+#if not CLEAN24
+        FeatureKeyManagement: Codeunit System.Environment.Configuration."Feature Key Management";
+#endif
     begin
         SetDimVisibility();
+#if not CLEAN24
+        SourceCurrencyVisible := FeatureKeyManagement.IsGLCurrencyRevaluationEnabled();
+#endif
     end;
 
     var
         GLAcc: Record "G/L Account";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         DimensionSetIDFilter: Page "Dimension Set ID Filter";
+#if not CLEAN24
+        SourceCurrencyVisible: Boolean;
+#endif
 
     protected var
         Dim1Visible: Boolean;

@@ -1717,7 +1717,7 @@ page 88 "Job Card"
                     ReportSelection: Record "Report Selections";
                 begin
                     Job.SetCurrentKey("No.");
-                    Job.SetFilter("No.", Rec."No.");
+                    Job.SetRange("No.", Rec."No.");
                     ReportSelection.PrintWithDialogForCust(
                         ReportSelection.Usage::JQ, Job, true, Rec.FieldNo("Bill-to Customer No."));
                 end;
