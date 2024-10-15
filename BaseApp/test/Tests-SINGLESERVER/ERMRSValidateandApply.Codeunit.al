@@ -13,6 +13,7 @@ codeunit 136608 "ERM RS Validate and Apply"
         LibraryRapidStart: Codeunit "Library - Rapid Start";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJournals: Codeunit "Library - Journals";
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1652,6 +1653,67 @@ codeunit 136608 "ERM RS Validate and Apply"
         PostCode.Get(NewPostCode, City);
         Customer.TestField(City, PostCode.City);
         Customer.TestField("Post Code", PostCode.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ValidateRelatedField()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        TempConfigPackageTable: Record "Config. Package Table" temporary;
+        ConfigPackageError: Record "Config. Package Error";
+        ConfigPackageMgt: Codeunit "Config. Package Management";
+        TableID: Integer;
+    begin
+        // [FEATURE] [Config Package] [Relation Table]
+        // [SCENARIO 358118] Stan can validate "Configuration Package" reflecting "Gen. Journal Line" with specified "Account Type" = "Bank Account" and "Account No.".
+        Initialize();
+
+        TableID := DATABASE::"Gen. Journal Line";
+
+        // [GIVEN] Bank Account with "No." = "XXX"
+        // [GIVEN] Configuration package for "Gen. Journal Line" table
+        // [GIVEN] Configuration package data reflecting "Gen. Journal Line" with "Account Type" = "Bank Account" and "Account No." = "XXX"
+        // [GIVEN] There is no G/L Account with "No." = "XXX" in database.
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), LibraryRandom.RandIntInRange(10, 20));
+
+        LibraryRapidStart.CreatePackage(ConfigPackage);
+        LibraryRapidStart.CreatePackageTable(ConfigPackageTable, ConfigPackage.Code, TableID);
+
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Journal Template Name"), GenJournalLine."Journal Template Name");
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Journal Batch Name"), GenJournalLine."Journal Batch Name");
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Line No."), Format(GenJournalLine."Line No."));
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Account Type"), Format(GenJournalLine."Account Type"));
+        LibraryRapidStart.CreatePackageData(
+          ConfigPackage.Code, TableID, 1, GenJournalLine.FieldNo("Account No."), GenJournalLine."Account No.");
+
+        GLAccount.SetRange("No.", GenJournalLine."Account No.");
+        GLAccount.DeleteAll();
+
+        GenJournalLine.Delete();
+        Commit();
+
+        // [WHEN] Validate package.
+        ConfigPackageMgt.ValidatePackageRelations(ConfigPackageTable, TempConfigPackageTable, false);
+
+        // [THEN] Package validation has not produced any error
+        Assert.RecordCount(TempConfigPackageTable, 1);
+        TempConfigPackageTable.SetRange("Table ID", TableID);
+        Assert.RecordCount(TempConfigPackageTable, 1);
+
+        ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageError.SetRange("Table ID", TableID);
+        Assert.RecordIsEmpty(ConfigPackageError);
     end;
 
     local procedure Initialize()
