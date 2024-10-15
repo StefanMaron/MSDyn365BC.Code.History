@@ -743,6 +743,11 @@ report 702 "Inventory Posting - Test"
 
             trigger OnPreDataItem()
             begin
+                if "Item Journal Line".GetFilter("Journal Template Name") <> '' then
+                    SetFilter("Journal Template Name", "Item Journal Line".GetFilter("Journal Template Name"));
+                if "Item Journal Line".GetFilter("Journal Batch Name") <> '' then
+                    SetFilter(Name, "Item Journal Line".GetFilter("Journal Batch Name"));
+
                 for i := 1 to ArrayLen(EntryTypeDescription) do begin
                     "Item Journal Line"."Entry Type" := i - 1;
                     EntryTypeDescription[i] := Format("Item Journal Line"."Entry Type");

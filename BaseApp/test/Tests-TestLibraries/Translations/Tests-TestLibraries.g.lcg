@@ -4766,13 +4766,40 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XDYNCRMMGTTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 516414979 - NamedType 1573031587" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[RM-CONT]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XRMCONTTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 516414979 - NamedType 979157799" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[RM-CONT, Edit]]></Val>
+      <Val><![CDATA[RM-CONT, EDIT]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XRMCONTEDITTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 516414979 - NamedType 3002347257" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[RM-TODO]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XRMTODOTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 516414979 - NamedType 2972576085" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[RM-TODO, EDIT]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Library - Lower Permissions - NamedType XRMTODOEDITTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 516414979 - NamedType 2930004670" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -2828,6 +2828,7 @@ table 36 "Sales Header"
         StatusCheckSuspended: Boolean;
         ConfirmEmptyEmailQst: Label 'Contact %1 has no email address specified. The value in the Email field on the sales order, %2, will be deleted. Do you want to continue?', Comment = '%1 - Contact No., %2 - Email';
         FullSalesTypesTxt: Label 'Sales Quote,Sales Order,Sales Invoice,Sales Credit Memo,Sales Blanket Order,Sales Return Order';
+        RecreateSalesLinesCancelErr: Label 'You must delete the existing sales lines before you can change %1.', Comment = '%1 - Field Name, Sample: You must delete the existing sales lines before you can change Currency Code.';
 
     procedure InitInsert()
     var
@@ -3262,7 +3263,7 @@ table 36 "Sales Header"
                 TempItemChargeAssgntSales.DeleteAll;
             end;
         end else
-            Rec := xRec;
+            Error(RecreateSalesLinesCancelErr, ChangedFieldName);
 
         SalesLine.BlockDynamicTracking(false);
     end;
