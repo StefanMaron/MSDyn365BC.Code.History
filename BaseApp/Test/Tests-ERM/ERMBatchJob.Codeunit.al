@@ -1350,8 +1350,8 @@ codeunit 134900 "ERM Batch Job"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
-    [HandlerFunctions('CurrExchRateConfirmHandler')]
     procedure DropShipmentSalesOrderFCYPurchOrderLCY()
     var
         Customer: Record Customer;
@@ -1363,6 +1363,7 @@ codeunit 134900 "ERM Batch Job"
         // [FEATURE] [Drop Shipment] [Purchase]
         // [SCENARIO 375430] Amounts should be recalculated to LCY in Value Entries when post Purchase Order for FCY Sales Order with Drop Shipment
         Initialize;
+        ExecuteUIHandlers;
 
         // [GIVEN] Currency 'HUF' has exch. rates: 3 on 01.07; 4 on 05.07
         LibrarySales.CreateCustomer(Customer);
@@ -4092,6 +4093,11 @@ codeunit 134900 "ERM Batch Job"
         end;
     end;
 
+    local procedure ExecuteUIHandlers()
+    begin
+        if Confirm('') then;
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BatchPostSalesOrderRequestPageHandler(var BatchPostSalesOrders: TestRequestPage "Batch Post Sales Orders")
@@ -4196,19 +4202,6 @@ codeunit 134900 "ERM Batch Job"
             DimensionSelectionMultiple.Selected.SetValue(true);
         until not DimensionSelectionMultiple.Next;
         DimensionSelectionMultiple.OK.Invoke;
-    end;
-
-    [ConfirmHandler]
-    procedure CurrExchRateConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    var
-        DummyPurchHeader: Record "Purchase Header";
-    begin
-#if CLEAN17        
-        Assert.ExpectedConfirm(StrSubstNo(ConfirmUpdateQst, DummyPurchHeader.FieldCaption("VAT Date CZL"), DummyPurchHeader.FieldCaptiom("VAT Currency Factor CZL")), Question);
-#else
-        Assert.ExpectedConfirm(StrSubstNo(ConfirmUpdateQst, DummyPurchHeader.FieldCaption("VAT Date"), DummyPurchHeader.FieldCaption("VAT Currency Factor")), Question);
-#endif
-        Reply := true;
     end;
 
     [ConfirmHandler]

@@ -961,7 +961,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         exit((not HasPayToAddress()) and PayToVendor.HasAddress());
     end;
 
-    local procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
+    procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
     var
         SourceCodeSetup: Record "Source Code Setup";
         TableID: array[10] of Integer;

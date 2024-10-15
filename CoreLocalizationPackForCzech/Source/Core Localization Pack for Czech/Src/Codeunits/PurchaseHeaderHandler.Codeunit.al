@@ -94,7 +94,7 @@ codeunit 11744 "Purchase Header Handler CZL"
     begin
         if (Rec."Currency Factor" <> xRec."Currency Factor") and (Rec.IsCurrentFieldNoDiffZero(CurrFieldNo) or (xRec."Currency Factor" = 0)) then begin
             Rec.UpdatePurchLinesByFieldNo(Rec.FieldNo("Currency Factor"), CurrFieldNo <> 0);
-            Rec.UpdateVATCurrencyFactorCZL();
+            Rec.UpdateVATCurrencyFactorCZLByCurrencyFactorCZL();
             Rec.CopyRecCurrencyFactortoxRecCurrencyFactor(Rec, xRec); // Elimination of double run function (synchro)
         end;
     end;
@@ -103,7 +103,7 @@ codeunit 11744 "Purchase Header Handler CZL"
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnAfterUpdateCurrencyFactor', '', false, false)]
     local procedure OnAfterUpdateCurrencyFactor(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.UpdateVATCurrencyFactorCZL()
+        PurchaseHeader.UpdateVATCurrencyFactorCZLByCurrencyFactorCZL()
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Purchase Header", 'OnBeforeValidateEvent', 'Vendor Posting Group', false, false)]

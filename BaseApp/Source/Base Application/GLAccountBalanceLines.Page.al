@@ -188,7 +188,12 @@ page 416 "G/L Account Balance Lines"
         GLEntry.SetRange("G/L Account No.", GLAcc."No.");
         if GLAcc.Totaling <> '' then
             GLEntry.SetFilter("G/L Account No.", GLAcc.Totaling);
-        GLEntry.SetFilter("Posting Date", GLAcc.GetFilter("Date Filter"));
+        // NAVCZ
+        if UseVATDate then
+            GLEntry.SetFilter("VAT Date", GLAcc.GetFilter("Date Filter"))
+        else
+            // NAVCZ
+            GLEntry.SetFilter("Posting Date", GLAcc.GetFilter("Date Filter"));
         GLEntry.SetFilter("Global Dimension 1 Code", GLAcc.GetFilter("Global Dimension 1 Filter"));
         GLEntry.SetFilter("Global Dimension 2 Code", GLAcc.GetFilter("Global Dimension 2 Filter"));
         GLEntry.SetFilter("Business Unit Code", GLAcc.GetFilter("Business Unit Filter"));

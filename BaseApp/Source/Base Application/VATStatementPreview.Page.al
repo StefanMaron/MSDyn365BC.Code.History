@@ -203,7 +203,7 @@ page 474 "VAT Statement Preview"
     {
     }
 
-    trigger OnAfterGetRecord()
+    trigger OnAfterGetCurrRecord()
     begin
         UpdateSubForm();
     end;
@@ -248,8 +248,7 @@ page 474 "VAT Statement Preview"
 
     procedure UpdateSubForm()
     begin
-        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr,
-          SettlementNoFilter, CountryCodeFillFiter); // NAVCZ
+        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, SettlementNoFilter, CountryCodeFillFiter); // NAVCZ
     end;
 
     procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)
@@ -264,6 +263,7 @@ page 474 "VAT Statement Preview"
         PassedSelection := NewSelection;
         PassedPeriodSelection := NewPeriodSelection;
         PassedDateFilter := NewDateFilter;
+        Rec.SetFilter("Date Filter", PassedDateFilter);
         ValuesPassed := true;
     end;
 

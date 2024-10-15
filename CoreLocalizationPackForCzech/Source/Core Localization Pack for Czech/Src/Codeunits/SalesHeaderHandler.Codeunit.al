@@ -109,7 +109,7 @@ codeunit 11743 "Sales Header Handler CZL"
     begin
         if (Rec."Currency Factor" <> xRec."Currency Factor") and (Rec.IsCurrentFieldNoDiffZero(CurrFieldNo) or (xRec."Currency Factor" = 0)) then begin
             Rec.UpdateSalesLinesByFieldNo(Rec.FieldNo("Currency Factor"), false);
-            Rec.UpdateVATCurrencyFactorCZL();
+            Rec.UpdateVATCurrencyFactorCZLByCurrencyFactorCZL();
             Rec.CopyRecCurrencyFactortoxRecCurrencyFactor(Rec, xRec); // Elimination of double run function (synchro)
         end;
     end;
@@ -118,7 +118,7 @@ codeunit 11743 "Sales Header Handler CZL"
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterUpdateCurrencyFactor', '', false, false)]
     local procedure OnAfterUpdateCurrencyFactor(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.UpdateVATCurrencyFactorCZL()
+        SalesHeader.UpdateVATCurrencyFactorCZLByCurrencyFactorCZL()
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeValidateEvent', 'Customer Posting Group', false, false)]

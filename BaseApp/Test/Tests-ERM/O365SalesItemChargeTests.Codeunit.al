@@ -219,6 +219,51 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure TestRemovePostedShipmentWithChargeItemAssigned()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeaderOrder: Record "Sales Header";
+        SalesHeaderInvoice: Record "Sales Header";
+        SalesLineOrder: Record "Sales Line";
+        SalesLineInvoice: Record "Sales Line";
+        SalesShptHeader: Record "Sales Shipment Header";
+    begin
+        // [FEATURE] [Item Charge]
+        // [SCENARIO 438887] System should not allow remove of posted shipment if any shipment lines applied to sales order lines as item charge
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeaderOrder, SalesHeaderOrder."Document Type"::Order, Customer."No.");
+
+        // Post sales order with item
+        LibraryInventory.CreateItem(Item);
+        LibrarySales.CreateSalesLine(
+            SalesLineOrder, SalesHeaderOrder, SalesLineOrder.Type::Item,
+            Item."No.", LibraryRandom.RandIntInRange(5, 20));
+        SalesLineOrder.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineOrder.Modify(true);
+
+        LibrarySales.PostSalesDocument(SalesHeaderOrder, true, true);
+
+        // Create sales order with item charge and assign to posted shipment from first order
+        LibrarySales.CreateSalesHeader(SalesHeaderInvoice, SalesHeaderInvoice."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLineInvoice, SalesHeaderInvoice,
+          SalesLineInvoice.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLineInvoice.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLineInvoice.Modify(true);
+
+        GetShipmentLinesForItemCharge(SalesLineInvoice);
+        Commit();
+
+        // Find and delete posted shipment
+        SalesShptHeader.SetRange("Sell-to Customer No.", Customer."No.");
+        SalesShptHeader.FindFirst();
+        asserterror SalesShptHeader.Delete(true);
+    end;
+
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";

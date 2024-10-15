@@ -6413,6 +6413,7 @@
             if FindSet() then
                 repeat
                     if not ZeroAmountLine(QtyType) and
+
 #if CLEAN19
                        ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
 #else
