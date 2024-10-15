@@ -364,7 +364,14 @@ page 51 "Purchase Invoice"
                     ToolTip = 'Specifies the currency code for amounts on the purchase lines.';
 
                     trigger OnAssistEdit()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeCurrencyCodeOnAssistEdit(Rec, xRec, IsHandled);
+                        if IsHandled then
+                            exit;
+
                         Clear(ChangeExchangeRate);
                         if Rec."Posting Date" <> 0D then
                             ChangeExchangeRate.SetParameter(Rec."Currency Code", Rec."Currency Factor", Rec."Posting Date")
@@ -2237,6 +2244,11 @@ page 51 "Purchase Invoice"
 
     [IntegrationEvent(true, false)]
     local procedure OnQueryClosePageOnAfterCalcShowConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var ShowConfirmCloseUnposted: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCurrencyCodeOnAssistEdit(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 }

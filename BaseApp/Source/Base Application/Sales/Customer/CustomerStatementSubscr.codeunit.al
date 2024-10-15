@@ -45,7 +45,8 @@ codeunit 8812 "Customer Statement Subscr"
         EndDate := Today;
         LastUsedParameters := CustomLayoutReporting.GetReportRequestPageParameters(ReportID);
         TempBlob.CreateOutStream(OutStream);
+
         StandardStatement.InitializeRequest(true, true, true, true, false, false, '', NewDateChoice::"Due Date", false, StartDate, EndDate);
-        StandardStatement.SaveAs(LastUsedParameters, ReportFormat::Word, OutStream, RecRef);
+        StandardStatement.SaveAs(LastUsedParameters, ReportFormat::Pdf, OutStream, RecRef);
     end;
 }

@@ -23,6 +23,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryResource: Codeunit "Library - Resource";
         LibrarySales: Codeunit "Library - Sales";
         LibraryService: Codeunit "Library - Service";
+        LibraryPlanning: Codeunit "Library - Planning";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -4910,6 +4911,53 @@ codeunit 134159 "Test Price Calculation - V16"
 
     [Test]
     [HandlerFunctions('ConfirmYesHandler')]
+    procedure RequisitionLineSetDirectUnitCostWhenIncludeVAT()
+    var
+        Item: Record Item;
+        PriceListHeader: Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [Purchase Price List] [Price Include VAT] [Requisition Line]
+        Initialize();
+
+        // [GIVEN] Create a item with "Replenishment System" as 'Purchase'
+        LibraryInventory.CreateItem(Item);
+        if Item."Replenishment System" <> Item."Replenishment System"::Purchase then begin
+            Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+            Item.Modify();
+        end;
+        Item.TestField("VAT Prod. Posting Group");
+
+        // [GIVEN] Purchase Price List with Price Include VAT
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Purchase, "Price Source Type"::"All Vendors", '');
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Modify();
+        LibraryPriceCalculation.CreatePriceListLine(PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+
+        // [GIVEN] Set Price Include VAT in Price List Line
+        PriceListLine.TestField("Direct Unit Cost");
+        PriceListLine.Validate("Price Includes VAT", true);
+        PriceListLine.Validate("VAT Bus. Posting Gr. (Price)", FindVatBusinessPostingGroupCode(Item));
+        PriceListLine.Modify(true);
+
+        // [GIVEN] Update Status to Active in Price List Header.
+        PriceListHeader.Validate(Status, PriceListHeader.Status::Active);
+        PriceListHeader.Modify(true);
+
+        // [GIVEN] Requisition Line, where "Type" is 'Item' 
+        InitReqWorksheetLine(RequisitionLine);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+
+        // [WHEN] Validate "No." 
+        RequisitionLine.Validate("No.", Item."No.");
+
+        // [THEN] Direct Unit Cost is set
+        RequisitionLine.TestField("Direct Unit Cost");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     procedure WhenTheCampaignNoInTheHeaderIsUpdatedCheckTheDirectUnitCostInThePurchaseLine()
     var
         Item: Record Item;
@@ -5358,6 +5406,42 @@ codeunit 134159 "Test Price Calculation - V16"
         TempPriceListLine."Variant Code" := VarianCode;
         TempPriceListLine."Unit Price" := Price;
         TempPriceListLine.Insert(true);
+    end;
+
+    local procedure FindVatBusinessPostingGroupCode(var Item: Record Item): Code[20]
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        VatPostingSetup: Record "VAT Posting Setup";
+    begin
+        if Item."VAT Bus. Posting Gr. (Price)" <> '' then
+            exit(Item."VAT Bus. Posting Gr. (Price)");
+
+        VATBusinessPostingGroup.SetFilter(Code, '<>%1', '');
+        if VATBusinessPostingGroup.FindSet() then
+            repeat
+                if VatPostingSetup.Get(VATBusinessPostingGroup.Code, Item."VAT Prod. Posting Group") then
+                    exit(VATBusinessPostingGroup.Code);
+            until VATBusinessPostingGroup.Next() = 0;
+
+        exit('');
+    end;
+
+    local procedure InitReqWorksheetLine(var RequisitionLine: Record "Requisition Line")
+    var
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        ReqWkshTemplate.SetRange(Type, RequisitionWkshName."Template Type"::"Req.");
+        ReqWkshTemplate.FindFirst();
+        RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
+        if not RequisitionWkshName.FindFirst() then begin
+            LibraryPlanning.CreateRequisitionWkshName(RequisitionWkshName, ReqWkshTemplate.Name);
+            Commit();
+        end;
+
+        RequisitionLine.Init();
+        RequisitionLine.Validate("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.Validate("Journal Batch Name", RequisitionWkshName.Name);
     end;
 
     local procedure CopyPurchLinesToDoc(PurchDocType: Enum "Purchase Document Type From"; DocumentLine: Variant; var ToPurchaseHeader: Record "Purchase Header")

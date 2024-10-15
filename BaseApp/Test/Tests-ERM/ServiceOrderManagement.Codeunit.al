@@ -231,6 +231,45 @@ codeunit 136135 "Service Order Management"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure CheckBillToCustomerWhenReenteringSameCustomerNo()
+    var
+        Customer: Record Customer;
+        CustomerBillTo: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        ServiceHeader: Record "Service Header";
+    begin
+        // [SCENARIO 542320] Bill-to customer should stay the same when re-entering the same Customer No.
+        Initialize();
+
+        // [GIVEN] Customer "C" where Bill-to Customer "B" has Name "N"
+        CreateCustomerWithBillToCustomer(Customer, CustomerBillTo);
+
+        // [GIVEN] Create Ship-to Address for Customer "C" and assigne as default "Ship-to Address"        
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        if ShipToAddress."Shipment Method Code" = '' then begin
+            ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethod());
+            ShipToAddress.Modify(true);
+        end;
+
+        // [GIVEN] Set "C_SA" as default "Ship-to Address" for Customer "C".
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Modify(true);
+
+        // [GIVEN] Create Service Order
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
+        ServiceHeader.TestField("Bill-to Customer No.", CustomerBillTo."No.");
+        ServiceHeader.TestField("Ship-to Code", ShipToAddress.Code);
+
+        // [WHEN] reenter the same Customer No.
+        ServiceHeader.Validate("Customer No.", Customer."No.");
+
+        // [THEN] Bill-to customer should stay the same
+        ServiceHeader.TestField("Bill-to Customer No.", CustomerBillTo."No.");
+        ServiceHeader.TestField("Ship-to Code", ShipToAddress.Code);
+    end;
+
+    [Test]
     [HandlerFunctions('TravelFeePageHandler')]
     [Scope('OnPrem')]
     procedure TravelFeeOnServiceWorksheet()
@@ -1459,6 +1498,28 @@ codeunit 136135 "Service Order Management"
         ServiceItemComponent.FindFirst();
         ServiceItemComponent.TestField(Type, Type);
         ServiceItemComponent.TestField("No.", No);
+    end;
+
+    local procedure CreateCustomerWithBillToCustomer(var Customer: Record Customer; var CustomerBillTo: Record Customer)
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Name := LibraryUtility.GenerateGUID();
+        Customer.Modify();
+        LibrarySales.CreateCustomer(CustomerBillTo);
+        CustomerBillTo.Name := LibraryUtility.GenerateGUID();
+        CustomerBillTo.Modify();
+        Customer.Validate("Bill-to Customer No.", CustomerBillTo."No.");
+        Customer.Modify(true);
+    end;
+
+    local procedure CreateShipmentMethod(): Code[10]
+    var
+        ShipmentMethod: Record "Shipment Method";
+    begin
+        ShipmentMethod.Init();
+        ShipmentMethod.Code := LibraryUtility.GenerateRandomCode(ShipmentMethod.FieldNo(Code), Database::"Shipment Method");
+        ShipmentMethod.Insert();
+        exit(ShipmentMethod.Code);
     end;
 
     [PageHandler]
