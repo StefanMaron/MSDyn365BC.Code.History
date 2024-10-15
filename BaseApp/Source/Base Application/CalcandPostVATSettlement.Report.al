@@ -55,7 +55,7 @@ report 20 "Calc. and Post VAT Settlement"
                 AutoFormatExpression = GetCurrency;
                 AutoFormatType = 1;
             }
-            column(VATAmountAddCurr; VATAmountAddCurr)
+            column(VATAmountAddCurr; VATAmountAddCurrSales + VATAmountAddCurrPurchase)
             {
                 AutoFormatExpression = GetCurrency;
                 AutoFormatType = 1;
@@ -322,11 +322,16 @@ report 20 "Calc. and Post VAT Settlement"
                                         PostGenJnlLine(GenJnlLine);
                                     case VATType of
                                         VATEntry.Type::Purchase:
-                                            VATAmountPurch := VATAmountPurch + VATEntry.Amount;
+                                            begin
+                                                VATAmountPurch := VATAmountPurch + VATEntry.Amount;
+                                                VATAmountAddCurrPurchase += VATEntry."Additional-Currency Amount";
+                                            end;
                                         VATEntry.Type::Sale:
-                                            VATAmountSale := VATAmountSale + VATEntry.Amount;
+                                            begin
+                                                VATAmountSale := VATAmountSale + VATEntry.Amount;
+                                                VATAmountAddCurrSales += VATEntry."Additional-Currency Amount";
+                                            end;
                                     end;
-                                    VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Reverse Charge VAT":
                                 case VATType of
@@ -379,11 +384,16 @@ report 20 "Calc. and Post VAT Settlement"
                                                     PostGenJnlLine(GenJnlLine);
                                                 case VATType of
                                                     VATEntry.Type::Purchase:
-                                                        VATAmountPurch := VATAmountPurch + VATEntry.Amount;
+                                                        begin
+                                                            VATAmountPurch := VATAmountPurch + VATEntry.Amount;
+                                                            VATAmountAddCurrPurchase += VATEntry."Additional-Currency Amount";
+                                                        end;
                                                     VATEntry.Type::Sale:
-                                                        VATAmountSale := VATAmountSale + VATEntry.Amount;
+                                                        begin
+                                                            VATAmountSale := VATAmountSale + VATEntry.Amount;
+                                                            VATAmountAddCurrSales += VATEntry."Additional-Currency Amount";
+                                                        end;
                                                 end;
-                                                VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
                                             end;
                                         VATEntry.Type::Sale:
                                             begin
@@ -394,11 +404,16 @@ report 20 "Calc. and Post VAT Settlement"
                                                     PostGenJnlLine(GenJnlLine);
                                                 case VATType of
                                                     VATEntry.Type::Purchase:
-                                                        VATAmountPurch := VATAmountPurch + VATEntry.Amount;
+                                                        begin
+                                                            VATAmountPurch := VATAmountPurch + VATEntry.Amount;
+                                                            VATAmountAddCurrPurchase += VATEntry."Additional-Currency Amount";
+                                                        end;
                                                     VATEntry.Type::Sale:
-                                                        VATAmountSale := VATAmountSale + VATEntry.Amount;
+                                                        begin
+                                                            VATAmountSale := VATAmountSale + VATEntry.Amount;
+                                                            VATAmountAddCurrSales += VATEntry."Additional-Currency Amount";
+                                                        end;
                                                 end;
-                                                VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
                                             end;
                                     end;
                                 end;
@@ -491,11 +506,13 @@ report 20 "Calc. and Post VAT Settlement"
                 VATAmount := VATAmountPurch + VATAmountSale;
                 if GSTEnabled then begin
                     if VATAmountPurch <> 0 then
-                        PostSettlementGenJnlLine(VATAmountPurch);
+                        PostSettlementGenJnlLine(VATAmountPurch, VATAmountAddCurrPurchase);
                     if VATAmountSale <> 0 then
-                        PostSettlementGenJnlLine(VATAmountSale);
+                        PostSettlementGenJnlLine(VATAmountSale, VATAmountAddCurrSales);
                 end else
-                    PostSettlementGenJnlLine(VATAmountPurch + VATAmountSale);
+                    PostSettlementGenJnlLine(VATAmountPurch + VATAmountSale, VATAmountAddCurrPurchase + VATAmountAddCurrSales);
+                if PostSettlement then
+                    SettleVATReport;
             end;
 
             trigger OnPreDataItem()
@@ -512,7 +529,8 @@ report 20 "Calc. and Post VAT Settlement"
                 VATAmountPurch := 0;
                 VATAmountSale := 0;
                 VATAmount := 0;
-                VATAmountAddCurr := 0;
+                VATAmountAddCurrSales := 0;
+                VATAmountAddCurrPurchase := 0;
 
                 if UseAmtsInAddCurr then
                     HeaderText := StrSubstNo(AllAmountsAreInTxt, GLSetup."Additional Reporting Currency")
@@ -540,12 +558,14 @@ report 20 "Calc. and Post VAT Settlement"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Starting Date';
+                        Editable = IsEditable;
                         ToolTip = 'Specifies the first date in the period from which VAT entries are processed in the batch job.';
                     }
                     field(EndDateReq; EndDateReq)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Ending Date';
+                        Editable = IsEditable;
                         ToolTip = 'Specifies the last date in the period from which VAT entries are processed in the batch job.';
                     }
                     field(PostingDt; PostingDate)
@@ -558,6 +578,7 @@ report 20 "Calc. and Post VAT Settlement"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document No.';
+                        Editable = IsEditable;
                         ToolTip = 'Specifies a document number. This field must be filled in.';
                     }
                     field(SettlementAcc; GLAccSettle."No.")
@@ -601,6 +622,11 @@ report 20 "Calc. and Post VAT Settlement"
         actions
         {
         }
+
+        trigger OnInit()
+        begin
+            IsEditable := true;
+        end;
     }
 
     labels
@@ -661,6 +687,7 @@ report 20 "Calc. and Post VAT Settlement"
         TaxJurisdiction: Record "Tax Jurisdiction";
         GLSetup: Record "General Ledger Setup";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATReportHeader: Record "VAT Report Header";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         EntrdStartDate: Date;
         EndDateReq: Date;
@@ -672,7 +699,9 @@ report 20 "Calc. and Post VAT Settlement"
         VATAmount: Decimal;
         VATAmountPurch: Decimal;
         VATAmountSale: Decimal;
-        VATAmountAddCurr: Decimal;
+        VATAmountAddCurrSales: Decimal;
+        VATAmountAddCurrPurchase: Decimal;
+        [InDataSet]
         PostSettlement: Boolean;
         FindFirstEntry: Boolean;
         ReversingEntry: Boolean;
@@ -692,6 +721,8 @@ report 20 "Calc. and Post VAT Settlement"
         PostingDateCaptionLbl: Label 'Posting Date';
         SettlementCaptionLbl: Label 'Settlement';
         GSTEnabled: Boolean;
+        [InDataSet]
+        IsEditable: Boolean;
 
     procedure InitializeRequest(NewStartDate: Date; NewEndDate: Date; NewPostingDate: Date; NewDocNo: Code[20]; NewSettlementAcc: Code[20]; ShowVATEntries: Boolean; Post: Boolean)
     begin
@@ -740,6 +771,12 @@ report 20 "Calc. and Post VAT Settlement"
         Initialized := Initialize;
     end;
 
+    [Scope('OnPrem')]
+    procedure SetRequestOptionEditable(Editable: Boolean)
+    begin
+        IsEditable := Editable;
+    end;
+
     local procedure CopyAmounts(var GenJournalLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry")
     begin
         with GenJournalLine do begin
@@ -770,7 +807,7 @@ report 20 "Calc. and Post VAT Settlement"
         GenJnlLine2."Source Currency Amount" := VATEntry."Additional-Currency Amount";
     end;
 
-    local procedure PostSettlementGenJnlLine(PostAmount: Decimal)
+    local procedure PostSettlementGenJnlLine(PostAmount: Decimal; AddCurrencyPostAmount: Decimal)
     begin
         GenJnlLine.Init;
         GenJnlLine."System-Created Entry" := true;
@@ -791,13 +828,26 @@ report 20 "Calc. and Post VAT Settlement"
         GenJnlLine.Description := Text004;
         GenJnlLine.Amount := PostAmount;
         GenJnlLine."Source Currency Code" := GLSetup."Additional Reporting Currency";
-        GenJnlLine."Source Currency Amount" := VATAmountAddCurr;
+        GenJnlLine."Source Currency Amount" := AddCurrencyPostAmount;
         GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
         GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
         if GSTEnabled then
             GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
         if PostSettlement then
             PostGenJnlLine(GenJnlLine);
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetVATReport(NewVATReportHeader: Record "VAT Report Header")
+    begin
+        VATReportHeader := NewVATReportHeader;
+    end;
+
+    local procedure SettleVATReport()
+    var
+        BASManagement: Codeunit "BAS Management";
+    begin
+        BASManagement.SettleReport(VATReportHeader);
     end;
 
     [IntegrationEvent(false, false)]

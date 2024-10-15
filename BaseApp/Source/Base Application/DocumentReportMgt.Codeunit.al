@@ -17,13 +17,26 @@ codeunit 9651 "Document Report Mgt."
         CompanyInformationPicErr: Label 'The document contains elements that cannot be converted to PDF. This may be caused by missing image data in the document.';
         UnexpectedHexCharacterRegexErr: Label 'hexadecimal value 0x[0-9a-fA-F]*, is an invalid character', Locked = true;
         UnexpectedCharInDataErr: Label 'Cannot create the document because it includes garbled text. Make sure the text is readable and then try again.';
+        UnableToRenderPdfDocument: Label 'The Word document cannot be converted to a PDF document.';
         FileTypeWordTxt: Label 'docx', Locked = true;
         FileTypePdfTxt: Label 'pdf', Locked = true;
         FileTypeHtmlTxt: Label 'html', Locked = true;
         ClientTypeMgt: Codeunit "Client Type Management";
+        EnableLegacyPrint: Boolean;
 
     [Scope('OnPrem')]
+    [Obsolete('Update calling code to use the function with an OutStream parameter')]
     procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text)
+    var
+        DocumentStream: OutStream;
+    begin
+        EnableLegacyPrint := true;
+        MergeWordLayout(ReportID, ReportAction, InStrXmlData, FileName, DocumentStream);
+        EnableLegacyPrint := false;
+    end;
+
+    [Scope('OnPrem')]
+    procedure MergeWordLayout(ReportID: Integer; ReportAction: Option SaveAsPdf,SaveAsWord,SaveAsExcel,Preview,Print,SaveAsHtml; InStrXmlData: InStream; FileName: Text; var DocumentStream: OutStream)
     var
         ReportLayoutSelection: Record "Report Layout Selection";
         CustomReportLayout: Record "Custom Report Layout";
@@ -115,7 +128,7 @@ codeunit 9651 "Document Report Mgt."
                 Error(NotImplementedErr);
             ReportAction::Print:
                 if IsStreamHasDataset(InStrXmlData) then
-                    PrintWordDoc(ReportID, TempBlobOut, PrinterName, true);
+                    PrintWordDoc(ReportID, TempBlobOut, PrinterName, true, DocumentStream);
             ReportAction::Preview:
                 FileMgt.BLOBExport(TempBlobOut, UserFileName(ReportID, CurrentFileType), true);
         end;
@@ -256,6 +269,17 @@ codeunit 9651 "Document Report Mgt."
         TempBlobWord := TempBlobPdf;
     end;
 
+    [TryFunction]
+    local procedure TryConvertWordBlobToPdfOnStream(var TempBlobWord: Codeunit "Temp Blob"; var OutStreamPdfDoc: OutStream)
+    var
+        TempBlobPdf: Codeunit "Temp Blob";
+        InStreamWordDoc: InStream;
+        PdfWriter: DotNet WordToPdf;
+    begin
+        TempBlobWord.CreateInStream(InStreamWordDoc);
+        PdfWriter.ConvertToPdf(InStreamWordDoc, OutStreamPdfDoc);
+    end;
+
     local procedure ConvertToHtml(var TempBlob: Codeunit "Temp Blob")
     var
         TempBlobHtml: Codeunit "Temp Blob";
@@ -271,18 +295,25 @@ codeunit 9651 "Document Report Mgt."
         TempBlob := TempBlobHtml
     end;
 
-    local procedure PrintWordDoc(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean)
+    local procedure PrintWordDoc(ReportID: Integer; var TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean; var pdfStream: OutStream)
     var
         FileMgt: Codeunit "File Management";
     begin
         if ClientTypeMgt.GetCurrentClientType = CLIENTTYPE::Windows then
             PrintWordDocInWord(ReportID, TempBlob, PrinterName, Collate, 1)
-        else
-            if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
-                ConvertToPdf(TempBlob, ReportID);
-                FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
-            end else
-                PrintWordDocOnServer(TempBlob, PrinterName, Collate);
+        else begin
+            if EnableLegacyPrint then begin
+                if ClientTypeMgt.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Phone, CLIENTTYPE::Tablet, CLIENTTYPE::Desktop] then begin
+                    ConvertToPdf(TempBlob, ReportID);
+                    FileMgt.BLOBExport(TempBlob, UserFileName(ReportID, FileTypePdfTxt), true);
+                end else
+                    PrintWordDocOnServer(TempBlob, PrinterName, Collate);
+                clear(pdfStream); // Nothing is written to the stream when called using the legacy signature
+            end else begin
+                if not TryConvertWordBlobToPdfOnStream(TempBlob, pdfStream) then
+                    Error(UnableToRenderPdfDocument);
+            end;
+        end;
     end;
 
     local procedure PrintWordDocInWord(ReportID: Integer; TempBlob: Codeunit "Temp Blob"; PrinterName: Text; Collate: Boolean; Copies: Integer)

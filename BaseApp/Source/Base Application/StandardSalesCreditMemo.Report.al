@@ -153,6 +153,12 @@ report 1307 "Standard Sales - Credit Memo"
             column(YourReference_Lbl; FieldCaption("Your Reference"))
             {
             }
+            column(ExternalDocumentNo; "External Document No.")
+            {
+            }
+            column(ExternalDocumentNoLbl; FieldCaption("External Document No."))
+            {
+            }
             column(ShipmentMethodDescription; ShipmentMethod.Description)
             {
             }

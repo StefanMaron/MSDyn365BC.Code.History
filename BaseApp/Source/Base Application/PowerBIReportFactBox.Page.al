@@ -753,7 +753,7 @@ page 6306 "Power BI Report FactBox"
         firstpage: Text;
     begin
         // Get all pages of the report
-        if StrPos(data, 'reportPageLoaded') > 0 then begin
+        if StrPos(data, 'events/loaded') > 0 then begin
             CurrPage.WebReportViewer.PostMessage('{"method":"GET","url":"/report/pages","headers":{"id":"getpagesfromreport"}}', '*', true);
             exit;
         end;

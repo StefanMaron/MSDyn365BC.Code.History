@@ -2126,20 +2126,8 @@
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
 
-        if "No." <> '' then begin
-            if ShowCharts then
-                CurrPage.AgedAccReceivableChart.PAGE.UpdateChartForCustomer("No.");
-            if IsOfficeAddin then
-                CurrPage.AgedAccReceivableChart2.PAGE.UpdateChartForCustomer("No.");
-        end;
 
         ExpectedMoneyOwed := GetMoneyOwedExpected;
-    end;
-
-    trigger OnAfterGetRecord()
-    begin
-        ActivateFields;
-        StyleTxt := SetStyle;
     end;
 
     trigger OnInit()
@@ -2171,21 +2159,16 @@
 
     trigger OnOpenPage()
     var
-        OfficeManagement: Codeunit "Office Management";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        ActivateFields;
-
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
 
         SetNoFieldVisible;
-        IsOfficeAddin := OfficeManagement.IsAvailable;
         IsSaaS := EnvironmentInfo.IsSaaS;
 
         if FoundationOnly then
             CurrPage.PriceAndLineDisc.PAGE.InitPage(false);
 
-        ShowCharts := "No." <> '';
     end;
 
     var
@@ -2316,10 +2299,14 @@
     end;
 
     local procedure ActivateFields()
+    var
+        OfficeManagement: Codeunit "Office Management";
     begin
         SetSocialListeningFactboxVisibility;
         ContactEditable := "Primary Contact No." = '';
         IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+        ShowCharts := "No." <> '';
+        IsOfficeAddin := OfficeManagement.IsAvailable;
     end;
 
     local procedure ContactOnAfterValidate()

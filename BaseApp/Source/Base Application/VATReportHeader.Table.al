@@ -214,6 +214,15 @@ table 740 "VAT Report Header"
         {
             Caption = 'Return Period No.';
         }
+        field(30; "Additional Information"; Code[50])
+        {
+            Caption = 'Additional Information';
+        }
+        field(31; "Created Date-Time"; DateTime)
+        {
+            Editable = false;
+            Caption = 'Created Date-Time';
+        }
         field(100; "Amounts in Add. Rep. Currency"; Boolean)
         {
             Caption = 'Amounts in Add. Rep. Currency';
@@ -238,6 +247,14 @@ table 740 "VAT Report Header"
             begin
                 TestField("VAT Report Config. Code", "VAT Report Config. Code"::"BAS Report");
             end;
+        }
+        field(11602; "Settlement Posted"; Boolean)
+        {
+            Editable = false;
+        }
+        field(11603; "Include Prev. Open Entries"; Boolean)
+        {
+            Editable = false;
         }
     }
 

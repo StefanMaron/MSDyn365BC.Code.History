@@ -8,6 +8,7 @@ codeunit 132230 "Library - E2E Plan Permissions"
 
     var
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        PlanIds: Codeunit "Plan Ids";
 
     local procedure SetProfileID(ProfileID: Code[30])
     var
@@ -21,56 +22,38 @@ codeunit 132230 "Library - E2E Plan Permissions"
     end;
 
     procedure SetTeamMemberPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('TEAM MEMBER');
-        SetUserPlan(PlanIds.GetTeamMemberPlanId);
-        SetUserGroupPlan('Finance and Operations, Team Member');
+        SetUserPlan(PlanIds.GetTeamMemberPlanId());
+        SetUserGroupPlan(PlanIds.GetTeamMemberPlanId());
         Commit;
     end;
 
     procedure SetExternalAccountantPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('ACCOUNTANT');
-        SetUserPlan(PlanIds.GetExternalAccountantPlanId);
-        SetUserGroupPlan('Finance and Operations, External Accountant');
+        SetUserPlan(PlanIds.GetExternalAccountantPlanId());
+        SetUserGroupPlan(PlanIds.GetExternalAccountantPlanId());
         Commit;
     end;
 
     procedure SetBusinessManagerPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('BUSINESS MANAGER');
-        SetUserPlan(PlanIds.GetEssentialPlanId);
-        SetUserGroupPlan('Finance and Operations');
+        SetUserPlan(PlanIds.GetEssentialPlanId());
+        SetUserGroupPlan(PlanIds.GetEssentialPlanId());
         Commit;
     end;
 
     procedure SetPremiumUserPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('BUSINESS MANAGER');
-        SetUserPlan(PlanIds.GetPremiumPlanId);
-        SetUserGroupPlan('Dynamics 365 Business Central, Premium User');
-        Commit;
-    end;
-
-    procedure SetInvoicingUserPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
-    begin
-        LibraryLowerPermissions.SetOutsideO365Scope;
-        SetUserPlan(PlanIds.GetInvoicingPlanId);
-        SetUserGroupPlan('Microsoft Invoicing');
+        SetUserPlan(PlanIds.GetPremiumPlanId());
+        SetUserGroupPlan(PlanIds.GetPremiumPlanId());
         Commit;
     end;
 
@@ -80,41 +63,35 @@ codeunit 132230 "Library - E2E Plan Permissions"
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('TEAM MEMBER');
-        SetUserPlan(PlanIds.GetTeamMemberISVPlanId);
-        SetUserGroupPlan('Dynamics 365 Business Central, Team Member ISV');
+        SetUserPlan(PlanIds.GetTeamMemberISVPlanId());
+        SetUserGroupPlan(PlanIds.GetTeamMemberISVPlanId());
         Commit;
     end;
 
     procedure SetEssentialISVEmbUserPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('BUSINESS MANAGER');
-        SetUserPlan(PlanIds.GetEssentialISVPlanId);
-        SetUserGroupPlan('Dynamics 365 Business Central, Essential ISV User');
+        SetUserPlan(PlanIds.GetEssentialISVPlanId());
+        SetUserGroupPlan(PlanIds.GetEssentialISVPlanId());
         Commit;
     end;
 
     procedure SetPremiumISVEmbUserPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('BUSINESS MANAGER');
-        SetUserPlan(PlanIds.GetPremiumISVPlanId);
-        SetUserGroupPlan('Dynamics 365 Business Central, Premium ISV User');
+        SetUserPlan(PlanIds.GetPremiumISVPlanId());
+        SetUserGroupPlan(PlanIds.GetPremiumISVPlanId());
         Commit;
     end;
 
     procedure SetDeviceISVEmbUserPlan()
-    var
-        PlanIds: Codeunit "Plan Ids";
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('BUSINESS MANAGER');
-        SetUserPlan(PlanIds.GetDeviceISVPlanId);
-        SetUserGroupPlan('Dynamics 365 Business Central Device - Embedded');
+        SetUserPlan(PlanIds.GetDeviceISVPlanId());
+        SetUserGroupPlan(PlanIds.GetDeviceISVPlanId());
         Commit;
     end;
 
@@ -138,15 +115,15 @@ codeunit 132230 "Library - E2E Plan Permissions"
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         SetProfileID('BUSINESS MANAGER');
-        SetUserPlan(PlanIds.GetViralSignupPlanId);
-        SetUserGroupPlan('Finance and Operations for IWs');
+        SetUserPlan(PlanIds.GetViralSignupPlanId());
+        SetUserGroupPlan(PlanIds.GetViralSignupPlanId());
     end;
 
-    local procedure SetUserGroupPlan(PlanName: Text[50])
+    local procedure SetUserGroupPlan(PlanID: Guid)
     var
         UserGroupPlan: Record "User Group Plan";
     begin
-        UserGroupPlan.SetRange("Plan Name", PlanName);
+        UserGroupPlan.SetRange("Plan ID", PlanID);
         if UserGroupPlan.FindSet then begin
             SetFirstUserGroupPermissionSet(UserGroupPlan."User Group Code");
             if UserGroupPlan.Next > 0 then

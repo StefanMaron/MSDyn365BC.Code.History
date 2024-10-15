@@ -57,6 +57,20 @@ page 740 "VAT Report"
                     Importance = Additional;
                     ToolTip = 'Specifies whether the amounts are in the additional reporting currency.';
                 }
+                field("Additional Information"; "Additional Information")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the additional information must be added to VAT report.';
+                    Visible = false;
+                }
+                field("Created Date-Time"; "Created Date-Time")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the date when the VAT report lines were created.';
+                    Visible = false;
+                }
                 field(BASIdNoCtrl; "BAS ID No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -126,6 +140,26 @@ page 740 "VAT Report"
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies the last date of the reporting period.';
                     }
+                    field("Statement Template Name"; "Statement Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the VAT statement that was used to generate the VAT report.';
+                    }
+                    field("Statement Name"; "Statement Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the VAT statement that was used to generate the VAT report.';
+                    }
+                    field("Settlement Posted"; "Settlement Posted")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies whether a settlement has been posted for this report.';
+                    }
+                    field("Include Prev. Open Entries"; "Include Prev. Open Entries")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies whether the report includes open entries before the specified period.';
+                    }
                 }
             }
             group("Return Period")
@@ -149,6 +183,7 @@ page 740 "VAT Report"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Report Lines';
+                Enabled = IsEnable;
                 SubPageLink = "VAT Report No." = FIELD("No."),
                               "VAT Report Config. Code" = FIELD("VAT Report Config. Code");
             }
@@ -205,6 +240,25 @@ page 740 "VAT Report"
                         CheckForErrors;
                     end;
                 }
+                action(Generate)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Generate';
+                    Enabled = SubmitControllerStatus;
+                    Image = GetLines;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
+                    ToolTip = 'Generate the content of VAT report.';
+                    Visible = GenerationVisible;
+
+                    trigger OnAction()
+                    begin
+                        VATReportMediator.Export(Rec);
+                        if not CheckForErrors() then
+                            Message(ReportGeneratedMsg);
+                    end;
+                }
                 action(Submit)
                 {
                     ApplicationArea = Basic, Suite;
@@ -215,12 +269,30 @@ page 740 "VAT Report"
                     PromotedCategory = Process;
                     PromotedOnly = true;
                     ToolTip = 'Submits the VAT report to the tax authority''s reporting service.';
+                    Visible = SubmissionVisible;
 
                     trigger OnAction()
                     begin
                         VATReportMediator.Export(Rec);
                         if not CheckForErrors then
                             Message(ReportSubmittedMsg);
+                    end;
+                }
+                action("Receive Response")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Receive Response';
+                    Enabled = ReceiveControllerStatus;
+                    Image = Alerts;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    PromotedOnly = true;
+                    ToolTip = 'Receive a response from the the tax authority''s reporting service after the VAT report submission.';
+                    Visible = ReceiveVisible;
+
+                    trigger OnAction()
+                    begin
+                        VATReportMediator.ReceiveResponse(Rec);
                     end;
                 }
                 action("Mark as Submitted")
@@ -281,7 +353,6 @@ page 740 "VAT Report"
                     Enabled = DownloadSubmissionControllerStatus;
                     Image = MoveDown;
                     ToolTip = 'Open the report again to make changes.';
-                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -297,7 +368,6 @@ page 740 "VAT Report"
                     Enabled = DownloadResponseControllerStatus;
                     Image = MoveDown;
                     ToolTip = 'Open the report again to make changes.';
-                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -321,9 +391,16 @@ page 740 "VAT Report"
                     trigger OnAction()
                     var
                         CalcAndPostVATSettlement: Report "Calc. and Post VAT Settlement";
+                        VATReportMediator: Codeunit "VAT Report Mediator";
                     begin
-                        CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate, "No.", '', false, false);
+                        if "Include Prev. Open Entries" then
+                            CalcAndPostVATSettlement.InitializeRequest(0D, "End Date", WorkDate, "No.", '', false, false)
+                        else
+                            CalcAndPostVATSettlement.InitializeRequest("Start Date", "End Date", WorkDate, "No.", '', false, false);
+                        CalcAndPostVATSettlement.SetVATReport(Rec);
+                        CalcAndPostVATSettlement.SetRequestOptionEditable(not VATReportMediator.DisableCalcAndPostVATTSettlementFields(Rec));
                         CalcAndPostVATSettlement.Run;
+                        CurrPage.Update;
                     end;
                 }
                 action("GST Purchase Entries")
@@ -399,24 +476,33 @@ page 740 "VAT Report"
     end;
 
     trigger OnOpenPage()
+    var
+        BASManagement: Codeunit "BAS Management";
     begin
         if "No." <> '' then
             InitPageControllers;
         IsEditable := Status = Status::Open;
+        IsEnable := BASManagement.VATReportChangesAllowed(Rec);
     end;
 
     var
         VATReportMediator: Codeunit "VAT Report Mediator";
         ErrorsExist: Boolean;
+        ReportGeneratedMsg: Label 'The report has been successfully generated.';
         ReportSubmittedMsg: Label 'The report has been successfully submitted.';
         CancelReportSentMsg: Label 'The cancellation request has been sent.';
         MarkAsSubmittedMsg: Label 'The report has been marked as submitted.';
         SuggestLinesControllerStatus: Boolean;
         SubmitControllerStatus: Boolean;
+        GenerationVisible: Boolean;
+        SubmissionVisible: Boolean;
+        ReceiveControllerStatus: Boolean;
+        ReceiveVisible: Boolean;
         MarkAsSubmitControllerStatus: Boolean;
         ReleaseControllerStatus: Boolean;
         ReopenControllerStatus: Boolean;
         IsEditable: Boolean;
+        IsEnable: Boolean;
         DownloadSubmissionControllerStatus: Boolean;
         DownloadResponseControllerStatus: Boolean;
         CalcAndPostVATStatus: Boolean;
@@ -428,16 +514,18 @@ page 740 "VAT Report"
     begin
         SuggestLinesControllerStatus := Status = Status::Open;
         ReleaseControllerStatus := Status = Status::Open;
+        GenerationVisible := VATReportMediator.ShowGenerate(Rec);
+        SubmissionVisible := not VATReportMediator.DisableSubmitAction(Rec);
         SubmitControllerStatus := Status = Status::Released;
+        ReceiveVisible := VATReportMediator.ShowReceiveResponse(Rec);
+        ReceiveControllerStatus := Status = Status::Submitted;
         MarkAsSubmitControllerStatus := Status = Status::Released;
-        DownloadSubmissionControllerStatus := (Status = Status::Submitted) or
-          (Status = Status::Rejected) or
-          (Status = Status::Accepted) or
-          (Status = Status::Closed);
+        DownloadSubmissionControllerStatus := VATReportMediator.ShowSubmissionMessage(Rec);
         DownloadResponseControllerStatus := (Status = Status::Rejected) or
           (Status = Status::Accepted) or
           (Status = Status::Closed);
-        CalcAndPostVATStatus := Status = Status::Accepted;
+
+        CalcAndPostVATStatus := VATReportMediator.AllowedToCalcAndPostVATSettlement(Rec);
         ReopenControllerStatus := Status = Status::Released;
         InitReturnPeriodGroup;
         OnAfterInitPageControllers(Rec, SubmitControllerStatus, MarkAsSubmitControllerStatus);

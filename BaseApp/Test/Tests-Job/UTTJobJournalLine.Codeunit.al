@@ -17,7 +17,9 @@ codeunit 136351 "UT T Job Journal Line"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
 
     [Test]
@@ -332,11 +334,42 @@ codeunit 136351 "UT T Job Journal Line"
         JobJournalLine.TestField("Country/Region Code", Job."Bill-to Country/Region Code");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobJournalValidateBlankPostingDate_TempTable()
+    var
+        TempJobJournalLine: Record "Job Journal Line" temporary;
+    begin
+        // [SCENARIO 337585] Can validate blank "Posting Date" on "Job Journal Line"
+        TempJobJournalLine.Init();
+
+        TempJobJournalLine.Validate("Posting Date", WorkDate());
+        TempJobJournalLine.Validate("Posting Date", 0D);
+
+        TempJobJournalLine.TestField("Posting Date", 0D);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobJournalValidateBlankPostingDate_NormalTable()
+    var
+        JobJournalLine: Record "Job Journal Line";
+    begin
+        // [SCENARIO 337585] Cannot validate blank "Posting Date" on "Job Journal Line"
+        JobJournalLine.Init();
+
+        JobJournalLine.Validate("Posting Date", WorkDate());
+        asserterror JobJournalLine.Validate("Posting Date", 0D);
+
+        JobJournalLine.TestField("Posting Date", WorkDate());
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT T Job Journal Line");
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"UT T Job Journal Line");
@@ -345,6 +378,7 @@ codeunit 136351 "UT T Job Journal Line"
 
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"UT T Job Journal Line");
+        LibrarySetupStorage.SavePurchasesSetup();
     end;
 
     local procedure SetUp(var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; var JobJournalLine: Record "Job Journal Line")
@@ -408,6 +442,8 @@ codeunit 136351 "UT T Job Journal Line"
     var
         PurchHeader: Record "Purchase Header";
     begin
+        LibraryPurchase.SetDefaultPostingDateNoDate();
+
         PurchHeader.Init;
         PurchHeader."Document Type" := PurchHeader."Document Type"::Invoice;
         PurchHeader.Insert(true);

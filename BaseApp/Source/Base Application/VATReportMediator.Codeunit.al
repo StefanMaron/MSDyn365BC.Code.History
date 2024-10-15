@@ -19,10 +19,7 @@ codeunit 740 "VAT Report Mediator"
         then
             VATReportHeader.TestField("Original Report No.");
 
-        VATReportsConfiguration.SetRange("VAT Report Type", VATReportHeader."VAT Report Config. Code");
-        if VATReportHeader."VAT Report Version" <> '' then
-            VATReportsConfiguration.SetRange("VAT Report Version", VATReportHeader."VAT Report Version");
-        VATReportsConfiguration.FindFirst;
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
 
         VATReportHeader.FilterGroup(2);
         VATReportHeader.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
@@ -30,26 +27,59 @@ codeunit 740 "VAT Report Mediator"
         CODEUNIT.Run(VATReportsConfiguration."Suggest Lines Codeunit ID", VATReportHeader);
     end;
 
+    procedure Generate(VATReportHeader: Record "VAT Report Header")
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        VATReportsConfiguration.TestField("Content Codeunit ID");
+        CODEUNIT.Run(VATReportsConfiguration."Content Codeunit ID", VATReportHeader);
+    end;
+
+    procedure ShowGenerate(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        exit((VATReportsConfiguration."Content Codeunit ID" <> 0) and (VATReportsConfiguration."Submission Codeunit ID" = 0));
+    end;
+
     procedure Export(VATReportHeader: Record "VAT Report Header")
     var
         VATReportsConfiguration: Record "VAT Reports Configuration";
     begin
-        case VATReportHeader."VAT Report Config. Code" of
-            VATReportHeader."VAT Report Config. Code"::"VAT Return":
-                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"VAT Return");
-            VATReportHeader."VAT Report Config. Code"::"EC Sales List":
-                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"EC Sales List");
-            VATReportHeader."VAT Report Config. Code"::"BAS Report":
-                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"BAS Report");
-        end;
-        if VATReportHeader."VAT Report Version" <> '' then
-            VATReportsConfiguration.SetRange("VAT Report Version", VATReportHeader."VAT Report Version");
-        VATReportsConfiguration.FindFirst;
-
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
         if VATReportsConfiguration."Content Codeunit ID" <> 0 then
             CODEUNIT.Run(VATReportsConfiguration."Content Codeunit ID", VATReportHeader);
         if VATReportsConfiguration."Submission Codeunit ID" <> 0 then
             CODEUNIT.Run(VATReportsConfiguration."Submission Codeunit ID", VATReportHeader);
+    end;
+
+    procedure ShowExport(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        exit(VATReportsConfiguration."Submission Codeunit ID" <> 0);
+    end;
+
+    procedure ReceiveResponse(VATReportHeader: Record "VAT Report Header")
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        VATReportsConfiguration.TestField("Response Handler Codeunit ID");
+        CODEUNIT.Run(VATReportsConfiguration."Response Handler Codeunit ID", VATReportHeader);
+    end;
+
+    procedure ShowReceiveResponse(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        exit(
+          (VATReportHeader.Status = VATReportHeader.Status::Submitted) and
+          (VATReportsConfiguration."Response Handler Codeunit ID" <> 0));
     end;
 
     procedure Release(VATReportHeader: Record "VAT Report Header")
@@ -95,5 +125,64 @@ codeunit 740 "VAT Report Mediator"
     begin
         VATReportReleaseReopen.Submit(VATReportHeader);
     end;
+
+    procedure ShowSubmissionMessage(VATReportHeader: Record "VAT Report Header") ShowSubmissionMessage: Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        with VATReportHeader do begin
+            GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+            if VATReportsConfiguration."Submission Codeunit ID" = 0 then
+                ShowSubmissionMessage := Status = Status::Released
+            else
+                ShowSubmissionMessage := (Status = Status::Submitted) or
+                  (Status = Status::Rejected) or
+                  (Status = Status::Accepted) or
+                  (Status = Status::Closed);
+            exit(ShowSubmissionMessage);
+        end;
+    end;
+
+    local procedure GetVATReportConfiguration(var VATReportsConfiguration: Record "VAT Reports Configuration"; VATReportHeader: Record "VAT Report Header")
+    begin
+        case VATReportHeader."VAT Report Config. Code" of
+            VATReportHeader."VAT Report Config. Code"::"VAT Return":
+                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"VAT Return");
+            VATReportHeader."VAT Report Config. Code"::"EC Sales List":
+                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"EC Sales List");
+            VATReportHeader."VAT Report Config. Code"::"BAS Report":
+                VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"BAS Report");
+        end;
+        if VATReportHeader."VAT Report Version" <> '' then
+            VATReportsConfiguration.SetRange("VAT Report Version", VATReportHeader."VAT Report Version");	    
+        VATReportsConfiguration.FindFirst();
+    end;
+    
+    procedure AllowedToCalcAndPostVATSettlement(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        if VATReportsConfiguration."Post Settlement When Submitted" then
+            exit((VATReportHeader.Status = VATReportHeader.Status::Submitted) and (not VATReportHeader."Settlement Posted"));
+        exit(VATReportHeader.Status = VATReportHeader.Status::Accepted);
+    end;
+
+    procedure DisableCalcAndPostVATTSettlementFields(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        exit(VATReportsConfiguration."Disable Post Settlement Fields");
+    end;
+
+    procedure DisableSubmitAction(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        GetVATReportConfiguration(VATReportsConfiguration, VATReportHeader);
+        exit(VATReportsConfiguration."Disable Submit Action");
+    end;   
+    
 }
 

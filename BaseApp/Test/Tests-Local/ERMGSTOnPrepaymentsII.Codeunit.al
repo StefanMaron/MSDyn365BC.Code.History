@@ -45,7 +45,7 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify Amount on GST Sales Entry.
         FindAndVerifyGSTSalesEntry(
-          DocumentNo, GSTSalesEntry."Document Line Type"::Item,
+          DocumentNo, SalesLine."No.", GSTSalesEntry."Document Line Type"::Item,
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
 
         // Tear Down.
@@ -179,7 +179,7 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify Amount and GST Base on GST Sales Entries.
         FindAndVerifyGSTSalesEntry(
-          DocumentNo, GSTSalesEntry."Document Line Type"::Item,
+          DocumentNo, SalesLine."No.", GSTSalesEntry."Document Line Type"::Item,
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
 
         // Tear Down.
@@ -285,12 +285,12 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify Amount, GST Base on GST Sales Entry.
         GSTSalesEntry.SetRange("Document Line No.", SalesLine."Line No.");
-        FindGSTSalesEntry(GSTSalesEntry, DocumentNo, GSTSalesEntry."Document Line Type"::"G/L Account");
+        FindGSTSalesEntry(GSTSalesEntry, DocumentNo, SalesLine."No.", GSTSalesEntry."Document Line Type"::"G/L Account");
         Assert.AreNearlyEqual(
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
           AmountMustMatchMsg);
         FindAndVerifyGSTSalesEntry(
-          DocumentNo, GSTSalesEntry."Document Line Type"::"G/L Account",
+          DocumentNo, SalesLine2."No.", GSTSalesEntry."Document Line Type"::"G/L Account",
           -SalesLine2."Line Amount" * SalesLine2."VAT %" / 100, -SalesLine2."Line Amount");
 
         // Tear Down.
@@ -423,7 +423,7 @@ codeunit 141027 "ERM GST On Prepayments II"
           GenJournalLine."Document No.", GetReceivableAccount(SalesHeader."Sell-to Customer No."),
           -(SalesInvoiceHeader."Amount Including VAT" + SalesLine."Amount Including VAT"));
         FindAndVerifyGSTSalesEntry(
-          DocumentNo, GSTSalesEntry."Document Line Type"::Item,
+          DocumentNo, SalesLine."No.", GSTSalesEntry."Document Line Type"::Item,
           -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
 
         // Tear Down.
@@ -543,7 +543,8 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify GL Entries and GST Entries.
         VerifyGLAndGSTSalesEntry(
-          DocumentNo, SalesLine."Amount Including VAT", -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
+          SalesLine."No.", DocumentNo, SalesLine."Amount Including VAT",
+          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
 
         // Tear Down.
         UpdateGeneralLedgerSetup(
@@ -660,7 +661,7 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify GL Entries and GST Entries.
         VerifyGLAndGSTSalesEntry(
-          DocumentNo, SalesLine."Amount Including VAT" + SalesLine2."Amount Including VAT",
+          SalesLine."No.", DocumentNo, SalesLine."Amount Including VAT" + SalesLine2."Amount Including VAT",
           -SalesLine."VAT Base Amount" * SalesLine."VAT %" / 100, -SalesLine."VAT Base Amount");
 
         // Tear Down.
@@ -749,7 +750,8 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // Verify.
         VerifyGLAndGSTSalesEntry(
-          DocumentNo, LibraryERM.ConvertCurrency(SalesLine."Amount Including VAT", SalesHeader."Currency Code", '', StartingDate),
+          SalesLine."No.", DocumentNo,
+          LibraryERM.ConvertCurrency(SalesLine."Amount Including VAT", SalesHeader."Currency Code", '', StartingDate),
           -LibraryERM.ConvertCurrency(SalesLine."Line Amount" * SalesLine."VAT %" / 100, SalesHeader."Currency Code", '', StartingDate),
           -LibraryERM.ConvertCurrency(SalesLine."Line Amount", SalesHeader."Currency Code", '', StartingDate));  // Using blank value for ToCurrency.
 
@@ -858,7 +860,8 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify GST Sales Entry and Credit Amount on G/L Entry.
         VerifyGLAndGSTSalesEntry(
-          DocumentNo, SalesLine."Amount Including VAT", -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
+          SalesLine."No.", DocumentNo, SalesLine."Amount Including VAT",
+          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
 
         // Tear Down.
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(
@@ -1010,7 +1013,8 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify Amount on GST Sales Entry and G/L entry.
         VerifyGLAndGSTSalesEntry(
-          DocumentNo, SalesLine."Amount Including VAT", -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
+          SalesLine."No.", DocumentNo, SalesLine."Amount Including VAT",
+          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, -SalesLine."Line Amount");
 
         // Tear Down.
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(
@@ -1073,7 +1077,8 @@ codeunit 141027 "ERM GST On Prepayments II"
 
         // [THEN] Verify Amount on GST Sales and G/L Entry.
         VerifyGLAndGSTSalesEntry(
-          DocumentNo, SalesLine."Amount Including VAT" / 2, -(SalesLine.Amount / 2) * SalesLine."VAT %" / 100, -SalesLine.Amount / 2);  // Partial value required for Amount in test case.
+          SalesLine."No.", DocumentNo, SalesLine."Amount Including VAT" / 2,
+          -(SalesLine.Amount / 2) * SalesLine."VAT %" / 100, -SalesLine.Amount / 2);  // Partial value required for Amount in test case.
 
         // Tear Down.
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(
@@ -1338,18 +1343,18 @@ codeunit 141027 "ERM GST On Prepayments II"
         GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
-        GSTPurchaseEntry.SetRange("Document Line Description", DocumentLineDescription);
         GSTPurchaseEntry.SetRange("Document Line Type", DocumentLineType);
+        GSTPurchaseEntry.SetRange("Document Line Description", DocumentLineDescription);
         GSTPurchaseEntry.FindFirst;
         Assert.AreNearlyEqual(Amount, GSTPurchaseEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
         Assert.AreNearlyEqual(GSTBase, GSTPurchaseEntry."GST Base", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;
 
-    local procedure FindAndVerifyGSTSalesEntry(DocumentNo: Code[20]; DocumentLineType: Option; Amount: Decimal; GSTBase: Decimal)
+    local procedure FindAndVerifyGSTSalesEntry(DocumentNo: Code[20]; DocumentLineDescription: Text[50]; DocumentLineType: Option; Amount: Decimal; GSTBase: Decimal)
     var
         GSTSalesEntry: Record "GST Sales Entry";
     begin
-        FindGSTSalesEntry(GSTSalesEntry, DocumentNo, DocumentLineType);
+        FindGSTSalesEntry(GSTSalesEntry, DocumentNo, DocumentLineDescription, DocumentLineType);
         Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
         Assert.AreNearlyEqual(GSTBase, GSTSalesEntry."GST Base", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;
@@ -1361,10 +1366,11 @@ codeunit 141027 "ERM GST On Prepayments II"
         GLEntry.FindFirst;
     end;
 
-    local procedure FindGSTSalesEntry(var GSTSalesEntry: Record "GST Sales Entry"; DocumentNo: Code[20]; DocumentLineType: Option)
+    local procedure FindGSTSalesEntry(var GSTSalesEntry: Record "GST Sales Entry"; DocumentNo: Code[20]; DocumentLineDescription: Text[50]; DocumentLineType: Option)
     begin
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.SetRange("Document Line Type", DocumentLineType);
+        GSTSalesEntry.SetRange("Document Line Description", DocumentLineDescription);
         GSTSalesEntry.FindFirst;
     end;
 
@@ -1609,14 +1615,10 @@ codeunit 141027 "ERM GST On Prepayments II"
     local procedure VerifyCreditAmountOnGLEntries(DocumentNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
-        CreditAmount: Decimal;
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
-        repeat
-            CreditAmount += GLEntry."Credit Amount";
-        until GLEntry.Next = 0;
-        Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
+        GLEntry.CalcSums("Credit Amount");
+        Assert.AreNearlyEqual(Amount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustMatchMsg);
     end;
 
     local procedure VerifyGLAndGSTPurchaseEntry(DocumentLineDescription: Code[20]; DocumentNo: Code[20]; Amount: Decimal; GSTAmount: Decimal; GSTBase: Decimal)
@@ -1627,12 +1629,12 @@ codeunit 141027 "ERM GST On Prepayments II"
         FindAndVerifyGSTPurchaseEntry(DocumentNo, DocumentLineDescription, GSTPurchaseEntry."Document Line Type"::Item, GSTAmount, GSTBase);
     end;
 
-    local procedure VerifyGLAndGSTSalesEntry(DocumentNo: Code[20]; Amount: Decimal; GSTAmount: Decimal; GSTBase: Decimal)
+    local procedure VerifyGLAndGSTSalesEntry(DocumentLineDescription: Code[20]; DocumentNo: Code[20]; Amount: Decimal; GSTAmount: Decimal; GSTBase: Decimal)
     var
         GSTSalesEntry: Record "GST Sales Entry";
     begin
         VerifyCreditAmountOnGLEntries(DocumentNo, Amount);
-        FindAndVerifyGSTSalesEntry(DocumentNo, GSTSalesEntry."Document Line Type"::Item, GSTAmount, GSTBase);
+        FindAndVerifyGSTSalesEntry(DocumentNo, DocumentLineDescription, GSTSalesEntry."Document Line Type"::Item, GSTAmount, GSTBase);
     end;
 
     [ModalPageHandler]

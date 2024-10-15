@@ -7391,6 +7391,12 @@ End Function
         <Field Name="YourReference_Lbl">
           <DataField>YourReference_Lbl</DataField>
         </Field>
+        <Field Name="ExternalDocumentNo">
+          <DataField>ExternalDocumentNo</DataField>
+        </Field>
+        <Field Name="ExternalDocumentNoLbl">
+          <DataField>ExternalDocumentNoLbl</DataField>
+        </Field>
         <Field Name="ShipmentMethodDescription">
           <DataField>ShipmentMethodDescription</DataField>
         </Field>

@@ -89,6 +89,15 @@ table 746 "VAT Reports Configuration"
             Caption = 'VAT Statement Name';
             TableRelation = "VAT Statement Name".Name;
         }
+        field(11600; "Post Settlement When Submitted"; Boolean)
+        {
+        }
+        field(11601; "Disable Post Settlement Fields"; Boolean)
+        {
+        }
+        field(11602; "Disable Submit Action"; Boolean)
+        {
+        }
     }
 
     keys

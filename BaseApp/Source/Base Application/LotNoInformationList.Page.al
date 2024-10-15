@@ -177,7 +177,7 @@ page 6508 "Lot No. Information List"
 
     trigger OnOpenPage()
     begin
-        SetRange("Date Filter", DMY2Date(1, 1, 0), WorkDate);
+        SetFilter("Date Filter", '..%1', WorkDate);
     end;
 
     procedure GetSelectionFilter(): Text

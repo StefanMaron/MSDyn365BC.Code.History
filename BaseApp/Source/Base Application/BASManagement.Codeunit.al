@@ -910,5 +910,27 @@ codeunit 11601 "BAS Management"
                 if not Confirm(Text1450005, false, BASCalculationSheet."BAS Version", BASCalculationSheet.A1) then
                     Error('');
     end;
+
+    procedure VATReportChangesAllowed(VATReportHeader: Record "VAT Report Header"): Boolean
+    begin
+        exit(not VATReportHeader."Settlement Posted");
+    end;
+
+    procedure VATStatementRepLineChangesAllowed(VATStatementReportLine: Record "VAT Statement Report Line"): Boolean
+    var
+        VATReportHeader: Record "VAT Report Header";
+    begin
+        if VATReportHeader.Get(VATStatementReportLine."VAT Report Config. Code", VATStatementReportLine."VAT Report No.") then
+            exit(VATReportChangesAllowed(VATReportHeader));
+    end;
+
+    procedure SettleReport(var VATReportHeader: Record "VAT Report Header")
+    begin
+        if not VATReportHeader.Find then
+            exit;
+
+        VATReportHeader.Validate("Settlement Posted", true);
+        VATReportHeader.Modify(true);
+    end;
 }
 

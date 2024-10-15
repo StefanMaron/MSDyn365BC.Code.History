@@ -67,6 +67,7 @@ codeunit 8800 "Custom Layout Reporting"
         IgnoreRequestParameters: Boolean;
         PredefinedRequestParameters: Text;
         ErrorForDataOccuredErr: Label 'The error, %1, occurred when running report %2 for %3.', Comment = '%1 - Error text, %2 - Report ID, %3 - Record ID.';
+        EscapeTok: Label '''%1''', Locked = true;
 
     procedure GetLayoutIteratorKeyFilter(var FilterRecordRef: RecordRef; var FilterRecordKeyFieldRef: FieldRef; CustomReportLayoutCode: Code[20])
     var
@@ -335,9 +336,9 @@ codeunit 8800 "Custom Layout Reporting"
         if ReportDataRecordRef.FindSet then begin
             repeat
                 // Get and set the report selection for this particular object/report combination
-                JoinValue := Format(ReportDataIteratorFieldRef.Value, 20);
+                JoinValue := Format(ReportDataIteratorFieldRef.Value);
                 CustomReportSelection.SetRange("Source No.", JoinValue);
-                IteratorFilterGroup := SetNextGroupFilter(ReportDataRecordRef, ReportDataIteratorFieldRef, JoinValue);
+                IteratorFilterGroup := SetNextGroupFilter(ReportDataRecordRef, ReportDataIteratorFieldRef, StrSubstNo(EscapeTok, JoinValue));
                 PrevRecordID := ReportDataRecordRef.RecordId;
 
                 SetIteratorJoinFieldRef;

@@ -23,10 +23,11 @@ codeunit 5847 "Get Average Cost Calc Overview"
                 "Attached to Valuation Date" := "Valuation Date";
                 "Attached to Entry No." := "Entry No.";
                 "Cost is Adjusted" := AvgCostAdjmtEntryPoint."Cost Is Adjusted";
-                if EntriesExist(Rec) then
-                    Insert
-                else
-                    AvgCostAdjmtEntryPoint.Delete;
+                if EntriesExist(Rec) then begin
+                    OnBeforeAvgCostAdjmtEntryPointInsert(Rec, AvgCostAdjmtEntryPoint);
+                    Insert();
+                end else
+                    AvgCostAdjmtEntryPoint.Delete();
             until AvgCostAdjmtEntryPoint.Next = 0;
     end;
 
@@ -51,6 +52,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
             AttachedToEntryNo := AvgCostCalcOverview."Entry No.";
 
             Item.Get("Item No.");
+            OnCalculateOnAfterGetItem(Item, AvgCostCalcOverview);
             if Item."Costing Method" = Item."Costing Method"::Average then begin
                 CalendarPeriod."Period Start" := AvgCostCalcOverview."Valuation Date";
                 AvgCostAdjmtEntryPoint."Valuation Date" := AvgCostCalcOverview."Valuation Date";
@@ -138,9 +140,9 @@ codeunit 5847 "Get Average Cost Calc Overview"
 
             OnBeforeModifyAvgCostCalcOverview(AvgCostCalcOverview, ValueEntry, ModifyLine);
             if ModifyLine then
-                Modify
+                Modify()
             else begin
-                Insert;
+                Insert();
                 CopyOfAvgCostCalcOverview := AvgCostCalcOverview;
             end;
             Copy(CopyOfAvgCostCalcOverview);
@@ -151,6 +153,8 @@ codeunit 5847 "Get Average Cost Calc Overview"
     begin
         with ValueEntry do begin
             Item.Get(AvgCostCalcOverview."Item No.");
+            OnEntriesExistOnAfterGetItem(Item, AvgCostCalcOverview);
+
             Reset;
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", AvgCostCalcOverview."Item No.");
@@ -174,8 +178,24 @@ codeunit 5847 "Get Average Cost Calc Overview"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAvgCostAdjmtEntryPointInsert(var AverageCostCalcOverview: Record "Average Cost Calc. Overview"; AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeModifyAvgCostCalcOverview(var AverageCostCalcOverview: Record "Average Cost Calc. Overview"; ValueEntry: Record "Value Entry"; ModifyLine: Boolean)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOnAfterGetItem(var Item: Record Item; var AvgCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnEntriesExistOnAfterGetItem(var Item: Record Item; var AvgCostCalcOverview: Record "Average Cost Calc. Overview")
+    begin
+    end;
+
 }
 

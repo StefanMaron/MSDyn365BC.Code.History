@@ -471,6 +471,7 @@
                 trigger OnAction()
                 begin
                     ReturnRcptHeader := Rec;
+                    OnBeforePrintRecords(Rec, ReturnRcptHeader);
                     CurrPage.SetSelectionFilter(ReturnRcptHeader);
                     ReturnRcptHeader.PrintRecords(true);
                 end;
@@ -531,6 +532,11 @@
         IsSellToCountyVisible := FormatAddress.UseCounty("Sell-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
         IsBillToCountyVisible := FormatAddress.UseCounty("Bill-to Country/Region Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrintRecords(ReturnReceiptHeaderRec: Record "Return Receipt Header"; var ReturnReceiptHeaderToPrint: Record "Return Receipt Header")
+    begin
     end;
 }
 

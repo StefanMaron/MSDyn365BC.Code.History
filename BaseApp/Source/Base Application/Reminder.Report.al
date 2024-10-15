@@ -176,7 +176,7 @@ report 117 Reminder
                 column(ReminderCaption; ReminderCaptionLbl)
                 {
                 }
-                column(CompanyVATRegistrationNo_Lbl; CompanyInfo.GetVATRegistrationNumberLbl)
+                column(CompanyVATRegistrationNoCaption; CompanyInfo.GetVATRegistrationNumberLbl)
                 {
                 }
                 dataitem(DimensionLoop; "Integer")

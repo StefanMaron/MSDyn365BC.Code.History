@@ -40,6 +40,7 @@ table 5964 "Service Contract Line"
                 LastInvoiceDate: Date;
                 NewLastInvoiceDate: Date;
                 InvoicePeriod: DateFormula;
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
                 GetServContractHeader;
@@ -60,16 +61,24 @@ table 5964 "Service Contract Line"
                 if "Service Item No." <> '' then begin
                     GetServItem;
                     TestField("Customer No.");
-                    if ServItem."Customer No." <> ServContractHeader."Customer No." then
-                        Error(Text000, "Customer No.");
 
-                    ServContractLine.Reset;
-                    ServContractLine.SetRange("Contract No.", "Contract No.");
-                    ServContractLine.SetRange("Contract Type", "Contract Type");
-                    ServContractLine.SetRange("Service Item No.", "Service Item No.");
-                    ServContractLine.SetFilter("Line No.", '<>%1', "Line No.");
-                    if not ServContractLine.IsEmpty then
-                        Error(Text003);
+                    IsHandled := false;
+                    OnValidateServiceItemNoOnBeforeCheckSameCustomer(ServItem, ServContractHeader, IsHandled);
+                    if not IsHandled then
+                        if ServItem."Customer No." <> ServContractHeader."Customer No." then
+                            Error(Text000, "Customer No.");
+
+                    IsHandled := false;
+                    OnValidateServiceItemNoOnBeforeCheckSameItemExist(Rec, IsHandled);
+                    if not IsHandled then begin
+                        ServContractLine.Reset;
+                        ServContractLine.SetRange("Contract No.", "Contract No.");
+                        ServContractLine.SetRange("Contract Type", "Contract Type");
+                        ServContractLine.SetRange("Service Item No.", "Service Item No.");
+                        ServContractLine.SetFilter("Line No.", '<>%1', "Line No.");
+                        if not ServContractLine.IsEmpty then
+                            Error(Text003);
+                    end;
 
                     if not HideDialog then begin
                         ServContractLine.Reset;
@@ -83,7 +92,7 @@ table 5964 "Service Contract Line"
                                  StrSubstNo(Text019, "Service Item No."), true)
                             then begin
                                 "Service Item No." := xRec."Service Item No.";
-                                exit
+                                exit;
                             end;
                         end else begin
                             ServContractLine.Reset;
@@ -96,7 +105,7 @@ table 5964 "Service Contract Line"
                                      StrSubstNo(Text019, "Service Item No."), true)
                                 then begin
                                     "Service Item No." := xRec."Service Item No.";
-                                    exit
+                                    exit;
                                 end;
                         end;
                     end;
@@ -447,8 +456,15 @@ table 5964 "Service Contract Line"
             Caption = 'Line Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestStatusOpen;
+                IsHandled := false;
+                OnBeforeValidateLineAmount(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Line Value");
                 Currency.InitRoundingPrecision;
                 "Line Discount Amount" := Round("Line Value" - "Line Amount", Currency."Amount Rounding Precision");
@@ -768,19 +784,17 @@ table 5964 "Service Contract Line"
     var
         OldServContractHeader: Record "Service Contract Header";
         ServContractLine2: Record "Service Contract Line";
+        LineAmount: Decimal;
     begin
         GetServContractHeader;
         if not ServContractHeader."Allow Unbalanced Amounts" then begin
-            ServContractLine.Reset;
-            ServContractLine.SetRange("Contract Type", "Contract Type");
-            ServContractLine.SetRange("Contract No.", "Contract No.");
-            ServContractLine.SetFilter("Line No.", '<>%1', "Line No.");
-            ServContractLine.CalcSums("Line Amount");
+            LineAmount := CalculateOtherLineAmounts(ServContractHeader);
+
             OldServContractHeader := ServContractHeader;
             if Deleting then
-                ServContractHeader."Annual Amount" := ServContractLine."Line Amount"
+                ServContractHeader."Annual Amount" := LineAmount
             else begin
-                ServContractHeader."Annual Amount" := ServContractLine."Line Amount" + "Line Amount";
+                ServContractHeader."Annual Amount" := LineAmount + "Line Amount";
                 if not "New Line" then
                     ContractGainLossEntry.AddEntry(4, "Contract Type", "Contract No.", "Line Amount" - xRec."Line Amount", '')
                 else
@@ -798,6 +812,19 @@ table 5964 "Service Contract Line"
                 if ServMgtSetup."Register Contract Changes" then
                     ServContractHeader.UpdContractChangeLog(OldServContractHeader);
         end;
+    end;
+
+    local procedure CalculateOtherLineAmounts(ServContractHeader: Record "Service Contract Header") LineAmount: Decimal
+    var
+        ServContractLine2: Record "Service Contract Line";
+    begin
+        ServContractLine2.Reset();
+        ServContractLine2.SetRange("Contract Type", "Contract Type");
+        ServContractLine2.SetRange("Contract No.", "Contract No.");
+        ServContractLine2.SetFilter("Line No.", '<>%1', "Line No.");
+        OnCalculateOtherLineAmountsOnAfterSetFilters(ServContractLine2);
+        ServContractLine2.CalcSums("Line Amount");
+        exit(ServContractLine2."Line Amount");
     end;
 
     procedure HideDialogBox(Hide: Boolean)
@@ -967,7 +994,27 @@ table 5964 "Service Contract Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLineAmount(var ServiceContractLine: Record "Service Contract Line"; var xServiceContractLine: Record "Service Contract Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateLineDiscountPercent(var ServiceContractLine: Record "Service Contract Line"; var xServiceContractLine: Record "Service Contract Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateOtherLineAmountsOnAfterSetFilters(var ServiceContractLine: Record "Service Contract Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeCheckSameItemExist(var ServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateServiceItemNoOnBeforeCheckSameCustomer(ServItem: Record "Service Item"; ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
     begin
     end;
 }

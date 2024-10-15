@@ -168,7 +168,7 @@ page 9171 "Profile List"
 
                     trigger OnAction()
                     begin
-                        Hyperlink(ConfPersonalizationMgt.GetProfileConfigurationUrlForWeb(Rec));
+                        ConfPersonalizationMgt.OpenProfileCustomizationUrl(Rec);
                     end;
                 }
                 action(ExportProfiles)

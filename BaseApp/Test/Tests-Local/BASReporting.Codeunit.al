@@ -17,6 +17,7 @@ codeunit 145302 "BAS Reporting"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         WrongFilterValueErr: Label 'Wrong filter value';
@@ -520,6 +521,283 @@ codeunit 145302 "BAS Reporting"
         VerifyGLEntryAccountAmount(VATPostingSetup[2]."Purchase VAT Account", -VATEntry[2].Amount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AccManagerRoleCenterHasBASReportsActions()
+    var
+        AccountingManagerRoleCenter: TestPage "Accounting Manager Role Center";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 328378] Stan can run action "BAS Reports" from the "Accounting Manager Role Center" page
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        AccountingManagerRoleCenter.OpenView;
+        Assert.IsTrue(AccountingManagerRoleCenter.BASReports.Visible, 'BAS Reports action is not visible');
+        AccountingManagerRoleCenter.Close;
+
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocalVATRepConfigurationOptionsAreVisible()
+    var
+        VATReportsConfiguration: TestPage "VAT Reports Configuration";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 328378] Stan can choose the local VAT Reports Configuration's options from the "VAT Reports Configurations" page
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+
+        VATReportsConfiguration.OpenView;
+        Assert.IsTrue(VATReportsConfiguration."Post Settlement When Submitted".Visible, 'Post Settlement When Submitted is not visible');
+        Assert.IsTrue(VATReportsConfiguration."Disable Post Settlement Fields".Visible, 'Disable Post Settlement Fields is not visible');
+        Assert.IsTrue(VATReportsConfiguration."Disable Submit Action".Visible, 'Disable Submit Action is not visible');
+
+        VATReportsConfiguration.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocalVATReportFieldsAreVisible()
+    var
+        VATReport: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 328378] Stan can see the local VAT Report's fields on the "VAT Report" page
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+
+        VATReport.OpenView;
+        Assert.IsTrue(VATReport."Statement Template Name".Visible, 'Statement Template Name is not visible');
+        Assert.IsTrue(VATReport."Statement Name".Visible, 'Statement Name is not visible');
+        Assert.IsTrue(VATReport."Settlement Posted".Visible, 'Settlement Posted is not visible');
+        Assert.IsTrue(VATReport."Include Prev. Open Entries".Visible, 'Include Prev. Open Entries is not visible');
+
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SubmitActionNotVisibleIfItWasDisabledInConfiguration()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 328378] Stan do not see "Submit" action if "Disable Submit Action" was set in VAT Reports Configuration
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        UpdateVATReportsConfigurationWithLocalOptions(true, false, false);
+        MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
+
+        VATReport.OpenEdit;
+        VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
+        Assert.IsFalse(VATReport.Submit.Visible, 'Submit action is visible');
+
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostVATSettlementEnabledWhenConfiguredAndSettlementNotPostedYet()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 328378] Stan can run "Post VAT Settlement" action if "Post Settlement When Submitted" was set in VAT Reports Configuration, status of report is Submitted and settlement was not posted yet
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        UpdateVATReportsConfigurationWithLocalOptions(false, true, false);
+        MockBASReport(VATReportHeader, VATReportHeader.Status::Submitted, false, false);
+
+        VATReport.OpenEdit;
+        VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
+        Assert.IsTrue(VATReport."Calc. and Post VAT Settlement".Enabled, 'Post VAT Settlement action is disable');
+
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostVATSettlementDisabledWhenConfiguredAndSettlementPosted()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [SCENARIO 328378] Stan cannot run "Post VAT Settlement" action if "Post Settlement When Submitted" was set in VAT Reports Configuration, status of report is Submitted but settlement was already posted
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        UpdateVATReportsConfigurationWithLocalOptions(false, true, false);
+        MockBASReport(VATReportHeader, VATReportHeader.Status::Submitted, true, false);
+
+        VATReport.OpenEdit;
+        VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
+        Assert.IsFalse(VATReport."Calc. and Post VAT Settlement".Enabled, 'Post VAT Settlement action is enabled');
+
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyEditableFieldsOfCalcAndPostVATSettlementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostVATSettlementFieldsEnabledWhenDisableConfigurationOptionIsOff()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [SCENARIO 328378] The fields of "Calc. and Post VAT Settlement" are enabled when "Disable Post Settlement Fields" is off
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        UpdateVATReportsConfigurationWithLocalOptions(false, false, false);
+        MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
+        Commit;
+        LibraryVariableStorage.Enqueue(true);
+
+        VATReport.OpenEdit;
+        VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
+        VATReport."Calc. and Post VAT Settlement".Invoke;
+
+        // Verifies in VerifyEditableFieldsOfCalcAndPostVATSettlementRequestPageHandler
+
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('VerifyEditableFieldsOfCalcAndPostVATSettlementRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostVATSettlementFieldsDisabledWhenDisableConfigurationOptionIsOn()
+    var
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [SCENARIO 328378] The fields of "Calc. and Post VAT Settlement" are disabled when "Disable Post Settlement Fields" is on
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        UpdateVATReportsConfigurationWithLocalOptions(false, false, true);
+        MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
+        Commit;
+        LibraryVariableStorage.Enqueue(false);
+
+        VATReport.OpenEdit;
+        VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
+        VATReport."Calc. and Post VAT Settlement".Invoke;
+
+        // Verifies in VerifyEditableFieldsOfCalcAndPostVATSettlementRequestPageHandler
+
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('VATReportBeforeAndWithinPeriodRequesPageHandler')]
+    [Scope('OnPrem')]
+    procedure IncludePrevEntriesSavesAfterSuggestLinesOnVATReportPage()
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+    begin
+        // [SCENARIO 328378] "Include Prev. Open Entries" option saves when Stan chose "Before and Withing Period" while suggesting lines from the VAT Report page
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+
+        LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
+        CreateVATStatementLine(
+          VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name,
+          VATStatementLine.Type::"Row Totaling",
+          CopyStr(LibraryUtility.GenerateRandomText(30), 1, MaxStrLen(VATStatementLine."Box No.")), false);
+        MockBASReport(VATReportHeader, 0, false, false);
+        VATReportHeader.Validate("Statement Template Name", VATStatementName."Statement Template Name");
+        VATReportHeader.Validate("Statement Name", VATStatementName.Name);
+        VATReportHeader.Modify;
+        Commit;
+
+        BASReportSuggestLines(VATReport, VATReportHeader);
+
+        VATReportHeader.Find;
+        VATReportHeader.TestField("Include Prev. Open Entries");
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcAndPostVATSettlementPostingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CalcAndPostVATSettlementWithACY()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: array[2] of Record "VAT Entry";
+        VATReportHeader: Record "VAT Report Header";
+        VATReport: TestPage "VAT Report";
+        GLAccNo: Code[20];
+        PostingDate: Date;
+        i: Integer;
+    begin
+        // [SCENARIO 328378] Stan can run "Calc. and Post VAT Settlement" report for VAT Entries with the additional reporting currency.
+
+        Initialize;
+        LibraryApplicationArea.EnableBasicSetup;
+        PostingDate := FindNextPostingDate;
+
+        // [GIVEN] Sales and Purchase VAT Entries with ACY amount
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        for i := 1 to ArrayLen(VATEntry) do
+            MockVATEntry(
+              VATEntry[i], VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
+              PostingDate, i);
+
+        // [GIVEN] Accepted VAT Report in period "X"
+        MockBASReport(VATReportHeader, VATReportHeader.Status::Accepted, false, false);
+        VATReportHeader."Start Date" := PostingDate;
+        VATReportHeader."End Date" := PostingDate;
+        VATReportHeader.Modify;
+        GLAccNo := LibraryERM.CreateGLAccountNo;
+        LibraryVariableStorage.Enqueue(PostingDate);
+        LibraryVariableStorage.Enqueue(GLAccNo);
+        Commit;
+
+        // [GIVEN] Opened "VAT Report" page focused on accepted VAT Report
+        VATReport.OpenEdit;
+        VATReport.FILTER.SetFilter("No.", VATReportHeader."No.");
+
+        // [WHEN] Stan press "Calc. and Post VAT Settlement" from the "VAT Report" page and select option "Post"
+        VATReport."Calc. and Post VAT Settlement".Invoke;
+
+        // [THEN] Sales and Purchase VAT entries are closed
+        for i := 1 to ArrayLen(VATEntry) do begin
+            VATEntry[i].Find;
+            VATEntry[i].TestField(Closed, true);
+        end;
+
+        // [THEN] "Settlement Posted" is enabled in the VAT Report
+        VATReportHeader.Find;
+        VATReportHeader.TestField("Settlement Posted");
+
+        LibraryVariableStorage.AssertEmpty;
+
+        // Tear down
+        VATReport.Close;
+        LibraryApplicationArea.DisableApplicationAreaSetup;
+    end;
+
     local procedure Initialize()
     var
         GLSetup: Record "General Ledger Setup";
@@ -537,6 +815,7 @@ codeunit 145302 "BAS Reporting"
         end;
 
         LibrarySetupStorage.Save(DATABASE::"VAT Report Setup");
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
     end;
 
@@ -590,6 +869,8 @@ codeunit 145302 "BAS Reporting"
             "VAT Prod. Posting Group" := VATProdPostingGroup;
             Base := LibraryRandom.RandDecInRange(10, 20, 2);
             Amount := LibraryRandom.RandDecInDecimalRange(1, Base, 2);
+            "Additional-Currency Base" := LibraryRandom.RandDecInRange(10, 20, 2);
+            "Additional-Currency Amount" := LibraryRandom.RandDecInDecimalRange(1, Base, 2);
             Type := EntryType;
             Insert;
         end;
@@ -604,6 +885,38 @@ codeunit 145302 "BAS Reporting"
         VATReportsConfiguration.Validate("VAT Statement Name", VATStatementName);
         VATReportsConfiguration.Validate("VAT Statement Template", VATStatementTemplateName);
         VATReportsConfiguration.Modify;
+    end;
+
+    local procedure UpdateVATReportsConfigurationWithLocalOptions(DisableSubmitAction: Boolean; PostSettlementWhenSubmitted: Boolean; DisablePostSettlementFields: Boolean)
+    var
+        VATReportsConfiguration: Record "VAT Reports Configuration";
+    begin
+        VATReportsConfiguration.SetRange("VAT Report Type", VATReportsConfiguration."VAT Report Type"::"BAS Report");
+        VATReportsConfiguration.FindFirst;
+        VATReportsConfiguration.Validate("Disable Submit Action", DisableSubmitAction);
+        VATReportsConfiguration.Validate("Post Settlement When Submitted", PostSettlementWhenSubmitted);
+        VATReportsConfiguration.Validate("Disable Post Settlement Fields", DisablePostSettlementFields);
+        VATReportsConfiguration.Modify;
+    end;
+
+    local procedure MockBASReport(var VATReportHeader: Record "VAT Report Header"; Status: Option; SettlementPosted: Boolean; IncludePreviousOpenEntries: Boolean)
+    begin
+        VATReportHeader.Init;
+        VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"BAS Report";
+        VATReportHeader."No." := LibraryUtility.GenerateRandomCode(VATReportHeader.FieldNo("No."), DATABASE::"VAT Report Header");
+        VATReportHeader.Status := Status;
+        VATReportHeader."Settlement Posted" := SettlementPosted;
+        VATReportHeader."Include Prev. Open Entries" := IncludePreviousOpenEntries;
+        VATReportHeader.Insert;
+    end;
+
+    local procedure FindNextPostingDate(): Date
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetCurrentKey("Posting Date");
+        VATEntry.FindLast;
+        exit(VATEntry."Posting Date" + 1);
     end;
 
     local procedure VerifyGLEntryAccountAmount(GLAcccount: Code[20]; Amount: Decimal)
@@ -645,9 +958,50 @@ codeunit 145302 "BAS Reporting"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
+    procedure VATReportBeforeAndWithinPeriodRequesPageHandler(var VATReportRequestPage: TestRequestPage "VAT Report Request Page")
+    var
+        PeriodSelection: Option "Before and Within Period","Within Period";
+    begin
+        VATReportRequestPage.PeriodSelection.SetValue(PeriodSelection::"Before and Within Period");
+        VATReportRequestPage.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
     procedure CalcAndPostVATSettlementRequestPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
     begin
         CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalcAndPostVATSettlementPostingRequestPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostingDate: Date;
+    begin
+        PostingDate := LibraryVariableStorage.DequeueDate;
+        CalcAndPostVATSettlement.StartingDate.SetValue(PostingDate);
+        CalcAndPostVATSettlement.EndDateReq.SetValue(PostingDate);
+        CalcAndPostVATSettlement.PostingDt.SetValue(PostingDate);
+        CalcAndPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText);
+        CalcAndPostVATSettlement.Post.SetValue(true);
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CalcAndPostVATSettlement."VAT Posting Setup".SetFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        CalcAndPostVATSettlement."VAT Posting Setup".SetFilter("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        CalcAndPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName)
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VerifyEditableFieldsOfCalcAndPostVATSettlementRequestPageHandler(var CalcAndPostVATSettlement: TestRequestPage "Calc. and Post VAT Settlement")
+    var
+        Enabled: Boolean;
+    begin
+        Enabled := LibraryVariableStorage.DequeueBoolean;
+        Assert.AreEqual(Enabled, CalcAndPostVATSettlement.StartingDate.Editable, '');
+        Assert.AreEqual(Enabled, CalcAndPostVATSettlement.EndDateReq.Editable, '');
+        Assert.AreEqual(Enabled, CalcAndPostVATSettlement.DocumentNo.Editable, '');
     end;
 }
 

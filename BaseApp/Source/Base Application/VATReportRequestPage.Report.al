@@ -8,6 +8,13 @@ report 742 "VAT Report Request Page"
         dataitem("VAT Report Header"; "VAT Report Header")
         {
 
+            trigger OnPostDataItem()
+            begin
+                "Created Date-Time" := CurrentDateTime();
+                "Include Prev. Open Entries" := PeriodSelection = PeriodSelection::"Before and Within Period";
+                Modify;
+            end;
+
             trigger OnPreDataItem()
             var
                 VATStatementLine: Record "VAT Statement Line";

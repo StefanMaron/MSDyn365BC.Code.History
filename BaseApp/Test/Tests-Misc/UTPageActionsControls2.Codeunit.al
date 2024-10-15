@@ -16,7 +16,10 @@ codeunit 134348 "UT Page Actions & Controls - 2"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryPermissions: Codeunit "Library - Permissions";
         IsInitialized: Boolean;
+        PageFieldVisibleErr: Label '%1 must be visible.';
+        PageFieldEditableErr: Label '%1 must be editable.';
 
     [Test]
     [Scope('OnPrem')]
@@ -32,39 +35,39 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [Sales] [Invoice]
         // [SCENARIO 315881] "Amount", "Amount Incl. VAT", "Remaining Amount" and "Closed" drilldown is possible on "Posted Sales Invoices" page
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(PostedDocumentNo) do
             PostedDocumentNo[Index] := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::Invoice);
 
-        PostedSalesInvoices.OpenView;
+        PostedSalesInvoices.OpenView();
         PostedSalesInvoices.FILTER.SetFilter("No.", GetDocNofilter(PostedDocumentNo));
-        PostedSalesInvoices.Next;
+        PostedSalesInvoices.Next();
 
-        PostedSalesInvoice.Trap;
-        PostedSalesInvoices.Amount.DrillDown;
+        PostedSalesInvoice.Trap();
+        PostedSalesInvoices.Amount.DrillDown();
         PostedSalesInvoice."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedSalesInvoice.Next;
+        PostedSalesInvoice.Next();
         PostedSalesInvoice."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        PostedSalesInvoice.Trap;
-        PostedSalesInvoices."Amount Including VAT".DrillDown;
+        PostedSalesInvoice.Trap();
+        PostedSalesInvoices."Amount Including VAT".DrillDown();
         PostedSalesInvoice."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedSalesInvoice.Next;
+        PostedSalesInvoice.Next();
         PostedSalesInvoice."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedSalesInvoice.Close;
+        PostedSalesInvoice.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        DetailedCustLedgEntries.Trap;
-        PostedSalesInvoices."Remaining Amount".DrillDown;
-        DetailedCustLedgEntries.Close;
+        DetailedCustLedgEntries.Trap();
+        PostedSalesInvoices."Remaining Amount".DrillDown();
+        DetailedCustLedgEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        CustomerLedgerEntries.Trap;
-        PostedSalesInvoices.Closed.DrillDown;
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Trap();
+        PostedSalesInvoices.Closed.DrillDown();
+        CustomerLedgerEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
     end;
 
@@ -82,39 +85,39 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [Sales] [Credit Memo]
         // [SCENARIO 315881] "Amount", "Amount Incl. VAT", "Remaining Amount" and "Closed" drilldown is possible on "Posted Sales Credit Memos" page
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(PostedDocumentNo) do
             PostedDocumentNo[Index] := PostSalesDocument(SalesHeader, SalesHeader."Document Type"::"Credit Memo");
 
-        PostedSalesCreditMemos.OpenView;
+        PostedSalesCreditMemos.OpenView();
         PostedSalesCreditMemos.FILTER.SetFilter("No.", GetDocNofilter(PostedDocumentNo));
-        PostedSalesCreditMemos.Next;
+        PostedSalesCreditMemos.Next();
 
-        PostedSalesCreditMemo.Trap;
-        PostedSalesCreditMemos.Amount.DrillDown;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesCreditMemos.Amount.DrillDown();
         PostedSalesCreditMemo."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedSalesCreditMemo.Next;
+        PostedSalesCreditMemo.Next();
         PostedSalesCreditMemo."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        PostedSalesCreditMemo.Trap;
-        PostedSalesCreditMemos."Amount Including VAT".DrillDown;
+        PostedSalesCreditMemo.Trap();
+        PostedSalesCreditMemos."Amount Including VAT".DrillDown();
         PostedSalesCreditMemo."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedSalesCreditMemo.Next;
+        PostedSalesCreditMemo.Next();
         PostedSalesCreditMemo."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedSalesCreditMemo.Close;
+        PostedSalesCreditMemo.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        DetailedCustLedgEntries.Trap;
-        PostedSalesCreditMemos."Remaining Amount".DrillDown;
-        DetailedCustLedgEntries.Close;
+        DetailedCustLedgEntries.Trap();
+        PostedSalesCreditMemos."Remaining Amount".DrillDown();
+        DetailedCustLedgEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        CustomerLedgerEntries.Trap;
-        PostedSalesCreditMemos.Paid.DrillDown;
-        CustomerLedgerEntries.Close;
+        CustomerLedgerEntries.Trap();
+        PostedSalesCreditMemos.Paid.DrillDown();
+        CustomerLedgerEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedSalesCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
     end;
 
@@ -132,39 +135,39 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [Purchases] [Invoice]
         // [SCENARIO 315881] "Amount", "Amount Incl. VAT", "Remaining Amount" and "Closed" drilldown is possible on "Posted Purchase Invoices" page
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(PostedDocumentNo) do
             PostedDocumentNo[Index] := PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
 
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.FILTER.SetFilter("No.", GetDocNofilter(PostedDocumentNo));
-        PostedPurchaseInvoices.Next;
+        PostedPurchaseInvoices.Next();
 
-        PostedPurchaseInvoice.Trap;
-        PostedPurchaseInvoices.Amount.DrillDown;
+        PostedPurchaseInvoice.Trap();
+        PostedPurchaseInvoices.Amount.DrillDown();
         PostedPurchaseInvoice."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedPurchaseInvoice.Next;
+        PostedPurchaseInvoice.Next();
         PostedPurchaseInvoice."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        PostedPurchaseInvoice.Trap;
-        PostedPurchaseInvoices."Amount Including VAT".DrillDown;
+        PostedPurchaseInvoice.Trap();
+        PostedPurchaseInvoices."Amount Including VAT".DrillDown();
         PostedPurchaseInvoice."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedPurchaseInvoice.Next;
+        PostedPurchaseInvoice.Next();
         PostedPurchaseInvoice."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedPurchaseInvoice.Close;
+        PostedPurchaseInvoice.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        DetailedVendorLedgEntries.Trap;
-        PostedPurchaseInvoices."Remaining Amount".DrillDown;
-        DetailedVendorLedgEntries.Close;
+        DetailedVendorLedgEntries.Trap();
+        PostedPurchaseInvoices."Remaining Amount".DrillDown();
+        DetailedVendorLedgEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        VendorLedgerEntries.Trap;
-        PostedPurchaseInvoices.Closed.DrillDown;
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Trap();
+        PostedPurchaseInvoices.Closed.DrillDown();
+        VendorLedgerEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseInvoices.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
     end;
 
@@ -182,40 +185,155 @@ codeunit 134348 "UT Page Actions & Controls - 2"
     begin
         // [FEATURE] [Purchases] [Credit Memo]
         // [SCENARIO 315881]"Amount", "Amount Incl. VAT", "Remaining Amount" and "Closed" drilldown is possible on "Posted Purchase Credit Memos" page
-        Initialize;
+        Initialize();
 
         for Index := 1 to ArrayLen(PostedDocumentNo) do
             PostedDocumentNo[Index] := PostPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo");
 
-        PostedPurchaseCreditMemos.OpenView;
+        PostedPurchaseCreditMemos.OpenView();
         PostedPurchaseCreditMemos.FILTER.SetFilter("No.", GetDocNofilter(PostedDocumentNo));
-        PostedPurchaseCreditMemos.Next;
+        PostedPurchaseCreditMemos.Next();
 
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseCreditMemos.Amount.DrillDown;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseCreditMemos.Amount.DrillDown();
         PostedPurchaseCreditMemo."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedPurchaseCreditMemo.Next;
+        PostedPurchaseCreditMemo.Next();
         PostedPurchaseCreditMemo."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseCreditMemos."Amount Including VAT".DrillDown;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseCreditMemos."Amount Including VAT".DrillDown();
         PostedPurchaseCreditMemo."No.".AssertEquals(PostedDocumentNo[2]);
-        PostedPurchaseCreditMemo.Next;
+        PostedPurchaseCreditMemo.Next();
         PostedPurchaseCreditMemo."No.".AssertEquals(PostedDocumentNo[1]);
-        PostedPurchaseCreditMemo.Close;
+        PostedPurchaseCreditMemo.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        DetailedVendorLedgEntries.Trap;
-        PostedPurchaseCreditMemos."Remaining Amount".DrillDown;
-        DetailedVendorLedgEntries.Close;
+        DetailedVendorLedgEntries.Trap();
+        PostedPurchaseCreditMemos."Remaining Amount".DrillDown();
+        DetailedVendorLedgEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
 
-        VendorLedgerEntries.Trap;
-        PostedPurchaseCreditMemos.Paid.DrillDown;
-        VendorLedgerEntries.Close;
+        VendorLedgerEntries.Trap();
+        PostedPurchaseCreditMemos.Paid.DrillDown();
+        VendorLedgerEntries.Close();
         Assert.AreEqual(GetDocNofilter(PostedDocumentNo), PostedPurchaseCreditMemos.FILTER.GetFilter("No."), FilterHasBeenChangedErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SepaSetupFieldSEPANonEuroExport()
+    var
+        GeneralLedgerSetup: TestPage "General Ledger Setup";
+    begin
+        // [FEATURE] [SEPA]
+        // [SCENARIO 327227] On page General Ledger Setup field "SEPANonEuroExport" is visible and editable.
+        Initialize();
+
+        GeneralLedgerSetup.OpenEdit();
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPANonEuroExport.Visible,
+          StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPANonEuroExport.Editable,
+          StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SepaSetupFieldSEPANonEuroExportSaas()
+    var
+        GeneralLedgerSetup: TestPage "General Ledger Setup";
+    begin
+        // [FEATURE] [SEPA]
+        // [SCENARIO 327227] On page General Ledger Setup field "SEPANonEuroExport" is visible and editable.
+
+        Initialize();
+
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+
+        GeneralLedgerSetup.OpenEdit();
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPANonEuroExport.Visible,
+          StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPANonEuroExport.Editable,
+          StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPANonEuroExport.Caption));
+
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SepaSetupFieldSEPAExportWoBankAccData()
+    var
+        GeneralLedgerSetup: TestPage "General Ledger Setup";
+    begin
+        // [FEATURE] [SEPA]
+        // [SCENARIO 327227] On page General Ledger Setup field "SEPAExportWoBankAccData" is visible and editable.
+        Initialize();
+
+        GeneralLedgerSetup.OpenEdit();
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Visible,
+          StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Editable,
+          StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SepaSetupFieldSEPAExportWoBankAccDataSaas()
+    var
+        GeneralLedgerSetup: TestPage "General Ledger Setup";
+    begin
+        // [FEATURE] [SEPA]
+        // [SCENARIO 327227] On page General Ledger Setup field "SEPAExportWoBankAccData" is visible and editable.
+        Initialize();
+
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+
+        GeneralLedgerSetup.OpenEdit();
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Visible,
+          StrSubstNo(PageFieldVisibleErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
+        Assert.IsTrue(
+          GeneralLedgerSetup.SEPAExportWoBankAccData.Editable,
+          StrSubstNo(PageFieldEditableErr, GeneralLedgerSetup.SEPAExportWoBankAccData.Caption));
+
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoice_CustomerNo_Visible_OnPrem()
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 338236] "Customer No." field must be visible by default on Sales Invoice card page
+        Initialize();
+
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+        SalesInvoice.OpenView();
+        Assert.IsTrue(SalesInvoice."Sell-to Customer No.".Visible(), '');
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoice_CustomerNo_Visible_SaaS()
+    var
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [SCENARIO 338236] "Customer No." field must be visible by default on Sales Invoice card page
+        Initialize();
+
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+        SalesInvoice.OpenView();
+        Assert.IsTrue(SalesInvoice."Sell-to Customer No.".Visible(), '');
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure Initialize()

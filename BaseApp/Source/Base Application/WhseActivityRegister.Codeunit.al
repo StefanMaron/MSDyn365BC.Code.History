@@ -1724,19 +1724,20 @@ codeunit 7307 "Whse.-Activity-Register"
                 ReservationEntry.SetFilter("Item Tracking", '<>%1', ReservationEntry."Item Tracking"::None);
                 ReservationEntry.SetRange(Binding, ReservationEntry.Binding::"Order-to-Order");
 
-                if ReservationEntry.FindSet then begin
-                    if not IsConfirmed and GuiAllowed then
-                        if not Confirm(OrderToOrderBindingOnSalesLineQst) then
-                            Error(RegisterInterruptedErr);
-                    IsConfirmed := true;
-                    repeat
-                        ReservationEngineMgt.CancelReservation(ReservationEntry);
-                        ReservMgt.SetSalesLine(SalesLine);
-                        ReservMgt.SetItemTrackingHandling(1);
-                        ReservMgt.ClearSurplus;
-                    until ReservationEntry.Next = 0;
-                end;
-            until TempWhseActivLineToReserve.Next = 0;
+                if ReservationEntry.FindSet() then
+                    if not ReservMgt.ReservEntryPositiveTypeIsItemLedgerEntry(ReservationEntry."Entry No.") then begin
+                        if not IsConfirmed and GuiAllowed then
+                            if not Confirm(OrderToOrderBindingOnSalesLineQst) then
+                                Error(RegisterInterruptedErr);
+                        IsConfirmed := true;
+                        repeat
+                            ReservationEngineMgt.CancelReservation(ReservationEntry);
+                            ReservMgt.SetSalesLine(SalesLine);
+                            ReservMgt.SetItemTrackingHandling(1);
+                            ReservMgt.ClearSurplus();
+                        until ReservationEntry.Next() = 0;
+                    end;
+            until TempWhseActivLineToReserve.Next() = 0;
     end;
 
     local procedure CopyWhseActivityLineToReservBuf(var TempWhseActivLineToReserve: Record "Warehouse Activity Line" temporary; WhseActivLine: Record "Warehouse Activity Line")

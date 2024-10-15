@@ -82,6 +82,21 @@ page 746 "VAT Reports Configuration"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the name of the VAT statement.';
                 }
+                field("Post Settlement When Submitted"; "Post Settlement When Submitted")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the VAT Settlement report will be calculated and posted when the status of the VAT report is changed to Submitted.';
+                }
+                field("Disable Post Settlement Fields"; "Disable Post Settlement Fields")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the Starting Date, Ending Date, and Document No. fields on the VAT Settlement report are hidden when you open it from the VAT Report Request page.';
+                }
+                field("Disable Submit Action"; "Disable Submit Action")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies that the Submit action is hidden from the BAS Report page.';
+                }
             }
         }
     }

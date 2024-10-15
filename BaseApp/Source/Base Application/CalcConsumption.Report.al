@@ -133,6 +133,7 @@ report 5405 "Calc. Consumption"
         ProdOrderLine: Record "Prod. Order Line";
         ItemJnlLine: Record "Item Journal Line";
         LastItemJnlLine: Record "Item Journal Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         PostingDate: Date;
         CalcBasedOn: Option "Actual Output","Expected Output";
@@ -163,9 +164,9 @@ report 5405 "Calc. Consumption"
            (BinCode = ItemJnlLine."Bin Code")
         then begin
             if Item."Rounding Precision" > 0 then
-                ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + Round(QtyToPost, Item."Rounding Precision", '>'))
+                ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision"))
             else
-                ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + Round(QtyToPost, 0.00001));
+                ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundQty(QtyToPost));
             OnBeforeItemJnlLineModify(ItemJnlLine, "Prod. Order Component");
             ItemJnlLine.Modify;
         end else begin
@@ -184,9 +185,9 @@ report 5405 "Calc. Consumption"
             ItemJnlLine.Validate("Unit of Measure Code", "Prod. Order Component"."Unit of Measure Code");
             ItemJnlLine.Description := "Prod. Order Component".Description;
             if Item."Rounding Precision" > 0 then
-                ItemJnlLine.Validate(Quantity, Round(QtyToPost, Item."Rounding Precision", '>'))
+                ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision"))
             else
-                ItemJnlLine.Validate(Quantity, Round(QtyToPost, 0.00001));
+                ItemJnlLine.Validate(Quantity, UOMMgt.RoundQty(QtyToPost));
             ItemJnlLine."Variant Code" := "Prod. Order Component"."Variant Code";
             ItemJnlLine.Validate("Location Code", LocationCode);
             if BinCode <> '' then

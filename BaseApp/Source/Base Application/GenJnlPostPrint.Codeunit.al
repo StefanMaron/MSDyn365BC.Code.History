@@ -78,6 +78,8 @@ codeunit 232 "Gen. Jnl.-Post+Print"
             end else begin
                 CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post Batch", GenJnlLine);
                 Commit;
+                OnAfterPostJournalBatch(GenJnlLine);
+
                 RecRefToPrint.GetTable(GenJnlLine);
                 BatchPostingPrintMgt.PrintJournal(RecRefToPrint);
                 BatchPostingPrintMgt.PrintOtherDocuments(GenJnlLine, PrintWHT, false);
@@ -102,6 +104,11 @@ codeunit 232 "Gen. Jnl.-Post+Print"
                 "Line No." := 1;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostJournalBatch(var GenJournalLine: Record "Gen. Journal Line");
+    begin
     end;
 
     [IntegrationEvent(false, false)]

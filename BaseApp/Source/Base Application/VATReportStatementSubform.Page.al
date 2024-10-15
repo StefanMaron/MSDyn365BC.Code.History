@@ -42,8 +42,11 @@ page 742 "VAT Report Statement Subform"
                     ToolTip = 'Specifies the amount of the entry in the report statement.';
 
                     trigger OnDrillDown()
+                    var
+                        BASManagement: Codeunit "BAS Management";
                     begin
-                        BASEntryDrillDown;
+                        if BASManagement.VATStatementRepLineChangesAllowed(Rec) then
+                            BASEntryDrillDown;
                     end;
 
                     trigger OnValidate()
@@ -103,7 +106,10 @@ page 742 "VAT Report Statement Subform"
                             VATEntry.SetRange("Tax Jurisdiction Code", VATStatementLine2."Tax Jurisdiction Code");
                             VATEntry.SetRange("Use Tax", VATStatementLine2."Use Tax");
                             VATEntry.SetRange("BAS Adjustment", VATStatementLine2."BAS Adjustment");
-                            VATEntry.SetRange("Posting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
+                            if VATReportHeader."Include Prev. Open Entries" then
+                                VATEntry.SetRange("Posting Date", 0D, VATReportHeader."End Date")
+                            else
+                                VATEntry.SetRange("Posting Date", VATReportHeader."Start Date", VATReportHeader."End Date");
                             VATEntry.SetRange(Closed, false);
                             if VATEntry.FindSet then
                                 repeat

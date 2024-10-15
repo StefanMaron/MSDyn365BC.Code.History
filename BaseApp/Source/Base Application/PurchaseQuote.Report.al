@@ -266,6 +266,9 @@ report 404 "Purchase - Quote"
                         column(VendorItemNo_PurchLine; "Purchase Line"."Vendor Item No.")
                         {
                         }
+                        column(LineNo_PurchLine; "Purchase Line"."Line No.")
+                        {
+                        }
                         column(ExpectedDate1Caption; ExpectedDate1CaptionLbl)
                         {
                         }

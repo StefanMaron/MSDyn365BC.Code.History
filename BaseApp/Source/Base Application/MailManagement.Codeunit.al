@@ -173,8 +173,15 @@ codeunit 9520 "Mail Management"
         TmpRecipients: Text;
         IsHandled: Boolean;
     begin
+        // this event is obsolete
         IsHandled := false;
         OnBeforeCheckValidEmailAddress(Recipients, IsHandled);
+        if IsHandled then
+            exit;
+
+        // please use this event
+        IsHandled := false;
+        OnBeforeCheckValidEmailAddresses(Recipients, IsHandled);
         if IsHandled then
             exit;
 
@@ -194,7 +201,13 @@ codeunit 9520 "Mail Management"
     var
         i: Integer;
         NoOfAtSigns: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckValidEmailAddr(EmailAddress, IsHandled);
+        if IsHandled then
+            exit;
+
         EmailAddress := DelChr(EmailAddress, '<>');
 
         if EmailAddress = '' then
@@ -389,6 +402,8 @@ codeunit 9520 "Mail Management"
             exit;
 
         DownloadPdfAttachment(TempEmailItem);
+
+        OnAfterSendMailOrDownload(TempEmailItem, MailSent);
     end;
 
     procedure DownloadPdfAttachment(TempEmailItem: Record "Email Item" temporary)
@@ -603,8 +618,19 @@ codeunit 9520 "Mail Management"
     begin
     end;
 
+    [Obsolete('Replaced by event OnBeforeCheckValidEmailAddresses')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValidEmailAddress(Recipients: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckValidEmailAddresses(Recipients: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckValidEmailAddr(EmailAddress: Text; var IsHandled: Boolean)
     begin
     end;
 
@@ -640,6 +666,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSenderEmailAddress(var EmailItem: Record "Email Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; var MailSent: Boolean)
     begin
     end;
 }
