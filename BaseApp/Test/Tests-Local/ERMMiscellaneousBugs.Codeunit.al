@@ -1566,6 +1566,98 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('VendorAgingMatrixModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure VendorAgingMatrixPeriodBalance()
+    var
+        Vendor: Record Vendor;
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        VendorAging: TestPage "Vendor Aging";
+        AmountType: Option "Period Balance","Balance at Date";
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 389493] "Vendor Aging Matrix" shows sum of ledger entries for a period when "Amount Type" is set to "Period Balance".
+        Initialize();
+
+        // [GIVEN] Vendor with 2 detailed ledger entries with "Initial Due Date" = "15.01.21"/"17.01.21", "Amount" = "10"/"15".
+        LibraryPurchase.CreateVendor(Vendor);
+        MockVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", WorkDate(), WorkDate());
+        Amount[1] := VendorLedgerEntry.Amount;
+        MockDtldVendorLedgerEntry(VendorLedgerEntry."Entry No.", Amount[1]);
+        Amount[2] := 0;
+        MockVendorLedgerEntry(VendorLedgerEntry, Vendor."No.", WorkDate(), WorkDate() + 2);
+        Amount[3] := VendorLedgerEntry.Amount;
+        MockDtldVendorLedgerEntry(VendorLedgerEntry."Entry No.", Amount[3]);
+
+        // [GIVEN] "Vendor Aging" page is opened with "Date Filter" starting on "15.01.21", "Amount Type" set to "Period Balance".
+        Vendor.SetRange("Date Filter", WorkDate, WorkDate + 30);
+        VendorAging.Trap();
+        PAGE.Run(PAGE::"Vendor Aging", Vendor);
+        VendorAging.AmountType.SetValue(AmountType::"Period Balance");
+
+        // [WHEN] "Show matrix" action on page "Vendor Aging" is used.
+        LibraryVariableStorage.Enqueue(Vendor."No.");
+        VendorAging."&Show Matrix".Invoke();
+
+        // [THEN] In opened matrix page:
+        // [THEN] Field1 Caption = "15.01.21", Value = "10";
+        // [THEN] Field2 Caption = "16.01.21", Value = "0";
+        // [THEN] Field3 Caption = "17.01.21", Value = "15".
+        for i := 1 to 3 do begin
+            Assert.AreEqual(Format(WorkDate() + i - 1), LibraryVariableStorage.DequeueText(), '');
+            Assert.AreEqual(Amount[i], LibraryVariableStorage.DequeueDecimal(), '');
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CustomerAgingMatrixModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CustomerAgingMatrixPeriodBalance()
+    var
+        Customer: Record Customer;
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        CustomerAging: TestPage "Customer Aging";
+        AmountType: Option "Period Balance","Balance at Date";
+        Amount: array[3] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 389493] "Customer Aging Matrix" shows sum of ledger entries for a period when "Amount Type" is set to "Period Balance".
+        Initialize();
+
+        // [GIVEN] Customer with 2 detailed ledger entries with "Initial Due Date" = "15.01.21"/"17.01.21", "Amount" = "10"/"15".
+        LibrarySales.CreateCustomer(Customer);
+        MockDtldCustomerLedgerEntry(DetailedCustLedgEntry, Customer."No.", WorkDate());
+        Amount[1] := DetailedCustLedgEntry.Amount;
+        Amount[2] := 0;
+        MockDtldCustomerLedgerEntry(DetailedCustLedgEntry, Customer."No.", WorkDate() + 2);
+        Amount[3] := DetailedCustLedgEntry.Amount;
+
+        // [GIVEN] "Customer Aging" page is opened with "Date Filter" starting on "15.01.21", "Amount Type" set to "Period Balance".
+        Customer.SetRange("Date Filter", WorkDate(), WorkDate() + 30);
+        CustomerAging.Trap();
+        PAGE.Run(PAGE::"Customer Aging", Customer);
+        CustomerAging.AmountType.SetValue(AmountType::"Period Balance");
+
+        // [WHEN] "Show matrix" action on page "Customer Aging" is used.
+        LibraryVariableStorage.Enqueue(Customer."No.");
+        CustomerAging."&Show Matrix".Invoke();
+
+        // [THEN] In opened matrix page:
+        // [THEN] Field1 Caption = "15.01.21", Value = "10";
+        // [THEN] Field2 Caption = "16.01.21", Value = "0";
+        // [THEN] Field3 Caption = "17.01.21", Value = "15".
+        for i := 1 to 3 do begin
+            Assert.AreEqual(Format(WorkDate() + i - 1), LibraryVariableStorage.DequeueText(), '');
+            Assert.AreEqual(Amount[i], LibraryVariableStorage.DequeueDecimal(), '');
+        end;
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -2409,6 +2501,54 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         SuggestAndVerifyVATReportLineCount(DocumentNo, 1);
     end;
 
+    local procedure MockDtldCustomerLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; CustomerNo: Code[20]; DueDate: Date)
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        LibrarySales.MockCustLedgerEntryWithAmount(CustLedgerEntry, CustomerNo);
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Initial Entry");
+        DetailedCustLedgEntry.FindFirst();
+        DetailedCustLedgEntry."Initial Entry Due Date" := DueDate;
+        DetailedCustLedgEntry.Modify();
+    end;
+
+    local procedure MockVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; PostingDate: Date; DueDate: Date)
+    begin
+        with VendorLedgerEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
+            "Vendor No." := VendorNo;
+            "Posting Date" := PostingDate;
+            "Due Date" := DueDate;
+            Amount := LibraryRandom.RandDecInDecimalRange(10, 20, 2);
+            "Amount (LCY)" := Amount;
+            Open := true;
+            Insert();
+        end;
+    end;
+
+    local procedure MockDtldVendorLedgerEntry(VendorLedgerEntryNo: Integer; EntryAmount: Decimal): Integer
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
+    begin
+        with DetailedVendorLedgEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
+            VendorLedgerEntry.Get(VendorLedgerEntryNo);
+            "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+            "Vendor No." := VendorLedgerEntry."Vendor No.";
+            "Entry Type" := "Entry Type"::"Initial Entry";
+            Amount := EntryAmount;
+            "Amount (LCY)" := EntryAmount;
+            "Posting Date" := VendorLedgerEntry."Posting Date";
+            "Initial Entry Due Date" := VendorLedgerEntry."Due Date";
+            Insert();
+            exit("Entry No.");
+        end;
+    end;
+
     local procedure SuggestAndVerifyVATReportLineCount(DocumentNo: Code[20]; ExpectedCount: Integer)
     var
         VATReportLine: Record "VAT Report Line";
@@ -2957,6 +3097,32 @@ codeunit 144105 "ERM Miscellaneous Bugs"
     procedure ShowComputedWithholdContributionModalPageHandler(var ShowComputedWithhContrib: TestPage "Show Computed Withh. Contrib.")
     begin
         ShowComputedWithhContrib.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CustomerAgingMatrixModalPageHandler(var CustomerAgingMatrix: TestPage "Customer Aging Matrix")
+    begin
+        CustomerAgingMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field1.Caption);
+        LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field1.Value());
+        LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field2.Caption);
+        LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field2.Value());
+        LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field3.Caption);
+        LibraryVariableStorage.Enqueue(CustomerAgingMatrix.Field3.Value());
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VendorAgingMatrixModalPageHandler(var VendorAgingMatrix: TestPage "Vendor Aging Matrix")
+    begin
+        VendorAgingMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        LibraryVariableStorage.Enqueue(VendorAgingMatrix.Field1.Caption);
+        LibraryVariableStorage.Enqueue(VendorAgingMatrix.Field1.Value());
+        LibraryVariableStorage.Enqueue(VendorAgingMatrix.Field2.Caption);
+        LibraryVariableStorage.Enqueue(VendorAgingMatrix.Field2.Value());
+        LibraryVariableStorage.Enqueue(VendorAgingMatrix.Field3.Caption);
+        LibraryVariableStorage.Enqueue(VendorAgingMatrix.Field3.Value());
     end;
 
     [RequestPageHandler]

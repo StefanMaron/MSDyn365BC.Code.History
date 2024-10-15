@@ -33,6 +33,7 @@ codeunit 144012 "IT - VAT Reporting - Export"
         LibraryITDatifattura: Codeunit "Library - IT Datifattura";
         LibraryITLocalization: Codeunit "Library - IT Localization";
         LibraryMarketing: Codeunit "Library - Marketing";
+        LibraryInventory: Codeunit "Library - Inventory";
         isInitialized: Boolean;
         ConstFormat: Option AN,CB,CB12,CF,CN,PI,DA,DT,DN,D4,D6,NP,NU,NUp,Nx,PC,PR,QU,PN;
         NoVerifierMatchedErr: Label 'No verifier function matches the generated VAT report.';
@@ -2098,6 +2099,93 @@ codeunit 144012 "IT - VAT Reporting - Export"
         Assert.AreEqual(2, LibraryXMLRead.GetNodesCount('DatiRiepilogo'), DatiFatturaForOneDocumentWithMultipleLinesErr);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportDatiFatturaForSalesInvoiceWithNonDefaultFatturaDocType()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATReportHeader: Record "VAT Report Header";
+        VATReportLine: Record "VAT Report Line";
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 394014] TipoDocumento XML node has a value of Fattura Document Type of the posted sales invoice in the exported DatiFattura VAT Report
+
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate());
+
+        // [GIVEN] Posted sales invoice with "Fattura Document Type" = "TD26"
+        CreateCustomer_Datifattura(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Fattura Document Type", LibraryITLocalization.GetRandomFatturaDocType(''));
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] VAT Report with "VAT Report Config. Code" = Datifattura
+        LibraryVATUtils.CreateVATReport(
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::Datifattura, PostingDate, PostingDate);
+
+        // [WHEN] Export VAT Report.
+        ExportFile_Datifattura(VATReportHeader);
+
+        // [THEN] Exported DatiFattura VAT Report has TipoDocumento xml node with value "TD26"
+        InitXMLReaderFile();
+        LibraryXPathXMLReader.VerifyNodeValue(
+          'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiGenerali/TipoDocumento', SalesHeader."Fattura Document Type");
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportDatiFatturaAfterChangingFatturaDocTypeInVATReportLine()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATReportHeader: Record "VAT Report Header";
+        VATReportLine: Record "VAT Report Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PostingDate: Date;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 394014] TipoDocumento XML node has a value of Fattura Document Type of the VAT Report Line in the exported DatiFattura VAT Report
+
+        Initialize();
+        PostingDate := CalcDate('<CM+1Y>', GetPostingDate);
+
+        // [GIVEN] Posted sales invoice with default "Fattura Document Type" = "TD01"
+        CreateCustomer_Datifattura(Customer);
+        LibraryERM.CreateVATPostingSetupWithAccounts(
+          VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(50));
+        CreateAndPostSalesDocumentWithVATSetup(
+          SalesHeader, SalesLine, VATPostingSetup, SalesHeader."Document Type"::Invoice,
+          Customer."No.", LibraryRandom.RandDec(1000, 2), PostingDate, true, true);
+
+        // [GIVEN] VAT Report with "VAT Report Config. Code" = Datifattura
+        LibraryVATUtils.CreateVATReport(
+          VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::Datifattura, PostingDate, PostingDate);
+
+        // [GIVEN] "Fattura Document Type" is changed in VAT Report Line to "TD26"
+        VATReportLine.Validate("Fattura Document Type", LibraryITLocalization.GetRandomFatturaDocType(''));
+        VATReportLine.Modify(true);
+
+        // [WHEN] Export VAT Report
+        ExportFile_Datifattura(VATReportHeader);
+
+        // [THEN] Exported DatiFattura VAT Report has TipoDocumento xml node with value "TD26"
+        InitXMLReaderFile();
+        LibraryXPathXMLReader.VerifyNodeValue(
+          'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiGenerali/TipoDocumento', VATReportLine."Fattura Document Type");
+    end;
+    
     local procedure Initialize()
     var
         NameValueBuffer: Record "Name/Value Buffer";

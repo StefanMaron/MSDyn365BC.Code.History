@@ -18,10 +18,11 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
         UnknownErr: Label 'Unknown error.';
         AllowPostingToMainAssetsMsg: Label '%1 %2 = %3 is a %4. %5 must be %6 in %7.', Comment = '.';
-        DisposalMustNotBePositiveMsg: Label 'Disposal must not be negative on %1 for %2 %3 = %4 in %5 = %6.', Comment = '.';
+        DisposalMustNotBePositiveMsg: Label 'Disposal must not be positive on %1 for %2 %3 = %4 in %5 = %6.', Comment = '.';
         AmountErr: Label '%1 must be %2 in %3.', Comment = '.';
         ReverseErr: Label 'You cannot reverse the entry %1 because it''s an %2 Document.', Comment = '.';
         EndingDateErr: Label 'You must specify an Ending Date that is later than the Starting Date.';
@@ -625,7 +626,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
 
         // 3. Verify: Verify that the Amount is Posted in FA Ledger Entry and G/L Entry correctly.
         FALedgerEntry.SetRange("FA Posting Type", FALedgerEntry."FA Posting Type"::"Proceeds on Disposal");
-        VerifyAmountInFALedgerEntry(FALedgerEntry, FixedAsset."No.", -GenJournalLine.Amount);
+        VerifyAmountInFALedgerEntry(FALedgerEntry, FixedAsset."No.", GenJournalLine.Amount);
         VerifyAmountInGLEntry(FixedAsset."No.", GenJournalLine.Amount);
     end;
 
@@ -1322,6 +1323,52 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         Assert.ExpectedError(OnlyOneDefaultDeprBookErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestFACardSaveSimpleBookOnValidateNewFields()
+    var
+        FixedAsset: Record "Fixed Asset";
+        FAClass: Record "FA Class";
+        FASubclass: Record "FA Subclass";
+        FAPostingGroup: Record "FA Posting Group";
+        FASetup: Record "FA Setup";
+        FADepreciationBook: Record "FA Depreciation Book";
+        FixedAssetCard: TestPage "Fixed Asset Card";
+        FirstUserDefinedDate: Date;
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 389105] Fixed Asset Card has depreciation book fields "First User Defined date" (editable) and "Disposed of" (not editable) exposed
+        Initialize();
+
+        // [GIVEN] Check visibilites for application area "Fixed Assets"
+        LibraryApplicationArea.EnableFixedAssetsSetup();
+
+        // [GIVEN] Fixed Asset Setup with Posting Group, Class and Subclass
+        FASetup.Get();
+        CreateFAWithClassPostingGroupAndSubclass(FAPostingGroup, FAClass, FASubclass, FixedAsset);
+        CreateFADepreciationBookEmpty(FADepreciationBook, FixedAsset."No.", FASetup."Default Depr. Book", FAPostingGroup.Code);
+
+        // [GIVEN] Fixed Asset Card is loaded for the fixed asset. Depr method = User-Defined
+        FixedAssetCard.OpenEdit();
+        FixedAssetCard.Filter.SetFilter("No.", FixedAsset."No.");
+        FixedAssetCard.DepreciationMethod.SetValue(FADepreciationBook."Depreciation Method"::"User-Defined");
+
+        // [WHEN] Change "First User Defined date" field from Fixed Asset Card
+        FirstUserDefinedDate := LibraryRandom.RandDate(10);
+        FixedAssetCard.FirstUserDefinedDeprDate.SetValue(FirstUserDefinedDate);
+
+        // [THEN] The value gets populated in the FA Depreciation Book
+        FADepreciationBook.Get(FixedAsset."No.", FASetup."Default Depr. Book");
+        FADepreciationBook.TestField("First User-Defined Depr. Date", FirstUserDefinedDate);
+
+        // [THEN] "Disposed Of" field is visible on the card and equal to false
+        FixedAssetCard.DisposedOf.AssertEquals(false);
+
+        // Clean up.
+        FixedAssetCard.Close();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1338,6 +1385,29 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets GL Journal");
+    end;
+
+    local procedure CreateFAWithClassPostingGroupAndSubclass(var FAPostingGroup: Record "FA Posting Group"; var FAClass: Record "FA Class"; var FASubclass: Record "FA Subclass"; var FixedAsset: Record "Fixed Asset")
+    begin
+        CreateRelatedFAClassFASubclassFAPostingGroup(FAClass, FASubclass, FAPostingGroup);
+        LibraryFixedAsset.CreateFixedAsset(FixedAsset);
+    end;
+
+    local procedure CreateRelatedFAClassFASubclassFAPostingGroup(var FAClass: Record "FA Class"; var FASubclass: Record "FA Subclass"; var FAPostingGroup: Record "FA Posting Group")
+    begin
+        LibraryFixedAsset.CreateFAPostingGroup(FAPostingGroup);
+        LibraryFixedAsset.CreateFAClass(FAClass);
+        LibraryFixedAsset.CreateFASubclassDetailed(FASubclass, FAClass.Code, FAPostingGroup.Code);
+    end;
+
+    local procedure CreateFADepreciationBookEmpty(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; DepreciationBookCode: Code[10]; PostingGroupCode: Code[20])
+    begin
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
+        FADepreciationBook."FA Posting Group" := PostingGroupCode;
+        FADepreciationBook."Depreciation Method" := FADepreciationBook."Depreciation Method"::"Declining-Balance 1";
+        FADepreciationBook."Depreciation Starting Date" := 0D;
+        FADepreciationBook."Depreciation Ending Date" := 0D;
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure CreateFAWithAcqAndDepreciation(var FADepreciationBook: Record "FA Depreciation Book"; AcquisitionAmount: Decimal): Decimal

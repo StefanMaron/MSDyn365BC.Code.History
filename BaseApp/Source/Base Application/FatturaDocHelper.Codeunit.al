@@ -118,8 +118,8 @@ codeunit 12184 "Fattura Doc. Helper"
 
         TempFatturaHeader."Fattura Stamp" := HeaderRecRef.Field(FatturaStampFieldNo).Value;
         TempFatturaHeader."Fattura Stamp Amount" := HeaderRecRef.Field(FatturaStampAmountFieldNo).Value;
-        TempFatturaHeader."Fattura Project Code" := HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value;
-        TempFatturaHeader."Fattura Tender Code" := HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value;
+        TempFatturaHeader."Fattura Project Code" := HeaderRecRef.Field(FatturaProjectCodeFieldNo).Value;
+        TempFatturaHeader."Fattura Tender Code" := HeaderRecRef.Field(FatturaTenderCodeFieldNo).Value;
         TempFatturaHeader."Transmission Type" := GetTransmissionType(Customer);
 
         TempFatturaHeader."Progressive No." := GetNextProgressiveNo;
@@ -415,11 +415,9 @@ codeunit 12184 "Fattura Doc. Helper"
             ErrorMessage.LogIfEmpty(
               Customer, Customer.FieldNo("First Name"), ErrorMessage."Message Type"::Error);
             ErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error);
-        end else begin
-            ErrorMessage.LogIfEmpty(Customer, Customer.FieldNo("VAT Registration No."), ErrorMessage."Message Type"::Error);
+        end else
             ErrorMessage.LogIfEmpty(
               Customer, Customer.FieldNo(Name), ErrorMessage."Message Type"::Error);
-        end;
 
         if TaxRepresentativeVendor.Get(CompanyInformation."Tax Representative No.") then begin
             ErrorMessage.LogIfEmpty(
@@ -448,7 +446,7 @@ codeunit 12184 "Fattura Doc. Helper"
     local procedure CheckCompanyInformationFields(var ErrorMessage: Record "Error Message")
     begin
         ErrorMessage.LogIfLengthExceeded(
-          CompanyInformation, CompanyInformation.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error, 11);
+          CompanyInformation, CompanyInformation.FieldNo("Fiscal Code"), ErrorMessage."Message Type"::Error, 16);
         ErrorMessage.LogIfEmpty(
           CompanyInformation, CompanyInformation.FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
         ErrorMessage.LogIfEmpty(
@@ -903,6 +901,8 @@ codeunit 12184 "Fattura Doc. Helper"
                     end;
                     InsertShipmentBuffer(TempSalesShipmentBuffer, i, ShptNo, ShipmentDate, IsSplitPaymentLine(LineRecRef));
                 end;
+                if Format(LineRecRef.Field(LineTypeFieldNo).Value) = 'G/L Account' then
+                    InsertShipmentBuffer(TempSalesShipmentBuffer, i, '', TempFatturaHeader."Posting Date", IsSplitPaymentLine(LineRecRef));
                 if TempFatturaHeader."Order No." <> '' then begin
                     TempLineNumberBuffer.Init();
                     Evaluate(TempLineNumberBuffer."Old Line Number", Format(LineRecRef.Field(LineNoFieldNo).Value));
@@ -1484,6 +1484,17 @@ codeunit 12184 "Fattura Doc. Helper"
     local procedure AssignFatturaDocTypeOnBeforeInsertSalesInvoiceHeader(var SalesInvoiceHeader: Record "Sales Header"; QuoteSalesHeader: Record "Sales Header")
     begin
         SalesInvoiceHeader."Fattura Document Type" := QuoteSalesHeader."Fattura Document Type";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Correct Posted Sales Invoice", 'OnAfterCreateCopyDocument', '', false, false)]
+    local procedure AssignFatturaDocTypeForCorrectiveCreditMemo(var SalesHeader: Record "Sales Header"; var SalesInvoiceHeader: Record "Sales Invoice Header")
+    var
+        CrMemoCode: Code[20];
+    begin
+        CrMemoCode := GetCrMemoCode();
+        if CrMemoCode = '' then
+            exit;
+        SalesHeader."Fattura Document Type" := CrMemoCode;
     end;
 }
 

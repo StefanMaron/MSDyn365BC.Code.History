@@ -75,6 +75,7 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the name of the item.';
+                    Caption = 'Item Name';
                 }
                 field("Service Tariff No."; "Service Tariff No.")
                 {
@@ -109,7 +110,8 @@
                 field("Item Description"; "Item Description")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies a description of the item.';
+                    ToolTip = 'Specifies the name of the tariff no. that is associated with the item.';
+                    Caption = 'Tariff No. Description';
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
@@ -121,6 +123,27 @@
                         if PAGE.RunModal(10, Country) = ACTION::LookupOK then
                             "Country/Region Code" := Country."Intrastat Code";
                     end;
+                }
+                field("Partner VAT ID"; "Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                    Visible = false;
+                }
+                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the country/region code of the place of origin of the item.';
+                }
+                field("Country/Region of Payment Code"; "Country/Region of Payment Code")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the country/region of the payment method that is associated with the Intrastat journal.';
+                }
+                field("Area"; Area)
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -147,21 +170,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the group code that corresponds with the Intrastat journal.';
-                }
-                field("Country/Region of Origin Code"; "Country/Region of Origin Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the country/region code of the place of origin of the item.';
-                }
-                field("Country/Region of Payment Code"; "Country/Region of Payment Code")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the country/region of the payment method that is associated with the Intrastat journal.';
-                }
-                field("Area"; Area)
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
                 }
                 field("Supplementary Units"; "Supplementary Units")
                 {
@@ -245,12 +253,6 @@
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the progressive number.';
-                }
-                field("Partner VAT ID"; "Partner VAT ID")
-                {
-                    ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the counter party''s VAT number.';
-                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {

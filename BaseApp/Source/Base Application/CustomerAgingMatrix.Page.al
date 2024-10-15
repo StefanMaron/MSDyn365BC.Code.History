@@ -576,18 +576,22 @@ page 35461 "Customer Aging Matrix"
         SetDateFilter(MATRIX_ColumnOrdinal);
         DetCustLedgEntry.SetFilter("Customer No.", '%1', "No.");
         DetCustLedgEntry.SetFilter("Initial Entry Due Date", GetFilter("Date Filter"));
-        DetCustLedgEntry.SetFilter("Initial Entry Global Dim. 1", GetFilter("Global Dimension 1 Filter"));
-        DetCustLedgEntry.SetFilter("Initial Entry Global Dim. 2", GetFilter("Global Dimension 2 Filter"));
+        DetCustLedgEntry.SetFilter("Initial Entry Global Dim. 1", GlobalDim1Filter);
+        DetCustLedgEntry.SetFilter("Initial Entry Global Dim. 2", GlobalDim2Filter);
         PAGE.RunModal(0, DetCustLedgEntry, DetCustLedgEntry."Amount (LCY)");
     end;
 
     local procedure MATRIX_OnAfterGetRecord(MATRIX_ColumnOrdinal: Integer)
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         SetDateFilter(MATRIX_ColumnOrdinal);
-        SetFilter("Global Dimension 1 Filter", GlobalDim1Filter);
-        SetFilter("Global Dimension 2 Filter", GlobalDim2Filter);
-        CalcFields("Balance Due (LCY)");
-        MATRIX_CellData[MATRIX_ColumnOrdinal] := "Balance Due (LCY)";
+        DetailedCustLedgEntry.SetFilter("Customer No.", '%1', "No.");
+        DetailedCustLedgEntry.SetFilter("Initial Entry Due Date", GetFilter("Date Filter"));
+        DetailedCustLedgEntry.SetFilter("Initial Entry Global Dim. 1", GlobalDim1Filter);
+        DetailedCustLedgEntry.SetFilter("Initial Entry Global Dim. 2", GlobalDim2Filter);
+        DetailedCustLedgEntry.CalcSums("Amount (LCY)");
+        MATRIX_CellData[MATRIX_ColumnOrdinal] := DetailedCustLedgEntry."Amount (LCY)";
     end;
 
     local procedure MATRIXCellData1OnFormat(Text: Text[1024])

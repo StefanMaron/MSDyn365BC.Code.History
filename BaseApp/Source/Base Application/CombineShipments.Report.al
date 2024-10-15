@@ -406,8 +406,7 @@ report 295 "Combine Shipments"
             Validate("Bank Account", SalesOrderHeader."Bank Account");
             Validate("Operation Type", OperationType.Code);
             Validate("Activity Code", SalesOrderHeader."Activity Code");
-            if "Bill-to Customer No." <> "Sell-to Customer No." then
-                Validate("Bill-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
+            Validate("Bill-to Customer No.", SalesOrderHeader."Bill-to Customer No.");
             Validate("Posting Date", PostingDateReq);
             Validate("Document Date", DocDateReq);
             Validate("Currency Code", SalesOrderHeader."Currency Code");

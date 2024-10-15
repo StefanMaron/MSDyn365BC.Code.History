@@ -7579,7 +7579,7 @@ Fields!DueDate_SalesInvHdr.Value, 2)</Hidden>
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!AmountIncludingVATAmountFormat.Value</Format>
+                                                      <Format>=Fields!LineAmount_SalesInvLineFormat.Value</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

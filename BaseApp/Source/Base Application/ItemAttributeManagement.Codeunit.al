@@ -134,7 +134,9 @@ codeunit 7500 "Item Attribute Management"
     procedure GetItemNoFilterText(var TempFilteredItem: Record Item temporary; var ParameterCount: Integer) FilterText: Text
     var
         NextItem: Record Item;
-        PreviousNo: Code[20];
+        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+        PreviousNo: Text;
+        ItemNo: Text;
         FilterRangeStarted: Boolean;
     begin
         if not TempFilteredItem.FindSet then begin
@@ -143,8 +145,10 @@ codeunit 7500 "Item Attribute Management"
         end;
 
         repeat
+            ItemNo := SelectionFilterManagement.AddQuotes(TempFilteredItem."No.");
+
             if FilterText = '' then begin
-                FilterText := TempFilteredItem."No.";
+                FilterText := ItemNo;
                 NextItem."No." := TempFilteredItem."No.";
                 ParameterCount += 1;
             end else begin
@@ -156,17 +160,17 @@ codeunit 7500 "Item Attribute Management"
                     FilterRangeStarted := true;
                 end else begin
                     if not FilterRangeStarted then begin
-                        FilterText += StrSubstNo('|%1', TempFilteredItem."No.");
+                        FilterText += StrSubstNo('|%1', ItemNo);
                         ParameterCount += 1;
                     end else begin
-                        FilterText += StrSubstNo('%1|%2', PreviousNo, TempFilteredItem."No.");
+                        FilterText += StrSubstNo('%1|%2', PreviousNo, ItemNo);
                         FilterRangeStarted := false;
                         ParameterCount += 2;
                     end;
                     NextItem := TempFilteredItem;
                 end;
             end;
-            PreviousNo := TempFilteredItem."No.";
+            PreviousNo := ItemNo;
         until TempFilteredItem.Next = 0;
 
         // close range if needed

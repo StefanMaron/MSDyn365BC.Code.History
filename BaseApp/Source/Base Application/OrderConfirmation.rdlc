@@ -2971,6 +2971,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -3406,6 +3407,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -3898,7 +3900,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
-                                                      <Format>=Fields!VATAmountLineVATAmountFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -4233,7 +4235,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!VATAmountLineVATBaseFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -4727,6 +4729,7 @@
                                                     <Style>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>
@@ -5032,7 +5035,7 @@
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                       <FontWeight>Bold</FontWeight>
-                                                      <Format>=Fields!VALVATBaseLCYFormat.Value</Format>
+                                                      <Format>=last(Fields!UnitPrice_SalesLineFormat.Value)</Format>
                                                     </Style>
                                                   </TextRun>
                                                 </TextRuns>

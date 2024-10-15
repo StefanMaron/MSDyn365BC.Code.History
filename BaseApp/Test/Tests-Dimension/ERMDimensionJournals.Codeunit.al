@@ -25,6 +25,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         GenJnlManagement: Codeunit GenJnlManagement;
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         isInitialized: Boolean;
         DimensionCode: Code[20];
         VendorNo: Code[20];
@@ -1258,6 +1259,8 @@
 
         // [THEN] Recurring method = "BD Balance by Dimension"
         Assert.AreEqual(GenJournalLine."Recurring Method"::"BD Balance by Dimension", GenJournalLine."Recurring Method", 'Wrong recurring method');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1278,11 +1281,13 @@
 
         // [THEN] Recurring method = "RBD Reversing Balance by Dimension"
         Assert.AreEqual(GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension", GenJournalLine."Recurring Method", 'Wrong recurring method');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('SetDimFiltersNotificationHandler,GenJnlDimFiltersHandler')]
     procedure SetDimensionFilterWhenValidateRecurringMethodBDBalancebyDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1298,11 +1303,13 @@
 
         // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
         VerifyGenJnlDimFilters(GenJournalLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('SetDimFiltersNotificationHandler,GenJnlDimFiltersHandler')]
     procedure SetDimensionFilterWhenValidateRecurringMethodRBDReversingBalancebyDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1318,11 +1325,13 @@
 
         // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
         VerifyGenJnlDimFilters(GenJournalLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerFalse,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('GenJnlDimFiltersHandler')]
     procedure SetDimensionFilterFromRecurringGeneralJournal()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1341,11 +1350,12 @@
 
         // [THEN] Dimension filters are stored in the "Gen. Jnl. Dim. Filter" table
         VerifyGenJnlDimFilters(GenJournalLine);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    //[HandlerFunctions('ConfirmHandlerFalse,GenJnlDimFiltersHandler')]
     procedure ChangeRecurringMethodToBDBalanceByDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1376,7 +1386,7 @@
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmHandlerTrue,GenJnlDimFiltersHandler')]
+    [HandlerFunctions('SetDimFiltersNotificationHandler,GenJnlDimFiltersHandler')]
     procedure ChangeRecurringMethodFromBDBalanceByDimension()
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1392,6 +1402,79 @@
 
         // [THEN] Error that recurring method cannot be assigned if dimension filter exists
         Assert.ExpectedError(RecurringMethodsDimFilterErr);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SetDimFiltersNotificationDontShowAgainHandler')]
+    procedure SetDontShowAgainOnSetDimensionFilterNotification()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        MyNotifications: Record "My Notifications";
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+    begin
+        // [SCENARIO 388950] User invoke "Don't show again" on the dimension filters notification for "BD Balance by Dimension" recurring method in the recurring journal line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] User assign recurring method "BD Balance by Dimension"
+        GenJournalLine.Validate("Recurring Method", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension");
+
+        // [THEN] Notification disabled
+        Assert.IsFalse(GenJnlDimFilterMgt.IsNotificationEnabled(), 'Notification should be disabled.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+        MyNotifications.SetStatus('e0f9167c-f9bd-4ab1-952b-874c8036cf93', true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionFilterControlEnabledForDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 334592] "Set Dimension Filter" control enabled for "BD Balance by Dimension" recurring journal line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"BD Balance by Dimension");
+
+        // [WHEN] Invoke "Set Dimension Filter" action
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+
+        // [THEN] "Set Dimension Filter" control is enabled
+        Assert.IsTrue(RecurringGeneralJournal.SetDimFilters.Enabled(), 'Control should be enabled.');
+        Assert.IsFalse(RecurringGeneralJournal.Dimensions.Enabled(), 'Control should be disabled.');
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SetDimensionFilterControlDisabledForNonDimBalanceLine()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 334592] "Set Dimension Filter" control disabled for non "BD Balance by Dimension" recurring journal line
+        Initialize();
+
+        // [GIVEN] Recurring gen. jnl. line
+        CreateRecurringGenJnlLine(GenJournalLine, GenJournalLine."Recurring Method"::"B  Balance");
+
+        // [WHEN] Invoke "Set Dimension Filter" action
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", GenJournalLine);
+
+        // [THEN] "Set Dimension Filter" control is enabled
+        Assert.IsFalse(RecurringGeneralJournal.SetDimFilters.Enabled(), 'Control should be disabled.');
+        Assert.IsTrue(RecurringGeneralJournal.Dimensions.Enabled(), 'Control should be enabled.');
     end;
 
     local procedure Initialize()
@@ -2934,11 +3017,20 @@
         GenJnlDimFilters.New();
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerFalse(Question: Text[1024]; var Reply: Boolean)
+    [SendNotificationHandler]
+    procedure SetDimFiltersNotificationHandler(var SetDimFiltersNotification: Notification): Boolean
+    var
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
     begin
-        Reply := false;
+        GenJnlDimFilterMgt.SetGenJnlDimFilters(SetDimFiltersNotification);
+    end;
+
+    [SendNotificationHandler]
+    procedure SetDimFiltersNotificationDontShowAgainHandler(var SetDimFiltersNotification: Notification): Boolean
+    var
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+    begin
+        GenJnlDimFilterMgt.HideNotification(SetDimFiltersNotification);
     end;
 }
 

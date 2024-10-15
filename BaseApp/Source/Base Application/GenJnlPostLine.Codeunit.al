@@ -126,6 +126,10 @@
         IsGLRegInserted: Boolean;
         IsCustomerPostApplication: Boolean;
         IsVendorPostApplication: Boolean;
+        NDVATAmountRounding: Decimal;
+        NDVATBaseRounding: Decimal;
+        SrcCurrNDVATAmountRounding: Decimal;
+        SrcCurrNDVATBaseRounding: Decimal;
 
     procedure GetGLReg(var NewGLReg: Record "G/L Register")
     begin
@@ -653,7 +657,10 @@
                     VATEntry."Payment Method" := "Payment Method Code";
                 end else
                     TestField("Service Tariff No.", '');
-            VATEntry."Fattura Document Type" := VATPostingSetup."Fattura Document Type";
+            if "Fattura Document Type" = '' then
+                VATEntry."Fattura Document Type" := VATPostingSetup."Fattura Document Type"
+            else
+                VATEntry."Fattura Document Type" := "Fattura Document Type";
             OnInsertVATOnAfterAssignVATEntryFields(GenJnlLine, VATEntry, CurrExchRate);
 
             if "VAT Difference" = 0 then
@@ -706,10 +713,10 @@
                             SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
                             ChangeVATAmounts(
                               VATAmount, VATBase, NondeducVATAmount, NondeducBaseAmount,
-                              "Deductible %", GLSetup."Amount Rounding Precision");
+                              "Deductible %", GLSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
                             ChangeVATAmounts(
                               SrcCurrVATAmount, SrcCurrVATBase, SrcCurrNondeducVATAmount, SrcCurrNondeducBaseAmount,
-                              "Deductible %", AddCurrency."Amount Rounding Precision");
+                              "Deductible %", AddCurrency."Amount Rounding Precision", SrcCurrNDVATAmountRounding, SrcCurrNDVATBaseRounding);
                         end;
                     "VAT Posting"::"Manual VAT Entry":
                         begin
@@ -726,10 +733,10 @@
                             if "Gen. Posting Type" <> "Gen. Posting Type"::Settlement then begin
                                 ChangeVATAmounts(
                                   VATAmount, VATBase, NondeducVATAmount, NondeducBaseAmount,
-                                  "Deductible %", GLSetup."Amount Rounding Precision");
+                                  "Deductible %", GLSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
                                 ChangeVATAmounts(
                                   SrcCurrVATAmount, SrcCurrVATBase, SrcCurrNondeducVATAmount, SrcCurrNondeducBaseAmount,
-                                  "Deductible %", AddCurrency."Amount Rounding Precision");
+                                  "Deductible %", AddCurrency."Amount Rounding Precision", SrcCurrNDVATAmountRounding, SrcCurrNDVATBaseRounding);
                             end;
                         end;
                 end;
@@ -6225,22 +6232,24 @@
     end;
 
     [Scope('OnPrem')]
-    procedure ChangeVATAmounts(var VATAmount: Decimal; var BaseAmount: Decimal; var NondeductibleVATAmount: Decimal; var NondeductibleBaseAmount: Decimal; DeductiblePct: Decimal; AmountRoundingPrecision: Decimal)
+    procedure ChangeVATAmounts(var VATAmount: Decimal; var BaseAmount: Decimal; var NondeductibleVATAmount: Decimal; var NondeductibleBaseAmount: Decimal; DeductiblePct: Decimal; AmountRoundingPrecision: Decimal; var NonDedVATAmountRounding: Decimal; var NonDedVATBaseRounding: Decimal)
     begin
         if DeductiblePct = 100 then
             exit;
 
         if DeductiblePct <> 100 then begin
-            NondeductibleVATAmount := GetNonDeductibleAmount(VATAmount, DeductiblePct, AmountRoundingPrecision);
+            NondeductibleVATAmount := GetNonDeductibleAmount(VATAmount, DeductiblePct, AmountRoundingPrecision, NonDedVATAmountRounding);
             VATAmount -= NondeductibleVATAmount;
 
-            NondeductibleBaseAmount := GetNonDeductibleAmount(BaseAmount, DeductiblePct, AmountRoundingPrecision);
+            NondeductibleBaseAmount := GetNonDeductibleAmount(BaseAmount, DeductiblePct, AmountRoundingPrecision, NonDedVATBaseRounding);
             BaseAmount -= NondeductibleBaseAmount;
         end;
     end;
 
     [Scope('OnPrem')]
-    procedure GetNonDeductibleAmount(Amount: Decimal; DeductiblePercent: Decimal; AmountRoundingPrecision: Decimal): Decimal
+    procedure GetNonDeductibleAmount(Amount: Decimal; DeductiblePercent: Decimal; AmountRoundingPrecision: Decimal; var Rounding: Decimal) Result: Decimal
+    var
+        UnroundedValue: Decimal;
     begin
         if DeductiblePercent = 100 then
             exit(0);
@@ -6248,7 +6257,9 @@
         if DeductiblePercent = 0 then
             exit(Amount);
 
-        exit(Round(Amount * (100 - DeductiblePercent) / 100, AmountRoundingPrecision, '='));
+        UnroundedValue := Rounding + Amount * (100 - DeductiblePercent) / 100;
+        Result := Round(UnroundedValue, AmountRoundingPrecision, '=');
+        Rounding := UnroundedValue - Result;
     end;
 
     [Scope('OnPrem')]
@@ -6840,6 +6851,9 @@
         DeferralTemplate: Record "Deferral Template";
         PostDate: Date;
         HasNonDeductibleVAT: Boolean;
+        VATAmountRounding: Decimal;
+        PositiveNDVATAmountRounding: Decimal;
+        NegativeNDVATAmountRounding: Decimal;
     begin
         OnBeforePostDeferralPostBuffer(GenJournalLine);
         with GenJournalLine do begin
@@ -6892,7 +6906,8 @@
                     end;
 
                     InsertDeferralNonDeductibleVATGLEntries(
-                      HasNonDeductibleVAT, DeferralPostBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate);
+                        HasNonDeductibleVAT, DeferralPostBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
+                        VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
                 until DeferralPostBuffer.Next() = 0;
                 DeferralPostBuffer.DeleteAll();
             end;
@@ -6912,10 +6927,13 @@
               "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
     end;
 
-    local procedure InsertDeferralNonDeductibleVATGLEntries(HasNonDeductibleVAT: Boolean; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template")
+    local procedure InsertDeferralNonDeductibleVATGLEntries(HasNonDeductibleVAT: Boolean; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template"; var VATAmountRounding: Decimal; var PositiveNDVATAmountRounding: Decimal; var NegativeNDVATAmountRounding: Decimal)
     var
         GLEntry: Record "G/L Entry";
         NonDeductibleVATAmount: Decimal;
+        VATAmount: Decimal;
+        UnroundedVATAmount: Decimal;
+        DeferralVATAmountRounding: Decimal;
         PostingGLAccountNo: Code[20];
         DeferralGLAccountNo: Code[20];
         Sign: Decimal;
@@ -6926,18 +6944,29 @@
         if DeferralTemplate."Deferral Account" <> DeferralPostingBuffer."Deferral Account" then begin
             DeferralGLAccountNo := DeferralPostingBuffer."G/L Account";
             PostingGLAccountNo := DeferralPostingBuffer."Deferral Account";
+            DeferralVATAmountRounding := PositiveNDVATAmountRounding;
             Sign := 1;
         end else begin
             DeferralGLAccountNo := DeferralPostingBuffer."Deferral Account";
             PostingGLAccountNo := DeferralPostingBuffer."G/L Account";
+            DeferralVATAmountRounding := NegativeNDVATAmountRounding;
             Sign := -1;
         end;
 
+        UnroundedVATAmount := VATAmountRounding + DeferralPostingBuffer.Amount * VATPostingSetup."VAT %" / 100;
+        VATAmount := Round(UnroundedVATAmount, GLSetup."Amount Rounding Precision");
+        VATAmountRounding := UnroundedVATAmount - VATAmount;
+
         NonDeductibleVATAmount :=
           Sign * GetNonDeductibleAmount(
-            Round(DeferralPostingBuffer.Amount * VATPostingSetup."VAT %" / 100, GLSetup."Amount Rounding Precision"),
+            VATAmount,
             VATPostingSetup."Deductible %",
-            GLSetup."Amount Rounding Precision");
+            GLSetup."Amount Rounding Precision", DeferralVATAmountRounding);
+
+        if Sign = 1 then
+            PositiveNDVATAmountRounding := DeferralVATAmountRounding
+        else
+            NegativeNDVATAmountRounding := DeferralVATAmountRounding;
 
         InitGLEntry(GenJournalLine, GLEntry, DeferralGLAccountNo, NonDeductibleVATAmount, NonDeductibleVATAmount, true, true);
         GLEntry."Posting Date" := DeferralPostingBuffer."Posting Date";

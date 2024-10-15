@@ -251,6 +251,27 @@ page 5600 "Fixed Asset Card"
                             ShowAcquisitionNotification();
                         end;
                     }
+                    field(FirstUserDefinedDeprDate; FADepreciationBook."First User-Defined Depr. Date")
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'First User-Defined Depr. Date';
+                        ToolTip = 'Specifies the starting date for the user-defined depreciation table if you have entered a code in the Depreciation Table Code field. The date is then used to determine the exact time intervals from the period length you have specified for the table.';
+
+                        trigger OnValidate()
+                        begin
+                            LoadFADepreciationBooks();
+                            FADepreciationBook.Validate("First User-Defined Depr. Date");
+                            SaveSimpleDepreciationBook(xRec."No.");
+                            ShowAcquisitionNotification();
+                        end;
+                    }
+                    field(DisposedOf; FADepreciationBook."Disposal Date" > 0D)
+                    {
+                        ApplicationArea = FixedAssets;
+                        Caption = 'Disposed of';
+                        Editable = false;
+                        ToolTip = 'Specifies whether the fixed asset has been disposed of.';
+                    }
                 }
                 field(BookValue; BookValue)
                 {
