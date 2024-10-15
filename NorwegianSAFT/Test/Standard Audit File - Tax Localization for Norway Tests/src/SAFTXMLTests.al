@@ -227,10 +227,12 @@ codeunit 148103 "SAF-T XML Tests"
             for j := 1 to EntriesInTransactionNumber do
                 for EntryType := VATEntry.Type::Purchase to VATEntry.Type::Sale do begin
                     SAFTTestHelper.MockVATEntry(VATEntry, SAFTExportHeader."Ending Date", EntryType, i);
-                    SAFTTestHelper.MockGLEntry(
-                        SAFTExportHeader."Ending Date", VATEntry."Document No.", GLAccount."No.",
-                        VATEntry."Transaction No.", DimSetID, VATEntry."VAT Bus. Posting Group",
-                        VATEntry."VAT Prod. Posting Group", 0, '', SourceCode.Code, LibraryRandom.RandDec(100, 2), 0);
+                    SAFTTestHelper.MockGLEntryVATEntryLink(
+                        SAFTTestHelper.MockGLEntry(
+                            SAFTExportHeader."Ending Date", VATEntry."Document No.", GLAccount."No.",
+                            VATEntry."Transaction No.", DimSetID, VATEntry."VAT Bus. Posting Group",
+                            VATEntry."VAT Prod. Posting Group", 0, '', SourceCode.Code, LibraryRandom.RandDec(100, 2), 0),
+                        VATEntry."Entry No.");
                 end;
             TempSAFTSourceCode := SAFTSourceCode;
             TempSAFTSourceCode.Insert();
@@ -379,6 +381,186 @@ codeunit 148103 "SAF-T XML Tests"
         LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
         VerifyGeneralLedgerAccountsWithIncomeStatementMapping(TempXMLBuffer, SAFTExportHeader."Mapping Range Code");
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure GLEntryVATEntryLink()
+    var
+        SAFTMappingRange: Record "SAF-T Mapping Range";
+        SAFTExportHeader: Record "SAF-T Export Header";
+        SAFTExportLine: Record "SAF-T Export Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        Vendor: Record Customer;
+        GLEntry: Record "G/L Entry";
+        VATEntry: array[2] of Record "VAT Entry";
+        DocNo: Code[20];
+        i: Integer;
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 359996] Each G/L Entry under the "Line" xml node has the correct VAT Entry under the "TaxInformation" node 
+
+        Initialize();
+
+        SAFTTestHelper.SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
+        SAFTTestHelper.MatchGLAccountsFourDigit(SAFTMappingRange.Code);
+        SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
+
+        DocNo := LibraryUtility.GenerateGUID();
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.FindFirst();
+        Vendor.FindFirst();
+        SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
+
+        // [GIVEN] Two G/L Entries with the same document/transaction, each related to its own VAT Entry
+        // [GIVEN] VAT Entry 1: Base = 100, Amount = 21
+        // [GIVEN] VAT Entry 2. Base = 200, Amount = 36
+        SAFTTestHelper.MockVATEntry(VATEntry[2], SAFTExportHeader."Ending Date", VATEntry[1].Type::Purchase, 1);
+        for i := 1 to ArrayLen(VATEntry) do begin
+            SAFTTestHelper.MockVATEntry(VATEntry[i], SAFTExportHeader."Ending Date", VATEntry[i].Type::Purchase, 1);
+            SAFTTestHelper.MockGLEntryVATEntryLink(
+                SAFTTestHelper.MockGLEntry(
+                    SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+                    1, 0, GLEntry."Gen. Posting Type"::Purchase, VATEntry[i]."VAT Bus. Posting Group",
+                    VATEntry[i]."VAT Prod. Posting Group", GLEntry."Source Type"::Vendor, Vendor."No.", '', LibraryRandom.RandDec(100, 2), 0),
+                VATEntry[i]."Entry No.");
+        end;
+
+        // [WHEN] Export G/L Entries to the XML file
+        LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
+        SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
+        SAFTExportLine.SetRange("Master Data", false);
+        FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
+        LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
+
+        // [THEN] The following nodes have exported:
+        // [THEN] n1:Line/n1:TaxInformation/n1:TaxBase. Value: 100
+        // [THEN] n1:Line/n1:TaxInformation/n1:TaxAmount/n1:Amount. Value: 21
+        // [THEN] n1:Line/n1:TaxInformation/n1:TaxBase. Value: 200
+        // [THEN] n1:Line/n1:TaxInformation/n1:TaxAmount/n1:Amount. Value: 36
+        Assert.IsTrue(
+            TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
+                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:Line/n1:TaxInformation/n1:TaxBase'),
+                'A TaxBase xml node hasn''t found');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        SAFTTestHelper.AssertCurrentElementValue(TempXMLBuffer, 'n1:TaxBase', SAFTTestHelper.FormatAmount(VATEntry[1].Base));
+        TempXMLBuffer.Next();
+        SAFTTestHelper.AssertCurrentElementValue(TempXMLBuffer, 'n1:TaxBase', SAFTTestHelper.FormatAmount(VATEntry[2].Base));
+        Assert.IsTrue(
+            TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
+                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:Line/n1:TaxInformation/n1:TaxAmount/n1:Amount'),
+                'A TaxAmount xml node hasn''t found');
+        Assert.RecordCount(TempXMLBuffer, 2);
+        SAFTTestHelper.AssertCurrentElementValue(TempXMLBuffer, 'n1:Amount', SAFTTestHelper.FormatAmount(VATEntry[1].Amount));
+        TempXMLBuffer.Next();
+        SAFTTestHelper.AssertCurrentElementValue(TempXMLBuffer, 'n1:Amount', SAFTTestHelper.FormatAmount(VATEntry[2].Amount));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure LastModifiedDateTimeExportsToSystemEntryDateXMLNode()
+    var
+        SAFTMappingRange: Record "SAF-T Mapping Range";
+        SAFTExportHeader: Record "SAF-T Export Header";
+        SAFTExportLine: Record "SAF-T Export Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        GLEntry: Record "G/L Entry";
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 360658] A value of "Last Modified DateTime" exports to the SystemEntryDate xml node
+
+        Initialize();
+
+        SAFTTestHelper.SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
+        SAFTTestHelper.MatchGLAccountsFourDigit(SAFTMappingRange.Code);
+        SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
+
+        DocNo := LibraryUtility.GenerateGUID();
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.FindFirst();
+        Customer.FindFirst();
+        SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
+
+        // [GIVEN] A G/L Entry with "Last Modified DateTime" = "X" and "Posting Date" = "Y"
+        GLEntry.Get(
+            SAFTTestHelper.MockGLEntry(
+                SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+                1, 0, GLEntry."Gen. Posting Type"::Sale, '',
+                '', GLEntry."Source Type"::Customer, Customer."No.", '', LibraryRandom.RandDec(100, 2), 0));
+
+        // [WHEN] Export G/L Entries to the XML file
+        LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
+        SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
+        SAFTExportLine.SetRange("Master Data", false);
+        FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
+        LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
+
+        // [THEN] SystemEntryDate xml node has value "X"
+        Assert.IsTrue(
+            TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
+                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:SystemEntryDate'),
+                'No G/L entries with SystemEntryDate exported.');
+        Assert.RecordCount(TempXMLBuffer, 1);
+        SAFTTestHelper.AssertCurrentElementValue(
+            TempXMLBuffer, 'n1:SystemEntryDate',
+            SAFTTestHelper.FormatDate(DT2Date(GLEntry."Last Modified DateTime")));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
+    procedure PostingDateExportsToSystemEntryDateXMLNode()
+    var
+        SAFTMappingRange: Record "SAF-T Mapping Range";
+        SAFTExportHeader: Record "SAF-T Export Header";
+        SAFTExportLine: Record "SAF-T Export Line";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        GLAccount: Record "G/L Account";
+        Customer: Record Customer;
+        GLEntry: Record "G/L Entry";
+        DocNo: Code[20];
+    begin
+        // [SCENARIO 360658] A value of "Posting Date" exports to the SystemEntryDate xml node when "Last Modified DateTime" is blank
+
+        Initialize();
+
+        SAFTTestHelper.SetupSAFT(SAFTMappingRange, SAFTMappingType::"Four Digit Standard Account", LibraryRandom.RandInt(5));
+        SAFTTestHelper.MatchGLAccountsFourDigit(SAFTMappingRange.Code);
+        SAFTTestHelper.CreateSAFTExportHeader(SAFTExportHeader, SAFTMappingRange.Code);
+
+        DocNo := LibraryUtility.GenerateGUID();
+        GLAccount.SetRange("Income/Balance", GLAccount."Income/Balance"::"Balance Sheet");
+        GLAccount.FindFirst();
+        Customer.FindFirst();
+        SAFTTestHelper.IncludesNoSourceCodeToTheFirstSAFTSourceCode();
+
+        // [GIVEN] A G/L Entry with blank "Last Modified DateTime" and "Posting Date" = "Y"
+        GLEntry.Get(
+            SAFTTestHelper.MockGLEntry(
+                SAFTExportHeader."Ending Date", DocNo, GLAccount."No.",
+                1, 0, GLEntry."Gen. Posting Type"::Sale, '',
+                '', GLEntry."Source Type"::Customer, Customer."No.", '', LibraryRandom.RandDec(100, 2), 0));
+        GLEntry.Validate("Last Modified DateTime", 0DT);
+        GLEntry.Modify();
+
+        // [WHEN] Export G/L Entries to the XML file
+        LibraryVariableStorage.Enqueue(GenerateSAFTFileImmediatelyQst);
+        SAFTTestHelper.RunSAFTExport(SAFTExportHeader);
+        SAFTExportLine.SetRange("Master Data", false);
+        FindSAFTExportLine(SAFTExportLine, SAFTExportHeader.ID);
+        LoadXMLBufferFromSAFTExportLine(TempXMLBuffer, SAFTExportLine);
+
+        // [THEN] SystemEntryDate xml node has value "Y"
+        Assert.IsTrue(
+            TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,
+                '/n1:AuditFile/n1:GeneralLedgerEntries/n1:Journal/n1:Transaction/n1:SystemEntryDate'),
+                'No G/L entries with SystemEntryDate exported.');
+        Assert.RecordCount(TempXMLBuffer, 1);
+        SAFTTestHelper.AssertCurrentElementValue(
+            TempXMLBuffer, 'n1:SystemEntryDate',
+            SAFTTestHelper.FormatDate(GLEntry."Posting Date"));
     end;
 
     local procedure Initialize()

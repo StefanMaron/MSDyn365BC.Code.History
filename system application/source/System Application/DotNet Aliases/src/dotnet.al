@@ -267,7 +267,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Framework.UI.WinForms.DataVisualization.Timeline")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -302,7 +301,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.AzureMLWrapper")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -325,7 +323,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.Client.BusinessChart")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -336,7 +333,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.Client.BusinessChart.Model")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -393,7 +389,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.Client.TimelineVisualization")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -418,7 +413,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.ClientExtensions")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -461,7 +455,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.CrmCustomizationHelper")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -492,7 +485,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.DocumentService")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -503,7 +495,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.DocumentService.Types")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -514,7 +505,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.EtwListener")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -581,7 +571,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.ImageProcessing")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -774,7 +763,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.O365ActionableMessageWrapper")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -785,7 +773,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.OAuth")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -804,7 +791,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.OLSync.Common")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -819,7 +805,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.NAV.OLSync.OLSyncSupplier")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -838,7 +823,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.OpenXml")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -877,7 +861,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.PdfWriter")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -888,7 +871,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.PowerBIEmbedded")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -931,7 +913,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.PowerShellRunner")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -946,7 +927,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.SMTP")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -961,7 +941,6 @@ dotnet
 
     assembly("Microsoft.Dynamics.Nav.Timer")
     {
-        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 

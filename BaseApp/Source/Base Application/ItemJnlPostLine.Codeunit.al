@@ -1,4 +1,4 @@
-codeunit 22 "Item Jnl.-Post Line"
+﻿codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = imd,
                   TableData "Item Ledger Entry" = imd,
@@ -3704,12 +3704,23 @@ codeunit 22 "Item Jnl.-Post Line"
                         NonDistrAmountACY, NonDistrDiscountAmount, Invoice);
                 until TempTrackingSpecification.Next = 0;
             end;
-        end else begin
-            TempSplitItemJnlLine := ItemJnlLine2;
-            TempSplitItemJnlLine.Insert();
-        end;
+        end else
+            InsertTempSplitItemJnlLine(ItemJnlLine2);
 
         exit(PostItemJnlLine);
+    end;
+
+    local procedure InsertTempSplitItemJnlLine(ItemJnlLine2: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertTempSplitItemJnlLine(ItemJnlLine2, IsServUndoConsumption, PostponeReservationHandling, TempSplitItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempSplitItemJnlLine := ItemJnlLine2;
+        TempSplitItemJnlLine.Insert();
     end;
 
     local procedure SplitItemJnlLine(var ItemJnlLine2: Record "Item Journal Line"; PostItemJnlLine: Boolean): Boolean
@@ -4255,7 +4266,14 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     procedure CheckItemTracking()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckItemTracking(ItemJnlLine, ItemTrackingSetup, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemTrackingSetup."Serial No. Required" and (ItemJnlLine."Serial No." = '') then
             Error(GetTextStringWithLineNo(SerialNoRequiredErr, ItemJnlLine."Item No.", ItemJnlLine."Line No."));
         if ItemTrackingSetup."Lot No. Required" and (ItemJnlLine."Lot No." = '') then
@@ -5297,12 +5315,17 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckExpirationDate(var ItemJournalLine: Record "Item Journal Line"; TrackingSpecification: Record "Tracking Specification"; SignFactor: Integer; CalcExpirationDate: Date; var ExpirationDateChecked: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeCheckExpirationDate(var ItemJournalLine: Record "Item Journal Line"; var TrackingSpecification: Record "Tracking Specification"; SignFactor: Integer; CalcExpirationDate: Date; var ExpirationDateChecked: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemCorrection(ItemLedgerEntry: Record "Item Ledger Entry"; var RaiseError: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemTracking(ItemJournalLine: Record "Item Journal Line"; ItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5595,6 +5618,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertVarValueEntry(var ValueEntry: Record "Value Entry"; var Item: Record Item; var VarianceAmount: Decimal; var VarianceAmountACY: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempSplitItemJnlLine(ItemJournalLine: Record "Item Journal Line"; IsServUndoConsumption: Boolean; PostponeReservationHandling: Boolean; var TempSplitItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

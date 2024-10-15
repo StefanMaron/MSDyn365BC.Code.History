@@ -41,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Data Exch. to RapidStart UT - NamedType TargetTableFieldDefinitionMustBeSpeicfiedErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4086560872 - NamedType 1876527843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[We have improved date and time calculations in configuration packages. Dates and times are now always treated in the local time. This ensures that dates are accurate in regions with a negative offset for UTC.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Date Time Eval. Notification - NamedType EvaluationInfoMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 4244421809 - NamedType 377853285" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect number of tables in package.]]></Val>

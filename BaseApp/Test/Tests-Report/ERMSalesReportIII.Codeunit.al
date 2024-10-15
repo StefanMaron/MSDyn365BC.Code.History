@@ -2160,6 +2160,62 @@ codeunit 134984 "ERM Sales Report III"
         LibraryReportDataset.AssertElementWithValueExists('CustomerContactName', Customer.Contact);
     end;
 
+    [Test]
+    [HandlerFunctions('ProFormaInvoiceXML_RPH')]
+    [Scope('OnPrem')]
+    procedure SalesProFormaInvoiceCorrectlyCalculateVATAmount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        Quantity: Decimal;
+        UnitPrice: Decimal;
+        AmountInclVAT: Decimal;
+        VATAmount: Decimal;
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 360280] The "VAT Amount" is calculated correctly for 2 equal lines,
+        // [SCENARIO 360280] when the Sum of not rounding "Line Amount Incl. VAT" will be round in different side
+        Initialize();
+
+        // [GIVEN] Create Sales Header
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        Quantity := LibraryRandom.RandInt(10);
+        ItemNo := LibraryInventory.CreateItemNo;
+
+        // [WHEN] Create first Sales Line
+        LibrarySales.CreateSalesLine(SalesLine[1], SalesHeader, SalesLine[1].Type::Item, ItemNo, Quantity);
+
+        // [GIVEN] Create "Amount Inc. VAT" with prescision = 0.001, which will be round down. The 2*"Amount Inc. VAT" will be rounded up.
+        AmountInclVAT := LibraryRandom.RandDecInDecimalRange(50, 100, 2) + LibraryRandom.RandDecInDecimalRange(0.003, 0.004, 3);
+        UnitPrice := AmountInclVAT / (1 + SalesLine[1]."VAT %" / 100) / Quantity;
+        SalesLine[1].Validate("Unit Price", UnitPrice);
+        SalesLine[1].Modify(true);
+
+        // [GIVEN] Create second Sales Line with the same Quantity and Unit Price
+        LibrarySales.CreateSalesLine(SalesLine[2], SalesHeader, SalesLine[2].Type::Item, ItemNo, Quantity);
+        SalesLine[2].Validate("Unit Price", UnitPrice);
+        SalesLine[2].Modify(true);
+        Commit();
+
+        // [WHEN] Print "Pro Forma Invoice" report
+        RunStandardSalesProFormaInv(SalesLine[1]."Document No.");
+
+        // [THEN] The fields VATAmount evaluates correctly
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, Rep1302DatasetErr);
+        LibraryReportDataset.AssertCurrentRowValueEquals('DocumentNo', SalesLine[1]."Document No.");
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[1]."Line Amount"));
+        VATAmount := Round(SalesLine[1].Amount * SalesLine[1]."VAT %" / 100 * SalesLine[1]."Qty. to Invoice" / SalesLine[1].Quantity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
+
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, Rep1302DatasetErr);
+        LibraryReportDataset.AssertCurrentRowValueEquals('Quantity', Quantity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('LineAmount', Format(SalesLine[2]."Line Amount"));
+        VATAmount := Round(SalesLine[2].Amount * SalesLine[2]."VAT %" / 100 * SalesLine[2]."Qty. to Invoice" / SalesLine[2].Quantity);
+        LibraryReportDataset.AssertCurrentRowValueEquals('VATAmount', Format(VATAmount));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

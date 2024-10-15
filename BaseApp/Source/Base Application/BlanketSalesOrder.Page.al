@@ -326,6 +326,8 @@ page 507 "Blanket Sales Order"
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
                             begin
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
                                 case ShipToOptions of
                                     ShipToOptions::"Default (Sell-to Address)":
                                         begin
@@ -347,6 +349,8 @@ page 507 "Blanket Sales Order"
                                     ShipToOptions::"Custom Address":
                                         Validate("Ship-to Code", '');
                                 end;
+
+                                OnAfterValidateShipToOptions(Rec, ShipToOptions);
                             end;
                         }
                         group(Control4)
@@ -1202,6 +1206,16 @@ page 507 "Blanket Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
     begin
     end;
 }

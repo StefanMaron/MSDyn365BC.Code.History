@@ -2,6 +2,7 @@ codeunit 139012 "Test Email Logging"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -11,6 +12,8 @@ codeunit 139012 "Test Email Logging"
     var
         Assert: Codeunit Assert;
         EmailLoggingDispatcher: Codeunit "Email Logging Dispatcher";
+        DefaultExchangeEndpointTxt: Label 'https://outlook.office365.com/EWS/Exchange.asmx';
+        TestExchangeEndpointTxt: Label 'testendpoint.exchange';
 
     [Test]
     [Scope('OnPrem')]
@@ -371,6 +374,43 @@ codeunit 139012 "Test Email Logging"
 
         InteractionTemplateSetup."E-Mails" := TmpEmailSetup;
         InteractionTemplateSetup.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestExchangeWebServiceEndpointEvent()
+    var
+        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+        TestEmailLogging: Codeunit "Test Email Logging";
+        ResultTxt: Text;
+    begin
+        // [SCENARIO 357110] Test Exchange Endpoint can be overriden by event
+        BindSubscription(TestEmailLogging);
+        // [WHEN] Invoke GetEndpoint
+        ResultTxt := ExchangeWebServicesServer.GetEndpoint();
+        UnbindSubscription(TestEmailLogging);
+        // [THEN] Default endpoint is overriden in OnAfterGetProdEndpoint event
+        Assert.AreEqual(TestExchangeEndpointTxt, ResultTxt, 'Wrong Exchange Endpoint');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestExchangeWebServiceEndpointDefaultValue()
+    var
+        ExchangeWebServicesServer: Codeunit "Exchange Web Services Server";
+        ResultTxt: Text;
+    begin
+        // [SCENARIO 357110] Test default exchange endpoint value when not overriden by event
+        // [WHEN] Invoke GetEndpoint
+        ResultTxt := ExchangeWebServicesServer.ProdEndpoint();
+        // [THEN] Default endpoint value is returned
+        Assert.AreEqual(DefaultExchangeEndpointTxt, ResultTxt, 'Wrong Exchange Endpoint');
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exchange Web Services Server", 'OnAfterGetProdEndpoint', '', false, false)]
+    local procedure OnAfterGetProdEndpoint(var ProdEndPointText: Text)
+    begin
+        ProdEndPointText := TestExchangeEndpointTxt;
     end;
 }
 

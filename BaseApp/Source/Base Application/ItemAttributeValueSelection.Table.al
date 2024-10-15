@@ -173,11 +173,8 @@ table 7504 "Item Attribute Value Selection"
                             if Value <> '' then begin
                                 Evaluate(ValDate, Value);
                                 ItemAttributeValue.SetRange(Value, Format(ValDate));
-                                if ItemAttributeValue.IsEmpty() then begin
-                                    ItemAttributeValue.SetRange(Value, Format(ValDate));
-                                    if ItemAttributeValue.IsEmpty() then
-                                        ItemAttributeValue.SetRange(Value, Value);
-                                end;
+                                if ItemAttributeValue.IsEmpty() then
+                                    ItemAttributeValue.SetRange(Value, Value);
                             end;
                             TempNewItemAttributeValue.Value := Format(ValDate);
                         end;

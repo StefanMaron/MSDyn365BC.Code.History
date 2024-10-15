@@ -415,6 +415,12 @@ report 1306 "Standard Sales - Invoice"
             column(KundeID; KundeID)
             {
             }
+            column(ExternalDocumentNo; "External Document No.")
+            {
+            }
+            column(ExternalDocumentNo_Lbl; FieldCaption("External Document No."))
+            {
+            }
             dataitem(Line; "Sales Invoice Line")
             {
                 DataItemLink = "Document No." = FIELD("No.");
@@ -635,8 +641,7 @@ report 1306 "Standard Sales - Invoice"
                         VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                     VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                     VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    if ("VAT %" <> 0) or ("VAT Clause Code" <> '') or (Amount <> "Amount Including VAT") then
-                        VATAmountLine.InsertLine;
+                    VATAmountLine.InsertLine();
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
@@ -829,7 +834,8 @@ report 1306 "Standard Sales - Invoice"
             }
             dataitem(VATClauseLine; "VAT Amount Line")
             {
-                UseTemporary = true;
+                DataItemTableView = SORTING("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", Positive);
+				UseTemporary = true;
                 column(VATClausesHeader; VATClausesText)
                 {
                 }

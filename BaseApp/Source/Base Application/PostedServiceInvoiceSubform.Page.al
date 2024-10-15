@@ -99,6 +99,12 @@ page 5979 "Posted Service Invoice Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the service item to which this invoice line is linked.';
                 }
+                field("Service Item Serial No."; "Service Item Serial No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the serial number of the service item to which this invoice line is linked.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

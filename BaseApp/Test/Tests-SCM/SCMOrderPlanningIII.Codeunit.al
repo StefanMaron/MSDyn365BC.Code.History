@@ -33,10 +33,10 @@ codeunit 137088 "SCM Order Planning - III"
         GlobalChildItemNo: Code[20];
         IsInitialized: Boolean;
         ValidationError: Label '%1  must be %2 in %3.';
-        NoErrorText: Label 'No. must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.';
-        DateErrorText: Label 'Demand Date must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
-        QuantityErrorText: Label 'Demand Quantity (Base) must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
-        LocationErrorText: Label 'Location Code must be equal to ''%1''  in Requisition Line: Worksheet Template Name=, Journal Batch Name=, Line No.=';
+        NoErrorText: Label 'No. must be equal to ''%1''  in Requisition Line';
+        DateErrorText: Label 'Demand Date must be equal to ''%1''  in Requisition Line';
+        QuantityErrorText: Label 'Demand Quantity (Base) must be equal to ''%1''  in Requisition Line';
+        LocationErrorText: Label 'Location Code must be equal to ''%1''  in Requisition Line';
         ErrorText: Label 'Error Message Must be same.';
         ExpectedQuantity: Decimal;
         QuantityError: Label 'Available Quantity must match.';
@@ -1328,6 +1328,10 @@ codeunit 137088 "SCM Order Planning - III"
         // [THEN] A new purchase order for "B" is successfully created.
         FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
         PurchaseHeader.TestField("Buy-from Vendor No.", Item."Vendor No.");
+	
+	// Tear down.
+	BlockedItem.Validate(Blocked, false);
+        BlockedItem.Modify(true);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1434,6 +1438,148 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseOrder.Close();
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewBatchNoOnOrderPlanningFirstTime()
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Order Planning] [Requisition Line] [UT]
+        // [SCENARIO 358664] New batch name on Order Planning for the first time.
+        Initialize();
+
+        RequisitionLine.DeleteAll();
+
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        RequisitionLine.SetRange("Journal Batch Name", '0');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '0');
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewBatchNoOnOrderPlanningHavingBlankBatchNoLines()
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Order Planning] [Requisition Line] [UT]
+        // [SCENARIO 358664] New batch name on Order Planning when earlier created planning lines with blank batch name exist.
+        Initialize();
+
+        RequisitionLine.DeleteAll();
+
+        RequisitionLine.Init();
+        RequisitionLine."Line No." := LibraryUtility.GetNewRecNo(RequisitionLine, RequisitionLine.FieldNo("Line No."));
+        RequisitionLine.Insert();
+
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        RequisitionLine.SetRange("User ID", UserId);
+        RequisitionLine.SetRange("Journal Batch Name", '0');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '0');
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewBatchNoOnOrderPlanningHavingOtherUserLines()
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Order Planning] [Requisition Line] [UT]
+        // [SCENARIO 358664] New batch name on Order Planning when planning lines created by another user exist.
+        Initialize();
+
+        RequisitionLine.DeleteAll();
+
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+        RequisitionLine.ModifyAll("User ID", LibraryUtility.GenerateGUID());
+
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        RequisitionLine.SetRange("User ID", UserId);
+        RequisitionLine.SetRange("Journal Batch Name", '1');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '1');
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RunningOrderPlanningTwiceForDifferentSources()
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [FEATURE] [Order Planning] [Requisition Line] [UT]
+        // [SCENARIO 358664] Find batch name on Order Planning when planning lines created for another source exist.
+        Initialize();
+
+        RequisitionLine.DeleteAll();
+
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+        RequisitionLine.FindLast();
+
+        RequisitionLine.SetFilter("Line No.", '>%1', RequisitionLine."Line No.");
+        LibraryPlanning.CalculateOrderPlanProduction(RequisitionLine);
+
+        RequisitionLine.SetRange("User ID", UserId);
+        RequisitionLine.SetRange("Journal Batch Name", '0');
+        Assert.RecordIsNotEmpty(RequisitionLine);
+
+        RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '0');
+        Assert.RecordIsEmpty(RequisitionLine);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatingPlanningComponentsForOrderPlanningLine()
+    var
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [FEATURE] [Order Planning] [Requisition Line] [Planning Component] [UT]
+        // [SCENARIO 358664] Create planning component for Order Planning line with non-blank batch name.
+        Initialize();
+
+        RequisitionLine.Init();
+        RequisitionLine."Journal Batch Name" := LibraryUtility.GenerateGUID();
+        RequisitionLine."Line No." := LibraryUtility.GetNewRecNo(RequisitionLine, RequisitionLine.FieldNo("Line No."));
+        RequisitionLine."Planning Line Origin" := RequisitionLine."Planning Line Origin"::"Order Planning";
+        RequisitionLine.Insert();
+
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+
+        PlanningComponent.TestField("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CreatingPlanningRoutingLineForOrderPlanningLine()
+    var
+        RequisitionLine: Record "Requisition Line";
+        PlanningRoutingLine: Record "Planning Routing Line";
+    begin
+        // [FEATURE] [Order Planning] [Requisition Line] [Planning Routing Line] [UT]
+        // [SCENARIO 358664] Create planning routing line for Order Planning line with non-blank batch name.
+        Initialize();
+
+        RequisitionLine.Init();
+        RequisitionLine."Journal Batch Name" := LibraryUtility.GenerateGUID();
+        RequisitionLine."Line No." := LibraryUtility.GetNewRecNo(RequisitionLine, RequisitionLine.FieldNo("Line No."));
+        RequisitionLine."Planning Line Origin" := RequisitionLine."Planning Line Origin"::"Order Planning";
+        RequisitionLine.Insert();
+
+        LibraryPlanning.CreatePlanningRoutingLine(PlanningRoutingLine, RequisitionLine, LibraryUtility.GenerateGUID());
+
+        PlanningRoutingLine.TestField("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
     end;
 
     local procedure Initialize()
