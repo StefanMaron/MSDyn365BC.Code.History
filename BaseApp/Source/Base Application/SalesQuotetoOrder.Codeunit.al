@@ -62,7 +62,7 @@ codeunit 86 "Sales-Quote to Order"
         ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(RecordId, SalesOrderHeader."No.", SalesOrderHeader.RecordId);
 
         IsHandled := false;
-        OnBeforeDeleteSalesQuote(Rec, SalesOrderHeader, IsHandled);
+        OnBeforeDeleteSalesQuote(Rec, SalesOrderHeader, IsHandled, SalesQuoteLine);
         if not IsHandled then begin
             ApprovalsMgmt.DeleteApprovalEntries(RecordId);
             DeleteLinks;
@@ -276,7 +276,7 @@ codeunit 86 "Sales-Quote to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteSalesQuote(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteSalesQuote(var QuoteSalesHeader: Record "Sales Header"; var OrderSalesHeader: Record "Sales Header"; var IsHandled: Boolean; var SalesQuoteLine: Record "Sales Line")
     begin
     end;
 

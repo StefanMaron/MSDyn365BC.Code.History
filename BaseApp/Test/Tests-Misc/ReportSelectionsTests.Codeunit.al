@@ -1027,26 +1027,26 @@ codeunit 134421 "Report Selections Tests"
         // [SCENARIO 338446] E-mail address specified in posted Sales Invoice has more priority than customer's e-mail address.
         Initialize;
 
-        // [GIVEN] Posted Sales Invoice "A" with the "Sell-to Email" = "a@a.com"
-        // [GIVEN] Customer's email address = "b@b.com"
+        // [GIVEN] Posted Sales Invoice "A" with the "Sell-to Email" = "a@a.com; b@b.com; c@c.com".
+        // [GIVEN] Customer's email address = "x@x.com; y@y.com; z@z.com".
         CreateSalesInvoice(SalesHeader);
         Customer.Get(SalesHeader."Bill-to Customer No.");
-        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmails);
         Customer.Modify(true);
 
-        SalesHeader.Validate("Sell-to E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalesHeader.Validate("Sell-to E-Mail", LibraryUtility.GenerateRandomEmails);
         SalesHeader.Modify(true);
         PostSalesInvoice(SalesHeader, SalesInvoiceHeader);
 
         FileName := Format(FileManagement.ServerTempFileName('.html'), 250);
         SetupReportSelections(true, true);
 
-        // [GIVEN] When send sales invoice by e-mail
+        // [GIVEN] When send sales invoice by e-mail.
         SalesInvoiceHeader.SetRecFilter;
         ReportSelections.GetEmailBody(
           FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
 
-        // [THEN] The "a@a.com" address is used as target email address
+        // [THEN] The "a@a.com; b@b.com; c@c.com" address is used as target email address.
         Assert.AreEqual(SalesHeader."Sell-to E-Mail", EmailAddress, EmailAddressErr);
     end;
 

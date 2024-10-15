@@ -884,7 +884,8 @@
                     Promoted = true;
                     PromotedCategory = Category11;
                     RunObject = Page "Vendor Card";
-                    RunPageLink = "No." = FIELD("Buy-from Vendor No.");
+                    RunPageLink = "No." = FIELD("Buy-from Vendor No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the vendor on the purchase document.';
                 }
@@ -1820,6 +1821,8 @@
             DocumentIsPosted := (not Get("Document Type", "No."));
         PurchSetup.Get;
         VendorExchangeRateACYEditable := PurchSetup."Enable Vendor GST Amount (ACY)";
+
+        SetRange("Date Filter", 0D, WorkDate());
 
         ActivateFields;
     end;

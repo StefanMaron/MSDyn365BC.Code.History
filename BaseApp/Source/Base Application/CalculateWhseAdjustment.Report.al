@@ -306,6 +306,8 @@ report 7315 "Calculate Whse. Adjustment"
                     Quantity2 := -Quantity2;
                     QuantityBase2 := -QuantityBase2;
                 end;
+
+                OnInsertItemLineOnBeforeValidateFields(ItemJnlLine);
                 Validate("Document No.", NextDocNo);
                 Validate("Item No.", TempBinContentBuffer."Item No.");
                 Validate("Variant Code", TempBinContentBuffer."Variant Code");
@@ -481,6 +483,11 @@ report 7315 "Calculate Whse. Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReservEntryFor(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertItemLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 }

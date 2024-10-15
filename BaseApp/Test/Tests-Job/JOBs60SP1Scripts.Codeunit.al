@@ -17,6 +17,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Text006: Label 'There is no record in TempPurchHeader.';
         Text007: Label 'Job Planning Line table is missing record for the Purchase Line created.';
         Text008: Label 'There is no Schedule Line created in Job Planning Line for Line Type: Both Schedule and Contract.';
@@ -50,8 +51,12 @@ codeunit 132521 "JOBs-60SP1-Scripts"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"JOBs-60SP1-Scripts");
+
         if Initialized then
             exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"JOBs-60SP1-Scripts");
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -62,7 +67,9 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         DummyJobsSetup.Modify;
 
         Initialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"JOBs-60SP1-Scripts");
     end;
 
     [Test]
@@ -85,7 +92,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Create a Customer, Vendor, Job and Job Task Line for each test case as it will rollback the creation of data once an error
         // is encountered.  So the next-in-line testcases will have no data present.
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithDifferentLineType(PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo);
     end;
 
@@ -106,7 +113,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // 8. Check that its impossible to post it
         // ---------------------------------------------------------------------------------------------------------------------------------
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithDifferentJobTaskType(JobTask."Job Task Type"::"End-Total");
     end;
 
@@ -127,7 +134,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // 8. Check that its impossible to post it
         // ---------------------------------------------------------------------------------------------------------------------------------
 
-        Initialize;
+        Initialize();
         PurchaseOrderWithDifferentJobTaskType(JobTask."Job Task Type"::Total);
     end;
 
@@ -149,7 +156,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // ---------------------------------------------------------------------------------------------------------------------------------
 
         // Setup.
-        Initialize;
+        Initialize();
         PurchaseOrderWithDifferentJobTaskType(JobTask."Job Task Type"::"Begin-Total");
     end;
 
@@ -176,7 +183,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Step 8.  Compare the entries in Job Ledger Entries with the Purchase Order entries before posting.
         // -----------------------------------------------------------------------------------------------------------------
 
-        Initialize;
+        Initialize();
 
         // Create a Purchase Order with three Purchase Lines and Post it with Receive & Invoice option.
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
@@ -223,7 +230,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // 7. Post the PO.
         // 8. Check that its impossible to post it.
         // ---------------------------------------------------------------------------------------------------------------------------------
-        Initialize;
+        Initialize();
         PurchaseOrderWithDifferentLineType(PurchaseLine.Type::"Fixed Asset", FindFixedAsset);
     end;
 
@@ -255,7 +262,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Validate that it creates correct entries in Job Planning Line and Job Ledger Entry
         // ---------------------------------------------------------------------------------------------------------------------------------
 
-        Initialize;
+        Initialize();
 
         // Create a Purchase Header and 2 Purchase Lines for the first PO
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
@@ -328,7 +335,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // and 4 Ledger entry with  Qty. as the Remaining
         // ------------------------------------------------------------------------------------------------------------------------
 
-        Initialize;
+        Initialize();
 
         // Create a Purchase Header and 4 Purchase Lines for Partial Invoicing
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);
@@ -400,7 +407,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         // Step 13 should create 3 Planning lines of 2 of type Schedule, one of type Contract and 3 Ledger entries
         // -----------------------------------------------------------------------------------------------------------------------------
 
-        Initialize;
+        Initialize();
 
         // Create a Purchase Header and 4 Purchase Lines for Partial Receipt
         CreateJobTask(JobTask, JobTask."Job Task Type"::Posting);

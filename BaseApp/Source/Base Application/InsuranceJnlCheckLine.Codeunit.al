@@ -34,6 +34,7 @@ codeunit 5651 "Insurance Jnl.-Check Line"
             end;
             CallNo := 1;
 
+            OnRunCheckOnBeforeCheckDimIDComb(InsuranceJnlLine);
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 Error(
                   Text000,
@@ -52,5 +53,11 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                     Error(DimMgt.GetDimValuePostingErr);
         end;
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunCheckOnBeforeCheckDimIDComb(var InsuranceJnlLine: Record "Insurance Journal Line")
+    begin
+    end;
+
 }
 

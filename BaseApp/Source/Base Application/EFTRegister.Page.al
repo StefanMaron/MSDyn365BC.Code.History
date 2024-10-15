@@ -3,7 +3,7 @@ page 11615 "EFT Register"
     ApplicationArea = Basic, Suite;
     Caption = 'EFT Registers';
     Editable = false;
-    PageType = Card;
+    PageType = List;
     SourceTable = "EFT Register";
     UsageCategory = History;
 

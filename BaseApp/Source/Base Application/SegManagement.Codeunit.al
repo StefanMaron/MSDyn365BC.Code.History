@@ -269,7 +269,8 @@ codeunit 5051 SegManagement
         TempSegmentLine.Description := Description;
         TempSegmentLine."Salesperson Code" := SalespersonCode;
         TempSegmentLine."Opportunity No." := OpportunityNo;
-        TempSegmentLine.Insert;
+        OnBeforeTempSegmentLineInsert(TempSegmentLine);
+        TempSegmentLine.Insert();
         TempSegmentLine.Validate("Interaction Template Code", InteractTmplCode);
         if CampaignNo <> '' then
             TempSegmentLine."Campaign No." := CampaignNo;
@@ -641,6 +642,11 @@ codeunit 5051 SegManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLoggedSegmentInsert(var LoggedSegment: Record "Logged Segment")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempSegmentLineInsert(var TempSegmentLine: Record "Segment Line")
     begin
     end;
 

@@ -272,10 +272,13 @@ table 6660 "Return Receipt Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -701,7 +704,6 @@ table 6660 "Return Receipt Header"
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         SalesCommentLine: Record "Sales Comment Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         PostCode: Record "Post Code";
         PostSalesLinesDelete: Codeunit "PostSales-Delete";
         DimMgt: Codeunit DimensionManagement;
@@ -752,6 +754,11 @@ table 6660 "Return Receipt Header"
             SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
             FilterGroup(0);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; ReturnReceiptHeader: Record "Return Receipt Header")
+    begin
     end;
 }
 
