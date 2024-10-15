@@ -109,6 +109,7 @@ codeunit 143006 "Library - SII"
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := LibrarySales.CreateCustomerNo();
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             "Document No." := DocumentNo;
             Insert();
             exit("Entry No.");
@@ -125,6 +126,7 @@ codeunit 143006 "Library - SII"
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := LibraryPurchase.CreateVendorNo();
             "Posting Date" := WorkDate();
+            "VAT Reporting Date" := WorkDate();
             "Document No." := DocumentNo;
             Insert();
             exit("Entry No.");

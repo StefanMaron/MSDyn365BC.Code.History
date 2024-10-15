@@ -1828,10 +1828,14 @@ page 52 "Purchase Credit Memo"
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         InstructionMgt: Codeunit "Instruction Mgt.";
+        PreAssignedNo: Code[20];
+        xLastPostingNo: Code[20];
         IsScheduledPosting: Boolean;
         IsHandled: Boolean;
     begin
         LinesInstructionMgt.PurchaseCheckAllLinesHaveQuantityAssigned(Rec);
+        PreAssignedNo := Rec."No.";
+        xLastPostingNo := Rec."Last Posting No.";
 
         SendToPosting(PostingCodeunitID);
 
@@ -1852,15 +1856,16 @@ page 52 "Purchase Credit Memo"
 
         case Navigate of
             "Navigate After Posting"::"Posted Document":
-                begin
-                    if IsOfficeAddin then begin
-                        PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
-                        if PurchCrMemoHdr.FindFirst() then
-                            PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
-                    end else
-                        if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
-                            ShowPostedConfirmationMessage();
-                end;
+                if IsOfficeAddin then begin
+                    if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+                        PurchCrMemoHdr.SetRange("No.", Rec."Last Posting No.")
+                    else
+                        PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
+                    if PurchCrMemoHdr.FindFirst() then
+                        PAGE.Run(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHdr);
+                end else
+                    if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode()) then
+                        ShowPostedConfirmationMessage(PreAssignedNo, xLastPostingNo);
             "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
@@ -1962,12 +1967,15 @@ page 52 "Purchase Credit Memo"
         IsPostingGroupEditable := PurchSetup."Allow Multiple Posting Groups";
     end;
 
-    local procedure ShowPostedConfirmationMessage()
+    local procedure ShowPostedConfirmationMessage(PreAssignedNo: Code[20]; xLastPostingNo: Code[20])
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin
-        PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
+        if (Rec."Last Posting No." <> '') and (Rec."Last Posting No." <> xLastPostingNo) then
+            PurchCrMemoHdr.SetRange("No.", Rec."Last Posting No.")
+        else
+            PurchCrMemoHdr.SetRange("Pre-Assigned No.", PreAssignedNo);
         if PurchCrMemoHdr.FindFirst() then
             if InstructionMgt.ShowConfirm(StrSubstNo(OpenPostedPurchCrMemoQst, PurchCrMemoHdr."No."),
                  InstructionMgt.ShowPostedConfirmationMessageCode())

@@ -2089,6 +2089,7 @@ codeunit 147520 SIIDocumentTests
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with "Special Scheme Code" = "14", "Posting Date" = January 20, "Shipment Date" = January 25
+
         CustomerNo := LibrarySales.CreateCustomerNo();
         CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, LibraryRandom.RandDateFrom(WorkDate(), 10));
         LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, SalesHeader.FieldCaption("Special Scheme Code")));
@@ -2847,6 +2848,246 @@ codeunit 147520 SIIDocumentTests
         LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:FechaOperacion');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInSalesInvoice()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Sales Invoice
+
+        Initialize();
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Sales Invoice with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo := CreateAndPostSalesDocWithVATReportingDate(SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate(), WorkDate() + 1, 0);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(CustLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(CustLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInSalesCrMemo()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Sales Credit Memo
+
+        Initialize();
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Sales Credit Memo with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo := CreateAndPostSalesDocWithVATReportingDate(SalesHeader."Document Type"::"Credit Memo", Customer."No.", WorkDate(), WorkDate() + 1, 0);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(CustLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(CustLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInSalesReplacementCrMemo()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Replacement Sales Credit Memo
+
+        Initialize();
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Replacement Sales Credit Memo with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo :=
+            CreateAndPostSalesDocWithVATReportingDate(
+                SalesHeader."Document Type"::"Credit Memo", Customer."No.", WorkDate(), WorkDate() + 1, SalesHeader."Correction Type"::Replacement);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(CustLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(CustLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInSalesRemovalCrMemo()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Removal Sales Credit Memo
+
+        Initialize();
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Removal Sales Credit Memo with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo :=
+            CreateAndPostSalesDocWithVATReportingDate(
+                SalesHeader."Document Type"::"Credit Memo", Customer."No.", WorkDate(), WorkDate() + 1, SalesHeader."Correction Type"::Removal);
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(CustLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(CustLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInPurchaseInvoice()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Purchase Invoice
+
+        Initialize();
+        LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Purchase Invoice with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo := CreateAndPostPurchaseDocWithVATReportingDate(PurchaseHeader."Document Type"::Invoice, Vendor."No.", WorkDate(), WorkDate() + 1, 0);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(VendorLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInPurchaseCrMemo()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Purchase Credit Memo
+
+        Initialize();
+        LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Purchase Credit Memo with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo := CreateAndPostPurchaseDocWithVATReportingDate(PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", WorkDate(), WorkDate() + 1, 0);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(VendorLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInPurchaseReplacementCrMemo()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Replacement Purchase Credit Memo
+
+        Initialize();
+        LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Replacement Purchase Credit Memo with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo :=
+            CreateAndPostPurchaseDocWithVATReportingDate(
+                PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", WorkDate(), WorkDate() + 1, PurchaseHeader."Correction Type"::Replacement);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(VendorLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure DateXMLNodesContainsVATReportingDateInPurchaseRemovalCrMemo()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        XMLDoc: DotNet XmlDocument;
+        InvNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 478371] Ejercicio and Periodo XML nodes contain the VAT Reporting Date in the Removal Purchase Credit Memo
+
+        Initialize();
+        LibrarySII.CreateVendWithCountryAndVATReg(Vendor, 'ES', 'B80833593');
+
+        // [GIVEN] Posted Removal Purchase Credit Memo with "Posting Date" = 05.01.2017 and "VAT Reporting Date" = 06.01.2017
+        InvNo :=
+            CreateAndPostPurchaseDocWithVATReportingDate(
+                PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.", WorkDate(), WorkDate() + 1, PurchaseHeader."Correction Type"::Removal);
+        LibraryERM.FindVendorLedgerEntry(
+          VendorLedgerEntry, VendorLedgerEntry."Document Type"::"Credit Memo", InvNo);
+
+        // [WHEN] Create xml file for posted document
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(VendorLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+
+        // [THEN] XML file generated with year and month equals 06.01.2017
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Ejercicio', Format(Date2DMY(VendorLedgerEntry."VAT Reporting Date", 3)), 0);
+        LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -3001,6 +3242,36 @@ codeunit 147520 SIIDocumentTests
         LibrarySales.CreateSalesLine(
           SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
+    end;
+
+    local procedure CreateAndPostSalesDocWithVATReportingDate(DocType: Enum "Sales Document Type"; CustNo: Code[20]; PostingDate: Date; VATReportingDate: Date; CorrectionType: Integer): Code[20]
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("VAT Reporting Date", VATReportingDate);
+        SalesHeader.Validate("Correction Type", CorrectionType);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
+        exit(LibrarySales.PostSalesDocument(SalesHeader, false, false));
+    end;
+
+    local procedure CreateAndPostPurchaseDocWithVATReportingDate(DocType: Enum "Sales Document Type"; VendNo: Code[20]; PostingDate: Date; VATReportingDate: Date; CorrectionType: Integer): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocType, VendNo);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("VAT Reporting Date", VATReportingDate);
+        PurchaseHeader.Validate("Correction Type", CorrectionType);
+        PurchaseHeader.Modify(true);
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false));
     end;
 
     local procedure CreatePostSalesInvoice(CustomerNo: Code[20]): Code[20]
