@@ -79,7 +79,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSelectCustLedgEntry(GenJnlLine, AccNo, Selected, IsHandled);
+        OnBeforeSelectCustLedgEntry(GenJnlLine, AccNo, Selected, IsHandled, CustomAppliesToId);
         if IsHandled then
             exit(Selected);
 
@@ -111,7 +111,7 @@ codeunit 225 "Gen. Jnl.-Apply"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSelectVendLedgEntry(GenJnlLine, AccNo, Selected, IsHandled);
+        OnBeforeSelectVendLedgEntry(GenJnlLine, AccNo, Selected, IsHandled, CustomAppliesToId);
         if IsHandled then
             exit(Selected);
 
@@ -580,6 +580,7 @@ codeunit 225 "Gen. Jnl.-Apply"
                 end;
             GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::" ";
             GenJnlLine."Applies-to Doc. No." := '';
+            OnApplyVendorLedgerEntryOnAfterSetGenJnlLineAppliesToDocNo(GenJnlLine, VendLedgEntry);
         end else
             GenJnlLine."Applies-to ID" := '';
 
@@ -817,7 +818,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSelectCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean; var IsHandled: Boolean; var CustomAppliesToId: Code[50])
     begin
     end;
 
@@ -827,7 +828,7 @@ codeunit 225 "Gen. Jnl.-Apply"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSelectVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSelectVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean; var IsHandled: Boolean; var CustomAppliesToId: Code[50])
     begin
     end;
 
@@ -883,6 +884,11 @@ codeunit 225 "Gen. Jnl.-Apply"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyVendorLedgerEntryAPIOnBeforeCheckAgainstApplnCurrencyDifferentCurrenciesAmountNonZero(GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendorLedgerEntryOnAfterSetGenJnlLineAppliesToDocNo(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

@@ -12,6 +12,7 @@ page 251 "General Journal Batches"
     DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "Gen. Journal Batch";
+    AnalysisModeEnabled = false;
 
     layout
     {

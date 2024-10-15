@@ -726,6 +726,11 @@ table 270 "Bank Account"
             Caption = 'Positive Pay Export Code';
             TableRelation = "Bank Export/Import Setup".Code where(Direction = const("Export-Positive Pay"));
         }
+        field(1280; "Check Transmitted"; boolean)
+        {
+            Caption = 'Check Transmitted';
+            ToolTip = 'Specifies to check transmitted before posting the Payment Journal';
+        }
         field(5061; "Mobile Phone No."; Text[30])
         {
             Caption = 'Mobile Phone No.';

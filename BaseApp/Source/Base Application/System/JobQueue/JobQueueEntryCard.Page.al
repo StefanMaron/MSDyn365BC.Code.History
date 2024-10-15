@@ -53,6 +53,13 @@ page 673 "Job Queue Entry Card"
                     Importance = Additional;
                     ToolTip = 'Specifies the code of the job queue category to which the job queue entry belongs. Choose the field to select a code from the list.';
                 }
+                field("Priority Within Category"; Rec."Priority Within Category")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the priority of the job within the job queue category. Only relevant when job queue category code is specified.';
+                    Enabled = (Rec."Job Queue Category Code" <> '');
+                }
                 field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;

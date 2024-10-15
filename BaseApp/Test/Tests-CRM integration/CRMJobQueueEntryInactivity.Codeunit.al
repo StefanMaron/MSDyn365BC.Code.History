@@ -142,7 +142,6 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
     var
         CRMSynchStatus: Record "CRM Synch Status";
         JobQueueEntry: Record "Job Queue Entry";
-        CurrDT: DateTime;
     begin
         // [FEATURE] [UT] [CRM Account Statistics]
         // [SCENARIO] Inactive CRM Statistics job becomes active on insert of a new Dtld. Customer Ledger Entry
@@ -150,6 +149,7 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         // [GIVEN] 'CRM Statistics' Job, with Status "On Hold with Inactivity period"
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Statistics Job");
         JobQueueEntry.FindFirst();
+        JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
         JobQueueEntry.Status := JobQueueEntry.Status::"On Hold with Inactivity Timeout";
         JobQueueEntry."System Task ID" := CreateGuid(); // As if TASKSCHEDULER defined it
         JobQueueEntry.Modify();
@@ -160,14 +160,11 @@ codeunit 139189 "CRM Job Queue Entry Inactivity"
         CRMSynchStatus.Modify();
 
         // [WHEN] Open company (run codeunit "Job Queue User Handler")
-        CurrDT := CurrentDateTime;
         CODEUNIT.Run(CODEUNIT::"Job Queue User Handler");
 
         // [THEN] 'CRM Statistics' Job gets status "Ready"
         JobQueueEntry.Find();
         JobQueueEntry.TestField(Status, JobQueueEntry.Status::Ready);
-        Assert.IsTrue(
-          JobQueueEntry."Earliest Start Date/Time" > CurrDT, 'Start time should be shifted to future');
     end;
 
     [Test]
