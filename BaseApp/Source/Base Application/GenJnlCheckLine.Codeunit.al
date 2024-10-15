@@ -67,6 +67,7 @@
             CheckDates(GenJnlLine);
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
+            TestField("Source Code");
             LogTestField(GenJnlLine, FieldNo("Document No."));
 
             if ("Account Type" in

@@ -886,7 +886,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         IntrastatJnlLine.TestField("Item No.", ItemNo);
         IntrastatJnlLine.TestField("Shpt. Method Code", ShipmentMethodCode);
-        IntrastatJnlLine.TestField("Cust. VAT Registration No.", CustVATRegistrationNo);
+        IntrastatJnlLine.TestField("Partner VAT ID", CustVATRegistrationNo);
     end;
 
     local procedure VerifyXMLFile(XMLFileName: Text[10]; EnvelopeId: Code[10]; FlowCode: Text; PartyID: Code[18])

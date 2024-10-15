@@ -5317,6 +5317,7 @@
         Vendor: Record Vendor;
         StandardCodesMgt: Codeunit "Standard Codes Mgt.";
     begin
+        Vendor.SetFilter("Date Filter", GetFilter("Date Filter"));
         if "Buy-from Vendor No." <> '' then
             Vendor.Get("Buy-from Vendor No.");
 

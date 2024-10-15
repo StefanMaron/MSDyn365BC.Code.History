@@ -67,7 +67,6 @@ table 7118 "Analysis Column"
         {
             Caption = 'Show';
             InitValue = Always;
-            NotBlank = true;
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
         }
