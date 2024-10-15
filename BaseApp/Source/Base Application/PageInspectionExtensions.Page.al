@@ -200,18 +200,18 @@ page 9633 "Page Inspection Extensions"
                 repeat
                     FilterConditions := FilterConditions + StrSubstNo('%1|', ApplicationObjectMetadata."Package ID");
                 until ApplicationObjectMetadata.Next = 0;
-        end;
 
-        // Add filters for arbitrary code which has executed on the form
-        if ExtensionExecutionInfo.ReadPermission then begin
-            ExtensionExecutionInfo.SetFilter("Form ID", '%1', CurrentFormId);
-            if ExtensionExecutionInfo.Find('-') then
-                repeat
-                    ApplicationObjectMetadata.Reset();
-                    ApplicationObjectMetadata.SetFilter("Runtime Package ID", '%1', ExtensionExecutionInfo."Runtime Package ID");
-                    if ApplicationObjectMetadata.FindFirst() then
-                        FilterConditions := FilterConditions + StrSubstNo(OrFilterFmtLbl, ApplicationObjectMetadata."Package ID");
-                until ExtensionExecutionInfo.Next() = 0;
+            // Add filters for arbitrary code which has executed on the form
+            if ExtensionExecutionInfo.ReadPermission then begin
+                ExtensionExecutionInfo.SetFilter("Form ID", '%1', CurrentFormId);
+                if ExtensionExecutionInfo.Find('-') then
+                    repeat
+                        ApplicationObjectMetadata.Reset();
+                        ApplicationObjectMetadata.SetFilter("Runtime Package ID", '%1', ExtensionExecutionInfo."Runtime Package ID");
+                        if ApplicationObjectMetadata.FindFirst() then
+                            FilterConditions := FilterConditions + StrSubstNo(OrFilterFmtLbl, ApplicationObjectMetadata."Package ID");
+                    until ExtensionExecutionInfo.Next() = 0;
+            end;
         end;
 
         Reset();

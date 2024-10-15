@@ -3903,6 +3903,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         Field.SetRange(Class, Field.Class::Normal);
         Field.SetRange(Type, Field.Type::Code);
         Field.SetRange(Len, 20);
+        Field.SetRange(ObsoleteState, Field.ObsoleteState::No, Field.ObsoleteState::Pending);
         if Field.FindSet then
             repeat
                 if (TableID <> Field.TableNo) and not IsObsolete(Field.TableNo) then
@@ -4188,7 +4189,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     begin
         with DetailedEntryWithGlobalDim do begin
             SetRange("Parent Entry No.", TableWithDimensionSetID."Entry No.");
-            FindSet;
+            FindSet();
             repeat
                 TestField("Initial Entry Global Dim. 1", TableWithDimensionSetID."Global Dimension 1 Code");
                 TestField("Initial Entry Global Dim. 2", TableWithDimensionSetID."Shortcut Dimension 2 Code");
@@ -4212,10 +4213,10 @@ codeunit 134483 "ERM Change Global Dimensions"
             TempChangeGlobalDimLogEntry.Modify();
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 483, 'OnAfterGetObjectNoList', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnAfterGetObjectNoList', '', false, false)]
     local procedure OnAfterGetObjectNoList(var TempAllObjWithCaption: Record AllObjWithCaption temporary)
     begin
-        if not TempChangeGlobalDimLogEntry.IsEmpty then
+        if not TempChangeGlobalDimLogEntry.IsEmpty() then
             if TempAllObjWithCaption.FindSet then
                 repeat
                     if not TempChangeGlobalDimLogEntry.Get(TempAllObjWithCaption."Object ID") then
@@ -4223,7 +4224,7 @@ codeunit 134483 "ERM Change Global Dimensions"
                 until TempAllObjWithCaption.Next = 0;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 483, 'OnBeforeScheduleTask', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnBeforeScheduleTask', '', false, false)]
     local procedure OnBeforeScheduleTask(TableNo: Integer; var DoNotScheduleTask: Boolean; var TaskID: Guid)
     begin
         DoNotScheduleTask := true;
@@ -4231,9 +4232,8 @@ codeunit 134483 "ERM Change Global Dimensions"
             TaskID := TempChangeGlobalDimLogEntry."Task ID";
     end;
 
-    [EventSubscriber(ObjectType::Table, 483, 'OnBeforeModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeModifyChangeGlobalDimLogEntry(var Rec: Record "Change Global Dim. Log Entry"; var xRec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Change Global Dim. Log Entry", 'OnBeforeModifyEvent', '', false, false)]
+    local procedure OnBeforeModifyChangeGlobalDimLogEntry(var Rec: Record "Change Global Dim. Log Entry"; var xRec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
     var
         xChangeGlobalDimLogEntry: Record "Change Global Dim. Log Entry";
     begin
@@ -4302,7 +4302,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         LibraryVariableStorage.Enqueue(Message);
     end;
 
-    [EventSubscriber(ObjectType::Table, 483, 'OnFindingScheduledTask', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Change Global Dim. Log Entry", 'OnFindingScheduledTask', '', false, false)]
     local procedure OnFindingScheduledTaskHandler(TaskID: Guid; var IsTaskExist: Boolean)
     begin
         IsTaskExist := not IsNullGuid(TaskID);
@@ -4314,7 +4314,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         FailOnModifyTAB134483 := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 134483, 'OnBeforeModifyEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Table With Dimension Set ID", 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnBeforeModifyTAB134483(var Rec: Record "Table With Dimension Set ID"; var xRec: Record "Table With Dimension Set ID"; RunTrigger: Boolean)
     begin
         if FailOnModifyTAB134483 then
@@ -4327,7 +4327,7 @@ codeunit 134483 "ERM Change Global Dimensions"
         CurrSessionIsActiveOnly := true;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 483, 'OnCountingActiveSessions', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Change Global Dimensions", 'OnCountingActiveSessions', '', false, false)]
     local procedure OnCountingActiveSessionsHandler(var IsCurrSessionActiveOnly: Boolean)
     begin
         IsCurrSessionActiveOnly := CurrSessionIsActiveOnly;
@@ -4339,15 +4339,14 @@ codeunit 134483 "ERM Change Global Dimensions"
         InsertRecToEmptyTable134482 := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, 483, 'OnAfterModifyEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnAfterModifyZeroRec483(var Rec: Record "Change Global Dim. Log Entry"; var xRec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Change Global Dim. Log Entry", 'OnAfterModifyEvent', '', false, false)]
+    local procedure OnAfterModifyZeroRec483(var Rec: Record "Change Global Dim. Log Entry"; var xRec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
     var
         TableWithDefaultDim: Record "Table With Default Dim";
     begin
         if InsertRecToEmptyTable134482 then begin
             InsertRecToEmptyTable134482 := false;
-            if TableWithDefaultDim.IsEmpty then
+            if TableWithDefaultDim.IsEmpty() then
                 TableWithDefaultDim.Insert();
         end;
     end;
@@ -4365,8 +4364,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     end;
 
     [EventSubscriber(ObjectType::Table, 483, 'OnBeforeInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertRec483RemoveDim1Field(var Rec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
+    local procedure OnBeforeInsertRec483RemoveDim1Field(var Rec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
     begin
         if RemoveDim1FieldOnTAB134482 then
             if Rec."Table ID" = Database::"Table With Default Dim" then begin
@@ -4376,8 +4374,7 @@ codeunit 134483 "ERM Change Global Dimensions"
     end;
 
     [EventSubscriber(ObjectType::Table, 483, 'OnBeforeInsertEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnBeforeInsertRec483RemoveDim2Field(var Rec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
+    local procedure OnBeforeInsertRec483RemoveDim2Field(var Rec: Record "Change Global Dim. Log Entry"; RunTrigger: Boolean)
     begin
         if RemoveDim2FieldOnTAB134482 then
             if Rec."Table ID" = Database::"Table With Default Dim" then begin

@@ -1,4 +1,3 @@
-#pragma warning disable AS0083 // TODO(#369362)
 enum 7300 "Whse. Activity Sorting Method"
 {
     Extensible = true;
@@ -13,4 +12,3 @@ enum 7300 "Whse. Activity Sorting Method"
     value(6; "Bin Ranking") { Caption = 'Bin Ranking'; }
     value(7; "Action Type") { Caption = 'Action Type'; }
 }
-#pragma warning restore AS0083 // TODO(#369362)

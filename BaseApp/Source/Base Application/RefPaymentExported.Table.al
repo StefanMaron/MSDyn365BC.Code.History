@@ -503,7 +503,7 @@ table 32000002 "Ref. Payment - Exported"
                     Modify;
                 end else
                     Delete;
-            until Next = 0;
+            until Next() = 0;
     end;
 
     procedure UpdateRemittanceInfo()
@@ -535,7 +535,7 @@ table 32000002 "Ref. Payment - Exported"
         RefPaymentExported.SetRange("Entry No.", "Entry No.");
         RefPaymentExported.SetRange(Transferred, true);
         RefPaymentExported.SetRange("Posted to G/L", false);
-        if not RefPaymentExported.IsEmpty then
+        if not RefPaymentExported.IsEmpty() then
             if not Confirm(Text1090000, false, "Vendor No.", "Document No.") then
                 exit(false);
         exit(true);

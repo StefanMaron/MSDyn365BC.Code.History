@@ -550,13 +550,13 @@ codeunit 135409 "Item Costing Plan-based E2E"
         VarianceAccount := LibraryERM.CreateGLAccountNo;
         COGSAccount := LibraryERM.CreateGLAccountNo;
 
-        InventoryPostingSetup.FindSet;
+        InventoryPostingSetup.FindSet();
         repeat
             InventoryPostingSetup.Validate("Inventory Account", InventoryAccount);
             InventoryPostingSetup.Modify(true);
         until InventoryPostingSetup.Next = 0;
 
-        GeneralPostingSetup.FindSet;
+        GeneralPostingSetup.FindSet();
         repeat
             GeneralPostingSetup.Validate("Purchase Variance Account", VarianceAccount);
             GeneralPostingSetup.Validate("COGS Account", COGSAccount);

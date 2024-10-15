@@ -43,7 +43,7 @@ page 2152 "O365 Country/Region List"
                 Name := CountryRegion.GetNameInCurrentLanguage;
                 "VAT Scheme" := CountryRegion."VAT Scheme";
                 if Insert() then;
-            until CountryRegion.Next = 0;
+            until CountryRegion.Next() = 0;
 
         exit(Find(Which));
     end;

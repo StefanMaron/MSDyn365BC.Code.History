@@ -195,7 +195,7 @@ codeunit 137412 "SCM Prevent Negative Inventory"
         LibrarySales.SetPreventNegativeInventory(PreventNegativeInventory);
     end;
 
-    local procedure TestNegativeAdjmtPosting(SetupPreventNegativeInventory: Boolean; SourceType: Option)
+    local procedure TestNegativeAdjmtPosting(SetupPreventNegativeInventory: Boolean; SourceType: Enum "Analysis Source Type")
     var
         Item: Record Item;
         ItemJnlTemplate: Record "Item Journal Template";

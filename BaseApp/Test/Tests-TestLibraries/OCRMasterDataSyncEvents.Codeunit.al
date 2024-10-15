@@ -12,14 +12,13 @@ codeunit 135099 "OCR Master Data Sync Events"
         IsValidationEnabled: Boolean;
         GivenPortionSize: Integer;
 
-    [EventSubscriber(ObjectType::Codeunit, 453, 'OnBeforeJobQueueScheduleTask', '', false, false)]
-    [Scope('OnPrem')]
-    procedure DisableTaskOnBeforeJobQueueScheduleTask(var DoNotScheduleTask: Boolean)
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Job Queue - Enqueue", 'OnBeforeJobQueueScheduleTask', '', false, false)]
+    local procedure DisableTaskOnBeforeJobQueueScheduleTask(var DoNotScheduleTask: Boolean)
     begin
         DoNotScheduleTask := true
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 884, 'OnBeforeSendRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"ReadSoft OCR Master Data Sync", 'OnBeforeSendRequest', '', false, false)]
     local procedure HandleOnBeforeSendRequest(Body: Text)
     var
         "Part": Text;

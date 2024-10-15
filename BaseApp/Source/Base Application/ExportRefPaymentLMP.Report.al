@@ -263,7 +263,7 @@ report 32000006 "Export Ref. Payment -  LMP"
                 if MessageType > '5' then
                     CreateMessageLines(MessageType, RefPmtExport."Invoice Message", RefPmtExport."Invoice Message 2", '1');
 
-            until RefPmtExport.Next = 0;
+            until RefPmtExport.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -313,7 +313,7 @@ report 32000006 "Export Ref. Payment -  LMP"
             if MessageType > '5' then
                 CreateMessageLines(MessageType, InvoiceMessage, InvoiceMessage2, '2');
 
-        until Rec.Next = 0;
+        until Rec.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -373,8 +373,7 @@ codeunit 144026 "SEPA Bank Payment Export"
         // Dummy message handler.
     end;
 
-    [EventSubscriber(ObjectType::Report, 13403, 'OnBeforeFileDownload', '', false, false)]
-    [Scope('OnPrem')]
+    [EventSubscriber(ObjectType::Report, Report::"Export SEPA Payment File", 'OnBeforeFileDownload', '', false, false)]
     procedure CancelDownloadOnBeforeFileDownload(FileName: Text; var CancelDownload: Boolean)
     begin
         CancelDownload := true;

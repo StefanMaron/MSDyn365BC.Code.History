@@ -18,7 +18,7 @@ table 5478 "Purch. Inv. Line Aggregate"
 
             trigger OnValidate()
             begin
-                "API Type" := Type.AsInteger();
+                "API Type" := Type;
             end;
         }
         field(6; "No."; Code[20])
@@ -192,7 +192,7 @@ table 5478 "Purch. Inv. Line Aggregate"
 
             trigger OnValidate()
             begin
-                Type := "Purchase Line Type".FromInteger("API Type");
+                Type := "API Type";
             end;
         }
         field(9030; "Item Id"; Guid)
@@ -354,7 +354,7 @@ table 5478 "Purch. Inv. Line Aggregate"
     local procedure UpdateCalculatedFields()
     begin
         UpdateReferencedRecordIds;
-        "API Type" := Type.AsInteger();
+        "API Type" := Type;
     end;
 
     local procedure UpdateVariantCode()

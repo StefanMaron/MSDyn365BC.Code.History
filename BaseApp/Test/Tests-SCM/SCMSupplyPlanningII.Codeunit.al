@@ -41,7 +41,7 @@ codeunit 137071 "SCM Supply Planning -II"
         isInitialized: Boolean;
         RequisitionLineMustNotExist: Label 'Requisition Line must not exist for Item %1.';
         ItemFilter: Label '%1|%2';
-        AvailabilityWarningConfirmationMessage: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarningConfirmationMessage: Label 'You do not have enough inventory to meet the demand for items in one or more lines.';
         ItemNotPlanned: Label 'Not all items were planned. A total of 1 items were not planned.';
         NewWorksheetMessage: Label 'You are now in worksheet';
         NothingToCreateMessage: Label 'There is nothing to create.';
@@ -3281,7 +3281,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure UpdateQuantityOnSalesLine(var SalesLine: Record "Sales Line"; Quantity: Decimal)
@@ -4299,10 +4299,10 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        OrderType: Option ItemOrder,ProjectOrder;
     begin
         CreateSalesOrderForItemQuantityMoreThenDampener(SalesHeader, SalesLine, Item, ShipmentDate);
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, "Production Order Status"::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, "Production Order Status"::Released, "Create Production Order Type"::ItemOrder);
         SalesLine.Validate(Quantity, SalesLine.Quantity - Item."Dampener Quantity");
         SalesLine.Modify(true);
     end;

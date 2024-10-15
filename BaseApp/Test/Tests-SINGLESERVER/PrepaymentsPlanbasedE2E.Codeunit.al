@@ -495,7 +495,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         GLAccountNo: Code[20];
     begin
         GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
-        GeneralPostingSetup.FindSet;
+        GeneralPostingSetup.FindSet();
         repeat
             AttachSalesPrepaymentAccountInSetup(GeneralPostingSetup, GLAccountNo);
         until GeneralPostingSetup.Next = 0;
@@ -523,7 +523,7 @@ codeunit 135407 "Prepayments Plan-based E2E"
         GLAccountNo: Code[20];
     begin
         GLAccountNo := LibraryERM.CreateGLAccountWithPurchSetup;
-        GeneralPostingSetup.FindSet;
+        GeneralPostingSetup.FindSet();
         repeat
             AttachPurchPrepaymentAccountInSetup(GeneralPostingSetup, GLAccountNo);
         until GeneralPostingSetup.Next = 0;

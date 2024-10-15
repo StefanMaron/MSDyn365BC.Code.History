@@ -7,9 +7,9 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         CurrExchRateUpdateSetup: Record "Curr. Exch. Rate Update Setup";
         GLSetup: Record "General Ledger Setup";
     begin
-        if Currency.IsEmpty then
+        if Currency.IsEmpty() then
             exit;
-        if not CurrExchRateUpdateSetup.IsEmpty then
+        if not CurrExchRateUpdateSetup.IsEmpty() then
             exit;
         if not CurrExchRateUpdateSetup.WritePermission then
             exit;

@@ -181,7 +181,7 @@ codeunit 144022 "E-BANKING Import Test"
         RefPaymentImported.SetRange("Banks Posting Date", PostingDate);
         RefPaymentImported.SetRange("Banks Payment Date", PostingDate);
         RefPaymentImported.SetRange("Payers Name", 'TESTIAS1');
-        RefPaymentImported.FindSet;
+        RefPaymentImported.FindSet();
 
         Assert.AreEqual(2, RefPaymentImported.Count, 'Expected number of bank payment entries does not match');
 
@@ -414,7 +414,7 @@ codeunit 144022 "E-BANKING Import Test"
         GenJournalBatch.Get(JnlTemplateName, GenJournalBatchName);
         Assert.AreEqual(InvoicesCount, GenJournalLine.Count, 'Expected Gen. Journal Lines count does not match');
 
-        GenJournalLine.FindSet;
+        GenJournalLine.FindSet();
         repeat
             Assert.AreEqual(PostingDate, GenJournalLine."Posting Date", 'Posting Date does not match');
             Assert.AreEqual(ExpectedAmount, GenJournalLine.Amount, 'Amount does not match');

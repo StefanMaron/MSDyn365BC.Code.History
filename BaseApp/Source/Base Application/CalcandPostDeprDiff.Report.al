@@ -135,7 +135,7 @@ report 13402 "Calc. and Post Depr. Diff."
                     if DeprDiffPostingBuffer.FindSet then begin
                         repeat
                             PostJournalLines(DeprDiffPostingBuffer);
-                        until DeprDiffPostingBuffer.Next = 0;
+                        until DeprDiffPostingBuffer.Next() = 0;
                         Message(Text13408);
                     end else
                         Message(Text13412);

@@ -48,6 +48,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ApplicationArea = SalesReturnOrder;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
+#if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -57,6 +58,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     ObsoleteState = Pending;
                     ObsoleteTag = '17.0';
                 }
+#endif
                 field("Item Reference No."; "Item Reference No.")
                 {
                     ApplicationArea = SalesReturnOrder;
@@ -340,7 +342,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                     TempSalesShptLine := SalesShptLine2;
                     TempSalesShptLine.Insert();
                 end;
-            until (SalesShptLine2.Next = 0) or ShowRec;
+            until (SalesShptLine2.Next() = 0) or ShowRec;
             QtyNotReturned := QtyNotReturned2;
             RevUnitCostLCY := RevUnitCostLCY2;
         end;

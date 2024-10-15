@@ -20,7 +20,7 @@ page 99000810 "Routing Version"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -79,6 +79,8 @@ page 99000810 "Routing Version"
                     ApplicationArea = Manufacturing;
                     Caption = 'Copy &Routing';
                     Image = CopyRouteHeader;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ToolTip = 'Copy an existing routing to quickly create a similar BOM.';
 
                     trigger OnAction()
@@ -96,6 +98,8 @@ page 99000810 "Routing Version"
                     Caption = 'Copy Routing &Version';
                     Ellipsis = true;
                     Image = CopyRouteVersion;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ToolTip = 'Copy an existing routing version to quickly create a similar routing.';
 
                     trigger OnAction()

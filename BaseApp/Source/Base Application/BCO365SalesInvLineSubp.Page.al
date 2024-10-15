@@ -292,7 +292,7 @@ page 2311 "BC O365 Sales Inv. Line Subp."
 
         TotalSalesHeader.Get("Document Type", "Document No.");
         DocumentTotals.SalesRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalSalesLine);
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure GetTotalSalesHeader()

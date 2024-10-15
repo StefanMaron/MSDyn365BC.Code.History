@@ -169,12 +169,18 @@ page 118 "General Ledger Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies that an extra VAT specification in local currency will be included on documents in a foreign currency. This can be used to make tax audits easier when reconciling VAT payables to invoices.';
                 }
+#if not CLEAN18
                 field("Use Legacy G/L Entry Locking"; "Use Legacy G/L Entry Locking")
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Legacy G/L Locking is no longer supported.';
+                    Visible = false;
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies when the G/L Entry table should be locked during sales, purchase, and service posting to improve performance in multiuser environments. Consider this setting if: You encounter deadlock situations because your solution relies on G/L Entry table locking. You have selected the Automatic Cost Posting check box in the Inventory Setup window.';
+                    ObsoleteTag = '18.0';
                 }
+#endif
                 field("Show Amounts"; "Show Amounts")
                 {
                     ApplicationArea = Basic, Suite;

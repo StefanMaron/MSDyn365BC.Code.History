@@ -1,0 +1,42 @@
+permissionset 9886 "D365 JOBS, EDIT"
+{
+    Assignable = true;
+
+    Caption = 'Dynamics 365 Create Jobs';
+    Permissions = tabledata "Dtld. Price Calculation Setup" = RIMD,
+                  tabledata "Duplicate Price Line" = RIMD,
+                  tabledata Job = RIMD,
+                  tabledata "Job Cue" = RIMD,
+                  tabledata "Job Entry No." = RIMD,
+                  tabledata "Job G/L Account Price" = RIMD,
+                  tabledata "Job Item Price" = RIMD,
+                  tabledata "Job Journal Batch" = RIMD,
+                  tabledata "Job Journal Line" = RIMD,
+                  tabledata "Job Journal Quantity" = RIMD,
+                  tabledata "Job Journal Template" = RIMD,
+                  tabledata "Job Ledger Entry" = Rimd,
+                  tabledata "Job Planning Line - Calendar" = RIMD,
+                  tabledata "Job Planning Line" = RIMD,
+                  tabledata "Job Planning Line Invoice" = RIMD,
+                  tabledata "Job Posting Buffer" = RIMD,
+                  tabledata "Job Posting Group" = RIMD,
+                  tabledata "Job Register" = Rimd,
+                  tabledata "Job Resource Price" = RIMD,
+                  tabledata "Job Task" = RIMD,
+                  tabledata "Job Task Dimension" = RIMD,
+                  tabledata "Job Usage Link" = RIMD,
+                  tabledata "Job WIP Entry" = RIMD,
+                  tabledata "Job WIP G/L Entry" = Rimd,
+                  tabledata "Job WIP Method" = RIMD,
+                  tabledata "Job WIP Total" = RIMD,
+                  tabledata "Job WIP Warning" = RIMD,
+                  tabledata "Jobs Setup" = RIMD,
+                  tabledata "My Job" = RIMD,
+                  tabledata "Price Asset" = RIMD,
+                  tabledata "Price Calculation Buffer" = RIMD,
+                  tabledata "Price Calculation Setup" = RIMD,
+                  tabledata "Price Line Filters" = RIMD,
+                  tabledata "Price List Header" = RIMD,
+                  tabledata "Price List Line" = RIMD,
+                  tabledata "Price Source" = RIMD;
+}

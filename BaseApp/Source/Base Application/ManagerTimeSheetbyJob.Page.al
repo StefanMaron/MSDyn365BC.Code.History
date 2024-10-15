@@ -59,7 +59,7 @@ page 954 "Manager Time Sheet by Job"
                     trigger OnAssistEdit()
                     begin
                         ShowLineDetails(true);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Work Type Code"; "Work Type Code")
@@ -347,7 +347,7 @@ page 954 "Manager Time Sheet by Job"
                 NoOfColumns += 1;
                 ColumnRecords[NoOfColumns]."Period Start" := Calendar."Period Start";
                 ColumnCaption[NoOfColumns] := TimeSheetMgt.FormatDate(Calendar."Period Start", 1);
-            until Calendar.Next = 0;
+            until Calendar.Next() = 0;
     end;
 
     local procedure AfterGetCurrentRecord()
@@ -424,7 +424,7 @@ page 954 "Manager Time Sheet by Job"
                   Action::"Reject All":
                         TimeSheetApprovalMgt.Reject(TimeSheetLine);
                 end;
-            until TimeSheetLine.Next = 0;
+            until TimeSheetLine.Next() = 0;
         OnAfterProcess(TempTimeSheetLine, Action);
         CurrPage.Update(false);
     end;

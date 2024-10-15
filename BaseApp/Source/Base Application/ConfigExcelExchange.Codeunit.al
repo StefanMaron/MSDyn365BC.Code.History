@@ -59,7 +59,7 @@ codeunit 8618 "Config. Excel Exchange"
             repeat
                 if not (ConfigPackageTable.DimensionPackageDataExist or (ConfigPackageTable.DimensionFieldsCount > 0)) then
                     ConfigPackageTable.InitDimensionFields;
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
         ConfigPackageTable.SetRange("Dimensions as Columns");
         ExportExcel(FileName, ConfigPackageTable, true, false);
         exit(FileName);
@@ -177,7 +177,7 @@ codeunit 8618 "Config. Excel Exchange"
 
                 Clear(StringBld);
 
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
 
         FILE.Erase(TempSchemaFileName);
         FILE.Erase(TempSetupDataFileName);
@@ -248,12 +248,12 @@ codeunit 8618 "Config. Excel Exchange"
             repeat
                 SelectedTable.Number := ConfigPackageTable."Table ID";
                 if SelectedTable.Insert() then;
-            until ConfigPackageTable.Next = 0;
+            until ConfigPackageTable.Next() = 0;
     end;
 
     local procedure IsTableSelected(TableId: Integer): Boolean
     begin
-        if SelectedTable.IsEmpty then
+        if SelectedTable.IsEmpty() then
             exit(true);
         exit(SelectedTable.Get(TableId));
     end;
@@ -594,7 +594,7 @@ codeunit 8618 "Config. Excel Exchange"
                     end;
                 end;
                 ColumnID += 1;
-            until ConfigPackageField.Next = 0;
+            until ConfigPackageField.Next() = 0;
         end;
         RecRef.Close;
     end;

@@ -293,7 +293,7 @@ report 32000004 "Export Ref. Payment -  LUM"
                 RefPmtExport.Transferred := true;
                 RefPmtExport.Modify();
                 RefPmtExport.MarkAffiliatedAsTransferred;
-            until RefPmtExport.Next = 0;
+            until RefPmtExport.Next() = 0;
     end;
 
     local procedure TextSpaceFormat(Text: Text[250]; Length: Integer; Align: Integer; ExtraChr: Text[1]) NewText: Text[250]

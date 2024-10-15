@@ -114,7 +114,7 @@ codeunit 1545 "Workflow Webhook Notification"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 1545, 'OnPostNotificationRequest', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Workflow Webhook Notification", 'OnPostNotificationRequest', '', false, false)]
     [TryFunction]
     local procedure PostNotificationRequest(var Sender: Codeunit "Workflow Webhook Notification"; DataID: Guid; WorkflowStepInstanceID: Guid; NotificationUrl: Text; RequestedByUserEmail: Text)
     begin

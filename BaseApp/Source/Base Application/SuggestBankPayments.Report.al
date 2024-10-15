@@ -33,7 +33,7 @@ report 32000003 "Suggest Bank Payments"
                             GetVendLedgEntries(true, false);
                             GetVendLedgEntries(false, false);
                             CheckAmounts(false);
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                 end;
                 Window.Close;
 
@@ -48,7 +48,7 @@ report 32000003 "Suggest Bank Payments"
                             GetVendLedgEntries(true, true);
                             GetVendLedgEntries(false, true);
                             CheckAmounts(true);
-                        until (Next = 0) or StopPayments;
+                        until (Next() = 0) or StopPayments;
                         Window.Close;
                     end;
                 end;
@@ -230,7 +230,7 @@ report 32000003 "Suggest Bank Payments"
         if VendLedgEntry.FindSet then
             repeat
                 SaveAmount;
-            until VendLedgEntry.Next = 0;
+            until VendLedgEntry.Next() = 0;
     end;
 
     local procedure SaveAmount()
@@ -279,7 +279,7 @@ report 32000003 "Suggest Bank Payments"
                     CurrencyBalance := CurrencyBalance + PayableVendLedgEntry."Amount (LCY)"
                 else
                     PayableVendLedgEntry.Delete();
-            until PayableVendLedgEntry.Next = 0;
+            until PayableVendLedgEntry.Next() = 0;
             if CurrencyBalance < 0 then begin
                 PayableVendLedgEntry.SetRange("Currency Code", PrevCurrency);
                 PayableVendLedgEntry.DeleteAll();
@@ -315,7 +315,7 @@ report 32000003 "Suggest Bank Payments"
                         end;
                     end;
                 end;
-            until PayableVendLedgEntry.Next = 0;
+            until PayableVendLedgEntry.Next() = 0;
     end;
 
     local procedure AmountAvailableOnAfterValidate()

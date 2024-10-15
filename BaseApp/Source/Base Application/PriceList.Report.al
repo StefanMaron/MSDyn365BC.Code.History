@@ -640,7 +640,7 @@ report 715 "Price List"
                     end else
                         CurrReport.Skip();
             end else
-                if Next = 0 then
+                if Next() = 0 then
                     CurrReport.Break();
 
             if (SalesType = SalesType::Campaign) and ("Sales Type" <> "Sales Type"::Campaign) then
@@ -686,7 +686,7 @@ report 715 "Price List"
                 if not Find('-') then
                     CurrReport.Break();
             end else
-                if Next = 0 then
+                if Next() = 0 then
                     CurrReport.Break();
 
             if (SalesType = SalesType::Campaign) and ("Sales Type" <> "Sales Type"::Campaign) then

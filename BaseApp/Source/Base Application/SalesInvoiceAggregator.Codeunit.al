@@ -417,26 +417,26 @@ codeunit 5477 "Sales Invoice Aggregator"
         if SalesHeader.FindSet then
             repeat
                 InsertOrModifyFromSalesHeader(SalesHeader);
-            until SalesHeader.Next = 0;
+            until SalesHeader.Next() = 0;
 
         if SalesInvoiceHeader.FindSet then
             repeat
                 InsertOrModifyFromSalesInvoiceHeader(SalesInvoiceHeader);
-            until SalesInvoiceHeader.Next = 0;
+            until SalesInvoiceHeader.Next() = 0;
 
         SalesInvoiceEntityAggregate.SetRange(Posted, false);
         if SalesInvoiceEntityAggregate.FindSet(true, false) then
             repeat
                 if not SalesHeader.Get(SalesHeader."Document Type"::Invoice, SalesInvoiceEntityAggregate."No.") then
                     SalesInvoiceEntityAggregate.Delete(true);
-            until SalesInvoiceEntityAggregate.Next = 0;
+            until SalesInvoiceEntityAggregate.Next() = 0;
 
         SalesInvoiceEntityAggregate.SetRange(Posted, true);
         if SalesInvoiceEntityAggregate.FindSet(true, false) then
             repeat
                 if not SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.") then
                     SalesInvoiceEntityAggregate.Delete(true);
-            until SalesInvoiceEntityAggregate.Next = 0;
+            until SalesInvoiceEntityAggregate.Next() = 0;
     end;
 
     procedure GetSalesInvoiceHeaderId(var SalesInvoiceHeader: Record "Sales Invoice Header"): Guid
@@ -556,7 +556,7 @@ codeunit 5477 "Sales Invoice Aggregator"
 
         repeat
             UpdateStatusIfChanged(SalesInvoiceEntityAggregate);
-        until SalesInvoiceEntityAggregate.Next = 0;
+        until SalesInvoiceEntityAggregate.Next() = 0;
     end;
 
     local procedure SetStatusOptionFromCancelledDocument(var CancelledDocument: Record "Cancelled Document")
@@ -624,7 +624,7 @@ codeunit 5477 "Sales Invoice Aggregator"
     local procedure UpdateStatusIfChanged(var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        CurrentStatus: Option;
+        CurrentStatus: Enum "Invoice Entity Aggregate Status";
     begin
         if not SalesInvoiceHeader.Get(SalesInvoiceEntityAggregate."No.") then
             exit;
@@ -882,7 +882,7 @@ codeunit 5477 "Sales Invoice Aggregator"
                 UpdateLineAmountsFromSalesInvoiceLine(SalesInvoiceLineAggregate, SalesInvoiceLine);
                 SalesInvoiceAggregator.SetItemVariantId(SalesInvoiceLineAggregate, SalesInvoiceLine."No.", SalesInvoiceLine."Variant Code");
                 SalesInvoiceLineAggregate.Insert(true);
-            until SalesInvoiceLine.Next = 0;
+            until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure LoadSalesLines(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate")
@@ -896,7 +896,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             repeat
                 TransferFromSalesLine(SalesInvoiceLineAggregate, SalesInvoiceEntityAggregate, SalesLine);
                 SalesInvoiceLineAggregate.Insert(true);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure TransferFromSalesLine(var SalesInvoiceLineAggregate: Record "Sales Invoice Line Aggregate"; var SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate"; var SalesLine: Record "Sales Line")
@@ -1024,7 +1024,7 @@ codeunit 5477 "Sales Invoice Aggregator"
             repeat
                 if not TempNewSalesInvoiceLineAggregate.Get(SalesInvoiceEntityAggregate.Id, TempCurrentSalesInvoiceLineAggregate."Line No.") then
                     PropagateDeleteLine(TempCurrentSalesInvoiceLineAggregate);
-            until TempCurrentSalesInvoiceLineAggregate.Next = 0;
+            until TempCurrentSalesInvoiceLineAggregate.Next() = 0;
 
         // Update Lines
         TempNewSalesInvoiceLineAggregate.FindFirst;
@@ -1036,7 +1036,7 @@ codeunit 5477 "Sales Invoice Aggregator"
                 PropagateInsertLine(TempNewSalesInvoiceLineAggregate, TempAllFieldBuffer)
             else
                 PropagateModifyLine(TempNewSalesInvoiceLineAggregate, TempAllFieldBuffer);
-        until TempNewSalesInvoiceLineAggregate.Next = 0;
+        until TempNewSalesInvoiceLineAggregate.Next() = 0;
 
         SalesInvoiceEntityAggregate.Get(SalesInvoiceEntityAggregate."No.", SalesInvoiceEntityAggregate.Posted);
     end;

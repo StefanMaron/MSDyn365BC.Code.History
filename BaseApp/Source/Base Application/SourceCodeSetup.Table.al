@@ -334,6 +334,16 @@ table 242 "Source Code Setup"
             Caption = 'Adjust Cost';
             TableRelation = "Source Code";
         }
+        field(5850; "Invt. Receipt"; Code[10])
+        {
+            Caption = 'Item Doc. Receipt';
+            TableRelation = "Source Code";
+        }
+        field(5851; "Invt. Shipment"; Code[10])
+        {
+            Caption = 'Item Doc. Shipment';
+            TableRelation = "Source Code";
+        }
         field(5875; "Phys. Invt. Orders"; Code[10])
         {
             Caption = 'Phys. Invt. Orders';

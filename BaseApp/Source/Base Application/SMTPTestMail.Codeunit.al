@@ -19,7 +19,7 @@ codeunit 412 "SMTP Test Mail"
                 if AddressChoice <> '' then
                     AddressChoice := AddressChoice + ',';
                 AddressChoice := AddressChoice + TempNameValueBuffer.Value;
-            until TempNameValueBuffer.Next = 0;
+            until TempNameValueBuffer.Next() = 0;
 
         AddressChoice := StrSubstNo('%1,%2', AddressChoice, TestMailOtherTxt);
 

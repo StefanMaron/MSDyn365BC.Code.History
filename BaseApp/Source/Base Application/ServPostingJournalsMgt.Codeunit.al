@@ -300,7 +300,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         if TempWhseJnlLine2.Find('-') then
             repeat
                 WhseJnlRegisterLine.RegisterWhseJnlLine(TempWhseJnlLine2);
-            until TempWhseJnlLine2.Next = 0;
+            until TempWhseJnlLine2.Next() = 0;
     end;
 
     procedure PostInvoicePostBufferLine(var InvoicePostBuffer: Record "Invoice Post. Buffer"; DocType: Integer; DocNo: Code[20]; ExtDocNo: Code[35])
@@ -553,7 +553,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
                 PassedValueEntryRelation := TempValueEntryRelation;
                 PassedValueEntryRelation."Source RowId" := RowId;
                 PassedValueEntryRelation.Insert();
-            until TempValueEntryRelation.Next = 0;
+            until TempValueEntryRelation.Next() = 0;
 
         TempValueEntryRelation.DeleteAll();
     end;

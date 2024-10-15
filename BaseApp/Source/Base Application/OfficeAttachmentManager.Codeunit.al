@@ -62,7 +62,7 @@ codeunit 1629 "Office Attachment Manager"
         Count += NewCount;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnSendSalesDocument', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnSendSalesDocument', '', false, false)]
     local procedure OnSendSalesDocument(ShipAndInvoice: Boolean)
     begin
         if ShipAndInvoice then

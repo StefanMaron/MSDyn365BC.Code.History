@@ -52,7 +52,7 @@ codeunit 99000769 "Production BOM-Check"
                 if Item."Routing No." <> '' then
                     CheckBOMStructure(ProdBOMHeader."No.", VersionCode, 1);
                 ItemUnitOfMeasure.Get(Item."No.", ProdBOMHeader."Unit of Measure Code");
-            until Item.Next = 0;
+            until Item.Next() = 0;
         end;
 
         OnAfterCode(ProdBOMHeader, VersionCode);
@@ -126,7 +126,7 @@ codeunit 99000769 "Production BOM-Check"
                           ProdBOMComponent."No.",
                           VersionMgt.GetBOMVersion(ProdBOMComponent."No.", WorkDate, true), Level + 1);
                 end;
-            until ProdBOMComponent.Next = 0;
+            until ProdBOMComponent.Next() = 0;
     end;
 
     procedure ProdBOMLineCheck(ProdBOMNo: Code[20]; VersionCode: Code[20])

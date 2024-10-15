@@ -447,7 +447,6 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         SalesHeader2: Record "Sales Header";
         SalesLine2: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
-        OrderType: Option ItemOrder,ProjectOrder;
         StartDate: Date;
         EndDate: Date;
         Quantity: Integer;
@@ -457,7 +456,8 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Quantity := LibraryRandom.RandInt(10) + 20;  // Large Random Quantity.
         CreateSalesOrder(SalesHeader, SalesLine, Item."No.", Quantity);
         LibraryVariableStorage.Enqueue(ReleasedProductionOrderCreatedTxt);  // Required inside MessageHandler.
-        LibraryManufacturing.CreateProductionOrderFromSalesOrder(SalesHeader, ProductionOrder.Status::Released, OrderType::ItemOrder);
+        LibraryManufacturing.CreateProductionOrderFromSalesOrder(
+            SalesHeader, ProductionOrder.Status::Released, "Create Production Order Type"::ItemOrder);
 
         // Open Production Journal and Post. Handler used -ProductionJournalHandler.
         SelectProductionOrder(ProductionOrder, Item."No.", ProductionOrder.Status::Released);
@@ -3938,13 +3938,13 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     local procedure SelectRequisitionLine(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20])
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure SelectRequisitionLines(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; ItemNo2: Code[20])
     begin
         FilterOnRequisitionLines(RequisitionLine, ItemNo, ItemNo2);
-        RequisitionLine.FindSet;
+        RequisitionLine.FindSet();
     end;
 
     local procedure SelectSalesLineFromSalesDocument(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -4048,7 +4048,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         CalcRegenPlanForPlanWkshPage(PlanningWorksheet, RequisitionWkshNameName, ItemNo, ItemNo2);
     end;
 
-    local procedure UpdateRequisitionLineTypeAndNo(var RequisitionLine: Record "Requisition Line"; SourceType: Option; SourceNo: Code[20])
+    local procedure UpdateRequisitionLineTypeAndNo(var RequisitionLine: Record "Requisition Line"; SourceType: Enum "Requisition Line Type"; SourceNo: Code[20])
     begin
         RequisitionLine.Validate(Type, SourceType);
         RequisitionLine.Validate("No.", SourceNo);

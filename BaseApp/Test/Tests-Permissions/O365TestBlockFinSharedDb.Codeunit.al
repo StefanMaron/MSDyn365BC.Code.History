@@ -39,7 +39,7 @@ codeunit 138999 "O365 Test Block Fin SharedDb"
         BindSubscription(O365TestBlockFinSharedDb);
     end;
 
-    [EventSubscriber(ObjectType::Page, 2500, 'OnOpenPageEvent', '', true, true)]
+    [EventSubscriber(ObjectType::Page, Page::"Extension Management", 'OnOpenPageEvent', '', true, true)]
     [Scope('OnPrem')]
     procedure BlockUserOnOpenExtensionManagement(var Rec: Record "Published Application")
     begin

@@ -1230,7 +1230,7 @@ codeunit 144003 "Automatic Acc. Group Posting"
 
         with AutomaticAccLine do begin
             SetRange("Automatic Acc. No.", SalesLine."Auto. Acc. Group");
-            FindSet;
+            FindSet();
             repeat
                 GLEntry.SetRange("G/L Account No.", "G/L Account No.");
                 GLEntry.FindLast;

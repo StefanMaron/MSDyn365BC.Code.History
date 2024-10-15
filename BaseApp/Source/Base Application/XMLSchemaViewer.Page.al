@@ -135,6 +135,10 @@ page 9610 "XML Schema Viewer"
                 Promoted = true;
                 PromotedCategory = Process;
                 ToolTip = 'Create the XMLport object for import into the Object Designer.';
+                Visible = false;
+                ObsoleteReason = 'Functionality will be reomved';
+                ObsoleteState = Pending;
+                ObsoleteTag = '18.0';
 
                 trigger OnAction()
                 var
@@ -312,7 +316,7 @@ page 9610 "XML Schema Viewer"
 
         ChildXMLSchemaElement.SetRange("XML Schema Code", "XML Schema Code");
         ChildXMLSchemaElement.SetRange("Parent ID", ID);
-        if not ChildXMLSchemaElement.IsEmpty then
+        if not ChildXMLSchemaElement.IsEmpty() then
             StyleExpression := 'Strong';
     end;
 }

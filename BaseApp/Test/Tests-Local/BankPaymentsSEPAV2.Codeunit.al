@@ -440,7 +440,7 @@ codeunit 144004 "Bank Payments - SEPA V2"
         VerifyValue(LibraryXPathXMLReader, 'PmtInf/CdtTrfTxInf/PmtId/EndToEndId[1]', DocNo[2]);
 
         // Verify Lines in Ref Payment Exported
-        RefPmtExported.FindSet;
+        RefPmtExported.FindSet();
         Assert.AreEqual(2, RefPmtExported.Count, '2 lines should exist');
         Assert.IsFalse(RefPmtExported.Transferred, 'Export should keep all NON SEPA lines');
         RefPmtExported.Next;

@@ -36,7 +36,7 @@ report 13403 "Export SEPA Payment File"
                 CompanyInfo.Get();
                 PurchSetup.Get();
                 CheckSEPAValidations;
-                if IsEmpty then
+                if IsEmpty() then
                     Error(Text13403);
 
                 CurrPaymentAccount := '';
@@ -425,7 +425,7 @@ report 13403 "Export SEPA Payment File"
                             VendorBankAcc.TestField("Bank Account No.");
 
                     ControlSum += Amount;
-                until Next = 0;
+                until Next() = 0;
             end;
         end;
     end;

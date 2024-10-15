@@ -158,7 +158,7 @@ page 589 "XBRL Linkbases"
                                             Type::Reference:
                                                 XBRLImportTaxonomySpec2.ImportReference(XBRLLinkbase);
                                         end;
-                                    until Next = 0;
+                                    until Next() = 0;
                         end;
                     end;
                 }

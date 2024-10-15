@@ -21,7 +21,7 @@ codeunit 884 "ReadSoft OCR Master Data Sync"
         InvalidResponseMsg: Label 'Response is invalid.';
         MasterDataSyncMsg: Label 'Master data synchronization.\#1########################################', Comment = '#1 place holder for SendingPackageMsg ';
         SendingPackageMsg: Label 'Sending package %1 of %2', Comment = '%1 package number, %2 package count';
-        MaxPortionSizeTxt: Label '3000', Locked = true;
+        MaxPortionSizeTxt: Label '10000', Locked = true;
         MethodPutTok: Label 'PUT', Locked = true;
         MethodPostTok: Label 'POST', Locked = true;
         WindowUpdateDateTime: DateTime;

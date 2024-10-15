@@ -213,7 +213,7 @@ codeunit 1522 "Workflow Request Page Handling"
     begin
         WorkflowEvent.SetRange("Table ID", TableID);
         WorkflowEvent.SetFilter("Dynamic Req. Page Entity Name", '<>%1', DynamicReqPageEntityName);
-        if not WorkflowEvent.IsEmpty then
+        if not WorkflowEvent.IsEmpty() then
             WorkflowEvent.ModifyAll("Dynamic Req. Page Entity Name", DynamicReqPageEntityName);
     end;
 

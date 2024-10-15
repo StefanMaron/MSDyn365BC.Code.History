@@ -45,6 +45,8 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         DocExchServiceDocumentSuccessfullySentTxt: Label 'The user successfully sent a document via the exchange service.', Locked = true;
         DocExchServiceDocumentSuccessfullyReceivedTxt: Label 'The user successfully received a document via the exchange service.', Locked = true;
         TelemetryCategoryTok: Label 'AL Document Exchange Service', Locked = true;
+        TelemetrySecurityTok: Label 'AL Security', Locked = true;
+        WeakHashFunctionTxt: Label 'Use of weak hash function', Locked = true;
 
     procedure SetURLsToDefault(var DocExchServiceSetup: Record "Doc. Exch. Service Setup")
     begin
@@ -396,6 +398,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         HttpWebRequestMgt.Initialize(URL);
         HttpWebRequestMgt.SetMethod(Method);
         HttpWebRequestMgt.AddHeader('Authorization', OAuthAuthorization.GetAuthorizationHeader(URL, Method));
+        Session.LogMessage('0000ED1', WeakHashFunctionTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetrySecurityTok);
 
         SetDefaults(BodyFilePath);
     end;
@@ -746,7 +749,7 @@ codeunit 1410 "Doc. Exch. Service Mgt."
         GLBTraceLogEnabled := NewTraceLogEnabled;
     end;
 
-    [EventSubscriber(ObjectType::Table, 1400, 'OnRegisterServiceConnection', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Service Connection", 'OnRegisterServiceConnection', '', false, false)]
     procedure HandleVANRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";

@@ -1354,7 +1354,7 @@ page 39 "General Journal"
                 action(CreateFlow)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Create a Flow';
+                    Caption = 'Create a flow';
                     Image = Flow;
                     ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                     Visible = IsSaaS;
@@ -1372,7 +1372,7 @@ page 39 "General Journal"
                 action(SeeFlows)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'See my Flows';
+                    Caption = 'See my flows';
                     Image = Flow;
                     RunObject = Page "Flow Selector";
                     ToolTip = 'View and configure Power Automate flows that you created.';
@@ -1859,7 +1859,6 @@ page 39 "General Journal"
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         IsSaaS: Boolean;
-        IsSimplePage: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
         BackgroundErrorCheck: Boolean;
@@ -1873,6 +1872,7 @@ page 39 "General Journal"
         DocumentNumberMsg: Label 'Document No. must have a value in Gen. Journal Line.';
 
     protected var
+        IsSimplePage: Boolean;
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -2101,7 +2101,6 @@ page 39 "General Journal"
 
     local procedure GetTotalCreditAmt(): Decimal
     var
-        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if IsSimplePage then begin
@@ -2197,7 +2196,7 @@ page 39 "General Journal"
                             GenJournalLine.Validate("Posting Date", CurrentPostingDate);
                     end;
                     GenJournalLine.Modify();
-                until GenJournalLine.Next = 0;
+                until GenJournalLine.Next() = 0;
         end;
         CurrPage.Update(false);
     end;

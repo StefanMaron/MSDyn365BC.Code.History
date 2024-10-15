@@ -1,4 +1,4 @@
-﻿page 93 "Job Ledger Entries Preview"
+page 93 "Job Ledger Entries Preview"
 {
     Caption = 'Job Ledger Entries Preview';
     DataCaptionFields = "Job No.";
@@ -391,7 +391,7 @@
                             repeat
                                 JobPlanningLine.Get(JobUsageLink."Job No.", JobUsageLink."Job Task No.", JobUsageLink."Line No.");
                                 JobPlanningLine.Mark := true;
-                            until JobUsageLink.Next = 0;
+                            until JobUsageLink.Next() = 0;
 
                         JobPlanningLine.MarkedOnly(true);
                         PAGE.Run(PAGE::"Job Planning Lines", JobPlanningLine);

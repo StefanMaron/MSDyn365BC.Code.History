@@ -2606,7 +2606,7 @@ codeunit 134331 "ERM Purchase Payables"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
         VATEntry.SetRange(Type, Type);
-        VATEntry.FindSet;
+        VATEntry.FindSet();
     end;
 
     local procedure FindVLE(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentNo: Code[20]; VendorNo: Code[20])
@@ -2690,7 +2690,7 @@ codeunit 134331 "ERM Purchase Payables"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentWithEmptyInvoiceMessage(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithEmptyInvoiceMessage(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2932,7 +2932,7 @@ codeunit 134331 "ERM Purchase Payables"
         TransactionNo := GLEntry."Transaction No.";
 
         GLEntry.SetRange("Document No.", DocumentNo);
-        GLEntry.FindSet;
+        GLEntry.FindSet();
         repeat
             GLEntry.TestField("Transaction No.", TransactionNo);
         until GLEntry.Next = 0;

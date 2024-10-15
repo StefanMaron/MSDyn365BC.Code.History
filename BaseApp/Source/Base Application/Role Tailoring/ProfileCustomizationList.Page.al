@@ -125,7 +125,7 @@ page 9190 "Profile Customization List"
                         repeat
                             if SystemIdToOperationId.Get(TenantProfilePageMetadata.SystemId, OperationId) then begin
                                 DesignerDiagnostics.SetRange("Operation ID", OperationId);
-                                if not DesignerDiagnostics.IsEmpty then
+                                if not DesignerDiagnostics.IsEmpty() then
                                     TenantProfilePageMetadata.Mark(true);
                             end;
                         until TenantProfilePageMetadata.Next() = 0;

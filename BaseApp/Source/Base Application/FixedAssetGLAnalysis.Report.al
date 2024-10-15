@@ -493,7 +493,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     TypeExist := DateType = "FA Date Type Name";
                     if TypeExist then
                         DateTypeNo := "FA Date Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
             if Find('-') then;
         end;
 
@@ -512,7 +512,7 @@ report 5610 "Fixed Asset - G/L Analysis"
                     TypeExist := PostingType = "FA Posting Type Name";
                     if TypeExist then
                         PostingTypeNo := "FA Posting Type No.";
-                until (Next = 0) or TypeExist;
+                until (Next() = 0) or TypeExist;
             if Find('-') then;
         end;
         if not TypeExist then

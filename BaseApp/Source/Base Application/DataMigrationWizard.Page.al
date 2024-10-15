@@ -500,9 +500,9 @@ page 1808 "Data Migration Wizard"
 
                 trigger OnAction()
                 var
-                    AssistedSetup: Codeunit "Assisted Setup";
+                    GuidedExperience: Codeunit "Guided Experience";
                 begin
-                    AssistedSetup.Complete(PAGE::"Data Migration Wizard");
+                    GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Data Migration Wizard");
                     CurrPage.Close;
                     if ShowOverviewPage then
                         PAGE.Run(PAGE::"Data Migration Overview");
@@ -525,15 +525,16 @@ page 1808 "Data Migration Wizard"
         ResetWizardControls;
         ShowIntroStep;
         DataMigrationMgt.CheckMigrationInProgress(false);
+        ShowCostingMethodNotification();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
-        AssistedSetup: Codeunit "Assisted Setup";
+        GuidedExperience: Codeunit "Guided Experience";
         Info: ModuleInfo;
     begin
-        if CloseAction = ACTION::OK then 
-            if AssistedSetup.ExistsAndIsNotComplete(PAGE::"Data Migration Wizard") then
+        if CloseAction = ACTION::OK then
+            if GuidedExperience.AssistedSetupExistsAndIsNotComplete(ObjectType::Page, PAGE::"Data Migration Wizard") then
                 if not Confirm(DataImportNotCompletedQst, false) then
                     Error('');
     end;
@@ -590,9 +591,11 @@ page 1808 "Data Migration Wizard"
         PostingDate: Date;
         DuplicateContactsLbl: Label 'Review duplicate contacts';
         BallancesPostingErr: Label 'We need to know what to do with opening balances. You can:\\Let us post opening balances to the general ledger and item ledger for you, on a date you choose\\Review opening balances in journals first, and then post them yourself.';
-        MissingAccountingPeriodeErr: Label 'Posting date %1 is not within an open accounting period. To see open periods, go to the Accounting Periods page.', Comment = '% = Posting Date';
+        MissingAccountingPeriodeErr: Label 'Posting date %1 is not within an open accounting period. To see open periods, go to the Accounting Periods page.', Comment = '%1 = Posting Date';
         EnableTogglingOverviewPage: Boolean;
         ShowOverviewPage: Boolean;
+        CostingMethodNotificationMsg: Label 'Verify the costing method before you import items. %1 is currently selected.', Comment = '%1 = Default Costing Method';
+        CostingMethodNotificationActionMsg: Label 'Change the selection';
 
     local procedure NextAction()
     var
@@ -817,7 +820,7 @@ page 1808 "Data Migration Wizard"
         if DataMigrationEntity.FindSet then
             repeat
                 TotalCount += DataMigrationEntity."No. of Records";
-            until DataMigrationEntity.Next = 0;
+            until DataMigrationEntity.Next() = 0;
     end;
 
     local procedure LoadTopBanners()
@@ -850,6 +853,18 @@ page 1808 "Data Migration Wizard"
 
         CurrPage.DataMigrationEntities.PAGE.SetPostingInfromation(
           BallancesPostingOption = BallancesPostingOption::"Post balances for me", PostingDate);
+    end;
+
+    local procedure ShowCostingMethodNotification()
+    var
+        InventorySetup: Record "Inventory Setup";
+        CostingMethodNotification: Notification;
+    begin
+        if InventorySetup.Get() then begin
+            CostingMethodNotification.Message(StrSubstNo(CostingMethodNotificationMsg, InventorySetup."Default Costing Method"));
+            CostingMethodNotification.AddAction(CostingMethodNotificationActionMsg, Codeunit::"Company Setup Notification", 'OpenCostingMethodConfigurationPage');
+            CostingMethodNotification.Send();
+        end;
     end;
 }
 

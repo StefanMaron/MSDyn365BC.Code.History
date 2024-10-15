@@ -46,7 +46,7 @@ page 2346 "BC O365 VAT Posting Setup List"
                 begin
                     PAGE.RunModal(PAGE::"O365 VAT Posting Setup Card", Rec);
                     DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup;
-                    CurrPage.Update;
+                    CurrPage.Update();
                 end;
             }
         }

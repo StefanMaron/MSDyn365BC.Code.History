@@ -580,7 +580,7 @@ codeunit 841 "Cash Flow Management"
         else
             repeat
                 CreateCashFlowChartSetupForUser(User."User Name");
-            until User.Next = 0;
+            until User.Next() = 0;
     end;
 
     local procedure CreateCashFlowChartSetupForUser(UserName: Code[50])
@@ -711,6 +711,8 @@ codeunit 841 "Cash Flow Management"
         end;
         VATEntry.SetCurrentKey("Document Date");
         VATEntry.SetAscending("Document Date", true);
+
+        OnAfterSetViewOnVATEntryForTaxCalc(VATEntry, TaxPaymentDueDate, DummyDate);
     end;
 
     procedure GetTaxAmountFromSalesOrder(SalesHeader: Record "Sales Header"): Decimal
@@ -796,6 +798,11 @@ codeunit 841 "Cash Flow Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowSourceLocalSourceTypeCase(SourceType: Enum "Cash Flow Source Type"; SourceNo: Code[20]; ShowDocument: Boolean; DocumentNo: Code[20]; DocumentDate: Date; BudgetName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetViewOnVATEntryForTaxCalc(var VATEntry: Record "VAT Entry"; TaxPaymentDueDate: Date; DummyDate: Date)
     begin
     end;
 }

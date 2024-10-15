@@ -84,7 +84,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         DelayedProdOrdersByCost.Close;
 
         // Verify query: Database - query consistency.
-        TempItem.FindSet;
+        TempItem.FindSet();
         repeat
             VerifyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
@@ -200,7 +200,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         PendingProdOrdersByCost.Close;
 
         // Verify query: Database - query consistency.
-        TempItem.FindSet;
+        TempItem.FindSet();
         repeat
             VerifyPendingBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyPendingBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
@@ -259,7 +259,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         MyDelayedProdOrders.Close;
 
         // Verify query: Database - query consistency.
-        TempItem.FindSet;
+        TempItem.FindSet();
         repeat
             VerifyMyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyMyDelayedBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");
@@ -327,7 +327,7 @@ codeunit 137111 "SCM Production Backlog Chart"
         MyProdOrdersByCost.Close;
 
         // Verify query: Database - query consistency.
-        TempItem.FindSet;
+        TempItem.FindSet();
         repeat
             VerifyMyBacklogRecords(TempItem."No.", ProductionOrder.Status::Planned);
             VerifyMyBacklogRecords(TempItem."No.", ProductionOrder.Status::"Firm Planned");

@@ -2551,7 +2551,7 @@ codeunit 134399 "Test Merge Duplicates"
         MergeDuplicatePage."Remove Duplicate".Invoke;
     end;
 
-    [EventSubscriber(ObjectType::Table, 64, 'OnAfterFindRelatedFields', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Merge Duplicates Buffer", 'OnAfterFindRelatedFields', '', false, false)]
     local procedure OnAfterFindRelatedFields(var TempTableRelationsMetadata: Record "Table Relations Metadata" temporary)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -2563,14 +2563,14 @@ codeunit 134399 "Test Merge Duplicates"
         TempTableRelationsMetadata.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 18, 'OnAfterRenameEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Customer", 'OnAfterRenameEvent', '', false, false)]
     local procedure OnAfterCustomerRename(var Rec: Record Customer; var xRec: Record Customer; RunTrigger: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         if RunTrigger then begin
             GenJournalLine.SetRange("Creditor No.", xRec."No.");
-            if not GenJournalLine.IsEmpty then
+            if not GenJournalLine.IsEmpty() then
                 GenJournalLine.ModifyAll("Creditor No.", Rec."No.");
         end;
     end;

@@ -410,12 +410,12 @@ codeunit 137915 "SCM Assembly Posting"
     begin
         PostedAssemblyHeader.SetCurrentKey("Order No.");
         PostedAssemblyHeader.SetRange("Order No.", DocumentNo);
-        if not PostedAssemblyHeader.IsEmpty then
+        if not PostedAssemblyHeader.IsEmpty() then
             exit(true);
 
         InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Assembly);
         InvtAdjmtEntryOrder.SetRange("Order No.", DocumentNo);
-        if not InvtAdjmtEntryOrder.IsEmpty then
+        if not InvtAdjmtEntryOrder.IsEmpty() then
             exit(true);
 
         exit(false);
@@ -898,12 +898,12 @@ codeunit 137915 "SCM Assembly Posting"
 
         // verify entries are modified accordingly
         ItemLedgerEntry.SetRange("Document No.", DocNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             Assert.AreEqual(0, ItemLedgerEntry."Document Line No.", 'Document Line No. should be emptied after deletion');
         until ItemLedgerEntry.Next = 0;
         ValueEntry.SetRange("Document No.", DocNo);
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             Assert.AreEqual(0, ValueEntry."Document Line No.", 'Document Line No. should be emptied after deletion');
         until ValueEntry.Next = 0;
@@ -932,7 +932,7 @@ codeunit 137915 "SCM Assembly Posting"
 
         PostedAssemblyLine.SetCurrentKey("Document No.", "Line No.");
         PostedAssemblyLine.SetRange("Document No.", PostedAssemblyHeader."No.");
-        PostedAssemblyLine.FindSet;
+        PostedAssemblyLine.FindSet();
         repeat
             ItemLedgEntry.SetRange("Document Line No.", PostedAssemblyLine."Line No.");
             ItemLedgEntry.SetRange("Order Line No.", PostedAssemblyLine."Order Line No.");
@@ -1263,7 +1263,7 @@ codeunit 137915 "SCM Assembly Posting"
             Assert.AreEqual(false, Adjustment, Identifier);
             // "Average Cost Exception"
             Assert.AreEqual(CapLedgEntry."Entry No.", "Capacity Ledger Entry No.", Identifier);
-            if CapLedgEntry.IsEmpty then
+            if CapLedgEntry.IsEmpty() then
                 Assert.AreEqual(CapLedgEntry.Type::" ", Type, Identifier)
             else
                 Assert.AreEqual(CapLedgEntry.Type, Type, Identifier);

@@ -109,7 +109,7 @@ page 5351 "CRM Sales Quote List"
                         CRMQuoteToSalesQuote: Codeunit "CRM Quote to Sales Quote";
                         PageManagement: Codeunit "Page Management";
                     begin
-                        if IsEmpty then
+                        if IsEmpty() then
                             exit;
 
                         if Coupled = 'Yes' then

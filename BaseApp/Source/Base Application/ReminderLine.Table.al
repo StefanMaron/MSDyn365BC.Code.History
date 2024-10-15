@@ -639,7 +639,7 @@ table 296 "Reminder Line"
                                 if InterestCalcDate > InterestStartDate then
                                     InterestStartDate := InterestCalcDate;
                                 Amount := Amount + DetailedCustLedgEntry.Amount * (ReminderHeader."Document Date" - InterestStartDate);
-                            until DetailedCustLedgEntry.Next = 0;
+                            until DetailedCustLedgEntry.Next() = 0;
                         if not FinChrgTerms."Add. Line Fee in Interest" then
                             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
                                 if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
@@ -836,7 +836,7 @@ table 296 "Reminder Line"
                     InterestStartDate := InterestCalcDate;
                 if InterestStartDate < UseCalcDate then
                     CumAmount := CumAmount + (DetailedCustLedgEntry.Amount * (UseCalcDate - InterestStartDate));
-            until DetailedCustLedgEntry.Next = 0;
+            until DetailedCustLedgEntry.Next() = 0;
         if not FinChrgTerms."Add. Line Fee in Interest" then
             if CustLedgEntry."Document Type" = CustLedgEntry."Document Type"::Reminder then
                 if IssuedReminderHeader.Get(CustLedgEntry."Document No.") then begin
@@ -901,7 +901,7 @@ table 296 "Reminder Line"
                         NrOfLinesToInsert := NrOfLinesToInsert + 1
                     else
                         LastRateFound := true;
-                until LastRateFound or (FinanceChargeInterestRate.Next = 0);
+                until LastRateFound or (FinanceChargeInterestRate.Next() = 0);
             if UseCalcDate = 0D then begin
                 FinanceChargeInterestRate.Next(-1);
                 UseCalcDate := FinanceChargeInterestRate."Start Date";

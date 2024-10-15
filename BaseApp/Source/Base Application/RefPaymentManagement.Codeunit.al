@@ -88,7 +88,7 @@ codeunit 32000000 "Ref. Payment Management"
                     LineNro := LineNro + 10000;
                     LastDocNro := IncStr(LastDocNro);
                 end;
-            until RefPaymentImported.Next = 0;
+            until RefPaymentImported.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -126,7 +126,7 @@ codeunit 32000000 "Ref. Payment Management"
                     RefPmtImport.Modify();
                 end else
                     NoMatchLines := true;
-            until RefPmtImport.Next = 0;
+            until RefPmtImport.Next() = 0;
 
         if NoMatchLines then
             Message(Text1090001);
@@ -162,7 +162,7 @@ codeunit 32000000 "Ref. Payment Management"
                 RefPmtExported.TestField("Payment Account");
                 RefPmtExported.TestField("Payment Date");
                 CheckCombineAllowance(RefPmtExported."Payment Account", PaymentType);
-            until RefPmtExported.Next = 0;
+            until RefPmtExported.Next() = 0;
 
         if RefPmtExported.FindSet(true) then
             repeat
@@ -170,7 +170,7 @@ codeunit 32000000 "Ref. Payment Management"
                 RefPmtExport1."Affiliated to Line" := TempRefPmtBuffer.AddLine(RefPmtExported);
                 RefPmtExport1."Applied Payments" := true;
                 RefPmtExport1.Modify();
-            until RefPmtExported.Next = 0;
+            until RefPmtExported.Next() = 0;
 
         TempRefPmtBuffer.SetFilter("No.", '<>%1', 0);
         if TempRefPmtBuffer.FindSet then
@@ -180,7 +180,7 @@ codeunit 32000000 "Ref. Payment Management"
                     RefPmtExported."Applied Payments" := false;
                     RefPmtExported.Modify();
                 end;
-            until TempRefPmtBuffer.Next = 0;
+            until TempRefPmtBuffer.Next() = 0;
         TempRefPmtBuffer.DeleteAll();
 
         RefPmtExported.LockTable();
@@ -199,7 +199,7 @@ codeunit 32000000 "Ref. Payment Management"
                 RefPmtExported.Validate("Message Type");
                 RefPmtExported.Insert();
                 LastLineNo := LastLineNo + 1;
-            until TempRefPmtBuffer.Next = 0;
+            until TempRefPmtBuffer.Next() = 0;
         TempRefPmtBuffer.DeleteAll();
     end;
 
@@ -379,7 +379,7 @@ codeunit 32000000 "Ref. Payment Management"
             repeat
                 RefPmtImportTemp := RefPmtImport;
                 RefPmtImportTemp.Insert();
-            until RefPmtImport.Next = 0;
+            until RefPmtImport.Next() = 0;
     end;
 
     local procedure CheckCombineAllowance(PaymentAccNo: Code[20]; PaymentType: Option Domestic,Foreign,SEPA)

@@ -697,7 +697,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", PurchaseHeaderNo);
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
     end;
 
     [Normal]
@@ -715,7 +715,11 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         CopyPurchaseDocument: Report "Copy Purchase Document";
     begin
         CopyPurchaseDocument.SetPurchHeader(PurchaseHeader);
+#if CLEAN17
+        CopyPurchaseDocument.SetParameters(DocType, DocNo, true, true);
+#else
         CopyPurchaseDocument.InitializeRequest(DocType, DocNo, true, true);
+#endif
         CopyPurchaseDocument.UseRequestPage(false);
         CopyPurchaseDocument.RunModal;
     end;
@@ -723,7 +727,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     [Normal]
     local procedure CopyPurchaseLinesToTemp(var TempPurchaseLine: Record "Purchase Line" temporary; var PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseLine.FindSet;
+        PurchaseLine.FindSet();
         repeat
             TempPurchaseLine := PurchaseLine;
             TempPurchaseLine.Insert();
@@ -743,7 +747,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
     var
         Counter: Integer;
     begin
-        TempItem.FindSet;
+        TempItem.FindSet();
         for Counter := 1 to TempItem.Count do begin
             LibraryCosting.AdjustCostItemEntries(TempItem."No.", '');
             TempItem.Next;
@@ -771,7 +775,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         TotalAmountIncVAT: Decimal;
     begin
         // Verify Amount from Vendor Ledger Entry.
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             TotalAmountIncVAT +=
               TempPurchaseLine.Quantity * TempPurchaseLine."Direct Unit Cost" +
@@ -796,13 +800,13 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         // Verify Purchase Amount (Actual).
         ReturnShipmentLine.SetRange("Document No.", PostedReturnShipmentNo);
         ReturnShipmentLine.SetRange(Type, ReturnShipmentLine.Type::Item);
-        ReturnShipmentLine.FindSet;
+        ReturnShipmentLine.FindSet();
         repeat
             CalcPurchaseAmount += ReturnShipmentLine.Quantity * ReturnShipmentLine."Direct Unit Cost";
         until ReturnShipmentLine.Next = 0;
 
         ItemLedgerEntry.SetRange("Document No.", PostedReturnShipmentNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Purchase Amount (Actual)");
             ActualPurchaseAmount += ItemLedgerEntry."Purchase Amount (Actual)";
@@ -822,7 +826,7 @@ codeunit 137031 "SCM Costing Purchase Returns I"
         PurchRcptLine.SetRange("Order No.", PurchaseOrderNo);
         PurchRcptLine.FindFirst;
         TempPurchaseLine.SetRange(Type, TempPurchaseLine.Type::"Charge (Item)");
-        TempPurchaseLine.FindSet;
+        TempPurchaseLine.FindSet();
         repeat
             CalcPurchaseAmountWithCharge +=
               PurchRcptLine.Quantity * PurchRcptLine."Direct Unit Cost" - TempPurchaseLine.Quantity * TempPurchaseLine."Direct Unit Cost";

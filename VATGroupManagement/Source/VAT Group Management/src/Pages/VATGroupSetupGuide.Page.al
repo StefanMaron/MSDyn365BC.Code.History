@@ -152,8 +152,8 @@ page 4705 "VAT Group Setup Guide"
                 field(GroupSettlementGenJnlTempl; GroupSettleGenJnlTempl)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Group Settlement Document Nos.';
-                    ToolTip = 'Specifies the number series used for the document to post the Group VAT to the settlement account.';
+                    Caption = 'Group Settlement General Journal Template';
+                    ToolTip = 'Specifies the general journal template used for the document to post the Group VAT to the settlement account.';
                     TableRelation = "Gen. Journal Template".Name;
                     trigger OnValidate()
                     begin
@@ -495,7 +495,7 @@ page 4705 "VAT Group Setup Guide"
         MediaResourcesDone: Record "Media Resources";
         VATReportSetup: Record "VAT Report Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
-        AzureADMgt: Codeunit "Azure AD Mgt.";
+        OAuth2: Codeunit OAuth2;
         Step: Option Welcome,"Select Type","Setup Representative","Setup Member","Setup Member WSAK","Setup Member OAuth2","Setup VAT Report",Finish;
         VATGroupRole: Enum "VAT Group Role";
         VATGroupAuthenticationType: Enum "VAT Group Authentication Type OnPrem";
@@ -705,11 +705,14 @@ page 4705 "VAT Group Setup Guide"
 
     [NonDebuggable]
     local procedure ShowSetupMemberOAuth2Step()
+    var
+        RedirectURLText: Text;
     begin
         if GroupRepresentativeOnSaaS then
             NextEnabled := true
         else begin
-            RedirectURL := AzureADMgt.GetDefaultRedirectUrl();
+            OAuth2.GetDefaultRedirectURL(RedirectURLText);
+            RedirectURL := CopyStr(RedirectURLText, 1, MaxStrLen(RedirectURL));
             NextEnabled := (ClientId <> '') and (ClientSecret <> '') and (OAuthAuthorityUrl <> '') and (ResourceURL <> '') and (RedirectURL <> '');
         end;
     end;

@@ -1,4 +1,4 @@
-﻿codeunit 7307 "Whse.-Activity-Register"
+codeunit 7307 "Whse.-Activity-Register"
 {
     Permissions = TableData "Registered Whse. Activity Hdr." = i,
                   TableData "Registered Whse. Activity Line" = i,
@@ -55,7 +55,7 @@
         HideDialog: Boolean;
         Text003: Label 'There is nothing to register.';
         InsufficientQtyItemTrkgErr: Label 'Item tracking defined for source line %1 of %2 %3 amounts to more than the quantity you have entered.\\You must adjust the existing item tracking specification and then reenter a new quantity.', Comment = '%1=Source Line No.,%2=Source Document,%3=Source No.';
-        Text005: Label '%1 %2 is not available on inventory or it has already been reserved for another document.';
+        InventoryNotAvailableErr: Label '%1 %2 is not available on inventory or it has already been reserved for another document.';
         OrderToOrderBindingOnSalesLineQst: Label 'Registering the pick will remove the existing order-to-order reservation for the sales order.\Do you want to continue?';
         RegisterInterruptedErr: Label 'The action has been interrupted to respect the warning.';
         SuppressCommit: Boolean;
@@ -73,7 +73,7 @@
             WhseActivLine.SetRange("Activity Type", WhseActivLine."Activity Type");
             WhseActivLine.SetRange("No.", WhseActivLine."No.");
             WhseActivLine.SetFilter("Qty. to Handle (Base)", '<>0');
-            if WhseActivLine.IsEmpty then
+            if WhseActivLine.IsEmpty() then
                 Error(Text003);
             CheckWhseItemTrkgLine(WhseActivLine);
 
@@ -111,7 +111,7 @@
                         UpdateWhseSourceDocLine(TempWhseActivityLineGrouped);
                     UpdateWhseDocHeader(TempWhseActivityLineGrouped);
                     TempWhseActivityLineGrouped.DeleteBinContent(TempWhseActivityLineGrouped."Action Type"::Take);
-                until TempWhseActivityLineGrouped.Next = 0;
+                until TempWhseActivityLineGrouped.Next() = 0;
 
             SyncItemTrackingAndReserveSourceDocument(TempWhseActivLineToReserve);
 
@@ -134,7 +134,7 @@
                         end;
                         OldWhseActivLine := WhseActivLine;
                         LineCount := LineCount + 1;
-                    until WhseActivLine.Next = 0;
+                    until WhseActivLine.Next() = 0;
                 if LineCount = 1 then
                     OldWhseActivLine.Delete();
             end;
@@ -377,7 +377,7 @@
                 WhseCommentLine2.Type := RegisteredType;
                 WhseCommentLine2."No." := RegisteredNo;
                 WhseCommentLine2.Insert();
-            until WhseCommentLine.Next = 0;
+            until WhseCommentLine.Next() = 0;
 
         OnAfterCreateRegActivHeader(WhseActivHeader);
     end;
@@ -777,7 +777,7 @@
                     SetFilter("Qty. to Handle (Base)", '>0');
                     Find('+');
                     SetRange("Bin Code");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -833,7 +833,7 @@
                         Bin.Get("Location Code", "Bin Code");
                         Bin.CheckWhseClass("Item No.", false);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -858,7 +858,7 @@
             if BreakBulkWhseActivLine.Find('-') then
                 repeat
                     QtyBase := QtyBase + BreakBulkWhseActivLine."Qty. to Handle (Base)";
-                until BreakBulkWhseActivLine.Next = 0;
+                until BreakBulkWhseActivLine.Next() = 0;
         end;
         exit(QtyBase);
     end;
@@ -884,7 +884,7 @@
                 TempWhseActivLine := WhseActivLine;
                 if not (TempWhseActivLine."Action Type" = TempWhseActivLine."Action Type"::Place) then
                     TempWhseActivLine.Insert();
-            until WhseActivLine.Next = 0;
+            until WhseActivLine.Next() = 0;
 
         TempWhseActivLine.SetCurrentKey("Item No.");
         if TempWhseActivLine.Find('-') then
@@ -893,13 +893,13 @@
                 if ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup) then
                     repeat
                         TempWhseActivLine.TestTrackingIfRequired(WhseItemTrackingSetup);
-                    until TempWhseActivLine.Next = 0
+                    until TempWhseActivLine.Next() = 0
                 else begin
                     TempWhseActivLine.Find('+');
                     TempWhseActivLine.DeleteAll();
                 end;
                 TempWhseActivLine.SetRange("Item No.");
-            until TempWhseActivLine.Next = 0;
+            until TempWhseActivLine.Next() = 0;
 
         TempWhseActivLine.Reset();
         TempWhseActivLine.SetCurrentKey(
@@ -920,7 +920,7 @@
                     QtyToRegisterBase := 0;
                     repeat
                         QtyToRegisterBase := QtyToRegisterBase + TempWhseActivLine."Qty. to Handle (Base)";
-                    until TempWhseActivLine.Next = 0;
+                    until TempWhseActivLine.Next() = 0;
 
                     QtyAvailToRegisterBase := CalcQtyAvailToRegisterBase(TempWhseActivLine);
                     if QtyToRegisterBase > QtyAvailToRegisterBase then
@@ -940,10 +940,10 @@
                     // Clear filters, Lot/SN
                     TempWhseActivLine.ClearTrackingFilter;
                     TempWhseActivLine.SetRange("Item No.");
-                until TempWhseActivLine.Next = 0; // Per Lot/SN
-                                                  // Clear filters, document
+                until TempWhseActivLine.Next() = 0; // Per Lot/SN
+                                                    // Clear filters, document
                 TempWhseActivLine.ClearSourceFilter;
-            until TempWhseActivLine.Next = 0;   // Per document
+            until TempWhseActivLine.Next() = 0;   // Per document
     end;
 
     local procedure RegisterWhseItemTrkgLine(WhseActivLine2: Record "Warehouse Activity Line")
@@ -1104,7 +1104,7 @@
                         ItemTrackingMgt.CalcWhseItemTrkgLine(WhseItemTrkgLine);
                         Modify;
                     end;
-                until (Next = 0) or (QtyToRegisterBase = 0);
+                until (Next() = 0) or (QtyToRegisterBase = 0);
         end;
     end;
 
@@ -1211,7 +1211,7 @@
                         if WhseActivLine2.Find('-') then
                             repeat
                                 QtyBase += WhseActivLine2."Qty. (Base)";
-                            until WhseActivLine2.Next = 0;
+                            until WhseActivLine2.Next() = 0;
                         exit(QtyBase);
                     end;
             end;
@@ -1388,16 +1388,15 @@
                     SubTotalBase -= Abs(Item."Reserved Qty. on Inventory");
 
                 if SubTotalBase < 0 then begin
+                    WhseItemTrackingSetup.CopyTrackingFromWhseActivityLine(WhseActivLine);
                     CreatePick.FilterWhsePickLinesWithUndefinedBin(
-                      WarehouseActivityLine, "Item No.", "Location Code", "Variant Code",
-                      WhseItemTrackingSetup."Lot No. Required", "Lot No.",
-                      WhseItemTrackingSetup."Serial No. Required", "Serial No.");
-                    if WarehouseActivityLine.FindSet then
+                      WarehouseActivityLine, "Item No.", "Location Code", "Variant Code", WhseItemTrackingSetup);
+                    if WarehouseActivityLine.FindSet() then
                         repeat
                             TempWhseActivLine2 := WarehouseActivityLine;
                             TempWhseActivLine2."Qty. Outstanding (Base)" *= -1;
                             TempWhseActivLine2.Insert();
-                        until WarehouseActivityLine.Next = 0;
+                        until WarehouseActivityLine.Next() = 0;
 
                     QtyReservedOnPickShipBase :=
                       WhseAvailMgt.CalcReservQtyOnPicksShips("Location Code", "Item No.", "Variant Code", TempWhseActivLine2);
@@ -1479,7 +1478,7 @@
                        not ReservEntry.Positive
                     then
                         QtyBasePicked := QtyBasePicked + Abs(ReservEntry."Quantity (Base)");
-                until ReservEntry.Next = 0;
+                until ReservEntry.Next() = 0;
 
             CalcQtyBasePicked(WhseActivLine, WhseItemTrackingSetup, QtyBasePicked);
 
@@ -1535,7 +1534,7 @@
 
             ItemTrackingMgt.SetPointerFilter(TempTrackingSpecification);
             TempTrackingSpecification.SetTrackingFilterFromWhseActivityLine(WhseActivLine2);
-            if TempTrackingSpecification.IsEmpty then begin
+            if TempTrackingSpecification.IsEmpty() then begin
                 TempTrackingSpecification."Entry No." := NextEntryNo;
                 TempTrackingSpecification."Creation Date" := Today;
                 TempTrackingSpecification."Qty. to Handle (Base)" := QtyToHandleBase;
@@ -1558,21 +1557,23 @@
         exit(Inserted);
     end;
 
-    local procedure CheckItemTrackingInfoBlocked(ItemNo: Code[20]; VariantCode: Code[10]; SerialNo: Code[50]; LotNo: Code[50])
+    local procedure CheckItemTrackingInfoBlocked(WhseActivityLine: Record "Warehouse Activity Line")
     var
         SerialNoInfo: Record "Serial No. Information";
         LotNoInfo: Record "Lot No. Information";
     begin
-        if (SerialNo = '') and (LotNo = '') then
+        if not WhseActivityLine.TrackingExists() then
             exit;
 
-        if SerialNo <> '' then
-            if SerialNoInfo.Get(ItemNo, VariantCode, SerialNo) then
+        if WhseActivityLine."Serial No." <> '' then
+            if SerialNoInfo.Get(WhseActivityLine."Item No.", WhseActivityLine."Variant Code", WhseActivityLine."Serial No.") then
                 SerialNoInfo.TestField(Blocked, false);
 
-        if LotNo <> '' then
-            if LotNoInfo.Get(ItemNo, VariantCode, LotNo) then
+        if WhseActivityLine."Lot No." <> '' then
+            if LotNoInfo.Get(WhseActivityLine."Item No.", WhseActivityLine."Variant Code", WhseActivityLine."Lot No.") then
                 LotNoInfo.TestField(Blocked, false);
+
+        OnAfterCheckItemTrackingInfoBlocked(WhseActivityLine);
     end;
 
     local procedure UpdateWindow(ControlNo: Integer; Value: Code[20])
@@ -1623,9 +1624,8 @@
                         (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Movement")) and
                        (WhseActivLine."Action Type" = WhseActivLine."Action Type"::Take)
                     then
-                        CheckItemTrackingInfoBlocked(
-                          WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseActivLine."Serial No.", WhseActivLine."Lot No.");
-                until WhseActivLine.Next = 0;
+                        CheckItemTrackingInfoBlocked(WhseActivLine);
+                until WhseActivLine.Next() = 0;
             NoOfRecords := LineCount;
 
             if Location."Bin Mandatory" then begin
@@ -1836,6 +1836,7 @@
 
     local procedure ReleaseNonSpecificReservations(WhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyToRelease: Decimal): Boolean
     var
+        WhseActivityItemTrackingSetup: Record "Item Tracking Setup";
         LateBindingMgt: Codeunit "Late Binding Management";
         xReservedQty: Decimal;
     begin
@@ -1847,9 +1848,10 @@
         if WhseItemTrackingSetup.TrackingRequired() then
             if Item."Reserved Qty. on Inventory" > 0 then begin
                 xReservedQty := Item."Reserved Qty. on Inventory";
+                WhseActivityItemTrackingSetup.CopyTrackingFromWhseActivityLine(WhseActivLine);
                 LateBindingMgt.ReleaseForReservation(
                   WhseActivLine."Item No.", WhseActivLine."Variant Code", WhseActivLine."Location Code",
-                  WhseActivLine."Serial No.", WhseActivLine."Lot No.", QtyToRelease);
+                  WhseActivityItemTrackingSetup, QtyToRelease);
                 Item.CalcFields("Reserved Qty. on Inventory");
             end;
 
@@ -1859,10 +1861,11 @@
     local procedure AvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
     begin
         if WhseActivLine."Serial No." <> '' then
-            Error(Text005, WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.");
-
+            Error(InventoryNotAvailableErr, WhseActivLine.FieldCaption("Serial No."), WhseActivLine."Serial No.");
         if WhseActivLine."Lot No." <> '' then
-            Error(Text005, WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.");
+            Error(InventoryNotAvailableErr, WhseActivLine.FieldCaption("Lot No."), WhseActivLine."Lot No.");
+
+        OnAfterAvailabilityError(WhseActivLine);
     end;
 
     local procedure IsPickPlaceForSalesOrderTrackedItem(WhseActivityLine: Record "Warehouse Activity Line"): Boolean
@@ -1870,8 +1873,7 @@
         exit(
           (WhseActivityLine."Activity Type" = WhseActivityLine."Activity Type"::Pick) and
           (WhseActivityLine."Action Type" in [WhseActivityLine."Action Type"::Place, WhseActivityLine."Action Type"::" "]) and
-          (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::"Sales Order") and 
-          (WhseActivityLine."Breakbulk No." = 0) and
+          (WhseActivityLine."Source Document" = WhseActivityLine."Source Document"::"Sales Order") and
           WhseActivityLine.TrackingExists);
     end;
 
@@ -1902,6 +1904,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAvailabilityError(WhseActivLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFindWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -1928,6 +1935,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckLines(var WarehouseActivityHeader: Record "Warehouse Activity Header"; var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempBinContentBuffer: Record "Bin Content Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemTrackingInfoBlocked(WhseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 

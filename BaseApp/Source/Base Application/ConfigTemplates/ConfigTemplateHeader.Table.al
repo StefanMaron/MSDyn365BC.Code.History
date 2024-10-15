@@ -100,7 +100,7 @@ table 8618 "Config. Template Header"
             if ConfigTemplateLine.Find('-') then
                 repeat
                     ConfigTemplateLine.Rename(Code, ConfigTemplateLine."Line No.");
-                until ConfigTemplateLine.Next = 0;
+                until ConfigTemplateLine.Next() = 0;
         end;
     end;
 
@@ -179,7 +179,7 @@ table 8618 "Config. Template Header"
                 ConfigTemplateLine.TransferFields(FromConfigTemplateLine);
                 ConfigTemplateLine."Data Template Code" := ConfigTemplateCode;
                 ConfigTemplateLine.Insert();
-            until FromConfigTemplateLine.Next = 0;
+            until FromConfigTemplateLine.Next() = 0;
     end;
 }
 

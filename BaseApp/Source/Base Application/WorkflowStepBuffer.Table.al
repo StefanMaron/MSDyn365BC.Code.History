@@ -324,7 +324,7 @@ table 1507 "Workflow Step Buffer"
 
         repeat
             CreateTree(WorkflowCode, OrderVar, WorkflowStep.ID, CurrIndent, ForLookup);
-        until WorkflowStep.Next = 0;
+        until WorkflowStep.Next() = 0;
     end;
 
     local procedure CreateNode(WorkflowCode: Code[20]; var OrderVar: Integer; var NodeID: Integer; var CurrIndent: Integer; ForLookup: Boolean)
@@ -560,7 +560,7 @@ table 1507 "Workflow Step Buffer"
             WorkflowStep.Get(TempWorkflowStepBuffer."Workflow Code", TempWorkflowStepBuffer."Event Step ID");
             WorkflowStep.Validate("Sequence No.", i);
             WorkflowStep.Modify(true);
-        until TempWorkflowStepBuffer.Next = 0;
+        until TempWorkflowStepBuffer.Next() = 0;
     end;
 
     procedure MoveLeft()
@@ -843,7 +843,7 @@ table 1507 "Workflow Step Buffer"
                     TempWorkflowEvent.Independent := false;
                     if TempWorkflowEvent.Insert() then;
                 end;
-            until WFEventResponseCombination.Next = 0;
+            until WFEventResponseCombination.Next() = 0;
     end;
 
     local procedure FindSupportedResponses(PredecessorFunctionName: Code[128]; var TempWorkflowResponse: Record "Workflow Response" temporary)
@@ -861,7 +861,7 @@ table 1507 "Workflow Step Buffer"
                     TempWorkflowResponse.Independent := false;
                     if TempWorkflowResponse.Insert() then;
                 end;
-            until WFEventResponseCombination.Next = 0;
+            until WFEventResponseCombination.Next() = 0;
     end;
 
     local procedure FindIndependentEvents(var TempWorkflowEvent: Record "Workflow Event" temporary)
@@ -875,7 +875,7 @@ table 1507 "Workflow Step Buffer"
                     TempWorkflowEvent.Independent := true;
                     if TempWorkflowEvent.Insert() then;
                 end;
-            until WorkflowEvent.Next = 0;
+            until WorkflowEvent.Next() = 0;
     end;
 
     local procedure FindIndependentResponses(var TempWorkflowResponse: Record "Workflow Response" temporary)
@@ -889,7 +889,7 @@ table 1507 "Workflow Step Buffer"
                     TempWorkflowResponse.Independent := true;
                     if TempWorkflowResponse.Insert() then;
                 end;
-            until WorkflowResponse.Next = 0;
+            until WorkflowResponse.Next() = 0;
     end;
 }
 

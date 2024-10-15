@@ -37,7 +37,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
         ShippingAdviceCnfMsg: Label 'Do you want to change %1 in all related records in warehouse accordingly?';
         PickActivityMessage: Label 'Pick activity no. %1 has been created.';
         WhseShipmentErrorMessage: Label 'The warehouse shipment was not created because the Shipping Advice field is set to Complete';
-        AvailabilityWarning: Label 'There are availability warnings on one or more lines.';
+        AvailabilityWarning: Label 'You do not have enough inventory to meet the demand for items in one or more lines';
         WhseRegisterLotError: Label 'Lot No. %1 is not available on inventory or it has already been reserved for another document.';
         MovmntActivityCreatedMessage: Label 'Movement activity no. %1 has been created.';
         WhseMovmntRegisterError: Label 'Quantity (Base) available must not be less than';
@@ -2542,7 +2542,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
-        ProdOrderComponent.FindSet;
+        ProdOrderComponent.FindSet();
         repeat
             ComponentCost += ProdOrderComponent."Unit Cost";
         until ProdOrderComponent.Next = 0;
@@ -2558,7 +2558,7 @@ codeunit 137294 "SCM Inventory Miscellaneous II"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document No.", ProdOrderNo);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             TotalQuantity += ItemLedgerEntry.Quantity;

@@ -28,7 +28,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         VendLedgEntry2.Copy(VendLedgEntry);
         VendLedgEntry2.SetFilter("Document Type", '<>%1', VendLedgEntry2."Document Type"::Payment);
 
-        if not VendLedgEntry2.IsEmpty then
+        if not VendLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr,
               VendLedgEntry2.FieldCaption("Document Type"), VendLedgEntry2.TableCaption, VendLedgEntry2."Document Type"::Payment);
     end;
@@ -40,7 +40,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         VendLedgEntry2.Copy(VendLedgEntry);
         VendLedgEntry2.SetRange("Payment Method Code", '');
 
-        if not VendLedgEntry2.IsEmpty then
+        if not VendLedgEntry2.IsEmpty() then
             Error(MissingPmtMethodErr, VendLedgEntry2.FieldCaption("Payment Method Code"));
     end;
 
@@ -52,7 +52,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         VendLedgEntry2.SetFilter("Recipient Bank Account", '<>%1', '');
         VendLedgEntry2.SetFilter("Creditor No.", '<>%1', '');
 
-        if not VendLedgEntry2.IsEmpty then
+        if not VendLedgEntry2.IsEmpty() then
             Error(SimultaneousPaymentDetailsErr,
               VendLedgEntry2.FieldCaption("Recipient Bank Account"), VendLedgEntry2.FieldCaption("Creditor No."));
     end;
@@ -69,7 +69,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         OnCheckEmptyPmtInfoVendorLedgerEntry(VendLedgEntry2, Handled);
 
         if not Handled then
-            if not VendLedgEntry2.IsEmpty then
+            if not VendLedgEntry2.IsEmpty() then
                 Error(EmptyPaymentDetailsErr,
                   VendLedgEntry2.FieldCaption("Recipient Bank Account"), VendLedgEntry2.FieldCaption("Creditor No."));
     end;
@@ -81,7 +81,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         VendLedgEntry2.Copy(VendLedgEntry);
         VendLedgEntry2.SetFilter("Bal. Account Type", '<>%1', VendLedgEntry2."Bal. Account Type"::"Bank Account");
 
-        if not VendLedgEntry2.IsEmpty then
+        if not VendLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, VendLedgEntry2.FieldCaption("Bal. Account Type"),
               VendLedgEntry2.TableCaption, VendLedgEntry2."Bal. Account Type"::"Bank Account");
     end;
@@ -94,7 +94,7 @@ codeunit 1212 "Pmt. Export Vend. Ledger Check"
         VendLedgEntry2.SetRange("Bal. Account Type", VendLedgEntry2."Bal. Account Type"::"Bank Account");
         VendLedgEntry2.SetFilter("Bal. Account No.", '<>%1', VendLedgEntry."Bal. Account No.");
 
-        if not VendLedgEntry2.IsEmpty then
+        if not VendLedgEntry2.IsEmpty() then
             Error(WrongFieldValueErr, VendLedgEntry2.FieldCaption("Bal. Account No."),
               VendLedgEntry2.TableCaption, VendLedgEntry."Bal. Account No.");
     end;

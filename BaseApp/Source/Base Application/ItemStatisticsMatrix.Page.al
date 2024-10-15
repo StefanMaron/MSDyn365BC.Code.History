@@ -1205,7 +1205,7 @@ page 9223 "Item Statistics Matrix"
                     else
                         TotalCostAmountNonInvnt += ValueEntry."Cost Amount (Non-Invtbl.)";
                 end;
-            until ValueEntry.Next = 0;
+            until ValueEntry.Next() = 0;
 
         exit(TotalCostAmountNonInvnt);
     end;

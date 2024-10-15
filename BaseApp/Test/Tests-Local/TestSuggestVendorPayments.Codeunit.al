@@ -82,7 +82,7 @@ codeunit 144024 "Test Suggest Vendor Payments"
         Commit();
 
         // Verify
-        RefPmtExported.FindSet;
+        RefPmtExported.FindSet();
         Assert.RecordCount(RefPmtExported, 2);
         Assert.AreEqual(-90, RefPmtExported.Amount, 'Credit Memo amount with discount');
         RefPmtExported.Next;

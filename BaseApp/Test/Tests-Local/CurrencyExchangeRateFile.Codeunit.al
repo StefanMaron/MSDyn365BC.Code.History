@@ -225,7 +225,7 @@ codeunit 144001 CurrencyExchangeRateFile
         exit(CurrencyExchangeRateFileName);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 32000001, 'OnBeforeFileImport', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Currency Exchange Rate", 'OnBeforeFileImport', '', false, false)]
     local procedure OnBeforeFileImport(var FileName: Text)
     begin
         FileName := ImportFileName;

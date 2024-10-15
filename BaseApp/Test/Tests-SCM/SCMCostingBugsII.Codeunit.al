@@ -107,7 +107,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // Value Entries for the reapplied Item Ledger Entry are exempted from average cost calculation.
         ValueEntry.SetRange("Item Ledger Entry No.", TempItemLedgerEntry."Entry No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Valued By Average Cost", false);
         until ValueEntry.Next = 0;
@@ -177,7 +177,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // Value Entries for the reapplied Item Ledger Entry have the Valuation date equal to Posting date.
         ValueEntry.SetRange("Item Ledger Entry No.", TempItemLedgerEntry."Entry No.");
-        ValueEntry.FindSet;
+        ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Valued By Average Cost", true);
             ValueEntry.TestField("Valuation Date", TempItemLedgerEntry."Posting Date");
@@ -1873,7 +1873,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Item Charge]
         // [SCENARIO 385318] Eliminate rounding errors in cost adjustment of FIFO item.
-        Initialize();
+        Initialize;
 
         // [GIVEN] FIFO item.
         LibraryInventory.CreateItem(Item);
@@ -1943,7 +1943,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         // [FEATURE] [Adjust Cost Item Entries] [Item Charge] [Assembly] [Transfer]
         // [SCENARIO 385318] Eliminate rounding errors in cost adjustment of assembled item after its component is revalued.
-        Initialize();
+        Initialize;
 
         // [GIVEN] Locations "Blue", "Red".
         LibraryWarehouse.CreateTransferLocations(LocationBlue, LocationRed, LocationInTransit);
@@ -1996,6 +1996,60 @@ codeunit 137621 "SCM Costing Bugs II"
 
         // [THEN] The sums of quantity and cost amount for item "A" are equal to 0.
         VerifyValueEntry(AsmItem."No.", 0, 0);
+    end;
+
+    [Test]
+    procedure EliminateNegativeRoundingResidueInCostAdjustForAvgCostItem()
+    var
+        InventorySetup: Record "Inventory Setup";
+        Location: array[2] of Record Location;
+        Item: Record Item;
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Adjust Cost - Item Entries] [Rounding]
+        // [SCENARIO 391424] Eliminate negative cost amount residue after running cost adjustment for average cost item.
+        Initialize;
+
+        // [GIVEN] Average cost is calculated per Item, period = Month.
+        InventorySetup.Get;
+        LibraryInventory.SetAverageCostSetup(
+          InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
+
+        // [GIVEN] Item with Average costing method.
+        LibraryPatterns.MAKEItem(Item, Item."Costing Method"::Average, 0, 0, 0, '');
+
+        // [GIVEN] Locations "L1", "L2".
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[1]);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location[2]);
+
+        // [GIVEN] Post a purchase order at location "L1". Quantity = 5 pcs, unit cost = 0.0029 LCY.
+        CreateAndPostPurchaseOrder(PurchRcptLine, Item."No.", Location[1].Code, 5, 0.0029);
+
+        // [GIVEN] Transfer 5 pcs to location "L2".
+        LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate, Location[1].Code, Location[2].Code, '', '', '', 5);
+
+        // [GIVEN] Transfer 5 pcs back to location "L1".
+        LibraryPatterns.POSTReclassificationJournalLine(Item, WorkDate, Location[2].Code, Location[1].Code, '', '', '', 5);
+        FindLastItemLedgerEntry(ItemLedgerEntry, Item."No.", Location[1].Code, true);
+
+        // [GIVEN] Post 5 x 1 pc negative adjustments from location "L1".
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", Location[1].Code, -1, ItemLedgerEntry."Entry No.");
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", Location[1].Code, -1, ItemLedgerEntry."Entry No.");
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", Location[1].Code, -1, ItemLedgerEntry."Entry No.");
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", Location[1].Code, -1, ItemLedgerEntry."Entry No.");
+        CreateAndPostItemJournalLineWithAppliesToEntry(Item."No.", Location[1].Code, -1, ItemLedgerEntry."Entry No.");
+
+        // [WHEN] Run the cost adjustment.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] The remaining quantity in stock = 0.
+        // [THEN] The remaining cost amount = 0.
+        ValueEntry.SetRange("Item No.", Item."No.");
+        ValueEntry.CalcSums("Item Ledger Entry Quantity", "Cost Amount (Actual)");
+        ValueEntry.TestField("Item Ledger Entry Quantity", 0);
+        ValueEntry.TestField("Cost Amount (Actual)", 0);
     end;
 
     local procedure Initialize()
@@ -2127,7 +2181,7 @@ codeunit 137621 "SCM Costing Bugs II"
 
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
         PurchRcptLine.SetRange("No.", ItemNo);
-        PurchRcptLine.FindFirst();
+        PurchRcptLine.FindFirst;
     end;
 
     local procedure CreateAndPostPurchaseInvoiceForItemCharge(PurchRcptLine: Record "Purch. Rcpt. Line"; DirectUnitCost: Decimal)
@@ -2532,7 +2586,7 @@ codeunit 137621 "SCM Costing Bugs II"
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Positive, false);
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemApplnEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
             ItemApplnEntry.FindFirst;
@@ -2644,7 +2698,7 @@ codeunit 137621 "SCM Costing Bugs II"
     var
         ItemApplicationEntryHistory: Record "Item Application Entry History";
     begin
-        ItemLedgerEntry.FindSet;
+        ItemLedgerEntry.FindSet();
         repeat
             ItemApplicationEntryHistory.Init();
             ItemApplicationEntryHistory.SetRange("Entry No.", 0);

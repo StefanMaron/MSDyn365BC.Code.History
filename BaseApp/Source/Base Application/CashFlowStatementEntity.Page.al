@@ -11,6 +11,9 @@ page 5493 "Cash Flow Statement Entity"
     PageType = API;
     SourceTable = "Acc. Schedule Line Entity";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

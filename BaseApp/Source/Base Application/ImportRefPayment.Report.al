@@ -42,7 +42,7 @@ report 32000000 "Import Ref. Payment"
                     repeat
                         RefPmtImportTemp := BankPayments;
                         RefPmtImportTemp.Insert();
-                    until Next = 0;
+                    until Next() = 0;
                 MatchPayments.GetRefPmtImportTemp(RefPmtImportTemp);
                 if BankAccCode = '' then
                     Error(Text1090000);
@@ -240,7 +240,7 @@ report 32000000 "Import Ref. Payment"
                 BankAccFormat.ConvertBankAcc(BankAccount."Bank Account No.", BankAccount."No.");
                 if LineBankAcctNo = BankAccount."Bank Account No." then
                     AccountCode := BankAccount."No.";
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     [Scope('OnPrem')]

@@ -776,7 +776,7 @@ codeunit 144020 "Depr. Diff. Calculation"
         with GenJournalLine do begin
             SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
             SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            FindSet;
+            FindSet();
             GenJournalBatch.Get("Journal Template Name", "Journal Batch Name");
 
             DocumentNo := NoSeriesManagement.GetNextNo(GenJournalBatch."No. Series", WorkDate, false);
@@ -802,7 +802,7 @@ codeunit 144020 "Depr. Diff. Calculation"
             SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
             SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
             SetRange("FA No.", FixedAssetNo);
-            FindSet;
+            FindSet();
             FAJournalBatch.Get("Journal Template Name", "Journal Batch Name");
 
             DocumentNo := NoSeriesManagement.GetNextNo(FAJournalBatch."No. Series", WorkDate, false);

@@ -4,6 +4,9 @@ page 5433 "Automation - RS Package File"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Tenant Config. Package File";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {

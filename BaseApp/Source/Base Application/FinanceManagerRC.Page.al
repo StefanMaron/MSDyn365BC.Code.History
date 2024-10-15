@@ -273,7 +273,7 @@ page 8901 "Finance Manager Role Center"
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L Register FI';
-                            RunObject = report 13400;
+                            RunObject = report "G/L Register FI";
                         }
                         action("Detail Trial Balance")
                         {
@@ -374,28 +374,28 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Sheet';
                             RunObject = codeunit "Run Acc. Sched. Balance Sheet";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Income Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Income Statement';
                             RunObject = codeunit "Run Acc. Sched. Income Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Cashflows")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Cash Flow Statement';
                             RunObject = codeunit "Run Acc. Sched. CashFlow Stmt.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                         action("Statement of Retained Earnings")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Retained Earnings Statement';
                             RunObject = codeunit "Run Acc. Sched. Retained Earn.";
-                            AccessByPermission = tabledata 15 = R;
+                            AccessByPermission = TableData "G/L Account" = R;
                         }
                     }
                     group("Group10")
@@ -487,7 +487,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'G/L Account Categories';
                         RunObject = page "G/L Account Categories";
-                        AccessByPermission = tabledata 570 = R;
+                        AccessByPermission = TableData "G/L Account Category" = R;
                     }
                     action("XBRL Taxonomies")
                     {
@@ -689,13 +689,13 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea =;
                         Caption = 'Bank Payments to Send';
-                        RunObject = page 32000006;
+                        RunObject = page "Bank Payments to send";
                     }
                     action("Transferfiles")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Bank Reference File Setup';
-                        RunObject = page 32000000;
+                        RunObject = page "Bank Reference File Setup";
                     }
                     action("Cash Flow Setup")
                     {
@@ -731,7 +731,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea =;
                         Caption = 'Payment Method Codes';
-                        RunObject = page 32000005;
+                        RunObject = page "Payment Method Codes";
                     }
                     action("Currencies")
                     {
@@ -1454,7 +1454,7 @@ page 8901 "Finance Manager Role Center"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Calc. and Post Depr. Difference';
-                    RunObject = report 13402;
+                    RunObject = report "Calc. and Post Depr. Diff.";
                 }
                 group("Group43")
                 {
@@ -1928,7 +1928,7 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Rounding Methods';
                         RunObject = page "Rounding Methods";
-                        AccessByPermission = tabledata 156 = R;
+                        AccessByPermission = TableData "Resource" = R;
                     }
                     action("Analysis Types")
                     {
@@ -2066,7 +2066,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Transfer File';
-                        RunObject = page 13400;
+                        RunObject = page "Intrastat - File Setup";
                     }
                     action("Entry/Exit Points")
                     {
@@ -2196,7 +2196,7 @@ page 8901 "Finance Manager Role Center"
                     {
                         ApplicationArea =;
                         Caption = 'Automatic Acc. Groups';
-                        RunObject = page 11208;
+                        RunObject = page "Automatic Acc. List";
                     }
                     action("Bank Account")
                     {

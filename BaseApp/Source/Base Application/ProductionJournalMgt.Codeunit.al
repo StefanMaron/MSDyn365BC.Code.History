@@ -23,10 +23,12 @@ codeunit 5510 "Production Journal Mgt"
         Text003: Label 'DEFAULT';
         Text004: Label 'Production Journal';
         Text005: Label '%1 %2 for operation %3 is blocked and therefore, no journal line is created for this operation.';
+        GeneratingJnlLinesMsg: Label 'Generating journal lines.';
 
     procedure Handling(ProdOrder: Record "Production Order"; ActualLineNo: Integer)
     var
         ProductionJnl: Page "Production Journal";
+        ProgressBar: Dialog;
         LeaveForm: Boolean;
         IsHandled: Boolean;
     begin
@@ -38,9 +40,10 @@ codeunit 5510 "Production Journal Mgt"
 
         InitSetupValues;
 
+        ProgressBar.Open(GeneratingJnlLinesMsg);
         DeleteJnlLines(ToTemplateName, ToBatchName, ProdOrder."No.", ActualLineNo);
-
         CreateJnlLines(ProdOrder, ActualLineNo);
+        ProgressBar.Close();
 
         IsHandled := false;
         OnBeforeRunProductionJnl(ToTemplateName, ToBatchName, ProdOrder, ActualLineNo, PostingDate, IsHandled);
@@ -107,10 +110,10 @@ codeunit 5510 "Production Journal Mgt"
                                 if ProdOrderComp.FindSet then
                                     repeat
                                         InsertConsumptionItemJnlLine(ProdOrderComp, ProdOrderLine, 1);
-                                    until ProdOrderComp.Next = 0;
+                                    until ProdOrderComp.Next() = 0;
                             end;
                         end;
-                    until ProdOrderRtngLine.Next = 0;
+                    until ProdOrderRtngLine.Next() = 0;
                 end else begin
                     // Insert All Components - No Routing Link Check
                     InsertComponents(ProdOrderLine, false, 0);
@@ -119,7 +122,7 @@ codeunit 5510 "Production Journal Mgt"
                     Clear(ProdOrderRtngLine);
                     InsertOutputItemJnlLine(ProdOrderRtngLine, ProdOrderLine);
                 end;
-            until ProdOrderLine.Next = 0;
+            until ProdOrderLine.Next() = 0;
 
         Commit();
     end;
@@ -141,7 +144,7 @@ codeunit 5510 "Production Journal Mgt"
                 else
                     if not RoutingLinkValid(ProdOrderComp, ProdOrderLine) then
                         InsertConsumptionItemJnlLine(ProdOrderComp, ProdOrderLine, Level);
-            until ProdOrderComp.Next = 0;
+            until ProdOrderComp.Next() = 0;
     end;
 
     procedure RoutingLinkValid(ProdOrderComp: Record "Prod. Order Component"; ProdOrderLine: Record "Prod. Order Line"): Boolean
@@ -375,7 +378,7 @@ codeunit 5510 "Production Journal Mgt"
             if AdditionalProdOrderLine.FindSet then begin
                 repeat
                     InsertOutputItemJnlLine(ProdOrderRoutingLine, AdditionalProdOrderLine);
-                until AdditionalProdOrderLine.Next = 0;
+                until AdditionalProdOrderLine.Next() = 0;
             end;
     end;
 
@@ -471,7 +474,7 @@ codeunit 5510 "Production Journal Mgt"
             repeat
                 if ReservEntryExist(ItemJnlLine2, ReservEntry) then
                     ReservEntry.DeleteAll(true);
-            until ItemJnlLine2.Next = 0;
+            until ItemJnlLine2.Next() = 0;
 
             OnBeforeDeleteAllItemJnlLine(ItemJnlLine2);
             ItemJnlLine2.DeleteAll(true);
@@ -497,7 +500,7 @@ codeunit 5510 "Production Journal Mgt"
                     exit(true);
                 if ReservEntryExist(ItemJnlLine2, ReservEntry) then
                     exit(true);
-            until ItemJnlLine2.Next = 0;
+            until ItemJnlLine2.Next() = 0;
 
         HasChanged := false;
         OnAfterDataHasChanged(ItemJnlLine2, ProdOrderLineNo, HasChanged);
@@ -516,7 +519,7 @@ codeunit 5510 "Production Journal Mgt"
             ReservEntry.SetRange("Source Subtype", "Entry Type");
             ReservEntry.SetRange("Source Batch Name", "Journal Batch Name");
             ReservEntry.SetRange("Source Prod. Order Line", 0);
-            if not ReservEntry.IsEmpty then
+            if not ReservEntry.IsEmpty() then
                 exit(true);
 
             exit(false);

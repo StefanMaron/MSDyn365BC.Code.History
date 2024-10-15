@@ -49,10 +49,10 @@ xmlport 9172 "Import/Export Permissions"
                 trigger OnBeforeInsertRecord()
                 begin
                     if (RoleID <> '') and (Permission."Role ID" <> RoleID) then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
 
                     if Permission.Get(Permission."Role ID", Permission."Object Type", Permission."Object ID") then
-                        currXMLport.Skip;
+                        currXMLport.Skip();
 
                     InsertPermissionSet(Permission);
                 end;

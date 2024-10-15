@@ -471,30 +471,26 @@ codeunit 135021 "Data Migr. Notification Tests"
         DataMigrationMgt.ShowDataMigrationOverviewFromNotification(Notification);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForItemTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindBatchForItemTransactions(MigrationType: Text[250]; var ItemJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForItemTransactions', '', false, false)]
+    local procedure OnFindBatchForItemTransactions(MigrationType: Text[250]; var ItemJournalBatchName: Code[10])
     begin
         ItemJournalBatchName := 'JBN';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForCustomerTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindBatchForCustomerTransactions(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForCustomerTransactions', '', false, false)]
+    local procedure OnFindBatchForCustomerTransactions(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
     begin
         GenJournalBatchName := 'JBN';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForVendorTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindBatchForVendorTransactions(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForVendorTransactions', '', false, false)]
+    local procedure OnFindBatchForVendorTransactions(MigrationType: Text[250]; var GenJournalBatchName: Code[10])
     begin
         GenJournalBatchName := 'JBN';
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 6100, 'OnFindBatchForAccountTransactions', '', false, false)]
-    [Scope('OnPrem')]
-    procedure OnFindBatchForAccountTransactions(DataMigrationStatus: Record "Data Migration Status"; var GenJournalBatchName: Code[10])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Data Migration Facade", 'OnFindBatchForAccountTransactions', '', false, false)]
+    local procedure OnFindBatchForAccountTransactions(DataMigrationStatus: Record "Data Migration Status"; var GenJournalBatchName: Code[10])
     begin
         GenJournalBatchName := 'JBN';
     end;
