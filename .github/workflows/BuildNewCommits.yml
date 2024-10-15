@@ -47,7 +47,9 @@ jobs:
         run: Install-Module bccontainerhelper -force
 
       - name: Check out the repository to the runner
-        uses: actions/checkout@v4.1.2
+        uses: actions/checkout@v4.2.1
+        with:
+          filter: '${{matrix.countries}}-*'
         
       - name: Build Commits
         shell: pwsh       
