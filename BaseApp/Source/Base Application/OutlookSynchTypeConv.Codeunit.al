@@ -361,7 +361,13 @@ codeunit 5302 "Outlook Synch. Type Conv"
     local procedure TextToTime(InputText: Text; var TimeVar: Time; UseLocalTime: Boolean) IsConverted: Boolean
     var
         DateTimeVar: DateTime;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTextToTime(InputText, TimeVar, UseLocalTime, IsConverted, IsHandled);
+        if IsHandled then
+            exit(IsConverted);
+
         InputText := ConvertStr(InputText, ' ', ',');
         if StrPos(InputText, ',') = 0 then
             exit;
@@ -669,10 +675,10 @@ codeunit 5302 "Outlook Synch. Type Conv"
             FieldType::GUID:
                 OutText := Format(FldRef.Value);
             else begin
-                    RecID := FldRef.Record().RecordId;
-                    Field.Get(RecID.TableNo, FldRef.Number);
-                    Error(Text003, Field."Field Caption", FldRef.Record().Caption);
-                end;
+                RecID := FldRef.Record().RecordId;
+                Field.Get(RecID.TableNo, FldRef.Number);
+                Error(Text003, Field."Field Caption", FldRef.Record().Caption);
+            end;
         end;
     end;
 
@@ -726,10 +732,10 @@ codeunit 5302 "Outlook Synch. Type Conv"
                     OutText := Format(BigInt);
                 end;
             else begin
-                    RecID := FldRef.Record().RecordId;
-                    Field.Get(RecID.TableNo, FldRef.Number);
-                    Error(Text003, FldRef.Caption, FldRef.Record().Caption);
-                end;
+                RecID := FldRef.Record().RecordId;
+                Field.Get(RecID.TableNo, FldRef.Number);
+                Error(Text003, FldRef.Caption, FldRef.Record().Caption);
+            end;
         end;
     end;
 
@@ -874,6 +880,11 @@ codeunit 5302 "Outlook Synch. Type Conv"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTextToDecimal(InputText: Text; var DecVar: Decimal; var IsConverted: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTextToTime(InputText: Text; var TimeVar: Time; var UseLocalTime: Boolean; var IsConverted: Boolean; var IsHandled: Boolean);
     begin
     end;
 }

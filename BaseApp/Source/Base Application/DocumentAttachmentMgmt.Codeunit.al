@@ -105,6 +105,8 @@ codeunit 1173 "Document Attachment Mgmt"
             VATRepConfigType := FieldRef.Value();
             DocumentAttachment.SetRange("VAT Report Config. Code", VATRepConfigType);
         end;
+
+        OnAfterSetDocumentAttachmentFiltersForRecRefInternal(DocumentAttachment, RecRef, GetRelatedAttachments);
     end;
 
     local procedure SetRelatedAttachmentsFilter(TableNo: Integer; var DocumentAttachment: Record "Document Attachment")
@@ -1499,6 +1501,11 @@ codeunit 1173 "Document Attachment Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTableHasLineNumberPrimaryKey(TableNo: Integer; var Result: Boolean; var FieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDocumentAttachmentFiltersForRecRefInternal(var DocumentAttachment: Record "Document Attachment"; RecordRef: RecordRef; GetRelatedAttachments: Boolean)
     begin
     end;
 }

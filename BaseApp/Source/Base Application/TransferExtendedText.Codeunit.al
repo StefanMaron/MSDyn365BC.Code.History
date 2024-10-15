@@ -284,6 +284,7 @@ codeunit 378 "Transfer Extended Text"
         NextLineNo := SalesLine."Line No." + LineSpacing;
 
         TempExtTextLine.Reset();
+        OnInsertSalesExtTextRetLastOnBeforeFindTempExtTextLine(TempExtTextLine, SalesLine);
         if TempExtTextLine.Find('-') then begin
             repeat
                 ToSalesLine.Init();
@@ -335,6 +336,7 @@ codeunit 378 "Transfer Extended Text"
         NextLineNo := ReminderLine."Line No." + LineSpacing;
 
         TempExtTextLine.Reset();
+        OnInsertReminderExtTextOnBeforeFindTempExtTextLine(TempExtTextLine, ReminderLine);
         if TempExtTextLine.Find('-') then begin
             repeat
                 ToReminderLine.Init();
@@ -384,6 +386,7 @@ codeunit 378 "Transfer Extended Text"
                 NextLineNo := NextLineNo + LineSpacing;
                 ToFinChrgMemoLine.Description := TempExtTextLine.Text;
                 ToFinChrgMemoLine."Attached to Line No." := FinChrgMemoLine."Line No.";
+                OnInsertFinChrgMemoExtTextOnBeforeToFinChrgMemoLineInsert(ToFinChrgMemoLine, FinChrgMemoLine, TempExtTextLine, NextLineNo, LineSpacing);
                 ToFinChrgMemoLine.Insert();
             until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
@@ -424,6 +427,7 @@ codeunit 378 "Transfer Extended Text"
         NextLineNo := PurchLine."Line No." + LineSpacing;
 
         TempExtTextLine.Reset();
+        OnInsertPurchExtTextRetLastOnBeforeFindTempExtTextLine(TempExtTextLine, PurchLine);
         if TempExtTextLine.Find('-') then begin
             repeat
                 ToPurchLine.Init();
@@ -550,6 +554,7 @@ codeunit 378 "Transfer Extended Text"
             if ExtTextLine.FindSet() then begin
                 repeat
                     TempExtTextLine := ExtTextLine;
+                    OnReadExtTextLinesOnBeforeTempExtTextLineInsert(TempExtTextLine, ExtTextHeader);
                     TempExtTextLine.Insert();
                 until ExtTextLine.Next() = 0;
                 Result := true;
@@ -892,5 +897,30 @@ codeunit 378 "Transfer Extended Text"
     begin
     end;
 #endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFinChrgMemoExtTextOnBeforeToFinChrgMemoLineInsert(var ToFinanceChargeMemoLine: Record "Finance Charge Memo Line"; FinanceChargeMemoLine: Record "Finance Charge Memo Line"; TempExtendedTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReadExtTextLinesOnBeforeTempExtTextLineInsert(var TempExtendedTextLine: Record "Extended Text Line" temporary; ExtendedTextHeader: Record "Extended Text Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesExtTextRetLastOnBeforeFindTempExtTextLine(var TempExtendedTextLine: Record "Extended Text Line" temporary; SalesLine: Record "Sales Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertReminderExtTextOnBeforeFindTempExtTextLine(var TempExtendedTextLine: Record "Extended Text Line" temporary; ReminderLine: Record "Reminder Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchExtTextRetLastOnBeforeFindTempExtTextLine(var TempExtendedTextLine: Record "Extended Text Line" temporary; PurchaseLine: Record "Purchase Line");
+    begin
+    end;
 }
 
