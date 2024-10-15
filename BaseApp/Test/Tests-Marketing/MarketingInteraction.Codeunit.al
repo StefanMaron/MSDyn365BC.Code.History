@@ -46,6 +46,7 @@ codeunit 136208 "Marketing Interaction"
         TitleByLbl: Label '%1 - by %2', Comment = '%1 - document description, %2 - name';
         FileLbl: Label '%1.%2', Comment = '%1 - Filename, 2% - Extension', Locked = true;
         SegmentSendContactEmailFaxMissingErr: Label 'Make sure that the %1 field is specified for either contact no. %2 or the contact alternative address.', Comment = '%1 - Email or Fax No. field caption, %2 - Contact No.';
+        NoOfInteractionEntriesMustMatchErr: Label 'No. of Interaction Entries must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2771,6 +2772,66 @@ codeunit 136208 "Marketing Interaction"
         Assert.TextEndsWith(LibraryFileMgtHandler.GetDownloadFromSreamToFileName(), SegmentHeader."Subject (Default)" + '.pdf');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('CreateInteractionPageHandler')]
+    procedure VerifyEmailAccountIsBlankAndInteractionLogEntryIsNotCreatedFromContact()
+    var
+        Contact: Record Contact;
+        TestEmailAccount: Record "Test Email Account";
+        InteractionGroup: Record "Interaction Group";
+        InteractionTemplate: Record "Interaction Template";
+        InteractionLogEntry1: Record "Interaction Log Entry";
+        InteractionLogEntry2: Record "Interaction Log Entry";
+        ContactList: TestPage "Contact List";
+        WordTemplateCode: Code[30];
+        InteractionLogEntryCount1: Integer;
+        InteractionLogEntryCount2: Integer;
+    begin
+        // [SCENARIO 484280] Verify that Email Account not define then Interaction Log Entry was not created.
+        Initialize();
+
+        // [GIVEN] No Email Accounts are present.
+        TestEmailAccount.DeleteAll();
+
+        // [GIVEN] Create a Contact with Email ID.
+        CreateContactWithEmail(Contact);
+
+        // [GIVEN] Create a Word Template.
+        WordTemplateCode := CreateWordTemplateWithRelatedTables();
+
+        // [GIVEN] Create an Interaction Group.
+        LibraryMarketing.CreateInteractionGroup(InteractionGroup);
+
+        // [GIVEN] Create an Interaction Template Code.
+        CreateInteractionTemplateWithCorrespondenceTypeAndWizardAction(
+            InteractionTemplate,
+            InteractionTemplate."Correspondence Type (Default)"::Email,
+            InteractionTemplate."Wizard Action"::" ",
+            WordTemplateCode);
+
+        // [GIVEN] Validate Interaction Group Code.    
+        InteractionTemplate.Validate("Interaction Group Code", InteractionGroup.Code);
+        InteractionTemplate.Modify(true);
+
+        // [GIVEN] Count Interaction Log Entries & save it in a Variable.
+        InteractionLogEntry1.SetRange("Contact No.", Contact."No.");
+        InteractionLogEntryCount1 := InteractionLogEntry1.Count;
+
+        // [GIVEN] Open Contact List Page & Run Create Interaction Action.
+        ContactList.OpenEdit();
+        ContactList.GoToRecord(Contact);
+        LibraryVariableStorage.Enqueue(InteractionTemplate.Code);
+        ContactList."Create &Interaction".Invoke();
+
+        // [WHEN] Count Interaction Log Entries & save it in a Variable.
+        InteractionLogEntry2.SetRange("Contact No.", Contact."No.");
+        InteractionLogEntryCount2 := InteractionLogEntry2.Count;
+
+        // [VERIFY] Verify No extra Interaction Log Entry is created.
+        Assert.AreEqual(InteractionLogEntryCount1, InteractionLogEntryCount2, NoOfInteractionEntriesMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibrarySales: Codeunit "Library - Sales";
@@ -3865,6 +3926,15 @@ CopyStr(StorageLocation, 1, MaxStrLen(MarketingSetup."Attachment Storage Locatio
     begin
         SelectSendingOptions."E-Mail".SetValue(DummyDocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
         SelectSendingOptions.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInteractionPageHandler(var CreateInteraction: TestPage "Create Interaction")
+    begin
+        CreateInteraction."Interaction Template Code".SetValue(LibraryVariableStorage.DequeueText());
+        CreateInteraction.NextInteraction.Invoke();
+        asserterror CreateInteraction.NextInteraction.Invoke(); // Email settings error.
     end;
 
     local procedure SetDefaultCorrespondenceType(CorrespondenceType: Enum "Correspondence Type")

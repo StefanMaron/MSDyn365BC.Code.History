@@ -277,5 +277,10 @@
         exit(
           ItemTrackingMgt.ComposeRowID(DATABASE::"Invt. Receipt Line", 0, "Document No.", '', 0, "Line No."));
     end;
+
+    procedure ShowShortcutDimCode(var ShortcutDimCode: array[8] of Code[20])
+    begin
+        DimMgt.GetShortcutDimensions(Rec."Dimension Set ID", ShortcutDimCode);
+    end;
 }
 

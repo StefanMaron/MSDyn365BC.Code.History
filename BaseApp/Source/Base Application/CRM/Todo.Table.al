@@ -929,7 +929,13 @@ table 5080 "To-do"
     local procedure CreateInteraction()
     var
         TempSegLine: Record "Segment Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateInteraction(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::"Phone Call" then begin
             TempSegLine."Campaign No." := "Campaign No.";
             TempSegLine."Opportunity No." := "Opportunity No.";
@@ -1613,7 +1619,13 @@ table 5080 "To-do"
         InteractTemplLanguage: Record "Interaction Tmpl. Language";
         Attachment2: Record Attachment;
         AttachmentManagement: Codeunit AttachmentManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateInteractionTemplate(Task, TaskInteractionLanguage, Attachment, InteractTmplCode, AttachmentTemporary, IsHandled);
+        if IsHandled then
+            exit;
+
         Task.Modify();
         TaskInteractionLanguage.SetRange("To-do No.", Task."No.");
 
@@ -1747,6 +1759,8 @@ table 5080 "To-do"
     var
         TaskInteractionLanguage: Record "To-do Interaction Language";
     begin
+        OnBeforeCreateAttachment(Rec, PageNotEditable);
+
         if "Interaction Template Code" = '' then
             exit;
         if not TaskInteractionLanguage.Get("Organizer To-do No.", "Language Code") then begin
@@ -1766,6 +1780,8 @@ table 5080 "To-do"
     var
         TaskInteractionLanguage: Record "To-do Interaction Language";
     begin
+        OnBeforeOpenAttachment(Rec, PageNotEditable);
+
         if "Interaction Template Code" = '' then
             exit;
         if TaskInteractionLanguage.Get("Organizer To-do No.", "Language Code") then
@@ -1779,6 +1795,8 @@ table 5080 "To-do"
     var
         TaskInteractionLanguage: Record "To-do Interaction Language";
     begin
+        OnBeforeImportAttachment(Rec);
+
         if "Interaction Template Code" = '' then
             exit;
 
@@ -1798,6 +1816,8 @@ table 5080 "To-do"
     var
         TaskInteractionLanguage: Record "To-do Interaction Language";
     begin
+        OnBeforeExportAttachment(Rec);
+
         if "Interaction Template Code" = '' then
             exit;
 
@@ -1811,6 +1831,8 @@ table 5080 "To-do"
     var
         TaskInteractionLanguage: Record "To-do Interaction Language";
     begin
+        OnBeforeRemoveAttachment(Rec);
+
         if "Interaction Template Code" = '' then
             exit;
 
@@ -2262,6 +2284,7 @@ table 5080 "To-do"
 
         OnStartWizardOnBeforeInsert(Rec);
         Insert();
+        OnStartWizardOnAfterInsert(Rec);
         RunCreateTaskPage();
     end;
 
@@ -3146,6 +3169,46 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinishWizardOnBeforeContactNoValidation(var ToDo: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateInteraction(var Todo: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateInteractionTemplate(var Todo: Record "To-do"; var TodoInteractionLanguage: Record "To-do Interaction Language"; var Attachment: Record Attachment; InteractTmplCode: Code[10]; AttachmentTemporary: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateAttachment(var Todo: Record "To-do"; var PageNotEditable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenAttachment(var Todo: Record "To-do"; var PageNotEditable: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeImportAttachment(var Todo: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeExportAttachment(var Todo: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRemoveAttachment(var Todo: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnStartWizardOnAfterInsert(var Todo: Record "To-do")
     begin
     end;
 }

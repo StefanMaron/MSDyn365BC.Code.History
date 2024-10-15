@@ -1040,6 +1040,7 @@
                     TotalAmount1099 := TotalAmount1099 - PurchLine."Prepmt. Amt. Incl. VAT"
                 else
                     TotalAmount1099 := TotalAmount1099 + PurchLine."Prepmt. Amt. Incl. VAT";
+            "Location Code" := PurchLine."Location Code";
         end;
 
         OnAfterFillInvLineBuffer(PrepmtInvLineBuf, PurchLine, SuppressCommit, PurchHeader);
@@ -1151,7 +1152,7 @@
                 DocumentType::Invoice:
                     PrepmtAmt := "Prepmt. Line Amount" - "Prepmt. Amt. Inv.";
                 else
-                    PrepmtAmt := "Prepmt. Amt. Inv." - "Prepmt Amt Deducted";
+		            PrepmtAmt := "Prepmt. Amt. Inv." - "Prepmt Amt Deducted";
             end;
             if IncludeTax then
                 PrepmtAmt := CalcAmountIncludingTax(PrepmtAmt);
@@ -1463,10 +1464,11 @@
         ApplyFilter(PurchHeader, 1, PurchLine);
         if PurchLine.FindSet() then
             repeat
-                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then begin
-                    PurchLines := PurchLine;
-                    PurchLines.Insert();
-                end;
+                if (PrepmtAmount(PurchLine, 0) <> 0) and (PrepmtAmount(PurchLine, 1) <> 0) then
+                    if not PurchLines.Get(PurchLine.RecordId) then begin
+                        PurchLines := PurchLine;
+                        PurchLines.Insert();
+                    end;
             until PurchLine.Next() = 0;
     end;
 
@@ -1692,6 +1694,7 @@
             PurchInvLine."Job No." := "Job No.";
             PurchInvLine."Job Task No." := "Job Task No.";
             PurchInvLine."Pmt. Discount Amount" := "Orig. Pmt. Disc. Possible";
+            PurchInvLine."Location Code" := "Location Code";
             OnBeforePurchInvLineInsert(PurchInvLine, PurchInvHeader, PrepmtInvLineBuffer, SuppressCommit);
             PurchInvLine.Insert();
             if not PurchaseHeader."Compress Prepayment" then

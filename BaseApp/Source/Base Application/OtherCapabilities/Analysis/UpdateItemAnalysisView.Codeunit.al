@@ -112,7 +112,13 @@ codeunit 7150 "Update Item Analysis View"
     local procedure UpdateOne(var NewItemAnalysisView: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; ShowWindow: Boolean)
     var
         Updated: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateOne(NewItemAnalysisView, ItemAnalysisView, Which, ShowWindow, LastValueEntryNo, LastItemBudgetEntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemAnalysisView := NewItemAnalysisView;
         ItemAnalysisView.TestField(Blocked, false);
         ShowProgressWindow := ShowWindow;
@@ -595,6 +601,11 @@ codeunit 7150 "Update Item Analysis View"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateAnalysisViewBudgetEntryOnAfterInitTempItemAnalysisViewBudgEntry(var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; var ItemBudgetEntry: Record "Item Budget Entry"; var ItemAnalysisView: Record "Item Analysis View")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateOne(var NewItemAnalysisView: Record "Item Analysis View"; var ItemAnalysisView: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; var ShowWindow: Boolean; var LastValueEntryEntryNo: Integer; var LastItemBudgetEntryNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

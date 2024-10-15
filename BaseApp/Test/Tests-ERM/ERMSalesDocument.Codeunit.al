@@ -50,6 +50,7 @@
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         DateFilterErr: Label 'Date Filter does not match expected value';
         AmountNotMatchedErr: Label 'Amount not matched.';
+        ShipToCodeMathcedErr: Label 'Ship-to Code not matched.';
 
     [Test]
     [Scope('OnPrem')]
@@ -4040,6 +4041,49 @@
 
         // [VERIFY] Verify: Second new Sales Quote is created with contact No.
         Assert.AreEqual(SalesQuote."Sell-to Contact No.".Value, Contact."No.", '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYesNo')]
+    procedure VerifyNoErrorOnModifySellToCustomerInSalesOrder()
+    var
+        Customer: array[2] of Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [SCENARIO 483313] After changing the Customer on a Sales Order that had no Alternate Shipping Address error.
+        Initialize();
+
+        // [GIVEN] Create two Customers.
+        LibrarySales.CreateCustomer(Customer[1]);
+        LibrarySales.CreateCustomer(Customer[2]);
+
+        // [GIVEN] Create Ship-to Address for Customer[1]
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer[1]."No.");
+
+        // [GIVEN] Update Ship-to Address on Customer
+        Customer[1].Validate("Ship-to Code", ShipToAddress.Code);
+        Customer[1].Modify(true);
+
+        // [GIVEN] Create Sales order and update Customer[1] as Sell-to Customer No.
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Sell-to Customer No.", Customer[1]."No.");
+        SalesHeader.Modify(true);
+
+        // [VERIFY] Verify Ship-to Code updated correctly on Sales Header.
+        Assert.AreEqual(SalesHeader."Ship-to Code", ShipToAddress.Code, ShipToCodeMathcedErr);
+
+        // [GIVEN] Enqueue the Boolean as true 
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+
+        // [WHEN] Update the Sell-to Customer No. as Customer[2].
+        SalesHeader.Validate("Sell-to Customer No.", Customer[2]."No.");
+
+        // [VERIFY] Verify Ship-to Code will be blank after changing the Sell-to Customer No. on Sales Header
+        Assert.AreEqual('', SalesHeader."Ship-to Code", ShipToCodeMathcedErr);
     end;
 
     local procedure Initialize()
