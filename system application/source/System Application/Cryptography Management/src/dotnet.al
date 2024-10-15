@@ -12,5 +12,6 @@ dotnet
         type("System.Security.Cryptography.Rfc2898DeriveBytes"; "Rfc2898DeriveBytes") { }
         type("System.Security.Cryptography.SymmetricAlgorithm"; "Cryptography.SymmetricAlgorithm") { }
         type("System.Security.Cryptography.DESCryptoServiceProvider"; "Cryptography.DESCryptoServiceProvider") { }
+        type("System.Security.Cryptography.SHA1Managed"; "SHA1Managed") { }
     }
 }

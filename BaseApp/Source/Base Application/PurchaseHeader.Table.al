@@ -2270,7 +2270,7 @@ table 38 "Purchase Header"
                             Currency.Initialize("Currency Code");
                             Currency.TestField("Amount Rounding Precision");
                             DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
-                            CalculateDocAmountVAT(
+                            UpdateDocAmountVAT(
                               "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
                             DocBaseAmount := Round("Doc. Amount Incl. VAT" - VATAmount, Currency."Amount Rounding Precision");
                         end else
@@ -2286,12 +2286,29 @@ table 38 "Purchase Header"
             Caption = 'Doc. Amount VAT';
 
             trigger OnValidate()
+            var
+                Currency: Record Currency;
+                TotalPurchaseLine: Record "Purchase Line";
+                DocumentTotals: Codeunit "Document Totals";
+                DocAmountVAT: Decimal;
+                VATAmount: Decimal;
             begin
-                if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
+                if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
+                    exit;
+
+                if FindSuggestedPurchLine(PurchLine) and (PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Normal VAT")
+                then begin
+                    Currency.Initialize("Currency Code");
+                    Currency.TestField("Amount Rounding Precision");
+                    DocumentTotals.CalculatePurchaseTotals(TotalPurchaseLine, VATAmount, PurchLine);
+                    DocAmountVAT := CalcDocAmountVAT(
+                        "Doc. Amount Incl. VAT", VATAmount, TotalPurchaseLine."Amount Including VAT", Currency."Amount Rounding Precision");
+
+                    if "Doc. Amount VAT" > DocAmountVAT then
+                        Error(Text11300, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT));
+                end else
                     if "Doc. Amount VAT" > "Doc. Amount Incl. VAT" then
-                        Error(Text11300,
-                          FieldCaption("Doc. Amount VAT"),
-                          FieldCaption("Doc. Amount Incl. VAT"));
+                        Error(Text11300, FieldCaption("Doc. Amount VAT"), Format(DocAmountVAT));
             end;
         }
         field(11000000; "Transaction Mode Code"; Code[20])
@@ -3144,12 +3161,17 @@ table 38 "Purchase Header"
         end;
     end;
 
-    local procedure CalculateDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal)
+    procedure CalcDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal): Decimal
     begin
         if TotalPurchLineAmtInclVAT <> 0 then
-            "Doc. Amount VAT" := Round(DocAmountInclVAT * VATAmount / TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision)
-        else
-            "Doc. Amount VAT" := 0;
+            exit(Round(DocAmountInclVAT * VATAmount / TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision));
+
+        exit(0);
+    end;
+
+    local procedure UpdateDocAmountVAT(DocAmountInclVAT: Decimal; VATAmount: Decimal; TotalPurchLineAmtInclVAT: Decimal; CurrencyAmtRoundingPrecision: Decimal)
+    begin
+        "Doc. Amount VAT" := CalcDocAmountVAT(DocAmountInclVAT, VATAmount, TotalPurchLineAmtInclVAT, CurrencyAmtRoundingPrecision);
     end;
 
     procedure UpdateCurrencyFactor()

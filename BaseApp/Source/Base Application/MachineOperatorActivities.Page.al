@@ -156,7 +156,7 @@ page 9047 "Machine Operator Activities"
         end;
 
         SetFilter("Date Filter", '<=%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

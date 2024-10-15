@@ -18,12 +18,14 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         ReminderLineError: Label 'The %1 on the %2 and the %3 must be the same.';
         AmountError: Label 'Amount must be %1 in %2.';
         AmtDueLbl: Label 'You are receiving this email to formally notify you that payment owed by you is past due. The payment was due on %1. Enclosed is a copy of invoice with the details of remaining amount.', Comment = '%1 - Due Date';
+        ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the reminder when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -428,6 +430,122 @@ codeunit 134907 "ERM Invoice and Reminder"
         LibraryReportDataset.AssertElementWithValueExists('NNC_TotalLCY', RemainingAmount + InterestAmount + AdditionalFee);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReminderInvoiceRoundingStatistics()
+    var
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        ReminderStatistics: TestPage "Reminder Statistics";
+        TotalAmount: Decimal;
+    begin
+        // [FEATURE] [Invoice Rounding] [Statistics]
+        // [SCENARIO 369814] Reminder Statistics with Invoice Rounding
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision = 0.1 in G/L Setup
+        UpdateGLSetupInvRoundingPrecision();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Reminder with G/L Accout Line = 1912.41
+        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        CreateReminderLineForInvRounding(
+            ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
+
+        ReminderHeader.CalcFields("Additional Fee", "Interest Amount");
+        TotalAmount := ReminderHeader."Additional Fee" + ReminderHeader."Interest Amount";
+
+        // [WHEN] Reminder Statistics is opened
+        ReminderStatistics.Trap();
+        PAGE.RUN(PAGE::"Reminder Statistics", ReminderHeader);
+
+        // [THEN] Invoice Rounding Amount = -0.01, Total = 1912.41 on Statistics page
+        ReminderStatistics.ReminderTotal.AssertEquals(TotalAmount);
+        ReminderStatistics.InvoiceRoundingAmount.AssertEquals(
+            Round(TotalAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)") - TotalAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerifyMsg')]
+    [Scope('OnPrem')]
+    procedure IssueReminderWithInvRoundingConfirmFalse()
+    var
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+    begin
+        // [FEATURE] [Invoice Rounding]
+        // [SCENARIO 369814] Issue Reminder with Invoice Rounding confirmed No
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision = 0.1 in G/L Setup
+        UpdateGLSetupInvRoundingPrecision();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Reminder with G/L Account Line = 1912.41
+        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        CreateReminderLineForInvRounding(
+            ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
+
+        // [WHEN] Confirm 'No' when issue Reminder
+        LibraryVariableStorage.Enqueue(ProceedOnIssuingWithInvRoundingQst);
+        LibraryVariableStorage.Enqueue(False);
+        IssueReminder(ReminderHeader."No.");
+
+        // [THEN] Reminder is not issued
+        IssuedReminderHeader.SetRange("Customer No.", ReminderHeader."Customer No.");
+        AssertError IssuedReminderHeader.FindFirst();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerVerifyMsg')]
+    [Scope('OnPrem')]
+    procedure IssueReminderWithInvRoundingConfirmTrue()
+    var
+        ReminderHeader: Record "Reminder Header";
+        ReminderLine: Record "Reminder Line";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        IssuedReminderLine: Record "Issued Reminder Line";
+        InvRoundingAmountAmount: Decimal;
+    begin
+        // [FEATURE] [Invoice Rounding]
+        // [SCENARIO 369814] Issue Finance Charge Memo with Invoice Rounding confirmed Yes
+        Initialize();
+
+        // [GIVEN] Amount Rounding Precision = 0.01, Invoice Rounding Precision = 0.1 in G/L Setup
+        UpdateGLSetupInvRoundingPrecision();
+        GeneralLedgerSetup.Get();
+
+        // [GIVEN] Finance Charge Memo with G/L Accout Line = 1912.41
+        CreateReminderHeader(ReminderHeader, CreateCustomer());
+        CreateReminderLineForInvRounding(
+            ReminderLine, ReminderHeader, GeneralLedgerSetup."Amount Rounding Precision");
+
+        ReminderHeader.CalcFields("Additional Fee", "Interest Amount");
+        InvRoundingAmountAmount := ReminderHeader."Additional Fee" + ReminderHeader."Interest Amount";
+        InvRoundingAmountAmount :=
+            Round(InvRoundingAmountAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)") - InvRoundingAmountAmount;
+
+        // [WHEN] Confirm 'Yes' when issue Reminder
+        LibraryVariableStorage.Enqueue(ProceedOnIssuingWithInvRoundingQst);
+        LibraryVariableStorage.Enqueue(true);
+        IssueReminder(ReminderHeader."No.");
+
+        // [THEN] Invoice Rounding Amount is posted in issued reminder with Amount = -0.01
+        IssuedReminderHeader.SetRange("Customer No.", ReminderHeader."Customer No.");
+        IssuedReminderHeader.FindFirst();
+        IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
+        IssuedReminderLine.SetFilter("No.", '<>%1', ReminderLine."No.");
+        IssuedReminderLine.FindFirst();
+        IssuedReminderLine.TestField(Amount, InvRoundingAmountAmount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -671,6 +789,47 @@ codeunit 134907 "ERM Invoice and Reminder"
         exit(ReminderLine."Remaining Amount");
     end;
 
+    local procedure CreateReminderLineForInvRounding(var ReminderLine: Record "Reminder Line"; ReminderHeader: Record "Reminder Header"; AmountRoundingPrecision: Decimal)
+    var
+        GLAccount: Record "G/L Account";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreateReminderLine(
+          ReminderLine, ReminderHeader."No.", ReminderLine.Type::"G/L Account");
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GenProductPostingGroup.Get(GLAccount."Gen. Prod. Posting Group");
+        GenProductPostingGroup.Validate("Def. VAT Prod. Posting Group", GLAccount."VAT Prod. Posting Group");
+        GenProductPostingGroup.Modify(true);
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup, ReminderHeader."VAT Bus. Posting Group", VATProductPostingGroup.Code);
+        VATPostingSetup."VAT Identifier" := VATPostingSetup."VAT Prod. Posting Group";
+        VATPostingSetup.Validate("VAT %", 0);
+        VATPostingSetup.Modify(true);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        GLAccount.Modify(true);
+
+        ReminderLine.Validate("No.", GLAccount."No.");
+        ReminderLine.Validate(
+          Amount,
+          (LibraryRandom.RandIntInRange(10000, 20000) * 10 + 1) * AmountRoundingPrecision);
+        ReminderLine.Modify(true);
+    end;
+
+    local procedure IssueReminder(ReminderNo: Code[20])
+    var
+        ReminderHeader: Record "Reminder Header";
+        IssueReminders: Report "Issue Reminders";
+    begin
+        ReminderHeader.SetRange("No.", ReminderNo);
+        Clear(IssueReminders);
+        IssueReminders.SetTableView(ReminderHeader);
+        IssueReminders.UseRequestPage(false);
+        IssueReminders.Run();
+    end;
+
     local procedure MockIssuedReminder(var IssuedReminderHeader: Record "Issued Reminder Header")
     var
         IssuedReminderLine: Record "Issued Reminder Line";
@@ -727,6 +886,14 @@ codeunit 134907 "ERM Invoice and Reminder"
         CreateReminders.Run;
     end;
 
+    local procedure UpdateGLSetupInvRoundingPrecision()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+        GeneralLedgerSetup.Get();
+        LibraryERM.SetInvRoundingPrecisionLCY(GeneralLedgerSetup."Amount Rounding Precision" * 10);
+    end;
+
     local procedure VerifyReminderLineTypeForDocument(var ReminderLine: Record "Reminder Line"; DocumentNo: Code[20]; ExpectedReminderLineType: Option)
     begin
         ReminderLine.SetRange("Document No.", DocumentNo);
@@ -777,6 +944,14 @@ codeunit 134907 "ERM Invoice and Reminder"
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerVerifyMsg(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     [RequestPageHandler]
