@@ -179,6 +179,7 @@ codeunit 1203 "Import XML File to Data Exch."
         PositionOfFirstSlash: Integer;
         FirstXPathElement: Text;
         RestOfXPath: Text;
+        RegexPattern: Text;
     begin
         // we will let the user define XPaths without the required namespace prefix
         // however, if he does that, we will only consider the XPath element as a local name
@@ -189,7 +190,9 @@ codeunit 1203 "Import XML File to Data Exch."
                 exit('/' + EscapeMissingNamespacePrefix(CopyStr(XPath, 2)));
             0:
                 begin
-                    DotNet_Regex.Regex('^[a-zA-Z0-9]*$');
+                    RegexPattern := '^[a-zA-Z0-9]*$';
+                    OnBeforeAssignRegexPattern(RegexPattern);
+                    DotNet_Regex.Regex(RegexPattern);
                     if (XPath = '') or (not DotNet_Regex.IsMatch(XPath)) then
                         exit(XPath);
                     exit(StrSubstNo('*[local-name() = ''%1'']', XPath));
@@ -220,6 +223,11 @@ codeunit 1203 "Import XML File to Data Exch."
         end;
 
         ProgressWindow.Update(1, LineNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignRegexPattern(var RegexPattern: Text)
+    begin
     end;
 }
 

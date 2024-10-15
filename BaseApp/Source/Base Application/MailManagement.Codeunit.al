@@ -73,6 +73,7 @@ codeunit 9520 "Mail Management"
             HtmlFormated := true;
 
         if SMTPMail.CreateMessage(TempEmailItem."From Name", TempEmailItem."From Address", SendToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), HtmlFormated) then begin
+            OnSendViaSMTPOnBeforeSMTPMailAddAttachment(TempEmailItem, SMTPMail);
             SMTPMail.AddAttachment(TempEmailItem."Attachment File Path", TempEmailItem."Attachment Name");
             if TempEmailItem."Attachment File Path 2" <> '' then
                 SMTPMail.AddAttachment(TempEmailItem."Attachment File Path 2", TempEmailItem."Attachment Name 2");
@@ -410,7 +411,13 @@ codeunit 9520 "Mail Management"
     procedure DownloadPdfAttachment(TempEmailItem: Record "Email Item" temporary)
     var
         FileManagement: Codeunit "File Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDownloadPdfAttachment(TempEmailItem, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempEmailItem do
             if "Attachment File Path" <> '' then
                 FileManagement.DownloadHandler("Attachment File Path", SaveFileDialogTitleMsg, '', SaveFileDialogFilterMsg, "Attachment Name")
@@ -646,6 +653,11 @@ codeunit 9520 "Mail Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeDownloadPdfAttachment(var TempEmailItem: Record "Email Item" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeQualifyFromAddress(var TempEmailItem: Record "Email Item" temporary)
     begin
     end;
@@ -677,6 +689,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSendMailOrDownload(var TempEmailItem: Record "Email Item" temporary; var MailSent: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendViaSMTPOnBeforeSMTPMailAddAttachment(var TempEmailItem: Record "Email Item" temporary; var SMTPMail: Codeunit "SMTP Mail")
     begin
     end;
 }

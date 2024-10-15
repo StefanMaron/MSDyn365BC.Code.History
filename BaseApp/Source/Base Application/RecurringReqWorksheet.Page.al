@@ -1,4 +1,4 @@
-page 296 "Recurring Req. Worksheet"
+﻿page 296 "Recurring Req. Worksheet"
 {
     ApplicationArea = Planning;
     AutoSplitKey = true;
@@ -487,12 +487,8 @@ page 296 "Recurring Req. Worksheet"
                     ToolTip = 'Use a batch job to help you create actual supply orders from the order proposals.';
 
                     trigger OnAction()
-                    var
-                        MakePurchOrder: Report "Carry Out Action Msg. - Req.";
                     begin
-                        MakePurchOrder.SetReqWkshLine(Rec);
-                        MakePurchOrder.RunModal;
-                        MakePurchOrder.GetReqWkshLine(Rec);
+                        MakePurchaseOrder();
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
                         CurrPage.Update(false);
                     end;
@@ -558,11 +554,32 @@ page 296 "Recurring Req. Worksheet"
         ShortcutDimCode: array[8] of Code[20];
         OpenedFromBatch: Boolean;
 
+
+    local procedure MakePurchaseOrder()
+    var
+        MakePurchOrder: Report "Carry Out Action Msg. - Req.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeMakePurchaseOrder(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        MakePurchOrder.SetReqWkshLine(Rec);
+        MakePurchOrder.RunModal;
+        MakePurchOrder.GetReqWkshLine(Rec);
+    end;
+
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin
         CurrPage.SaveRecord;
         ReqJnlManagement.SetName(CurrentJnlBatchName, Rec);
         CurrPage.Update(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeMakePurchaseOrder(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

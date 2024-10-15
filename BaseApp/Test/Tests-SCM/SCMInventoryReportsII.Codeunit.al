@@ -1584,6 +1584,77 @@ codeunit 137302 "SCM Inventory Reports - II"
           'Item_Journal_Batch_Name', ExtraItemJournalBatch.Name);
     end;
 
+    [Test]
+    [HandlerFunctions('PriceListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PriceListReportForItemWithoutSalesPrice()
+    var
+        Item: array[2] of Record Item;
+        SalesPrice: Record "Sales Price";
+        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
+        CustomerNo: Code[20];
+        SalesPriceUnitPrice: Decimal;
+        UnitPrice: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Unit Price] [Sales Price]
+        // [SCENARIO 365188] Price List report shows Item's Unit Price, when Sales Price doesn't exist.
+        Initialize();
+
+        // [GIVEN] Two Items, "I1" with Unit Price "UP1", Sales Price "SP" and "I2" with Unit Price "UP2".
+        for i := 1 to 2 do begin
+            CreateItem(Item[i], '', '', Item[i]."Manufacturing Policy"::"Make-to-Order");
+            UnitPrice := LibraryRandom.RandDec(100, 2);
+            UpdateItem(Item[i], Item[i].FieldNo("Unit Price"), UnitPrice);
+        end;
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        SalesPriceUnitPrice := LibraryRandom.RandDec(100, 2);
+        CreateSalesPriceForItem(Item[1], SalesPrice."Sales Type"::Customer, CustomerNo, '', 0, SalesPriceUnitPrice);
+
+        // [WHEN] Report Price List is run for Items "I1" and "I2".
+        Commit();
+        RunPriceListReport(StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."), SalesType::Customer, CustomerNo, '');
+
+        // [THEN] Report dataset contains "SP" and "UP2".
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', SalesPriceUnitPrice);
+        LibraryReportDataset.AssertElementWithValueExists('SalesPriceUnitPrice', UnitPrice);
+    end;
+
+    [Test]
+    [HandlerFunctions('PriceListRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PriceListReportForItemWithoutSalesDiscount()
+    var
+        Item: array[2] of Record Item;
+        SalesType: Option Customer,"Customer Price Group","All Customers",Campaign;
+        CustomerNo: Code[20];
+        LineDiscount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Unit Price] [Line Discount]
+        // [SCENARIO 365188] Price List report doesn't show Sales Discount for Item without it.
+        Initialize();
+
+        // [GIVEN] Two Items, "I1" with Line Discount "LD" and "I2" without Line discount.
+        for i := 1 to 2 do begin
+            CreateItem(Item[i], '', '', Item[i]."Manufacturing Policy"::"Make-to-Order");
+            UpdateItem(Item[i], Item[i].FieldNo("Unit Price"), LibraryRandom.RandDec(100, 2));
+        end;
+        CustomerNo := LibrarySales.CreateCustomerNo();
+        LineDiscount := LibraryRandom.RandDec(99, 2);
+        CreateSalesLineDiscountForItem(Item[1], CustomerNo, '', 0, LineDiscount);
+
+        // [WHEN] Report Price List is run for Items "I1" and "I2".
+        Commit();
+        RunPriceListReport(StrSubstNo('%1|%2', Item[1]."No.", Item[2]."No."), SalesType::Customer, CustomerNo, '');
+
+        // [THEN] Report dataset contains exactly one "LD".
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.SetRange('LineDisc_SalesLineDisc', LineDiscount);
+        Assert.AreEqual(1, LibraryReportDataset.RowCount, '');
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1722,12 +1793,12 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMVersion.Modify(true);
     end;
 
-    local procedure RunPriceListReport(No: Code[20]; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
+    local procedure RunPriceListReport(NoFilter: Text; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     var
         Item: Record Item;
     begin
         // Execute Price List report with the required combinations of Sales Type and Sales Code.
-        Item.SetRange("No.", No);
+        Item.SetFilter("No.", NoFilter);
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(SalesType);
         LibraryVariableStorage.Enqueue(SalesCode);

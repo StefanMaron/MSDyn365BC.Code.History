@@ -169,7 +169,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
+            CalcFormula = Exist("Purch. Comment Line" WHERE("Document Type" = CONST("Posted Credit Memo"),
                                                              "No." = FIELD("No.")));
             Caption = 'Comment';
             Editable = false;
@@ -208,7 +208,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Tax Cr. Memo Line".Amount WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Tax Cr. Memo Line".Amount WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -217,7 +217,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Purch. Tax Cr. Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
+            CalcFormula = Sum("Purch. Tax Cr. Memo Line"."Amount Including VAT" WHERE("Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
             FieldClass = FlowField;
@@ -451,21 +451,21 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         }
         field(28041; "Rem. WHT Prepaid Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("WHT Entry"."Remaining Unrealized Amount" WHERE("Document Type" = CONST("Credit Memo"),
+            CalcFormula = Sum("WHT Entry"."Remaining Unrealized Amount" WHERE("Document Type" = CONST("Credit Memo"),
                                                                                "Document No." = FIELD("No.")));
             Caption = 'Rem. WHT Prepaid Amount (LCY)';
             FieldClass = FlowField;
         }
         field(28042; "Paid WHT Prepaid Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("WHT Entry".Amount WHERE("Document Type" = CONST(Refund),
+            CalcFormula = Sum("WHT Entry".Amount WHERE("Document Type" = CONST(Refund),
                                                         "Document No." = FIELD("No.")));
             Caption = 'Paid WHT Prepaid Amount (LCY)';
             FieldClass = FlowField;
         }
         field(28043; "Total WHT Prepaid Amount (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("WHT Entry"."Unrealized Amount" WHERE("Document Type" = CONST("Credit Memo"),
+            CalcFormula = Sum("WHT Entry"."Unrealized Amount" WHERE("Document Type" = CONST("Credit Memo"),
                                                                      "Document No." = FIELD("No.")));
             Caption = 'Total WHT Prepaid Amount (LCY)';
             FieldClass = FlowField;
@@ -593,6 +593,14 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         DimMgt: Codeunit DimensionManagement;
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+    end;
+
+    procedure TransferFieldsFrom(PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
+    begin
+        // cut values to avoid overflow in TransferFields
+        PurchCrMemoHeader."Vendor Cr. Memo No." :=
+            CopyStr(PurchCrMemoHeader."Vendor Cr. Memo No.", 1, MaxStrLen("Vendor Cr. Memo No."));
+        TransferFields(PurchCrMemoHeader);
     end;
 }
 

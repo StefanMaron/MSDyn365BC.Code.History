@@ -528,10 +528,12 @@ table 7302 "Bin Content"
         QtyAvailToTake: Decimal;
         IsHandled: Boolean;
     begin
-
+        IsHandled := false;
         OnBeforeCalcQtyAvailToTake(Rec, ExcludeQtyBase, QtyAvailToTake, IsHandled);
+        if IsHandled then
+            exit(QtyAvailToTake);
 
-        SetFilterOnUnitOfMeasure;
+        SetFilterOnUnitOfMeasure();
         CalcFields("Quantity (Base)", "Negative Adjmt. Qty. (Base)", "Pick Quantity (Base)", "ATO Components Pick Qty (Base)");
         exit(
           "Quantity (Base)" -

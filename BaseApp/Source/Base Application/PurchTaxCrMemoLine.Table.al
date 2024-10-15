@@ -593,5 +593,15 @@ table 28078 "Purch. Tax Cr. Memo Line"
         if PurchCrMemoHeader.FindFirst then
             PAGE.RunModal(PAGE::"Posted Purchase Credit Memo", PurchCrMemoHeader);
     end;
+
+    procedure TransferFieldsFrom(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    begin
+        // cut values to avoid overflow in TransferFields
+        PurchCrMemoLine.Description :=
+            CopyStr(PurchCrMemoLine.Description, 1, MaxStrLen(Description));
+        PurchCrMemoLine."Vendor Item No." :=
+            CopyStr(PurchCrMemoLine."Vendor Item No.", 1, MaxStrLen("Vendor Item No."));
+        TransferFields(PurchCrMemoLine);
+    end;
 }
 

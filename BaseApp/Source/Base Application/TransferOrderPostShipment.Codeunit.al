@@ -437,6 +437,7 @@
     local procedure InsertTransShptLine(TransShptHeader: Record "Transfer Shipment Header")
     var
         TransShptLine: Record "Transfer Shipment Line";
+        IsHandled: Boolean;
     begin
         OnBeforeInsertTransShipmentLine(TransLine);
 
@@ -465,7 +466,12 @@
             if WhsePosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase);
         end;
-        OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit);
+
+        IsHandled := false;
+        OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, IsHandled);
+        if IsHandled then
+            exit;
+
         TransShptLine.Insert();
         OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit);
     end;
@@ -749,7 +755,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean)
+    local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
     begin
     end;
 
