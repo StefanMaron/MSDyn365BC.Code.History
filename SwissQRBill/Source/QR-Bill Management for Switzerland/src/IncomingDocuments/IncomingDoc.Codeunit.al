@@ -133,6 +133,9 @@ codeunit 11516 "Swiss QR-Bill Incoming Doc"
                         CopyStr(IncomingDocument."Vendor Bank Account No.", 1, MaxStrLen("Recipient Bank Account")));
             end;
 
+            if IncomingDocument."Document Date" <> 0D then
+                Validate("Document Date", IncomingDocument."Document Date");
+
             Validate("Currency Code", GetCurrency(IncomingDocument."Currency Code"));
             Validate(Amount, Sign * IncomingDocument."Amount Incl. VAT");
             Validate("Transaction Information", CopyStr(IncomingDocument."Swiss QR-Bill Bill Info", 1, MaxStrLen("Transaction Information")));
@@ -166,6 +169,10 @@ codeunit 11516 "Swiss QR-Bill Incoming Doc"
                 Validate("Buy-from Vendor No.", IncomingDocument."Vendor No.");
                 Validate("Currency Code", GetCurrency(IncomingDocument."Currency Code"));
             end;
+
+            if IncomingDocument."Document Date" <> 0D then
+                Validate("Document Date", IncomingDocument."Document Date");
+
             Validate("Posting Description", CopyStr(IncomingDocument."Swiss QR-Bill Unstr. Message", 1, MaxStrLen("Posting Description")));
             Validate("Payment Reference", DelChr(IncomingDocument."Swiss QR-Bill Reference No."));
             Validate("Vendor Invoice No.", IncomingDocument."Vendor Invoice No.");
@@ -443,6 +450,7 @@ codeunit 11516 "Swiss QR-Bill Incoming Doc"
     var
         TempSwissQRBillBillingDetail: Record "Swiss QR-Bill Billing Detail" temporary;
         SwissQRBillBillingInfo: Codeunit "Swiss QR-Bill Billing Info";
+        DocumentDate: Date;
     begin
         if SwissQRBillBillingInfo.ParseBillingInfo(TempSwissQRBillBillingDetail, SwissQRBillBuffer."Billing Information") then
             with TempSwissQRBillBillingDetail do begin
@@ -456,6 +464,11 @@ codeunit 11516 "Swiss QR-Bill Incoming Doc"
                 if FindFirst() then
                     IncomingDocument."Vendor Invoice No." :=
                         CopyStr("Tag Value", 1, MaxStrLen(IncomingDocument."Vendor Invoice No."));
+
+                SetRange("Tag Type", "Tag Type"::"Document Date");
+                if FindFirst() then
+                    if Evaluate(DocumentDate, "Tag Description") then
+                        IncomingDocument."Document Date" := DocumentDate;
             end;
     end;
 

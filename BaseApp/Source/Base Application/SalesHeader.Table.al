@@ -117,6 +117,8 @@
                 Validate("Location Code", LocationCode);
                 GetShippingTime(FieldNo("Sell-to Customer No."));
 
+                SetRcvdFromCountry(Cust."Country/Region Code");
+
                 if (xRec."Sell-to Customer No." <> "Sell-to Customer No.") or
                    (xRec."Currency Code" <> "Currency Code") or
                    (xRec."Gen. Bus. Posting Group" <> "Gen. Bus. Posting Group") or
@@ -2139,6 +2141,11 @@
                 Validate("Posting No. Series", GenJournalTemplate."Posting No. Series");
             end;
         }
+        field(180; "Rcvd-from Country/Region Code"; Code[10])
+        {
+            Caption = 'Received-from Country/Region Code';
+            TableRelation = "Country/Region";
+        }        
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -4951,6 +4958,13 @@
         OnAfterUpdateShipToAddress(Rec, xRec, CurrFieldNo);
     end;
 
+    local procedure SetRcvdFromCountry(RcvdFromCountryRegionCode: Code[10])
+    begin
+        if not IsCreditDocType() then
+            exit;
+        Rec."Rcvd-from Country/Region Code" := RcvdFromCountryRegionCode;
+    end;
+    
     local procedure UpdateShipToCodeFromCust()
     var
         IsHandled: Boolean;
@@ -7603,6 +7617,24 @@
     begin
         MyNotifications.InsertDefault(GetWarnWhenZeroQuantitySalesLinePosting(),
          WarnZeroQuantitySalesPostingTxt, WarnZeroQuantitySalesPostingDescriptionTxt, true);
+    end;
+    
+    internal procedure SetTrackInfoForCancellation()
+    var
+        CancelledDocument: Record "Cancelled Document";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        if Rec."Applies-to Doc. Type" <> Rec."Applies-to Doc. Type"::Invoice then
+            exit;
+        SalesInvoiceHeader.SetLoadFields("No.");
+        if not SalesInvoiceHeader.Get(Rec."Applies-to Doc. No.") then
+            exit;
+        SalesCreditMemoHeader.SetLoadFields("Pre-Assigned No.");
+        SalesCreditMemoHeader.SetRange("Pre-Assigned No.", Rec."No.");
+        if not SalesCreditMemoHeader.FindFirst() then
+            exit;
+        CancelledDocument.InsertSalesInvToCrMemoCancelledDocument(SalesInvoiceHeader."No.", SalesCreditMemoHeader."No.");
     end;
 
 #if not CLEAN20
