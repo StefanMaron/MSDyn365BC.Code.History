@@ -1181,6 +1181,11 @@ page 98 "Purch. Cr. Memo Subform"
             SendLineInvoiceDiscountResetNotification;
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
+    end;
+
     procedure UpdateEditableOnRow()
     begin
         if Type <> Type::" " then

@@ -11,6 +11,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
     var
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -62,11 +63,12 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote,
           Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
-        LibrarySales.CreateCustomerWithAddress(ArgCustomer);
+        CreateCustomerWithPersonContact(ArgCustomer);
+        LibrarySales.CreateCustomerAddress(ArgCustomer);
 
         // Excercise - Open the Sales Quote that has empty address fields and set the address fields
         SalesQuote.OpenEdit;
-        SalesQuote.GotoRecord(SalesHeader);
+        SalesQuote.Filter.SetFilter("No.", SalesHeader."No.");
         CopySalesQuoteSellToAddressFromCustomer(SalesQuote, ArgCustomer);
 
         // Verify - Verify that the sell-to address field values are copied to the ship-to address fields
@@ -273,6 +275,20 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Quo.");
+    end;
+
+    local procedure CreateCustomerWithPersonContact(var Customer: Record Customer)
+    var
+        Contact: Record Contact;
+        CompanyContact: Record Contact;
+    begin
+        LibraryMarketing.CreateContactWithCustomer(CompanyContact, Customer);
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Company No.", CompanyContact."No.");
+        Contact.Modify(true);
+
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
     end;
 
     local procedure CopySalesQuoteSellToAddressFromCustomer(var SalesQuote: TestPage "Sales Quote"; Customer: Record Customer)
