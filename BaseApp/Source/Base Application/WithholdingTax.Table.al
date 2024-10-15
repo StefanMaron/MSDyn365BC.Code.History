@@ -187,7 +187,7 @@ table 12116 "Withholding Tax"
         key(Key4; "Vendor No.", "Document Date", "Document No.")
         {
         }
-        key(Key5; "Vendor No.", Reason)
+        key(Key5; "Vendor No.", Reason, "Non-Taxable Income Type")
         {
         }
     }

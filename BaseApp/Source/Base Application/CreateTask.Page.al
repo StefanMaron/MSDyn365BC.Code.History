@@ -93,7 +93,6 @@ page 5097 "Create Task"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Team Task';
-                    Editable = TeamTaskEditable;
                     ToolTip = 'Specifies if the Task is meant to be done team-wide. Select the check box to specify that the Task applies to the entire Team.';
 
                     trigger OnValidate()
@@ -138,7 +137,6 @@ page 5097 "Create Task"
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Salesperson';
-                    Editable = SalespersonCodeEditable;
                     Enabled = SalespersonCodeEnable;
                     ToolTip = 'Specifies the code of the Salesperson assigned to the Task.';
                 }
@@ -386,11 +384,9 @@ page 5097 "Create Task"
         EndingTimeEnable := true;
         StartTimeEnable := true;
         SalespersonCodeEnable := true;
-        SalespersonCodeEditable := true;
         WizardOpportunityDescriptionEd := true;
         WizardCampaignDescriptionEdita := true;
         WizardContactNameEditable := true;
-        TeamTaskEditable := true;
         IsSoftwareAsAService := EnvironmentInfo.IsSaaS;
     end;
 
@@ -401,11 +397,6 @@ page 5097 "Create Task"
         WizardContactNameEditable := false;
         WizardCampaignDescriptionEdita := false;
         WizardOpportunityDescriptionEd := false;
-
-        if SalesPurchPerson.Get(GetFilter("Salesperson Code")) then begin
-            SalespersonCodeEditable := false;
-            TeamTaskEditable := false;
-        end;
 
         if "Segment Description" <> '' then
             SegmentDescEditable := false;
@@ -433,15 +424,11 @@ page 5097 "Create Task"
         SalespersonFilter: Code[20];
         ContactFilter: Code[20];
         [InDataSet]
-        TeamTaskEditable: Boolean;
-        [InDataSet]
         WizardContactNameEditable: Boolean;
         [InDataSet]
         WizardCampaignDescriptionEdita: Boolean;
         [InDataSet]
         WizardOpportunityDescriptionEd: Boolean;
-        [InDataSet]
-        SalespersonCodeEditable: Boolean;
         [InDataSet]
         SegmentDescEditable: Boolean;
         IsMeeting: Boolean;
@@ -515,10 +502,10 @@ page 5097 "Create Task"
             LanguageCodeEnable := "Interaction Template Code" <> '';
             AttachmentEnable := "Interaction Template Code" <> '';
         end else begin
-            StartTimeEnable := false;
-            EndingTimeEnable := false;
+            StartTimeEnable := Type = Type::"Phone Call";
+            EndingTimeEnable := Type = Type::"Phone Call";
+            DurationEnable := Type = Type::"Phone Call";
             LocationEnable := false;
-            DurationEnable := false;
             AllDayEventEnable := false;
         end;
     end;

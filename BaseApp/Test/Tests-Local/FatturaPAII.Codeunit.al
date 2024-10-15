@@ -62,6 +62,7 @@
 
         // [THEN] DatiGenerali node has three DatiDDT nodes per each Sales Invoice Line with shipment information
         // TFS 313364: If you get more than one posted shipments in a Sale Invoice, the E-Invoice xml file is not accepted due to the the shipment description reported
+        // BUG ID 415421: The line number for the RiferimentoNumeroLinea must be taken from the original line no.
         VerifyDatiDDTForMultipleSalesShipments(ServerFileName, PostedInvNo);
     end;
 
@@ -94,6 +95,7 @@
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiGenerali node has three DatiDDT nodes per each Service Invoice Line with shipment information
+        // BUG ID 415421: The line number for the RiferimentoNumeroLinea must be taken from the original line no.
         VerifyDatiDDTForMultipleServiceShipments(ServerFileName, ServiceInvoiceHeader."No.");
     end;
 
@@ -206,6 +208,7 @@
           ClientFileName, ServiceInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] DatiOrdineAcquisto node has information about Service Shipment Lines of the first shipment of Service Order
+        // BUG ID 415421: The line number for the RiferimentoNumeroLinea must be taken from the original line no.
         VerifyDatiOrdineAcquistoForFirstServiceOrderShipment(ServerFileName, CustomerNo);
     end;
 
@@ -2604,20 +2607,23 @@
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         SalesInvoiceLine: Record "Sales Invoice Line";
+        i: Integer;
     begin
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         SalesInvoiceLine.SetRange("Document No.", InvNo);
         SalesInvoiceLine.SetRange(Type, SalesInvoiceLine.Type::Item);
         SalesInvoiceLine.SetFilter("Shipment No.", '<>%1', '');
-        SalesInvoiceLine.FindSet;
+        SalesInvoiceLine.FindSet();
         Assert.RecordCount(TempXMLBuffer, SalesInvoiceLine.Count);
+        i := 1;
         VerifyDatiDDTData(
-          TempXMLBuffer, SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Date", SalesInvoiceLine."Line No." / 10000);
-        while SalesInvoiceLine.Next <> 0 do begin
+          TempXMLBuffer, SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Date", i);
+        while SalesInvoiceLine.Next() <> 0 do begin
+            i += 1;
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(
-              TempXMLBuffer, SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Date", SalesInvoiceLine."Line No." / 10000);
+              TempXMLBuffer, SalesInvoiceLine."Shipment No.", SalesInvoiceLine."Shipment Date", i);
         end;
         DeleteServerFile(ServerFileName);
     end;
@@ -2626,19 +2632,22 @@
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ServiceInvoiceLine: Record "Service Invoice Line";
+        i: Integer;
     begin
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceInvoiceLine.SetRange("Document No.", InvNo);
         ServiceInvoiceLine.SetRange(Type, ServiceInvoiceLine.Type::Item);
         ServiceInvoiceLine.SetFilter("Shipment No.", '<>%1', '');
-        ServiceInvoiceLine.FindSet;
+        ServiceInvoiceLine.FindSet();
+        i := 1;
         VerifyDatiDDTData(
-          TempXMLBuffer, ServiceInvoiceLine."Shipment No.", ServiceInvoiceLine."Posting Date", ServiceInvoiceLine."Line No." / 10000);
-        while ServiceInvoiceLine.Next <> 0 do begin
+          TempXMLBuffer, ServiceInvoiceLine."Shipment No.", ServiceInvoiceLine."Posting Date", i);
+        while ServiceInvoiceLine.Next() <> 0 do begin
+            i += 1;
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(
-              TempXMLBuffer, ServiceInvoiceLine."Shipment No.", ServiceInvoiceLine."Posting Date", ServiceInvoiceLine."Line No." / 10000);
+              TempXMLBuffer, ServiceInvoiceLine."Shipment No.", ServiceInvoiceLine."Posting Date", i);
         end;
         DeleteServerFile(ServerFileName);
     end;
@@ -2704,21 +2713,22 @@
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         ServiceShipmentLine: Record "Service Shipment Line";
+        i: Integer;
     begin
         TempXMLBuffer.Load(ServerFileName);
         TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiDDT');
         ServiceShipmentLine.SetRange("Customer No.", CustomerNo);
-        ServiceShipmentLine.FindFirst;
+        ServiceShipmentLine.FindFirst();
         ServiceShipmentLine.SetRange("Document No.", ServiceShipmentLine."Document No.");
-        ServiceShipmentLine.FindSet;
+        ServiceShipmentLine.FindSet();
+        i := 1;
         VerifyDatiDDTData(
-          TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date",
-          ServiceShipmentLine."Order Line No." / 10000);
-        while ServiceShipmentLine.Next <> 0 do begin
+          TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
+        while ServiceShipmentLine.Next() <> 0 do begin
+            i += 1;
             FindNextElement(TempXMLBuffer);
             VerifyDatiDDTData(
-              TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date",
-              ServiceShipmentLine."Order Line No." / 10000);
+              TempXMLBuffer, ServiceShipmentLine."Document No.", ServiceShipmentLine."Posting Date", i);
         end;
         DeleteServerFile(ServerFileName);
     end;

@@ -3974,6 +3974,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layout - Local - NamedType BalanceDueTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 4237532168 - NamedType 4120771995" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You must specify a date range in the Date Filter field in the request page, such as the past quarter or the current year.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Report Layout - Local - NamedType DateFilterErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3620343615 - NamedType 2043451082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must be %2 in %3.]]></Val>

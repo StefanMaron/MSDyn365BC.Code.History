@@ -5374,6 +5374,42 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure RecreateSalesItemLineWithEmptyNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+    begin
+        // [FEATURE] 
+        // [SCENARIO 414831] The sales line with "No." = '' and Type <> 'Item' must be recreated when Customer No. is changed
+        Initialize();
+
+        // [GIVEN] Item with empty description
+        LibraryInventory.CreateItem(Item);
+        Item.Description := '';
+        Item.Modify();
+
+        // [GIVEN] Sales Order with Customer No. = '10000' Sales Line with Type = "Item" and "No." is blank
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, '', 0);
+        SalesLine.Validate("No.", '');
+        SalesLine.Modify(true);
+
+        // [WHEN] Change Customer No. in Purchase Header
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Sales Line with "No." = '' and Type = "Item" exists
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", '');
+        Assert.RecordCount(SalesLine, 1);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";

@@ -788,7 +788,7 @@ report 12119 "Depreciation Book"
         TotalStartingAccumulated: Decimal;
         TotalAntAccDepreciation: Decimal;
         FASubclassName: Text[50];
-        ComingFromDescription: Text[30];
+        ComingFromDescription: Text[100];
         InventoryYear: Integer;
         PrevFASubclassCode: Code[10];
         PrevFAclassCode: Code[10];

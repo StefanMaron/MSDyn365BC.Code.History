@@ -851,6 +851,44 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('DepreciationBookRequestPageHandler')]
+    procedure RunDepreciationBookReportWhenSourceFAWithLongDescription()
+    var
+        SourceFixedAsset: Record "Fixed Asset";
+        GenJournalLine: Record "Gen. Journal Line";
+        FADepreciationBook: Record "FA Depreciation Book";
+        DepreciationBookCode: Code[10];
+        AcquisitionDate: Date;
+        DescriptionMaxLen: Integer;
+    begin
+        // [SCENARIO 421489] Run report "Depreciation Book" when Source Fixed Asset has Description with length 100.
+        Initialize();
+
+        // [GIVEN] Fixed Asset "FA1" with Description of length 100.
+        DescriptionMaxLen := MaxStrLen(SourceFixedAsset.Description);
+        LibraryFixedAsset.CreateFixedAsset(SourceFixedAsset);
+        UpdateDescriptionOnFixedAsset(
+          SourceFixedAsset."No.", CopyStr(LibraryUtility.GenerateRandomXMLText(DescriptionMaxLen), 1, DescriptionMaxLen));
+
+        // [GIVEN] Acquired Fixed Asset "FA2" with Source FA No. = "FA1".
+        AcquisitionDate := CalcDate('<-CY>', WorkDate());
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        CreateFADepreciationBookSetup(FADepreciationBook, CreateDepreciationTableWithMultipleLines, AcquisitionDate, DepreciationBookCode);
+        CreateAndPostGenJournalLine(FADepreciationBook, GenJournalLine."FA Posting Type"::"Acquisition Cost", 1000, AcquisitionDate);
+        UpdateSourceFANoOnFixedAsset(FADepreciationBook."FA No.", SourceFixedAsset."No.");
+        Commit();
+
+        // [WHEN] Run report "Depreciation Book".
+        RunDepreciationBookReport(DepreciationBookCode, FADepreciationBook."FA No.", '', true, AcquisitionDate);
+
+        // [THEN] Report was run without errors.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('DeprBookCode', DepreciationBookCode);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -1262,6 +1300,24 @@ codeunit 144143 "ERM FA Deprciation"
         VATTransactionReportAmount.Validate("Threshold Amount Incl. VAT", LibraryRandom.RandDecInRange(10, 100, 2));  // Use Random value for Threshold Amount Encl. VAT.
         VATTransactionReportAmount.Validate("Threshold Amount Excl. VAT", LibraryRandom.RandDec(10, 2));  // Use Random value for Threshold Amount Incl. VAT.
         VATTransactionReportAmount.Modify(true);
+    end;
+
+    local procedure UpdateDescriptionOnFixedAsset(FANo: Code[20]; DescriptionValue: Text[100])
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        FixedAsset.Get(FANo);
+        FixedAsset.Validate(Description, DescriptionValue);
+        FixedAsset.Modify(true);
+    end;
+
+    local procedure UpdateSourceFANoOnFixedAsset(FANo: Code[20]; SourceFANo: Code[20])
+    var
+        FixedAsset: Record "Fixed Asset";
+    begin
+        FixedAsset.Get(FANo);
+        FixedAsset.Validate("Source FA No.", SourceFANo);
+        FixedAsset.Modify(true);
     end;
 
     local procedure VerifyAmountOnFALedgerEntry(FADepreciationBook: Record "FA Depreciation Book")

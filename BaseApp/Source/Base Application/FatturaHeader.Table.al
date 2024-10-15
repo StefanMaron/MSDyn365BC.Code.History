@@ -142,6 +142,11 @@ table 12203 "Fattura Header"
         {
             Caption = 'Self-Billing Document';
         }
+        field(76; "Fattura Vendor No."; Code[20])
+        {
+            Caption = 'Fattura Vendor No.';
+            TableRelation = Vendor;
+        }
     }
 
     keys

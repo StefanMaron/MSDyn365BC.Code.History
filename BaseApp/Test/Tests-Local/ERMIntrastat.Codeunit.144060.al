@@ -1888,12 +1888,13 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount  + Line[2].Amount) = ROUND(0.01 + 1.49) = 2
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount + IntrastatJnlLine[2].Amount, 1)), 13), 1, 175, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount + IntrastatJnlLine[2].Amount, 1)), 13),
+          1, GetLineOffset(0) + 43, 13, 0);
 
         // [THEN] Statistical Value in file on the 1st line equals to ROUND(Line[1]."Statistical Value" + Line[2]."Statistical Value") = ROUND(0.01 + 1.49) = 2
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(
-            Format(Round(IntrastatJnlLine[1]."Statistical Value" + IntrastatJnlLine[2]."Statistical Value", 1)), 13), 1, 217, 13, 0);
+            TextFile, FormatNum(Format(Round(IntrastatJnlLine[1]."Statistical Value" + IntrastatJnlLine[2]."Statistical Value", 1)), 13),
+            1, GetLineOffset(0) + 85, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1932,19 +1933,19 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount) = ROUND(0.01) = 0
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, 175, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetLineOffset(0) + 43, 13, 0);
 
         // [THEN] Amount in file on the 2nd line equals to ROUND(Line[2].Amount) = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, 280, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetLineOffset(1) + 43, 13, 0);
 
         // [THEN] Statistical Value in file on the 1st line equals to ROUND(Line[1]."Statistical Value") = ROUND(0.01) = 0
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1]."Statistical Value", 1)), 13), 1, 217, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1]."Statistical Value", 1)), 13), 1, GetLineOffset(0) + 85, 13, 0);
 
         // [THEN] Statistical Value in file on the 2nd line equals to ROUND(Line[2]."Statistical Value") = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2]."Statistical Value", 1)), 13), 1, 322, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2]."Statistical Value", 1)), 13), 1, GetLineOffset(1) + 85, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1983,19 +1984,19 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount) = ROUND(0.01) = 0
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, 181, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetLineOffset(0) + 49, 13, 0);
 
         // [THEN] Amount in file on the 2nd line equals to ROUND(Line[2].Amount) = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, 266, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetLineOffset(2) + 49, 13, 0);
 
         // [THEN] Statistical Value in file on the 1st line equals to ROUND(Line[1]."Statistical Value") = ROUND(0.01) = 0
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1]."Statistical Value", 1)), 13), 1, 203, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1]."Statistical Value", 1)), 13), 1, GetLineOffset(0) + 71, 13, 0);
 
         // [THEN] Statistical Value in file on the 2nd line equals to ROUND(Line[2]."Statistical Value") = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2]."Statistical Value", 1)), 13), 1, 288, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2]."Statistical Value", 1)), 13), 1, GetLineOffset(2) + 71, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2033,11 +2034,11 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount) = ROUND(0.01) = 0
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, 175, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetLineOffset(0) + 43, 13, 0);
 
         // [THEN] Amount in file on the 2nd line equals to ROUND(Line[2].Amount) = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, 263, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetLineOffset(3) + 43, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2075,11 +2076,11 @@ codeunit 144060 "ERM Intrastat"
 
         // [THEN] Amount in file on the 1st line equals to ROUND(Line[1].Amount) = ROUND(0.01) = 0
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, 194, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[1].Amount, 1)), 13), 1, GetLineOffset(0) + 62, 13, 0);
 
         // [THEN] Amount in file on the 2nd line equals to ROUND(Line[2].Amount) = ROUND(1.49) = 1
         LibrarySpesometro.VerifyValue(
-          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, 301, 13, 0);
+          TextFile, FormatNum(Format(Round(IntrastatJnlLine[2].Amount, 1)), 13), 1, GetLineOffset(4) + 62, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2115,7 +2116,7 @@ codeunit 144060 "ERM Intrastat"
         // [THEN] "Service Tariff No." in the file equals to "123450".
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
         LibrarySpesometro.VerifyValue(
-          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, 222, 6, 0);
+          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, GetLineOffset(0) + 90, 6, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2151,7 +2152,7 @@ codeunit 144060 "ERM Intrastat"
         // [THEN] "Service Tariff No." in the file equals to "123400".
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
         LibrarySpesometro.VerifyValue(
-          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, 222, 6, 0);
+          TextFile, PadStr(CopyStr(IntrastatJnlLine."Service Tariff No.", 1, 5), 6, '0'), 1, GetLineOffset(0) + 90, 6, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2214,7 +2215,7 @@ codeunit 144060 "ERM Intrastat"
         // [THEN] Every line of file starts with constant sting 'EUROX'.
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
         LibrarySpesometro.VerifyValue(TextFile, 'EUROX', 1, 1, 5, 0);
-        LibrarySpesometro.VerifyValue(TextFile, 'EUROX', 1, 133, 5, 0);
+        LibrarySpesometro.VerifyValue(TextFile, 'EUROX', 1, GetLineOffset(0) + 1, 5, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2291,7 +2292,7 @@ codeunit 144060 "ERM Intrastat"
         // [THEN] Amount in file on the 1st line equals to 0.
         LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
         LibrarySpesometro.VerifyValue(TextFile, FormatNum(Format(IntrastatJnlLine.Amount), 13), 1, 118, 13, 0);
-        LibrarySpesometro.VerifyValue(TextFile, FormatNum(Format(IntrastatJnlLine.Amount), 13), 1, 194, 13, 0);
+        LibrarySpesometro.VerifyValue(TextFile, FormatNum(Format(IntrastatJnlLine.Amount), 13), 1, GetLineOffset(0) + 62, 13, 0);
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -2307,6 +2308,82 @@ codeunit 144060 "ERM Intrastat"
         Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1.123), '');
         Assert.AreEqual(2, IntraJnlManagement.RoundTotalWeight(1.789), '');
     end;
+
+    [Test]
+    [HandlerFunctions('MessageFromQueueHandler,IntrastatMakeDiskTaxAuthRequestPageHandler')]
+    PROCEDURE IntrastatExportSection1Sales()
+    VAR
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        FileManagement: Codeunit "File Management";
+        TextFile: BigText;
+        FileName: Text;
+    BEGIN
+        // [FEATURE] [Export] [Sales]
+        // [SCENARIO 422486] Basic Intrastat file export (Sales, Section 1)
+        Initialize();
+
+        // [GIVEN] Intrastat Journal Batch Type = Sales, EU Service = FALSE and Corrective Entry = FALSE
+        CreateIntrastatJournalBatchWithCorrectiveAndTemplate(IntrastatJnlBatch, false, false, WorkDate(), IntrastatJnlBatchType::Sales);
+        MockIntrastatJnlLineAndPrepare(IntrastatJnlLine, IntrastatJnlBatch, '', '');
+        ModifyIntrastatJnlLineTariffAndTotalWeight(IntrastatJnlLine, LibraryUtility.GenerateGUID(), LibraryRandom.RandInt(3));
+
+        // [WHEN] Export Intrastat file
+        FileName := FileManagement.ServerTempFileName('txt');
+        EnqueFilterIntrastatMakeDiskTaxAuth(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+        RunIntrastatMakeDiskTaxAuth(FileName);
+        LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
+
+        // [THEN] Number of rows details of section 5 = 0 on the header line
+        LibrarySpesometro.VerifyValue(TextFile, FormatNum('0', 5), 1, 131, 5, 0);
+
+        // [THEN] Transaction Type codes A and B are exported
+        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 1, 1), 1, GetLineOffset(0) + 56, 1, 0);
+        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 2, 1), 1, GetLineOffset(0) + 104, 1, 0);
+
+        // [THEN] Code of the country of origin is exported blanked
+        LibrarySpesometro.VerifyValue(TextFile, ' ', 1, GetLineOffset(0) + 105, 2, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    END;
+
+    [Test]
+    [HandlerFunctions('MessageFromQueueHandler,IntrastatMakeDiskTaxAuthRequestPageHandler')]
+    PROCEDURE IntrastatExportSection1Purchases()
+    VAR
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        FileManagement: Codeunit "File Management";
+        TextFile: BigText;
+        FileName: Text;
+    BEGIN
+        // [FEATURE] [Export] [Purchases]
+        // [SCENARIO 422486] Basic Intrastat file export (Purchases, Section 1)
+        Initialize();
+
+        // [GIVEN] Intrastat Journal Batch Type = Purchase, EU Service = FALSE and Corrective Entry = FALSE
+        CreateIntrastatJournalBatchWithCorrectiveAndTemplate(IntrastatJnlBatch, false, false, WorkDate(), IntrastatJnlBatchType::Purchase);
+        MockIntrastatJnlLineAndPrepare(IntrastatJnlLine, IntrastatJnlBatch, '', '');
+        ModifyIntrastatJnlLineTariffAndTotalWeight(IntrastatJnlLine, LibraryUtility.GenerateGUID(), LibraryRandom.RandInt(3));
+
+        // [WHEN] Export Intrastat file
+        FileName := FileManagement.ServerTempFileName('txt');
+        EnqueFilterIntrastatMakeDiskTaxAuth(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
+        RunIntrastatMakeDiskTaxAuth(FileName);
+        LibraryTextFileValidation.ReadTextFile(FileName, TextFile);
+
+        // [THEN] Number of rows details of section 5 = 0 on the header line
+        LibrarySpesometro.VerifyValue(TextFile, FormatNum('0', 5), 1, 131, 5, 0);
+
+        // [THEN] Transaction Type codes A and B are exported
+        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 1, 1), 1, GetLineOffset(0) + 69, 1, 0);
+        LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 2, 1), 1, GetLineOffset(0) + 119, 1, 0);
+
+        // [THEN] Code of the country of origin is exported
+        LibrarySpesometro.VerifyValue(TextFile, IntrastatJnlLine."Country/Region of Origin Code", 1, GetLineOffset(0) + 115, 2, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    END;
 
     local procedure Initialize()
     var
@@ -2610,7 +2687,7 @@ codeunit 144060 "ERM Intrastat"
         IntrastatJnlLine.Area := LibraryUTUtility.GetNewCode10;
         IntrastatJnlLine."Transport Method" := LibraryUTUtility.GetNewCode10;
         IntrastatJnlLine."Tariff No." := LibraryUTUtility.GetNewCode;
-        IntrastatJnlLine."Country/Region of Origin Code" := LibraryUTUtility.GetNewCode10;
+        IntrastatJnlLine."Country/Region of Origin Code" := 'FR';
         IntrastatJnlLine."Total Weight" := LibraryRandom.RandInt(100);
         IntrastatJnlLine."Item No." := Item."No.";
         IntrastatJnlLine.Quantity := LibraryRandom.RandInt(10);
@@ -2987,7 +3064,7 @@ codeunit 144060 "ERM Intrastat"
 
     local procedure FindOrCreateIntrastatTransactionType(): Code[10]
     begin
-        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
+        exit('12');
     end;
 
     local procedure FindOrCreateIntrastatTransportMethod(): Code[10]
@@ -3056,7 +3133,27 @@ codeunit 144060 "ERM Intrastat"
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
         LibraryVariableStorage.Enqueue(IncludeIntraCommunity);
         Commit(); // Commit required.
-        GetItemLedgerEntries.Run;
+        GetItemLedgerEntries.Run();
+    end;
+
+    local procedure GetLineOffset(LineType: Integer): Integer
+    var
+        Offset: Integer;
+    begin
+        Offset := 137;
+
+        case LineType of
+            1:
+                exit(Offset + 108);
+            2:
+                exit(Offset + 85);
+            3:
+                exit(Offset + 88);
+            4:
+                exit(Offset + 107);
+        end;
+
+        exit(Offset);
     end;
 
     local procedure MockIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; CorrectedDocNo: Code[20]; CorrectedJnlBatchName: Code[10])
@@ -3168,7 +3265,8 @@ codeunit 144060 "ERM Intrastat"
     begin
         LibraryVariableStorage.Enqueue(FileWasCreatedSuccessfullyMsg);
         IntrastatMakeDiskTaxAuth.InitializeRequest(Filename);
-        IntrastatMakeDiskTaxAuth.RunModal;
+        Commit();
+        IntrastatMakeDiskTaxAuth.RunModal();
     end;
 
     local procedure RunIntrastatJournal(var IntrastatJournal: TestPage "Intrastat Journal")

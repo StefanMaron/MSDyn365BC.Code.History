@@ -1,29 +1,129 @@
 codeunit 144001 "IT - Non Ded. VAT"
 {
-    // Test that Nondeductable VAT is calculated correctly after posting a Purchase Invoice.
-    //   1. Post a purchase invoice and verify Non Deductible VAT in posted entries.
-    // 
-    // -------------------------------------------------------------------------------------------------------
-    // Test Function Name                                                                         TFS ID
-    // -------------------------------------------------------------------------------------------------------
-    // NonDeductibleVATInPurchaseInvoice                                                          152934
-    // VATAmtOnAcqAccountWhenZeroDedPctAndBlankNDVATAccount                                       118209
-
     Subtype = Test;
     TestPermissions = Disabled;
 
     trigger OnRun()
     begin
+        // [FEATURE] [Non Deductible VAT]
     end;
 
     var
         LibraryERM: Codeunit "Library - ERM";
+        LibraryJob: Codeunit "Library - Job";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryFA: Codeunit "Library - Fixed Asset";
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         IncorrectGLEntryAmtErr: Label 'Incorect amount in G/L Entry.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobJnlLineWithNonDeductNormalVATFromPurchLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: record "Purch. Inv. Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        JobJnlLine: Record "Job Journal Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        DeductiblePercent: Decimal;
+        NonDeductiblePercent: Decimal;
+    begin
+        // [FEATURE] [Normal VAT]
+        // [SCENARIO 416091] Job journal line built from purchase line includes non dedactible VAT in "Unit Cost"
+
+        // [GIVEN] VAT Posting Setup, where "Tax Calculation Type"::"Normal VAT", 'Deductible %' is '60'
+        DeductiblePercent := LibraryRandom.RandInt(90);
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup, "Tax Calculation Type"::"Normal VAT", '', DeductiblePercent);
+        NonDeductiblePercent := VATPostingSetup."VAT %" * (100 - DeductiblePercent) / 100;
+        // [GIVEN] Purch Invoice, where line contains "Job No." = 'J', "Job Task No." = 'JT', "Job Line Type" = 'Billable'
+        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, VATPostingSetup);
+        // [GIVEN] "Direct Unit Cost" is 100
+        SetJobForPurchaseLine(PurchaseLine);
+
+        // [WHEN] Run FromPurchaseLineToJnlLine
+        JobTransferLine.FromPurchaseLineToJnlLine(PurchaseHeader, PurchInvHeader, PurchCrMemoHeader, PurchaseLine, '', JobJnlLine);
+
+        // [THEN] JobJnlLine, where "Unit Cost" is 108
+        Assert.AreEqual(
+            Round(JobJnlLine."Unit Cost (LCY)"),
+            Round(PurchaseLine."Unit Cost (LCY)" * (100 + NonDeductiblePercent) / 100), 'Unit Cost (LCY)');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobJnlLineWithNonDeductReverseChargeVATFromPurchLine()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: record "Purch. Inv. Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        JobJnlLine: Record "Job Journal Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        DeductiblePercent: Decimal;
+        NonDeductiblePercent: Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT]
+        // [SCENARIO 416091] Job journal line built from purchase line includes non dedactible VAT in "Unit Cost"
+
+        // [GIVEN] VAT Posting Setup, where "Tax Calculation Type"::"Reverse Charge VAT", 'Deductible %' is '60'
+        DeductiblePercent := LibraryRandom.RandInt(90);
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup, "Tax Calculation Type"::"Reverse Charge VAT", '', DeductiblePercent);
+        NonDeductiblePercent := VATPostingSetup."VAT %" * (100 - DeductiblePercent) / 100;
+        // [GIVEN] Purch Invoice, where line contains "Job No." = 'J', "Job Task No." = 'JT', "Job Line Type" = 'Billable'
+        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, VATPostingSetup);
+        // [GIVEN] "Direct Unit Cost" is 100
+        SetJobForPurchaseLine(PurchaseLine);
+
+        // [WHEN] Run FromPurchaseLineToJnlLine
+        JobTransferLine.FromPurchaseLineToJnlLine(PurchaseHeader, PurchInvHeader, PurchCrMemoHeader, PurchaseLine, '', JobJnlLine);
+
+        // [THEN] JobJnlLine, where "Unit Cost" is 108
+        Assert.AreEqual(
+            Round(JobJnlLine."Unit Cost (LCY)"),
+            Round(PurchaseLine."Unit Cost (LCY)" * (100 + NonDeductiblePercent) / 100), 'Unit Cost (LCY)');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure JobJnlLineWithNonDeductReverseChargeVATFromPurchLineFCY()
+    var
+        Currency: Record Currency;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        PurchInvHeader: record "Purch. Inv. Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        JobJnlLine: Record "Job Journal Line";
+        JobTransferLine: Codeunit "Job Transfer Line";
+        DeductiblePercent: Decimal;
+        NonDeductiblePercent: Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [FCY]
+        // [SCENARIO 416091] Job journal line built from purchase line (in FCY) includes non dedactible VAT in "Unit Cost"
+
+        // [GIVEN] VAT Posting Setup, where "Tax Calculation Type"::"Reverse Charge VAT", 'Deductible %' is '60'
+        DeductiblePercent := LibraryRandom.RandInt(90);
+        CreateNonDeductibleVATPostingSetup(VATPostingSetup, "Tax Calculation Type"::"Reverse Charge VAT", '', DeductiblePercent);
+        NonDeductiblePercent := VATPostingSetup."VAT %" * (100 - DeductiblePercent) / 100;
+        // [GIVEN] Purch Invoice in FCY, where line contains "Job No." = 'J', "Job Task No." = 'JT', "Job Line Type" = 'Billable'
+        PurchaseHeader."Currency Code" := LibraryERM.CreateCurrencyWithRandomExchRates();
+        CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, VATPostingSetup);
+        // [GIVEN] "Direct Unit Cost" is 100
+        SetJobForPurchaseLine(PurchaseLine);
+
+        // [WHEN] Run FromPurchaseLineToJnlLine
+        JobTransferLine.FromPurchaseLineToJnlLine(PurchaseHeader, PurchInvHeader, PurchCrMemoHeader, PurchaseLine, '', JobJnlLine);
+
+        // [THEN] JobJnlLine, where "Unit Cost" is 108
+        Assert.AreEqual(
+            Round(JobJnlLine."Unit Cost (LCY)"),
+            Round(PurchaseLine."Unit Cost (LCY)" * (100 + NonDeductiblePercent) / 100), 'Unit Cost (LCY)');
+    end;
 
     [Test]
     [Scope('OnPrem')]
@@ -697,8 +797,15 @@ codeunit 144001 "IT - Non Ded. VAT"
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"): Decimal
     var
-        GeneralPostingSetup: Record "General Posting Setup";
         PurchaseLine: Record "Purchase Line";
+    begin
+        exit(CreatePurchaseInvoice(PurchaseHeader, PurchaseLine, VATPostingSetup));
+    end;
+
+    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"): Decimal
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        CurrencyCode: Code[20];
         VendNo: Code[20];
         GLAccNo: Code[20];
     begin
@@ -707,7 +814,12 @@ codeunit 144001 "IT - Non Ded. VAT"
           CreateVendor(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         GLAccNo :=
           CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        CurrencyCode := PurchaseHeader."Currency Code";
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendNo);
+        if CurrencyCode <> '' then begin
+            PurchaseHeader.Validate("Currency Code", CurrencyCode);
+            PurchaseHeader.Modify();
+        end;
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccNo, LibraryRandom.RandInt(10));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
@@ -800,10 +912,15 @@ codeunit 144001 "IT - Non Ded. VAT"
     end;
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup") DeductiblePercent: Decimal
+    begin
+        exit(UpdateVATPostingSetup(VATPostingSetup, "Tax Calculation Type"::"Normal VAT"));
+    end;
+
+    local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: enum "Tax Calculation Type") DeductiblePercent: Decimal
     var
         GLAccount: Record "G/L Account";
     begin
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATCalculationType);
         DeductiblePercent := VATPostingSetup."Deductible %";
         LibraryERM.CreateGLAccount(GLAccount);
         VATPostingSetup.Validate("Nondeductible VAT Account", GLAccount."No.");
@@ -965,6 +1082,20 @@ codeunit 144001 "IT - Non Ded. VAT"
         FALedgerEntry.Get(GLEntry."FA Entry No.");
         FALedgerEntry.TestField("G/L Entry No.", GLEntry."Entry No.");
         FALedgerEntry.TestField(Amount, GLEntry.Amount);
+    end;
+
+    local procedure SetJobForPurchaseLine(var PurchaseLine: Record "Purchase Line")
+    var
+        Job: Record Job;
+        JobTask: Record "Job Task";
+    begin
+        PurchaseLine.Validate("Job Line Type", PurchaseLine."Job Line Type"::Billable);
+        LibraryJob.CreateJob(Job);
+        PurchaseLine.Validate("Job No.", Job."No.");
+        LibraryJob.CreateJobTask(Job, JobTask);
+        PurchaseLine.Validate("Job Task No.", JobTask."Job Task No.");
+        PurchaseLine.Validate(Quantity, LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
     end;
 }
 

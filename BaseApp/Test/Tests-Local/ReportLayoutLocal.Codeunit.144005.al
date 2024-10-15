@@ -53,6 +53,7 @@ codeunit 144005 "Report Layout - Local"
         StartingDateErr: Label 'Starting Date of the report is not expected';
         EndingDateErr: Label 'Ending Date of the report is not expected';
         BalanceDueTok: Label 'BalanceDue';
+        DateFilterErr: Label 'You must specify a date range in the Date Filter field in the request page, such as the past quarter or the current year.';
 
     [Test]
     [HandlerFunctions('VendorAccountBillsListRequestPageHandler')]
@@ -2385,6 +2386,22 @@ codeunit 144005 "Report Layout - Local"
         VerifyBillsReportsAmountsManyToMany(CustomerTags, Amount, RemainingAmount, ReturnedAmount, AppliedAmount, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('RHFiscalInventoryValuationWithoutDateFilter')]
+    [Scope('OnPrem')]
+    procedure DateFilterErrorFiscalInventoryValuation()
+    begin
+        // [FEATURE] [UT][UI]
+        // [SCENARIO 416157] Date Filter error arises if Item."Date Filter" is empty
+        Initialize();
+        UpdateSalesSetup;
+
+        Commit();
+        asserterror REPORT.Run(REPORT::"Fiscal Inventory Valuation");
+
+        Assert.ExpectedError(DateFilterErr);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -3271,6 +3288,17 @@ codeunit 144005 "Report Layout - Local"
         FiscalInventoryValuation.CostType.SetValue(CostType::"Fiscal Cost");
         FiscalInventoryValuation.Item.SetFilter(
           "Date Filter", StrSubstNo('%1..%2', CalcDate('<-2Y>', WorkDate), CalcDate('<+2Y>', WorkDate)));
+        FiscalInventoryValuation.SaveAsPdf(FomatFileName(FiscalInventoryValuation.Caption));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure RHFiscalInventoryValuationWithoutDateFilter(var FiscalInventoryValuation: TestRequestPage "Fiscal Inventory Valuation")
+    var
+        CostType: Option "Fiscal Cost","Average Cost","Weighted Average Cost","FIFO Cost","LIFO Cost","Discrete LIFO Cost";
+    begin
+        FiscalInventoryValuation.CompetenceDate.SetValue(CalcDate('<-2Y>', WorkDate));
+        FiscalInventoryValuation.CostType.SetValue(CostType::"Fiscal Cost");
         FiscalInventoryValuation.SaveAsPdf(FomatFileName(FiscalInventoryValuation.Caption));
     end;
 

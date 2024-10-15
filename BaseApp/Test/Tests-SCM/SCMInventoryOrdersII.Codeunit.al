@@ -2121,6 +2121,32 @@ codeunit 137068 "SCM Inventory Orders-II"
         RequisitionLine.TestField(Quantity, SalesLine.Quantity);
     end;
 
+    [Test]
+    procedure LocationCodeFromShipToAddressInSalesOrder()
+    var
+        Customer: Record Customer;
+        ShipToAddress: Record "Ship-to Address";
+        SalesHeader: Record "Sales Header";
+    begin
+        // [FEATURE] [Ship-to Address] [Location] [Sales] [Order]
+        // [SCENARIO 420781] Location Code in sales order is filled in from ship-to address.
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
+        ShipToAddress.Validate("Location Code", LocationRed.Code);
+        ShipToAddress.Modify(true);
+
+        Customer.Validate("Ship-to Code", ShipToAddress.Code);
+        Customer.Validate("Location Code", LocationBlue.Code);
+        Customer.Modify(true);
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+
+        SalesHeader.TestField("Location Code", LocationRed.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -313,6 +313,12 @@ page 5743 "Posted Transfer Shipment"
                     Editable = false;
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
                 }
+                field("Partner VAT ID"; Rec."Partner VAT ID")
+                {
+                    ApplicationArea = BasicEU;
+                    Editable = false;
+                    ToolTip = 'Specifies the counter party''s VAT number.';
+                }
             }
             group(Reporting)
             {

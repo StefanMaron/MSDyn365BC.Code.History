@@ -103,9 +103,17 @@ codeunit 12179 "Export FatturaPA Document"
         else
             Customer.Get(TempFatturaHeader."Customer No");
         PopulateTransmissionData(TempFatturaHeader, Customer);
-        PopulateCompanyInformation(Customer);
+        if TempFatturaHeader."Fattura Vendor No." = '' then
+            PopulateCompanyInformation(Customer)
+        else begin
+            TempXMLBuffer.AddGroupElement('CedentePrestatore');
+            CopyVendorToCustomerBuffer(Customer, TempFatturaHeader."Fattura Vendor No.");
+            PopulateCustomerData(Customer);
+            TempXMLBuffer.GetParent();
+        end;
+
         PopulateTaxRepresentative(TempFatturaHeader);
-        PopulateCustomerData(Customer);
+        PopulateCustomerDataWithHeader(Customer);
     end;
 
     [TryFunction]
@@ -199,6 +207,22 @@ codeunit 12179 "Export FatturaPA Document"
         FatturaSetup.Get();
         FatturaSetup.TestField("Company PA Code");
         Customer."PA Code" := FatturaSetup."Company PA Code";
+    end;
+
+    local procedure CopyVendorToCustomerBuffer(var Customer: Record Customer; VendorNo: Code[20])
+    var
+        Vendor: Record Vendor;
+    begin
+        Vendor.Get(VendorNo);
+        Customer.Init;
+        Customer."Country/Region Code" := Vendor."Country/Region Code";
+        Customer."Fiscal Code" := Vendor."Fiscal Code";
+        Customer."VAT Registration No." := Vendor."VAT Registration No.";
+        Customer.Name := Vendor.Name;
+        Customer.Address := Vendor.Address;
+        Customer."Post Code" := Vendor."Post Code";
+        Customer.County := Vendor.County;
+        Customer.City := Vendor.City;
     end;
 
     local procedure FormatAmount(Amount: Decimal): Text[250]
@@ -340,11 +364,20 @@ codeunit 12179 "Export FatturaPA Document"
         end;
     end;
 
-    local procedure PopulateCustomerData(Customer: Record Customer)
+    local procedure PopulateCustomerDataWithHeader(Customer: Record Customer)
     begin
         // 1.4 CessionarioCommittente
         with TempXMLBuffer do begin
             AddGroupElement('CessionarioCommittente');
+            PopulateCustomerData(Customer);
+            GetParent();
+        end;
+    end;
+
+    local procedure PopulateCustomerData(Customer: Record Customer)
+    begin
+        // 1.4 CessionarioCommittente
+        with TempXMLBuffer do begin
             AddGroupElement('DatiAnagrafici');
             if (Customer."VAT Registration No." <> '') and (not Customer."Individual Person") then begin
                 AddGroupElement('IdFiscaleIVA');
@@ -373,7 +406,6 @@ codeunit 12179 "Export FatturaPA Document"
             AddNonEmptyElement('Comune', Customer.City);
             AddNonEmptyElement('Provincia', Customer.County);
             AddNonEmptyLastElement('Nazione', Customer."Country/Region Code");
-            GetParent;
             GetParent;
         end;
     end;
@@ -557,9 +589,9 @@ codeunit 12179 "Export FatturaPA Document"
                 AddNonEmptyElement('NumeroDDT', TempFatturaLine."Document No.");
                 AddNonEmptyElement('DataDDT', FormatDate(TempFatturaLine."Posting Date"));
                 if TempFatturaLine."Related Line No." <> 0 then
-                    AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Related Line No."));
+                    AddNonEmptyElement('RiferimentoNumeroLinea', Format(TempFatturaLine."Line No."));
                 GetParent;
-            until TempFatturaLine.Next = 0;
+            until TempFatturaLine.Next() = 0;
         end;
     end;
 

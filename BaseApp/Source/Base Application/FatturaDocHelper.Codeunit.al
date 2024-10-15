@@ -86,6 +86,19 @@ codeunit 12184 "Fattura Doc. Helper"
         CollectPaymentInformation(TempFatturaLine, TempFatturaHeader);
     end;
 
+    [Scope('OnPrem')]
+    procedure SetFatturaVendorNoInVATEntry(EntryNo: Integer; VendNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        if EntryNo = 0 then
+            exit;
+
+        VATEntry.Get(EntryNo);
+        VATEntry."Fattura Vendor No." := VendNo;
+        VATEntry.Modify();
+    end;
+
     local procedure CollectDocHeaderInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var LineRecRef: RecordRef; HeaderRecRef: RecordRef; var PricesIncludingVAT: Boolean): Boolean
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -218,6 +231,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempVATEntry.CalcSums(Amount, Base);
         TempFatturaHeader."Total Amount" := Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base);
         TempFatturaHeader."Self-Billing Document" := true;
+        TempFatturaHeader."Fattura Vendor No." := TempVATEntry."Fattura Vendor No.";
         TempFatturaHeader.Insert();
         CollectSelfBillingDocLinesInformation(TempFatturaLine, TempVATEntry);
     end;
@@ -1165,8 +1179,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LineDiscountPct := LineRecRef.Field(LineDiscountPercFieldNo).Value;
         if (InvDiscAmountByQty <> 0) or (LineDiscountPct <> 0) then begin
             TempFatturaLine."Discount Percent" := LineDiscountPct;
-            if TempFatturaLine."Discount Percent" = 0 then
-                TempFatturaLine."Discount Amount" := InvDiscAmountByQty;
+            TempFatturaLine."Discount Amount" := InvDiscAmountByQty;
         end;
 
         LineAmount := LineRecRef.Field(LineAmountFieldNo).Value;
