@@ -2290,7 +2290,7 @@ codeunit 134120 "Price Source UT"
     var
         AmountType: Enum "Price Amount Type";
     begin
-        Assert.AreEqual(AmountType::Price, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
+        Assert.AreEqual(AmountType::Any, PriceSource.GetDefaultAmountType(), 'Wrong default amount type');
 
         PriceSource.VerifyAmountTypeForSourceType(AmountType::Price);
         PriceSource.VerifyAmountTypeForSourceType(AmountType::Discount);
