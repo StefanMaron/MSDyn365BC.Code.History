@@ -19,8 +19,12 @@ codeunit 8612 "Config. Template Management"
     procedure UpdateFromTemplateSelection(var RecRef: RecordRef)
     var
         ConfigTemplateHeader: Record "Config. Template Header";
+        IsHandled: Boolean;
     begin
-        OnBeforeUpdateFromTemplateSelection(ConfigTemplateHeader, RecRef);
+        IsHandled := false;
+        OnBeforeUpdateFromTemplateSelection(ConfigTemplateHeader, RecRef, IsHandled);
+        if IsHandled then
+            exit;
 
         ConfigTemplateHeader.SetRange("Table ID", RecRef.Number);
         if PAGE.RunModal(PAGE::"Config. Template List", ConfigTemplateHeader, ConfigTemplateHeader.Code) = ACTION::LookupOK then
@@ -606,7 +610,7 @@ codeunit 8612 "Config. Template Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateFromTemplateSelection(var ConfigTemplateHeader: Record "Config. Template Header"; RecRef: RecordRef)
+    local procedure OnBeforeUpdateFromTemplateSelection(var ConfigTemplateHeader: Record "Config. Template Header"; RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 

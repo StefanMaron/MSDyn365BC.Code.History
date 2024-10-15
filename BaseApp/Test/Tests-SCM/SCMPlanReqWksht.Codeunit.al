@@ -34,6 +34,7 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         AvailabilityMgt: Codeunit AvailabilityManagement;
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         DemandType: Option " ",Production,Sales,Service,Jobs,Assembly;
         isInitialized: Boolean;
         RequisitionLineMustNotExistTxt: Label 'Requisition Line must not exist for Item %1.', Comment = '%1 = Item No.';
@@ -4144,6 +4145,105 @@
         Assert.IsTrue(RequisitionLine."Starting Date-Time" <= RequisitionLine."Ending Date-Time", 'Starting Date-Time must be less or equal to Ending Date-Time');
     end;
 
+    [Test]
+    procedure ShowErrorIfItemVariantIsPurchasingBlockedWhenCarryOutActionMessage()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+    begin
+        // [SCENARIO 492287] Purchase order can be created for a blocked item variant using planning worksheet for creation
+        Initialize();
+
+        // [GIVEN] Create Item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] Create Item Variant and Validate Purchasing Blocked.
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        ItemVariant.Validate("Purchasing Blocked", true);
+        ItemVariant.Modify(true);
+
+        // [GIVEN] Create Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create Requisition WorkSheet Name.
+        CreateRequisitionWorksheetName(RequisitionWkshName);
+
+        // [WHEN] Create Requisition Line.
+        CreateRequisitionLineWithItemVariant(
+            RequisitionLine,
+            RequisitionWkshName,
+            Item,
+            ItemVariant,
+            Vendor);
+
+        // [VERIFY] Verify Carry Out Action Message gives an error.
+        asserterror CarryOutActionPlan(RequisitionLine);
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchaseOrderSaveAsXML')]
+    [Scope('OnPrem')]
+    procedure PrintMultiplePurchaseOrdersWhenUsingCarryOutActionMessage()
+    var
+        RequisitionPlanningLine: array[2] of Record "Requisition Line";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        PurchaseHeader: Record "Purchase Header";
+        NewPurchOrderChoice: Option " ","Make Purch. Orders","Make Purch. Orders & Print","Copy to Req. Wksh";
+        ItemNo, VendorNo : array[2] of Code[20];
+        i: Integer;
+    begin
+        // [SCENARIO 492125] Verify printing of multiple purchase orders in the "planning worksheet" sheet when using Carry Out Action Message.
+        Initialize();
+
+        // [GIVEN] Create multiple vendors and items
+        for i := 1 to ArrayLen(VendorNo) do begin
+            VendorNo[i] := LibraryPurchase.CreateVendorNo();
+            ItemNo[i] := LibraryInventory.CreateItemNo();
+        end;
+
+        // [GIVEN] Select Planning worksheet.
+        LibraryPlanning.SelectRequisitionWkshName(RequisitionWkshName, RequisitionWkshName."Template Type"::Planning);
+
+        // [GIVEN] Create and modify the requisition line for Vendor "A".
+        LibraryPlanning.CreateRequisitionLine(RequisitionPlanningLine[1], RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionPlanningLine[1].Validate(Type, RequisitionPlanningLine[1].Type::Item);
+        RequisitionPlanningLine[1].Validate("No.", ItemNo[1]);
+        RequisitionPlanningLine[1].Validate("Vendor No.", VendorNo[1]);
+        RequisitionPlanningLine[1].Validate("Accept Action Message", true);
+        RequisitionPlanningLine[1].Validate(Quantity, LibraryRandom.RandInt(10));
+        RequisitionPlanningLine[1].Modify(true);
+
+        // [GIVEN] Create and modify the requisition line for Vendor "B".
+        LibraryPlanning.CreateRequisitionLine(RequisitionPlanningLine[2], RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionPlanningLine[2].Validate(Type, RequisitionPlanningLine[2].Type::Item);
+        RequisitionPlanningLine[2].Validate("No.", ItemNo[2]);
+        RequisitionPlanningLine[2].Validate("Vendor No.", VendorNo[2]);
+        RequisitionPlanningLine[2].Validate("Accept Action Message", true);
+        RequisitionPlanningLine[2].Validate(Quantity, LibraryRandom.RandInt(10));
+        RequisitionPlanningLine[2].Modify(true);
+
+        // [GIVEN] Filter newly created requisition lines.
+        RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
+        RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
+        RequisitionLine.FindSet();
+
+        // [GIVEN] Setup report selection.
+        SetupReportSelections("Report Selection Usage"::"P.Order", Report::"Standard Purchase - Order");
+
+        // [WHEN] Carry out action in planning worksheet with option "Make Purch. Orders & Print".
+        LibraryPlanning.CarryOutPlanWksh(
+            RequisitionLine, 0, NewPurchOrderChoice::"Make Purch. Orders & Print", 0,
+            0, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, '', '');
+
+        // [VERIFY] Verify Print of Multiple Purchase Orders When Using Carry Out Action Message.
+        PurchaseHeader.SetFilter("Buy-from Vendor No.", '%1|%2', VendorNo[1], VendorNo[2]);
+        VerifyPrintedPurchaseOrders(PurchaseHeader);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";
@@ -5588,6 +5688,45 @@
         end;
     end;
 
+    local procedure CreateRequisitionLineWithItemVariant(
+        var RequisitionLine: Record "Requisition Line";
+        RequisitionWkshName: Record "Requisition Wksh. Name";
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        Vendor: Record Vendor)
+    begin
+        LibraryPlanning.CreateRequisitionLine(RequisitionLine, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name);
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate("Variant Code", ItemVariant.Code);
+        RequisitionLine.Validate("Vendor No.", Vendor."No.");
+        RequisitionLine.Validate(Quantity, LibraryRandom.RandInt(0));
+        RequisitionLine.Modify(true);
+    end;
+
+    local procedure VerifyPrintedPurchaseOrders(var PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseHeader.FindSet();
+        repeat
+            LibraryReportDataset.AssertElementWithValueExists('No_PurchHeader', PurchaseHeader."No.");
+            LibraryReportDataset.GetNextRow();
+        until PurchaseHeader.Next() = 0;
+    end;
+
+    local procedure SetupReportSelections(ReportSelectionUsage: Enum "Report Selection Usage"; ReportId: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.SetRange(Usage, ReportSelectionUsage);
+        ReportSelections.DeleteAll();
+
+        ReportSelections.Init();
+        ReportSelections.Validate(Usage, ReportSelectionUsage);
+        ReportSelections.Validate(Sequence, LibraryRandom.RandText(2));
+        ReportSelections.Validate("Report ID", ReportId);
+        ReportSelections.Insert(true);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CalculatePlanPlanWkshRequestPageHandler(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
@@ -5668,6 +5807,14 @@
     begin
         LibraryVariableStorage.Dequeue(QueuedMsg);
         Assert.IsTrue(AreSameMessages(Message, QueuedMsg), Message);
+    end;
+
+    [ReportHandler]
+    procedure PurchaseOrderSaveAsXML(var StandardPurchaseOrder: Report "Standard Purchase - Order")
+    var
+        PurchaseHeader: Record "Purchase Header";
+    begin
+        LibraryReportDataset.RunReportAndLoad(Report::"Standard Purchase - Order", PurchaseHeader, '');
     end;
 }
 

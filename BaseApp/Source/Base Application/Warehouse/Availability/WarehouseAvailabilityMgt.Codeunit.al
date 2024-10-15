@@ -442,6 +442,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                         QtyBlocked += "Quantity (Base)";
                     end else
                         QtyBlocked += CalcQtyWithBlockedItemTracking();
+                    OnCalcQtyOnBlockedITOrOnBlockedOutbndBinsOnBeforeNext(BinContent, WhseItemTrackingSetup, QtyBlocked);
                 until Next() = 0;
         end;
 
@@ -957,6 +958,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSpecialBins(Location: Record Location; var SpecialBins: List of [Code[20]])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOnBlockedITOrOnBlockedOutbndBinsOnBeforeNext(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBlocked: Decimal)
     begin
     end;
 }

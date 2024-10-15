@@ -4,7 +4,7 @@ page 99000845 "Prod. Order Routing Personnel"
 {
     AutoSplitKey = true;
     Caption = 'Prod. Order Routing Personnel';
-    DataCaptionExpression = Caption();
+    DataCaptionExpression = Rec.Caption();
     MultipleNewLines = true;
     PageType = List;
     SourceTable = "Prod. Order Routing Personnel";

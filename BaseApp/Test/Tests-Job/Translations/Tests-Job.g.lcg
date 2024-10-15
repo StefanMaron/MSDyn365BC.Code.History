@@ -662,6 +662,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Job, %2 = Sales Header]D;]A;(LookupHint=Codeunit Job Invoicing - NamedType YourReferenceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1338490621 - Method 1573718635 - NamedType 2843262651" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Invoicing - Method UndoPartialInvoiceOrderWithJob - NamedType UndoReceiptErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2734264983 - Method 2334650297 - NamedType 504539050" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Warehouse Entry for the warehouse pick should have %1 entries for %2]]></Val>
