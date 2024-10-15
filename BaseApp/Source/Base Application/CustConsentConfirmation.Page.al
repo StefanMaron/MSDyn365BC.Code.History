@@ -8,7 +8,7 @@ page 1820 "Cust. Consent Confirmation"
     {
         area(content)
         {
-            field(ConsentText; ConsentTxt)
+            field(ConsentText; ConsentTextValue)
             {
                 ApplicationArea = All;
                 ShowCaption = false;
@@ -64,10 +64,18 @@ page 1820 "Cust. Consent Confirmation"
         }
     }
 
+    trigger OnOpenPage()
+    begin
+        if ConsentTextValue = '' then
+            ConsentTextValue := ConsentTxt;
+    end;
+
     var
         PrivacyLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=521839';
         ConsentTxt: Label 'By enabling this feature, you consent to your data being shared with third party systems and flowing outside of your organization''s selected geographic boundaries.  You control what data, if any, that you provide to the third-party. The third party may not meet the same compliance and security standards as Microsoft Dynamics 365 Business Central. Your privacy is important to us.  To learn more follow the link below.';
+        OpenLinkConsentTxt: Label 'By opening this link, you consent to your data being shared with third party systems and flowing outside of your organization''s selected geographic boundaries.  You control what data, if any, that you provide to the third-party. The third party may not meet the same compliance and security standards as Microsoft Dynamics 365 Business Central. Your privacy is important to us.  To learn more follow the link below.';
         LearnMoreTok: Label 'Privacy and Cookies';
+        ConsentTextValue: Text;
         Agreed: Boolean;
 
     procedure WasAgreed(): Boolean
@@ -75,4 +83,8 @@ page 1820 "Cust. Consent Confirmation"
         exit(Agreed);
     end;
 
+    procedure SetOpenExternalLinkConsentText()
+    begin
+        ConsentTextValue := OpenLinkConsentTxt;
+    end;
 }
