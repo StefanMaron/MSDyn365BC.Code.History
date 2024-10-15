@@ -19,6 +19,7 @@ codeunit 134976 "ERM Sales Report"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryAssembly: Codeunit "Library - Assembly";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryRandom: Codeunit "Library - Random";
         LibraryReportValidation: Codeunit "Library - Report Validation";
@@ -38,8 +39,8 @@ codeunit 134976 "ERM Sales Report"
         RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2.', Comment = '%1=Field Caption,%2=Field Value;';
         VALVATAmountLCYTok: Label 'VALVATAmountLCY';
         VALVATBaseLCYTok: Label 'VALVATBaseLCY';
-        VATPer_VATCounterLCYTok: Label 'VATPer_VATCounterLCY';
-        VATIdentifier_VATCounterLCYTok: Label 'VATIdentifier_VATCounterLCY';
+        VATPer_VATCounterLCYTok: Label 'VATAmountLineVAT_VatCounterLCY';
+        VATIdentifier_VATCounterLCYTok: Label 'VATAmtLineVATIdentifier_VatCounterLCY';
         PostedAsmLineDescCapTxt: Label 'TempPostedAsmLineDesc';
         PostedAsmLineDescriptionCapTxt: Label 'PostedAsmLineDescription';
         Type: Option Invoice,Shipment;
@@ -1416,7 +1417,6 @@ codeunit 134976 "ERM Sales Report"
 
         // [THEN] Sales Invoice contains Total Amount = 300
         // [THEN] Sales Invoice contains Total VAT = 99
-        // [THEN] Sales Invoice contains Total Amount Incl. VAT = 399
         VerifyAmountsSalesInvoiceReport(SalesHeader.Amount, SalesHeader."Amount Including VAT");
     end;
 
@@ -1461,7 +1461,6 @@ codeunit 134976 "ERM Sales Report"
 
         // [THEN] Sales Invoice contains Total Amount = 300
         // [THEN] Sales Invoice contains Total VAT = 99
-        // [THEN] Sales Invoice contains Total Amount Incl. VAT = 399
         VerifyAmountsSalesInvoiceReport(SalesHeader.Amount, SalesHeader."Amount Including VAT");
     end;
 
@@ -1507,7 +1506,6 @@ codeunit 134976 "ERM Sales Report"
 
         // [THEN] Sales Invoice contains Total Amount = 600
         // [THEN] Sales Invoice contains Total VAT = 99
-        // [THEN] Sales Invoice contains Total Amount Incl. VAT = 699
         VerifyAmountsSalesInvoiceReport(SalesHeader.Amount, SalesHeader."Amount Including VAT");
     end;
 
@@ -1539,7 +1537,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 86);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'S', 33);
     end;
 
     [Test]
@@ -1576,7 +1574,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 87);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'S', 34);
     end;
 
     [Test]
@@ -1615,7 +1613,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 86);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'S', 33);
     end;
 
     [Test]
@@ -1655,7 +1653,7 @@ codeunit 134976 "ERM Sales Report"
         // [THEN] Amount Excluding VAT = 1000
         // [THEN] VAT Amount = 200
         // [THEN] Amount Including VAT = 1200
-        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'AB', 87);
+        VerifySalesInvoiceTotalsWithDiscount(SalesLine, 'S', 34);
     end;
 
     [Test]
@@ -1839,174 +1837,6 @@ codeunit 134976 "ERM Sales Report"
     end;
 
     [Test]
-    [HandlerFunctions('SalesQuoteADChangeRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesQuoteArchiveDocFlagStateIsSavedAfterRun()
-    var
-        ArchiveDocValue: Text;
-    begin
-        // [FEATURE] [Sales Quote]
-        // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Sales - Quote" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
-
-        // [GIVEN] Report "Sales - Quote" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-        REPORT.Run(REPORT::"Sales - Quote");
-        ArchiveDocValue := LibraryVariableStorage.DequeueText;
-
-        // [WHEN] Report "Sales - Quote" is run for the second time.
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Sales - Quote");
-
-        // [THEN] "Archive Document" flag state is saved after the first run.
-        Assert.AreEqual(
-          ArchiveDocValue, LibraryVariableStorage.DequeueText, 'Unexpected value for ArchiveDocument field');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmationADChangeRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationArchiveDocFlagStateIsSavedAfterRun()
-    var
-        ArchiveDocValue: Text;
-    begin
-        // [FEATURE] [Sales] [Order] [Order Confirmation]
-        // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Order Confirmation" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
-
-        // [GIVEN] Report "Order Confirmation" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-        REPORT.Run(REPORT::"Order Confirmation");
-        ArchiveDocValue := LibraryVariableStorage.DequeueText;
-
-        // [WHEN] Report "Order Confirmation" is run for the second time.
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Order Confirmation");
-
-        // [THEN] "Archive Document" flag state is saved after the first run.
-        Assert.AreEqual(
-          ArchiveDocValue, LibraryVariableStorage.DequeueText, 'Unexpected value for ArchiveDocument field');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('BlanketSalesOrderADChangeRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure BlanketSalesOrderArchiveDocFlagStateIsSavedAfterRun()
-    var
-        ArchiveDocValue: Text;
-    begin
-        // [FEATURE] [Blanket Sales Order]
-        // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Blanket Sales Order" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
-
-        // [GIVEN] Report "Blanket Sales Order" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-        REPORT.Run(REPORT::"Blanket Sales Order");
-        ArchiveDocValue := LibraryVariableStorage.DequeueText;
-
-        // [WHEN] Report "Blanket Sales Order" is run for the second time.
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Blanket Sales Order");
-
-        // [THEN] "Archive Document" flag state is saved after the first run.
-        Assert.AreEqual(
-          ArchiveDocValue, LibraryVariableStorage.DequeueText, 'Unexpected value for ArchiveDocument field');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('StdSalesDraftInvoiceADChangeRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure StdSalesDraftInvoiceArchiveDocFlagStateIsSavedAfterRun()
-    var
-        ArchiveDocValue: Text;
-    begin
-        // [FEATURE] [Sales Invoice]
-        // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Standard Sales - Draft Invoice" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
-
-        // [GIVEN] Report "Standard Sales - Draft Invoice" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-        REPORT.Run(REPORT::"Standard Sales - Draft Invoice");
-        ArchiveDocValue := LibraryVariableStorage.DequeueText;
-
-        // [WHEN] Report "Standard Sales - Draft Invoice" is run for the second time.
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Standard Sales - Draft Invoice");
-
-        // [THEN] "Archive Document" flag state is saved after the first run.
-        Assert.AreEqual(
-          ArchiveDocValue, LibraryVariableStorage.DequeueText, 'Unexpected value for ArchiveDocument field');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('StdSalesQuoteADChangeRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure StdSalesQuoteArchiveDocFlagStateIsSavedAfterRun()
-    var
-        ArchiveDocValue: Text;
-    begin
-        // [FEATURE] [Sales Quote]
-        // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Standard Sales - Quote" report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
-
-        // [GIVEN] Report "Standard Sales - Quote" was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-        REPORT.Run(REPORT::"Standard Sales - Quote");
-        ArchiveDocValue := LibraryVariableStorage.DequeueText;
-
-        // [WHEN] Report "Standard Sales - Quote" is run for the second time.
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Standard Sales - Quote");
-
-        // [THEN] "Archive Document" flag state is saved after the first run.
-        Assert.AreEqual(
-          ArchiveDocValue, LibraryVariableStorage.DequeueText, 'Unexpected value for ArchiveDocument field');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
-    [HandlerFunctions('StdSalesOrderConfADChangeRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure StdSalesOrderConfArchiveDocFlagStateIsSavedAfterRun()
-    var
-        ArchiveDocValue: Text;
-    begin
-        // [FEATURE] [Order Confirmation]
-        // [SCENARIO 256827] "Archive Document" flag state is saved when Stan runs the "Standard Sales - Order Conf." report for the second time, i.e. "Saved setting" feature works for this flag.
-        Initialize;
-
-        // [GIVEN] Report "Standard Sales - Order Conf." was run for the first time, "Archive Document" flag state was changed before the report was run.
-        Commit();
-        LibraryVariableStorage.Enqueue(false);
-        REPORT.Run(REPORT::"Standard Sales - Order Conf.");
-        ArchiveDocValue := LibraryVariableStorage.DequeueText;
-
-        // [WHEN] Report "Standard Sales - Order Conf." is run for the second time.
-        LibraryVariableStorage.Enqueue(true);
-        REPORT.Run(REPORT::"Standard Sales - Order Conf.");
-
-        // [THEN] "Archive Document" flag state is saved after the first run.
-        Assert.AreEqual(
-          ArchiveDocValue, LibraryVariableStorage.DequeueText, 'Unexpected value for ArchiveDocument field');
-
-        LibraryVariableStorage.AssertEmpty;
-    end;
-
-    [Test]
     [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure DraftSalesInvoiceWithExternalDocNo()
@@ -2055,7 +1885,7 @@ codeunit 134976 "ERM Sales Report"
 
         // [THEN] Saved Excel file contains "External Doc No.".
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(21, 17, SalesHeader."External Document No.");
+        LibraryReportValidation.VerifyCellValue(22, 17, SalesHeader."External Document No.");
     end;
 
     [Test]
@@ -2971,6 +2801,152 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('StdSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesInvoiceCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        DummySalesInvoiceLine: Record "Sales Invoice Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Posted] [Invoice] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Invoice" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Posted Sales Invoice for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Run "Standard Sales - Invoice" Report
+        RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'CrossReferenceNo_Line_Lbl', DummySalesInvoiceLine.FieldCaption("Cross-Reference No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StdSalesCrMemoRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesCreditMemoCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        DummySalesCrMemoLine: Record "Sales Cr.Memo Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Posted] [Credit Memo] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Credit Memo" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Posted Sales Credit Memo for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] Run "Standard Sales - Credit Memo" Report
+        Commit;
+        SalesCrMemoHeader.SetRecFilter;
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+          'CrossReferenceNo_Line_Lbl', DummySalesCrMemoLine.FieldCaption("Cross-Reference No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesQuoteRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StdSalesQuoteCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Quote] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Quote" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Sales Quote for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Run report "Standard Sales - Quote".
+        Commit;
+        SalesHeader.SetRecFilter;
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line_Lbl', SalesLine.FieldCaption("Cross-Reference No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('DraftSalesInvoiceRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DraftSalesInvoiceCustomerCrossReferenceNo()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemCrossReferenceNo: Code[20];
+    begin
+        // [FEATURE] [Invoice] [Item Cross Reference]
+        // [SCENARIO 345453] "Cross Reference No." is included in "Standard Sales - Draft Invoice" Report
+        Initialize;
+
+        // [GIVEN] Item Cross Reference "ITC" for Customer "C" and Item "I"
+        ItemCrossReferenceNo := CreateCustomerItemCrossReferenceNo(Customer, Item);
+
+        // [GIVEN] Sales Invoice for Customer "C" and Item "I"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [WHEN] Run report "Standard Sales - Draft Invoice".
+        Commit;
+        SalesHeader.SetRecFilter;
+        REPORT.Run(REPORT::"Standard Sales - Draft Invoice", true, false, SalesHeader);
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "ITC" is displayed under tag <CrossReferenceNo_Line> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line', ItemCrossReferenceNo);
+
+        // [THEN] Value "Cross-Reference No." is displayed under tag <CrossReferenceNo_Line_Lbl> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CrossReferenceNo_Line_Lbl', SalesLine.FieldCaption("Cross-Reference No."));
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales Report");
@@ -3096,9 +3072,11 @@ codeunit 134976 "ERM Sales Report"
         BOMComponent: Record "BOM Component";
     begin
         LibraryAssembly.CreateItem(AssemblyItem, AssemblyItem."Costing Method"::FIFO, AssemblyItem."Replenishment System"::Purchase, '', '');
-        LibraryAssembly.CreateAssemblyListComponent(
-          BOMComponent.Type::Item, AssemblyItem."No.", ParentItemNo, '',
-          BOMComponent."Resource Usage Type"::Direct, LibraryRandom.RandDec(2, 4), true);
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ParentItemNo, BOMComponent.Type::Item,
+          AssemblyItem."No.", LibraryRandom.RandDec(2, 4), AssemblyItem."Base Unit of Measure");
+        BOMComponent.Validate(Description, AssemblyItem."No.");
+        BOMComponent.Modify(true);
         exit(AssemblyItem."No.");
     end;
 
@@ -3196,6 +3174,17 @@ codeunit 134976 "ERM Sales Report"
               DefaultDimension, Customer."No.", DimensionValue."Dimension Code", DimensionValue.Code);
             DimValueCode[i] := DimensionValue.Code;
         end;
+    end;
+
+    local procedure CreateCustomerItemCrossReferenceNo(var Customer: Record Customer; var Item: Record Item): Code[20]
+    var
+        ItemCrossReference: Record "Item Cross Reference";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemCrossReference(
+          ItemCrossReference, Item."No.", ItemCrossReference."Cross-Reference Type"::Customer, Customer."No.");
+        exit(ItemCrossReference."Cross-Reference No.");
     end;
 
     local procedure CreateItemTranslation(ItemNo: Code[20]; LanguageCode: Code[10]): Text[50]
@@ -4220,16 +4209,15 @@ codeunit 134976 "ERM Sales Report"
     local procedure VerifyYourReferenceSalesCrMemo(YourReference: Text[35])
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(46, 10, YourReference);
+        LibraryReportValidation.VerifyCellValue(35, 11, YourReference);
     end;
 
     local procedure VerifyAmountsSalesInvoiceReport(ExpectedAmount: Decimal; ExpectedAmountInclVAT: Decimal)
     begin
         LibraryReportValidation.OpenExcelFile;
-        LibraryReportValidation.VerifyCellValue(88, 28, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
+        LibraryReportValidation.VerifyCellValue(36, 19, LibraryReportValidation.FormatDecimalValue(ExpectedAmount)); // Total Amount
         LibraryReportValidation.VerifyCellValue(
-          89, 28, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
-        LibraryReportValidation.VerifyCellValue(91, 28, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT)); // Total Amount Incl. VAT
+          37, 19, LibraryReportValidation.FormatDecimalValue(ExpectedAmountInclVAT - ExpectedAmount)); // Total VAT
     end;
 
     local procedure VerifyCustomerOrderSummarySalesAmount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -4257,13 +4245,13 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 1, 1,
           LibraryReportValidation.FormatDecimalValue(-SalesLine."Inv. Discount Amount"));
         // Total Exclude VAT
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 2, 1,
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 3, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine.Amount));
         // VAT Amount
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 3, 1,
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 4, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine."Amount Including VAT" - SalesLine.Amount));
         // Total Include VAT
-        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 5, 1,
+        LibraryReportValidation.VerifyCellValueByRef(ColumnName, StartingRowNo + 6, 1,
           LibraryReportValidation.FormatDecimalValue(SalesLine."Amount Including VAT"));
     end;
 
@@ -4494,7 +4482,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetLastRow;
-        VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1);
+        VerifySalesReportVATAmount(VATEntry."Document Type"::Invoice, DocumentNo, -1, VALVATAmountLCYTok);
     end;
 
     [ModalPageHandler]
@@ -4610,7 +4598,7 @@ codeunit 134976 "ERM Sales Report"
             MoveToRow(RowCount - 1);
         end;
 
-        VerifySalesReportVATAmount(VATEntry."Document Type"::"Credit Memo", DocumentNo, 1);
+        VerifySalesReportVATAmount(VATEntry."Document Type"::"Credit Memo", DocumentNo, 1, 'VALVATAmtLCY');
     end;
 
     local procedure VerifySalesQuoteVATAmountInLCY(DocumentNo: Code[20]; VATAmount: Decimal; VATBaseAmount: Decimal)
@@ -4620,7 +4608,7 @@ codeunit 134976 "ERM Sales Report"
         LibraryReportDataset.AssertCurrentRowValueEquals(VALVATBaseLCYTok, VATBaseAmount);
     end;
 
-    local procedure VerifySalesReportVATAmount(DocumentType: Option; DocumentNo: Code[20]; Sign: Integer)
+    local procedure VerifySalesReportVATAmount(DocumentType: Option; DocumentNo: Code[20]; Sign: Integer; VALVATAmountLCYNodeName: Text)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -4629,7 +4617,7 @@ codeunit 134976 "ERM Sales Report"
             SetRange("Document Type", DocumentType);
             SetRange("Document No.", DocumentNo);
             FindLast;
-            LibraryReportDataset.AssertCurrentRowValueEquals(VALVATAmountLCYTok, Sign * Amount);
+            LibraryReportDataset.AssertCurrentRowValueEquals(VALVATAmountLCYNodeName, Sign * Amount);
             LibraryReportDataset.AssertCurrentRowValueEquals(VALVATBaseLCYTok, Sign * Base);
         end;
     end;
@@ -4679,7 +4667,7 @@ codeunit 134976 "ERM Sales Report"
     begin
         with LibraryReportDataset do begin
             LoadDataSetFile;
-            GetLastRow;
+            MoveToRow(RowCount - 1);
 
             FindCurrentRowValue(VALVATAmountLCYTok, ElementValue);
             VATAmount := ElementValue;
@@ -4711,78 +4699,6 @@ codeunit 134976 "ERM Sales Report"
     procedure StandardSalesQuoteRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
         StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesQuoteADChangeRequestPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
-    begin
-        if not LibraryVariableStorage.DequeueBoolean then
-            SalesQuote.ArchiveDocument.SetValue(not SalesQuote.ArchiveDocument.AsBoolean);
-
-        LibraryVariableStorage.Enqueue(SalesQuote.ArchiveDocument.Value);
-        SalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationADChangeRequestPageHandler(var OrderConfirmation: TestRequestPage "Order Confirmation")
-    begin
-        if not LibraryVariableStorage.DequeueBoolean then
-            OrderConfirmation.ArchiveDocument.SetValue(not OrderConfirmation.ArchiveDocument.AsBoolean);
-
-        LibraryVariableStorage.Enqueue(OrderConfirmation.ArchiveDocument.Value);
-        OrderConfirmation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure BlanketSalesOrderADChangeRequestPageHandler(var BlanketSalesOrder: TestRequestPage "Blanket Sales Order")
-    begin
-        if not LibraryVariableStorage.DequeueBoolean then
-            BlanketSalesOrder.ArchiveDocument.SetValue(not BlanketSalesOrder.ArchiveDocument.AsBoolean);
-
-        LibraryVariableStorage.Enqueue(BlanketSalesOrder.ArchiveDocument.Value);
-        BlanketSalesOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure StdSalesDraftInvoiceADChangeRequestPageHandler(var StandardSalesDraftInvoice: TestRequestPage "Standard Sales - Draft Invoice")
-    begin
-        if not LibraryVariableStorage.DequeueBoolean then
-            StandardSalesDraftInvoice.ArchiveDocument.SetValue(not StandardSalesDraftInvoice.ArchiveDocument.AsBoolean);
-
-        LibraryVariableStorage.Enqueue(StandardSalesDraftInvoice.ArchiveDocument.Value);
-
-        StandardSalesDraftInvoice.Header.SetFilter("No.", '<>''''');
-        StandardSalesDraftInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure StdSalesQuoteADChangeRequestPageHandler(var StandardSalesQuote: TestRequestPage "Standard Sales - Quote")
-    begin
-        if not LibraryVariableStorage.DequeueBoolean then
-            StandardSalesQuote.ArchiveDocument.SetValue(not StandardSalesQuote.ArchiveDocument.AsBoolean);
-
-        LibraryVariableStorage.Enqueue(StandardSalesQuote.ArchiveDocument.Value);
-
-        StandardSalesQuote.Header.SetFilter("No.", '<>''''');
-        StandardSalesQuote.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure StdSalesOrderConfADChangeRequestPageHandler(var StandardSalesOrderConf: TestRequestPage "Standard Sales - Order Conf.")
-    begin
-        if not LibraryVariableStorage.DequeueBoolean then
-            StandardSalesOrderConf.ArchiveDocument.SetValue(not StandardSalesOrderConf.ArchiveDocument.AsBoolean);
-
-        LibraryVariableStorage.Enqueue(StandardSalesOrderConf.ArchiveDocument.Value);
-
-        StandardSalesOrderConf.Header.SetFilter("No.", '<>''''');
-        StandardSalesOrderConf.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

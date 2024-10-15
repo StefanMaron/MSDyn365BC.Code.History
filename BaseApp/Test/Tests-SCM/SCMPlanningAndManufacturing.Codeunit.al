@@ -1687,6 +1687,62 @@ codeunit 137080 "SCM Planning And Manufacturing"
         until ProdOrderComponent.Next = 0;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DueDateOnProdOrderLineMatchesOneOnProdOrderHeaderAfterReschedule()
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+        WorkCenter: Record "Work Center";
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ReschedPeriod: DateFormula;
+    begin
+        // [FEATURE] [Planning] [Production Order]
+        // [SCENARIO 343277] Due Date on prod. order line matches Due Date on production order header after the order is rescheduled by planning.
+        Initialize();
+
+        // [GIVEN] Set "Default Safety Lead Time" blank on Manufacturing Setup.
+        ManufacturingSetup.Get();
+        Clear(ManufacturingSetup."Default Safety Lead Time");
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Create lot-for-lot item with "Prod. Order" manufacturing policy.
+        // [GIVEN] Set rescheduling period on the item so that the planning will reschedule existing supply instead of suggesting "Cancel + New".
+        // [GIVEN] Create sales order with "Shipment Date" = WORKDATE.
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        CreateWorkCenterDemand(Item, WorkCenter."No.", LibraryRandom.RandIntInRange(50, 100), WorkDate());
+        Evaluate(ReschedPeriod, '<2W>');
+        Item.Validate("Rescheduling Period", ReschedPeriod);
+        Item.Modify(true);
+
+        // [GIVEN] Calculate regenerative plan and carry out action message.
+        // [GIVEN] That creates a production order for the item.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        CarryOutActionMessageOnPlanningWorksheet(Item."No.");
+
+        // [GIVEN] Move the shipment date on the sales order line a week forward.
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", Item."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Shipment Date", LibraryRandom.RandDate(10));
+        SalesLine.Modify(true);
+
+        // [WHEN] Calculate regenerative plan and carry out action message again.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()));
+        CarryOutActionMessageOnPlanningWorksheet(Item."No.");
+
+        // [THEN] A production order is rescheduled.
+        // [THEN] New "Due Date" on the header matches "Due Date" on the line.
+        // [THEN] "Due Date" is equal to the shipment date on the sales line.
+        FindProductionOrder(ProductionOrder, ProductionOrder."Source Type"::Item, Item."No.");
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.FindFirst();
+        ProdOrderLine.TestField("Due Date", ProductionOrder."Due Date");
+        ProdOrderLine.TestField("Due Date", SalesLine."Shipment Date");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1709,7 +1765,7 @@ codeunit 137080 "SCM Planning And Manufacturing"
         isInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"Manufacturing Setup");
+        LibrarySetupStorage.SaveManufacturingSetup();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Planning And Manufacturing");
     end;
 

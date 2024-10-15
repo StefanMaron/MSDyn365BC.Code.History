@@ -1,4 +1,4 @@
-table 39 "Purchase Line"
+﻿table 39 "Purchase Line"
 {
     Caption = 'Purchase Line';
     DrillDownPageID = "Purchase Lines";
@@ -294,8 +294,11 @@ table 39 "Purchase Line"
                     if "Drop Shipment" then
                         Error(Text001, FieldCaption("Location Code"), "Sales Order No.");
 
-                if "Special Order" then
-                    Error(Text001, FieldCaption("Location Code"), "Special Order Sales No.");
+                IsHandled := false;
+                OnValidateLocationCodeOnBeforeSpecialOrderError(Rec, IsHandled);
+                if not IsHandled then
+                    if "Special Order" then
+                        Error(Text001, FieldCaption("Location Code"), "Special Order Sales No.");
 
                 if "Location Code" <> xRec."Location Code" then begin
                     InitItemAppl;
@@ -431,6 +434,7 @@ table 39 "Purchase Line"
                                 // looking for an item with exact description
                                 Item.SetRange(Description, Description);
                                 if Item.FindFirst() then begin
+                                    CurrFieldNo := FieldNo("No.");
                                     Validate("No.", Item."No.");
                                     exit;
                                 end;
@@ -438,6 +442,7 @@ table 39 "Purchase Line"
                                 // looking for an item with similar description
                                 Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
                                 if Item.FindFirst then begin
+                                    CurrFieldNo := FieldNo("No.");
                                     Validate("No.", Item."No.");
                                     exit;
                                 end;
@@ -447,8 +452,10 @@ table 39 "Purchase Line"
                                 case ReturnValue of
                                     '', "No.":
                                         Description := xRec.Description;
-                                    else
-                                        Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                    else begin
+                                            CurrFieldNo := FieldNo("No.");
+                                            Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen(Item."No.")));
+                                        end;
                                 end;
                         end;
                     else begin
@@ -908,6 +915,9 @@ table 39 "Purchase Line"
             trigger OnValidate()
             begin
                 TestStatusOpen;
+                if ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT") and "Allow Invoice Disc." then
+                    Error(CannotAllowInvDiscountErr, FieldCaption("Allow Invoice Disc."));
+
                 if "Allow Invoice Disc." <> xRec."Allow Invoice Disc." then begin
                     if not "Allow Invoice Disc." then begin
                         "Inv. Discount Amount" := 0;
@@ -1364,6 +1374,8 @@ table 39 "Purchase Line"
                 GetPurchHeader;
                 "VAT %" := VATPostingSetup."VAT %";
                 "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then
+                    Validate("Allow Invoice Disc.", false);
                 "VAT Identifier" := VATPostingSetup."VAT Identifier";
 
                 IsHandled := false;
@@ -1435,8 +1447,16 @@ table 39 "Purchase Line"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 TestField("Quantity Received", 0);
+
+                IsHandled := false;
+                OnValidateBlanketOrderNoOnAfterCheck(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Blanket Order No." = '' then
                     "Blanket Order Line No." := 0
                 else
@@ -2766,7 +2786,14 @@ table 39 "Purchase Line"
             Caption = 'Promised Receipt Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePromisedReceiptDate(Rec, CurrFieldNo, IsHandled);
+                If IsHandled then
+                    exit;
+
                 if CurrFieldNo <> 0 then
                     if "Promised Receipt Date" <> 0D then
                         Validate("Planned Receipt Date", "Promised Receipt Date")
@@ -3568,6 +3595,7 @@ table 39 "Purchase Line"
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
+        CannotAllowInvDiscountErr: Label 'The value of the %1 field is not valid when the VAT Calculation Type field is set to "Full VAT".', Comment = '%1 is the name of not valid field';
 
     procedure InitOutstanding()
     begin
@@ -3703,7 +3731,7 @@ table 39 "Purchase Line"
 
     local procedure InitHeaderDefaults(PurchHeader: Record "Purchase Header")
     begin
-        PurchHeader.TestField("Buy-from Vendor No.");
+        CheckBuyFromVendorNo(PurchHeader);
 
         "Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
         "Currency Code" := PurchHeader."Currency Code";
@@ -3959,7 +3987,14 @@ table 39 "Purchase Line"
     end;
 
     procedure GetPurchHeader(var OutPurchHeader: Record "Purchase Header"; OutCurrency: Record Currency)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetPurchHeader(Rec, PurchHeader, IsHandled, Currency);
+        if IsHandled then
+            exit;
+
         TestField("Document No.");
         if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then begin
             PurchHeader.Get("Document Type", "Document No.");
@@ -4377,6 +4412,7 @@ table 39 "Purchase Line"
                         begin
                             Amount := 0;
                             "VAT Base Amount" := 0;
+                            "Amount Including VAT" := ROUND(CalcLineAmount(), Currency."Amount Rounding Precision");
                         end;
                     "VAT Calculation Type"::"Sales Tax":
                         begin
@@ -5113,6 +5149,7 @@ table 39 "Purchase Line"
     begin
         Evaluate(
           TotalDays, '<' + Format(CalcDate("Safety Lead Time", CalcDate("Inbound Whse. Handling Time", PurchDate)) - PurchDate) + 'D>');
+        OnAfterInternalLeadTimeDays(Rec, PurchDate, TotalDays);
         exit(Format(TotalDays));
     end;
 
@@ -5441,7 +5478,7 @@ table 39 "Purchase Line"
         if IsHandled then
             exit;
 
-        if Type = Type::Item then
+        if IsInventoriableItem() then
             case true of
                 ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and (Quantity >= 0):
                     if Location.RequireReceive("Location Code") then
@@ -5905,10 +5942,12 @@ table 39 "Purchase Line"
 
         if "Prepmt Amt to Deduct" = 0 then
             LineAmount := Round(QtyToHandle * "Direct Unit Cost", Currency."Amount Rounding Precision")
-        else begin
-            LineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
-            LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
-        end;
+        else
+            if Quantity <> 0 then begin
+                LineAmount := Round(Quantity * "Direct Unit Cost", Currency."Amount Rounding Precision");
+                LineAmount := Round(QtyToHandle * LineAmount / Quantity, Currency."Amount Rounding Precision");
+            end else
+                LineAmount := 0;
 
         if QtyToHandle <> Quantity then
             LineDiscAmount := Round(LineAmount * "Line Discount %" / 100, Currency."Amount Rounding Precision")
@@ -5932,7 +5971,7 @@ table 39 "Purchase Line"
         else
             DocType := DocType::Invoice;
 
-        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) then
+        if ("Prepayment %" = 100) and not "Prepayment Line" and ("Prepmt Amt to Deduct" <> 0) and ("Inv. Discount Amount" = 0) then
             if PurchasePostPrepayments.PrepmtAmount(Rec, DocType) <= 0 then
                 exit("Prepmt Amt to Deduct");
         exit(GetLineAmountToHandle(QtyToHandle));
@@ -5948,8 +5987,13 @@ table 39 "Purchase Line"
     end;
 
     procedure CreateTempJobJnlLine(GetPrices: Boolean)
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCreateTempJobJnlLine(TempJobJnlLine, Rec, xRec, GetPrices, CurrFieldNo);
+        IsHandled := false;
+        OnBeforeCreateTempJobJnlLine(TempJobJnlLine, Rec, xRec, GetPrices, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
 
         GetPurchHeader;
         Clear(TempJobJnlLine);
@@ -6061,6 +6105,8 @@ table 39 "Purchase Line"
 
         if "Job Planning Line No." <> 0 then
             Validate("Job Planning Line No.");
+
+        OnAfterInitQtyToReceive2Procedure(Rec);
     end;
 
     procedure ClearQtyIfBlank()
@@ -6456,7 +6502,7 @@ table 39 "Purchase Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          PurchSetup.RecordId, "Gen. Bus. Posting Group",
+          PurchSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
           PurchSetup."Discount Posting", PurchSetup."Discount Posting"::"Invoice Discounts");
     end;
 
@@ -6556,6 +6602,7 @@ table 39 "Purchase Line"
                         "IC Partner Reference" := '';
                     end;
             end;
+        OnAfterUpdateICPartner(Rec, PurchHeader);
     end;
 
     local procedure CalcTotalAmtToAssign(TotalQtyToAssign: Decimal) TotalAmtToAssign: Decimal
@@ -6883,6 +6930,18 @@ table 39 "Purchase Line"
         OnAfterAssignResourceValues(Rec, Resource);
     end;
 
+    local procedure CheckBuyFromVendorNo(PurchaseHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBuyFromVendorNo(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        PurchaseHeader.TestField("Buy-from Vendor No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddItem(var PurchaseLine: Record "Purchase Line"; LastPurchaseLine: Record "Purchase Line")
     begin
@@ -7034,6 +7093,11 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitQtyToReceive2Procedure(var PurchLine: Record "Purchase Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetDefaultQuantity(var PurchLine: Record "Purchase Line"; var xPurchLine: Record "Purchase Line")
     begin
     end;
@@ -7094,7 +7158,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnAfterTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -7120,6 +7184,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateUnitCost(var PurchLine: Record "Purchase Line"; xPurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header"; Item: Record Item; StockkeepingUnit: Record "Stockkeeping Unit"; Currency: Record Currency; GLSetup: Record "General Ledger Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateICPartner(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -7214,7 +7283,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateTempJobJnlLine(var TempJobJournalLine: Record "Job Journal Line" temporary; PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; GetPrices: Boolean; CallingFieldNo: Integer)
+    local procedure OnBeforeCreateTempJobJnlLine(var TempJobJournalLine: Record "Job Journal Line" temporary; PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; GetPrices: Boolean; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7299,7 +7368,7 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestStatusOpen(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -7355,6 +7424,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateDescription(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer; var InHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePromisedReceiptDate(var PurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -7460,6 +7534,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateLocationCodeOnBeforeDropShipmentError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateLocationCodeOnBeforeSpecialOrderError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7594,6 +7673,26 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssignResourceUOM(var PurchaseLine: Record "Purchase Line"; Resource: Record Resource; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBlanketOrderNoOnAfterCheck(var PurchaseLine: Record "Purchase Line"; var xPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBuyFromVendorNo(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInternalLeadTimeDays(PurchaseLine: Record "Purchase Line"; PurchDate: Date; TotalDays: DateFormula);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPurchHeader(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; var Currency: Record Currency)
     begin
     end;
 }

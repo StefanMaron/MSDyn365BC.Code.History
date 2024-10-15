@@ -2187,7 +2187,7 @@ codeunit 137073 "SCM Supply Planning -III"
         SalesLine: Record "Sales Line";
         ProductionOrder: Record "Production Order";
     begin
-        // [FEATURE] [Production Order]
+        // [FEATURE] [Prod. Order]
         // [SCENARIO 277381] When Released Prod. Order (Order Type is 'Item Order') is created from Sales Order, Gen. Bus. Posting group mustn't be inherited from Sales Order.
         Initialize;
 

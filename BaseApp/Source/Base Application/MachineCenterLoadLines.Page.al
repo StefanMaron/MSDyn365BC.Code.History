@@ -118,11 +118,13 @@ page 99000890 "Machine Center Load Lines"
     end;
 
     var
-        MachineCenter: Record "Machine Center";
         DateRec: Record Date;
         PeriodFormLinesMgt: Codeunit "Period Form Lines Mgt.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         AmountType: Option "Net Change","Balance at Date";
+
+    protected var
+        MachineCenter: Record "Machine Center";
 
     procedure Set(var NewMachineCenter: Record "Machine Center"; NewPeriodType: Integer; NewAmountType: Option "Net Change","Balance at Date")
     begin

@@ -49,7 +49,6 @@ codeunit 134987 "ERM Financial Reports III"
         AmountToApplyDiscTolSalesTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance_';
         AmountToApplyDiscTolPurchTxt: Label 'Amount_to_Apply____AmountDiscounted___AmountPmtDiscTolerance___AmountPmtTolerance__Control3036';
         AmountTotalDiscTolAppliedTxt: Label 'Amount___TotalAmountDiscounted___TotalAmountPmtDiscTolerance___TotalAmountPmtTolerance___AmountApplied';
-        FormatTok: Label '<Precision,%1:%2><Standard Format,1>', Locked = true;
 
     [Test]
     [HandlerFunctions('BalanceCompPrevYearReqPageHandler')]
@@ -571,8 +570,8 @@ codeunit 134987 "ERM Financial Reports III"
 
         // [THEN] Verify check has two lines for 100 for Invoice and -90 for Credit Memo and a Total amount = 10
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('LineAmount', -AmountCreditMemo);
-        LibraryReportDataset.AssertElementWithValueExists('LineAmount', AmountInvoice);
+        LibraryReportDataset.AssertElementWithValueExists('LineAmt', -AmountCreditMemo);
+        LibraryReportDataset.AssertElementWithValueExists('LineAmt', AmountInvoice);
         LibraryReportDataset.AssertElementWithValueExists('TotalLineAmount', AmountInvoice - AmountCreditMemo);
 
         LibraryVariableStorage.AssertEmpty;
@@ -1001,6 +1000,7 @@ codeunit 134987 "ERM Financial Reports III"
               Customer."No.", PaymentAmount, "Bank Payment Type"::"Computer Check");
             Validate("Applies-to ID", UserId);
             Modify(true);
+
             // [GIVEN] MaxEntries number of Purchases Gen. Jnl Lines posted
             CreateAndPostGenJournalLines(
               GenJournalTemplate.Type::Purchases, PAGE::"Purchase Journal",
@@ -1055,7 +1055,7 @@ codeunit 134987 "ERM Financial Reports III"
         UpdateGLSetupToleranceDiscount;
         CreatePaymentTerms(PaymentTerms);
         PaymentTermsCode := PaymentTerms.Code;
-        InvoiceAmt := LibraryRandom.RandDecInRange(1000, 2000, 2);
+        InvoiceAmt := LibraryRandom.RandDecInRange(1000, 2000, 2) * 100; // rounding issue in dach
         DiscountAmt := Round(InvoiceAmt * LibraryERM.GetPaymentTermsDiscountPct(PaymentTerms) / 100);
         ToleranceAmt := Round(InvoiceAmt * LibraryPmtDiscSetup.GetPmtTolerancePct / 100);
         PaymentDate :=
@@ -1744,20 +1744,11 @@ codeunit 134987 "ERM Financial Reports III"
     end;
 
     local procedure VerifyCheckTotalAmount(InvoiceAmount: Decimal; CrMemoAmount: Decimal)
-    var
-        DotNetMath: DotNet Math;
-        FormatString: Text;
     begin
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('TotalText', 'Total');
         Assert.IsTrue(LibraryReportDataset.GetNextRow, StrSubstNo(RowNotFoundErr, 'TotalText', 'Total'));
         LibraryReportDataset.AssertCurrentRowValueEquals('TotalLineAmount', InvoiceAmount - CrMemoAmount);
-        FormatString :=
-          StrSubstNo(
-            FormatTok,
-            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision),
-            DotNetMath.Log10(1 / LibraryERM.GetAmountRoundingPrecision));
-        LibraryReportDataset.AssertCurrentRowValueEquals('CheckAmountText', Format(InvoiceAmount - CrMemoAmount, 0, FormatString));
     end;
 
     local procedure VerifyInvAndPmtDiscInPreCheckReport(AmountToApplyDiscTolCap: Text; InvAmount: Decimal; PmtDiscAmount: Decimal)

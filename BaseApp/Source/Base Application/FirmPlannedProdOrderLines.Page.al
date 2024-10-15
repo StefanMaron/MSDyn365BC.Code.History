@@ -102,7 +102,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Time';
                     ToolTip = 'Specifies the entry''s starting time, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -115,7 +115,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
                     ApplicationArea = Manufacturing;
                     Caption = 'Starting Date';
                     ToolTip = 'Specifies the entry''s starting date, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -138,7 +138,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Time';
                     ToolTip = 'Specifies the entry''s ending time, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -151,7 +151,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
                     ApplicationArea = Manufacturing;
                     Caption = 'Ending Date';
                     ToolTip = 'Specifies the entry''s ending date, which is retrieved from the production order routing.';
-                    Visible = false;
+                    Visible = DateAndTimeFieldVisible;
 
                     trigger OnValidate()
                     begin
@@ -489,9 +489,19 @@ page 99000830 "Firm Planned Prod. Order Lines"
             exit(false);
     end;
 
+    trigger OnInit()
+    begin
+        DateAndTimeFieldVisible := false;
+    end;
+
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Clear(ShortcutDimCode);
+    end;
+
+    trigger OnOpenPage()
+    begin
+        DateAndTimeFieldVisible := false;
     end;
 
     var
@@ -503,6 +513,7 @@ page 99000830 "Firm Planned Prod. Order Lines"
         EndingTime: Time;
         StartingDate: Date;
         EndingDate: Date;
+        DateAndTimeFieldVisible: Boolean;
 
     local procedure ShowComponents()
     var

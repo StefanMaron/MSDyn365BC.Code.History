@@ -940,6 +940,90 @@ codeunit 139735 "APIV1 - Sales Order Lines E2E"
         VerifyIdsAreBlank(ResponseText);
     end;
 
+    [Test]
+    procedure TestPostOrderLineWithItemVariant()
+    var
+        Item: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ItemNo: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        TargetURL: Text;
+        OrderLineJSON: Text;
+        LineNoFromJSON: Text;
+        OrderId: Text;
+        LineNo: Integer;
+    begin
+        // [SCENARIO] POST a new line to an order with item variant
+        // [GIVEN] An existing order and a valid JSON describing the new order line with item variant
+        Initialize();
+        OrderId := CreateSalesOrderWithLines(SalesHeader);
+        ItemNo := LibraryInventory.CreateItem(Item);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        OrderLineJSON := CreateOrderLineJSONWithItemVariantId(Item.SystemId, LibraryRandom.RandIntInRange(1, 100), ItemVariant.SystemId);
+        TargetURL := LibraryGraphMgt
+          .CreateTargetURLWithSubpage(
+            OrderId,
+            PAGE::"APIV1 - Sales Orders",
+            OrderServiceNameTxt,
+            OrderServiceLinesNameTxt);
+        LibraryGraphMgt.PostToWebService(TargetURL, OrderLineJSON, ResponseText);
+
+        // [THEN] the response text should contain the order ID and the change should exist in the database
+        Assert.AreNotEqual('', ResponseText, 'response JSON should not be blank');
+        Assert.IsTrue(
+          LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, 'sequence', LineNoFromJSON), 'Could not find sequence');
+
+        Evaluate(LineNo, LineNoFromJSON);
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Order);
+        SalesLine.SetRange("Line No.", LineNo);
+        SalesLine.SetRange("Variant Code", ItemVariantCode);
+        Assert.IsFalse(SalesLine.IsEmpty(), 'The order line should exist');
+    end;
+
+    [Test]
+    procedure TestPostOrderLineWithWrongItemVariant()
+    var
+        Item1: Record "Item";
+        Item2: Record "Item";
+        ItemVariant: Record "Item Variant";
+        SalesHeader: Record "Sales Header";
+        ItemNo1: Code[20];
+        ItemNo2: Code[20];
+        ItemVariantCode: Code[10];
+        ResponseText: Text;
+        TargetURL: Text;
+        OrderLineJSON: Text;
+        OrderId: Text;
+    begin
+        // [SCENARIO] POST a new line to an order with wrong item variant
+        // [GIVEN] An existing order and a valid JSON describing the new order line with item variant
+        Initialize();
+        OrderId := CreateSalesOrderWithLines(SalesHeader);
+        ItemNo1 := LibraryInventory.CreateItem(Item1);
+        ItemNo2 := LibraryInventory.CreateItem(Item2);
+        ItemVariantCode := LibraryInventory.CreateItemVariant(ItemVariant, ItemNo2);
+        Commit();
+
+        // [WHEN] we POST the JSON to the web service
+        OrderLineJSON := CreateOrderLineJSONWithItemVariantId(Item1.SystemId, LibraryRandom.RandIntInRange(1, 100), ItemVariant.SystemId);
+        TargetURL := LibraryGraphMgt
+                  .CreateTargetURLWithSubpage(
+                    OrderId,
+                    PAGE::"APIV1 - Sales Orders",
+                    OrderServiceNameTxt,
+                    OrderServiceLinesNameTxt);
+
+        // [THEN] the request will fail
+        asserterror LibraryGraphMgt.PostToWebService(TargetURL, OrderLineJSON, ResponseText);
+    end;
+
     local procedure CreateOrderWithAllPossibleLineTypes(var SalesHeader: Record "Sales Header"; var ExpectedNumberOfLines: Integer)
     var
         SalesLine: Record "Sales Line";
@@ -974,6 +1058,16 @@ codeunit 139735 "APIV1 - Sales Order Lines E2E"
         LineJSONTxt := LibraryGraphMgt.AddPropertytoJSON('', 'itemId', IntegrationManagement.GetIdWithoutBrackets(ItemId));
         LineJSONTxt := LibraryGraphMgt.AddComplexTypetoJSON(LineJSONTxt, 'quantity', FORMAT(Quantity));
         EXIT(LineJSONTxt);
+    end;
+
+    local procedure CreateOrderLineJSONWithItemVariantId(ItemId: Guid; Quantity: Integer; ItemVariantId: Guid): Text
+    var
+        IntegrationManagement: Codeunit "Integration Management";
+        LineJsonText: Text;
+    begin
+        LineJsonText := CreateOrderLineJSON(ItemId, Quantity);
+        LineJsonText := LibraryGraphMgt.AddPropertytoJSON(LineJsonText, 'itemVariantId', IntegrationManagement.GetIdWithoutBrackets(ItemVariantId));
+        exit(LineJsonText);
     end;
 
     local procedure CreateOrderAndLinesThroughPage(var SalesOrder: TestPage 42; CustomerNo: Text; ItemNo: Text; ItemQuantity: Integer)

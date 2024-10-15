@@ -146,6 +146,7 @@ codeunit 1006 "Copy Job"
                             Validate(Quantity, 0)
                         else
                             Validate(Quantity);
+                        OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(TargetJobPlanningLine);
                         Modify;
                     end;
                 end;
@@ -389,6 +390,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyJobPrices(var SourceJob: Record Job; var TargetJob: Record Job)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobPlanningLinesOnBeforeModifyTargetJobPlanningLine(var TargetJobPlanningLine: Record "Job Planning Line")
     begin
     end;
 }

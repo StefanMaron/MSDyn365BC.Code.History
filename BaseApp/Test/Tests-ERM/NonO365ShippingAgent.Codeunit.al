@@ -12,6 +12,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         Assert: Codeunit Assert;
@@ -126,17 +127,20 @@ codeunit 138060 "Non-O365 Shipping Agent"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
+        LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Non-O365 Shipping Agent");
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Non-O365 Shipping Agent");
         LibraryERMCountryData.CreateVATData;
         // Not running in SaaS
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         IsInitialized := true;
         Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Non-O365 Shipping Agent");
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)

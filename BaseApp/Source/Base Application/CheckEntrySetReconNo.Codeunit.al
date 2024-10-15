@@ -114,5 +114,30 @@ codeunit 376 "Check Entry Set Recon.-No."
             BankAccLedgEntry.Modify();
         end;
     end;
+
+    procedure RemoveApplication(var CheckLedgerEntry: Record "Check Ledger Entry")
+    var
+        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
+    begin
+        CheckLedgerEntry.LockTable();
+        BankAccReconLine.LockTable();
+
+        if not BankAccReconLine.Get(
+            BankAccReconLine."Statement Type"::"Bank Reconciliation",
+            CheckLedgerEntry."Bank Account No.",
+            CheckLedgerEntry."Statement No.", CheckLedgerEntry."Statement Line No.")
+        then
+            exit;
+
+        BankAccReconLine.TestField("Statement Type", BankAccReconLine."Statement Type"::"Bank Reconciliation");
+        BankAccReconLine.TestField(Type, BankAccReconLine.Type::"Check Ledger Entry");
+        RemoveReconNo(CheckLedgerEntry, BankAccReconLine, true);
+
+        BankAccReconLine."Applied Amount" += CheckLedgerEntry.Amount;
+        BankAccReconLine."Applied Entries" := BankAccReconLine."Applied Entries" - 1;
+        BankAccReconLine."Check No." := '';
+        BankAccReconLine.Validate("Statement Amount");
+        BankAccReconLine.Modify();
+    end;
 }
 

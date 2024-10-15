@@ -622,7 +622,7 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
+    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure ApplySalesCreditMemoWithTwoRefunds()
     var
@@ -666,7 +666,7 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
+    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
     [Scope('OnPrem')]
     procedure ApplyPurchInvoiceWithTwoPayments()
     var
@@ -4770,6 +4770,12 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure MessageHandler(Message: Text[1024])
     begin
         // This is a dummy Handler
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
+    begin
     end;
 
     [ModalPageHandler]

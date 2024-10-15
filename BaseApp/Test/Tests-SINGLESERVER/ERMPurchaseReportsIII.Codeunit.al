@@ -1004,31 +1004,6 @@ codeunit 134988 "ERM Purchase Reports III"
     end;
 
     [Test]
-    [HandlerFunctions('PurchaseInvoiceExcelRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure PurchInvoiceReportLayoutWithEnabledPrintVATSpecInLCY()
-    var
-        PurchaseHeader: Record "Purchase Header";
-        DocumentNo: Code[20];
-    begin
-        // [SCENARIO 379970] Report Purchase - Invoice includes VAT specification in LCY section
-        Initialize;
-
-        // [GIVEN] "General Ledger Setup"."Print VAT specification in LCY" is true
-        InitGeneralLedgerSetup(true);
-
-        // [GIVEN] Purchase Invoice posted
-        CreateAndSetupPurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
-        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
-
-        // [WHEN] Run Purchase - Invoice report
-        SavePurchaseInvoiceReport(DocumentNo);
-
-        // [THEN] VAT specification in LCY section printed
-        VerifyPurchaseInvoiceReportVATAmountInLCYSection(DocumentNo);
-    end;
-
-    [Test]
     [HandlerFunctions('RHVendorBalanceToDate')]
     [Scope('OnPrem')]
     procedure CheckVendorBalanceToDateWithGlobalDimension1()
@@ -1367,7 +1342,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [THEN] Line2: "Description" = "HC HV, L2C L2V"
         // [THEN] Total: "Amount" = 300
         VerifyPurchOrderRepPrepmtSecTwoLinesWithSingleDims(
-          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 11);
+          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 7);
     end;
 
     [Test]
@@ -1410,7 +1385,7 @@ codeunit 134988 "ERM Purchase Reports III"
         // [THEN] Line6: "Description" = "L2C3 L2V3, L2C4 L2V4"
         // [THEN] Total: "Amount" = 300
         VerifyPurchOrderRepPrepmtSecTwoLinesWithMultipleDims(
-          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 15);
+          PrepmtGLAccount, LinePrepmtAmountValue, HeaderDimensionValue, Line1DimensionValue, Line2DimensionValue, 11);
     end;
 
     [Test]

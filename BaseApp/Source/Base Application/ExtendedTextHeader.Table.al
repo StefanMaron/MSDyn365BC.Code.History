@@ -266,6 +266,7 @@ table 279 "Extended Text Header"
         ExtTextLine.SetRange("No.", "No.");
         ExtTextLine.SetRange("Language Code", xRec."Language Code");
         ExtTextLine.SetRange("Text No.", xRec."Text No.");
+        OnRecreateTextLinesOnAfterExtTextLineSetFilters(ExtTextLine);
 
         if ExtTextLine.Find('-') then
             repeat
@@ -322,6 +323,11 @@ table 279 "Extended Text Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCaption(ExtendedTextHeader: Record "Extended Text Header"; var Descr: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateTextLinesOnAfterExtTextLineSetFilters(var ExtTextLine: Record "Extended Text Line")
     begin
     end;
 }

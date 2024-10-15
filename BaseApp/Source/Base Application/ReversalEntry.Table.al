@@ -393,7 +393,7 @@ table 179 "Reversal Entry"
                 until VATEntry.Next = 0;
         end;
 
-        OnAfterCheckEntries;
+        OnAfterCheckEntries(MaxPostingDate);
 
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 1);
     end;
@@ -421,6 +421,8 @@ table 179 "Reversal Entry"
     var
         Cust: Record Customer;
     begin
+        OnBeforeCheckCust(CustLedgEntry);
+
         Cust.Get(CustLedgEntry."Customer No.");
         CheckPostingDate(
           CustLedgEntry."Posting Date", CustLedgEntry.TableCaption, CustLedgEntry."Entry No.");
@@ -436,6 +438,8 @@ table 179 "Reversal Entry"
     var
         Vend: Record Vendor;
     begin
+        OnBeforeCheckVend(VendLedgEntry);
+
         Vend.Get(VendLedgEntry."Vendor No.");
         CheckPostingDate(
           VendLedgEntry."Posting Date", VendLedgEntry.TableCaption, VendLedgEntry."Entry No.");
@@ -467,6 +471,8 @@ table 179 "Reversal Entry"
         BankAcc: Record "Bank Account";
         CheckLedgEntry: Record "Check Ledger Entry";
     begin
+        OnBeforeCheckBankAcc(BankAccLedgEntry);
+
         BankAcc.Get(BankAccLedgEntry."Bank Account No.");
         CheckPostingDate(
           BankAccLedgEntry."Posting Date", BankAccLedgEntry.TableCaption, BankAccLedgEntry."Entry No.");
@@ -534,6 +540,8 @@ table 179 "Reversal Entry"
 
     local procedure CheckVAT(VATEntry: Record "VAT Entry")
     begin
+        OnBeforeCheckVAT(VATEntry);
+
         CheckPostingDate(VATEntry."Posting Date", VATEntry.TableCaption, VATEntry."Entry No.");
         if VATEntry.Closed then
             Error(
@@ -1333,7 +1341,7 @@ table 179 "Reversal Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCheckEntries()
+    local procedure OnAfterCheckEntries(var MaxPostingDate: Date)
     begin
     end;
 
@@ -1487,7 +1495,7 @@ table 179 "Reversal Entry"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckGLAcc(var GLEntry: Record "G/L Entry")
     begin
     end;
@@ -1514,6 +1522,26 @@ table 179 "Reversal Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertFromVendLedgEntryOnBeforeTempReversalEntryInsert(var TempReversalEntry: Record "Reversal Entry" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckVAT(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBankAcc(var BankAccLedgEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckVend(var VendLedgEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckCust(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
     end;
 }

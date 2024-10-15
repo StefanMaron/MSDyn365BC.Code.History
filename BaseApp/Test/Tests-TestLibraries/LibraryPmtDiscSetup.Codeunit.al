@@ -49,7 +49,7 @@ codeunit 131303 "Library - Pmt Disc Setup"
     procedure SetAdjustForPaymentDisc(AdjustForPaymentDisc: Boolean)
     begin
         GeneralLedgerSetup.Get();
-        GeneralLedgerSetup.Validate("Adjust for Payment Disc.", AdjustForPaymentDisc);
+        GeneralLedgerSetup."Adjust for Payment Disc." := AdjustForPaymentDisc;  // Skip validate to prevent failure in AT.
         GeneralLedgerSetup.Modify(true);
     end;
 

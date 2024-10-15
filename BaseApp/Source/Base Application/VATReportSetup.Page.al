@@ -57,6 +57,7 @@ page 743 "VAT Report Setup"
             }
             group("Return Period")
             {
+                Caption = 'Return Period';
                 field("Report Version"; "Report Version")
                 {
                     ApplicationArea = Basic, Suite;
@@ -101,6 +102,7 @@ page 743 "VAT Report Setup"
                 }
                 group("Auto Update Job")
                 {
+                    Caption = 'Auto Update Job';
                     field("Update Period Job Frequency"; "Update Period Job Frequency")
                     {
                         ApplicationArea = Basic, Suite;

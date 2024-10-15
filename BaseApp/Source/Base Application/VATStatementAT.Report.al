@@ -537,7 +537,7 @@ report 11110 "VAT Statement AT"
         if ((Position[1057] = 0) and (Position[1066] <> 0)) or ((Position[1057] <> 0) and (Position[1066] = 0)) then
             Error(InputTaxClaimedErr);
 
-        if (Position[1020] <> 0) and (NumberPar6Abs1 > 0) then
+        if (Position[1020] <> 0) and (NumberPar6Abs1 = 0) then
             Error(ClaimTaxfreeRevErr);
     end;
 

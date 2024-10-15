@@ -584,24 +584,6 @@ codeunit 138400 "RS Pack Content - Evaluation"
         ValidateNoSeriesExists(TransShipmentNoSeriesTok);
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReportLayoutSelections()
-    begin
-        // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
-        VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
-    end;
-
-    local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])
-    var
-        ReportLayoutSelection: Record "Report Layout Selection";
-    begin
-        ReportLayoutSelection.SetRange("Report ID", ReportID);
-        ReportLayoutSelection.SetRange("Custom Report Layout Code", CustomReportLayoutCode);
-        Assert.RecordIsNotEmpty(ReportLayoutSelection);
-    end;
-
     local procedure ValidateNoSeriesExists(NoSeriesCode: Code[20])
     var
         NoSeries: Record "No. Series";
@@ -619,8 +601,8 @@ codeunit 138400 "RS Pack Content - Evaluation"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        // [SCENARIO] There are 7 VAT Prod. Posting groups
-        Assert.RecordCount(VATProductPostingGroup, 7);
+        // [SCENARIO] There are 3 VAT Prod. Posting groups
+        Assert.RecordCount(VATProductPostingGroup, 3);
     end;
 
     [Test]

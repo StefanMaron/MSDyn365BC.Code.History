@@ -13,6 +13,7 @@ codeunit 134331 "ERM Purchase Payables"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryERM: Codeunit "Library - ERM";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
@@ -2387,6 +2388,30 @@ codeunit 134331 "ERM Purchase Payables"
 
         // [THEN] Direct Unit Cost = 0
         PurchaseLine.TestField("Direct Unit Cost", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TariffNumbersApplicationArea()
+    var
+        TariffNumbersPage: TestPage "Tariff Numbers";
+    begin
+        // [FEATURE] [UI] [Application Area]
+        // [SCENARIO 343372] Tariff Numbers controls are enabled in SaaS
+        Initialize();
+
+        // [GIVEN] Enabled SaaS setup
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+        
+        // [WHEN] Open Tariff Numbers page
+        TariffNumbersPage.OpenNew();
+
+        // [THEN] "No.", Description, "Supplementary Units" controls are enabled
+        Assert.IsTrue(TariffNumbersPage."No.".Enabled(), '');
+        Assert.IsTrue(TariffNumbersPage.Description.Enabled(), '');
+        Assert.IsTrue(TariffNumbersPage."Supplementary Units".Enabled(), '');
+        TariffNumbersPage.Close();
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure Initialize()

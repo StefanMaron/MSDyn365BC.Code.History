@@ -2624,6 +2624,7 @@ codeunit 131300 "Library - ERM"
         GLAccount.SetFilter("Gen. Bus. Posting Group", '<>%1', '');
         GLAccount.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
         GLAccount.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        GLAccount.SetFilter("Gen. Posting Type", '<>%1', 0);
     end;
 
     procedure SetGeneralPostingSetupInvtAccounts(var GeneralPostingSetup: Record "General Posting Setup")
