@@ -27,6 +27,7 @@ table 4001 "Hybrid Replication Summary"
             DataClassification = SystemMetadata;
             ObsoleteState = Pending;
             ObsoleteReason = 'Moved to Trigger Type';
+            ObsoleteTag = '15.4';
         }
         field(5; "Status"; Option)
         {

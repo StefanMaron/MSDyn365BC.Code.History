@@ -33,7 +33,6 @@ codeunit 137269 "SCM Transfer Reservation"
         DummyQst: Label 'Dummy Dialog Question?';
         ConfirmDialogOccursErr: Label 'Confirm Dialog occurs.';
         ExpectedDateConfclictErr: Label 'The change leads to a date conflict with existing reservations';
-        CannotMatchItemTrackingErr: Label 'Cannot match item tracking.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1248,7 +1247,7 @@ codeunit 137269 "SCM Transfer Reservation"
         TrackedQty: Decimal;
     begin
         // [FEATURE] [Item Tracking] [Inventory Pick]
-        // [SCENARIO 271087] When you set item tracking on inventory pick greater than you earlier set on the transfer line, the posting fails with "Cannot match item tracking" error message.
+        // [SCENARIO 271087] When you set item tracking on inventory pick greater than you earlier set on the transfer line, the posting succeeds for the tracked quantity.
         Initialize;
 
         // [GIVEN] Lot-tracked item.
@@ -1292,10 +1291,11 @@ codeunit 137269 "SCM Transfer Reservation"
         end;
 
         // [WHEN] Post the inventory pick in order to ship the transfer.
-        asserterror LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
+        LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
 
-        // [THEN] "Cannot match item tracking" error message is raised.
-        Assert.ExpectedError(CannotMatchItemTrackingErr);
+        // [THEN] 161 pcs on the transfer line are shipped.
+        TransferLine.Find;
+        TransferLine.TestField("Quantity Shipped", TrackedQty + 1);
     end;
 
     [Test]

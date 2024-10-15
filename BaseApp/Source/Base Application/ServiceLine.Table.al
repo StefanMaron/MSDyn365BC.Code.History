@@ -2968,7 +2968,7 @@ table 5902 "Service Line"
         if (FieldNumber = FieldNo("Line Discount Amount")) and ("Line Discount Amount" = 0) then
             exit;
         DiscountNotificationMgt.NotifyAboutMissingSetup(
-          SalesSetup.RecordId, "Gen. Bus. Posting Group",
+          SalesSetup.RecordId, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group",
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 

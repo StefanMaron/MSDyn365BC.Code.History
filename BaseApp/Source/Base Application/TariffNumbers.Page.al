@@ -1,6 +1,6 @@
 page 310 "Tariff Numbers"
 {
-    ApplicationArea = BasicEU;
+    ApplicationArea = Basic, Suite;
     Caption = 'Tariff Numbers';
     PageType = List;
     SourceTable = "Tariff Number";
@@ -15,17 +15,17 @@ page 310 "Tariff Numbers"
                 ShowCaption = false;
                 field("No."; "No.")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the item.';
                 }
                 field("Supplementary Units"; "Supplementary Units")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the customs and tax authorities require information about quantity and unit of measure for this item.';
                 }
             }
