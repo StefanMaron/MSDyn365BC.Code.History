@@ -224,6 +224,11 @@ table 263 "Intrastat Jnl. Line"
         {
             Caption = 'Partner VAT ID';
         }
+        field(31;"Location Code";Code[10])
+        {
+            Caption = 'Location Code';
+            TableRelation = Location;
+        }
         field(11315; "Conversion Factor"; Decimal)
         {
             Caption = 'Conversion Factor';

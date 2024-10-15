@@ -322,6 +322,7 @@
                and not IncludeHeader and not RecalculateLines
             then
                 if FromSalesHeader.Status = FromSalesHeader.Status::Released then begin
+                    ReleaseSalesDocument.SetSkipCheckReleaseRestrictions();
                     ReleaseSalesDocument.Run(ToSalesHeader);
                     ReleaseSalesDocument.Reopen(ToSalesHeader);
                 end;
@@ -807,6 +808,7 @@
                and not IncludeHeader and not RecalculateLines
             then
                 if FromPurchHeader.Status = FromPurchHeader.Status::Released then begin
+                    ReleasePurchaseDocument.SetSkipCheckReleaseRestrictions();
                     ReleasePurchaseDocument.Run(ToPurchHeader);
                     ReleasePurchaseDocument.Reopen(ToPurchHeader);
                 end;
