@@ -1687,6 +1687,7 @@
 
     procedure CalcRecognizedProfitAmount() Result: Decimal
     begin
+        CalcFields("Calc. Recog. Sales Amount", "Calc. Recog. Costs Amount");
         Result := "Calc. Recog. Sales Amount" - "Calc. Recog. Costs Amount";
         OnAfterCalcRecognizedProfitAmount(Result);
     end;
@@ -1700,6 +1701,7 @@
 
     procedure CalcRecognizedProfitGLAmount(): Decimal
     begin
+        CalcFields("Calc. Recog. Sales G/L Amount", "Calc. Recog. Costs G/L Amount");
         exit("Calc. Recog. Sales G/L Amount" - "Calc. Recog. Costs G/L Amount");
     end;
 
