@@ -188,7 +188,7 @@ report 2000019 "Suggest Vendor Payments EB"
     [Scope('OnPrem')]
     procedure SuggestPayments()
     begin
-        OnBeforeSuggestPayments(Vend, PaymJnlLine);
+        OnBeforeSuggestPayments(Vend, PaymJnlLine, VendLedgEntry);
 
         with Vend do begin
             CheckBlockedVendOnJnls(Vend, VendLedgEntry."Document Type"::Payment, false);
@@ -258,8 +258,14 @@ report 2000019 "Suggest Vendor Payments EB"
     procedure SetPaymJnlLine()
     var
         DimMgt: Codeunit DimensionManagement;
-        DimSetIDArr: array [10] of Integer;
+        DimSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPaymJnlLine(VendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with PaymJnlLine do begin
             // if the invoice already is attached to an unposted Payment Line, we skip it
             PaymJnlLine2.Reset();
@@ -325,8 +331,13 @@ report 2000019 "Suggest Vendor Payments EB"
         PaymJnlLine := PaymentJnlLine;
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPaymJnlLine(VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeSuggestPayments(var Vendor: Record Vendor; var PaymentJournalLine: Record "Payment Journal Line")
+    local procedure OnBeforeSuggestPayments(var Vendor: Record Vendor; var PaymentJournalLine: Record "Payment Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

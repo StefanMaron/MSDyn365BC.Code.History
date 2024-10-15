@@ -918,7 +918,7 @@ codeunit 5802 "Inventory Posting To G/L"
         PostInvtPostBuf(ValueEntry, DocNo, '', Desc, true, JnlTemplName, JnlBatchName);
     end;
 
-    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[50]; PostPerPostGrp: Boolean; JnlTemplName: Code[10]; JnlBatchName: Code[10])
+    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100]; PostPerPostGrp: Boolean; JnlTemplName: Code[10]; JnlBatchName: Code[10])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

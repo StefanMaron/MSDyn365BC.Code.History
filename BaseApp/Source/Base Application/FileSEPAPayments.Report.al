@@ -841,7 +841,7 @@ report 2000005 "File SEPA Payments"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterNewConsolidatedPayment(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
     begin
     end;

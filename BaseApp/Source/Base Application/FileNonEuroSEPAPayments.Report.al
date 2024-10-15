@@ -287,9 +287,22 @@ report 2000006 "File Non Euro SEPA Payments"
             BalancingPostingDate := ExecutionDate
         else
             BalancingPostingDate := Today;
-        PaymentJournalPost.SetParameters(GenJnlLine, AutomaticPosting,
-          REPORT::"File Non Euro SEPA Payments", BalancingPostingDate);
-        PaymentJournalPost.SetTableView(PmtJnlLine);
+
+        PostPaymentJournal(GenJnlLine, PmtJnlLine, BalancingPostingDate);
+    end;
+
+    local procedure PostPaymentJournal(var GenJnlLine: Record "Gen. Journal Line"; var PaymentJournalLine: Record "Payment Journal Line"; BalancingPostingDate: Date)
+    var
+        PaymentJournalPost: Report "Payment Journal Post";
+        IsHandled: Boolean;
+    begin
+        IsHandled := FALSE;
+        OnBeforePostPaymentJournal(GenJnlLine, PaymentJournalLine, AutomaticPosting, BalancingPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        PaymentJournalPost.SetParameters(GenJnlLine, AutomaticPosting, Report::"File Non Euro SEPA Payments", BalancingPostingDate);
+        PaymentJournalPost.SetTableView(PaymentJournalLine);
         PaymentJournalPost.RunModal;
     end;
 
@@ -684,18 +697,22 @@ report 2000006 "File Non Euro SEPA Payments"
         exit(ConsolidatedPmtJnlLine."Bank Account" = '');
     end;
 
-    local procedure NewConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line"): Boolean
+    local procedure NewConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line") ReturnValue: Boolean
     begin
         if EmptyConsolidatedPayment then
             exit(false);
 
         with PmtJnlLine do
-            exit(
+            ReturnValue :=
               CheckNewGroup(PmtJnlLine) or
               IsPaymentMessageTooLong("Payment Message") or
               (ConsolidatedPmtJnlLine."Account Type" <> "Account Type") or
               (ConsolidatedPmtJnlLine."Account No." <> "Account No.") or
-              (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> "Beneficiary Bank Account No."));
+              (ConsolidatedPmtJnlLine."Beneficiary Bank Account No." <> "Beneficiary Bank Account No.");
+
+        OnAfterNewConsolidatedPayment(PmtJnlLine, ConsolidatedPmtJnlLine, ReturnValue);
+
+        exit(ReturnValue);
     end;
 
     local procedure InitConsolidatedPayment(PmtJnlLine: Record "Payment Journal Line")
@@ -816,6 +833,16 @@ report 2000006 "File Non Euro SEPA Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; PaymentJournalLine: Record "Payment Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterNewConsolidatedPayment(PaymentJournalLine: Record "Payment Journal Line"; ConsolidatedPaymentJournalLine: Record "Payment Journal Line"; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPaymentJournal(var GenJnlLine: Record "Gen. Journal Line"; var PaymentJournalLine: Record "Payment Journal Line"; AutomaticPosting: Boolean; BalancingPostingDate: Date; var IsHandled: Boolean);
     begin
     end;
 
