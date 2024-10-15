@@ -196,7 +196,9 @@ codeunit 144718 "ERM Corr. Factura Test"
         FileName := LibraryReportValidation.GetFileName;
         LibraryRUReports.VerifyFactura_DocNo(FileName, DocumentNo);
 
-        // [THEN] Column "1" = "Desc" (Item Description)
+        // [THEN] Column "1" = "LineNo" // TFS 400627
+        LibraryRUReports.VerifyFactura_LineNo(FileName, '1', 0);
+        // [THEN] Column "1a" = "Desc" (Item Description)
         LibraryRUReports.VerifyFactura_ItemNo(FileName, SalesCrMemoLine.Description, 0);
         // [THEN] Column "3" = -10 (Quantity)
         LibraryRUReports.VerifyFactura_Qty(FileName, Format(-SalesCrMemoLine.Quantity), 0);
@@ -262,6 +264,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         LibraryVariableStorage.Clear;
         Clear(LibraryVariableStorage);
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
 
         if isInitialized then
             exit;
@@ -629,6 +632,7 @@ codeunit 144718 "ERM Corr. Factura Test"
     begin
         Item.Get(ItemNo);
         FileName := LibraryReportValidation.GetFileName;
+        LibraryRUReports.VerifyCorrFactura_LineNo(FileName, '1', 0);
         LibraryRUReports.VerifyCorrFactura_ItemNo(FileName, Item.Description, 0);
         LibraryRUReports.VerifyCorrFactura_TariffNo(FileName, Item."Tariff No.", 0);
         LibraryRUReports.VerifyCorrFactura_Price(FileName, FormatAmount(Price), 0);

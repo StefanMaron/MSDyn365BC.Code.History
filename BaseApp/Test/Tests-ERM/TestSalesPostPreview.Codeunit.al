@@ -994,8 +994,8 @@ codeunit 134763 "Test Sales Post Preview"
         IsInitialized := true;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
 
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Return Order Nos.", LibraryERM.CreateNoSeriesCode);
@@ -1008,7 +1008,7 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Test Sales Post Preview");
     end;
 
-    local procedure CreateSalesRecord(var SalesHeader: Record "Sales Header"; ItemCost: Decimal; Quantity: Decimal; Type: Integer)
+    local procedure CreateSalesRecord(var SalesHeader: Record "Sales Header"; ItemCost: Decimal; Quantity: Decimal; DocumentType: Enum "Sales Document Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1018,7 +1018,7 @@ codeunit 134763 "Test Sales Post Preview"
     begin
         LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, Type, Customer."No.");
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
 
         VATPostingSetup.SetRange("VAT Bus. Posting Group", Customer."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", Item."VAT Prod. Posting Group");
@@ -1156,7 +1156,7 @@ codeunit 134763 "Test Sales Post Preview"
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
     end;
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
     local procedure ThrowErrorSalesHeaderOnBeforeDeleteEvent(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         RecordExportBuffer: Record "Record Export Buffer";
@@ -1209,7 +1209,7 @@ codeunit 134763 "Test Sales Post Preview"
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption, 1);
     end;
 
-    local procedure CustEntriesPreviewHandler(var CustomerEntriesPreview: TestPage "Cust. Ledg. Entries Preview"; EntryType: Integer)
+    local procedure CustEntriesPreviewHandler(var CustomerEntriesPreview: TestPage "Cust. Ledg. Entries Preview"; EntryType: Enum "Gen. Journal Document Type")
     begin
         CustomerEntriesPreview.First;
         Assert.AreEqual(EntryType, CustomerEntriesPreview."Document Type".AsInteger, 'Unexpected DocumentType in CustomerEntriesPreview');

@@ -35,6 +35,14 @@ page 328 "Intrastat Setup"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the Intrastat contact.';
                 }
+                field("Use Advanced Checklist"; Rec."Use Advanced Checklist")
+                {
+                    ApplicationArea = BasicEU;
+                    ToolTip = 'Specifies if you want to use the advanced Intrastat checklist setup instead of the simpler setup.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
+                }
             }
             group("Default Transactions")
             {
@@ -67,6 +75,21 @@ page 328 "Intrastat Setup"
                 PromotedIsBig = true;
                 PromotedOnly = true;
                 RunObject = Page "Intrastat Checklist Setup";
+                ToolTip = 'View and edit fields to be verified by the Intrastat journal check.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
+                ObsoleteTag = '19.0';
+            }
+            action(AdvancedIntrastatChecklistSetup)
+            {
+                ApplicationArea = BasicEU;
+                Caption = 'Advanced Intrastat Checklist Setup';
+                Image = Column;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                RunObject = Page "Advanced Intrastat Checklist";
                 ToolTip = 'View and edit fields to be verified by the Intrastat journal check.';
             }
         }

@@ -15,6 +15,7 @@ codeunit 14932 "Corr. Factura-Invoice Helper"
         OrigInvTxt: Label 'TO FACTURA-INVOICE %1 from %2';
         RevInvTxt: Label 'with correction %1 from %2 (1b)';
         PageNoTxt: Label 'Page %1';
+        LineNo: Integer;
 
     [Scope('OnPrem')]
     procedure InitReportTemplate()
@@ -84,6 +85,8 @@ codeunit 14932 "Corr. Factura-Invoice Helper"
             ExcelReportBuilderMgr.AddSection('BODY');
         end;
 
+        LineNo += 1;
+        ExcelReportBuilderMgr.AddDataToSection('LineNo', Format(LineNo));
         ExcelReportBuilderMgr.AddDataToSection('Description', LineBeforeValue[1]);
         ExcelReportBuilderMgr.AddDataToSection('UnitIdBefore', LineBeforeValue[2]);
         ExcelReportBuilderMgr.AddDataToSection('UnitCodeBefore', LineBeforeValue[3]);

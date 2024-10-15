@@ -1104,7 +1104,7 @@ codeunit 12401 "Local Report Management"
 
     procedure GetVATLedgerFormatVersion(): Text
     begin
-        exit('5.07');
+        exit('5.08');
     end;
 
     [Scope('OnPrem')]
