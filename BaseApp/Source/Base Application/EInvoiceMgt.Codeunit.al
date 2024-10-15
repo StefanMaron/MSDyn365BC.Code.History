@@ -1136,7 +1136,7 @@
         if IsNull(XMLDoc) then
             XMLDoc := XMLDoc.XmlDocument;
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
+        DocNameSpace := 'http://www.sat.gob.mx/sitio_internet/cfd';
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> <CancelaCFD /> ', XMLDoc);
         XMLCurrNode := XMLDoc.DocumentElement;
         AddElement(XMLCurrNode, 'Cancelacion', '', '', XMLNewChild);
@@ -1286,7 +1286,7 @@
         XMLDoc.Save(OutStr);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
         XMLCurrNode := XMLDoc.SelectSingleNode('cfdi:Comprobante/cfdi:Complemento/tfd:TimbreFiscalDigital', NamespaceManager);
         XMLDOMNamedNodeMap := XMLCurrNode.Attributes;
@@ -1432,7 +1432,7 @@
         XMLDoc.Save(OutStr);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
         XMLCurrNode := XMLDoc.SelectSingleNode('cfdi:Comprobante/cfdi:Complemento/tfd:TimbreFiscalDigital', NamespaceManager);
         XMLDOMNamedNodeMap := XMLCurrNode.Attributes;
@@ -1551,7 +1551,7 @@
         XMLDoc.Save(OutStr);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
         XMLCurrNode := XMLDoc.SelectSingleNode('cfdi:Comprobante/cfdi:Complemento/tfd:TimbreFiscalDigital', NamespaceManager);
         XMLDOMNamedNodeMap := XMLCurrNode.Attributes;
@@ -1669,7 +1669,7 @@
         XMLDoc.Save(OutStr);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
         XMLCurrNode := XMLDoc.SelectSingleNode('cfdi:Comprobante/cfdi:Complemento/tfd:TimbreFiscalDigital', NamespaceManager);
         XMLDOMNamedNodeMap := XMLCurrNode.Attributes;
@@ -1780,7 +1780,7 @@
         XMLDoc.Save(OutStr);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
         XMLCurrNode := XMLDoc.SelectSingleNode('cfdi:Comprobante/cfdi:Complemento/tfd:TimbreFiscalDigital', NamespaceManager);
         XMLDOMNamedNodeMap := XMLCurrNode.Attributes;
@@ -1891,7 +1891,7 @@
         XMLDoc.Save(OutStr);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
         XMLCurrNode := XMLDoc.SelectSingleNode('cfdi:Comprobante/cfdi:Complemento/tfd:TimbreFiscalDigital', NamespaceManager);
         XMLDOMNamedNodeMap := XMLCurrNode.Attributes;
@@ -1924,15 +1924,16 @@
 
     local procedure CreateXMLDocument33(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; IsCredit: Boolean; var XMLDoc: DotNet XmlDocument; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
     var
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
         NumeroPedimento: Text;
     begin
-        InitXML33(XMLDoc, XMLCurrNode);
+        InitXML(XMLDoc, XMLCurrNode);
 
         with TempDocumentHeader do begin
-            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
+            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '4.0');
             AddAttribute(XMLDoc, XMLCurrNode, 'Folio', "No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', DateTimeFirstReqSent);
             AddAttribute(XMLDoc, XMLCurrNode, 'Sello', SignedString);
@@ -1954,6 +1955,7 @@
             else
                 AddAttribute(XMLDoc, XMLCurrNode, 'TipoDeComprobante', 'I'); // Ingreso
 
+            AddAttribute(XMLDoc, XMLCurrNode, 'Exportacion', "CFDI Export Code");
             AddAttribute(XMLDoc, XMLCurrNode, 'MetodoPago', SATUtilities.GetSATPaymentTerm("Payment Terms Code"));
             AddAttribute(XMLDoc, XMLCurrNode, 'LugarExpedicion', CompanyInfo."SAT Postal Code");
 
@@ -1968,10 +1970,15 @@
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', "Bill-to/Pay-To Name");
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', Location.GetSATPostalCode);
+
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'ResidenciaFiscal', SATUtilities.GetSATCountryCode(Customer."Country/Region Code"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
             end;
+            AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscalReceptor', Customer."SAT Tax Regime Classification");
             AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', "CFDI Purpose");
 
             // Conceptos
@@ -1999,6 +2006,7 @@
 
                     // might not need the following nodes, took out of original string....
                     AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatDecimal(TempDocumentLine."Line Discount Amount", 6));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'ObjetoImp', GetSubjectToTaxCode(TempDocumentLine));
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
                         // Impuestos per line
@@ -2024,14 +2032,15 @@
     local procedure CreateXMLDocument33AdvanceSettle(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; var XMLDoc: DotNet XmlDocument; UUID: Text[50]; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
     var
         TempCFDIRelationDocument: Record "CFDI Relation Document" temporary;
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
-        InitXML33(XMLDoc, XMLCurrNode);
+        InitXML(XMLDoc, XMLCurrNode);
 
         with TempDocumentHeader do begin
-            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
+            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '4.0');
             AddAttribute(XMLDoc, XMLCurrNode, 'Folio', "No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', DateTimeFirstReqSent);
             AddAttribute(XMLDoc, XMLCurrNode, 'Sello', SignedString);
@@ -2049,6 +2058,7 @@
 
             AddAttribute(XMLDoc, XMLCurrNode, 'Total', FormatAmount(SubTotal - TotalDiscount + TotalTax - TotalRetention));
             AddAttribute(XMLDoc, XMLCurrNode, 'TipoDeComprobante', 'I'); // Ingreso
+            AddAttribute(XMLDoc, XMLCurrNode, 'Exportacion', "CFDI Export Code");
 
             AddAttribute(XMLDoc, XMLCurrNode, 'MetodoPago', SATUtilities.GetSATPaymentTerm("Payment Terms Code"));
             AddAttribute(XMLDoc, XMLCurrNode, 'LugarExpedicion', CompanyInfo."SAT Postal Code");
@@ -2065,10 +2075,14 @@
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', "Bill-to/Pay-To Name");
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', Location.GetSATPostalCode);
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'ResidenciaFiscal', SATUtilities.GetSATCountryCode(Customer."Country/Region Code"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
             end;
+            AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscalReceptor', Customer."SAT Tax Regime Classification");
             AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', "CFDI Purpose");
 
             // Conceptos
@@ -2096,6 +2110,7 @@
 
                     // might not need the following nodes, took out of original string....
                     AddAttribute(XMLDoc, XMLCurrNode, 'Descuento', FormatDecimal(TempDocumentLine."Line Discount Amount", 6));
+                    AddAttribute(XMLDoc, XMLCurrNode, 'ObjetoImp', GetSubjectToTaxCode(TempDocumentLine));
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
@@ -2113,6 +2128,7 @@
 
     local procedure CreateXMLDocument33AdvancePayment(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; DateTimeFirstReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; var XMLDoc: DotNet XmlDocument; SubTotal: Decimal; RetainAmt: Decimal)
     var
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -2122,9 +2138,9 @@
         TaxAmount: Decimal;
         TaxPercentage: Decimal;
     begin
-        InitXML33AdvancePayment(XMLDoc, XMLCurrNode);
+        InitXMLAdvancePayment(XMLDoc, XMLCurrNode);
         with TempDocumentHeader do begin
-            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
+            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '4.0');
             AddAttribute(XMLDoc, XMLCurrNode, 'Folio', "No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', DateTimeFirstReqSent);
             AddAttribute(XMLDoc, XMLCurrNode, 'Sello', SignedString);
@@ -2136,6 +2152,7 @@
 
             AddAttribute(XMLDoc, XMLCurrNode, 'Total', FormatDecimal(Round(SubTotal + RetainAmt, 1, '='), 0));
             AddAttribute(XMLDoc, XMLCurrNode, 'TipoDeComprobante', 'I'); // Ingreso
+            AddAttribute(XMLDoc, XMLCurrNode, 'Exportacion', "CFDI Export Code");
 
             AddAttribute(XMLDoc, XMLCurrNode, 'MetodoPago', 'PUE');
             AddAttribute(XMLDoc, XMLCurrNode, 'LugarExpedicion', CompanyInfo."SAT Postal Code");
@@ -2149,10 +2166,14 @@
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', "Bill-to/Pay-To Name");
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', Location.GetSATPostalCode);
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'ResidenciaFiscal', SATUtilities.GetSATCountryCode(Customer."Country/Region Code"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
             end;
+            AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscalReceptor', Customer."SAT Tax Regime Classification");
             AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', 'P01');
 
             // Conceptos
@@ -2251,13 +2272,14 @@
     local procedure CreateXMLDocument33AdvanceReverse(var TempDocumentHeader: Record "Document Header" temporary; DateTimeReqSent: Text[50]; SignedString: Text; Certificate: Text; CertificateSerialNo: Text[250]; var XMLDoc: DotNet XmlDocument; UUID: Text[50]; AdvanceAmount: Decimal)
     var
         TempCFDIRelationDocument: Record "CFDI Relation Document" temporary;
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
     begin
-        InitXML33AdvancePayment(XMLDoc, XMLCurrNode);
+        InitXMLAdvancePayment(XMLDoc, XMLCurrNode);
         with TempDocumentHeader do begin
-            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
+            AddAttribute(XMLDoc, XMLCurrNode, 'Version', '4.0');
             AddAttribute(XMLDoc, XMLCurrNode, 'Folio', "No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', DateTimeReqSent);
             AddAttribute(XMLDoc, XMLCurrNode, 'Sello', SignedString);
@@ -2269,6 +2291,7 @@
 
             AddAttribute(XMLDoc, XMLCurrNode, 'Total', FormatDecimal(Round(AdvanceAmount, 1, '='), 0));
             AddAttribute(XMLDoc, XMLCurrNode, 'TipoDeComprobante', 'E'); // Egreso
+            AddAttribute(XMLDoc, XMLCurrNode, 'Exportacion', "CFDI Export Code");
 
             AddAttribute(XMLDoc, XMLCurrNode, 'MetodoPago', 'PUE');
             AddAttribute(XMLDoc, XMLCurrNode, 'LugarExpedicion', CompanyInfo."SAT Postal Code");
@@ -2285,10 +2308,14 @@
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', Customer."RFC No.");
             AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', Customer.Name);
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', Location.GetSATPostalCode);
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 AddAttribute(XMLDoc, XMLCurrNode, 'ResidenciaFiscal', SATUtilities.GetSATCountryCode(Customer."Country/Region Code"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
             end;
+            AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscalReceptor', Customer."SAT Tax Regime Classification");
             AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', 'P01');
 
             // Conceptos
@@ -2318,6 +2345,7 @@
         Employee: Record Employee;
         Item: Record Item;
         CFDITransportOperator: Record "CFDI Transport Operator";
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         XMLCurrNode: DotNet XmlNode;
         XMLNewChild: DotNet XmlNode;
@@ -2325,9 +2353,9 @@
         DestinationRFCNo: Text;
         HazardousMatExists: Boolean;
     begin
-        InitXML33CartaPorte(XMLDoc, XMLCurrNode);
+        InitXMLCartaPorte(XMLDoc, XMLCurrNode);
 
-        AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.3');
+        AddAttribute(XMLDoc, XMLCurrNode, 'Version', '4.0');
         AddAttribute(XMLDoc, XMLCurrNode, 'Folio', TempDocumentHeader."No.");
         AddAttribute(XMLDoc, XMLCurrNode, 'Fecha', DateTimeFirstReqSent);
         AddAttribute(XMLDoc, XMLCurrNode, 'Sello', SignedString);
@@ -2337,6 +2365,7 @@
         AddAttribute(XMLDoc, XMLCurrNode, 'Moneda', 'XXX');
         AddAttribute(XMLDoc, XMLCurrNode, 'Total', '0');
         AddAttribute(XMLDoc, XMLCurrNode, 'TipoDeComprobante', 'T'); // Traslado
+        AddAttribute(XMLDoc, XMLCurrNode, 'Exportacion', TempDocumentHeader."CFDI Export Code");
         AddAttribute(XMLDoc, XMLCurrNode, 'LugarExpedicion', CompanyInfo."SAT Postal Code");
 
         // Emisor
@@ -2348,6 +2377,10 @@
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', GetTransferRFCNo());
         AddAttribute(XMLDoc, XMLCurrNode, 'UsoCFDI', TempDocumentHeader."CFDI Purpose");
+        if not Location.Get(TempDocumentHeader."Location Code") then
+            Location.Get(Customer."Location Code");
+        AddAttribute(XMLDoc, XMLCurrNode, 'DomicilioFiscalReceptor', Location.GetSATPostalCode);
+        AddAttribute(XMLDoc, XMLCurrNode, 'RegimenFiscalReceptor', '601');
 
         // Conceptos
         XMLCurrNode := XMLCurrNode.ParentNode;
@@ -2369,6 +2402,7 @@
                 AddAttribute(XMLDoc, XMLCurrNode, 'Descripcion', EncodeString(TempDocumentLine.Description));
                 AddAttribute(XMLDoc, XMLCurrNode, 'ValorUnitario', '0');
                 AddAttribute(XMLDoc, XMLCurrNode, 'Importe', '0');
+                AddAttribute(XMLDoc, XMLCurrNode, 'ObjetoImp', GetSubjectToTaxCode(TempDocumentLine));
                 if TempDocumentHeader."Foreign Trade" then begin
                     NumeroPedimento := FormatNumeroPedimento(TempDocumentLine);
                     if NumeroPedimento <> '' then begin
@@ -2553,6 +2587,7 @@
             repeat
                 AddElementCFDI(XMLCurrNode, 'Traslado', '', DocNameSpace, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
+                AddAttribute(XMLDoc, XMLCurrNode, 'Base', FormatAmount(TempVATAmountLine."Amount Including VAT"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'Impuesto', GetTaxCode(TempVATAmountLine."VAT %", TempVATAmountLine."VAT Amount"));
                 AddAttribute(XMLDoc, XMLCurrNode, 'TipoFactor', 'Tasa');
                 AddAttribute(XMLDoc, XMLCurrNode, 'TasaOCuota', PadStr(FormatAmount(TempVATAmountLine."VAT %" / 100), 8, '0'));
@@ -2609,13 +2644,14 @@
 
     local procedure CreateOriginalStr33Document(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempCFDIRelationDocument: Record "CFDI Relation Document" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text; IsCredit: Boolean; var TempBlob: Codeunit "Temp Blob"; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
     var
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
     begin
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
-            WriteOutStr(OutStream, '||3.3|'); // Version
+            WriteOutStr(OutStream, '||4.0|'); // Version
             WriteOutStr(OutStream, RemoveInvalidChars("No.") + '|'); // Folio
             WriteOutStr(OutStream, DateTimeFirstReqSent + '|'); // Fecha
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|'); // FormaPago
@@ -2634,6 +2670,7 @@
                 WriteOutStr(OutStream, Format('E') + '|') // Egreso
             else
                 WriteOutStr(OutStream, Format('I') + '|'); // Ingreso
+            WriteOutStr(OutStream, "CFDI Export Code" + '|'); // Exportacion
 
             if not Export then begin
                 GetCompanyInfo;
@@ -2652,10 +2689,14 @@
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars("Bill-to/Pay-To Name") + '|'); // Nombre
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            WriteOutStr(OutStream, Location.GetSATPostalCode + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(Customer."Country/Region Code") + '|'); // ResidenciaFiscal
                 WriteOutStr(OutStream, RemoveInvalidChars(Customer."VAT Registration No.") + '|'); // NumRegIDTrib
             end;
+            WriteOutStr(OutStream, Customer."SAT Tax Regime Classification" + '|'); // RegimenFiscalReceptor
             WriteOutStr(OutStream, RemoveInvalidChars("CFDI Purpose") + '|'); // UsoCFDI
             FilterDocumentLines(TempDocumentLine, "No.");
             if TempDocumentLine.FindSet() then
@@ -2669,6 +2710,7 @@
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Unit Price/Direct Unit Cost", 6) + '|'); // ValorUnitario
                     WriteOutStr(OutStream, FormatDecimal(GetReportedLineAmount(TempDocumentLine), 6) + '|'); // Importe
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Line Discount Amount", 6) + '|'); // Descuento
+                    WriteOutStr(OutStream, GetSubjectToTaxCode(TempDocumentLine) + '|'); // ObjetoImp
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
                         AddStrImpuestoPerLine(TempDocumentLine, TempDocumentLineRetention, OutStream);
@@ -2704,13 +2746,14 @@
     procedure CreateOriginalStr33AdvanceSettleDetailed(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; var TempDocumentLineRetention: Record "Document Line" temporary; var TempVATAmountLine: Record "VAT Amount Line" temporary; DateTimeFirstReqSent: Text; var TempBlob: Codeunit "Temp Blob"; UUID: Text[50]; SubTotal: Decimal; TotalTax: Decimal; TotalRetention: Decimal; TotalDiscount: Decimal)
     var
         TempCFDIRelationDocument: Record "CFDI Relation Document" temporary;
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
     begin
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
-            WriteOutStr(OutStream, '||3.3|'); // Version
+            WriteOutStr(OutStream, '||4.0|'); // Version
             WriteOutStr(OutStream, RemoveInvalidChars("No.") + '|'); // Folio
             WriteOutStr(OutStream, DateTimeFirstReqSent + '|'); // Fecha
             WriteOutStr(OutStream, '30|'); // FormaPago
@@ -2725,6 +2768,7 @@
             WriteOutStr(OutStream, FormatAmount(SubTotal - TotalDiscount + TotalTax - TotalRetention) + '|'); // Total
                                                                                                               // OutStream.WRITETEXT(FormatAmount("Amount Including VAT" + TotalDiscount + AdvanceAmount) + '|'); // Total
             WriteOutStr(OutStream, Format('I') + '|'); // Ingreso -- TipoDeComprante
+            WriteOutStr(OutStream, "CFDI Export Code" + '|'); // Exportacion
 
             if not Export then begin
                 GetCompanyInfo;
@@ -2745,10 +2789,14 @@
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars("Bill-to/Pay-To Name") + '|'); // Nombre
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            WriteOutStr(OutStream, Location.GetSATPostalCode + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(Customer."Country/Region Code") + '|'); // ResidenciaFiscal
                 WriteOutStr(OutStream, RemoveInvalidChars(Customer."VAT Registration No.") + '|'); // NumRegIDTrib
             end;
+            WriteOutStr(OutStream, Customer."SAT Tax Regime Classification" + '|'); // RegimenFiscalReceptor
             WriteOutStr(OutStream, RemoveInvalidChars("CFDI Purpose") + '|'); // UsoCFDI
 
             FilterDocumentLines(TempDocumentLine, "No.");
@@ -2764,6 +2812,7 @@
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Unit Price/Direct Unit Cost", 6) + '|'); // ValorUnitario
                     WriteOutStr(OutStream, FormatDecimal(GetReportedLineAmount(TempDocumentLine), 6) + '|'); // Importe
                     WriteOutStr(OutStream, FormatDecimal(TempDocumentLine."Line Discount Amount", 6) + '|'); // Descuento
+                    WriteOutStr(OutStream, GetSubjectToTaxCode(TempDocumentLine) + '|'); // ObjetoImp
                     TotalDiscount := TotalDiscount + TempDocumentLine."Line Discount Amount";
 
                     if not IsNonTaxableVATLine(TempDocumentLine) then
@@ -2779,6 +2828,7 @@
 
     procedure CreateOriginalStr33AdvancePayment(var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary; DateTimeFirstReqSent: Text; SubTotal: Decimal; RetainAmt: Decimal; var TempBlob: Codeunit "Temp Blob")
     var
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
         TaxCode: Code[10];
@@ -2790,7 +2840,7 @@
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
-            WriteOutStr(OutStream, '||3.3|'); // Version
+            WriteOutStr(OutStream, '||4.0|'); // Version
             WriteOutStr(OutStream, RemoveInvalidChars("No.") + '|'); // Folio
             WriteOutStr(OutStream, DateTimeFirstReqSent + '|'); // Fecha
             WriteOutStr(OutStream, SATUtilities.GetSATPaymentMethod("Payment Method Code") + '|'); // FormaPago
@@ -2800,6 +2850,7 @@
 
             WriteOutStr(OutStream, FormatDecimal(Round(SubTotal + RetainAmt, 1, '='), 0) + '|'); // Total
             WriteOutStr(OutStream, Format('I') + '|'); // TipoDeComprobante
+            WriteOutStr(OutStream, "CFDI Export Code" + '|'); // Exportacion
 
             if not Export then begin
                 GetCompanyInfo;
@@ -2817,10 +2868,14 @@
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars("Bill-to/Pay-To Name") + '|'); // Nombre
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            WriteOutStr(OutStream, Location.GetSATPostalCode + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(Customer."Country/Region Code") + '|'); // ResidenciaFiscal
                 WriteOutStr(OutStream, RemoveInvalidChars(Customer."VAT Registration No.") + '|'); // NumRegIDTrib
             end;
+            WriteOutStr(OutStream, Customer."SAT Tax Regime Classification" + '|'); // RegimenFiscalReceptor            
             WriteOutStr(OutStream, 'P01|'); // UsoCFDI
 
             // Write the one line
@@ -2884,13 +2939,14 @@
 
     procedure CreateOriginalStr33AdvanceReverse(var TempDocumentHeader: Record "Document Header" temporary; DateTimeReqSent: Text; var TempBlob: Codeunit "Temp Blob"; UUID: Text[50]; AdvanceAmount: Decimal)
     var
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
     begin
         with TempDocumentHeader do begin
             Clear(TempBlob);
             TempBlob.CreateOutStream(OutStream);
-            WriteOutStr(OutStream, '||3.3|'); // Version
+            WriteOutStr(OutStream, '||4.0|'); // Version
             WriteOutStr(OutStream, RemoveInvalidChars("No.") + '|'); // Folio
             WriteOutStr(OutStream, DateTimeReqSent + '|'); // Fecha
             WriteOutStr(OutStream, '30|'); // FormaPago
@@ -2900,6 +2956,7 @@
 
             WriteOutStr(OutStream, FormatDecimal(Round(AdvanceAmount, 1, '='), 0) + '|'); // Total
             WriteOutStr(OutStream, Format('E') + '|'); // TipoDeComprobante
+            WriteOutStr(OutStream, "CFDI Export Code" + '|'); // Exportacion
 
             if not Export then
                 GetCompanyInfo;
@@ -2919,10 +2976,14 @@
             // Customer information (Receptor)
             WriteOutStr(OutStream, Customer."RFC No." + '|'); // Rfc
             WriteOutStr(OutStream, RemoveInvalidChars(Customer.Name) + '|'); // Nombre
+            if not Location.Get("Location Code") then
+                Location.Get(Customer."Location Code");
+            WriteOutStr(OutStream, Location.GetSATPostalCode + '|'); // DomicilioFiscalReceptor
             if SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX' then begin
                 WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(Customer."Country/Region Code") + '|'); // ResidenciaFiscal
                 WriteOutStr(OutStream, RemoveInvalidChars(Customer."VAT Registration No.") + '|'); // NumRegIDTrib
             end;
+            WriteOutStr(OutStream, Customer."SAT Tax Regime Classification" + '|'); // RegimenFiscalReceptor            
             WriteOutStr(OutStream, 'P01|'); // UsoCFDI
 
             WriteOutStr(OutStream, '84111506|'); // ClaveProdServ
@@ -2941,6 +3002,7 @@
         Employee: Record Employee;
         Item: Record Item;
         CFDITransportOperator: Record "CFDI Transport Operator";
+        Location: Record Location;
         SATUtilities: Codeunit "SAT Utilities";
         OutStream: OutStream;
         DestinationRFCNo: Text;
@@ -2948,7 +3010,7 @@
     begin
         Clear(TempBlob);
         TempBlob.CreateOutStream(OutStream);
-        WriteOutStr(OutStream, '||3.3|'); // Version
+        WriteOutStr(OutStream, '||4.0|'); // Version
 
         WriteOutStr(OutStream, RemoveInvalidChars(TempDocumentHeader."No.") + '|'); // Folio
         WriteOutStr(OutStream, DateTimeFirstReqSent + '|'); // Fecha
@@ -2957,6 +3019,7 @@
         WriteOutStr(OutStream, 'XXX|'); // Moneda
         WriteOutStr(OutStream, '0|'); // Total
         WriteOutStr(OutStream, 'T|'); // Traslado
+        WriteOutStr(OutStream, TempDocumentHeader."CFDI Export Code" + '|'); // Exportacion
         WriteOutStr(OutStream, RemoveInvalidChars(CompanyInfo."SAT Postal Code") + '|'); // LugarExpedicion
 
         // Company Information (Emisor)
@@ -2967,7 +3030,10 @@
         // Customer information (Receptor)
         WriteOutStr(OutStream, GetTransferRFCNo() + '|'); // Rfc
         WriteOutStr(OutStream, RemoveInvalidChars(TempDocumentHeader."CFDI Purpose") + '|'); // UsoCFDI
-
+        if not Location.Get(TempDocumentHeader."Location Code") then
+            Location.Get(Customer."Location Code");
+        WriteOutStr(OutStream, Location.GetSATPostalCode + '|'); // DomicilioFiscalReceptor
+        WriteOutStr(OutStream, '601|'); // RegimenFiscalReceptor
         FilterDocumentLines(TempDocumentLine, TempDocumentHeader."No.");
         if TempDocumentLine.FindSet() then
             repeat
@@ -2979,6 +3045,7 @@
                 WriteOutStr(OutStream, EncodeString(TempDocumentLine.Description) + '|'); // Descripcion
                 WriteOutStr(OutStream, '0|'); // ValorUnitario
                 WriteOutStr(OutStream, '0|'); // Importe
+                WriteOutStr(OutStream, GetSubjectToTaxCode(TempDocumentLine) + '|'); // ObjetoImp
                 if TempDocumentHeader."Foreign Trade" then
                     WriteOutStr(OutStream, RemoveInvalidChars(FormatNumeroPedimento(TempDocumentLine)) + '|'); // NumeroPedimento
             until TempDocumentLine.Next() = 0;
@@ -3096,6 +3163,7 @@
         TempVATAmountLine.SetRange(Positive, true);
         if TempVATAmountLine.FindSet() then begin
             repeat
+                WriteOutStr(OutStream, FormatAmount(TempVATAmountLine."Amount Including VAT") + '|'); // Base
                 WriteOutStr(OutStream, GetTaxCode(TempVATAmountLine."VAT %", TempVATAmountLine."VAT Amount") + '|'); // Impuesto
                 WriteOutStr(OutStream, 'Tasa' + '|'); // TipoFactor
                 WriteOutStr(OutStream, PadStr(FormatAmount(TempVATAmountLine."VAT %" / 100), 8, '0') + '|'); // TasaOCuota
@@ -3281,7 +3349,7 @@
         XMLDOMManagement.LoadXMLDocumentFromFile(ServerFileName, XMLDoc);
 
         NamespaceManager := NamespaceManager.XmlNamespaceManager(XMLDoc.NameTable);
-        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        NamespaceManager.AddNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         NamespaceManager.AddNamespace('tfd', 'http://www.sat.gob.mx/TimbreFiscalDigital');
 
         // Import UUID
@@ -3308,7 +3376,7 @@
         end;
     end;
 
-    local procedure InitXML33(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure InitXML(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -3317,16 +3385,16 @@
             XMLDoc := XMLDoc.XmlDocument;
 
         // Root element
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
+        DocNameSpace := 'http://www.sat.gob.mx/cfd/4';
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> ' +
-          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd"></cfdi:Comprobante>',
+          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd"></cfdi:Comprobante>',
           XMLDoc);
 
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
-    local procedure InitXML33AdvancePayment(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure InitXMLAdvancePayment(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -3335,17 +3403,17 @@
             XMLDoc := XMLDoc.XmlDocument;
 
         // Root element
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
+        DocNameSpace := 'http://www.sat.gob.mx/cfd/4';
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> ' +
-          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd ' +
+          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd ' +
           'http://www.sat.gob.mx/Pagos http://www.sat.gob.mx/sitio_internet/cfd/Pagos/Pagos10.xsd"></cfdi:Comprobante>',
           XMLDoc);
 
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
-    local procedure InitXML33CartaPorte(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
+    local procedure InitXMLCartaPorte(var XMLDoc: DotNet XmlDocument; var XMLCurrNode: DotNet XmlNode)
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
     begin
@@ -3354,10 +3422,10 @@
             XMLDoc := XMLDoc.XmlDocument();
 
         // Root element
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/3';
+        DocNameSpace := 'http://www.sat.gob.mx/cfd/4';
         XMLDOMManagement.LoadXMLDocumentFromText('<?xml version="1.0" encoding="UTF-8" ?> ' +
-          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
-          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/3 http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv33.xsd' +
+          '<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
+          'xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd' +
           ' http://www.sat.gob.mx/CartaPorte http://www.sat.gob.mx/sitio_internet/cfd/CartaPorte/CartaPorte.xsd" ' +
           'xmlns:cartaporte="http://www.sat.gob.mx/CartaPorte"></cfdi:Comprobante>',
           XMLDoc);
@@ -3827,6 +3895,8 @@
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
                             TotalDiscount += TempDocumentLine."Line Discount Amount";
+                            if TempDocumentHeader."Location Code" = '' then
+                                TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
                         until SalesInvoiceLine.Next() = 0;
                         SubTotal += TotalDiscount;
                     end;
@@ -3857,6 +3927,8 @@
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
                             TotalDiscount += TempDocumentLine."Line Discount Amount";
+                            if TempDocumentHeader."Location Code" = '' then
+                                TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
                         until SalesCrMemoLine.Next() = 0;
                         SubTotal += TotalDiscount;
                     end;
@@ -3888,6 +3960,8 @@
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
                             TotalDiscount += TempDocumentLine."Line Discount Amount";
+                            if TempDocumentHeader."Location Code" = '' then
+                                TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
                         until ServiceInvoiceLine.Next() = 0;
                         SubTotal += TotalDiscount;
                     end;
@@ -3919,11 +3993,14 @@
                             InsertTempVATAmountLine(TempVATAmountLine, TempDocumentLine);
                             InsertTempDocRetentionLine(TempDocumentLineRetention, TempDocumentLine);
                             TotalDiscount += TempDocumentLine."Line Discount Amount";
+                            if TempDocumentHeader."Location Code" = '' then
+                                TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
                         until ServiceCrMemoLine.Next() = 0;
                         SubTotal += TotalDiscount;
                     end;
                 end;
         end;
+        TempDocumentHeader.Modify;
     end;
 
     procedure CreateTempDocumentTransfer(DocumentHeaderVariant: Variant; var TempDocumentHeader: Record "Document Header" temporary; var TempDocumentLine: Record "Document Line" temporary)
@@ -3952,6 +4029,8 @@
                         repeat
                             TempDocumentLine.TransferFields(SalesShipmentLine);
                             TempDocumentLine.Insert();
+                            if TempDocumentHeader."Location Code" = '' then
+                                TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
                         until SalesShipmentLine.Next() = 0;
                 end;
             DATABASE::"Transfer Shipment Header":
@@ -3973,8 +4052,10 @@
                     TempDocumentHeader."Trailer 1" := TransferShipmentHeader."Trailer 1";
                     TempDocumentHeader."Trailer 2" := TransferShipmentHeader."Trailer 2";
                     TempDocumentHeader."CFDI Purpose" := 'P01';
+                    TempDocumentHeader."CFDI Export Code" := TransferShipmentHeader."CFDI Export Code";
                     TempDocumentHeader."Transit-from Location" := TransferShipmentHeader."Transfer-from Code";
                     TempDocumentHeader."Transit-to Location" := TransferShipmentHeader."Transfer-to Code";
+                    TempDocumentHeader."Location Code" := TempDocumentHeader."Transit-to Location";
                     TempDocumentHeader."Medical Insurer Name" := TransferShipmentHeader."Medical Insurer Name";
                     TempDocumentHeader."Medical Ins. Policy Number" := TransferShipmentHeader."Medical Ins. Policy Number";
                     TempDocumentHeader."SAT Weight Unit Of Measure" := TransferShipmentHeader."SAT Weight Unit Of Measure";
@@ -3993,10 +4074,14 @@
                             TempDocumentLine."Unit of Measure Code" := TransferShipmentLine."Unit of Measure Code";
                             TempDocumentLine.Quantity := TransferShipmentLine.Quantity;
                             TempDocumentLine."Gross Weight" := TransferShipmentLine."Gross Weight";
+                            TempDocumentLine."Location Code" := TempDocumentLine."Location Code";
                             TempDocumentLine.Insert();
+                            if TempDocumentHeader."Location Code" = '' then
+                                TempDocumentHeader."Location Code" := TempDocumentLine."Location Code";
                         until TransferShipmentLine.Next() = 0;
                 end;
         end;
+        TempDocumentHeader.Modify;
     end;
 
     local procedure UpdateAbstractDocument(var TempDocumentHeader: Record "Document Header" temporary)
@@ -5233,6 +5318,19 @@
                 TaxCode := TaxCodeFromTaxRate(VATPct / 100, TaxType::Retencion);
     end;
 
+    local procedure GetSubjectToTaxCode(DocumentLine: Record "Document Line"): Text
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        if not VATPostingSetup.Get(DocumentLine."VAT Bus. Posting Group", DocumentLine."VAT Prod. Posting Group") then
+            exit('01');
+
+        if VATPostingSetup."CFDI Non-Taxable" or VATPostingSetup."CFDI VAT Exemption" then
+            exit('01');
+
+        exit('02');
+    end;
+
     local procedure GetTransferRFCNo(): Code[13]
     begin
         exit('XAXX010101000');
@@ -5414,6 +5512,7 @@
         end;
 
         if TempDocumentLine."Retention Attached to Line No." = 0 then begin
+            TempVATAmountLine."Amount Including VAT" += TempDocumentLine."Amount Including VAT";
             TempVATAmountLine."VAT %" := TempDocumentLine."VAT %";
             TempVATAmountLine."VAT Amount" += TempDocumentLine."Amount Including VAT" - TempDocumentLine.Amount;
             TempVATAmountLine.Modify();
@@ -5562,6 +5661,7 @@
         with TempErrorMessage do begin
             LogIfEmpty(Customer, Customer.FieldNo("RFC No."), "Message Type"::Error);
             LogIfEmpty(Customer, Customer.FieldNo("Country/Region Code"), "Message Type"::Error);
+            LogIfEmpty(Customer, Customer.FieldNo("SAT Tax Regime Classification"), "Message Type"::Error);
         end;
     end;
 
@@ -5599,6 +5699,7 @@
             LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("Bill-to/Pay-To Post Code"), "Message Type"::Error);
             LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("CFDI Purpose"), "Message Type"::Error);
             LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("CFDI Relation"), "Message Type"::Error);
+	    LogIfEmpty(DocumentVariant, DocumentHeader.FieldNo("CFDI Export Code"), "Message Type"::Error);
             if SourceCode = SourceCodeSetup."Deleted Document" then
                 LogSimpleMessage("Message Type"::Error, Text007);
             if (DocumentHeader."CFDI Purpose" = 'PPD') and (DocumentHeader."CFDI Relation" = '03') then

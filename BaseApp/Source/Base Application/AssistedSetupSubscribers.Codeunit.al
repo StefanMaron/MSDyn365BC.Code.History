@@ -282,6 +282,7 @@
     local procedure InitializeCustomize()
     var
         EmailFeature: Codeunit "Email Feature";
+        SetupEmailLogging: Codeunit "Setup Email Logging";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         GuidedExperience: Codeunit "Guided Experience";
         Language: Codeunit Language;
@@ -324,14 +325,17 @@
         end;
         GlobalLanguage(CurrentGlobalLanguage);
 
-        if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
-            GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, SetupEmailLoggingShortTitleTxt, SetupEmailLoggingDescriptionTxt, 10, ObjectType::Page,
-                Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
-            GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
-            GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
-                PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
-            GLOBALLANGUAGE(CurrentGlobalLanguage);
-        end;
+        if SetupEmailLogging.IsEmailLoggingUsingGraphApiFeatureEnabled() then
+            GuidedExperience.Remove(GuidedExperienceType::"Assisted Setup", ObjectType::Page, Page::"Setup Email Logging")
+        else
+            if not ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then begin
+                GuidedExperience.InsertAssistedSetup(SetupEmailLoggingTitleTxt, SetupEmailLoggingShortTitleTxt, SetupEmailLoggingDescriptionTxt, 10, ObjectType::Page,
+                    Page::"Setup Email Logging", AssistedSetupGroup::ApprovalWorkflows, VideoUrlSetupEmailLoggingTxt, VideoCategory::ApprovalWorkflows, SetupEmailLoggingHelpTxt);
+                GLOBALLANGUAGE(Language.GetDefaultApplicationLanguageId());
+                GuidedExperience.AddTranslationForSetupObjectTitle(GuidedExperienceType::"Assisted Setup", ObjectType::Page,
+                    PAGE::"Setup Email Logging", Language.GetDefaultApplicationLanguageId(), SetupEmailLoggingTitleTxt);
+                GLOBALLANGUAGE(CurrentGlobalLanguage);
+            end;
 
         GuidedExperience.InsertAssistedSetup(CustomizeDocumentLayoutsTitleTxt, CustomizeDocumentLayoutsShortTitleTxt, CustomizeDocumentLayoutsDescTxt, 10, ObjectType::Page,
             Page::"Custom Report Layouts", AssistedSetupGroup::FirstInvoice, '', VideoCategory::FirstInvoice, CustomizeDocumentLayoutsHelpTxt);

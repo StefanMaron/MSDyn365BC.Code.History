@@ -205,6 +205,8 @@ report 10110 "Vendor 1099 Information"
         FormTypeCode: Code[10];
         FormTypeAmount: Decimal;
         ThisVendorCounted: Boolean;
+        LastVendNo: Code[20];
+        LastIRS1099Code: Code[10];
         Vendor1099InformationCaptionLbl: Label 'Vendor 1099 Information';
         PageCaptionLbl: Label 'Page';
         VendorCaptionLbl: Label 'Vendor';
@@ -224,6 +226,11 @@ report 10110 "Vendor 1099 Information"
             SetFilter("IRS 1099 Amount", '<>0');
             if FindSet then
                 repeat
+                    if ("Vendor No." <> LastVendNo) or ("IRS 1099 Code" <> LastIRS1099Code) then begin
+                        ThisVendorCounted := false;
+                        LastVendNo := "Vendor No.";
+                        LastIRS1099Code := "IRS 1099 Code";
+                    end;
                     Calculate1099Amount(TempAppliedEntry, "Amount to Apply");
                 until Next() = 0;
         end;
