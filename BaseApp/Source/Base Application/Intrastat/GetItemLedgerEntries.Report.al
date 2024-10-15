@@ -322,12 +322,12 @@
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
             "Location Code" := "Item Ledger Entry"."Location Code";
-            Amount := Round(Abs(TotalAmt), 1);
+            Amount := Abs(TotalAmt);
             if AmountInclItemCharges then
-                Amount := Abs(Round(TotalAmt, 1) + Round(TotalIndirectCost, 1))
+                Amount := Abs(TotalAmt + TotalIndirectCost)
             else begin
-                Amount := Round(Abs(TotalAmt), 1);
-                "Indirect Cost" := Abs(Round(TotalAmt, 1) + Round(TotalIndirectCost, 1)) - Round(Abs(TotalAmt), 1);
+                Amount := Abs(TotalAmt);
+                "Indirect Cost" := Abs(TotalAmt + TotalIndirectCost) - Abs(TotalAmt);
             end;
 
             if Quantity < 0 then
@@ -477,7 +477,6 @@
     var
         ItemLedgEntry2: Record "Item Ledger Entry";
         Location: Record Location;
-        Include: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -522,15 +521,10 @@
                             ItemLedgEntry2.SetCurrentKey("Order Type", "Order No.");
                             ItemLedgEntry2.SetRange("Order Type", "Order Type"::Transfer);
                             ItemLedgEntry2.SetRange("Order No.", "Order No.");
+                            ItemLedgEntry2.SetRange("Document Type", ItemLedgEntry2."Document Type"::"Transfer Shipment");
                             ItemLedgEntry2.SetFilter("Country/Region Code", '%1 | %2', '', CompanyInfo."Country/Region Code");
-                            ItemLedgEntry2.SetFilter("Location Code", '<>%1', '');
-                            if ItemLedgEntry2.FindSet then
-                                repeat
-                                    Location.Get(ItemLedgEntry2."Location Code");
-                                    if Location."Use As In-Transit" then
-                                        Include := true;
-                                until Include or (ItemLedgEntry2.Next() = 0);
-                            if not Include then
+                            ItemLedgEntry2.SetRange(Positive, true);
+                            if ItemLedgEntry2.IsEmpty() then
                                 exit(false);
                         end;
                     end;

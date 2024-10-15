@@ -305,7 +305,6 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Form AT");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Disk Tax Auth AT");
 
-        CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Checklist AT", IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Receipt');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Disk Tax Auth AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
     end;
@@ -320,6 +319,8 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), '');
     end;
 
     local procedure CreateAdvancedChecklistFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)

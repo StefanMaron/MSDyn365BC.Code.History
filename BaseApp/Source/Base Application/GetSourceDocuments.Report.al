@@ -56,7 +56,9 @@ report 5753 "Get Source Documents"
                                           "Sales Line", "Warehouse Request", WhseShptHeader, WhseHeaderCreated, OneHeaderCreated, IsHandled);
                                         if not IsHandled then begin
                                             if not OneHeaderCreated and not WhseHeaderCreated then begin
-                                                CreateShptHeader;
+                                                CreateShptHeader();
+                                                WhseShptHeader."Shipment Date" := "Sales Header"."Shipment Date";
+                                                WhseShptHeader.Modify();
                                                 OnSalesLineOnAfterCreateShptHeader(WhseShptHeader, WhseHeaderCreated, "Sales Header", "Sales Line", "Warehouse Request");
                                             end;
                                             if not CreateActivityFromSalesLine2ShptLine(WhseShptHeader, "Sales Line") then
