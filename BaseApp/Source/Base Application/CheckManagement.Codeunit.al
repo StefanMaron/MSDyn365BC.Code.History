@@ -232,6 +232,7 @@ codeunit 367 CheckManagement
                         SetRange("Transaction No.", BankAccLedgEntry2."Transaction No.");
                         SetRange("Document No.", BankAccLedgEntry2."Document No.");
                         SetRange("Posting Date", BankAccLedgEntry2."Posting Date");
+                        OnFinancialVoidCheckOnAfterVendorLedgEntrySetFilters(VendorLedgEntry, BankAccLedgEntry2);
                         if FindSet then
                             repeat
                                 OnFinancialVoidCheckOnBeforePostVend(GenJnlLine2, VendorLedgEntry, BalanceAmountLCY);
@@ -826,6 +827,11 @@ codeunit 367 CheckManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnFinancialVoidCheckOnAfterPostVoidCheckLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinancialVoidCheckOnAfterVendorLedgEntrySetFilters(var VendorLedgEntry: Record "Vendor Ledger Entry"; BankAccLedgEntry: Record "Bank Account Ledger Entry")
     begin
     end;
 

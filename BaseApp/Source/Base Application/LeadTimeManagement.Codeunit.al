@@ -1,4 +1,4 @@
-codeunit 5404 "Lead-Time Management"
+﻿codeunit 5404 "Lead-Time Management"
 {
 
     trigger OnRun()
@@ -93,6 +93,7 @@ codeunit 5404 "Lead-Time Management"
             end;
             exit(PlannedReceiptDate);
         end;
+        OnPlannedEndingDateOnBeforeFormatDateFormula(SKU, RefOrderType, ItemNo, DueDate);
         FormatDateFormula(SKU."Safety Lead Time");
         OrgDateExpression := InternalLeadTimeDays(WhseInBoundHandlingTime(LocationCode) + Format(SKU."Safety Lead Time"));
         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, LocationCode, '', '');
@@ -187,6 +188,7 @@ codeunit 5404 "Lead-Time Management"
         // Returns Due Date calculated forward from Ending Date
 
         GetPlanningParameters.AtSKU(SKU, ItemNo, VariantCode, LocationCode);
+        OnPlannedDueDateOnBeforeFormatDateFormula(SKU, RefOrderType, EndingDate, ItemNo, LocationCode);
         FormatDateFormula(SKU."Safety Lead Time");
 
         if RefOrderType = RefOrderType::Transfer then begin
@@ -253,6 +255,16 @@ codeunit 5404 "Lead-Time Management"
     begin
         if CalcDate(LeadTimeDateFormula, WorkDate) < WorkDate then
             Error(LeadTimeCalcNegativeErr);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlannedDueDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date; ItemNo: Code[20]; LocationCode: Code[10]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlannedEndingDateOnBeforeFormatDateFormula(var SKU: Record "Stockkeeping Unit"; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; ItemNo: code[20]; DueDate: Date);
+    begin
     end;
 }
 

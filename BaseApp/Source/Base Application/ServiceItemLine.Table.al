@@ -914,9 +914,10 @@ table 5901 "Service Item Line"
                           FieldCaption("Loaner No."), Format(ServHeader."Document Type"),
                           ServHeader.FieldCaption("No."), ServHeader."No.");
                     end;
+
                     CheckIfLoanerOnServOrder;
-                    if "Line No." <> 0 then
-                        LendLoanerWithConfirmation;
+                    if Rec."Line No." <> 0 then
+                        LendLoanerWithConfirmation(false);
                 end;
             end;
         }
@@ -1472,7 +1473,7 @@ table 5901 "Service Item Line"
         ServOrderMgt.UpdatePriority(Rec, false);
 
         if "Line No." = 0 then
-            LendLoanerWithConfirmation;
+            LendLoanerWithConfirmation(false);
 
         if "Service Item No." = '' then
             "Ship-to Code" := ServHeader."Ship-to Code";
@@ -2422,7 +2423,7 @@ table 5901 "Service Item Line"
               Text057);
     end;
 
-    local procedure LendLoanerWithConfirmation()
+    internal procedure LendLoanerWithConfirmation(errorOnDeny: Boolean)
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
@@ -2433,7 +2434,10 @@ table 5901 "Service Item Line"
         then
             ServLoanerMgt.LendLoaner(Rec)
         else
-            "Loaner No." := '';
+            if errorOnDeny then
+                Error('')
+            else
+                "Loaner No." := '';
     end;
 
     [IntegrationEvent(false, false)]

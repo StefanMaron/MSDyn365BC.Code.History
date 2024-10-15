@@ -327,7 +327,6 @@ codeunit 6153 "API Webhook Notification Mgt."
     local procedure RegisterNotification(var ApiWebhookEntity: Record "Api Webhook Entity"; var APIWebhookSubscription: Record "API Webhook Subscription"; var RecRef: RecordRef; ChangeType: Option): Boolean
     var
         APIWebhookNotification: Record "API Webhook Notification";
-        FieldRef: FieldRef;
         FieldValue: Text;
     begin
         if TryGetEntityKeyValue(ApiWebhookEntity, RecRef, FieldValue) then begin
@@ -338,7 +337,7 @@ codeunit 6153 "API Webhook Notification Mgt."
             if APIWebhookNotification."Change Type" = APIWebhookNotification."Change Type"::Deleted then
                 APIWebhookNotification."Last Modified Date Time" := CurrentDateTime()
             else
-                APIWebhookNotification."Last Modified Date Time" := GetLastModifiedDateTime(RecRef, FieldRef);
+                APIWebhookNotification."Last Modified Date Time" := GetLastModifiedDateTime(RecRef);
             APIWebhookNotification."Entity Key Value" := CopyStr(FieldValue, 1, MaxStrLen(APIWebhookNotification."Entity Key Value"));
             if APIWebhookNotification.Insert(true) then begin
                 if IsDetailedLoggingEnabled() then
@@ -497,18 +496,18 @@ codeunit 6153 "API Webhook Notification Mgt."
             OutBoolean := 'false';
     end;
 
-    local procedure GetLastModifiedDateTime(var RecRef: RecordRef; var FieldRef: FieldRef): DateTime
+    local procedure GetLastModifiedDateTime(var RecRef: RecordRef): DateTime
     var
         LastModifiedDateTime: DateTime;
     begin
-        if FindLastModifiedDateTimeField(RecRef, FieldRef) then
-            LastModifiedDateTime := FieldRef.Value
-        else
+        LastModifiedDateTime := RecRef.Field(RecRef.SystemModifiedAtNo).Value();
+        if LastModifiedDateTime = 0DT then
             LastModifiedDateTime := CurrentDateTime();
         exit(LastModifiedDateTime);
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Use field SystemModifiedAt', '18.0')]
     procedure FindLastModifiedDateTimeField(var RecRef: RecordRef; var FieldRef: FieldRef): Boolean
     var
         "Field": Record "Field";

@@ -1,6 +1,7 @@
 codeunit 1352 "Create Telemetry Cal. Events"
 {
     TableNo = "CodeUnit Metadata";
+    Permissions = TableData "Calendar Event" = rimd;
 
     trigger OnRun()
     var

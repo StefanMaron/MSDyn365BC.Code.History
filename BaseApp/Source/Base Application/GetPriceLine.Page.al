@@ -16,21 +16,31 @@ page 7010 "Get Price Line"
                 ShowCaption = false;
                 field("Unit Price"; Rec."Unit Price")
                 {
+                    AccessByPermission = tabledata "Sales Price Access" = R;
                     Visible = PriceVisible;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the price of one unit of the selected product.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
-                    Visible = DiscountVisible;
+                    AccessByPermission = tabledata "Sales Discount Access" = R;
+                    Visible = DiscountVisible and IsSalesPrice;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the line discount percentage for the product.';
                 }
-                field("Direct Unit Cost"; "Unit Cost")
+                field(PurchLineDiscountPct; Rec."Line Discount %")
                 {
+                    AccessByPermission = tabledata "Purchase Discount Access" = R;
+                    Visible = DiscountVisible and not IsSalesPrice;
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the line discount percentage for the product.';
+                }
+                field("Direct Unit Cost"; Rec."Direct Unit Cost")
+                {
+                    AccessByPermission = tabledata "Purchase Price Access" = R;
                     Visible = false;
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies the cost of one unit of the selected asset.';
+                    ToolTip = 'Specifies the cost of one unit of the selected product.';
                 }
                 field("Price List Code"; Rec."Price List Code")
                 {
@@ -97,13 +107,13 @@ page 7010 "Get Price Line"
                 {
                     Visible = PriceVisible;
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the if the line discount allowed.';
+                    ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
                 {
                     Visible = PriceVisible;
                     ApplicationArea = All;
-                    ToolTip = 'Specifies the if the invoice discount allowed.';
+                    ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
@@ -130,16 +140,20 @@ page 7010 "Get Price Line"
         ItemVariantVisible: Boolean;
         WorkTypeCodeVisible: Boolean;
         PriceVisible: Boolean;
+        IsSalesPrice: Boolean;
 
     procedure SetForLookup(LineWithPrice: Interface "Line With Price"; NewAmountType: Enum "Price Amount Type"; var TempPriceListLine: Record "Price List Line" temporary)
     var
         AssetType: Enum "Price Asset Type";
+        PriceType: Enum "Price Type";
     begin
         CurrPage.LookupMode(true);
         Rec.Copy(TempPriceListLine, true);
         AmountType := NewAmountType;
         AssetType := LineWithPrice.GetAssetType();
-        DataCaptionExpr := StrSubstNo(DataCaptionExprTok, AmountType, LineWithPrice.GetPriceType(), AssetType, Rec."Asset No.");
+        PriceType := LineWithPrice.GetPriceType();
+        IsSalesPrice := PriceType = "Price Type"::Sale;
+        DataCaptionExpr := StrSubstNo(DataCaptionExprTok, AmountType, PriceType, AssetType, Rec."Asset No.");
         PriceVisible := AmountType in [AmountType::Price, AmountType::Any];
         DiscountVisible := AmountType in [AmountType::Discount, AmountType::Any];
         ItemVariantVisible := AssetType = AssetType::Item;

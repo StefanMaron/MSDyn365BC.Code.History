@@ -418,6 +418,7 @@ codeunit 99000834 "Purch. Line-Reserve"
         end;
         ItemTrackingForm.SetSourceSpec(TrackingSpecification, PurchLine."Expected Receipt Date");
         ItemTrackingForm.SetInbound(PurchLine.IsInbound);
+        OnCallItemTrackingOnBeforeItemTrackingFormRunModal(PurchLine, ItemTrackingForm);
         ItemTrackingForm.RunModal;
     end;
 
@@ -759,6 +760,11 @@ codeunit 99000834 "Purch. Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeTestVariantCode(var NewPurchaseLine: Record "Purchase Line"; var OldPurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingOnBeforeItemTrackingFormRunModal(var PurchLine: Record "Purchase Line"; var ItemTrackingForm: Page "Item Tracking Lines")
     begin
     end;
 }

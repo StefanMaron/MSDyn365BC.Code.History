@@ -751,13 +751,20 @@ table 296 "Reminder Line"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         NoOfReminders: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetNoOfReminderForCustLedgEntry(Rec, NoOfReminders, EntryNo, IsHandled);
+        if IsHandled then
+            exit(NoOfReminders);
+
         CustLedgerEntry.Get(EntryNo);
         NoOfReminders := 0;
         ReminderEntry.Reset();
         ReminderEntry.SetCurrentKey("Customer Entry No.");
         ReminderEntry.SetRange("Customer Entry No.", EntryNo);
         ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
+        OnGetNoOfReminderForCustLedgEntryOnAfterReminderEntrySetFilters(ReminderEntry);
         if ReminderEntry.FindLast then
             NoOfReminders := ReminderEntry."Reminder Level";
         if (CustLedgerEntry."On Hold" = '') and (CustLedgerEntry."Due Date" < ReminderHeader."Document Date") then
@@ -992,6 +999,16 @@ table 296 "Reminder Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup"; ReminderLine: Record "Reminder Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetNoOfReminderForCustLedgEntryOnAfterReminderEntrySetFilters(var ReminderEntry: Record "Reminder/Fin. Charge Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetNoOfReminderForCustLedgEntry(var ReminderLine: Record "Reminder Line"; var NoOfReminders: Integer; EntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

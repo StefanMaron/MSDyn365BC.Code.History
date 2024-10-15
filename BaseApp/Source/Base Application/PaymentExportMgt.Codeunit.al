@@ -90,6 +90,7 @@ codeunit 1210 "Payment Export Mgt"
                             DataExchColumnDef.Justification);
             end;
 
+            OnProcessColumnMappingOnBeforeCheckLength(ValueAsString, DataExchFieldMapping, DataExchColumnDef);
             CheckLength(ValueAsString, RecRef.Field(DataExchFieldMapping."Field ID"), DataExchDef, DataExchColumnDef);
 
             DataExchField.Get(DataExch."Entry No.", LineNo, DataExchFieldMapping."Column No.");
@@ -267,6 +268,11 @@ codeunit 1210 "Payment Export Mgt"
     procedure GetServerTempFileName(): Text[1024]
     begin
         exit(ServerFileName);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessColumnMappingOnBeforeCheckLength(var ValueAsString: Text[250]; DataExchFieldMapping: Record "Data Exch. Field Mapping"; DataExchColumnDef: Record "Data Exch. Column Def")
+    begin
     end;
 }
 

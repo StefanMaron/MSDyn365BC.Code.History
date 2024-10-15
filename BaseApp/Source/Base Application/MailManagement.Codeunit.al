@@ -66,7 +66,6 @@ codeunit 9520 "Mail Management"
         Email: Codeunit Email;
         Message: Codeunit "Email Message";
         ErrorMessageManagement: Codeunit "Error Message Management";
-        HtmlFormated: Boolean;
         ToList: List of [Text];
         CcList: List of [Text];
         BccList: List of [Text];
@@ -75,10 +74,7 @@ codeunit 9520 "Mail Management"
         RecipientStringToList(TempEmailItem."Send CC", CcList);
         RecipientStringToList(TempEmailItem."Send BCC", BccList);
 
-        if TempEmailItem."Message Type" = TempEmailItem."Message Type"::"From Email Body Template" THEN
-            HtmlFormated := true;
-
-        Message.CreateMessage(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), HtmlFormated, CcList, BccList);
+        Message.Create(ToList, TempEmailItem.Subject, TempEmailItem.GetBodyText(), true, CcList, BccList);
 
         AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path", TempEmailItem."Attachment Name");
         AddAttachmentToEmailMessage(Message, TempEmailItem."Attachment File Path 2", TempEmailItem."Attachment Name 2");
@@ -92,10 +88,10 @@ codeunit 9520 "Mail Management"
         Cancelled := false;
         if not HideMailDialog then begin
             Commit();
-            Message.OpenInEditor(TempEmailModuleAccount, true, MailSent);
+            MailSent := Email.OpenInEditorModally(Message, TempEmailModuleAccount) = Enum::"Email Action"::Sent;
             Cancelled := not MailSent;
         end else
-            MailSent := Email.Send(Message.GetId(), TempEmailModuleAccount."Account Id", TempEmailModuleAccount.Connector);
+            MailSent := Email.Send(Message, TempEmailModuleAccount);
 
         if not MailSent and not Cancelled and not HideEmailSendingError then
             ErrorMessageManagement.LogSimpleErrorMessage(GetLastErrorText());
@@ -103,7 +99,7 @@ codeunit 9520 "Mail Management"
         exit(MailSent);
     end;
 
-    local procedure RecipientStringToList(DelimitedRecipients: Text; var Recipients: List of [Text])
+    internal procedure RecipientStringToList(DelimitedRecipients: Text; var Recipients: List of [Text])
     var
         Seperators: Text;
     begin
@@ -327,7 +323,9 @@ codeunit 9520 "Mail Management"
     [Scope('OnPrem')]
     procedure IsGraphEnabled(): Boolean
     begin
-        exit(GraphMail.IsEnabled and GraphMail.HasConfiguration);
+        if GraphMail.IsEnabled() then
+            exit(GraphMail.HasConfiguration());
+        exit(false);
     end;
 
     procedure IsEnabled(): Boolean

@@ -1081,9 +1081,16 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     local procedure GetActivePointerFields(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean)
+    var
+        IsHandled: Boolean;
     begin
         Clear(PointerFieldIsActive);
         PointerFieldIsActive[1] := true;  // Type
+
+        IsHandled := false;
+        OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID, PointerFieldIsActive, IsHandled);
+        if IsHandled then
+            exit;
 
         case TableID of
             DATABASE::"Sales Line",
@@ -1364,6 +1371,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnNextRecordOnAfterFilterTempSortRec2(var TempSortReservEntry2: Record "Reservation Entry"; TempSortReservEntry1: Record "Reservation Entry")
+    begin
+    end;
+
+    [InternalEvent(false)]
+    local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -82,7 +82,6 @@ codeunit 5624 "Cancel FA Ledger Entries"
     local procedure InsertFAJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     begin
         if not FAJnlUsedOnce then begin
-            ;
             FAJnlLine.LockTable();
             FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
             FAJnlUsedOnce := true;
@@ -100,7 +99,10 @@ codeunit 5624 "Cancel FA Ledger Entries"
             "Dimension Set ID" := FALedgEntry."Dimension Set ID";
             "FA Error Entry No." := FALedgEntry."Entry No.";
             "Posting No. Series" := FAJnlSetup.GetFANoSeries(FAJnlLine);
-            Validate(Amount, -Amount);
+            if FALedgEntry."FA Posting Type" = FALedgEntry."FA Posting Type"::"Proceeds on Disposal" then
+                Validate(Amount, Amount)
+            else
+                Validate(Amount, -Amount);
             Validate(Correction, DeprBook."Mark Errors as Corrections");
             "Line No." := "Line No." + 10000;
             OnBeforeFAJnlLineInsert(FAJnlLine, FALedgEntry);
@@ -115,7 +117,6 @@ codeunit 5624 "Cancel FA Ledger Entries"
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
     begin
         if not GenJnlUsedOnce then begin
-            ;
             GenJnlLine.LockTable();
             FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
             GenJnlUsedOnce := true;
