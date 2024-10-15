@@ -1,4 +1,4 @@
-codeunit 1221 "SEPA CT-Fill Export Buffer"
+﻿codeunit 1221 "SEPA CT-Fill Export Buffer"
 {
     Permissions = TableData "Payment Export Data" = rimd;
     TableNo = "Payment Export Data";
@@ -102,6 +102,16 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                 Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
                 "SEPA Batch Booking" := false;
                 // NAVCZ
+                if GenJnlLine."Account No." = '' then begin
+                    if TempGenJnlLine.IBAN <> '' then
+                        "Recipient Bank Acc. No." := TempGenJnlLine.IBAN
+                    else
+                        if TempGenJnlLine."Bank Account No." <> '' then
+                            "Recipient Bank Acc. No." := TempGenJnlLine."Bank Account No.";
+                    if TempGenJnlLine."SWIFT Code" <> '' then
+                        "Recipient Bank BIC" := TempGenJnlLine."SWIFT Code";
+                end;
+
                 "Variable Symbol" := TempGenJnlLine."Variable Symbol";
                 "Specific Symbol" := TempGenJnlLine."Specific Symbol";
                 "Constant Symbol" := TempGenJnlLine."Constant Symbol";

@@ -128,8 +128,8 @@ table 5330 "CRM Connection Setup"
             trigger OnValidate()
             begin
                 if "Is S.Order Integration Enabled" then
-                    if Confirm(StrSubstNo(SetCRMSOPEnableQst, PRODUCTNAME.Short)) then
-                        SetCRMSOPEnabled
+                    if Confirm(StrSubstNo(SetCRMSOPEnableNoCredsReqQst, PRODUCTNAME.Short)) then
+                        SetCRMSOPEnabled()
                     else
                         Error('')
                 else
@@ -358,7 +358,7 @@ table 5330 "CRM Connection Setup"
         ConnectionStringPwdPlaceHolderMissingErr: Label 'The connection string must include the password placeholder {PASSWORD}.';
         ConnectionStringPwdOrClientSecretPlaceHolderMissingErr: Label 'The connection string must include either the password placeholder {PASSWORD} or the client secret placeholder {CLIENTSECRET}.', Comment = '{PASSWORD} and {CLIENTSECRET} are locked strings - do not translate them.';
         CannotDisableSalesOrderIntErr: Label 'You cannot disable CRM sales order integration when a CRM sales order has the Submitted status.';
-        SetCRMSOPEnableQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\To enable this setting, you must provide Dynamics CRM administrator credentials (user name and password).\\Do you want to continue?', Comment = '%1 - product name';
+        SetCRMSOPEnableNoCredsReqQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\Do you want to continue?', Comment = '%1 - product name';
         SetCRMSOPEnableConfirmMsg: Label 'Sales Order Integration with %1 is enabled.', Comment = '%1 = CRM product name';
         SetCRMSOPDisableConfirmMsg: Label 'Sales Order Integration with %1 is disabled.', Comment = '%1 = CRM product name';
         CRMProductName: Codeunit "CRM Product Name";
@@ -1003,12 +1003,20 @@ table 5330 "CRM Connection Setup"
     var
         CRMOrganization: Record "CRM Organization";
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        CRMConnectionSetup: Record "CRM Connection Setup";
         ConnectionName: Text;
     begin
         CreateTempAdminConnection(TempCRMConnectionSetup);
         if (AdminEmail <> '') and (AdminPassword <> '') then begin
             TempCRMConnectionSetup.SetPassword(AdminPassword);
-            TempCRMConnectionSetup.Validate("User Name", AdminEmail);
+            TempCRMConnectionSetup.Validate("User Name", COPYSTR(AdminEmail, 1, MaxStrLen(TempCRMConnectionSetup."User Name")));
+            TempCRMConnectionSetup.SetConnectionString(Rec.GetConnectionString());
+        end
+        else begin
+            CRMConnectionSetup.Get();
+            TempCRMConnectionSetup.Validate("User Name", CRMConnectionSetup."User Name");
+            TempCRMConnectionSetup.SetPassword(CRMConnectionSetup.GetPassword());
+            TempCRMConnectionSetup.SetConnectionString(CRMConnectionSetup.GetConnectionString());
         end;
         ConnectionName := Format(CreateGuid);
         TempCRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
