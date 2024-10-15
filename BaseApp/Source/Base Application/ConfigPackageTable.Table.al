@@ -226,6 +226,10 @@ table 8613 "Config. Package Table"
         {
             Caption = 'Delayed Insert';
         }
+        field(32; "Cross-Column Filter"; Boolean)
+        {
+            Caption = 'Cross-Column Filter';
+        }
     }
 
     keys

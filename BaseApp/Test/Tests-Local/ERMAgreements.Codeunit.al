@@ -1,11 +1,10 @@
 codeunit 144508 "ERM Agreements"
 {
-    // // [FEATURE] [Agreements]
-
     Subtype = Test;
 
     trigger OnRun()
     begin
+        // [FEATURE] [Agreement]
     end;
 
     var
@@ -796,6 +795,122 @@ codeunit 144508 "ERM Agreements"
         VerifyGLEntryAgrmt(GLEntry."Document Type"::Payment, PaymentNo, AgreementNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerAgreementInvalidExpireDateError()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        CustomerAgreementNo: Code[20];
+    begin
+        // [FEATURE] [Customer] [Sales]
+        // [SCENARIO 356754] Validating "Agreement No." for Sales Document with empty "Expire Date" on Customer Agreement less than "Posting Date" throws error
+        Initialize();
+
+        // [GIVEN] Created Customer and Customer Agreement with "Expire Date" = 01.01.2020
+        CustomerNo := CreateCustomer(AgreementPosting::Mandatory);
+        CustomerAgreementNo := CreateCustomerAgreement(CustomerNo, true);
+        SetCustomerAgreementExpireDate(CustomerNo, CustomerAgreementNo, WorkDate);
+
+        // [GIVEN] Created Sales Document with "Posting Date" = 01.02.2020
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        SalesHeader.Modify(true);
+
+        // [WHEN] Agreement Number is being assigned to Sales Document
+        asserterror SalesHeader.Validate("Agreement No.", CustomerAgreementNo);
+
+        // [THEN] An error is thrown 'Agreement Expire Date should be no earlier than Posting Date.'
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('Agreement Expire Date should be no earlier than Posting Date.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure CustomerAgreementEmptyExpireDate()
+    var
+        SalesHeader: Record "Sales Header";
+        CustomerNo: Code[20];
+        CustomerAgreementNo: Code[20];
+    begin
+        // [FEATURE] [Customer] [Sales]
+        // [SCENARIO 356754] Validating "Agreement No." for Sales Document with empty "Expire Date" on Customer Agreement doesn't throw error
+        Initialize();
+
+        // [GIVEN] Created Customer and Customer Agreement with empty "Expire Date"
+        CustomerNo := CreateCustomer(AgreementPosting::Mandatory);
+        CustomerAgreementNo := CreateCustomerAgreement(CustomerNo, true);
+        SetCustomerAgreementExpireDate(CustomerNo, CustomerAgreementNo, 0D);
+
+        // [GIVEN] Created Sales Document
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+
+        // [WHEN] Agreement Number is being assigned to Sales Document
+        SalesHeader.Validate("Agreement No.", CustomerAgreementNo);
+
+        // [THEN] No errors thrown, Agreement Number assigned
+        SalesHeader.TestField("Agreement No.", CustomerAgreementNo);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorAgreementInvalidExpireDateError()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        VendorAgreementNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Purchase]
+        // [SCENARIO 356754] Validating "Agreement No." for Purchase Document with empty "Expire Date" on Vendor Agreement less than "Posting Date" throws error
+        Initialize();
+
+        // [GIVEN] Created Vendor and Vendor Agreement with "Expire Date" = 01.01.2020
+        VendorNo := CreateVendor(AgreementPosting::Mandatory);
+        VendorAgreementNo := CreateVendorAgreement(VendorNo, true);
+        SetVendorAgreementExpireDate(VendorNo, VendorAgreementNo, WorkDate);
+
+        // [GIVEN] Created Purchase Document with "Posting Date" = 01.02.2020
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+        PurchaseHeader.Validate("Posting Date", CalcDate('<1M>', WorkDate));
+        PurchaseHeader.Modify(true);
+
+        // [WHEN] Agreement Number is being assigned to Purchase Document
+        asserterror PurchaseHeader.Validate("Agreement No.", VendorAgreementNo);
+
+        // [THEN] An error is thrown 'Agreement Expire Date should be no earlier than Posting Date.'
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError('Agreement Expire Date should be no earlier than Posting Date.');
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure VendorAgreementEmptyExpireDate()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorNo: Code[20];
+        VendorAgreementNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Purchase]
+        // [SCENARIO 356754] Validating "Agreement No." for Purchase Document with empty "Expire Date" on Vendor Agreement doesn't throw error
+        Initialize();
+
+        // [GIVEN] Created Vendor and Vendor Agreement with empty "Expire Date"
+        VendorNo := CreateVendor(AgreementPosting::Mandatory);
+        VendorAgreementNo := CreateVendorAgreement(VendorNo, true);
+        SetVendorAgreementExpireDate(VendorNo, VendorAgreementNo, 0D);
+
+        // [GIVEN] Created Purchase Document
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
+
+        // [WHEN] Agreement Number is being assigned to Purchase Document
+        PurchaseHeader.Validate("Agreement No.", VendorAgreementNo);
+
+        // [THEN] No errors thrown, Agreement Number assigned
+        PurchaseHeader.TestField("Agreement No.", VendorAgreementNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1518,6 +1633,24 @@ codeunit 144508 "ERM Agreements"
             Validate("Global Dimension 2 Code", DimValue2Code);
             Modify(true);
         end;
+    end;
+
+    local procedure SetCustomerAgreementExpireDate(CustomerNo: Code[20]; CustomerAgreementNo: Code[20]; Date: Date)
+    var
+        CustomerAgreement: Record "Customer Agreement";
+    begin
+        CustomerAgreement.Get(CustomerNo, CustomerAgreementNo);
+        CustomerAgreement.Validate("Expire Date", Date);
+        CustomerAgreement.Modify(true);
+    end;
+
+    local procedure SetVendorAgreementExpireDate(VendorNo: Code[20]; VendorAgreementNo: Code[20]; Date: Date)
+    var
+        VendorAgreement: Record "Vendor Agreement";
+    begin
+        VendorAgreement.Get(VendorNo, VendorAgreementNo);
+        VendorAgreement.Validate("Expire Date", Date);
+        VendorAgreement.Modify(true);
     end;
 
     local procedure CreateLaborContract(): Code[20]

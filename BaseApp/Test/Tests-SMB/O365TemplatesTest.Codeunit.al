@@ -52,7 +52,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -69,7 +69,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateBlankItem(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -86,7 +86,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateBlankVendor(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -103,7 +103,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateCustomerWithTemplateFieldsSet(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -120,7 +120,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithTemplateFieldsSet(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -137,7 +137,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithTemplateFieldsSet(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -154,7 +154,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerConfigTemplateHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateCustomerWithDimensions(Customer);
         CreateTemplateFromCustomer(Customer, CustomerConfigTemplateHeaderCode);
@@ -172,7 +172,7 @@ codeunit 138012 "O365 Templates Test"
         ItemConfigTemplateHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithDimensions(Item);
         CreateTemplateFromItem(Item, ItemConfigTemplateHeaderCode);
@@ -190,7 +190,7 @@ codeunit 138012 "O365 Templates Test"
         VendorConfigTemplateHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithDimensions(Vendor);
         CreateTemplateFromVendor(Vendor, VendorConfigTemplateHeaderCode);
@@ -209,7 +209,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateCustomerWithTemplateFieldsSet(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -228,7 +228,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithTemplateFieldsSet(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -247,7 +247,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithTemplateFieldsSet(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -266,7 +266,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -285,7 +285,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateBlankItem(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -304,7 +304,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateBlankVendor(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -322,7 +322,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateCustomerWithTemplateFieldsSet(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -340,7 +340,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithTemplateFieldsSet(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -358,7 +358,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithTemplateFieldsSet(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -377,7 +377,7 @@ codeunit 138012 "O365 Templates Test"
         FieldRefArray: array[22] of FieldRef;
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         RecRefCust.Open(DATABASE::Customer);
         TempMiniCustomerTemplate.Init();
@@ -397,7 +397,7 @@ codeunit 138012 "O365 Templates Test"
         FieldRefArray: array[17] of FieldRef;
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         RecRefVend.Open(DATABASE::Vendor);
         TempMiniVendorTemplate.Init();
@@ -417,7 +417,7 @@ codeunit 138012 "O365 Templates Test"
         FieldRefArray: array[17] of FieldRef;
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         RecRefItem.Open(DATABASE::Item);
         TempItemTemplate.Init();
@@ -437,7 +437,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -459,7 +459,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateBlankVendor(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -481,7 +481,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateItem(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -503,7 +503,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, ConfigTemplHeaderCode);
@@ -526,7 +526,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateBlankVendor(Vendor);
         CreateTemplateFromVendor(Vendor, ConfigTemplHeaderCode);
@@ -549,7 +549,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         LibrarySmallBusiness.CreateItem(Item);
         CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
@@ -572,7 +572,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedRegionCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         NoreturnCity := 'Noreturn';
 
@@ -611,7 +611,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedRegionCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         NoreturnPostCode := 'Noreturn';
 
@@ -650,7 +650,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedRegionCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         NoreturnCity := 'Noreturn';
 
@@ -689,7 +689,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedRegionCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         NoreturnPostCode := 'Noreturn';
 
@@ -725,7 +725,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerCard: TestPage "Customer Card";
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CustomerCard.OpenNew;
 
@@ -739,7 +739,7 @@ codeunit 138012 "O365 Templates Test"
         VendorCard: TestPage "Vendor Card";
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         VendorCard.OpenNew;
 
@@ -753,7 +753,7 @@ codeunit 138012 "O365 Templates Test"
         ItemCard: TestPage "Item Card";
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         ItemCard.OpenNew;
 
@@ -774,7 +774,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedNo: Code[20];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Customer template with field set, blank No. Series, no dimensions
         CreateCustomerWithTemplateFieldsSet(CustomerWithTemplateFieldsSet);
@@ -810,7 +810,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedNo: Code[20];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Vendor template with field set, blank No. Series, no dimensions
         CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
@@ -846,7 +846,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedNo: Code[20];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         // [GIVEN] One Item template with field set, blank No. Series, no dimensions
         CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
@@ -879,7 +879,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerNo: Text;
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomerTemplateFromCustomer(CustomerTemplateCode, BlankCustomerTemplateCode);
 
@@ -908,7 +908,7 @@ codeunit 138012 "O365 Templates Test"
         VendorNo: Text;
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
         CreateTemplateFromVendor(VendorWithTemplateFieldsSet, VendorTemplateCode);
@@ -943,7 +943,7 @@ codeunit 138012 "O365 Templates Test"
         ItemNo: Text;
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
         CreateTemplateFromItem(ItemWithTemplateFieldsSet, ItemTemplateCode);
@@ -976,7 +976,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Customer] [Contact]
         // [SCENARIO] One related Contact is created when create Customer from template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template
         UpdateMarketingSetup;
@@ -1006,7 +1006,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Vendor] [Contact]
         // [SCENARIO] One related Contact is created when create Vendor from template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Template
         UpdateMarketingSetup;
@@ -1037,7 +1037,7 @@ codeunit 138012 "O365 Templates Test"
         LoopIndex: Integer;
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         TotalNoOfTemplates := LibraryRandom.RandIntInRange(3, 10);
         SelectedTemplateIndex := LibraryRandom.RandIntInRange(3, TotalNoOfTemplates);
@@ -1074,7 +1074,7 @@ codeunit 138012 "O365 Templates Test"
         LoopIndex: Integer;
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         TotalNoOfTemplates := LibraryRandom.RandIntInRange(3, 10);
         SelectedTemplateIndex := LibraryRandom.RandIntInRange(3, TotalNoOfTemplates);
@@ -1110,7 +1110,7 @@ codeunit 138012 "O365 Templates Test"
         LoopIndex: Integer;
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         TotalNoOfTemplates := LibraryRandom.RandIntInRange(3, 10);
         SelectedTemplateIndex := LibraryRandom.RandIntInRange(3, TotalNoOfTemplates);
@@ -1145,7 +1145,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerNo: Text;
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomerTemplateFromCustomer(CustomerTemplateCode, BlankCustomerTemplateCode);
 
@@ -1176,7 +1176,7 @@ codeunit 138012 "O365 Templates Test"
         VendorNo: Text;
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
         CreateTemplateFromVendor(VendorWithTemplateFieldsSet, VendorTemplateCode);
@@ -1211,7 +1211,7 @@ codeunit 138012 "O365 Templates Test"
         ItemNo: Text;
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
         CreateTemplateFromItem(ItemWithTemplateFieldsSet, ItemTemplateCode);
@@ -1244,7 +1244,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Customer][Default Dimension]
         // [SCENARIO 209195] Customer should have default dimensions from Customer Template after applying the template when "Customer Nos." is not default
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template with default dimensions
         CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer;
@@ -1279,7 +1279,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Vendor][Default Dimension]
         // [SCENARIO 209195] Vendor should have default dimensions from Vendor Template after applying the template when "Vendor Nos." is not default
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Template with default dimensions
         VendorTemplateCode := CreateVendTemplateWithDimFromVendor;
@@ -1314,7 +1314,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Item][Default Dimension]
         // [SCENARIO 209195] Item should have default dimensions from Item Template after applying the template when "Item Nos." is not default
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Template with default dimensions
         ItemTemplateCode := CreateItemTemplateWithDimFromItem;
@@ -1349,7 +1349,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerTemplateCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateCustomerWithTemplateFieldsSet(CustomerWithTemplateFieldsSet);
         CreateTemplateFromCustomer(CustomerWithTemplateFieldsSet, CustomerTemplateCode);
@@ -1376,7 +1376,7 @@ codeunit 138012 "O365 Templates Test"
         VendorTemplateCode: Code[10];
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithTemplateFieldsSet(VendorWithTemplateFieldsSet);
         CreateTemplateFromVendor(VendorWithTemplateFieldsSet, VendorTemplateCode);
@@ -1403,7 +1403,7 @@ codeunit 138012 "O365 Templates Test"
         ItemTemplateCode: Code[10];
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateItemWithTemplateFieldsSet(ItemWithTemplateFieldsSet);
         CreateTemplateFromItem(ItemWithTemplateFieldsSet, ItemTemplateCode);
@@ -1429,7 +1429,7 @@ codeunit 138012 "O365 Templates Test"
         CustomerNo: Text;
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateCustomerWithDimensions(Customer);
         CreateTemplateFromCustomer(Customer, CustomerConfigTemplateHeaderCode);
@@ -1458,7 +1458,7 @@ codeunit 138012 "O365 Templates Test"
         VendorNo: Text;
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateVendorWithDimensions(Vendor);
         CreateTemplateFromVendor(Vendor, VendorConfigTemplateHeaderCode);
@@ -1487,7 +1487,7 @@ codeunit 138012 "O365 Templates Test"
         ItemNo: Text;
     begin
         // [FEATURE] [Item] [Dimension]
-        Initialize;
+        Initialize();
 
         CreateItemWithDimensions(Item);
         CreateTemplateFromItem(Item, ItemConfigTemplateHeaderCode);
@@ -1526,7 +1526,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplHeaderCode: Code[10];
     begin
         // [FEATURE] [Dimension]
-        Initialize;
+        Initialize();
 
         CreateDimension(Dimension1);
         CreateDimension(Dimension2);
@@ -1604,7 +1604,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplates: TestPage "Config Templates";
         ConfigTemplateHeaderPage: TestPage "Config. Template Header";
     begin
-        Initialize;
+        Initialize();
 
         ConfigTemplates.OpenView;
         ConfigTemplateHeaderPage.Trap;
@@ -1624,7 +1624,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateHeaderPage: TestPage "Config. Template Header";
     begin
         // [FEATURE] [Dimension]
-        Initialize;
+        Initialize();
 
         CreateDefaultDimension(DefaultDimension);
         CreateTemplateFromDimension(DefaultDimension);
@@ -1651,7 +1651,7 @@ codeunit 138012 "O365 Templates Test"
         TemplateCode: Code[10];
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomer(Customer);
         CreateTemplateFromCustomer(Customer, TemplateCode);
@@ -1675,7 +1675,7 @@ codeunit 138012 "O365 Templates Test"
         OriginalLanguageID: Integer;
     begin
         // [FEATURE] [Language]
-        Initialize;
+        Initialize();
 
         OriginalLanguageID := GlobalLanguage;
         OtherLanguageID := GetDifferentLanguageID;
@@ -1702,7 +1702,7 @@ codeunit 138012 "O365 Templates Test"
         TemplateName: Code[10];
     begin
         // [FEATURE] [Language]
-        Initialize;
+        Initialize();
         CreateTemplateInLanguage(TemplateName, Item, GlobalLanguage);
 
         ConfigTemplateLine.SetRange("Data Template Code", TemplateName);
@@ -1723,7 +1723,7 @@ codeunit 138012 "O365 Templates Test"
         OriginalLanguageID: Integer;
     begin
         // [FEATURE] [Language]
-        Initialize;
+        Initialize();
 
         OriginalLanguageID := GlobalLanguage;
         OtherLanguageID := GetDifferentLanguageID;
@@ -1755,7 +1755,7 @@ codeunit 138012 "O365 Templates Test"
         ItemTemplateCard: TestPage "Item Template Card";
     begin
         // [FEATURE] [Item]
-        Initialize;
+        Initialize();
 
         CreateBlankItem(Item);
         ItemCard.OpenEdit;
@@ -1780,7 +1780,7 @@ codeunit 138012 "O365 Templates Test"
         CustTemplateCard: TestPage "Cust. Template Card";
     begin
         // [FEATURE] [Customer]
-        Initialize;
+        Initialize();
 
         CreateBlankCustomer(Customer);
         CustomerCard.OpenEdit;
@@ -1805,7 +1805,7 @@ codeunit 138012 "O365 Templates Test"
         VendorTemplateCard: TestPage "Vendor Template Card";
     begin
         // [FEATURE] [Vendor]
-        Initialize;
+        Initialize();
 
         CreateBlankVendor(Vendor);
         VendorCard.OpenEdit;
@@ -1827,7 +1827,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [SCENARIO 159448] When a new config. template is created in UI it is enabled by default
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new configuration template
         ConfigTemplateHeader.Init();
@@ -1848,7 +1848,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO 159448] Field "Enabled" in item template card should be synchronized with configuration template
 
         // [GIVEN] Create new item template
-        Initialize;
+        Initialize();
 
         CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Item);
 
@@ -1890,7 +1890,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 382249] Item Category Code and Service Item Group code should be saved in Configuration Templates for Item table after they have been updated on Item Template page.
-        Initialize;
+        Initialize();
         LibraryApplicationArea.DisableApplicationAreaSetup;
 
         // [GIVEN] Item template "T".
@@ -1935,7 +1935,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 159448] Item template should be selected from a list when creating a new item with two item templates enabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two enabled item templates "T1" and "T2"
         CreateConfigTemplateFromItemWithEnabledOption(true);
@@ -1962,7 +1962,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 159448] New item should be created according to template without user confirmation if there is only one enabled item template
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create disabled item template "T1"
         CreateConfigTemplateFromItemWithEnabledOption(false);
@@ -1986,7 +1986,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Item]
         // [SCENARIO 159448] Blank item is created when all item templates are disabled
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two disabled item templates
         CreateConfigTemplateFromItemWithEnabledOption(false);
@@ -2202,7 +2202,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO 159448] Field "Enabled" in customer template card should be synchronized with configuration template
 
         // [GIVEN] Create new customer template
-        Initialize;
+        Initialize();
 
         CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Customer);
 
@@ -2241,7 +2241,7 @@ codeunit 138012 "O365 Templates Test"
         // [FEATURE] [Customer]
         // [SCENARIO 159448] Customer template should be selected from a list when creating a new customer with two customer templates enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two enabled customer templates "T1" and "T2"
         CreateConfigTemplateFromCustomerWithEnabledOption(true);
@@ -2269,7 +2269,7 @@ codeunit 138012 "O365 Templates Test"
         // [FEATURE] [Customer]
         // [SCENARIO 159448] New customer should be created according to template without user confirmation if there is only one enabled customer template
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create disabled customer template "T1"
         CreateConfigTemplateFromCustomerWithEnabledOption(false);
@@ -2294,7 +2294,7 @@ codeunit 138012 "O365 Templates Test"
         // [FEATURE] [Customer]
         // [SCENARIO 159448] Blank customer is created when all customer templates are disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two disabled customer templates
         CreateConfigTemplateFromCustomerWithEnabledOption(false);
@@ -2319,7 +2319,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO 159448] Field "Enabled" in vendor template card should be synchronized with configuration template
 
         // [GIVEN] Create new vendor template
-        Initialize;
+        Initialize();
 
         CreateConfigTemplateHeader(ConfigTemplateHeader, DATABASE::Vendor);
 
@@ -2358,7 +2358,7 @@ codeunit 138012 "O365 Templates Test"
         // [FEATURE] [Vendor]
         // [SCENARIO 159448] Vendor template should be selected from a list when creating a new vendor with two vendor templates enabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two enabled vendor templates "T1" and "T2"
         CreateConfigTemplateFromVendorWithEnabledOption(true);
@@ -2386,7 +2386,7 @@ codeunit 138012 "O365 Templates Test"
         // [FEATURE] [Vendor]
         // [SCENARIO 159448] New vendor should be created according to template without user confirmation if there is only one enabled vendor template
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create disabled vendor template "T1"
         CreateConfigTemplateFromVendorWithEnabledOption(false);
@@ -2411,7 +2411,7 @@ codeunit 138012 "O365 Templates Test"
         // [FEATURE] [Vendor]
         // [SCENARIO 159448] Blank vendor is created when all vendor templates are disabled
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create two disabled vendor templates
         CreateConfigTemplateFromVendorWithEnabledOption(false);
@@ -2434,7 +2434,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT] [Customer]
         // [SCENARIO 382241] Only Enabled=TRUE customer templates are shown when perform "Apply Template" action
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
 
         // [GIVEN] Create disabled customer template "T1"
@@ -2461,7 +2461,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT] [Vendor]
         // [SCENARIO 382241] Only Enabled=TRUE vendor templates are shown when perform "Apply Template" action
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Create disabled vendor template "T1"
@@ -2488,7 +2488,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT] [Item]
         // [SCENARIO 382241] Only Enabled=TRUE item templates are shown when perform "Apply Template" action
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Create disabled item template "T1"
@@ -2642,7 +2642,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Item]
         // [SCENARIO 229503] User sets No. Series on Item Template Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template for blank Item
         CreateBlankItem(Item);
@@ -2678,7 +2678,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Item]
         // [SCENARIO 229503] User clears No. Series value on Item Template Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template "" for blank Item with No. Series = "S"
         CreateBlankItem(Item);
@@ -2716,7 +2716,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Item]
         // [SCENARIO 229503] When new item is created from template, No. and No. Series are assigned from Item Template No. Series
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template for blank Item with No. Series = "S" and next No. = "N"
         CreateBlankItem(Item);
@@ -2748,7 +2748,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Customer]
         // [SCENARIO 229503] User sets No. Series on Customer Template Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template for blank Customer
         CreateBlankCustomer(Customer);
@@ -2784,7 +2784,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Customer]
         // [SCENARIO 229503] User clears No. Series value on Customer Template Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template "" for blank Customer with No. Series = "S"
         CreateBlankCustomer(Customer);
@@ -2822,7 +2822,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Customer]
         // [SCENARIO 229503] When new customer is created from template, No. and No. Series are assigned from Customer Template No. Series
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template for blank Customer with No. Series = "S" and next No. = "N"
         CreateBlankCustomer(Customer);
@@ -2854,7 +2854,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Vendor]
         // [SCENARIO 229503] User sets No. Series on Vendor Template Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template for blank Vendor
         CreateBlankVendor(Vendor);
@@ -2890,7 +2890,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Vendor]
         // [SCENARIO 229503] User clears No. Series value on Vendor Template Card
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template "" for blank Vendor with No. Series = "S"
         CreateBlankVendor(Vendor);
@@ -2928,7 +2928,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [No. Series] [Vendor]
         // [SCENARIO 229503] When new vendor is created from template, No. and No. Series are assigned from Vendor Template No. Series
-        Initialize;
+        Initialize();
 
         // [GIVEN] Configuration Template for blank Vendor with No. Series = "S" and next No. = "N"
         CreateBlankVendor(Vendor);
@@ -2960,7 +2960,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Dimension] [Item]
         // [SCENARIO 252076] Global dimensions codes are populated when insert item from template with these dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item template with both global dimensions codes
         TemplateCode := CreateItemTemplateWithGlobDimFromItem(GlobalDim1ValCode, GlobalDim2ValCode);
@@ -2987,7 +2987,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Dimension] [Item]
         // [SCENARIO 252076] Global dimensions codes are populated when update item from template with these dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blank item
         CreateBlankItem(Item);
@@ -3019,7 +3019,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Dimension] [Customer]
         // [SCENARIO 252076] Global dimensions codes are populated when insert customer from template with these dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer template with both global dimensions codes
         TemplateCode := CreateCustTemplateWithGlobDimFromCustomer(GlobalDim1ValCode, GlobalDim2ValCode);
@@ -3046,7 +3046,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Dimension] [Customer]
         // [SCENARIO 252076] Global dimensions codes are populated when update customer from template with these dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blank customer
         CreateBlankCustomer(Customer);
@@ -3078,7 +3078,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Dimension] [Vendor]
         // [SCENARIO 252076] Global dimensions codes are populated when insert vendor from template with these dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor template with both global dimensions codes
         TemplateCode := CreateVendTemplateWithGlobDimFromVendor(GlobalDim1ValCode, GlobalDim2ValCode);
@@ -3105,7 +3105,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Dimension] [Vendor]
         // [SCENARIO 252076] Global dimensions codes are populated when update vendor from template with these dimensions.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Blank vendor
         CreateBlankVendor(Vendor);
@@ -3133,7 +3133,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of City field for Customer Template page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post code record with City = "CITY", Post Code = "PC", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
@@ -3162,7 +3162,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of Post Code field for Customer Template page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post code record with City = "CITY", Post Code = "PC", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
@@ -3191,7 +3191,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Changing Country/Region Code on Customer Template page leads to clear Country and Post Code fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post code record with City = "CITY", Post Code = "PC", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
@@ -3223,7 +3223,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of City field for Vendor Template page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post code record with City = "CITY", Post Code = "PC", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
@@ -3252,7 +3252,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Post Codes page used for lookup of Post Code field for Vendor Template page
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post code record with City = "CITY", Post Code = "PC", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
@@ -3281,7 +3281,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 291491] Changing Country/Region Code on Vendor Template page leads to clear Country and Post Code fields
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create post code record with City = "CITY", Post Code = "PC", Country/Region Code = "CRC"
         LibraryERM.CreatePostCode(PostCode);
@@ -3316,7 +3316,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309201] Set Related Template Code to Code from another table's template in Config. Template Line OnValidate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
@@ -3347,7 +3347,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309201] Set Related Template Code to Code from another table's template twice in Config. Template Line OnValidate
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
@@ -3383,7 +3383,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309201] Set Related Template Code to Code from another table's template in Config. Template Line OnLookup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
@@ -3422,7 +3422,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 309201] Set Related Template Code to Template's Code in Config. Template Line OnLookup
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template C001
         CreateBlankCustomer(Customer);
@@ -3448,13 +3448,12 @@ codeunit 138012 "O365 Templates Test"
     var
         Customer: array[2] of Record Customer;
         MiniCustomerTemplate: Record "Mini Customer Template";
-        CustomerCard: TestPage "Customer Card";
         CustomerTemplateCode: Code[10];
         CustomerNo: Code[20];
     begin
         // [FEATURE] [Customer] [Default Dimension]
         // [SCENARIO 341169] Customers should have default dimensions from Customer Template after applying the template.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Customer Template with default dimensions.
         CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer();
@@ -3482,13 +3481,12 @@ codeunit 138012 "O365 Templates Test"
     var
         MiniVendorTemplate: Record "Mini Vendor Template";
         Vendor: array[2] of Record Vendor;
-        VendorCard: TestPage "Vendor Card";
         VendorTemplateCode: Code[10];
         VendorNo: Code[20];
     begin
         // [FEATURE] [Vendor] [Default Dimension]
         // [SCENARIO 341169] Vendors should have default dimensions from Vendor Template after applying the template.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Vendor Template with default dimensions.
         VendorTemplateCode := CreateVendTemplateWithDimFromVendor();
@@ -3516,15 +3514,14 @@ codeunit 138012 "O365 Templates Test"
     var
         Item: array[2] of Record Item;
         ItemTemplate: Record "Item Template";
-        ItemCard: TestPage "Item Card";
         ItemTemplateCode: Code[10];
         ItemNo: Code[20];
     begin
         // [FEATURE] [Item] [Default Dimension]
         // [SCENARIO 341169] Item should have default dimensions from Item Template after applying the template.
-        Initialize;
+        Initialize();
 
-        // [GIVEN] Item Template with default dimensions
+        // [GIVEN] Item Template with default dimensions.
         ItemTemplateCode := CreateItemTemplateWithDimFromItem();
         LibraryVariableStorage.Enqueue(ItemTemplateCode);
 
@@ -3541,6 +3538,90 @@ codeunit 138012 "O365 Templates Test"
         ValidateItemVsConfigTemplate(Item[1], ItemTemplateCode);
         Item[2].Find();
         ValidateItemVsConfigTemplate(Item[2], ItemTemplateCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerTemplateWithDimToCustomerWithSameDim()
+    var
+        Customer: Record Customer;
+        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerTemplateCode: Code[10];
+    begin
+        // [FEATURE] [Customer] [Default Dimension]
+        // [SCENARIO 352563] Applying Customer Template with Default Dimension overwrites Customer's Default Dimension values.
+        Initialize();
+
+        // [GIVEN] Customer Template with default dimensions.
+        CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer();
+        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
+        
+        // [GIVEN] Customer with different values for default dimensions of template.
+        Customer.GET(GlobalTemplateName);
+        ChangeDefaultDimensionsValues(DATABASE::Customer, Customer."No.");
+
+        // [WHEN] Applying the template.
+        MiniCustomerTemplate.UpdateCustomerFromTemplate(Customer);
+
+        // [THEN] Customer has default dimension values from template.
+        ValidateCustomerVsConfigTemplate(Customer, CustomerTemplateCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionPageHandler,VendorTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyVendorTemplateWithDimToVendorWithSameDim()
+    var
+        MiniVendorTemplate: Record "Mini Vendor Template";
+        Vendor: Record Vendor;
+        VendorTemplateCode: Code[10];
+    begin
+        // [FEATURE] [Vendor] [Default Dimension]
+        // [SCENARIO 352563] Applying Vendor Template with Default Dimension overwrites Vendor's Default Dimension values.
+        Initialize();
+
+        // [GIVEN] Vendor Template with default dimensions.
+        VendorTemplateCode := CreateVendTemplateWithDimFromVendor();
+        LibraryVariableStorage.Enqueue(VendorTemplateCode);
+
+        // [GIVEN] Vendor with different values for default dimensions of template.
+        Vendor.GET(GlobalTemplateName);
+        ChangeDefaultDimensionsValues(DATABASE::Vendor, Vendor."No.");
+
+        // [WHEN] Applying the template.
+        MiniVendorTemplate.UpdateVendorFromTemplate(Vendor);
+
+        // [THEN] Vendors has default dimension values from template.
+        ValidateVendorVsConfigTemplate(Vendor, VendorTemplateCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionPageHandler,ItemTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyItemTemplateWithDimToItemWithSameDim()
+    var
+        Item: Record Item;
+        ItemTemplate: Record "Item Template";
+        ItemTemplateCode: Code[10];
+    begin
+        // [FEATURE] [Item] [Default Dimension]
+        // [SCENARIO 352563] Applying Item Template with Default Dimension overwrites Item's Default Dimension values.
+        Initialize();
+
+        // [GIVEN] Item Template with default dimensions.
+        ItemTemplateCode := CreateItemTemplateWithDimFromItem();
+        LibraryVariableStorage.Enqueue(ItemTemplateCode);
+
+        // [GIVEN] Item with different values for default dimensions of template.
+        Item.GET(GlobalTemplateName);
+        ChangeDefaultDimensionsValues(DATABASE::Item, Item."No.");
+
+        // [WHEN] Applying the template.
+        ItemTemplate.UpdateItemFromTemplate(Item);
+
+        // [THEN] Items has default dimensions values from template.
+        ValidateItemVsConfigTemplate(Item, ItemTemplateCode);
     end;
 
     local procedure Initialize()
@@ -3582,6 +3663,23 @@ codeunit 138012 "O365 Templates Test"
         isInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
+    end;
+
+    local procedure ChangeDefaultDimensionsValues(TableID : Integer; No : Code[20])
+    var
+        DefaultDimension: Record "Default Dimension";
+        NewDimValCode: Code[20];
+    begin
+        with DefaultDimension do begin
+            SetRange("Table ID",TableID);
+            SetRange("No.",No);
+            if FindSet() then
+                repeat
+                    NewDimValCode := LibraryDimension.FindDifferentDimensionValue("Dimension Code", "Dimension Value Code");
+                    Validate("Dimension Value Code", NewDimValCode);
+                    Modify(true);
+                until Next() = 0;
+        end;
     end;
 
     local procedure ClearTable(TableID: Integer)

@@ -926,7 +926,7 @@ codeunit 5802 "Inventory Posting To G/L"
         PostInvtPostBuf(ValueEntry, DocNo, '', Desc, true);
     end;
 
-    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[50]; PostPerPostGrp: Boolean)
+    local procedure PostInvtPostBuf(var ValueEntry: Record "Value Entry"; DocNo: Code[20]; ExternalDocNo: Code[35]; Desc: Text[100]; PostPerPostGrp: Boolean)
     var
         GenJnlLine: Record "Gen. Journal Line";
         FAInsertLedgEntry: Codeunit "FA Insert Ledger Entry";

@@ -117,7 +117,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     begin
         // 1. Setup: Create a Dimension.
         Initialize;
-        Dimension.Init;
+        Dimension.Init();
 
         // 2. Exercise: Change the dimension with code Period.
         asserterror Dimension.Validate(Code, Code);
@@ -166,7 +166,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find the Global Dimension 1 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
 
         // 2. Exercise: Rename the Global Dimension 1 Code.
@@ -178,7 +178,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Dimension.Rename(NewDimensionCode);
 
         // 3. Verify: Verify the Global Dimension 1 code in General Ledger Setup with new created code.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Global Dimension 1 Code", NewDimensionCode);
     end;
 
@@ -194,7 +194,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find the Shortcut Dimension 3 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code");
 
         // 2. Exercise: Rename the Shortcut Dimension 3 Code.
@@ -206,7 +206,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Dimension.Rename(NewDimensionCode);
 
         // 3. Verify: Verify the Shortcut Dimension 3 code in General Ledger Setup with new created code.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.TestField("Shortcut Dimension 3 Code", NewDimensionCode);
     end;
 
@@ -314,7 +314,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find the Shortcut Dimension 3 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Shortcut Dimension 3 Code");
 
         // 2. Exercise: Delete the Dimension.
@@ -353,7 +353,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         // 1. Setup: Find a Dimension with Global Dimension 1 code.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Dimension.Get(GeneralLedgerSetup."Global Dimension 1 Code");
 
         // 2. Exercise: Delete the created Dimension.
@@ -1212,7 +1212,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         Initialize;
 
         // [GIVEN] Customer with Global Dimension 1 Code = "G".
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         CustomerNo := CreateCustomerWithDimension(DimensionValue.Code);
 
@@ -1364,7 +1364,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // Check that 'FindRec' function in 'Item Analysis Management' returns right period in DimCodeBuf
 
         // Setup
-        ItemAnalysisView.Init;
+        ItemAnalysisView.Init();
         PeriodInitialized := true;
         DimOption := DimOption::Period;
         PeriodType := PeriodType::Month;
@@ -1477,7 +1477,7 @@ codeunit 134480 "ERM Dimension General Part 2"
 
         CreateGeneralLineWithGLAccount(GenJournalLine);
         GenJournalLine.Validate("Posting Date", FindLastFYClosingDate);
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryVariableStorage.Enqueue(0);
 
         AnalysisViewCode := CreateAnalysisViewWithDimension(GenJournalLine."Bal. Account No.");
@@ -1600,10 +1600,9 @@ codeunit 134480 "ERM Dimension General Part 2"
         LibraryDimension.CreateDimensionValue(DimensionValue2, AnalysisView."Dimension 1 Code");
 
         // [GIVEN] Dimension Value with type End-Total and Totaling = "D1".."D2"
-        LibraryDimension.CreateDimensionValue(DimensionValueTotal, AnalysisView."Dimension 1 Code");
-        DimensionValueTotal.Validate("Dimension Value Type", DimensionValueTotal."Dimension Value Type"::"End-Total");
-        DimensionValueTotal.Validate(Totaling, StrSubstNo('%1..%2', DimensionValue1.Code, DimensionValue2.Code));
-        DimensionValueTotal.Modify(true);
+        CreateDimensionValueWithRangeTotaling(
+            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::"End-Total", 
+            DimensionValue1.Code, DimensionValue2.Code);
 
         // [GIVEN] Posted Entries for G/L Account = "G" with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension
         TotalAmount :=
@@ -2097,7 +2096,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         // [GIVEN] Dimension "TEST & TEST" with value "TEST1"
         DimensionCode := LibraryUtility.GenerateRandomCode(Dimension.FieldNo(Code), DATABASE::Dimension);
         DimensionCode[1 + LibraryRandom.RandInt(StrLen(DimensionCode) - 2)] := '&';
-        Dimension.Init;
+        Dimension.Init();
         Dimension.Validate(Code, DimensionCode);
         Dimension.Insert(true);
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
@@ -2144,7 +2143,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         DimCode := CreateDimensionWithMapToICDimensionCode(ICDimension.Code);
 
         // [GIVEN] New Dimension Value
-        DimensionValue.Init;
+        DimensionValue.Init();
 
         // [WHEN] Validate "Dimension Code" = "D" in Dimension Value
         DimensionValue.Validate("Dimension Code", DimCode);
@@ -2228,7 +2227,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ICD := CreateICDimensionWithMapToDimensionCode(Dimension.Code);
 
         // [GIVEN] New IC Dimension Value
-        ICDimensionValue.Init;
+        ICDimensionValue.Init();
 
         // [WHEN] Validate "Dimension Code" = "ICD" in IC Dimension Value
         ICDimensionValue.Validate("Dimension Code", ICD);
@@ -2293,6 +2292,93 @@ codeunit 134480 "ERM Dimension General Part 2"
         ICDimensionValue.TestField("Map-to Dimension Value Code", DimVal);
     end;
 
+    [Test]
+    [HandlerFunctions('AnalysisByDimensionMatrixPageHandler')]
+    [Scope('OnPrem')]
+    procedure AnalysisByDimensionMatrixFilterMultipleDimTotaling()
+    var
+        AnalysisView: Record "Analysis View";
+        DimensionValue: array[3] of Record "Dimension Value";
+        DimensionValueTotal: Record "Dimension Value";
+        GLAccountNo: Code[20];
+        TotalAmount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [Analysis by Dimensions] [UI]
+        // [SCENARIO 351505] Filter Dimension Value with filter using "|" and dimensions with Totaling in the Analysis by Dimension Matrix page
+        Initialize();
+
+        // [GIVEN] Analysis View for G/L Account = "G" and "Dimension 1 Code" = new Dimension "Dim"
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+        AnalysisView.Get(
+          CreateAnalysisViewWithCertainDimension(GLAccountNo, DimensionCategory::"Dimension 1"));
+
+        // [GIVEN] Dimension Values "D1", "D2", "D3" Dimension "Dim"
+        // [GIVEN] Posted Entries for G/L Account = "G" with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension, "X3" for "D3" dimension
+        for i := 1 to ArrayLen(DimensionValue) do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], AnalysisView."Dimension 1 Code");
+            TotalAmount += CreateAndPostJournalLineWithDimension(DimensionValue[i], GLAccountNo, WorkDate);
+        end;
+        LibraryVariableStorage.Enqueue(TotalAmount);
+
+        // [GIVEN] Dimension Value "DT" with type Total and Totaling = "D1".."D2"
+        CreateDimensionValueWithRangeTotaling(
+            DimensionValueTotal, AnalysisView."Dimension 1 Code", DimensionValueTotal."Dimension Value Type"::Total, 
+            DimensionValue[1].Code, DimensionValue[2].Code);
+
+        // [WHEN] Open Analysis by Dimension Matrix page using dimension filter "DT|D3"
+        OpenAnalysisByDimensionMatrixWithLineDimCode(
+          AnalysisView.Code, false, false, RoundingFactorOption, Format(LineDimOptionRef::"G/L Account"),
+          ClosingDateOptions::Include, ShowAmounts::"Actual Amounts", StrSubstNo('%1|%2', DimensionValueTotal.Code, DimensionValue[3].Code));
+
+        // [THEN] Analysis By Dimension Matrix Amount = Total Amount = "X1" + "X2" + "X3"
+        // Verification is done in AnalysisByDimensionMatrixPageHandler
+    end;
+
+    [Test]
+    [HandlerFunctions('GLBalancebyDimMatrixPageHandler')]
+    [Scope('OnPrem')]
+    procedure OpenGLBalancebyDimMatrixFilterMultipleDimTotaling()
+    var
+        DimensionValue: array[3] of Record "Dimension Value";
+        DimensionValueTotal: Record "Dimension Value";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccountCard: TestPage "G/L Account Card";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        GlobalDim1Code: Code[20];
+        GLAccountNo: Code[20];
+        TotalAmount: Decimal;
+        i: Integer;
+    begin
+        // [FEATURE] [GL Balance By Dimension] [UI]
+        // [SCENARIO 351505] Filter Dimension Value with filter using "|" and dimensions with Totaling in the Balance by Dim. Matrix page
+        Initialize();
+
+        // [GIVEN] G/L Account
+        GLAccountNo := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Dimension Values "D1", "D2", "D3" Dimension "Dim"
+        // [GIVEN] Posted Entries for G/L Account with Amounts = "X1" for "D1" dimension, "X2" for "D2" dimension, "X3" for "D3" dimension
+        GeneralLedgerSetup.Get();
+        GlobalDim1Code := GeneralLedgerSetup."Global Dimension 1 Code";
+        for i := 1 to ArrayLen(DimensionValue) do begin
+            LibraryDimension.CreateDimensionValue(DimensionValue[i], GlobalDim1Code);
+            TotalAmount += CreateAndPostJournalLineWithDimension(DimensionValue[i], GLAccountNo, WorkDate);
+        end;
+        LibraryVariableStorage.Enqueue(TotalAmount);
+
+        // [GIVEN] Dimension Value "DT" with type Total and Totaling = "D1".."D2"
+        CreateDimensionValueWithRangeTotaling(
+            DimensionValueTotal, GlobalDim1Code, DimensionValueTotal."Dimension Value Type"::Total, 
+            DimensionValue[1].Code, DimensionValue[2].Code);
+
+        // [WHEN] Open Balance by Dim. Matrix page using dimension filter "DT|D3"
+        OpenGLBalancebyDimMatrix(GLAccountNo, GlobalDim1Code, StrSubstNo('%1|%2', DimensionValueTotal.Code, DimensionValue[3].Code));
+
+        // [THEN] Open Balance by Dim. Matrix Amount = Total Amount = "X1" + "X2" + "X3"
+        // Verification is done in GLBalancebyDimMatrixPageHandler
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2309,8 +2395,16 @@ codeunit 134480 "ERM Dimension General Part 2"
         GLBudgetFilterControlId := 6;
         CostBudgetFilterControlId := 9;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension General Part 2");
+    end;
+
+    local procedure CreateDimensionValueWithRangeTotaling(var DimValTotal: Record "Dimension Value"; DimCode: Code[20]; DimValType: Option; DimValFirstCode: Code[20]; DimValLastCode: Code[20])
+    begin
+        LibraryDimension.CreateDimensionValue(DimValTotal, DimCode);
+        DimValTotal.Validate("Dimension Value Type", DimValType);
+        DimValTotal.Validate(Totaling, StrSubstNo('%1..%2', DimValFirstCode, DimValLastCode));
+        DimValTotal.Modify(true);
     end;
 
     local procedure CreateDimensionWithValue(var DimensionCode: Code[20]; var DimensionValueCode: Code[20])
@@ -2435,7 +2529,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ItemNo: Code[20];
     begin
         // Setup: Create Item Analysis View with Update Posting TRUE and Sales Invoice.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CreateItemAnalysisViewWithItemFilterAndUpdateOnPostingSetup(
           ItemAnalysisView, false, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
@@ -2749,7 +2843,7 @@ codeunit 134480 "ERM Dimension General Part 2"
     var
         ItemAnalysisViewEntry: Record "Item Analysis View Entry";
     begin
-        ItemAnalysisViewEntry.Init;
+        ItemAnalysisViewEntry.Init();
         ItemAnalysisViewEntry."Analysis Area" := ItemAnalysisArea;
         ItemAnalysisViewEntry."Analysis View Code" := ItemAnalysisViewCode;
         ItemAnalysisViewEntry."Item No." := ItemNo;
@@ -2758,7 +2852,7 @@ codeunit 134480 "ERM Dimension General Part 2"
         ItemAnalysisViewEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(ItemAnalysisViewEntry, ItemAnalysisViewEntry.FieldNo("Entry No."));
         ItemAnalysisViewEntry."Sales Amount (Actual)" := LibraryRandom.RandDec(100, 2);
-        ItemAnalysisViewEntry.Insert;
+        ItemAnalysisViewEntry.Insert();
         exit(ItemAnalysisViewEntry."Sales Amount (Actual)");
     end;
 
@@ -2894,6 +2988,25 @@ codeunit 134480 "ERM Dimension General Part 2"
         AnalysisViewListPurchase.OpenEdit;
         AnalysisViewListPurchase.FILTER.SetFilter(Code, AnalysisViewCode);
         AnalysisViewListPurchase.EditAnalysisView.Invoke;
+    end;
+
+    local procedure OpenGLBalancebyDimMatrix(GLAccountNo: Code[20]; ColumnDimCode: Code[20]; Dim1FilterText: Text)
+    var
+        GLAccountCard: TestPage "G/L Account Card";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+    begin
+        GLAccountCard.OpenView();
+        GLAccountCard.FILTER.SetFilter("No.", GLAccountNo);
+        GLBalancebyDimension.Trap();
+        GLAccountCard."G/L Balance by &Dimension".Invoke();
+        GLBalancebyDimension.LineDimCode.SetValue('G/L Account');
+        GLBalancebyDimension.AmountField.SetValue('Amount');
+        GLBalancebyDimension.GLAccFilter.SetValue(GLAccountNo);
+        GLBalancebyDimension.ColumnDimCode.SetValue(ColumnDimCode);
+        GLBalancebyDimension.DateFilter.SetValue('');
+        GLBalancebyDimension.RoundingFactor.SetValue('None');
+        GLBalancebyDimension.Dim1Filter.SetValue(Dim1FilterText);
+        GLBalancebyDimension.ShowMatrix.Invoke();
     end;
 
     local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")

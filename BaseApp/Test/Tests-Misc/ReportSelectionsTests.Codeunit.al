@@ -35,6 +35,7 @@ codeunit 134421 "Report Selections Tests"
         ReportIDMustHaveValueErr: Label 'Report ID must have a value';
         NoOutputErr: Label 'No data exists for the specified report filters.';
         EmailAddressErr: Label 'Destination email address does not match expected address.';
+        StatementTitlePdfTxt: Label 'Statement for %1 as of %2.pdf';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -937,6 +938,63 @@ codeunit 134421 "Report Selections Tests"
         Assert.AreEqual(SalesHeader."Sell-to E-Mail", EmailAddress, EmailAddressErr);
     end;
 
+    [Test]
+    [HandlerFunctions('StatementOKRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure PreviewCustomerStatement_WebClient()
+    var
+        ReportSelections: Record "Report Selections";
+        CustomReportSelection: Record "Custom Report Selection";
+        CustomReportLayout: Record "Custom Report Layout";
+        Customer: Record Customer;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        InteractionLogEntry: Record "Interaction Log Entry";
+        TestClientTypeSubscriber: Codeunit "Test Client Type Subscriber";
+        LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
+        LibraryFileMgtHandler: Codeunit "Library - File Mgt Handler";
+        CustomerCard: TestPage "Customer Card";
+        ReportOutput: Option Print,Preview,PDF,Email,Excel,XML;
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Statement]
+        // [SCENARIO 300470] Stan gets pdf file when he calls Statement report with "Preview" output type in web client.
+        Initialize();
+
+        // [GIVEN] Report Selection where Usage = "Customer Statement", Report ID = 116 (Statement)
+        CreateAndPostSalesInvoice(SalesInvoiceHeader);
+        CustomerNo := SalesInvoiceHeader."Sell-to Customer No.";
+
+        InsertReportSelections(
+          ReportSelections, GetCustomerStatementReportID, false, false, '', ReportSelections.Usage::"C.Statement");
+
+        Commit();
+
+        // [WHEN] Run Statement report for the Customer "C" with "Report Output" = Preview in Web Client context.
+        TestClientTypeSubscriber.SetClientType(ClientType::Web);
+        BindSubscription(TestClientTypeSubscriber);
+
+        LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber();
+        BindSubscription(LibraryTempNVBufferHandler);
+        LibraryFileMgtHandler.SetDownloadSubscriberActivated(true);
+        BindSubscription(LibraryFileMgtHandler);
+
+        LibraryVariableStorage.Enqueue(ReportOutput::Preview);
+        LibraryVariableStorage.Enqueue(CustomerNo);
+        CustomerCard.OpenEdit();
+        CustomerCard."Report Statement".Invoke();
+
+        // [THEN] "Last Statement No." for Customer "C" increases by 1.
+        // [THEN] Only one Interaction Log Entry is inserted.
+        Customer.Get(CustomerNo);
+        Customer.TestField("Last Statement No.", 1);
+        FindInteractionLogEntriesByCustomerNo(InteractionLogEntry, CustomerNo, InteractionLogEntry."Document Type"::"Sales Stmnt.");
+        Assert.RecordCount(InteractionLogEntry, 1);
+
+        // [THEN] Pdf file generated as preview file
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer));
+        LibraryTempNVBufferHandler.AssertQueueEmpty();
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -945,33 +1003,33 @@ codeunit 134421 "Report Selections Tests"
         InventorySetup: Record "Inventory Setup";
         ReportLayoutSelection: Record "Report Layout Selection";
     begin
-        BindActiveDirectoryMockEvents;
-        LibraryVariableStorage.AssertEmpty;
-        CustomReportSelection.DeleteAll;
-        ReportSelections.DeleteAll;
-        ReportLayoutSelection.DeleteAll;
-        CreateDefaultReportSelection;
-        LibrarySetupStorage.Restore;
+        BindActiveDirectoryMockEvents();
+        LibraryVariableStorage.AssertEmpty();
+        CustomReportSelection.DeleteAll();
+        ReportSelections.DeleteAll();
+        ReportLayoutSelection.DeleteAll();
+        CreateDefaultReportSelection();
+        LibrarySetupStorage.Restore();
 
         if Initialized then
             exit;
 
         Initialized := true;
 
-        SetupInvoiceReportLayoutSelection;
+        SetupInvoiceReportLayoutSelection();
         CustomMessageTypeTxt := Format(DummyEmailItem."Message Type"::"Custom Message");
         FromEmailBodyTemplateTxt := Format(DummyEmailItem."Message Type"::"From Email Body Template");
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        LibraryWorkflow.SetUpSMTPEmailSetup;
+        LibrarySetupStorage.SaveSalesSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibraryWorkflow.SetUpSMTPEmailSetup();
 
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -1314,6 +1372,11 @@ codeunit 134421 "Report Selections Tests"
             exit;
         BindSubscription(ActiveDirectoryMockEvents);
         ActiveDirectoryMockEvents.Enable;
+    end;
+
+    local procedure GetStatementTitlePdf(Customer: Record Customer): Text
+    begin
+        exit(StrSubstNo(StatementTitlePdfTxt, Customer.Name, Format(WorkDate, 0, 9)));
     end;
 
     local procedure VerifySendEmailPage(ExpectedType: Text; ExpectedBodyText: Text; ExpectedAttachmentName: Text)
