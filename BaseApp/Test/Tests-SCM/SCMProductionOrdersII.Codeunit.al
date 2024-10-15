@@ -62,6 +62,7 @@ codeunit 137072 "SCM Production Orders II"
         ExpectedQuantityErr: Label 'Expected Quantity is wrong.';
         ConfirmStatusFinishTxt: Label 'has not been finished. Some output is still missing. Do you still want to finish the order?';
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
+        DateConflictInReservErr: Label 'The change leads to a date conflict with existing reservations.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3153,6 +3154,133 @@ codeunit 137072 "SCM Production Orders II"
             VerifyOutputOnCapLedgerEntries(FinishedProdOrderNo, OperationNo[I], ProdOrderLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('CreateOrderFromSalesModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RoutingCannotBeShiftedForwardWhenThisLeadsToDateConflictInReservation()
+    var
+        ChildItem: Record Item;
+        ParentItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+    begin
+        // [FEATURE] [Make-to-Order] [Routing] [Reservation]
+        // [SCENARIO 375425] Routing cannot be shifted ahead on low-level item in Make-to-Order production order if this leads to date conflict in reservation of the parent item.
+        Initialize();
+
+        // [GIVEN] Make-to-order production chain - finished item "A" and its component "B".
+        CreateProductionItem(ChildItem, '');
+        ChildItem.Validate("Manufacturing Policy", ChildItem."Manufacturing Policy"::"Make-to-Order");
+        ChildItem.Modify(true);
+        CreateRoutingAndUpdateItem(ChildItem);
+
+        CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem);
+        CreateProductionItem(ParentItem, ProductionBOMHeader."No.");
+        ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
+        ParentItem.Modify(true);
+
+        // [GIVEN] Sales order for 10 pcs of item "A".
+        // [GIVEN] Create firm planned production order from the sales order.
+        CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", LibraryRandom.RandInt(10), '');
+        LibraryVariableStorage.Enqueue('Prod. Order');
+        LibraryPlanning.CreateProdOrderUsingPlanning(
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", ParentItem."No.");
+
+        // [GIVEN] Ensure that the sales line is now reserved.
+        SalesLine.CalcFields("Reserved Quantity");
+        SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
+
+        FindProductionOrderLine(ProdOrderLine, ChildItem."No.");
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
+
+        // [WHEN] Move Starting Date 10 days ahead on prod. order routing line for component item "B".
+        LibraryVariableStorage.Enqueue(TimeShiftedOnParentLineMsg);
+        asserterror ProdOrderRoutingLine.Validate(
+            "Starting Date", LibraryRandom.RandDateFromInRange(ProdOrderRoutingLine."Starting Date", 10, 20));
+
+        // [THEN] The "Date conflict during reservation..." error message is thrown.
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(DateConflictInReservErr);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateOrderFromSalesModalPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure RoutingCanBeShiftedForwardWhenThisDoesNotLeadToDateConflictInReservation()
+    var
+        ChildItem: Record Item;
+        ParentItem: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        // [FEATURE] [Make-to-Order] [Routing] [Reservation]
+        // [SCENARIO 375425] Routing be shifted ahead on low-level item in Make-to-Order production order if this does not lead to date conflict in reservation of the parent item.
+        Initialize();
+
+        // [GIVEN] Make-to-order production chain - finished item "A" and its component "B".
+        CreateProductionItem(ChildItem, '');
+        ChildItem.Validate("Manufacturing Policy", ChildItem."Manufacturing Policy"::"Make-to-Order");
+        ChildItem.Modify(true);
+        CreateRoutingAndUpdateItem(ChildItem);
+
+        CreateCertifiedProductionBOM(ProductionBOMHeader, ChildItem);
+        CreateProductionItem(ParentItem, ProductionBOMHeader."No.");
+        ParentItem.Validate("Manufacturing Policy", ParentItem."Manufacturing Policy"::"Make-to-Order");
+        ParentItem.Modify(true);
+
+        // [GIVEN] Sales order for 10 pcs of item "A".
+        // [GIVEN] Create firm planned production order from the sales order.
+        CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", LibraryRandom.RandInt(10), '');
+        LibraryVariableStorage.Enqueue('Prod. Order');
+        LibraryPlanning.CreateProdOrderUsingPlanning(
+          ProductionOrder, ProductionOrder.Status::"Firm Planned", SalesHeader."No.", ParentItem."No.");
+
+        // [GIVEN] Move "Shipment Date" on the sales order line 30 days adead.
+        SalesLine.Find();
+        SalesLine.Validate("Shipment Date", LibraryRandom.RandDateFromInRange(SalesLine."Shipment Date", 30, 40));
+        SalesLine.Modify(true);
+
+        FindProductionOrderLine(ProdOrderLine, ChildItem."No.");
+        FindProdOrderRoutingLine(ProdOrderRoutingLine, ProdOrderLine);
+
+        // [WHEN] Move Starting Date 10 days forward on prod. order routing line for component item "B".
+        LibraryVariableStorage.Enqueue(TimeShiftedOnParentLineMsg);
+        ProdOrderRoutingLine.Validate(
+          "Starting Date", LibraryRandom.RandDateFromInRange(ProdOrderRoutingLine."Starting Date", 10, 20));
+        ProdOrderRoutingLine.Modify(true);
+
+        // [THEN] No "Date conflict during reservation..." error message is thrown.
+        // [THEN] "Shipment Date" on reservation entries for low-level item is moved 10 days ahead.
+        ProdOrderLine.Find();
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, false);
+        ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Shipment Date", ProdOrderRoutingLine."Ending Date");
+        ReservationEntry.TestField("Shipment Date", ProdOrderLine."Due Date");
+
+        // [THEN] "Shipment Date" on reservation entry for top-level item is moved 30 days ahead.
+        FindProductionOrderLine(ProdOrderLine, ParentItem."No.");
+        ReservationEntry.SetSourceFilter(
+          DATABASE::"Prod. Order Line", ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", 0, false);
+        ReservationEntry.SetSourceFilter('', ProdOrderLine."Line No.");
+        ReservationEntry.FindFirst();
+        ReservationEntry.TestField("Shipment Date", SalesLine."Shipment Date");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -4757,6 +4885,13 @@ codeunit 137072 "SCM Production Orders II"
         LibraryVariableStorage.Enqueue(CancelReservationTxt);
         ReservationEntries.CancelReservation.Invoke;
         ReservationEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateOrderFromSalesModalPageHandler(var CreateOrderFromSales: TestPage "Create Order From Sales")
+    begin
+        CreateOrderFromSales.Yes.Invoke();
     end;
 
     [MessageHandler]

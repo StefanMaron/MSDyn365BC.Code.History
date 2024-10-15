@@ -25,9 +25,22 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         UpgradeFormBoxesScheduledMsg: Label 'A job queue entry has been created.\\Make sure Earliest Start Date/Time field in the Job Queue Entry Card window is correct, and then choose the Set Status to Ready action to schedule a background job.';
         FormBoxesUpgradedMsg: Label 'The 1099 form boxes are successfully updated.';
         ConfirmUpgradeNowQst: Label 'The update process can take a while and block other users activities. Do you want to start the update now?';
-        NotificationMsg: Label 'The list of 1099 form boxes is not up to date.';
+        NotificationMsg: Label 'The list of 1099 form boxes is not up to date for the year %1.';
         ConfirmIRS1099CodeUpdateQst: Label 'One or more entries have been posted with IRS 1099 code %1.\\Do you want to continue and update all the data associated with this vendor and the existing IRS 1099 code with the new code, %2?', Comment = '%1 - old code;%2 - new code';
         BlockIfUpgradeNeededErr: Label 'You must update the form boxes in the 1099 Forms-Boxes window before you can run this report.';
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AllIRS1099CodesUpToDateInDemodata()
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [DEMO]
+        // [SCENARIO 374401] All IRS 1099 codes required for upgrade are up to date in the demodata
+
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2019);
+        IRS1099FormBox.Get(GetIRS1099UpgradeCode2020);
+    end;
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -47,17 +60,45 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     [HandlerFunctions('SendNotificationHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure NotificationThrownOnIRS1099FormBoxPage()
+    procedure NotificationUpgrade2019ThrownOnIRS1099FormBoxPage()
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
     begin
-        // [FEATURE] [UI]
-        // [SCENARIO 283821] Notification of upgrade thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "DIV-07" does not exist
+        // [FEATURE] [UI] [DEMO]
+        // [SCENARIO 283821] Notification of upgrade 2019 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "DIV-07" does not exist
 
-        Initialize;
-        IRS1099FormBoxPage.OpenView;
-        NotificationLifecycleMgt.RecallAllNotifications;
+        Initialize();
+        LibraryVariableStorage.Enqueue('2019');
+        IRS1099FormBoxPage.OpenView();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('SendNotificationHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure NotificationUpgrade2020NotShowOnIRS1099FormBoxPage()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        IRS1099FormBoxPage: TestPage "IRS 1099 Form-Box";
+        IRSCode: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 374401] Notification of upgrade 200 thrown on opening IRS 1099 Form Box Page if code IRS 1099 code "NEC-01" does not exist
+
+        Initialize();
+        IRSCode := GetIRS1099UpgradeCode2019();
+        InsertIRS1099Code(IRSCode);
+
+        LibraryVariableStorage.Enqueue('2020');
+        IRS1099FormBoxPage.OpenView();
+        IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
+        IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
+        RemoveIRS1099UpgradeCodeYear2019();
+        NotificationLifecycleMgt.RecallAllNotifications();
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -69,17 +110,20 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         IRSCode: Code[10];
     begin
         // [FEATURE] [UI]
-        // [SCENARIO 283821] Notification of upgrade not shown on opening IRS 1099 Form Box Page if code IRS 1099 code "DIV-07" exists
+        // [SCENARIO 283821] Notification of upgrade not shown on opening IRS 1099 Form Box Page if IRS 1099 codes "DIV-07" and "NEC-01" are exist
 
-        Initialize;
-        IRSCode := GetIRS1099UpgradeCode;
+        Initialize();
+        IRSCode := GetIRS1099UpgradeCode2019();
+        InsertIRS1099Code(IRSCode);
+        // TFS ID 374401: Support of US1099 for year 2020.
+        IRSCode := GetIRS1099UpgradeCode2020();
         InsertIRS1099Code(IRSCode);
 
-        IRS1099FormBoxPage.OpenView;
+        IRS1099FormBoxPage.OpenView();
         IRS1099FormBoxPage.FILTER.SetFilter(Code, IRSCode);
         IRS1099FormBoxPage.Code.AssertEquals(IRSCode);
-
-        RemoveIRS1099UpgradeCode;
+        RemoveIRS1099UpgradeCodeYear2019();
+        RemoveIRS1099UpgradeCodeYear2020();
     end;
 
     [Test]
@@ -95,7 +139,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 283821] Job Queue Entry Card creates and opens when it's possible to create task during an upgrade
 
         Initialize;
-        RemoveIRS1099UpgradeCode;
+        RemoveIRS1099UpgradeCodeYear2019();
 
         // [GIVEN] TASKSCHEDULER.CANCREATETASK is TRUE
         BindSubscription(IRS1099UpgradeTest);
@@ -122,7 +166,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 283821] An upgrade performs after the confirmation when it is not possible to create task during an upgrade
 
         Initialize;
-        RemoveIRS1099UpgradeCode;
+        RemoveIRS1099UpgradeCodeYear2019();
 
         // [GIVEN] TASKSCHEDULER.CANCREATETASK is FALSE
         LibraryVariableStorage.Enqueue(ConfirmUpgradeNowQst);
@@ -141,7 +185,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         LibraryVariableStorage.AssertEmpty;
 
         // Tear down
-        RemoveIRS1099UpgradeCode;
+        RemoveIRS1099UpgradeCodeYear2019();
     end;
 
     [Test]
@@ -234,7 +278,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 287814] "Vendor 1099 Div" report is blocked if upgrade needed
 
         Initialize;
-        RemoveIRS1099UpgradeCode;
+        RemoveIRS1099UpgradeCodeYear2019();
         asserterror Vendor1099Div.UseRequestPage(false);
         Assert.ExpectedError(BlockIfUpgradeNeededErr);
     end;
@@ -250,7 +294,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 287814] "Vendor 1099 Magnetic Media" report is blocked if upgrade needed
 
         Initialize;
-        RemoveIRS1099UpgradeCode;
+        RemoveIRS1099UpgradeCodeYear2019();
         asserterror Vendor1099MagneticMedia.UseRequestPage(false);
         Assert.ExpectedError(BlockIfUpgradeNeededErr);
     end;
@@ -270,7 +314,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 287814] "Vendor 1099 Div" report prints "DIV-05" code
 
         Initialize;
-        IRSCode := GetIRS1099UpgradeCode;
+        IRSCode := GetIRS1099UpgradeCode2019();
         InsertIRS1099Code(IRSCode);
 
         // [GIVEN] Payment applied to invoice with "IRS 1099 Code" = "DIV-05" and "IRS Amount" = 100
@@ -305,7 +349,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         // [SCENARIO 287814] "Vendor 1099 Magnetic Media" report exports "DIV-05" code to file
 
         Initialize;
-        IRSCode := GetIRS1099UpgradeCode;
+        IRSCode := GetIRS1099UpgradeCode2019();
         InsertIRS1099Code(IRSCode);
 
         // [GIVEN] Payment applied to invoice with "IRS 1099 Code" = "DIV-05" and "IRS Amount" = 100
@@ -369,11 +413,81 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         GenJournalLineBalAccount.TestField("IRS 1099 Code", '');
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2019RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Misc1099ForYear2019RepShownFromVendPageWhenNECCodeDoesNoExist()
+    var
+        VendorList: TestPage "Vendor List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 374401] A "Vendor 1099 Misc 2019" report shown from the Vendor List page when "NEC-01" does not exist in the database
+
+        Initialize();
+        RemoveIRS1099UpgradeCodeYear2019();
+        Commit();
+        VendorList.OpenEdit();
+        VendorList."Vendor 1099 Misc".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2020RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Misc1099ForYear2020RepShownFromVendPageWhenNECCodeExists()
+    var
+        VendorList: TestPage "Vendor List";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 374401] A "Vendor 1099 Misc 2019" report shown from the Vendor List page when "NEC-01" code exists in the database
+
+        Initialize();
+        RemoveIRS1099UpgradeCodeYear2020();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020());
+        Commit();
+        VendorList.OpenEdit();
+        VendorList."Vendor 1099 Misc".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2019RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Misc1099ForYear2019RepShownFromIRS1099FormBoxPageWhenNECCodeDoesNotExist()
+    var
+        IRS1099FormBox: TestPage "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 374401] A "Vendor 1099 Misc 2019" report shown from the IRS-100 Form Box page when "NEC-01" does not exist in the database
+
+        Initialize();
+        RemoveIRS1099UpgradeCodeYear2019();
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox."Vendor 1099 Misc".Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Misc2020RequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure Misc1099ForYear2020RepShownFromIRS1099FormBoxPageWhenNECCodeExists()
+    var
+        IRS1099FormBox: TestPage "IRS 1099 Form-Box";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 374401] A "Vendor 1099 Misc 2019" report shown from the IRS-100 Form Box page when "NEC-01" code exists in the database
+
+        Initialize();
+        RemoveIRS1099UpgradeCodeYear2020();
+        InsertIRS1099Code(GetIRS1099UpgradeCode2020);
+        Commit();
+        IRS1099FormBox.OpenEdit();
+        IRS1099FormBox."Vendor 1099 Misc".Invoke();
+    end;
+
     local procedure Initialize()
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
-        // Mimic changes before update for year 2019 to test an upgrade scenarios
+        // Mimic changes before update for years after 2019 to test an upgrade scenarios
         IRS1099FormBox.SetFilter(Code, '*DIV*');
         IRS1099FormBox.DeleteAll;
         InsertIRS1099Code('DIV-05');
@@ -381,18 +495,33 @@ codeunit 144030 "IRS 1099 Upgrade Test"
         InsertIRS1099Code('DIV-08');
         InsertIRS1099Code('DIV-9');
         InsertIRS1099Code('DIV-10');
+        IRS1099FormBox.SetFilter(Code, '*NEC*');
+        IRS1099FormBox.DeleteAll();
     end;
 
-    local procedure GetIRS1099UpgradeCode(): Code[10]
+    local procedure GetIRS1099UpgradeCode2019(): Code[10]
     begin
         exit('DIV-07');
     end;
 
-    local procedure RemoveIRS1099UpgradeCode()
+    local procedure GetIRS1099UpgradeCode2020(): Code[10]
+    begin
+        exit('NEC-01');
+    end;
+
+    local procedure RemoveIRS1099UpgradeCodeYear2019()
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
     begin
-        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode);
+        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2019());
+        IRS1099FormBox.DeleteAll();
+    end;
+
+    local procedure RemoveIRS1099UpgradeCodeYear2020()
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        IRS1099FormBox.SetRange(Code, GetIRS1099UpgradeCode2020);
         IRS1099FormBox.DeleteAll;
     end;
 
@@ -522,7 +651,7 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     [Scope('OnPrem')]
     procedure SendNotificationHandler(var Notification: Notification): Boolean
     begin
-        Assert.ExpectedMessage(NotificationMsg, Notification.Message);
+        Assert.ExpectedMessage(StrSubstNo(NotificationMsg, LibraryVariableStorage.DequeueText()), Notification.Message);
     end;
 
     [ConfirmHandler]
@@ -538,6 +667,20 @@ codeunit 144030 "IRS 1099 Upgrade Test"
     procedure Vendor1099DivRequestPageHandler(var Vendor1099Div: TestRequestPage "Vendor 1099 Div")
     begin
         Vendor1099Div.SaveAsExcel(LibraryVariableStorage.DequeueText);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2019RequestPageHandler(var Vendor1099Misc: TestRequestPage "Vendor 1099 Misc")
+    begin
+        Vendor1099Misc.Cancel.Invoke();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Misc2020RequestPageHandler(var Vendor1099Misc2020: TestRequestPage "Vendor 1099 Misc 2020")
+    begin
+        Vendor1099Misc2020.Cancel.Invoke();
     end;
 }
 

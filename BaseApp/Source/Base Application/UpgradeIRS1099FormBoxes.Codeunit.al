@@ -11,16 +11,16 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
     var
         IRS1099Management: Codeunit "IRS 1099 Management";
     begin
-        if not IRS1099Management.UpgradeNeeded then
-            exit;
-
-        UpdateIRS1099FormBoxes;
+        if IRS1099Management.Upgrade2019Needed() then
+            UpdateIRS1099FormBoxesTo2019();
+        if IRS1099Management.Upgrade2020Needed() then
+            UpdateIRS1099FormBoxesTo2020();
     end;
 
     var
         ConfirmIRS1099CodeUpdateQst: Label 'One or more entries have been posted with IRS 1099 code %1.\\Do you want to continue and update all the data associated with this vendor and the existing IRS 1099 code with the new code, %2?', Comment = '%1 - old code;%2 - new code';
 
-    local procedure UpdateIRS1099FormBoxes()
+    local procedure UpdateIRS1099FormBoxesTo2019()
     begin
         ShiftIRS1099('DIV-11');
         ShiftIRS1099('DIV-10');
@@ -31,6 +31,17 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
         InsertIRS1099('DIV-05', 'Section 199A dividends', 10.0);
     end;
 
+    local procedure UpdateIRS1099FormBoxesTo2020()
+    begin
+        MoveIRS1099('MISC-07', 'NEC-01');
+        MoveIRS1099('MISC-09', 'MISC-07');
+        MoveIRS1099('MISC-10', 'MISC-09');
+        MoveIRS1099('MISC-14', 'MISC-10');
+        MoveIRS1099('MISC-15-A', 'MISC-12');
+        MoveIRS1099('MISC-16', 'MISC-15');
+        InsertIRS1099('MISC-14', 'Nonqualified deferred compensation', 0);
+    end;
+
     local procedure ShiftIRS1099(IRSCode: Code[10])
     var
         IRS1099FormBox: Record "IRS 1099 Form-Box";
@@ -39,6 +50,16 @@ codeunit 10501 "Upgrade IRS 1099 Form Boxes"
             exit;
 
         IRS1099FormBox.Rename(IncStr(IRSCode));
+    end;
+
+    local procedure MoveIRS1099(FromIRSCode: Code[10]; ToIRSCode: Code[10])
+    var
+        IRS1099FormBox: Record "IRS 1099 Form-Box";
+    begin
+        if not IRS1099FormBox.Get(FromIRSCode) then
+            exit;
+
+        IRS1099FormBox.Rename(ToIRSCode);
     end;
 
     local procedure InsertIRS1099(NewCode: Code[10]; NewDescription: Text[100]; NewMinimum: Decimal)

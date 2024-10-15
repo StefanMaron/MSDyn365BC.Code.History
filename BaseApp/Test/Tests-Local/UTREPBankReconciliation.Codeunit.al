@@ -36,6 +36,8 @@ codeunit 142056 "UT REP Bank Reconciliation"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         AdjustmentBankAccountNoTxt: Label 'Adjustments_Bank_Account_No_';
@@ -113,7 +115,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         // Setup: Create Posted Bank Rec. Document.
         Initialize;
         CreatePostedBankRecDocument(PostedBankRecHeader, Positive);
-        Commit;  // Codeunit 10124 Bank-Rec Printed - On Run trigger Call commit.
+        Commit();  // Codeunit 10124 Bank-Rec Printed - On Run trigger Call commit.
 
         // Exercise.
         REPORT.Run(REPORT::"Bank Reconciliation");  // Opens BankReconciliationRequestPageHandler.
@@ -222,7 +224,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
           PostedBankRecLine2."Record Type"::Deposit, 0, '', 0, '', LibraryRandom.RandText(50), LibraryRandom.RandDec(100, 2), false);
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID);
-        Commit;
+        Commit();
 
         // [WHEN] Run "Bank Reconciliation" report, "Print Deposits" and "Print Outstanding Deposits" flags are set.
         RunBankReconciliationReport(
@@ -242,6 +244,56 @@ codeunit 142056 "UT REP Bank Reconciliation"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('CheckRequestPageHandler,BankAccountReconcileRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure BankAccountReconcileForPaymentWithCheck()
+    var
+        BankAccount: Record "Bank Account";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlLine: Record "Gen. Journal Line";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        Amount: Integer;
+    begin
+        // [SCENARIO 375775] Check Amount is negative in report "Bank Account - Reconcile". 
+        Initialize();
+
+        // [GIVEN] Bank Account "B" with Last Check No.
+        LibraryERM.CreateBankAccount(BankAccount);
+        BankAccount.Validate("Last Check No.", BankAccount."No.");
+        BankAccount.Modify(true);
+
+        // [GIVEN] Payment Journal line with Amount = 100, "Bal. Account No" = "B" and "Bank Payment Type" = "Computer Check".
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        Amount := LibraryRandom.RandInt(100);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+            GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"Bank Account", BankAccount."No.", Amount);
+        GenJnlLine.Validate("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Computer Check");
+        GenJnlLine.Modify(true);
+
+        // [GIVEN] Check printed for Payment Journal line.
+        Commit();
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        GenJnlLine.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        REPORT.Run(REPORT::"Check", true, true, GenJnlLine);
+
+        // [GIVEN] Payment Journal Line posted.
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+
+        // [WHEN] Report "Bank Account - Reconcile" is run for Bank Account "B".
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        REPORT.Run(REPORT::"Bank Account - Reconcile");
+
+        // [THEN] In result dataset Amount_CheckLedgEntry = -100, WithdrawAmount = -100.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('Amount_CheckLedgEntry', -Amount);
+        LibraryReportDataset.AssertElementWithValueExists('WithdrawAmount', -Amount);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -252,7 +304,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         BankAccount: Record "Bank Account";
     begin
         BankAccount."No." := LibraryUTUtility.GetNewCode;
-        BankAccount.Insert;
+        BankAccount.Insert();
         exit(BankAccount."No.");
     end;
 
@@ -262,7 +314,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         BankRecHeader."Bank Account No." := CreateBankAccount;
         BankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        BankRecHeader.Insert;
+        BankRecHeader.Insert();
 
         // Create Bank Rec. Line.
         BankRecLine."Record Type" := BankRecLine."Record Type"::Adjustment;
@@ -271,7 +323,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         BankRecLine."Statement No." := BankRecHeader."Statement No.";
         BankRecLine."Bank Account No." := BankRecHeader."Bank Account No.";
         BankRecLine.Amount := LibraryRandom.RandDec(10, 2);
-        BankRecLine.Insert;
+        BankRecLine.Insert();
         LibraryVariableStorage.Enqueue(BankRecLine."Bank Account No.");  // Enqueue values for BankRecTestReportRequestPageHandler.
     end;
 
@@ -281,7 +333,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
     begin
         PostedBankRecHeader."Bank Account No." := LibraryUTUtility.GetNewCode;
         PostedBankRecHeader."Statement No." := LibraryUTUtility.GetNewCode;
-        PostedBankRecHeader.Insert;
+        PostedBankRecHeader.Insert();
         PostedBankRecLine."Bank Account No." := PostedBankRecHeader."Bank Account No.";
         PostedBankRecLine."Statement No." := PostedBankRecHeader."Statement No.";
         PostedBankRecLine."Record Type" := PostedBankRecLine."Record Type"::Adjustment;
@@ -289,7 +341,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         PostedBankRecLine."Account No." := PostedBankRecHeader."Bank Account No.";
         PostedBankRecLine.Amount := LibraryRandom.RandDec(10, 2);
         PostedBankRecLine.Positive := Positive;
-        PostedBankRecLine.Insert;
+        PostedBankRecLine.Insert();
 
         // Enqueue required inside BankReconciliationRequestPageHandler.
         LibraryVariableStorage.Enqueue(PostedBankRecHeader."Bank Account No.");
@@ -313,10 +365,10 @@ codeunit 142056 "UT REP Bank Reconciliation"
 
     local procedure MockPostedBankRecHeader(var PostedBankRecHeader: Record "Posted Bank Rec. Header"; BankAccountNo: Code[20]; StatementNo: Code[20])
     begin
-        PostedBankRecHeader.Init;
+        PostedBankRecHeader.Init();
         PostedBankRecHeader."Bank Account No." := BankAccountNo;
         PostedBankRecHeader."Statement No." := StatementNo;
-        PostedBankRecHeader.Insert;
+        PostedBankRecHeader.Insert();
     end;
 
     local procedure MockPostedBankRecLine(var PostedBankRecLine: Record "Posted Bank Rec. Line"; BankAccountNo: Code[20]; StatementNo: Code[20]; RecordType: Option; DocumentType: Option; DocumentNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Description: Text; Amount: Decimal; Cleared: Boolean)
@@ -324,14 +376,14 @@ codeunit 142056 "UT REP Bank Reconciliation"
         PostedBankRecLine2: Record "Posted Bank Rec. Line";
         LineNo: Integer;
     begin
-        PostedBankRecLine2.Reset;
+        PostedBankRecLine2.Reset();
         PostedBankRecLine2.SetRange("Bank Account No.", BankAccountNo);
         PostedBankRecLine2.SetRange("Statement No.", StatementNo);
         PostedBankRecLine2.SetRange("Record Type", RecordType);
         if PostedBankRecLine2.FindLast then;
         LineNo := PostedBankRecLine2."Line No." + 10000;
 
-        PostedBankRecLine.Init;
+        PostedBankRecLine.Init();
         PostedBankRecLine."Bank Account No." := BankAccountNo;
         PostedBankRecLine."Statement No." := StatementNo;
         PostedBankRecLine."Line No." := LineNo;
@@ -344,7 +396,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         PostedBankRecLine.Description := CopyStr(Description, 1, MaxStrLen(PostedBankRecLine.Description));
         PostedBankRecLine.Amount := Amount;
         PostedBankRecLine.Cleared := Cleared;
-        PostedBankRecLine.Insert;
+        PostedBankRecLine.Insert();
     end;
 
     local procedure OpenPageBankRecWorkSheetTestReport(BankAccountNo: Code[20])
@@ -372,7 +424,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"B.Stmt", ReportSelections.Usage::"B.Recon.Test");
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
 
         AddReconciliationReport(ReportSelections.Usage::"B.Stmt", 1, REPORT::"Bank Reconciliation");
         AddReconciliationReport(ReportSelections.Usage::"B.Recon.Test", 1, REPORT::"Bank Rec. Test Report");
@@ -385,7 +437,7 @@ codeunit 142056 "UT REP Bank Reconciliation"
         ReportSelections.Usage := Usage;
         ReportSelections.Sequence := Format(Sequence);
         ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure RunBankReconciliationReport(BankAccountNo: Code[20]; StatementNo: Code[20]; PrintDetails: Boolean; PrintChecks: Boolean; PrintDeposits: Boolean; PrintAdj: Boolean; PrintOutChecks: Boolean; PrintOutDeposits: Boolean)
@@ -480,6 +532,14 @@ codeunit 142056 "UT REP Bank Reconciliation"
           LibraryVariableStorage.DequeueText,
           BankRecTestReport."Bank Rec. Header".GetFilter("Statement No."),
           WrongFilterSetErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CheckRequestPageHandler(var Check: TestRequestPage Check)
+    begin
+        Check.BankAccount.SetValue(LibraryVariableStorage.DequeueText());
+        Check.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

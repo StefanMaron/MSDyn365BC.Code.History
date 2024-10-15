@@ -3,7 +3,7 @@ report 10112 "Vendor 1099 Misc"
     DefaultLayout = RDLC;
     RDLCLayout = './Vendor1099Misc.rdlc';
     ApplicationArea = BasicUS;
-    Caption = 'Vendor 1099 Miscellaneous';
+    Caption = 'Vendor 1099 Miscellaneous 2019';
     UsageCategory = ReportsAndAnalysis;
 
     dataset
@@ -76,7 +76,7 @@ report 10112 "Vendor 1099 Misc"
             column(Box9; Box9)
             {
             }
-            column(Address3_Vendor; "Address 3")
+            column(Address3_Vendor; VendorAddress)
             {
             }
             column(GetAmtMISC10; GetAmt('MISC-10'))
@@ -134,7 +134,7 @@ report 10112 "Vendor 1099 Misc"
                     if FirstVendor then begin
                         Name := PadStr('x', MaxStrLen(Name), 'X');
                         Address := PadStr('x', MaxStrLen(Address), 'X');
-                        "Address 3" := PadStr('x', MaxStrLen("Address 3"), 'X');
+                        VendorAddress := PadStr('x', MaxStrLen(VendorAddress), 'X');
                         VoidBox := 'X';
                         Box9 := 'X';
                         FATCA := 'X';
@@ -147,30 +147,11 @@ report 10112 "Vendor 1099 Misc"
                     // Check through all payments during calendar year
                     ProcessVendorInvoices("No.", PeriodDate);
 
-                    // any printable amounts on this form?
-                    for i := 1 to LastLineNo do
-                        if FormBox.Get(Codes[i]) then begin
-                            if FormBox."Minimum Reportable" < 0.0 then
-                                if Amounts[i] <> 0.0 then begin
-                                    Amounts[i] := -Amounts[i];
-                                    PrintThis := true;
-                                end;
-                            if FormBox."Minimum Reportable" >= 0.0 then
-                                if Amounts[i] <> 0.0 then
-                                    if Amounts[i] >= FormBox."Minimum Reportable" then
-                                        PrintThis := true;
-                        end;
+                    PrintThis := IRS1099Management.AnyCodeHasAmountExceedMinimum(Codes, Amounts, LastLineNo);
                     if not PrintThis then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
-                    // Format City/State/ZIP address line
-                    if StrLen(City + ', ' + County + '  ' + "Post Code") > MaxStrLen("Address 3") then
-                        "Address 3" := City
-                    else
-                        if (City <> '') and (County <> '') then
-                            "Address 3" := City + ', ' + County + '  ' + "Post Code"
-                        else
-                            "Address 3" := DelChr(City + ' ' + County + ' ' + "Post Code", '<>');
+                    VendorAddress := IRS1099Management.GetFormattedVendorAddress(Vendor);
 
                     // following is special case for 1099-MISC only
                     Line9 := UpdateLines('MISC-09', 0.0);
@@ -222,7 +203,7 @@ report 10112 "Vendor 1099 Misc"
                 LastLineNo := 17;
 
                 // Initialize Company Address. As side effect, will read CompanyInfo record
-                FormatCompanyAddress;
+                IRS1099Management.FormatCompanyAddress(CompanyAddress, CompanyInfo, TestPrint);
                 // Initialize flag used for Test Printing only
                 FirstVendor := true;
             end;
@@ -293,7 +274,7 @@ report 10112 "Vendor 1099 Misc"
         CompanyAddress: array[5] of Text[50];
         FirstVendor: Boolean;
         PrintThis: Boolean;
-        "Address 3": Text[30];
+        VendorAddress: Text[30];
         Codes: array[20] of Code[10];
         Amounts: array[20] of Decimal;
         LastLineNo: Integer;
@@ -322,6 +303,7 @@ report 10112 "Vendor 1099 Misc"
         end;
     end;
 
+    [Obsolete('Moved to IRS 1099 Management codeunit', '18.0')]
     procedure Calculate1099Amount(InvoiceEntry: Record "Vendor Ledger Entry"; AppliedAmount: Decimal)
     begin
         InvoiceEntry.CalcFields(Amount);
@@ -357,7 +339,8 @@ report 10112 "Vendor 1099 Misc"
 
         Error('Misc. code %1 has not been setup in the initialization', Code);
     end;
-
+	
+    [Obsolete('Moved to IRS 1099 Management codeunit', '18.0')]
     procedure FormatCompanyAddress()
     begin
         IRS1099Div.FormatCompanyAddress(CompanyAddress, CompanyInfo, TestPrint);
