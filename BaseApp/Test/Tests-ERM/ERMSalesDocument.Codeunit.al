@@ -3394,6 +3394,7 @@
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateLocalData();
         LibraryERMCountryData.UpdatePrepaymentAccounts();
+        LibraryERM.SetJournalTemplateNameMandatory(false);
         isInitialized := true;
         Commit();
 
@@ -4465,6 +4466,7 @@
         SalesLine.Type := SalesLine.GetDefaultLineType();
     end;
 
+#if not CLEAN20
     [EventSubscriber(ObjectType::table, Database::"Invoice Post. Buffer", 'OnAfterInvPostBufferPrepareSales', '', false, false)]
     local procedure OnAfterInvPostBufferPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostBuffer: Record "Invoice Post. Buffer")
     begin
@@ -4474,6 +4476,7 @@
             InvoicePostBuffer."Entry Description" := SalesLine.Description;
         end;
     end;
+#endif
 
     [EventSubscriber(ObjectType::table, Database::"Invoice Posting Buffer", 'OnAfterPrepareSales', '', false, false)]
     local procedure OnAfterPrepareSales(var SalesLine: Record "Sales Line"; var InvoicePostingBuffer: Record "Invoice Posting Buffer")
@@ -5079,7 +5082,7 @@
         ItemTrackingLines.OK.Invoke;
     end;
 
-#if not CLEAN19
+#if not CLEAN20
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterFillInvoicePostBuffer', '', false, false)]
     local procedure AddGroupOnFillInvPostBuffer(var InvoicePostBuffer: Record "Invoice Post. Buffer"; SalesLine: Record "Sales Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; CommitIsSuppressed: Boolean)
     begin
