@@ -1709,7 +1709,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
             AllocationAccountCode, 1);
-        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
         // [GIVEN] Add deferral code X on the sales line, sales invoice X
         SalesLine.Validate("Deferral Code", DeferralCode);
         SalesLine.Modify();
@@ -1777,7 +1777,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
             AllocationAccountCode, 1);
-        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
 
         // [GIVEN] Add deferral code X on the sales line, sales invoice X
         SalesLine.Validate("Deferral Code", DeferralCode);
@@ -1818,7 +1818,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
             AllocationAccountCode, 1);
-        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
 
         // [GIVEN] Add deferral code X on the sales line, sales invoice X
         SalesLine.Validate("Deferral Code", DeferralCode);
@@ -1860,7 +1860,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
             AllocationAccountCode, 1);
-        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
 
         // [GIVEN] Add deferral code X on the sales line, sales invoice X
         SalesLine.Validate("Deferral Code", DeferralCode);
@@ -1904,7 +1904,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"Allocation Account",
             AllocationAccountCode, 1);
-        SalesLine.Validate("Unit Price", 100);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(1000));
 
         // [GIVEN] Add deferral code X on the sales line, sales invoice X
         SalesLine.Validate("Deferral Code", DeferralCode);
