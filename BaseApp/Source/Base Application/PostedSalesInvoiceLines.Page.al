@@ -43,6 +43,13 @@ page 526 "Posted Sales Invoice Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or general ledger account, or some descriptive text.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Package Tracking No."; "Package Tracking No.")
                 {
                     ToolTip = 'Specifies the Package Tracking No. field on the sales line.';
@@ -162,6 +169,8 @@ page 526 "Posted Sales Invoice Lines"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Document';
                     Image = View;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'Open the document that the selected line exists on.';
 
@@ -177,6 +186,8 @@ page 526 "Posted Sales Invoice Lines"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -190,6 +201,8 @@ page 526 "Posted Sales Invoice Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
+                    Promoted = true;
+                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+Ctrl+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 

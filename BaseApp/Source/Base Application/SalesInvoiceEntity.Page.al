@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5475 "Sales Invoice Entity"
 {
     Caption = 'salesInvoices', Locked = true;
@@ -889,4 +890,4 @@ page 5475 "Sales Invoice Entity"
         SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
     end;
 }
-
+#endif

@@ -318,7 +318,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     end;
 
     [Normal]
-    local procedure VerifyRegWhsePickLine(RegdWhseActivityHdr: Record "Registered Whse. Activity Hdr."; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Option; BinCode: Code[20]; Qty: Decimal)
+    local procedure VerifyRegWhsePickLine(RegdWhseActivityHdr: Record "Registered Whse. Activity Hdr."; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Enum "Warehouse Action Type"; BinCode: Code[20]; Qty: Decimal)
     var
         RegdWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -341,7 +341,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     end;
 
     [Normal]
-    local procedure VerifyRegWhsePickLines(RegdWhseActivityHdr: Record "Registered Whse. Activity Hdr."; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Option; BinCode: Code[20]; NotEnoughItemNo: Code[20]; NotEnoughQty: Decimal; AdditionalBinQty: Decimal)
+    local procedure VerifyRegWhsePickLines(RegdWhseActivityHdr: Record "Registered Whse. Activity Hdr."; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Enum "Warehouse Action Type"; BinCode: Code[20]; NotEnoughItemNo: Code[20]; NotEnoughQty: Decimal; AdditionalBinQty: Decimal)
     var
         RegdWhseActivityLine: Record "Registered Whse. Activity Line";
         Location: Record Location;
@@ -389,7 +389,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     end;
 
     [Normal]
-    local procedure VerifyWhseActivityLines(WhseActivityHdr: Record "Warehouse Activity Header"; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Option; BinCode: Code[20]; NotEnoughItemNo: Code[20]; NotEnoughQty: Decimal; AdditionalBinQty: Decimal)
+    local procedure VerifyWhseActivityLines(WhseActivityHdr: Record "Warehouse Activity Header"; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Enum "Warehouse Action Type"; BinCode: Code[20]; NotEnoughItemNo: Code[20]; NotEnoughQty: Decimal; AdditionalBinQty: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         Location: Record Location;
@@ -435,7 +435,7 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
     end;
 
     [Normal]
-    local procedure VerifyWhseActivityLine(WhseActivityHdr: Record "Warehouse Activity Header"; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Option; BinCode: Code[20]; Qty: Decimal; QtyToHandle: Decimal)
+    local procedure VerifyWhseActivityLine(WhseActivityHdr: Record "Warehouse Activity Header"; var TempAssemblyLine: Record "Assembly Line" temporary; ActionType: Enum "Warehouse Action Type"; BinCode: Code[20]; Qty: Decimal; QtyToHandle: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -947,8 +947,8 @@ codeunit 137106 "SCM Kitting ATS in Whse/IT WMS"
         AssemblyLine: Record "Assembly Line";
         AssemblyOrderPage: TestPage "Assembly Order";
     begin
-        LibraryKitting.AddLine(AssemblyHeader, AssemblyLine.Type::Item, ItemNo,
-          LibraryAssembly.GetUnitOfMeasureCode(AssemblyLine.Type::Item, ItemNo, true),
+        LibraryKitting.AddLine(AssemblyHeader, "BOM Component Type"::Item, ItemNo,
+          LibraryAssembly.GetUnitOfMeasureCode("BOM Component Type"::Item, ItemNo, true),
           Quantity, 1, '');
 
         if AssignBinCode then begin

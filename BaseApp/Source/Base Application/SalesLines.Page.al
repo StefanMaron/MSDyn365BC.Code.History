@@ -56,6 +56,13 @@ page 516 "Sales Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the entry of the product to be sold. To add a non-transactional text line, fill in the Description field only.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Package Tracking No."; "Package Tracking No.")
                 {
                     ToolTip = 'Specifies the shipping agent''s package number.';

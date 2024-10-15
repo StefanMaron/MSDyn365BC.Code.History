@@ -19,22 +19,22 @@ page 500 "Available - Requisition Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for an inventory location where the items that are being ordered will be registered.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when you can expect to receive the items.';
                 }
-                field("Quantity (Base)"; "Quantity (Base)")
+                field("Quantity (Base)"; Rec."Quantity (Base)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that when the quantity field is updated, this field is updated.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     Editable = false;
@@ -48,7 +48,7 @@ page 500 "Available - Requisition Lines"
                     Editable = false;
                     ToolTip = 'Specifies the quantity of the item that is available for reservation.';
                 }
-                field(ReservedQuantity; GetReservedQtyInLine)
+                field(ReservedQuantity; GetReservedQtyInLine())
                 {
                     ApplicationArea = Reservation;
                     Caption = 'Current Reserved Quantity';
@@ -58,11 +58,11 @@ page 500 "Available - Requisition Lines"
                     trigger OnDrillDown()
                     begin
                         ReservEntry2.Reset();
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
                         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
                         ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry);
                         PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry2);
-                        UpdateReservFrom;
+                        UpdateReservFrom();
                         CurrPage.Update();
                     end;
                 }
@@ -89,8 +89,8 @@ page 500 "Available - Requisition Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions();
-                        CurrPage.SaveRecord;
+                        Rec.ShowDimensions();
+                        CurrPage.SaveRecord();
                     end;
                 }
             }
@@ -111,8 +111,8 @@ page 500 "Available - Requisition Lines"
                     trigger OnAction()
                     begin
                         ReservEntry.LockTable();
-                        UpdateReservMgt;
-                        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+                        UpdateReservMgt();
+                        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
                         ReservMgt.CalculateRemainingQty(NewQtyReserved, NewQtyReservedBase);
                         ReservMgt.CopySign(NewQtyReserved, QtyToReserve);
                         ReservMgt.CopySign(NewQtyReservedBase, QtyToReserveBase);
@@ -141,15 +141,15 @@ page 500 "Available - Requisition Lines"
                             exit;
 
                         ReservEntry2.Copy(ReservEntry);
-                        SetReservationFilters(ReservEntry2);
+                        Rec.SetReservationFilters(ReservEntry2);
 
                         if ReservEntry2.Find('-') then begin
-                            UpdateReservMgt;
+                            UpdateReservMgt();
                             repeat
                                 ReservEngineMgt.CancelReservation(ReservEntry2);
                             until ReservEntry2.Next() = 0;
 
-                            UpdateReservFrom;
+                            UpdateReservFrom();
                         end;
                     end;
                 }
@@ -165,11 +165,11 @@ page 500 "Available - Requisition Lines"
                         ReqWkshTemplate: Record "Req. Wksh. Template";
                         ReqLine2: Record "Requisition Line";
                     begin
-                        ReqWkshTemplate.Get("Worksheet Template Name");
+                        ReqWkshTemplate.Get(Rec."Worksheet Template Name");
                         ReqLine2 := Rec;
                         ReqLine2.FilterGroup(2);
-                        ReqLine2.SetRange("Worksheet Template Name", "Worksheet Template Name");
-                        ReqLine2.SetRange("Journal Batch Name", "Journal Batch Name");
+                        ReqLine2.SetRange("Worksheet Template Name", Rec."Worksheet Template Name");
+                        ReqLine2.SetRange("Journal Batch Name", Rec."Journal Batch Name");
                         ReqLine2.FilterGroup(0);
                         PAGE.Run(ReqWkshTemplate."Page ID", ReqLine2);
                     end;
@@ -180,14 +180,14 @@ page 500 "Available - Requisition Lines"
 
     trigger OnAfterGetRecord()
     begin
-        GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
+        Rec.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
     end;
 
     trigger OnOpenPage()
     begin
         ReservEntry.TestField("Source Type");
 
-        SetFilters;
+        SetFilters();
     end;
 
     var
@@ -199,13 +199,15 @@ page 500 "Available - Requisition Lines"
         ReservMgt: Codeunit "Reservation Management";
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         SourceRecRef: RecordRef;
-        QtyToReserve: Decimal;
-        QtyToReserveBase: Decimal;
         QtyReserved: Decimal;
         QtyReservedBase: Decimal;
         NewQtyReserved: Decimal;
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
+
+    protected var
+        QtyToReserve: Decimal;
+        QtyToReserveBase: Decimal;
 
     procedure SetSource(CurrentSourceRecRef: RecordRef; CurrentReservEntry: Record "Reservation Entry")
     var
@@ -284,21 +286,21 @@ page 500 "Available - Requisition Lines"
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
-        CalcFields("Reserved Qty. (Base)");
-        if "Quantity (Base)" - "Reserved Qty. (Base)" < ReserveQuantityBase then
-            Error(Text003, "Quantity (Base)" + "Reserved Qty. (Base)");
+        Rec.CalcFields("Reserved Qty. (Base)");
+        if Rec."Quantity (Base)" - Rec."Reserved Qty. (Base)" < ReserveQuantityBase then
+            Error(Text003, Rec."Quantity (Base)" + Rec."Reserved Qty. (Base)");
 
-        TestField("No.", ReservEntry."Item No.");
-        TestField("Variant Code", ReservEntry."Variant Code");
-        TestField("Location Code", ReservEntry."Location Code");
+        Rec.TestField("No.", ReservEntry."Item No.");
+        Rec.TestField("Variant Code", ReservEntry."Variant Code");
+        Rec.TestField("Location Code", ReservEntry."Location Code");
 
-        UpdateReservMgt;
+        UpdateReservMgt();
         TrackingSpecification.InitTrackingSpecification(
-          DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Journal Batch Name", 0, "Line No.",
-          "Variant Code", "Location Code", "Qty. per Unit of Measure");
+          DATABASE::"Requisition Line", 0, Rec."Worksheet Template Name", Rec."Journal Batch Name", 0, Rec."Line No.",
+          Rec."Variant Code", Rec."Location Code", Rec."Qty. per Unit of Measure");
         ReservMgt.CreateReservation(
-          ReservEntry.Description, "Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
-        UpdateReservFrom;
+          ReservEntry.Description, Rec."Due Date", ReserveQuantity, ReserveQuantityBase, TrackingSpecification);
+        UpdateReservFrom();
     end;
 
     local procedure UpdateReservFrom()
@@ -316,10 +318,10 @@ page 500 "Available - Requisition Lines"
         OnAfterUpdateReservMgt(ReservEntry);
     end;
 
-    local procedure GetReservedQtyInLine(): Decimal
+    protected procedure GetReservedQtyInLine(): Decimal
     begin
         ReservEntry2.Reset();
-        SetReservationFilters(ReservEntry2);
+        Rec.SetReservationFilters(ReservEntry2);
         ReservEntry2.SetRange("Reservation Status", ReservEntry2."Reservation Status"::Reservation);
         exit(ReservMgt.MarkReservConnection(ReservEntry2, ReservEntry));
     end;
@@ -338,18 +340,17 @@ page 500 "Available - Requisition Lines"
 
     local procedure SetFilters()
     begin
-        SetRange(Type, Type::Item);
-        SetRange("No.", ReservEntry."Item No.");
-        SetRange("Variant Code", ReservEntry."Variant Code");
-        SetRange("Location Code", ReservEntry."Location Code");
-
-        SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
-        if ReservMgt.IsPositive then
-            SetFilter("Quantity (Base)", '>0')
+        Rec.SetRange(Type, Rec.Type::Item);
+        Rec.SetRange("No.", ReservEntry."Item No.");
+        Rec.SetRange("Variant Code", ReservEntry."Variant Code");
+        Rec.SetRange("Location Code", ReservEntry."Location Code");
+        Rec.SetFilter("Due Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
+        if ReservMgt.IsPositive() then
+            Rec.SetFilter("Quantity (Base)", '>0')
         else
-            SetFilter("Quantity (Base)", '<0');
+            Rec.SetFilter("Quantity (Base)", '<0');
 
-        SetRange("Sales Order No.", '');
+        Rec.SetRange("Sales Order No.", '');
 
         OnAfterSetFilters(Rec, ReservEntry);
     end;

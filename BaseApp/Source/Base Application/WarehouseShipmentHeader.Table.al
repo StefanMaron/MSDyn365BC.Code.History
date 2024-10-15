@@ -208,7 +208,13 @@ table 7320 "Warehouse Shipment Header"
             trigger OnValidate()
             var
                 WhseShptLine: Record "Warehouse Shipment Line";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipmentDate(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "Shipment Date" <> xRec."Shipment Date" then begin
                     WhseShptLine.SetRange("No.", "No.");
                     if not WhseShptLine.IsEmpty() then
@@ -478,6 +484,8 @@ table 7320 "Warehouse Shipment Header"
                 Location.Get(LocationCode);
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by platform capabilities.', '19.0')]
     procedure LookupWhseShptHeader(var WhseShptHeader: Record "Warehouse Shipment Header")
     begin
         Commit();
@@ -504,6 +512,7 @@ table 7320 "Warehouse Shipment Header"
             WhseShptHeader.FilterGroup := 0;
         end;
     end;
+#endif
 
     procedure LookupLocation(var WhseShptHeader: Record "Warehouse Shipment Header")
     var
@@ -669,10 +678,13 @@ table 7320 "Warehouse Shipment Header"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by platform capabilities.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetUserIDLocationCodeFilter(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteWarehouseShipmentLinesOnBeforeConfirm(WarehouseShipmentLine: Record "Warehouse Shipment Line"; var Confirmed: Boolean; var IsHandled: Boolean);
@@ -681,6 +693,11 @@ table 7320 "Warehouse Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeDeleteWarehouseShipmentLines(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipmentDate(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; xWarehouseShipmentHeader: Record "Warehouse Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 

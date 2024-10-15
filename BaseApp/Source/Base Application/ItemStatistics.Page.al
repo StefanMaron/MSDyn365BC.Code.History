@@ -37,18 +37,17 @@ page 5827 "Item Statistics"
                     trigger OnLookup(var Text: Text): Boolean
                     var
                         NewCode: Text[30];
-                        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
                     begin
                         NewCode := GetDimSelection(ColumnDimCode);
                         if NewCode = ColumnDimCode then begin
-                            MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Same);
+                            GenerateColumnCaptions("Matrix Page Step Type"::Same);
 
                             exit(false);
                         end;
                         Text := NewCode;
                         ColumnDimCode := NewCode;
                         ValidateColumnDimCode;
-                        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                         CurrPage.Update();
                         exit(true);
                     end;
@@ -150,7 +149,6 @@ page 5827 "Item Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts.';
                 }
                 field(PerUnit; PerUnit)
@@ -173,7 +171,6 @@ page 5827 "Item Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -186,14 +183,11 @@ page 5827 "Item Statistics"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
-                    var
-                        MATRIX_Step: Option First,Previous,Next;
                     begin
-                        MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+                        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
                     end;
                 }
                 field(MATRIX_CaptionRange; MATRIX_CaptionRange)
@@ -226,9 +220,10 @@ page 5827 "Item Statistics"
                     MatrixForm: Page "Item Statistics Matrix";
                 begin
                     Clear(MatrixForm);
-                    MatrixForm.Load(MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns,
-                      RoundingFactor, PerUnit, IncludeExpected, ItemBuffer, Item, PeriodType, AmountType,
-                      ColumnDimCode, DateFilter, ItemFilter, LocationFilter, VariantFilter);
+                    MatrixForm.LoadMatrix(
+                        MATRIX_CaptionSet, MATRIX_MatrixRecords, MATRIX_CurrentNoOfColumns,
+                        RoundingFactor, PerUnit, IncludeExpected, ItemBuffer, Item, PeriodType, AmountType,
+                        ColumnDimCode, DateFilter, ItemFilter, LocationFilter, VariantFilter);
                     MatrixForm.SetTableView(Rec);
                     MatrixForm.RunModal;
                 end;
@@ -245,10 +240,8 @@ page 5827 "Item Statistics"
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_SetWanted: Option Initial,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                 end;
             }
             action("Next Set")
@@ -262,10 +255,8 @@ page 5827 "Item Statistics"
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
-                var
-                    MATRIX_SetWanted: Option Initial,Previous,Same,Next;
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
             }
         }
@@ -278,8 +269,6 @@ page 5827 "Item Statistics"
     end;
 
     trigger OnOpenPage()
-    var
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
     begin
         GLSetup.Get();
 
@@ -301,7 +290,7 @@ page 5827 "Item Statistics"
         PeriodInitialized := DateFilter <> '';
         FindPeriod('');
         ItemName := StrSubstNo('%1  %2', Item."No.", Item.Description);
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     var
@@ -315,9 +304,9 @@ page 5827 "Item Statistics"
         MATRIX_PrimKeyFirstCaptionInCu: Text;
         ColumnDimCode: Text[30];
         ItemName: Text[250];
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        AmountType: Enum "Analysis Amount Type";
         DateFilter: Text;
         InternalDateFilter: Text;
         ItemFilter: Text;
@@ -341,7 +330,7 @@ page 5827 "Item Statistics"
         OnAfterIntegerLineSetFilter(ItemBuffer, IntegerLine);
     end;
 
-    local procedure MATRIX_GenerateColumnCaptions(MATRIX_SetWanted: Option Initial,Previous,Same,Next)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     var
         MATRIX_PeriodRecords: array[32] of Record Date;
         Location: Record Location;
@@ -355,9 +344,10 @@ page 5827 "Item Statistics"
         case ColumnDimCode of
             Text002:
                 begin
-                    MatrixMgt.GeneratePeriodMatrixData(MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), false,
-                      PeriodType, DateFilter, MATRIX_PrimKeyFirstCaptionInCu,
-                      MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns, MATRIX_PeriodRecords);
+                    MatrixMgt.GeneratePeriodMatrixData(
+                        StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), false,
+                        PeriodType, DateFilter, MATRIX_PrimKeyFirstCaptionInCu,
+                        MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns, MATRIX_PeriodRecords);
                     for i := 1 to ArrayLen(MATRIX_CaptionSet) do begin
                         MATRIX_MatrixRecords[i]."Period Start" := MATRIX_PeriodRecords[i]."Period Start";
                         MATRIX_MatrixRecords[i]."Period End" := MATRIX_PeriodRecords[i]."Period End";
@@ -368,27 +358,28 @@ page 5827 "Item Statistics"
                     Clear(MATRIX_CaptionSet);
                     RecRef.GetTable(Location);
                     RecRef.SetTable(Location);
-                    MatrixMgt.GenerateMatrixData(RecRef, MATRIX_SetWanted, ArrayLen(MATRIX_CaptionSet), 1,
-                      MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
+                    MatrixMgt.GenerateMatrixData(
+                        RecRef, StepType.AsInteger(), ArrayLen(MATRIX_CaptionSet), 1,
+                        MATRIX_PrimKeyFirstCaptionInCu, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrentNoOfColumns);
                     for i := 1 to MATRIX_CurrentNoOfColumns do
                         MATRIX_MatrixRecords[i].Code := MATRIX_CaptionSet[i];
                 end;
         end;
     end;
 
-    local procedure DimCodeToOption(DimCode: Text[30]): Integer
+    local procedure DimCodeToOption(DimCode: Text[30]): Enum "Item Statistics Column Option"
     var
         Location: Record Location;
     begin
         case DimCode of
             '':
-                exit(-1);
+                exit("Item Statistics Column Option"::Undefined);
             Text002:
-                exit(4);
-            Location.TableCaption:
-                exit(5);
+                exit("Item Statistics Column Option"::Period);
+            Location.TableCaption():
+                exit("Item Statistics Column Option"::Location);
             else
-                exit(-1);
+                exit("Item Statistics Column Option"::Undefined);
         end;
     end;
 
@@ -397,7 +388,7 @@ page 5827 "Item Statistics"
         ItemCharge: Record "Item Charge";
         Location: Record Location;
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         Found: Boolean;
     begin
         case DimOption of
@@ -428,7 +419,7 @@ page 5827 "Item Statistics"
                     else
                         if not PeriodInitialized and (InternalDateFilter <> '') then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, PeriodType);
+                    Found := PeriodPageMgt.FindDate(Which, Period, PeriodType);
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -531,16 +522,16 @@ page 5827 "Item Statistics"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if DateFilter <> '' then begin
             Calendar.SetFilter("Period Start", DateFilter);
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
 
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
 
         with ItemBuffer do
             if AmountType = AmountType::"Net Change" then begin
@@ -608,10 +599,8 @@ page 5827 "Item Statistics"
     end;
 
     local procedure DateFilterOnAfterValidate()
-    var
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next;
     begin
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
         CurrPage.Update();
     end;
 
@@ -632,12 +621,10 @@ page 5827 "Item Statistics"
     end;
 
     local procedure PeriodTypeOnAfterValidate()
-    var
-        MATRIX_Step: Option First,Previous,Next;
     begin
         // IF ColumnDimOption = ColumnDimOption::Period THEN
         if ItemBuffer."Column Option" = ItemBuffer."Column Option"::Period then
-            MATRIX_GenerateColumnCaptions(MATRIX_Step::First);
+            GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 
     [IntegrationEvent(false, false)]

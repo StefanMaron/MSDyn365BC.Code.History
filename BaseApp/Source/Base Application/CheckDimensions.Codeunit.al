@@ -41,6 +41,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -54,6 +55,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -99,6 +101,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -123,6 +126,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -181,6 +185,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -194,6 +199,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -238,6 +244,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 
@@ -260,6 +267,7 @@ codeunit 481 "Check Dimensions"
             ErrorMessageMgt.PushContext(ErrorContextElement, RecordId, 0, ContextErrorMessage);
             if not DimMgt.CheckDimValuePosting(TableIDArr, NumberArr, "Dimension Set ID") then
                 ErrorMessageMgt.ThrowError(ContextErrorMessage, DimMgt.GetDimErr);
+            ErrorMessageMgt.PopContext(ErrorContextElement);
         end;
     end;
 

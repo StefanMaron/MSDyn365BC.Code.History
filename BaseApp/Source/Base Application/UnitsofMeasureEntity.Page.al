@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5498 "Units of Measure Entity"
 {
     Caption = 'unitsOfMeasure', Locked = true;
@@ -94,4 +95,4 @@ page 5498 "Units of Measure Entity"
         TempFieldSet.Insert(true);
     end;
 }
-
+#endif

@@ -39,7 +39,7 @@
                         DeltaUpdateTotals();
                     end;
                 }
-#if not CLEAN16
+#if not CLEAN17
                 field("Cross-Reference No."; Rec."Cross-Reference No.")
                 {
                     ApplicationArea = Suite;
@@ -65,7 +65,7 @@
 #endif
                 field("Item Reference No."; Rec."Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -116,6 +116,13 @@
                     begin
                         DeltaUpdateTotals();
                     end;
+                }
+                field("Description 2"; Rec."Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -406,6 +413,32 @@
                     begin
                         ValidateShortcutDimension(8);
                     end;
+                }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the sales statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the sales statistics window, the net weight on the line is included in the total net weight of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the sales statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular sales document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the sales statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular sales document.';
+                    Visible = false;
                 }
             }
             group(Control53)
@@ -793,6 +826,7 @@
             {
                 Caption = 'F&unctions';
                 Image = "Action";
+#if not CLEAN19
                 action("Get &Price")
                 {
                     AccessByPermission = TableData "Sales Price" = R;
@@ -802,6 +836,9 @@
                     Image = Price;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Insert the lowest possible price in the Unit Price field according to any special price that you have set up.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
 
                     trigger OnAction()
                     begin
@@ -817,12 +854,16 @@
                     Image = LineDiscount;
                     Visible = not ExtendedPriceEnabled;
                     ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
 
                     trigger OnAction()
                     begin
                         Rec.PickDiscount();
                     end;
                 }
+#endif
                 action(GetPrice)
                 {
                     AccessByPermission = TableData "Sales Price Access" = R;
@@ -922,6 +963,7 @@
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
         Rec.InitType();
+        SetDefaultType();
         Clear(ShortcutDimCode);
     end;
 
@@ -1049,7 +1091,7 @@
         IsCommentLine := not Rec.HasTypeToFillMandatoryFields();
         IsBlankNumber := IsCommentLine;
 
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPage.Editable and not SalesReceivablesSetup."Calc. Inv. Discount" and
             (TotalSalesHeader.Status = TotalSalesHeader.Status::Open);
 
@@ -1159,6 +1201,19 @@
         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, DimIndex);
     end;
 
+    local procedure SetDefaultType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetDefaultType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterNoOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
@@ -1181,6 +1236,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoOnLookup(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultType(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

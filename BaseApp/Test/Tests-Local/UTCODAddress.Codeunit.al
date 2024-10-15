@@ -13,6 +13,7 @@ codeunit 144008 "UT COD Address"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
 
+#if not CLEAN18
     // [Test]
     [HandlerFunctions('CustomerTemplateListModalPageHandler')]
     [Scope('OnPrem')]
@@ -58,6 +59,7 @@ codeunit 144008 "UT COD Address"
         // Verify: Verify County on Customer, State not blank in Customer Template so County updated in Customer from State field of Customer Template.
         VerifyCustomerCounty(ServiceHeader."Customer No.", CustomerTemplate.State);
     end;
+#endif
 
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
@@ -307,6 +309,7 @@ codeunit 144008 "UT COD Address"
         Customer.Insert();
     end;
 
+#if not CLEAN18
     local procedure CreateCustomerTemplate(var CustomerTemplate: Record "Customer Template"; State: Text[30])
     begin
         CustomerTemplate.Code := LibraryUTUtility.GetNewCode10;
@@ -315,6 +318,7 @@ codeunit 144008 "UT COD Address"
         CustomerTemplate.Insert();
         LibraryVariableStorage.Enqueue(CustomerTemplate.Code);  // Enqueue value required in CustomerTemplateListModalPageHandler.
     end;
+#endif
 
     local procedure CreateCustomerPostingGroup(): Code[20]
     var
@@ -380,6 +384,7 @@ codeunit 144008 "UT COD Address"
         Assert.AreEqual(PostalAddress, AddressArray[3], 'Value must be Equal.');
     end;
 
+#if not CLEAN18
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure CustomerTemplateListModalPageHandler(var CustomerTemplateList: TestPage "Customer Template List")
@@ -390,5 +395,6 @@ codeunit 144008 "UT COD Address"
         CustomerTemplateList.FILTER.SetFilter(Code, Code);
         CustomerTemplateList.OK.Invoke;
     end;
+#endif
 }
 

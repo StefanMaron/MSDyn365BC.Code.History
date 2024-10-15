@@ -1,4 +1,4 @@
-﻿table 10012 "Sales Tax Amount Difference"
+table 10012 "Sales Tax Amount Difference"
 {
     Caption = 'Sales Tax Amount Difference';
 
@@ -10,11 +10,9 @@
             OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
             OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
-        field(2; "Document Product Area"; Option)
+        field(2; "Document Product Area"; Enum "Sales Tax Document Area")
         {
             Caption = 'Document Product Area';
-            OptionCaption = 'Sales,Purchase,Service,,,,Posted Sale,Posted Purchase,Posted Service';
-            OptionMembers = Sales,Purchase,Service,,,,"Posted Sale","Posted Purchase","Posted Service";
         }
         field(3; "Document No."; Code[20])
         {
@@ -124,7 +122,7 @@
         exit(TaxAmountDifference.FindFirst);
     end;
 
-    procedure CopyTaxDifferenceRecords(FromProductArea: Option Sales,Purchase; FromDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; FromDocNo: Code[20]; ToProductArea: Option ,,,,,,"Posted Sale","Posted Purchase"; ToDocType: Option ,,Invoice,"Credit Memo"; ToDocNo: Code[20])
+    procedure CopyTaxDifferenceRecords(FromProductArea: Enum "Sales Tax Document Area"; FromDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; FromDocNo: Code[20]; ToProductArea: Enum "Sales Tax Document Area"; ToDocType: Option ,,Invoice,"Credit Memo"; ToDocNo: Code[20])
     var
         FromTaxAmountDifference: Record "Sales Tax Amount Difference";
         ToTaxAmountDifference: Record "Sales Tax Amount Difference";

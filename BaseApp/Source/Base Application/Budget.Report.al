@@ -263,7 +263,7 @@ report 10001 Budget
                     CalcFields("Budgeted Amount");
                     if InThousands then
                         "Budgeted Amount" := "Budgeted Amount" / 1000;
-                    BudgetToPrint[i] := MatrixMgt.RoundValue("Budgeted Amount", RndFactor);
+                    BudgetToPrint[i] := MatrixMgt.RoundAmount("Budgeted Amount", RndFactor);
                     TotalBudgetAmount += BudgetToPrint[i];
                     if NoDataFound then
                         NoDataFound := ("Budgeted Amount" = 0); // will set NoDataFound flag to no if budget found
@@ -331,7 +331,6 @@ report 10001 Budget
                     {
                         ApplicationArea = Suite;
                         Caption = 'Rounding Factor';
-                        OptionCaption = 'None,1,1000,1000000';
                         ToolTip = 'Specifies the factor that is used to round the amounts.';
                     }
                 }
@@ -439,10 +438,18 @@ report 10001 Budget
         Text006Lbl: Label 'Accounts without budgets are not included.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         NameCaptionLbl: Label 'Name';
-        RndFactor: Option "None","1","1000","1000000";
+        RndFactor: Enum "Analysis Rounding Factor";
         TotalLbl: Label 'Total';
 
+#if not CLEAN19
+    [Obsolete('Replaced by SetRoundingFactor().', '19.0')]
     procedure SetParameters(NewRoundingFactor: Option "None","1","1000","1000000")
+    begin
+        RndFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
+    end;
+#endif
+
+    procedure SetRoundingFactor(NewRoundingFactor: Enum "Analysis Rounding Factor")
     begin
         RndFactor := NewRoundingFactor;
     end;

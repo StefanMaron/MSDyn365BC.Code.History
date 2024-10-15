@@ -169,6 +169,7 @@ codeunit 10148 "Sales Tax Amount Line Calc"
                         SetTaxBaseAmount(SalesTaxAmountLine, VATBaseAmount, ExchangeFactor, false);
                         Quantity := LineQuantity;
                         "Tax Liable" := TaxLiable;
+                        Positive := LineAmount > 0;
 
                         "Calculation Order" := TaxAreaLine."Calculation Order";
                         Insert;

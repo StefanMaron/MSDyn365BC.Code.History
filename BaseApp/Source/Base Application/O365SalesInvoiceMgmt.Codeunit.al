@@ -530,19 +530,20 @@ codeunit 2310 "O365 Sales Invoice Mgmt"
         exit(0);
     end;
 
+#if not CLEAN19
     [Scope('OnPrem')]
     procedure GetPaymentInstructionsFromPostedInvoice(SalesInvoiceHeader: Record "Sales Invoice Header"): Text
     var
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
-        SalesInvoiceHeader.CalcFields("Payment Instructions");
         if not SalesInvoiceHeader."Payment Instructions".HasValue then
             exit('');
 
         SalesInvoiceHeader."Payment Instructions".CreateInStream(InStream, TEXTENCODING::Windows);
         exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
     end;
+#endif
 
     [Scope('OnPrem')]
     procedure GetTaxNotificationID(): Guid

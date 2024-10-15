@@ -9,6 +9,9 @@ page 371 "Bank Account List"
     SourceTable = "Bank Account";
     UsageCategory = Lists;
 
+    AboutTitle = 'About bank accounts';
+    AboutText = 'A bank account listed here corresponds to an account held in a bank or financial institute. You must periodically import transactions from the bank to reconcile with those posted in Business Central. Importing is done in the Bank Reconciliations Page.';
+
     layout
     {
         area(content)
@@ -61,6 +64,28 @@ page 371 "Bank Account List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the bank employee regularly contacted in connection with this bank account.';
+                }
+                field(BalanceAmt; Balance)
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance.';
+                }
+                field(BalanceLCY; "Balance (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance in LCY.';
+                }
+                field(BalanceAtDate; "Balance at Date")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance on the last date included in the Date Filter field.';
+                    Visible = false;
+                }
+                field(BalanceAtDateLCY; "Balance at Date (LCY)")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the bank account''s balance in LCY on the last date included in the Date Filter field.';
+                    Visible = false;
                 }
                 field("Bank Account No."; "Bank Account No.")
                 {
@@ -451,6 +476,26 @@ page 371 "Bank Account List"
                                   ORDER(Descending);
                     ToolTip = 'View the bank ledger entries that are related to Positive Pay transactions.';
                 }
+            }           
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
+                }
             }
         }
         area(reporting)
@@ -560,7 +605,7 @@ page 371 "Bank Account List"
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Bank Account - Reconcile";
-                ToolTip = 'Reconcile bank transactions with bank account ledger entries to ensure that your bank account in Dynamics NAV reflects your actual liquidity.';
+                ToolTip = 'View withdrawals, deposits, and adjustments grouped by each bank code and currency code. Each bank account statement will be reconciled according to the adjustments shown in this report.';
             }
             action("Bank Account Statements")
             {
@@ -571,12 +616,38 @@ page 371 "Bank Account List"
                 ToolTip = 'View statements for selected bank accounts. For each bank transaction, the report shows a description, an applied amount, a statement amount, and other information.';
             }
         }
+        area(Processing)
+        {
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+                Enabled = CanSendEmail;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        BankAccount: Record "Bank Account";
     begin
         GetOnlineFeedStatementStatus(OnlineFeedStatementStatus, Linked);
         ShowBankLinkingActions := StatementProvidersExist;
+
+        CurrPage.SetSelectionFilter(BankAccount);
+        CanSendEmail := BankAccount.Count() = 1;
     end;
 
     trigger OnAfterGetRecord()
@@ -588,16 +659,21 @@ page 371 "Bank Account List"
     trigger OnOpenPage()
     var
         MonitorSensitiveField: Codeunit "Monitor Sensitive Field";
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         ShowBankLinkingActions := StatementProvidersExist;
         MonitorSensitiveField.ShowPromoteMonitorSensitiveFieldNotification();
     end;
 
     var
         MultiselectNotSupportedErr: Label 'You can only link to one online bank account at a time.';
+        [InDataSet]
+        CanSendEmail: Boolean;
         Linked: Boolean;
         ShowBankLinkingActions: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure VerifySingleSelection()
     var

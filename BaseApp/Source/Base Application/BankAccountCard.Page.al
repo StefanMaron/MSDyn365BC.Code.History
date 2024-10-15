@@ -531,6 +531,7 @@ page 370 "Bank Account Card"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     PromotedOnly = true;
+                    Visible = AutoMatchSelected;
                     RunObject = Page "Bank Account Statement List";
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     ToolTip = 'View posted bank statements and reconciliations.';
@@ -542,6 +543,7 @@ page 370 "Bank Account Card"
                     Image = "Report";
                     Promoted = true;
                     PromotedCategory = Process;
+                    Visible = not AutoMatchSelected;
                     RunObject = Page "Posted Bank Rec. List";
                     RunPageLink = "Bank Account No." = FIELD("No.");
                     ToolTip = 'View the entries and the balance on your bank accounts against a statement from the bank.';
@@ -624,6 +626,26 @@ page 370 "Bank Account Card"
                     RunPageView = SORTING("Bank Account No.", "Upload Date-Time")
                                   ORDER(Descending);
                     ToolTip = 'View the bank ledger entries that are related to Positive Pay transactions.';
+                }
+            }
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to the contact person for this bank account.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::"Bank Account", Rec.SystemId);
+                    end;
                 }
             }
             action(BankAccountReconciliations)
@@ -778,6 +800,23 @@ page 370 "Bank Account Card"
                 RunPageLink = "No." = FIELD("No.");
                 ToolTip = 'Export a Positive Pay file with relevant payment information that you then send to the bank for reference when you process payments to make sure that your bank only clears validated checks and amounts.';
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to the contact person for this bank account.';
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::"Bank Account", Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
         }
         area(reporting)
         {
@@ -890,10 +929,15 @@ page 370 "Bank Account Card"
     end;
 
     trigger OnInit()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         "Input QualifierEnable" := true;
         "Client NameEnable" := true;
         "Client No.Enable" := true;
+
+        GeneralLedgerSetup.Get();
+        AutoMatchSelected := GeneralLedgerSetup."Bank Recon. with Auto. Match";
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -904,7 +948,9 @@ page 370 "Bank Account Card"
     trigger OnOpenPage()
     var
         Contact: Record Contact;
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         OnBeforeOnOpenPage();
         ContactActionVisible := Contact.ReadPermission;
         SetNoFieldVisible;
@@ -922,12 +968,14 @@ page 370 "Bank Account Card"
         [InDataSet]
         ContactActionVisible: Boolean;
         Linked: Boolean;
+        AutoMatchSelected: Boolean;
         OnlineBankAccountLinkingErr: Label 'You must link the bank account to an online bank account.\\Choose the Link to Online Bank Account action.';
         ShowBankLinkingActions: Boolean;
         NoFieldVisible: Boolean;
         OnlineFeedStatementStatus: Option "Not Linked",Linked,"Linked and Auto. Bank Statement Enabled";
         EFTNotSupportedMsg: Label 'The specified payment export format does not support EFT. To use a format other than EFT, set the Country Export Format field to Other.';
         EFTSupportedMsg: Label 'The specified payment export format supports EFT. Set the Country Export Format field to the relevant country/region.';
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure SetCountrySpecificControls()
     begin

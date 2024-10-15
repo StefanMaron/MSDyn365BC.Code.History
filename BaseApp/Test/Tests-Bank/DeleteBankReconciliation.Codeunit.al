@@ -210,6 +210,11 @@ codeunit 134255 "Delete Bank Reconciliation"
         CheckLedgerEntry.Insert();
     end;
 
+    local procedure GetLedgerEntryLatestDate(BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+
+    end;
+
     local procedure CreateBankAccount(BankAccountNo: Code[20])
     var
         BankAccount: Record "Bank Account";

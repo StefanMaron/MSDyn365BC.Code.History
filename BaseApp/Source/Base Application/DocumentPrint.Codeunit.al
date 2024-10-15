@@ -632,7 +632,7 @@ codeunit 229 "Document-Print"
         end;
     end;
 
-    local procedure GetServHeaderDocTypeUsage(ServiceHeader: Record "Service Header"): Enum "Report Selection Usage"
+    procedure GetServHeaderDocTypeUsage(ServiceHeader: Record "Service Header"): Enum "Report Selection Usage"
     var
         ReportSelections: Record "Report Selections";
         TypeUsage: Integer;

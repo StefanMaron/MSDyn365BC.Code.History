@@ -1,4 +1,4 @@
-﻿codeunit 244 "Item Jnl.-B.Post+Print"
+codeunit 244 "Item Jnl.-B.Post+Print"
 {
     TableNo = "Item Journal Batch";
 

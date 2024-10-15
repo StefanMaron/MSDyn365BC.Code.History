@@ -31,6 +31,7 @@ permissionset 2381 "D365 FA, VIEW"
                   tabledata "FA Setup" = R,
                   tabledata "FA Subclass" = R,
                   tabledata "Fixed Asset" = R,
+                  tabledata "G/L Account" = R,
                   tabledata "Ins. Coverage Ledger Entry" = R,
                   tabledata Insurance = R,
                   tabledata "Insurance Journal Batch" = R,

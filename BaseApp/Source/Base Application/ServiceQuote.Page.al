@@ -1,4 +1,4 @@
-﻿page 5964 "Service Quote"
+page 5964 "Service Quote"
 {
     Caption = 'Service Quote';
     PageType = Document;
@@ -813,13 +813,9 @@
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
-        ActivateFields;
+        ActivateFields();
     end;
 
     var

@@ -72,6 +72,82 @@ codeunit 134141 "ERM Bank Reconciliation"
     [Test]
     [HandlerFunctions('GenJnlPageHandler')]
     [Scope('OnPrem')]
+    procedure TransferToGenJnlLineWithBalAccAndPostWithoutGettingApplyUpdated()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        Initialize;
+
+        // Setup: Create a bank rec. and add a line to it
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        SetupBankAccReconciliation(BankAccReconciliation, BankAccReconciliationLine);
+
+        // Exercise: Execute Batch Job Transfer to GL Journal
+        LibraryLowerPermissions.AddAccountReceivables;
+        TransferToGenJnlReport(BankAccReconciliation, GenJournalBatch);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccReconciliation."Bank Account No.");
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Verify: Check that the line was transfered to the GL Journal
+        BankAccReconciliationLine.get(BankAccReconciliation."Statement Type", BankAccReconciliationLine."Bank Account No.", BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Statement Line No.");
+        Assert.IsTrue(BankAccReconciliationLine."Applied Amount" = 0, 'Statement most not get applied as signed have changed');
+
+    end;
+
+    [Test]
+    [HandlerFunctions('GenJnlPageHandler')]
+    [Scope('OnPrem')]
+    procedure TransferToGenJnlAndPostPlusGetApplyUpdated()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        BankAccReconciliation: Record "Bank Acc. Reconciliation";
+        BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        Initialize;
+
+        // Setup: Create a bank rec. and add a line to it
+        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
+
+        LibraryERM.ClearGenJournalLines(GenJournalBatch);
+        SetupBankAccReconciliation(BankAccReconciliation, BankAccReconciliationLine);
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccReconciliation."Bank Account No.");
+        GenJournalBatch.Modify();
+
+        // Exercise: Execute Batch Job Transfer to GL Journal
+        LibraryLowerPermissions.AddAccountReceivables;
+        TransferToGenJnlReport(BankAccReconciliation, GenJournalBatch);
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"G/L Account");
+        GenJournalLine.Validate("Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccReconciliation."Bank Account No.");
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // Verify: Check that the line was transfered to the GL Journal
+        BankAccReconciliationLine.get(BankAccReconciliation."Statement Type", BankAccReconciliationLine."Bank Account No.", BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Statement Line No.");
+        Assert.IsTrue(BankAccReconciliationLine."Statement Amount" = BankAccReconciliationLine."Applied Amount", 'Statement Amount most match applied amount');
+
+    end;
+
+    [Test]
+    [HandlerFunctions('GenJnlPageHandler')]
+    [Scope('OnPrem')]
     procedure TransferToGenJnlLineWithoutBalAcc()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -2418,7 +2494,7 @@ codeunit 134141 "ERM Bank Reconciliation"
     var
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
-        AccountTypes: array[2] of Option;
+        AccountTypes: array[2] of Enum "Gen. Journal Account Type";
         AccountNos: array[2] of Code[20];
         TransactionAmounts: array[2] of Decimal;
         CustLedgerEntryNo: Integer;
@@ -2452,7 +2528,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         BankAccountStatement: Record "Bank Account Statement";
         BankAccount: Record "Bank Account";
-        AccountTypes: array[2] of Option;
+        AccountTypes: array[2] of Enum "Gen. Journal Account Type";
         AccountNos: array[2] of Code[20];
         TransactionAmounts: array[2] of Decimal;
         StatementEndingBalance: Decimal;
@@ -2978,7 +3054,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         BankAccReconciliationLine.Modify(true);
     end;
 
-    local procedure CreateBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; Date: Date)
+    local procedure CreateBankAccReconciliationLine(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; Date: Date)
     begin
         LibraryERM.CreateBankAccReconciliationLn(BankAccReconciliationLine, BankAccReconciliation);
         BankAccReconciliationLine.Validate("Account Type", AccountType);
@@ -3032,7 +3108,7 @@ codeunit 134141 "ERM Bank Reconciliation"
         UpdateBankAccRecStmEndingBalance(BankAccReconciliation, BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
     end;
 
-    local procedure CreateAndAutoApplyTwoBankAccReconLines(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; AccountType: array[2] of Option; AccountNo: array[2] of Code[20]; TransactionAmount: array[2] of Decimal)
+    local procedure CreateAndAutoApplyTwoBankAccReconLines(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; BankAccountNo: Code[20]; AccountType: array[2] of Enum "Gen. Journal Account Type"; AccountNo: array[2] of Code[20]; TransactionAmount: array[2] of Decimal)
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin

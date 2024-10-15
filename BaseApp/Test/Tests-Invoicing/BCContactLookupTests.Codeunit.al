@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 138945 "BC Contact Lookup Tests"
 {
     Subtype = Test;
@@ -283,4 +284,4 @@ codeunit 138945 "BC Contact Lookup Tests"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

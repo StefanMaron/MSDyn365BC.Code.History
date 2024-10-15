@@ -1,4 +1,4 @@
-﻿page 283 "Recurring General Journal"
+page 283 "Recurring General Journal"
 {
     AdditionalSearchTerms = 'accruals';
     ApplicationArea = Suite, FixedAssets;
@@ -7,7 +7,7 @@
     DataCaptionExpression = DataCaption;
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Account';
+    PromotedActionCategories = 'New,Process,Report,Post/Print,Line,Account,Page';
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
@@ -440,6 +440,12 @@
                     ToolTip = 'Specifies posting date calculation formula for reverse recurring methods.';
                     Visible = false;
                 }
+                field("External Document No."; "External Document No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies a document number that refers to the customer''s or vendor''s numbering system.';
+                    Visible = false;
+                }
             }
             group(Control28)
             {
@@ -663,6 +669,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category4;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -703,6 +710,30 @@
                     end;
                 }
             }
+            group("Page")
+            {
+                Caption = 'Page';
+                action(EditInExcel)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Edit in Excel';
+                    Image = Excel;
+                    Promoted = true;
+                    PromotedCategory = Category7;
+                    PromotedIsBig = true;
+                    PromotedOnly = true;
+                    ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
+
+                    trigger OnAction()
+                    var
+                        ODataUtility: Codeunit ODataUtility;
+                    begin
+                        ODataUtility.EditJournalWorksheetInExcel(CopyStr(CurrPage.Caption, 1, 240), CurrPage.ObjectId(false), Rec."Journal Batch Name", Rec."Journal Template Name");
+                    end;
+                }
+            }
         }
     }
 
@@ -736,11 +767,14 @@
     end;
 
     trigger OnOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
     begin
         OnBeforeOnOpenPage();
 
         SetControlVisibility;
         SetDimensionsVisibility;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
 
         if IsOpenedFromBatch then begin
             CurrentJnlBatchName := "Journal Batch Name";
@@ -776,6 +810,7 @@
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
         DimensionBalanceLine: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

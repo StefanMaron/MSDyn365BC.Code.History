@@ -395,6 +395,7 @@ codeunit 142060 "ERM Misc. Report"
           StockkeepingUnit."Variant Code");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('SalesPromotionRequestPageHandler')]
     [Scope('OnPrem')]
@@ -422,6 +423,7 @@ codeunit 142060 "ERM Misc. Report"
         VerifyValuesOnReport(Item."No.", ItemNoCapLbl, ItemUnitPriceLbl, Item."Unit Price");
         VerifyValuesOnReport(Item."No.", ItemNoCapLbl, SalesPriceUnitPriceLbl, SalesPrice."Unit Price");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SalesOrderStatusRequestPageHandler')]
@@ -488,6 +490,7 @@ codeunit 142060 "ERM Misc. Report"
         VerifyValuesOnReport(SalesLine."No.", ItemNoCapLbl, ItemTaxGroupCodeLbl, SalesLine."Tax Group Code");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -561,6 +564,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.LoadDataSetFile;
         VerifyValuesOnReport(Item."No.", ItemNoCapLbl, CustNoLbl, SalesPrice."Sales Code");
     end;
+#endif
 
     [Test]
     [HandlerFunctions('AvailabilityStatusRequestPageHandler')]
@@ -1749,6 +1753,7 @@ codeunit 142060 "ERM Misc. Report"
           (PurchaseLine."Buy-from Vendor No.", VendorLedgerEntry."Entry No.") - PurchaseLine."Amount Including VAT");
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ListPriceSheetRequestPageHandler')]
     [Scope('OnPrem')]
@@ -1773,6 +1778,7 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('Sales_Price__Unit_Price_', SalesPrice."Unit Price")
     end;
+#endif
 
     [Test]
     [HandlerFunctions('SuggestVendorPaymentsRequestPageHandler,MessageHandler,Vendor1099MiscRequestPageHandler')]
@@ -2349,6 +2355,7 @@ codeunit 142060 "ERM Misc. Report"
           BOMComponent, ParentItemNo, BOMComponent.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2), '');
     end;
 
+#if not CLEAN19
     local procedure CreateAndModifySalesPrice(var SalesPrice: Record "Sales Price"; Item: Record Item; SalesType: Option; SalesCode: Code[20]; CurrencyCode: Code[10])
     begin
         LibraryCosting.CreateSalesPrice(
@@ -2357,6 +2364,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesPrice.Validate("Unit Price", Item."Unit Price" + LibraryRandom.RandDec(10, 2));  // Taken Sales Price more than Item Unit Price.
         SalesPrice.Modify(true);
     end;
+#endif
 
     local procedure CreateItemWithStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10])
     var
@@ -3131,6 +3139,7 @@ codeunit 142060 "ERM Misc. Report"
         ItemsbySalesTaxGroup.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ListPriceSheetRequestPageHandler(var ListPriceSheet: TestRequestPage "List Price Sheet")
@@ -3147,6 +3156,7 @@ codeunit 142060 "ERM Misc. Report"
         ListPriceSheet.Item.SetFilter("No.", ItemNo);
         ListPriceSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -3327,6 +3337,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesHistory.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesPromotionRequestPageHandler(var SalesPromotion: TestRequestPage "Sales Promotion")
@@ -3337,6 +3348,7 @@ codeunit 142060 "ERM Misc. Report"
         SalesPromotion.Item.SetFilter("No.", ItemNo);
         SalesPromotion.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

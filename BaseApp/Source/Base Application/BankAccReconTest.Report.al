@@ -85,10 +85,10 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Bank_Acc__Reconciliation___Statement_Ending_Balance_Caption; Bank_Acc__Reconciliation___Statement_Ending_Balance_CaptionLbl)
                 {
                 }
-                column(G_L_BalanceCaption; G_L_BalanceCaptionLbl)
+                column(G_L_BalanceCaption; G_L_BalanceCaptionTxt)
                 {
                 }
-                column(G_L_Balance_LCYCaption; G_L_BalanceLCYCaptionLbl)
+                column(G_L_Balance_LCYCaption; G_L_BalanceLCYCaptionTxt)
                 {
                 }
                 column(Ending_G_L_BalanceCaption; Ending_G_L_BalanceCaptionLbl)
@@ -106,7 +106,7 @@ report 1408 "Bank Acc. Recon. - Test"
                 column(Difference_Caption; Difference_CaptionLbl)
                 {
                 }
-                column(Ending_BalanceCaption; Ending_BalanceCaptionLbl)
+                column(Ending_BalanceCaption; Ending_BalanceCaptionTxt)
                 {
                 }
                 column(Outstanding_BankTransactionsCaption; Outstanding_BankTransactionsCaptionLbl)
@@ -259,8 +259,10 @@ report 1408 "Bank Acc. Recon. - Test"
 
                     trigger OnAfterGetRecord()
                     var
+                        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
                         TableID: array[10] of Integer;
                         No: array[10] of Code[20];
+                        IsManyToOne: Boolean;
                     begin
                         AppliedAmount := 0;
                         ErrorLabel := 1;
@@ -275,7 +277,15 @@ report 1408 "Bank Acc. Recon. - Test"
                                         BankAccLedgEntry.SetRange(
                                           "Statement Status", BankAccLedgEntry."Statement Status"::"Bank Acc. Entry Applied");
                                         BankAccLedgEntry.SetRange("Statement No.", "Statement No.");
-                                        BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
+
+                                        BankAccRecMatchBuffer.SetRange("Bank Account No.", "Bank Account No.");
+                                        BankAccRecMatchBuffer.SetRange("Statement No.", "Statement No.");
+                                        BankAccRecMatchBuffer.SetRange("Statement Line No.", "Statement Line No.");
+                                        if BankAccRecMatchBuffer.FindFirst() then begin
+                                            IsManyToOne := true;
+                                            BankAccLedgEntry.SetRange("Entry No.", BankAccRecMatchBuffer."Ledger Entry No.");
+                                        end else
+                                            BankAccLedgEntry.SetRange("Statement Line No.", "Statement Line No.");
                                         OnBankAccReconciliationLineAfterGetRecordOnAfterBankAccLedgEntrySetFilters("Bank Acc. Reconciliation Line", BankAccLedgEntry);
                                         if BankAccLedgEntry.Find('-') then
                                             repeat
@@ -339,7 +349,7 @@ report 1408 "Bank Acc. Recon. - Test"
                                     TotalDiff := TotalDiff + "Statement Amount";
                         end;
                         OnBeforeCheckAppliedAmount("Bank Acc. Reconciliation Line", AppliedAmount);
-                        if "Applied Amount" <> AppliedAmount then
+                        if ("Applied Amount" <> AppliedAmount) and (not IsManyToOne) then
                             AddError(StrSubstNo(AmountWrongErr, FieldCaption("Applied Amount"), AppliedAmount));
 
                         if not DimensionManagement.CheckDimIDComb("Dimension Set ID") then
@@ -351,10 +361,16 @@ report 1408 "Bank Acc. Recon. - Test"
                             AddError(DimensionManagement.GetDimValuePostingErr);
 
                         TotalAmount := TotalAmount + "Statement Amount";
-                        TotalAppliedAmount := TotalAppliedAmount + AppliedAmount;
+                        if (not BankAccRecMatchBuffer."Is Processed") then
+                            TotalAppliedAmount := TotalAppliedAmount + AppliedAmount;
+                        MarkManyToOneMatchAsProcessed(BankAccRecMatchBuffer."Bank Account No.",
+                                                        BankAccRecMatchBuffer."Statement No.",
+                                                        BankAccRecMatchBuffer."Match ID");
                     end;
 
                     trigger OnPostDataItem()
+                    var
+                        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
                     begin
                         if TotalAmount <> TotalAppliedAmount + TotalDiff then begin
                             AddError(ApplicationErr);
@@ -367,6 +383,15 @@ report 1408 "Bank Acc. Recon. - Test"
                                 TotalDifferenceErr, BankAccReconLine.Difference, TotalDiff));
                             FooterError2 := StrSubstNo(TotalDifferenceErr, BankAccReconLine.Difference, TotalDiff);
                         end;
+
+                        BankAccRecMatchBuffer.SetRange("Bank Account No.", "Bank Account No.");
+                        BankAccRecMatchBuffer.SetRange("Statement No.", "Statement No.");
+                        if BankAccRecMatchBuffer.FindSet() then
+                            repeat
+                                BankAccRecMatchBuffer."Is Processed" := false;
+                                BankAccRecMatchBuffer.Modify();
+                            until BankAccRecMatchBuffer.Next() = 0;
+
                     end;
 
                     trigger OnPreDataItem()
@@ -517,8 +542,15 @@ report 1408 "Bank Acc. Recon. - Test"
                         BankAcc.TableCaption, "Bank Account No."));
                     HeaderError2 := StrSubstNo(TableValueMissingErr, BankAcc.TableCaption, "Bank Account No.");
                 end;
-                if "Statement Date" <> 0D then
+                G_L_BalanceCaptionTxt := G_L_BalanceCaptionLbl;
+                G_L_BalanceLCYCaptionTxt := G_L_BalanceLCYCaptionLbl;
+                Ending_BalanceCaptionTxt := BankAccountBalanceLbl;
+
+                if "Statement Date" <> 0D then begin
                     BankAcc.SetFilter("Date Filter", '..%1', "Statement Date");
+                    G_L_BalanceCaptionTxt := G_L_BalanceCaptionTxt + AtLbl + format("Statement Date");
+                    G_L_BalanceLCYCaptionTxt := G_L_BalanceLCYCaptionTxt + AtLbl + format("Statement Date");
+                end;
                 BankAcc.CalcFields("Balance at Date", "Balance at Date (LCY)");
 
                 TotalOutstdPayments := "Total Outstd Payments" - "Total Applied Amount Payments";
@@ -587,6 +619,9 @@ report 1408 "Bank Acc. Recon. - Test"
         TotalPositiveDifference: Decimal;
         TotalNegativeDifference: Decimal;
         BankAccReconFilter: Text;
+        G_L_BalanceLCYCaptionTxt: Text;
+        G_L_BalanceCaptionTxt: Text;
+        Ending_BalanceCaptionTxt: Text;
         ErrorCounter: Integer;
         ErrorText: array[99] of Text[250];
         ErrorLabel: Integer;
@@ -605,7 +640,7 @@ report 1408 "Bank Acc. Recon. - Test"
         TotalsCaptionLbl: Label 'Totals';
         ErrorText_Number__Control97CaptionLbl: Label 'Warning!';
         Outstanding_BankTransactionsCaptionLbl: Label 'Outstanding Bank Transactions';
-        Outstanding_PaymentsCaptionLbl: Label 'Outstanding Payments';
+        Outstanding_PaymentsCaptionLbl: Label 'Outstanding Checks';
         Total_Outstanding_BankTransactionsCaptionLbl: Label 'Total Outstanding Bank Transactions';
         Total_Outstanding_PaymentsCaptionLbl: Label 'Total Outstanding Payments';
         CurrencyCodeCaption: Text[250];
@@ -617,7 +652,8 @@ report 1408 "Bank Acc. Recon. - Test"
         Negative_AdjustmentsCaptionLbl: Label 'Negative Adjustments';
         Subtotal_CaptionLbl: Label 'Subtotal';
         Difference_CaptionLbl: Label 'Difference';
-        Ending_BalanceCaptionLbl: Label 'Ending Balance';
+        BankAccountBalanceLbl: Label 'Bank Account Balance';
+        AtLbl: Label ' at ', Comment = 'used to build the construct a string like balance at 31-12-2020';
         CurrencyCode: Code[20];
         Statement_BalanceCaptionLbl: Label 'Statement Balance';
 
@@ -625,6 +661,20 @@ report 1408 "Bank Acc. Recon. - Test"
     begin
         ErrorCounter := ErrorCounter + 1;
         ErrorText[ErrorCounter] := Text;
+    end;
+
+    local procedure MarkManyToOneMatchAsProcessed(BankAccNo: Code[20]; StatementNo: Code[20]; MatchID: Integer)
+    var
+        BankAccRecMatchBuffer: Record "Bank Acc. Rec. Match Buffer";
+    begin
+        BankAccRecMatchBuffer.SetRange("Bank Account No.", BankAccNo);
+        BankAccRecMatchBuffer.SetRange("Statement No.", StatementNo);
+        BankAccRecMatchBuffer.SetRange("Match ID", MatchID);
+        if BankAccRecMatchBuffer.FindSet() then
+            repeat
+                BankAccRecMatchBuffer."Is Processed" := true;
+                BankAccRecMatchBuffer.Modify();
+            until BankAccRecMatchBuffer.Next() = 0;
     end;
 
     local procedure CreateOutstandingBankTransactions(BankAccountNo: Code[20])

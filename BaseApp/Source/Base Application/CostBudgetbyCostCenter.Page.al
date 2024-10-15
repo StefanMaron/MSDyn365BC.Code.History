@@ -18,7 +18,6 @@ page 1118 "Cost Budget by Cost Center"
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'Rounding Factor';
-                    OptionCaption = 'None,1,1000,1000000';
                     ToolTip = 'Specifies the factor that is used to round the amounts in the columns.';
 
                     trigger OnValidate()
@@ -42,7 +41,6 @@ page 1118 "Cost Budget by Cost Center"
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -55,7 +53,6 @@ page 1118 "Cost Budget by Cost Center"
                 {
                     ApplicationArea = CostAccounting;
                     Caption = 'View as';
-                    OptionCaption = 'Balance at Date,Net Change';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -126,7 +123,7 @@ page 1118 "Cost Budget by Cost Center"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Previous);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Previous);
                     UpdateMatrixSubform;
                 end;
             }
@@ -142,7 +139,7 @@ page 1118 "Cost Budget by Cost Center"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::PreviousColumn);
+                    GenerateColumnCaptions("Matrix Page Step Type"::PreviousColumn);
                     UpdateMatrixSubform;
                 end;
             }
@@ -158,7 +155,7 @@ page 1118 "Cost Budget by Cost Center"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::NextColumn);
+                    GenerateColumnCaptions("Matrix Page Step Type"::NextColumn);
                     UpdateMatrixSubform;
                 end;
             }
@@ -174,7 +171,7 @@ page 1118 "Cost Budget by Cost Center"
 
                 trigger OnAction()
                 begin
-                    MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Next);
+                    GenerateColumnCaptions("Matrix Page Step Type"::Next);
                     UpdateMatrixSubform;
                 end;
             }
@@ -187,7 +184,7 @@ page 1118 "Cost Budget by Cost Center"
         CostCenterMatrixRecord.SetCurrentKey("Sorting Order");
         MATRIX_CaptionFieldNo := 1;
         BudgetFilter := GetFilter("Budget Filter");
-        MATRIX_GenerateColumnCaptions(MATRIX_SetWanted::Initial);
+        GenerateColumnCaptions("Matrix Page Step Type"::Initial);
         UpdateMatrixSubform;
     end;
 
@@ -199,16 +196,15 @@ page 1118 "Cost Budget by Cost Center"
         MATRIX_CaptionSet: array[12] of Text[80];
         MATRIX_CaptionRange: Text;
         MATRIX_PKFirstRecInCurrSet: Text;
-        MATRIX_SetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        RoundingFactor: Option "None","1","1000","1000000";
-        AmountType: Option "Balance at Date","Net Change";
+        PeriodType: Enum "Analysis Period Type";
+        RoundingFactor: Enum "Analysis Rounding Factor";
+        AmountType: Enum "Analysis Amount Type";
         MATRIX_CaptionFieldNo: Integer;
         CurrentMatrixRecordOrdinal: Integer;
         MATRIX_CurrSetLength: Integer;
         BudgetFilter: Text;
 
-    local procedure MATRIX_GenerateColumnCaptions(MATRIX_NewSetWanted: Option Initial,Previous,Same,Next,PreviousColumn,NextColumn)
+    local procedure GenerateColumnCaptions(StepType: Enum "Matrix Page Step Type")
     begin
         Clear(MATRIX_CaptionSet);
         Clear(CostCenterMatrixRecords);
@@ -220,7 +216,7 @@ page 1118 "Cost Budget by Cost Center"
         MatrixRecordRef.GetTable(CostCenterMatrixRecord);
         MatrixRecordRef.SetTable(CostCenterMatrixRecord);
 
-        MatrixMgt.GenerateMatrixData(MatrixRecordRef, MATRIX_NewSetWanted, ArrayLen(CostCenterMatrixRecords), MATRIX_CaptionFieldNo,
+        MatrixMgt.GenerateMatrixData(MatrixRecordRef, StepType.AsInteger(), ArrayLen(CostCenterMatrixRecords), MATRIX_CaptionFieldNo,
           MATRIX_PKFirstRecInCurrSet, MATRIX_CaptionSet, MATRIX_CaptionRange, MATRIX_CurrSetLength);
 
         if MATRIX_CurrSetLength > 0 then begin
@@ -236,15 +232,15 @@ page 1118 "Cost Budget by Cost Center"
     local procedure FindPeriod(FindTxt: Code[3])
     var
         Calendar: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(FindTxt, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(FindTxt, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then begin
             SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
@@ -255,7 +251,7 @@ page 1118 "Cost Budget by Cost Center"
 
     local procedure UpdateMatrixSubform()
     begin
-        CurrPage.MatrixForm.PAGE.Load(
+        CurrPage.MatrixForm.PAGE.LoadMatrix(
           MATRIX_CaptionSet, CostCenterMatrixRecords, MATRIX_CurrSetLength, GetFilter("Date Filter"), BudgetFilter, RoundingFactor);
     end;
 }

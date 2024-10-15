@@ -1303,13 +1303,15 @@ page 132 "Posted Sales Invoice"
         IncomingDocument: Record "Incoming Document";
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
     begin
-        HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
-        DocExchStatusStyle := GetDocExchStatusStyle;
-        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
-        if CRMIntegrationEnabled then begin
-            CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
-            if "No." <> xRec."No." then
-                CRMIntegrationManagement.SendResultNotification(Rec);
+        if GuiAllowed() then begin
+            HasIncomingDocument := IncomingDocument.PostedDocExists("No.", "Posting Date");
+            DocExchStatusStyle := GetDocExchStatusStyle;
+            CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
+            if CRMIntegrationEnabled then begin
+                CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
+                if "No." <> xRec."No." then
+                    CRMIntegrationManagement.SendResultNotification(Rec);
+            end;
         end;
         UpdatePaymentService;
         DocExcStatusVisible := DocExchangeStatusIsSent;
@@ -1318,8 +1320,8 @@ page 132 "Posted Sales Invoice"
     trigger OnAfterGetRecord()
     begin
         DocExchStatusStyle := GetDocExchStatusStyle;
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     trigger OnInit()

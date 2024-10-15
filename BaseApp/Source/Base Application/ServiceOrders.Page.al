@@ -1,4 +1,4 @@
-﻿page 9318 "Service Orders"
+page 9318 "Service Orders"
 {
     ApplicationArea = Service;
     Caption = 'Service Orders';
@@ -445,11 +445,8 @@
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
                     trigger OnAction()
-                    var
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
-                        ServHeader.Get("Document Type", "No.");
-                        ServPostYesNo.PostDocument(ServHeader);
+                        SendToPost(Codeunit::"Service-Post (Yes/No)");
                     end;
                 }
                 action(Preview)
@@ -459,6 +456,7 @@
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category5;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -482,11 +480,8 @@
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
                     trigger OnAction()
-                    var
-                        ServPostPrint: Codeunit "Service-Post+Print";
                     begin
-                        ServHeader.Get("Document Type", "No.");
-                        ServPostPrint.PostDocument(ServHeader);
+                        SendToPost(Codeunit::"Service-Post+Print");
                     end;
                 }
                 action(PostBatch)

@@ -20,7 +20,6 @@ page 5416 "Item Availability by UOM"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
@@ -33,7 +32,6 @@ page 5416 "Item Availability by UOM"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -185,16 +183,16 @@ page 5416 "Item Availability by UOM"
 
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         LastUOMCode: Code[10];
         DateFilter: Text;
 
     local procedure FindPeriod(SearchText: Text[3])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
-        PeriodFormMgt.FindPeriod(Rec, SearchText, PeriodType, AmountType);
+        PeriodPageMgt.FindPeriod(Rec, SearchText, PeriodType, AmountType);
         DateFilter := GetFilter("Date Filter");
     end;
 

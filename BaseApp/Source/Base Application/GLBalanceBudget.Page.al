@@ -29,11 +29,12 @@ page 422 "G/L Balance/Budget"
                 {
                     ApplicationArea = Suite;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
+                        OnBeforeValidatePeriodType(PeriodType);
+
                         if PeriodType = PeriodType::"Accounting Period" then
                             AccountingPerioPeriodTypeOnVal;
                         if PeriodType = PeriodType::Year then
@@ -52,7 +53,6 @@ page 422 "G/L Balance/Budget"
                 {
                     ApplicationArea = Suite;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -117,7 +117,6 @@ page 422 "G/L Balance/Budget"
                 {
                     ApplicationArea = Suite;
                     Caption = 'G/L Account Category Filter';
-                    OptionCaption = ' ,Assets,Liabilities,Equity,Income,Cost of Goods Sold,Expense';
                     ToolTip = 'Specifies the category of the G/L account for which you will see information in the window.';
 
                     trigger OnValidate()
@@ -498,10 +497,10 @@ page 422 "G/L Balance/Budget"
     var
         GLAcc: Record "G/L Account";
         GLSetup: Record "General Ledger Setup";
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
-        AmountType: Option "Net Change","Balance at Date";
+        PeriodType: Enum "Analysis Period Type";
+        AmountType: Enum "Analysis Amount Type";
         ClosingEntryFilter: Option Include,Exclude;
-        GLAccCategoryFilter: Option " ",Assets,Liabilities,Equity,Income,"Cost of Goods Sold",Expense;
+        GLAccCategoryFilter: Enum "G/L Account Category";
         IncomeBalanceGLAccFilter: Option " ","Income Statement","Balance Sheet";
         BudgetPct: Decimal;
         [InDataSet]
@@ -520,15 +519,15 @@ page 422 "G/L Balance/Budget"
     var
         Calendar: Record Date;
         AccountingPeriod: Record "Accounting Period";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, PeriodType) then
-                PeriodFormMgt.FindDate('+', Calendar, PeriodType::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, PeriodType) then
+                PeriodPageMgt.FindDate('+', Calendar, PeriodType::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, PeriodType);
+        PeriodPageMgt.FindDate(SearchText, Calendar, PeriodType);
         if AmountType = AmountType::"Net Change" then
             if Calendar."Period Start" = Calendar."Period End" then
                 SetRange("Date Filter", Calendar."Period Start")
@@ -749,7 +748,7 @@ page 422 "G/L Balance/Budget"
         GLAccFilter := GetFilter("No.");
 
         if Evaluate(TempGLAccount."Account Category", GetFilter("Account Category")) then
-            GLAccCategoryFilter := TempGLAccount."Account Category".AsInteger()
+            GLAccCategoryFilter := TempGLAccount."Account Category"
         else
             GLAccCategoryFilter := GLAccCategoryFilter::" ";
 
@@ -764,6 +763,11 @@ page 422 "G/L Balance/Budget"
             IncomeBalanceGLAccFilter := IncomeBalanceGLAccFilter::" ";
 
         OnAfterInitDefaultFilters(GlobalDim1Filter, GlobalDim2Filter, DateFilter);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeValidatePeriodType(var PeriodType: Enum "Analysis Period Type")
+    begin
     end;
 
     [IntegrationEvent(true, false)]

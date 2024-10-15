@@ -75,8 +75,6 @@ codeunit 333 "Req. Wksh.-Make Order"
         NameAddressDetails: Text;
         SuppressCommit: Boolean;
         HideProgressWindow: Boolean;
-
-    protected var
         PlanningResiliency: Boolean;
 
     procedure CarryOutBatchAction(var ReqLine2: Record "Requisition Line")
@@ -1337,6 +1335,11 @@ codeunit 333 "Req. Wksh.-Make Order"
     begin
         TempTransHeader := TransferHeader;
         if TempTransHeader.Insert() then;
+    end;
+
+    procedure GetCreatedDocumentBuffer(var TempDocumentEntry2: Record "Document Entry" temporary)
+    begin
+        TempDocumentEntry2.Copy(TempDocumentEntry, true);
     end;
 
     local procedure InitProgressWindow()

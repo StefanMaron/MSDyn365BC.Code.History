@@ -375,13 +375,16 @@ codeunit 10150 "O365 Tax Settings Management"
     var
         Customer: Record Customer;
         CompanyInformation: Record "Company Information";
+#if not CLEAN18
         MarketingSetup: Record "Marketing Setup";
         CustomerTemplate: Record "Customer Template";
+#endif
         ConfigTemplateManagement: Codeunit "Config. Template Management";
     begin
         ConfigTemplateManagement.ReplaceDefaultValueForAllTemplates(
           DATABASE::Customer, Customer.FieldNo("Tax Area Code"), NewTaxAreaCode);
 
+#if not CLEAN18
         if MarketingSetup.Get then begin
             CustomerTemplate.LockTable();
             if CustomerTemplate.Get(MarketingSetup."Cust. Template Company Code") then begin
@@ -394,7 +397,7 @@ codeunit 10150 "O365 Tax Settings Management"
                 CustomerTemplate.Modify(true);
             end;
         end;
-
+#endif
         CompanyInformation.LockTable();
         if CompanyInformation.Get then
             if CompanyInformation."Tax Area Code" <> NewTaxAreaCode then begin

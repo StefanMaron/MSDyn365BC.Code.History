@@ -815,7 +815,6 @@
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Purch Full Prepmt Rounding");
         LibraryApplicationArea.EnableFoundationSetup();
-        LibrarySetupStorage.Restore();
 
         if IsInitialized then
             exit;

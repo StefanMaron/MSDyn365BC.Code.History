@@ -20,6 +20,71 @@ codeunit 141018 "UT PAG Sales Tax Statistics"
         LibraryERMTax: Codeunit "Library - ERM Tax";
 
     [Test]
+    [Scope('OnPrem')]
+    procedure FieldPositiveInSalesTaxAmountLineIsSetToTrue()
+    var
+        SalesTaxAmountLine: Record "Sales Tax Amount Line";
+        TaxAreaLine: Record "Tax Area Line";
+        TaxArea: Record "Tax Area";
+        TaxJurisdiction: Record "Tax Jurisdiction";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesTaxAmountLineCalc: Codeunit "Sales Tax Amount Line Calc";
+        SalesLineType: Enum "Sales Line Type";
+        TaxCountry: Option US,CA;
+        ExchangeFactor: Decimal;
+    begin
+        // [SCENARIO] The field Positive in the table "Sales Tax Amount Line" is correctly updated to true based on the value of the field LineAmount
+
+        // [GIVEN] All the tables and parameters required by the method CalcSalesOrServLineSalesTaxAmountLine
+        SalesTaxAmountLine.DeleteAll();
+        SalesTaxAmountLine."Tax Area Code" := 'CA';
+        SalesTaxAmountLine."Tax Jurisdiction Code" := 'CA';
+        SalesTaxAmountLine."Tax %" := 10;
+        SalesTaxAmountLine."Use Tax" := true;
+        SalesTaxAmountLine."Tax Type" := SalesTaxAmountLine."Tax Type"::"Sales and Use Tax";
+        SalesTaxAmountLine."Tax Area Code for Key" := 'CA';
+        SalesTaxAmountLine."Expense/Capitalize" := true;
+        SalesTaxAmountLine.Positive := false;
+        SalesTaxAmountLine."Line Amount" := 100;
+        SalesTaxAmountLine.Insert();
+
+        TaxAreaLine.DeleteAll();
+        TaxAreaLine."Tax Area" := 'CA';
+        TaxAreaLine."Tax Jurisdiction Code" := 'CA';
+        TaxAreaLine.Insert();
+
+        TaxArea.DeleteAll();
+        TaxArea.Code := 'CA';
+        TaxArea.Insert();
+
+        TaxJurisdiction.DeleteAll();
+        TaxJurisdiction.Code := 'CA';
+        TaxJurisdiction.Insert();
+
+        SalesInvoiceLine.DeleteAll();
+        SalesInvoiceLine."Document No." := '1234';
+        SalesInvoiceLine."Line No." := 1;
+        SalesInvoiceLine.Type := SalesLineType::Item;
+        SalesInvoiceLine."Tax Area Code" := 'CA';
+        SalesInvoiceLine."Tax Group Code" := 'CA';
+        SalesInvoiceLine."VAT Base Amount" := 10;
+        SalesInvoiceLine."Line Amount" := 100;
+        SalesInvoiceLine."Quantity (Base)" := 1;
+        SalesInvoiceLine."Tax Liable" := true;
+        SalesInvoiceLine.Insert();
+
+        ExchangeFactor := 1;
+
+        // [WHEN] The variable LineType in the codeunit SalesTaxAmountLineCalc is properly initialized
+        SalesTaxAmountLineCalc.InitFromSalesInvLine(SalesInvoiceLine);
+        // [WHEN] Running the method CalcSalesOrServLineSalesTaxAmountLine to properly update the field Positive in the SalesTaxAmountLine table
+        SalesTaxAmountLineCalc.CalcSalesOrServLineSalesTaxAmountLine(SalesTaxAmountLine, TaxAreaLine, TaxCountry::CA, TaxArea, TaxJurisdiction, ExchangeFactor);
+
+        // [THEN] The field Positive in the SalesTaxAmountLine table is properly updated
+        Assert.AreEqual(true, SalesTaxAmountLine.Positive, 'The field Positive in the table SalesTaxAmountLine should be true');
+    end;
+
+    [Test]
     [HandlerFunctions('ServiceStatisticsPageHandler')]
     [Scope('OnPrem')]
     procedure OnActionStatisticsServiceCreditMemos()

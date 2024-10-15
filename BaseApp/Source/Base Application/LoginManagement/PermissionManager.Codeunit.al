@@ -6,7 +6,9 @@ codeunit 9002 "Permission Manager"
 
     var
         OfficePortalUserAdministrationUrlTxt: Label 'https://portal.office.com/admin/default.aspx#ActiveUsersPage', Locked = true;
+#if not CLEAN18
         IncorrectCalculatedHashErr: Label 'Hash calculated for permission set %1 is ''%2''.', Comment = '%1 = permission set id, %2 = value of calculated hash';
+#endif
         IntelligentCloudTok: Label 'INTELLIGENT CLOUD', Locked = true;
         LocalTok: Label 'LOCAL', Locked = true;
         EnvironmentInfo: Codeunit "Environment Information";
@@ -183,6 +185,7 @@ codeunit 9002 "Permission Manager"
         AllProfile: Record "All Profile";
         UsersInPlans: Query "Users in Plans";
         Plan: Query Plan;
+        IsAllProfileFiltered: Boolean;
     begin
         UsersInPlans.SetRange(User_Security_ID, UserSecurityID);
         if not UsersInPlans.Open() then
@@ -193,7 +196,10 @@ codeunit 9002 "Permission Manager"
         Plan.Open();
         Plan.Read();
 
-        AllProfile.SetRange("Role Center ID", Plan.Role_Center_ID);
+        if Plan.Role_Center_ID = Page::"Business Manager Role Center" then
+            FilterProfileToBusinessManagerEvaluationForCronus(AllProfile, IsAllProfileFiltered)
+        else
+            AllProfile.SetRange("Role Center ID", Plan.Role_Center_ID);
 
         if not AllProfile.FindFirst() then
             exit; // the plan does not have a role center, so they'll get the app-wide default role center
@@ -206,8 +212,13 @@ codeunit 9002 "Permission Manager"
             UserPersonalization.Validate("App ID", AllProfile."App ID");
             UserPersonalization.Validate(Scope, AllProfile.Scope);
             UserPersonalization.Insert();
-            exit;
-        end;
+        end else
+            if IsAllProfileFiltered then begin
+                UserPersonalization.Validate("Profile ID", AllProfile."Profile ID");
+                UserPersonalization.Validate("App ID", AllProfile."App ID");
+                UserPersonalization.Validate(Scope, AllProfile.Scope);
+                UserPersonalization.Modify();
+            end;
     end;
 
     /// <summary>
@@ -279,14 +290,6 @@ codeunit 9002 "Permission Manager"
           UserGroupPermissionSet.WritePermission);
     end;
 
-    [Obsolete('Procedure is now part of codeunit User Permissions (System Application)', '16.0')]
-    procedure CanManageUsersOnTenant(UserSID: Guid): Boolean
-    var
-        UserPermissions: Codeunit "User Permissions";
-    begin
-        exit(UserPermissions.CanManageUsersOnTenant(UserSID));
-    end;
-
     procedure GenerateHashForPermissionSet(PermissionSetId: Code[20]): Text[250]
     var
         Permission: Record Permission;
@@ -327,6 +330,18 @@ codeunit 9002 "Permission Manager"
         PermissionSet.Modify();
     end;
 #endif
+
+    local procedure FilterProfileToBusinessManagerEvaluationForCronus(var AllProfile: Record "All Profile"; var IsFiltered: Boolean)
+    var
+        Company: Record Company;
+    begin
+        if Company.Get(CompanyName()) then
+            if Company."Evaluation Company" then
+                if Company.Name.ToLower().StartsWith('cronus') then begin
+                    AllProfile.SetRange("Profile ID", 'Business Manager Evaluation');
+                    IsFiltered := true;
+                end;
+    end;
 
     local procedure GetCharRepresentationOfPermission(PermissionOption: Integer): Text[1]
     begin

@@ -349,9 +349,9 @@ page 9308 "Purchase Invoices"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsPurchase(Rec);
                     end;
                 }
                 action(Vendor)
@@ -486,6 +486,7 @@ page 9308 "Purchase Invoices"
                     Promoted = true;
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -517,7 +518,7 @@ page 9308 "Purchase Invoices"
                     PromotedCategory = Category5;
                     PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
-                    ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                    ToolTip = 'Finalize and print the document or journal. The values and quantities are posted to the related accounts.';
 
                     trigger OnAction()
                     begin
@@ -679,6 +680,6 @@ page 9308 "Purchase Invoices"
     [IntegrationEvent(true, false)]
     local procedure OnPostBeforeNavigateAfterPosting(var PurchaseHeader: Record "Purchase Header"; var PostingCodeunitID: Integer; var IsHandled: Boolean)
     begin
-    end;    
+    end;
 }
 

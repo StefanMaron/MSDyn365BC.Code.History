@@ -448,7 +448,9 @@ codeunit 142500 "Export Payments File Handling"
     var
         FileManagement: Codeunit "File Management";
     begin
+#if not CLEAN19
         FileManagement.CreateClientDirectory(FilePathName);
+#endif
         exit(FilePathName);
     end;
 
@@ -456,21 +458,27 @@ codeunit 142500 "Export Payments File Handling"
     var
         FileManagement: Codeunit "File Management";
     begin
+#if not CLEAN19
         FileManagement.DeleteClientDirectory(FilePathName);
+#endif
     end;
 
     local procedure CreateFile(FilePathName: Text)
     var
         FileManagement: Codeunit "File Management";
     begin
+#if not CLEAN19
         FileManagement.CreateClientFile(FilePathName);
+#endif
     end;
 
     local procedure DeleteFile(FilePathName: Text)
     var
         FileManagement: Codeunit "File Management";
     begin
+#if not CLEAN19
         FileManagement.DeleteClientFile(FilePathName);
+#endif
     end;
 
     local procedure ModifyBankAccount(var BankAccount: Record "Bank Account")

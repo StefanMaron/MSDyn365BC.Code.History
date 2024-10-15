@@ -1,4 +1,4 @@
-﻿codeunit 5055 "CustVendBank-Update"
+codeunit 5055 "CustVendBank-Update"
 {
     TableNo = Contact;
 

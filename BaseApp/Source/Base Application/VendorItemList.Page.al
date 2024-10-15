@@ -64,6 +64,7 @@ page 298 "Vendor Item List"
             {
                 Caption = 'Vendor Item';
                 Image = Item;
+#if not CLEAN19
                 action("Purch. Prices")
                 {
                     ApplicationArea = Suite;
@@ -74,6 +75,9 @@ page 298 "Vendor Item List"
                                   "Vendor No." = FIELD("Vendor No.");
                     RunPageView = SORTING("Item No.", "Vendor No.");
                     ToolTip = 'Define purchase price agreements with vendors for specific items.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 }
                 action("Purch. Line Discounts")
                 {
@@ -84,7 +88,11 @@ page 298 "Vendor Item List"
                     RunPageLink = "Item No." = FIELD("Item No."),
                                   "Vendor No." = FIELD("Vendor No.");
                     ToolTip = 'Define purchase line discounts with vendors. For example, you may get for a line discount if you buy items from a vendor in large quantities.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 }
+#endif
             }
         }
     }

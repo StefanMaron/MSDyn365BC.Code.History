@@ -316,6 +316,7 @@ table 79 "Company Information"
             AccessByPermission = TableData "IC G/L Account" = R;
             Caption = 'IC Inbox Details';
 
+#if not CLEAN17
             trigger OnLookup()
             var
                 FileMgt: Codeunit "File Management";
@@ -332,17 +333,16 @@ table 79 "Company Information"
                             else
                                 FileName := "IC Inbox Details" + StrSubstNo('\%1.xml', "IC Partner Code");
 
-#if not CLEAN17
                             FileName2 := FileMgt.SaveFileDialog(Text001, FileName, '');
                             if FileName <> FileName2 then begin
                                 Path := FileMgt.GetDirectoryName(FileName2);
                                 if Path <> '' then
                                     "IC Inbox Details" := CopyStr(Path, 1, 250);
                             end;
-#endif
                         end;
                 end;
             end;
+#endif
         }
         field(44; "Auto. Send Transactions"; Boolean)
         {
@@ -608,7 +608,9 @@ table 79 "Company Information"
     var
         PostCode: Record "Post Code";
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
+#if not CLEAN17
         Text001: Label 'File Location for IC files';
+#endif
         Text002: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         Text10000: Label '%1 is not a valid RFC No.';
         Text10001: Label '%1 is not a valid CURP No.';
@@ -648,7 +650,7 @@ table 79 "Company Information"
             IBANError(OriginalIBANCode);
     end;
 
-    local procedure ConvertIBAN(var IBANCode: Code[100])
+    procedure ConvertIBAN(var IBANCode: Code[100])
     var
         I: Integer;
     begin
@@ -661,7 +663,7 @@ table 79 "Company Information"
         end;
     end;
 
-    local procedure CalcModulus(Number: Code[10]; Modulus97: Integer): Code[10]
+    procedure CalcModulus(Number: Code[10]; Modulus97: Integer): Code[10]
     var
         I: Integer;
     begin
@@ -672,7 +674,7 @@ table 79 "Company Information"
         exit(Format(I));
     end;
 
-    local procedure ConvertLetter(var IBANCode: Code[100]; Letter: Code[1]; LetterPlace: Integer): Boolean
+    procedure ConvertLetter(var IBANCode: Code[100]; Letter: Code[1]; LetterPlace: Integer): Boolean
     var
         Letter2: Code[2];
         LetterCharInt: Integer;
@@ -682,11 +684,11 @@ table 79 "Company Information"
         LetterCharInt := Letter[1];
         if LetterCharInt in [65 .. 90] then begin
             Letter2 := Format(LetterCharInt - 55, 9);
-            if LetterPlace = 1 then
-                IBANCode := Letter2 + CopyStr(IBANCode, 2)
-            else begin
-                if LetterPlace = StrLen(IBANCode) then
-                    IBANCode := CopyStr(IBANCode, 1, LetterPlace - 1) + Letter2
+            case LetterPlace of
+                1:
+                    IBANCode := Letter2 + CopyStr(IBANCode, 2);
+                StrLen(IBANCode):
+                    IBANCode := CopyStr(IBANCode, 1, LetterPlace - 1) + Letter2;
                 else
                     IBANCode :=
                       CopyStr(IBANCode, 1, LetterPlace - 1) + Letter2 + CopyStr(IBANCode, LetterPlace + 1);
@@ -699,7 +701,7 @@ table 79 "Company Information"
         IBANError(IBANCode);
     end;
 
-    local procedure IsDigit(LetterChar: Char): Boolean
+    procedure IsDigit(LetterChar: Char): Boolean
     var
         Letter: Code[1];
     begin
@@ -707,12 +709,12 @@ table 79 "Company Information"
         exit((Letter >= '0') and (Letter <= '9'))
     end;
 
-    local procedure IBANError(WrongIBAN: Text)
+    procedure IBANError(WrongIBAN: Text)
     var
         ConfirmManagement: Codeunit "Confirm Management";
         IsHandled: Boolean;
     begin
-        OnBeforeIBANError(IsHandled);
+        OnBeforeIBANError(IsHandled, WrongIBAN);
         if IsHandled then
             exit;
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(NotValidIBANErr, WrongIBAN), true) then
@@ -825,22 +827,6 @@ table 79 "Company Information"
         OnAfterGetSystemIndicator(Text, Style)
     end;
 
-    local procedure GetDatabaseIndicatorText(IncludeCompany: Boolean): Text[250]
-    var
-        ActiveSession: Record "Active Session";
-        Text: Text[1024];
-    begin
-        ActiveSession.SetRange("Server Instance ID", ServiceInstanceId);
-        ActiveSession.SetRange("Session ID", SessionId);
-        ActiveSession.FindFirst;
-        Text := ActiveSession."Database Name" + ' - ' + ActiveSession."Server Computer Name";
-        if IncludeCompany then
-            Text := CompanyName + ' - ' + Text;
-        if StrLen(Text) > 250 then
-            exit(CopyStr(Text, 1, 247) + '...');
-        exit(Text)
-    end;
-
     procedure GetCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
     begin
         case CountryRegionCode of
@@ -919,13 +905,12 @@ table 79 "Company Information"
         Company: Record Company;
     begin
         Company.SetFilter(Name, '<>%1', CompanyName);
-        if Company.FindSet then begin
+        if Company.FindSet then
             repeat
                 CompanyInformation.ChangeCompany(Company.Name);
                 if CompanyInformation.Get then
                     SyncEnabled := CompanyInformation."Sync with O365 Bus. profile";
             until (Company.Next() = 0) or SyncEnabled;
-        end;
     end;
 
     local procedure SetBrandColorValue()
@@ -954,7 +939,7 @@ table 79 "Company Information"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeIBANError(var IsHandled: Boolean)
+    local procedure OnBeforeIBANError(var IsHandled: Boolean; WrongIBAN: Text)
     begin
     end;
 

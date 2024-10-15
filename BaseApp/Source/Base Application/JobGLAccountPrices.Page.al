@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 1013 "Job G/L Account Prices"
 {
     Caption = 'Job G/L Account Prices';
@@ -87,4 +88,4 @@ page 1013 "Job G/L Account Prices"
         FeaturePriceCalculation.FailIfFeatureEnabled();
     end;
 }
-
+#endif

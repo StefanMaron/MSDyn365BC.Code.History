@@ -312,10 +312,10 @@ page 5769 "Whse. Receipt Subform"
     var
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         Text001: Label 'Cross-docking has been disabled for item %1 or location %2.';
-        OverReceiptAllowed: Boolean;
 
     protected var
         WhseCrossDockOpp2: Record "Whse. Cross-Dock Opportunity";
+        OverReceiptAllowed: Boolean;
 
     trigger OnOpenPage()
     begin

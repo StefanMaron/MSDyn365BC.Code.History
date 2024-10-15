@@ -949,22 +949,14 @@ report 1316 "Standard Statement"
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
         PrintedCustomersList: List of [Code[20]];
-        PrintAllHavingEntry: Boolean;
-        PrintAllHavingBal: Boolean;
-        PrintEntriesDue: Boolean;
-        PrintUnappliedEntries: Boolean;
-        PrintReversedEntries: Boolean;
         PrintLine: Boolean;
         LogInteraction: Boolean;
         EntriesExists: Boolean;
-        StartDate: Date;
-        EndDate: Date;
         DueDate: Date;
         CustAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         Description: Text[100];
         StartBalance: Decimal;
-        CustBalance: Decimal;
         RemainingAmount: Decimal;
         CurrencyCode3: Code[10];
         MulticurrencyAppLbl: Label 'Multicurrency Application';
@@ -1029,10 +1021,17 @@ report 1316 "Standard Statement"
         CustomerStatementReportGeneratedTxt: Label 'Customer Statement report generated.', Locked = true;
 
     protected var
+        CustBalance: Decimal;
         NumberOfCustLedgerEntryLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;
-
+        StartDate: Date;
+        EndDate: Date;
+        PrintAllHavingEntry: Boolean;
+        PrintAllHavingBal: Boolean;
+        PrintEntriesDue: Boolean;
+        PrintUnappliedEntries: Boolean;
+        PrintReversedEntries: Boolean;
 
     local procedure GetDate(PostingDate: Date; DueDate: Date): Date
     begin

@@ -667,6 +667,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "Pmt. Reconciliation Journals";
                     ToolTip = 'Reconcile unpaid documents automatically with their related bank transactions by importing a bank statement feed or file. In the payment reconciliation journal, incoming or outgoing payments on your bank are automatically, or semi-automatically, applied to their related open customer or vendor ledger entries. Any open bank account ledger entries related to the applied customer or vendor ledger entries will be closed when you choose the Post Payments and Reconcile Bank Account action. This means that the bank account is automatically reconciled for payments that you post with the journal.';
                 }
+#if not CLEAN19
                 action("Bank Acc. Statements")
                 {
                     ApplicationArea = Basic, Suite;
@@ -676,7 +677,11 @@ page 9027 "Accountant Role Center"
                     PromotedCategory = Process;
                     RunObject = Page "Bank Account Statement List";
                     ToolTip = 'View statements for selected bank accounts. For each bank transaction, the report shows a description, an applied amount, a statement amount, and other information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The action is already available in the Posted Documents group.';
+                    ObsoleteTag = '19.0';
                 }
+#endif
                 action("Payment Terms")
                 {
                     ApplicationArea = Basic, Suite;
@@ -902,6 +907,7 @@ page 9027 "Accountant Role Center"
                 }
                 action("Issued Reminders")
                 {
+                    ApplicationArea = Suite;
                     Caption = 'Issued Reminders';
                     Image = OrderReminder;
                     RunObject = Page "Issued Reminder List";
@@ -909,6 +915,7 @@ page 9027 "Accountant Role Center"
                 }
                 action("Issued Fin. Charge Memos")
                 {
+                    ApplicationArea = Suite;
                     Caption = 'Issued Fin. Charge Memos';
                     Image = PostedMemo;
                     RunObject = Page "Issued Fin. Charge Memo List";
@@ -951,6 +958,7 @@ page 9027 "Accountant Role Center"
                 Caption = 'Setup & Extensions';
                 Image = Setup;
                 ToolTip = 'Overview and change system and application settings, and manage extensions and services';
+                Visible = false;
                 ObsoleteState = Pending;
                 ObsoleteReason = 'The new common entry points to all Settings is introduced in the app bar''s cogwheel menu (aligned with the Office apps).';
                 ObsoleteTag = '18.0';
@@ -1241,9 +1249,15 @@ page 9027 "Accountant Role Center"
                     ToolTip = 'Run the Consolidation report.';
                 }
             }
+#if not CLEAN19
             group(Setup)
             {
                 Caption = 'Setup';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Setup is no longer shown in this page.';
+                ObsoleteTag = '19.0';
+
                 action(Action112)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1251,6 +1265,9 @@ page 9027 "Accountant Role Center"
                     Image = QuestionaireSetup;
                     RunObject = Page "Assisted Setup";
                     ToolTip = 'Set up core functionality such as sales tax, sending documents as email, and approval workflow by running through a few pages that guide you through the information.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Accounting /Periods")
                 {
@@ -1267,6 +1284,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "General Ledger Setup";
                     ToolTip = 'Define your general accounting policies, such as the allowed posting period and how payments are processed. Set up your default dimensions for financial analysis.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("&Sales && Receivables Setup")
                 {
@@ -1275,6 +1295,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Sales & Receivables Setup";
                     ToolTip = 'Define your general policies for sales invoicing and returns, such as when to show credit and stockout warnings and how to post sales discounts. Set up your number series for creating customers and different sales documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("&Purchases && Payables Setup")
                 {
@@ -1283,6 +1306,9 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Purchases & Payables Setup";
                     ToolTip = 'Define your general policies for purchase invoicing and returns, such as whether to require vendor invoice numbers and how to post purchase discounts. Set up your number series for creating vendors and different purchase documents.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Cost Accounting Setup")
                 {
@@ -1291,6 +1317,9 @@ page 9027 "Accountant Role Center"
                     Image = CostAccountingSetup;
                     RunObject = Page "Cost Accounting Setup";
                     ToolTip = 'Specify how you transfer general ledger entries to cost accounting, how you link dimensions to cost centers and cost objects, and how you handle the allocation ID and allocation document number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
                 action("Business Units")
                 {
@@ -1299,8 +1328,12 @@ page 9027 "Accountant Role Center"
                     Image = Setup;
                     RunObject = Page "Business Unit List";
                     ToolTip = 'Set up Business Units that you need to consolidate into this company.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Setup is no longer shown in this page.';
+                    ObsoleteTag = '19.0';
                 }
             }
+#endif
             group(History)
             {
                 Caption = 'History';

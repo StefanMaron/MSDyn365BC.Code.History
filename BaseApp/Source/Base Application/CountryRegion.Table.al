@@ -1,4 +1,4 @@
-table 9 "Country/Region"
+﻿table 9 "Country/Region"
 {
     Caption = 'Country/Region';
     LookupPageID = "Countries/Regions";
@@ -54,12 +54,10 @@ table 9 "Country/Region"
         {
             Caption = 'Intrastat Code';
         }
-        field(8; "Address Format"; Option)
+        field(8; "Address Format"; Enum "Country/Region Address Format")
         {
             Caption = 'Address Format';
             InitValue = "City+Post Code";
-            OptionCaption = 'Post Code+City,City+Post Code,City+County+Post Code,Blank Line+Post Code+City,,City+County+New Line+Post Code,Post Code+City+County,,,,,,,Custom';
-            OptionMembers = "Post Code+City","City+Post Code","City+County+Post Code","Blank Line+Post Code+City",,"City+County+New Line+Post Code","Post Code+City+County",,,,,,,Custom;
 
             trigger OnValidate()
             begin

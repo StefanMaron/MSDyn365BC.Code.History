@@ -329,6 +329,10 @@ report 120 "Aged Accounts Receivable"
                             AutoFormatExpression = CurrencyCode;
                             AutoFormatType = 1;
                         }
+                        column(CLEEndDate_ExtDocNo; CustLedgEntryEndingDate."External Document No.")
+                        {
+
+                        }
                         column(CLEEndDate; CustLedgEntryEndingDate.Amount)
                         {
                             AutoFormatExpression = CurrencyCode;
@@ -730,7 +734,6 @@ report 120 "Aged Accounts Receivable"
 
     var
         GLSetup: Record "General Ledger Setup";
-        TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         CustLedgEntryEndingDate: Record "Cust. Ledger Entry";
         TotalCustLedgEntry: array[5] of Record "Cust. Ledger Entry";
         GrandTotalCustLedgEntry: array[5] of Record "Cust. Ledger Entry";
@@ -783,6 +786,7 @@ report 120 "Aged Accounts Receivable"
         AgedARReportGeneratedTxt: Label 'Aged AR Report generated.', Locked = true;
 
     protected var
+        TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         NumberOfLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;

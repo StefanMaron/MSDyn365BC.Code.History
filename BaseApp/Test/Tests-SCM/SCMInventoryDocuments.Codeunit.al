@@ -25,6 +25,8 @@ codeunit 137140 "SCM Inventory Documents"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         isInitialized: Boolean;
         ItemTrackingAction: Option AssignSerialNo,SelectEntries;
+        RoundingTo0Err: Label 'Rounding of the field';
+        RoundingErr: Label 'is of lesser precision than expected';
 
     [Test]
     [Scope('OnPrem')]
@@ -425,46 +427,207 @@ codeunit 137140 "SCM Inventory Documents"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemReceiptWithNoLinesNothingToPostError()
+    procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnInvtDocumentLine()
     var
         InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
     begin
-        // [FEATURE 378558] [Item Receipt] 
-        // Post item document without lines produce 'Nothing to post' error
-        Initialize();
+        Initialize;
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
 
-        // [GIVEN] Item receipt without lines
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, "Invt. Doc. Document Type"::Receipt, Location.Code);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
 
-        // [THEN] Post item receipt
-        asserterror LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
 
-        // [WHEN] ... get error 'Nothing to post'
-        Assert.ExpectedError('nothing to post');
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code, 0);
+        InvtDocumentLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        InvtDocumentLine.Modify();
+
+        asserterror InvtDocumentLine.Validate(Quantity, 0.01);
+        Assert.ExpectedError(RoundingTo0Err);
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure ItemShipmentWithNoLinesNothingToPostError()
+    procedure ErrorThrownWhenQtyIsRoundedTo0OnInvtDocumentLine()
     var
         InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
         Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
     begin
-        // [FEATURE 378558] [Item Shipment] 
-        // Post item document without lines produce 'Nothing to post' error
-        Initialize();
+        Initialize;
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
 
-        // [GIVEN] Item shipment without lines
-        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        LibraryInventory.CreateInvtDocument(InvtDocumentHeader, "Invt. Doc. Document Type"::Shipment, Location.Code);
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
 
-        // [THEN] Post item shipment
-        asserterror LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
 
-        // [WHEN] ... get error 'Nothing to post'
-        Assert.ExpectedError('nothing to post');
+        CreateInvtDocumentWithLine(
+          InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code, 0);
+        InvtDocumentLine.Validate("Unit of Measure Code", BaseUOM.Code);
+        InvtDocumentLine.Modify();
+        asserterror InvtDocumentLine.Validate(Quantity, 0.01);
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnInvtDocumentLine()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code, 0);
+        InvtDocumentLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        InvtDocumentLine.Validate(Quantity, 5.67);
+        Assert.AreEqual(17.0, InvtDocumentLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnInvtDocumentLine()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code, 0);
+        InvtDocumentLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        InvtDocumentLine.Validate(Quantity, 5.6666666);
+        Assert.AreEqual(17.00001, InvtDocumentLine."Quantity (Base)", 'Base qty. is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionOnInvtDocumentLine()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        Location: Record Location;
+        DimensionValue: Record "Dimension Value";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        SetupForItemDocument(SalespersonPurchaser, Location, DimensionValue);
+        NonBaseQtyPerUOM := 6;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader, InvtDocumentLine, Item, InvtDocumentHeader."Document Type"::Receipt, Location.Code, SalespersonPurchaser.Code, 0);
+        InvtDocumentLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        InvtDocumentLine.Validate(Quantity, 5 / 6);
+        Assert.AreEqual(5, InvtDocumentLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
     end;
 
     [Test]
@@ -490,6 +653,174 @@ codeunit 137140 "SCM Inventory Documents"
 
         // [THEN] Create line
         asserterror LibraryInventory.CreateInvtDocumentLine(InvtDocumentHeader, InvtDocumentLine, Item."No.", 0, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShouldTransferRoundingPrecisionToInvtShipmentLine()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        Location: Record Location;
+        InvtShipmentHeader: Record "Invt. Shipment Header";
+        InvtShipmentLine: Record "Invt. Shipment Line";
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize();
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader, InvtDocumentLine, Item,
+            InvtDocumentHeader."Document Type"::Shipment, Location.Code, '', 1
+        );
+        InvtDocumentLine.Validate("Unit of Measure Code", BaseUOM.Code);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        InvtShipmentHeader.SetRange("Location Code", Location.Code);
+        InvtShipmentHeader.FindFirst();
+        InvtShipmentLine.SetRange("Document No.", InvtShipmentHeader."No.");
+        InvtShipmentLine.FindFirst();
+
+        Assert.AreEqual(
+            InvtDocumentLine."Qty. Rounding Precision", InvtShipmentLine."Qty. Rounding Precision",
+            'Expected Qty. Rounding Precision to be transferred.'
+        );
+        Assert.AreEqual(
+            InvtDocumentLine."Qty. Rounding Precision (Base)", InvtShipmentLine."Qty. Rounding Precision (Base)",
+            'Expected Qty. Rounding Precision (Base) to be transferred.'
+        );
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ShouldTransferRoundingPrecisionToInvtReceiptLine()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        Location: Record Location;
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+        InvtReceiptLine: Record "Invt. Receipt Line";
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize();
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        CreateInvtDocumentWithLine(
+            InvtDocumentHeader, InvtDocumentLine, Item,
+            InvtDocumentHeader."Document Type"::Receipt, Location.Code, '', 1
+        );
+        InvtDocumentLine.Validate("Unit of Measure Code", BaseUOM.Code);
+        LibraryInventory.PostInvtDocument(InvtDocumentHeader);
+
+        InvtReceiptHeader.SetRange("Location Code", Location.Code);
+        InvtReceiptHeader.FindFirst();
+        InvtReceiptLine.SetRange("Document No.", InvtReceiptHeader."No.");
+        InvtReceiptLine.FindFirst();
+
+        Assert.AreEqual(
+            InvtDocumentLine."Qty. Rounding Precision", InvtReceiptLine."Qty. Rounding Precision",
+            'Expected Qty. Rounding Precision to be transferred.'
+        );
+        Assert.AreEqual(
+            InvtDocumentLine."Qty. Rounding Precision (Base)", InvtReceiptLine."Qty. Rounding Precision (Base)",
+            'Expected Qty. Rounding Precision (Base) to be transferred.'
+        );
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationWithRequireReceiptAllowed()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        LocationReceipt: Record Location;
+        LocationPutAwayAndPick: Record Location;
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+    begin
+        // [SCENARIO] It is possible to use a location with require receipt for inventory receipt document but 
+        // not for directed put-away and pick.
+        Initialize();
+
+        // [GIVEN] An item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] A location with require receipt and one with put-away and pick.
+        LibraryWarehouse.CreateLocationWMS(LocationReceipt, false, false, false, true, false);
+        LibraryWarehouse.CreateFullWMSLocation(LocationPutAwayAndPick, 1);
+
+        // [WHEN] Creating an inventory receipt document for location with require receipt.
+        LibraryInventory.CreateInvtDocument(
+            InvtDocumentHeader, InvtDocumentHeader."Document Type"::Receipt, LocationReceipt.Code);
+
+        // [THEN] No error is thrown.
+
+        // [WHEN] Setting location with require put-away and pick.
+        asserterror InvtDocumentHeader.Validate("Location Code", LocationPutAwayAndPick.Code);
+
+        // [THEN] An error is thrown.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LocationWithRequireShipmentAllowed()
+    var
+        InvtDocumentHeader: Record "Invt. Document Header";
+        InvtDocumentLine: Record "Invt. Document Line";
+        Item: Record Item;
+        LocationShipment: Record Location;
+        LocationPutAwayAndPick: Record Location;
+        InvtReceiptHeader: Record "Invt. Receipt Header";
+    begin
+        // [SCENARIO] It is possible to use a location with require receipt for inventory shipment document but 
+        // not for directed put-away and pick.
+        Initialize();
+
+        // [GIVEN] An item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] A location with require shipment and one with put-away and pick.
+        LibraryWarehouse.CreateLocationWMS(LocationShipment, false, false, false, false, true);
+        LibraryWarehouse.CreateFullWMSLocation(LocationPutAwayAndPick, 1);
+
+        // [WHEN] Creating an inventory shipment document for location with require shipment.
+        LibraryInventory.CreateInvtDocument(
+            InvtDocumentHeader, InvtDocumentHeader."Document Type"::Shipment, LocationShipment.Code);
+
+        // [THEN] No error is thrown.
+
+        // [WHEN] Setting location with require put-away and pick.
+        asserterror InvtDocumentHeader.Validate("Location Code", LocationPutAwayAndPick.Code);
+
+        // [THEN] An error is thrown.
     end;
 
     local procedure Initialize()
@@ -543,11 +874,16 @@ codeunit 137140 "SCM Inventory Documents"
 
     local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20])
     begin
+        CreateInvtDocumentWithLine(InvtDocumentHeader, InvtDocumentLine, Item, DocumentType, LocationCode, SalespersonPurchaserCode, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateInvtDocumentWithLine(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; Item: Record Item; DocumentType: Enum "Invt. Doc. Document Type"; LocationCode: Code[10]; SalespersonPurchaserCode: Code[20]; Qty: Decimal)
+    begin
         LibraryInventory.CreateInvtDocument(InvtDocumentHeader, DocumentType, LocationCode);
         InvtDocumentHeader.Validate("Salesperson/Purchaser Code", SalespersonPurchaserCode);
         InvtDocumentHeader.Modify(true);
         LibraryInventory.CreateInvtDocumentLine(
-          InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", LibraryRandom.RandDec(10, 2));
+          InvtDocumentHeader, InvtDocumentLine, Item."No.", Item."Unit Cost", Qty);
     end;
 
     local procedure CreateInvtDocumentWithItemTracking(var InvtDocumentHeader: Record "Invt. Document Header"; var InvtDocumentLine: Record "Invt. Document Line"; ItemDocumentType: Enum "Invt. Doc. Document Type"; ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; Qty: Decimal; ItemTrkgAction: Option)

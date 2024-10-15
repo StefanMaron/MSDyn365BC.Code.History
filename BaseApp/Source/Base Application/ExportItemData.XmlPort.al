@@ -659,9 +659,11 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemLedgEntry_DerivedfromBlanketOrder; ItemLedgEntry."Derived from Blanket Order")
                 {
                 }
+#if not CLEAN19
                 fieldelement(ItemLedgEntry_CrossReferenceNo; ItemLedgEntry."Cross-Reference No.")
                 {
                 }
+#endif
                 fieldelement(ItemLedgEntry_ItemReferenceNo; ItemLedgEntry."Item Reference No.")
                 {
                 }

@@ -1,4 +1,4 @@
-﻿codeunit 10125 "Posted Bank Rec.-Delete"
+codeunit 10125 "Posted Bank Rec.-Delete"
 {
     Permissions = TableData "Bank Comment Line" = rd,
                   TableData "Posted Bank Rec. Header" = rd,

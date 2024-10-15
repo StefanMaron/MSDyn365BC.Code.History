@@ -4,11 +4,9 @@ table 7325 "Whse. Pick Request"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Warehouse Pick Request Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Shipment,Internal Pick,Production,Assembly';
-            OptionMembers = Shipment,"Internal Pick",Production,Assembly;
         }
         field(2; "Document Subtype"; Option)
         {
@@ -64,7 +62,7 @@ table 7325 "Whse. Pick Request"
         }
         field(9; "Shipment Method Code"; Code[10])
         {
-            CalcFormula = Lookup ("Warehouse Shipment Header"."Shipment Method Code" WHERE("No." = FIELD("Document No.")));
+            CalcFormula = Lookup("Warehouse Shipment Header"."Shipment Method Code" WHERE("No." = FIELD("Document No.")));
             Caption = 'Shipment Method Code';
             Editable = false;
             FieldClass = FlowField;
@@ -73,7 +71,7 @@ table 7325 "Whse. Pick Request"
         field(10; "Shipping Agent Code"; Code[10])
         {
             AccessByPermission = TableData "Shipping Agent Services" = R;
-            CalcFormula = Lookup ("Warehouse Shipment Header"."Shipping Agent Code" WHERE("No." = FIELD("Document No.")));
+            CalcFormula = Lookup("Warehouse Shipment Header"."Shipping Agent Code" WHERE("No." = FIELD("Document No.")));
             Caption = 'Shipping Agent Code';
             Editable = false;
             FieldClass = FlowField;
@@ -81,7 +79,7 @@ table 7325 "Whse. Pick Request"
         }
         field(11; "Shipping Agent Service Code"; Code[10])
         {
-            CalcFormula = Lookup ("Warehouse Shipment Header"."Shipping Agent Service Code" WHERE("No." = FIELD("Document No.")));
+            CalcFormula = Lookup("Warehouse Shipment Header"."Shipping Agent Service Code" WHERE("No." = FIELD("Document No.")));
             Caption = 'Shipping Agent Service Code';
             Editable = false;
             FieldClass = FlowField;

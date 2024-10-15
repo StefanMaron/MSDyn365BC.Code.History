@@ -133,8 +133,8 @@ table 5062 Attachment
         SegmentLine: Record "Segment Line";
 #if not CLEAN17
         WordManagement: Codeunit WordManagement;
-#endif
         FileName: Text;
+#endif
     begin
         if IsHTML then begin
             SegmentLine.Init();
@@ -295,12 +295,15 @@ table 5062 Attachment
         ExportAttachmentToServerFile(ServerFileName);
 
         Path := FileMgt.Magicpath;
-        if ExportToFile = '' then begin
 #if not CLEAN17
+        if ExportToFile = '' then begin
             ExportToFile := FileMgt.GetFileName(FileMgt.ClientTempFileName("File Extension"));
-#endif
             Path := '';
         end;
+#else
+        if ExportToFile = '' then
+            Path := '';
+#endif
 
         FileFilter := UpperCase("File Extension") + ' (*.' + "File Extension" + ')|*.' + "File Extension";
         Success := Download(ServerFileName, Text005, Path, FileFilter, ExportToFile);
@@ -537,6 +540,7 @@ table 5062 Attachment
         Rec := Attachment2;
     end;
 
+#if not CLEAN19
     local procedure DeleteFile(FileName: Text): Boolean
     var
         I: Integer;
@@ -557,6 +561,7 @@ table 5062 Attachment
         exit(true);
 #endif
     end;
+#endif
 
 #if not CLEAN17
     [Scope('OnPrem')]
@@ -825,10 +830,12 @@ table 5062 Attachment
         CopyStream(OutStream, InStream);
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRunAttachment(var SegLine: Record "Segment Line"; WordCaption: Text[260]; IsTemporary: Boolean; IsVisible: Boolean; Handler: Boolean; var iSHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowAttachment(var SegLine: Record "Segment Line"; WordCaption: Text; var IsHandled: Boolean)
@@ -845,9 +852,11 @@ table 5062 Attachment
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
     local procedure OnRunAttachmentOnBeforeWordManagementRunMergedDocument(var Attachment: Record Attachment; var Handler: Boolean)
     begin
     end;
+#endif
 }
 

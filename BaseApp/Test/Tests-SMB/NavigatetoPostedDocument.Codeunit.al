@@ -620,12 +620,12 @@ codeunit 138047 "Navigate to Posted Document"
 
     local procedure ChangeWarningOnCloseUnpostedDoc(Value: Boolean)
     var
-        MySettings: TestPage "My Settings";
+        UserSettings: TestPage "User Settings";
     begin
-        MySettings.OpenEdit;
+        UserSettings.OpenEdit();
         EnabledValue := Value;
-        MySettings.MyNotificationsLbl.DrillDown;
-        MySettings.Close;
+        UserSettings.MyNotificationsLbl.DrillDown();
+        UserSettings.Close();
     end;
 
     [ConfirmHandler]

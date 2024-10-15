@@ -2,7 +2,9 @@ report 1014 "Jobs per Item"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './JobsperItem.rdlc';
+    ApplicationArea = Jobs;
     Caption = 'Jobs per Item';
+    UsageCategory = ReportsAndAnalysis;
 
     dataset
     {

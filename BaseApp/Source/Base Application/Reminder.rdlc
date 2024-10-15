@@ -111,7 +111,6 @@
                                                   <TextRun>
                                                     <Value>=Fields!Desc_IssuedReminderLine.Value</Value>
                                                     <Style>
-                                                      <FontStyle>Normal</FontStyle>
                                                       <FontFamily>Segoe UI</FontFamily>
                                                       <FontSize>8pt</FontSize>
                                                     </Style>
@@ -2353,7 +2352,7 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>2.99518in</Top>
+                              <Top>4.24518in</Top>
                               <Left>0.00004in</Left>
                               <Height>0.13889in</Height>
                               <Width>7.00952in</Width>

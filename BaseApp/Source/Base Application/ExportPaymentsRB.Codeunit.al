@@ -13,7 +13,9 @@ codeunit 10091 "Export Payments (RB)"
         InvalidPaymentSpecErr: Label 'Either %1 or %2 must refer to either a %3 or a %4 for an electronic payment.', Comment = '%1 = Account Type, %2 = the account,%3 = Vendor table, %4 = Customer table';
         ExportFileNotEndedFileNotStartedErr: Label 'Cannot end export file until an export file is started.';
         FileDoesNoteExistErr: Label 'File %1 does not exist.', Comment = '%1 = the file name.';
+#if not CLEAN17
         DidTransmissionWorkQst: Label 'Did the transmission work properly?';
+#endif
         CustomerBlockedErr: Label '%1 is blocked for %2 processing.', Comment = '%1 = account type, %2 = customer.blocked';
         PrivacyBlockedErr: Label '%1 is blocked for privacy.', Comment = '%1 = accountant type';
         Vendor: Record Vendor;
@@ -35,7 +37,9 @@ codeunit 10091 "Export Payments (RB)"
         TraceNo: Integer;
         PaymentsThisAcct: Integer;
         DemandDebitErr: Label 'Demand Debits are not supported. Check sign on %1 %2, %3 %4, %5 %6.', Comment = '%1= Journal Template Name Caption, %2 = Journal Template Name,%3=Journal Batch Name Caption,%4=Journal Batch Name,%5=Line No. Caption,%6=Line No.';
+#if not CLEAN17
         ConfirmTransmissioinQst: Label 'You must now run the program that transmits the payments file to the bank. Transmit the file named %1 located at %2 to %3 (%4 %5 %6).  After the transmission is completed, you will be asked if it worked correctly.  Are you ready to transmit (answer No to cancel the transmission process)?', Comment = '%1 = full  filename, %2 = file path, %3 = file name, %4 = bank account table, %5 = bank account no.caption, %6 = bank account no. ';
+#endif
         Transactions: Integer;
         CurrencyType: Code[3];
         NoOfCustInfoRec: Integer;

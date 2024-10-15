@@ -286,10 +286,15 @@ report 10164 "Item/Vendor Catalog"
                 StartingDate := PriceListLine."Starting Date";
                 DirectUnitCost := PriceListLine."Direct Unit Cost";
             end;
+#if CLEAN17
+        end;
+#else
         end else
             GetPriceDataV15();
+#endif
     end;
 
+#if not CLEAN17
     local procedure GetPriceDataV15();
     var
         PurchPrice: Record "Purchase Price";
@@ -302,6 +307,7 @@ report 10164 "Item/Vendor Catalog"
             DirectUnitCost := PurchPrice."Direct Unit Cost";
         end;
     end;
+#endif
 
     procedure WhichOrder() "Order": Integer
     var

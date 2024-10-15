@@ -53,6 +53,592 @@ codeunit 137077 "SCM Supply Planning -IV"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ProductionBOMNoRoutingNoOnSKUUsedWhileManualCreationOfLinesOnPlanningWorksheet()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        Initialize();
+
+        // Create a Cerfitied Routing 
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader);
+
+        // Create Requisition Line
+        RequisitionLine.Init();
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate(Quantity, 1);
+
+        // Setting the Location Code and Variant Code selects the Routing No. and Produciton BOM No. from SKU
+        RequisitionLine.Validate("Location Code", Location.Code);
+        RequisitionLine.Validate("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Location Code", Location.Code); // Make sure Location Code is not reset to ''
+
+        Assert.AreEqual(RoutingHeader."No.", RequisitionLine."Routing No.", 'Routing No. is not set correctly');
+        Assert.AreEqual(ProductionBOMHeader."No.", RequisitionLine."Production BOM No.", 'Production BOM No. is not set correctly');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProductionBOMNoRoutingNoOnSKUUsedWhenCalculatePlanOnOrderPlanningPageIsInvoked()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader);
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        // CalculatePlan on OrderPlanning
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProductionBOMNoRoutingNoOnSKUUsedWhenCalculateRegPlanOnPlanningWorksheetIsInvoked()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader);
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        StartDate := GetRequiredDate(10, 30, SalesLine."Shipment Date", -1);  // Start Date less than Shipment Date.
+        EndDate := GetRequiredDate(10, 30, SalesLine."Shipment Date", 1);  // End Date more than Shipment Date.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OrderPromisingLinesAcceptCapableToPromisePageHandler')]
+    procedure ProductionBOMNoRoutingNoOnSKUUsedWhenCapableToPromiseOnSalesOrderIsInvoked()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader);
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        // Run Order Promising and accept suggestions
+        RunOrderPromisingFromSalesHeader(SalesHeader);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdBOMNoFromItemUsedWhenEmptyOnSKUWhileManualCreationOfLinesOnPlanningWorksheet()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader2: Record "Production BOM Header";
+    begin
+        Initialize();
+
+        // Create a Cerfitied Routing 
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, true, false);
+
+        // Create a new certified Produciton BOM and set it on Item
+        CreateChildItemAsProdBOM(Item2, ProductionBOMHeader2, Item2."Replenishment System"::"Prod. Order");
+        UpdateProductionBOMNoOnItem(Item, ProductionBOMHeader2."No.");
+
+        // Create Requisition Line
+        RequisitionLine.Init();
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate(Quantity, 1);
+
+        // Setting the Location Code and Variant Code selects the Routing No. and Produciton BOM No. from SKU
+        RequisitionLine.Validate("Location Code", Location.Code);
+        RequisitionLine.Validate("Variant Code", ItemVariant.Code);
+
+        Assert.AreEqual(RoutingHeader."No.", RequisitionLine."Routing No.", 'Routing No. is not set correctly');
+        Assert.AreEqual(ProductionBOMHeader2."No.", RequisitionLine."Production BOM No.", 'Production BOM No. is not set correctly');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdBOMNoFromItemUsedWhenEmptyOnSKUWhenCalculatePlanOnOrderPlanningPageIsInvoked()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader2: Record "Production BOM Header";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, true, false);
+
+        // Create a new certified Produciton BOM and set it on Item
+        CreateChildItemAsProdBOM(Item2, ProductionBOMHeader2, Item2."Replenishment System"::"Prod. Order");
+        UpdateProductionBOMNoOnItem(Item, ProductionBOMHeader2."No.");
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        // CalculatePlan on OrderPlanning
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader2."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ProdBOMNoFromItemUsedWhenEmptyOnSKUWhenCalculateRegPlanOnPlanningWorksheetIsInvoked()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader2: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, true, false);
+
+        // Create a new certified Produciton BOM and set it on Item
+        CreateChildItemAsProdBOM(Item2, ProductionBOMHeader2, Item2."Replenishment System"::"Prod. Order");
+        UpdateProductionBOMNoOnItem(Item, ProductionBOMHeader2."No.");
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        StartDate := GetRequiredDate(10, 30, SalesLine."Shipment Date", -1);  // Start Date less than Shipment Date.
+        EndDate := GetRequiredDate(10, 30, SalesLine."Shipment Date", 1);  // End Date more than Shipment Date.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader2."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OrderPromisingLinesAcceptCapableToPromisePageHandler')]
+    procedure ProdBOMNoFromItemUsedWhenEmptyOnSKUWhenCapableToPromiseOnSalesOrderIsInvoked()
+    var
+        Item: Record Item;
+        Item2: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMHeader2: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, true, false);
+
+        // Create a new certified Produciton BOM and set it on Item
+        CreateChildItemAsProdBOM(Item2, ProductionBOMHeader2, Item2."Replenishment System"::"Prod. Order");
+        UpdateProductionBOMNoOnItem(Item, ProductionBOMHeader2."No.");
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        // Run Order Promising and accept suggestions
+        RunOrderPromisingFromSalesHeader(SalesHeader);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader2."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingNoFromItemUsedWhenEmptyOnSKUWhileManualCreationOfLinesOnPlanningWorksheet()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+    begin
+        Initialize();
+
+        // Create a Cerfitied Routing 
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, false, true);
+
+        // Create a new certified routing and set it on Item
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CertifyRouting(RoutingHeader);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // Create Requisition Line
+        RequisitionLine.Init();
+        RequisitionLine.Validate(Type, RequisitionLine.Type::Item);
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate(Quantity, 1);
+
+        // Setting the Location Code and Variant Code selects the Routing No. and Produciton BOM No. from SKU
+        RequisitionLine.Validate("Location Code", Location.Code);
+        RequisitionLine.Validate("Variant Code", ItemVariant.Code);
+
+        Assert.AreEqual(RoutingHeader."No.", RequisitionLine."Routing No.", 'Routing No. is not set correctly');
+        Assert.AreEqual(ProductionBOMHeader."No.", RequisitionLine."Production BOM No.", 'Production BOM No. is not set correctly');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingNoFromItemUsedWhenEmptyOnSKUWhenCalculatePlanOnOrderPlanningPageIsInvoked()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, false, true);
+
+        // Create a new certified routing and set it on Item
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CertifyRouting(RoutingHeader);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        // CalculatePlan on OrderPlanning
+        LibraryPlanning.CalculateOrderPlanSales(RequisitionLine);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RoutingNoFromItemUsedWhenEmptyOnSKUWhenCalculateRegPlanOnPlanningWorksheetIsInvoked()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+        StartDate: Date;
+        EndDate: Date;
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, false, true);
+
+        // Create a new certified routing and set it on Item
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CertifyRouting(RoutingHeader);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        StartDate := GetRequiredDate(10, 30, SalesLine."Shipment Date", -1);  // Start Date less than Shipment Date.
+        EndDate := GetRequiredDate(10, 30, SalesLine."Shipment Date", 1);  // End Date more than Shipment Date.
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, StartDate, EndDate);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('OrderPromisingLinesAcceptCapableToPromisePageHandler')]
+    procedure RoutingNoFromItemUsedWhenEmptyOnSKUWhenCapableToPromiseOnSalesOrderIsInvoked()
+    var
+        Item: Record Item;
+        StockKeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Customer: Record Customer;
+    begin
+        Initialize();
+
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        // Create a certified Produciton BOM and Routing
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, false, true);
+
+        // Create a new certified routing and set it on Item
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CertifyRouting(RoutingHeader);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+
+        // Create SalesOrder
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        SalesLine.Validate("Location Code", Location.Code);
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Modify(true);
+
+        // Run Order Promising and accept suggestions
+        RunOrderPromisingFromSalesHeader(SalesHeader);
+
+        // The requisition Line has the information defined on SKU.
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", Item."No.");
+
+        Assert.RecordIsNotEmpty(RequisitionLine);
+        Assert.RecordCount(RequisitionLine, 1);
+
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Location Code", Location.Code);
+        RequisitionLine.TestField("Variant Code", ItemVariant.Code);
+        RequisitionLine.TestField("Production BOM No.", ProductionBOMHeader."No.");
+        RequisitionLine.TestField("Routing No.", RoutingHeader."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CalcSubcontractOrderForReleasedProdOrder()
     var
         WorkCenter: Record "Work Center";
@@ -1845,6 +2431,82 @@ codeunit 137077 "SCM Supply Planning -IV"
 
     [Test]
     [Scope('OnPrem')]
+    procedure ScrapPctIgnoredForAssembledItem()
+    var
+        ItemProduct: Record Item;
+        ItemComponent: Record Item;
+        BOMComponent: Record "BOM Component";
+        FullWSLocation: Record Location;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        RequisitionLine: Record "Requisition Line";
+        ReqWkshTemplate: Record "Req. Wksh. Template";
+        PlanningComponent: Record "Planning Component";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        Scrap: Decimal;
+        DemandQty: Integer;
+    begin
+        // [FEATURE] [Item] [Planning Component] [Scrap%]
+        // [SCENARIO 303068] Calculation of PlanningComponent ignore the scrap% if the replenishment system is Assembly
+        Initialize();
+        Scrap := 6.66;
+        DemandQty := 52;
+
+        // [Given] Full warehouse location
+        LibraryWarehouse.CreateFullWMSLocation(FullWSLocation, 10);
+
+        // [Given] Create Item Component. PCS. Base UoM rounding = 1.
+        LibraryInventory.CreateItem(ItemComponent);
+
+        ItemUnitOfMeasure.Get(ItemComponent."No.", ItemComponent."Base Unit of Measure");
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure.Modify(true);
+
+        // [Given] Create Item Product. Scrap % = 6.66
+        LibraryInventory.CreateItem(ItemProduct);
+        ItemProduct.Validate("Scrap %", Scrap);
+        ItemProduct.Validate("Replenishment System", ItemProduct."Replenishment System"::Assembly);
+        ItemProduct.Modify(true);
+
+        // [Given] Choose "Assembly BOM" and add Item Component = 1.
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, ItemProduct."No.", BOMComponent.Type::Item, ItemComponent."No.",
+          1, ItemComponent."Base Unit of Measure");
+
+        // [Given] Create Planning line to reflect a demand for ItemProduct
+        CreateRequisitionLine(RequisitionLine, ItemProduct."No.", ReqWkshTemplate.Type::Planning);
+
+        RequisitionLine.Validate("Starting Date", WorkDate);
+        RequisitionLine.Validate(Quantity, DemandQty);
+        RequisitionLine.Validate("Location Code", FullWSLocation.Code);
+        RequisitionLine.Modify(true);
+
+        // [When] Refresh Planning
+        LibraryPlanning.RefreshPlanningLine(RequisitionLine, 0, false, true);
+
+        // [Then] Expected Quantity on PlanningComponent ignores scrap %
+        PlanningComponent.SetRange("Item No.", ItemComponent."No.");
+        PlanningComponent.FindFirst();
+        PlanningComponent.TestField("Expected Quantity", DemandQty);
+
+        // [When] Carry out suggested action, in this case create Assembly Order
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [Then] Verify that the Quantity is set to demand quantity and does not include scrap
+        AssemblyHeader.SetRange("Item No.", ItemProduct."No.");
+        AssemblyHeader.FindFirst();
+
+        AssemblyLine.SetRange("Document Type", AssemblyLine."Document Type"::Order);
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        Assert.RecordCount(AssemblyLine, 1);
+
+        AssemblyLine.FindFirst();
+        AssemblyLine.TestField(Quantity, DemandQty);
+        AssemblyLine.TestField("Quantity to Consume", DemandQty);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CalcRegenPlanForProductionItemWithBOMWithNonInventoryItem()
     var
         ProductionItem: Record Item;
@@ -2501,7 +3163,42 @@ codeunit 137077 "SCM Supply Planning -IV"
 
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, LocationCode, Item."No.", '');
         SKU.Validate("Vendor Item No.", LibraryUtility.GenerateGUID);
+        SKU.Validate("Reordering Policy", SKU."Reordering Policy"::Order);
         SKU.Modify(true);
+    end;
+
+    local procedure CreateItemWithSKU(var Item: Record Item; var StockKeepingUnit: Record "Stockkeeping Unit"; var Location: Record Location; var ItemVariant: Record "Item Variant"; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header"; SkipProductionBOM: Boolean; SkipRouting: Boolean)
+    begin
+        // Create Item, Location, Variant and create a SKU with the created item, variant and location
+        LibraryWarehouse.CreateLocation(Location);
+        CreateItemWithSKU(Item, StockKeepingUnit, Location.Code);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Modify(true);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+
+        // Set the Produciton BOM No. and Routing No. on the SKU
+        StockKeepingUnit.Rename(Location.Code, Item."No.", ItemVariant.Code);
+
+        // Create and set a Cerfitied Routing 
+        if not SkipRouting then begin
+            LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+            CertifyRouting(RoutingHeader);
+            StockKeepingUnit.Validate("Routing No.", RoutingHeader."No.");
+        end;
+
+        // Create and set a certified Produciton BOM
+        if not SkipProductionBOM then begin
+            LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, Item."No.", 1);
+            StockKeepingUnit.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        end;
+        StockKeepingUnit.Validate("Replenishment System", "Replenishment System"::"Prod. Order");
+        StockKeepingUnit.Modify(true);
+    end;
+
+    local procedure CreateItemWithSKU(var Item: Record Item; var StockKeepingUnit: Record "Stockkeeping Unit"; var Location: Record Location; var ItemVariant: Record "Item Variant"; var ProductionBOMHeader: Record "Production BOM Header"; var RoutingHeader: Record "Routing Header")
+    begin
+        CreateItemWithSKU(Item, StockKeepingUnit, Location, ItemVariant, ProductionBOMHeader, RoutingHeader, false, false);
     end;
 
     local procedure CreateStockkeepingUnit(var StockkeepingUnit: Record "Stockkeeping Unit"; ItemNo: Code[20]; LocationCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; TransferFromCode: Code[10])
@@ -2511,6 +3208,15 @@ codeunit 137077 "SCM Supply Planning -IV"
         StockkeepingUnit.Validate("Reordering Policy", ReorderingPolicy);
         StockkeepingUnit.Validate("Transfer-from Code", TransferFromCode);
         StockkeepingUnit.Modify(true);
+    end;
+
+    local procedure RunOrderPromisingFromSalesHeader(SalesHeader: Record "Sales Header")
+    var
+        SalesOrder: TestPage "Sales Order";
+    begin
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.OrderPromising.Invoke;
     end;
 
     local procedure CreateChildItemAsProdBOM(var ChildItem: Record Item; var ProductionBOMHeader: Record "Production BOM Header"; ReplenishmentSystem: Enum "Replenishment System") QuantityPer: Decimal
@@ -3754,6 +4460,14 @@ codeunit 137077 "SCM Supply Planning -IV"
     procedure CheckProdOrderStatusPageHandler(var CheckProdOrderStatus: TestPage "Check Prod. Order Status")
     begin
         CheckProdOrderStatus.Yes.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure OrderPromisingLinesAcceptCapableToPromisePageHandler(var OrderPromisingLines: TestPage "Order Promising Lines")
+    begin
+        OrderPromisingLines.CapableToPromise.Invoke;
+        OrderPromisingLines.AcceptButton.Invoke
     end;
 }
 

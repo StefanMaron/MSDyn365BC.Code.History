@@ -1,4 +1,4 @@
-﻿table 10123 "Posted Bank Rec. Header"
+table 10123 "Posted Bank Rec. Header"
 {
     Caption = 'Posted Bank Rec. Header';
     DrillDownPageID = "Posted Bank Rec. List";
@@ -32,7 +32,7 @@
         }
         field(6; "Positive Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Adjustment),
                                                                     Positive = CONST(true),
@@ -43,7 +43,7 @@
         }
         field(7; "Negative Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Adjustment),
                                                                     Positive = CONST(false),
@@ -54,7 +54,7 @@
         }
         field(8; "Outstanding Deposits"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Deposit),
                                                                     Cleared = CONST(false)));
@@ -63,7 +63,7 @@
         }
         field(9; "Outstanding Checks"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Check),
                                                                     Cleared = CONST(false)));
@@ -102,7 +102,7 @@
         }
         field(19; "Total Cleared Checks"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                               "Statement No." = FIELD("Statement No."),
                                                                               "Record Type" = CONST(Check),
                                                                               Cleared = CONST(true)));
@@ -111,7 +111,7 @@
         }
         field(20; "Total Cleared Deposits"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line"."Cleared Amount" WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                               "Statement No." = FIELD("Statement No."),
                                                                               "Record Type" = CONST(Deposit),
                                                                               Cleared = CONST(true)));
@@ -120,7 +120,7 @@
         }
         field(21; "Total Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Adjustment)));
             Caption = 'Total Adjustments';
@@ -139,7 +139,7 @@
         }
         field(24; Comment; Boolean)
         {
-            CalcFormula = Exist ("Bank Comment Line" WHERE("Table Name" = CONST("Posted Bank Rec."),
+            CalcFormula = Exist("Bank Comment Line" WHERE("Table Name" = CONST("Posted Bank Rec."),
                                                            "Bank Account No." = FIELD("Bank Account No."),
                                                            "No." = FIELD("Statement No.")));
             Caption = 'Comment';
@@ -163,7 +163,7 @@
         }
         field(28; "Total Balanced Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Adjustment),
                                                                     "Bal. Account No." = FILTER(<> '')));
@@ -172,7 +172,7 @@
         }
         field(29; "Positive Bal. Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Adjustment),
                                                                     Positive = CONST(true),
@@ -183,7 +183,7 @@
         }
         field(30; "Negative Bal. Adjustments"; Decimal)
         {
-            CalcFormula = Sum ("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
+            CalcFormula = Sum("Posted Bank Rec. Line".Amount WHERE("Bank Account No." = FIELD("Bank Account No."),
                                                                     "Statement No." = FIELD("Statement No."),
                                                                     "Record Type" = CONST(Adjustment),
                                                                     Positive = CONST(false),

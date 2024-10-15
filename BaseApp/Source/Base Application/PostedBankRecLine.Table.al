@@ -1,4 +1,4 @@
-﻿table 10124 "Posted Bank Rec. Line"
+table 10124 "Posted Bank Rec. Line"
 {
     Caption = 'Posted Bank Rec. Line';
     DrillDownPageID = "Posted Bank Rec. Lines";

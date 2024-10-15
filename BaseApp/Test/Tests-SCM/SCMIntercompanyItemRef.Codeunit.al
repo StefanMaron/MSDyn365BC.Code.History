@@ -199,8 +199,8 @@ codeunit 137630 "SCM Intercompany Item Ref."
           StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           SalesLine."No.",
-          SalesLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Item Reference No.")));
+          SalesLine."IC Partner Reference",
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Reference")));
     end;
 
     [Test]
@@ -242,8 +242,8 @@ codeunit 137630 "SCM Intercompany Item Ref."
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           PurchaseLine."No.",
-          PurchaseLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Item Reference No.")));
+          PurchaseLine."IC Partner Reference",
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Reference")));
     end;
 
     [Test]
@@ -869,7 +869,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxSalesHeader.FindFirst;
     end;
 
-    local procedure FindICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Outbox Sales Document Type")
     begin
         ICOutboxSalesLine.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxSalesLine.SetRange("Document No.", DocumentNo);
@@ -894,7 +894,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         ICOutboxPurchaseHeader.FindFirst;
     end;
 
-    local procedure FindICOutboxPurchaseLine(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindICOutboxPurchaseLine(var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; TransactionNo: Integer; DocumentNo: Code[20]; DocumentType: Enum "IC Outbox Purchase Document Type")
     begin
         ICOutboxPurchaseLine.SetRange("IC Transaction No.", TransactionNo);
         ICOutboxPurchaseLine.SetRange("Document No.", DocumentNo);
@@ -1108,7 +1108,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         end;
     end;
 
-    local procedure ConvertDocTypeToICOutboxSalesLine(SourceDocumentType: Enum "Sales Document Type"): Integer
+    local procedure ConvertDocTypeToICOutboxSalesLine(SourceDocumentType: Enum "Sales Document Type"): Enum "IC Outbox Sales Document Type"
     var
         SalesHeader: Record "Sales Header";
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
@@ -1155,7 +1155,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
         end;
     end;
 
-    local procedure ConvertPurchDocTypeToICOutboxPurchLine(SourceDocumentType: Enum "Purchase Document Type"): Integer
+    local procedure ConvertPurchDocTypeToICOutboxPurchLine(SourceDocumentType: Enum "Purchase Document Type"): Enum "IC Outbox Purchase Document Type"
     var
         PurchaseHeader: Record "Purchase Header";
         ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
@@ -1258,7 +1258,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
 
         Assert.AreEqual(
-          SalesLine."Item Reference No.",
+          SalesLine."No.",
           PurchaseLine."No.",
           StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
     end;
@@ -1277,7 +1277,7 @@ codeunit 137630 "SCM Intercompany Item Ref."
           StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
 
         Assert.AreEqual(
-          PurchaseLine."Item Reference No.",
+          PurchaseLine."No.",
           SalesLine."No.",
           StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
     end;

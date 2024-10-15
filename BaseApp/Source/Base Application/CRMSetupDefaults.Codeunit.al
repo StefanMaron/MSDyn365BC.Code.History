@@ -13,6 +13,7 @@ codeunit 5334 "CRM Setup Defaults"
         CustomSalesOrderNotesSynchJobDescTxt: Label 'Sales Order Notes - %1 synchronization job', Comment = '%1 = CRM product name';
         CRMProductName: Codeunit "CRM Product Name";
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
         AutoCreateSalesOrdersTxt: Label 'Automatically create sales orders from sales orders that are submitted in %1.', Comment = '%1 = CRM product name';
         AutoProcessQuotesTxt: Label 'Automatically process sales quotes from sales quotes that are activated in %1.', Comment = '%1 = CRM product name';
         OrTok: Label '%1|%2', Locked = true, Comment = '%1 and %2 - some filters';
@@ -20,8 +21,9 @@ codeunit 5334 "CRM Setup Defaults"
     procedure ResetConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+#if not CLEAN19
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+#endif
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         ConnectionName: Text;
         EnqueueJobQueEntries: Boolean;
@@ -40,15 +42,22 @@ codeunit 5334 "CRM Setup Defaults"
 
         IsTeamOwnershipModel := CDSIntegrationMgt.IsTeamOwnershipModelSelected();
 
-        ResetUnitOfMeasureUoMScheduleMapping('UNIT OF MEASURE', EnqueueJobQueEntries);
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
+            ResetUnitGroupUoMScheduleMapping('UNIT GROUP', EnqueueJobQueEntries);
+            ResetItemUnitOfMeasureUoMMapping('ITEM UOM', EnqueueJobQueEntries);
+            ResetResourceUnitOfMeasureUoMMapping('RESOURCE UOM', EnqueueJobQueEntries);
+        end else
+            ResetUnitOfMeasureUoMScheduleMapping('UNIT OF MEASURE', EnqueueJobQueEntries);
         ResetItemProductMapping('ITEM-PRODUCT', EnqueueJobQueEntries);
         ResetResourceProductMapping('RESOURCE-PRODUCT', EnqueueJobQueEntries);
         if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
             ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
             ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
+#if not CLEAN19
         end else begin
             ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
             ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
+#endif
         end;
         ResetSalesInvoiceHeaderInvoiceMapping('POSTEDSALESINV-INV', IsTeamOwnershipModel, EnqueueJobQueEntries);
         ResetSalesInvoiceLineInvoiceMapping('POSTEDSALESLINE-INV');
@@ -58,7 +67,9 @@ codeunit 5334 "CRM Setup Defaults"
         RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntries);
         CODEUNIT.Run(CODEUNIT::"CRM Enable Posts");
 
+#if not CLEAN19
         CDSSetupDefaults.RemoveCustomerContactLinkJobQueueEntries();
+#endif
         RecreateStatisticsJobQueueEntry(EnqueueJobQueEntries);
         if CRMConnectionSetup."Auto Create Sales Orders" then
             RecreateAutoCreateSalesOrdersJobQueueEntry(EnqueueJobQueEntries);
@@ -99,6 +110,108 @@ codeunit 5334 "CRM Setup Defaults"
             TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
     end;
 
+    procedure ResetUnitGroupMappingConfiguration()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
+        ConnectionName: Text;
+        EnqueueJobQueEntries: Boolean;
+    begin
+        if not CRMConnectionSetup.Get() then
+            exit;
+        EnqueueJobQueEntries := CRMConnectionSetup.DoReadCRMData();
+        ConnectionName := RegisterTempConnectionIfNeeded(CRMConnectionSetup, TempCRMConnectionSetup);
+        if ConnectionName <> '' then
+            SetDefaultTableConnection(TableConnectionType::CRM, ConnectionName, true);
+
+        ResetUnitGroupUoMScheduleMapping('UNIT GROUP', EnqueueJobQueEntries);
+        ResetItemUnitOfMeasureUoMMapping('ITEM UOM', EnqueueJobQueEntries);
+        ResetResourceUnitOfMeasureUoMMapping('RESOURCE UOM', EnqueueJobQueEntries);
+
+        ResetItemProductUnitGroupMapping();
+        ResetResourceProductUnitGroupMapping();
+        ResetPriceListLineProductPricelevelUnitGroupMapping();
+
+        if ConnectionName <> '' then
+            TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
+    end;
+
+    local procedure ResetItemProductUnitGroupMapping()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        Item: Record Item;
+        CRMProduct: Record "CRM Product";
+    begin
+        if IntegrationTableMapping.Get('ITEM-PRODUCT') then begin
+            IntegrationTableMapping."Dependency Filter" := 'ITEM UOM';
+            IntegrationTableMapping.Modify();
+
+            InsertIntegrationFieldMapping(
+              'ITEM-PRODUCT',
+              Item.FieldNo("Base Unit of Measure"),
+              CRMProduct.FieldNo(DefaultUoMId),
+              IntegrationFieldMapping.Direction::Bidirectional,
+              '', true, false);
+        end;
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'ITEM-PRODUCT');
+        IntegrationFieldMapping.SetRange("Field No.", Item.FieldNo("Base Unit of Measure"));
+        IntegrationFieldMapping.SetRange("Integration Table Field No.", CRMProduct.FieldNo(DefaultUoMScheduleId));
+        if IntegrationFieldMapping.FindFirst() then
+            IntegrationFieldMapping.Delete();
+    end;
+
+    local procedure ResetResourceProductUnitGroupMapping()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        Resource: Record Resource;
+        CRMProduct: Record "CRM Product";
+    begin
+        if IntegrationTableMapping.Get('RESOURCE-PRODUCT') then begin
+            IntegrationTableMapping."Dependency Filter" := 'RESOURCE UOM';
+            IntegrationTableMapping.Modify();
+
+            // Base Unit of Measure > DefaultUoMId
+            InsertIntegrationFieldMapping(
+              'RESOURCE-PRODUCT',
+              Resource.FieldNo("Base Unit of Measure"),
+              CRMProduct.FieldNo(DefaultUoMId),
+              IntegrationTableMapping.Direction::ToIntegrationTable,
+              '', true, false);
+        end;
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'RESOURCE-PRODUCT');
+        IntegrationFieldMapping.SetRange("Field No.", Resource.FieldNo("Base Unit of Measure"));
+        IntegrationFieldMapping.SetRange("Integration Table Field No.", CRMProduct.FieldNo(DefaultUoMScheduleId));
+        if IntegrationFieldMapping.FindFirst() then
+            IntegrationFieldMapping.Delete();
+    end;
+
+    local procedure ResetPriceListLineProductPricelevelUnitGroupMapping()
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        PriceListLine: Record "Price List Line";
+        CRMProductpricelevel: Record "CRM Productpricelevel";
+    begin
+        if IntegrationTableMapping.Get('PLLINE-PRODPRICE') then
+            // Unit of Measure > UoMId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMapping.Name,
+              PriceListLine.FieldNo("Unit of Measure Code"),
+              CRMProductpricelevel.FieldNo(UoMId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", 'PLLINE-PRODPRICE');
+        IntegrationFieldMapping.SetRange("Field No.", PriceListLine.FieldNo("Unit of Measure Code"));
+        IntegrationFieldMapping.SetRange("Integration Table Field No.", CRMProductpricelevel.FieldNo(UoMScheduleId));
+        if IntegrationFieldMapping.FindFirst() then
+            IntegrationFieldMapping.Delete();
+    end;
+
     [Scope('OnPrem')]
     procedure ResetItemProductMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
@@ -120,7 +233,10 @@ codeunit 5334 "CRM Setup Defaults"
         Item.SetRange(Blocked, false);
         IntegrationTableMapping.SetTableFilter(GetTableFilterFromView(DATABASE::Item, Item.TableCaption(), Item.GetView()));
 
-        IntegrationTableMapping."Dependency Filter" := 'UNIT OF MEASURE';
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            IntegrationTableMapping."Dependency Filter" := 'ITEM UOM'
+        else
+            IntegrationTableMapping."Dependency Filter" := 'UNIT OF MEASURE';
         SetIntegrationTableFilterForCRMProduct(IntegrationTableMapping, CRMProduct, CRMProduct.ProductTypeCode::SalesInventory);
 
         // "No." > ProductNumber
@@ -203,13 +319,22 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
-        // Base Unit of Measure > DefaultUoMScheduleId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          Item.FieldNo("Base Unit of Measure"),
-          CRMProduct.FieldNo(DefaultUoMScheduleId),
-          IntegrationFieldMapping.Direction::Bidirectional,
-          '', true, false);
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            // Base Unit of Measure > DefaultUoMId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Item.FieldNo("Base Unit of Measure"),
+              CRMProduct.FieldNo(DefaultUoMId),
+              IntegrationFieldMapping.Direction::Bidirectional,
+              '', true, false)
+        else
+            // Base Unit of Measure > DefaultUoMScheduleId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Item.FieldNo("Base Unit of Measure"),
+              CRMProduct.FieldNo(DefaultUoMScheduleId),
+              IntegrationFieldMapping.Direction::Bidirectional,
+              '', true, false);
 
         OnResetItemProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
@@ -237,7 +362,11 @@ codeunit 5334 "CRM Setup Defaults"
         Resource.SetRange(Blocked, false);
         IntegrationTableMapping.SetTableFilter(GetTableFilterFromView(DATABASE::Resource, Resource.TableCaption(), Resource.GetView()));
 
-        IntegrationTableMapping."Dependency Filter" := 'UNIT OF MEASURE';
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            IntegrationTableMapping."Dependency Filter" := 'RESOURCE UOM'
+        else
+            IntegrationTableMapping."Dependency Filter" := 'UNIT OF MEASURE';
+
         SetIntegrationTableFilterForCRMProduct(IntegrationTableMapping, CRMProduct, CRMProduct.ProductTypeCode::Services);
 
         // "No." > ProductNumber
@@ -295,6 +424,15 @@ codeunit 5334 "CRM Setup Defaults"
           CRMProduct.FieldNo(QuantityOnHand),
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
+
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            // Base Unit of Measure > DefaultUoMId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              Resource.FieldNo("Base Unit of Measure"),
+              CRMProduct.FieldNo(DefaultUoMId),
+              IntegrationTableMapping.Direction::ToIntegrationTable,
+              '', true, false);
 
         OnResetResourceProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
@@ -864,6 +1002,7 @@ codeunit 5334 "CRM Setup Defaults"
         CODEUNIT.Run(CODEUNIT::"CRM Enable Posts")
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '18.0')]
     [Scope('OnPrem')]
     procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
@@ -986,7 +1125,7 @@ codeunit 5334 "CRM Setup Defaults"
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 1440);
     end;
-
+#endif
     procedure ResetPriceListHeaderPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
@@ -1135,13 +1274,22 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationFieldMapping.Direction::ToIntegrationTable,
           Format(CRMProductpricelevel.PricingMethodCode::CurrencyAmount), false, false);
 
-        // "Unit Of Measure" > UoMScheduleId
-        InsertIntegrationFieldMapping(
-          IntegrationTableMappingName,
-          PriceListLine.FieldNo("Unit of Measure Code"),
-          CRMProductpricelevel.FieldNo(UoMScheduleId),
-          IntegrationFieldMapping.Direction::ToIntegrationTable,
-          '', true, false);
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then
+            // Unit of Measure > UoMId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              PriceListLine.FieldNo("Unit of Measure Code"),
+              CRMProductpricelevel.FieldNo(UoMId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false)
+        else
+            // "Unit Of Measure" > UoMScheduleId
+            InsertIntegrationFieldMapping(
+              IntegrationTableMappingName,
+              PriceListLine.FieldNo("Unit of Measure Code"),
+              CRMProductpricelevel.FieldNo(UoMScheduleId),
+              IntegrationFieldMapping.Direction::ToIntegrationTable,
+              '', true, false);
 
         // "Unit Price" > Amount
         InsertIntegrationFieldMapping(
@@ -1183,6 +1331,126 @@ codeunit 5334 "CRM Setup Defaults"
           '', true, false);
 
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueEntry, 720);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ResetUnitGroupUoMScheduleMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueueEntry: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        UnitGroup: Record "Unit Group";
+        CRMUomschedule: Record "CRM Uomschedule";
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetUnitGroupUoMScheduleMapping(IntegrationTableMappingName, EnqueueJobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          Database::"Unit Group", Database::"CRM Uomschedule",
+          CRMUomschedule.FieldNo(UoMScheduleId), CRMUomschedule.FieldNo(ModifiedOn),
+          '', '', true);
+
+        // Code > Name
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          UnitGroup.FieldNo("Code"),
+          CRMUomschedule.FieldNo(Name),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // Code > BaseUoM Name
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          UnitGroup.FieldNo("Code"),
+          CRMUomschedule.FieldNo(BaseUoMName),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueueEntry, 720);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ResetItemUnitOfMeasureUoMMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueueEntry: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        CRMUom: Record "CRM Uom";
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetItemUnitOfMeasureUoMMapping(IntegrationTableMappingName, EnqueueJobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          Database::"Item Unit of Measure", Database::"CRM Uom",
+          CRMUom.FieldNo(UoMId), CRMUom.FieldNo(ModifiedOn),
+          '', '', true);
+
+        IntegrationTableMapping."Dependency Filter" := 'UNIT GROUP';
+        IntegrationTableMapping.Modify();
+
+        // Code > UoM Name
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          ItemUnitOfMeasure.FieldNo("Code"),
+          CRMUom.FieldNo(Name),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // Quantity > UoM Quantity
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          ItemUnitOfMeasure.FieldNo("Qty. per Unit of Measure"),
+          CRMUom.FieldNo(Quantity),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueueEntry, 720);
+    end;
+
+    [Scope('OnPrem')]
+    procedure ResetResourceUnitOfMeasureUoMMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueueEntry: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMUom: Record "CRM Uom";
+        IsHandled: Boolean;
+    begin
+        OnBeforeResetResourceUnitOfMeasureUoMMapping(IntegrationTableMappingName, EnqueueJobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          Database::"Resource Unit of Measure", Database::"CRM Uom",
+          CRMUom.FieldNo(UoMId), CRMUom.FieldNo(ModifiedOn),
+          '', '', true);
+
+        IntegrationTableMapping."Dependency Filter" := 'UNIT GROUP';
+        IntegrationTableMapping.Modify();
+
+        // Code > UoM Name
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          ResourceUnitOfMeasure.FieldNo("Code"),
+          CRMUom.FieldNo(Name),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        // Quantity > UoM Quantity
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          ResourceUnitOfMeasure.FieldNo("Qty. per Unit of Measure"),
+          CRMUom.FieldNo(Quantity),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 30, EnqueueJobQueueEntry, 720);
     end;
 
     [Scope('OnPrem')]
@@ -1387,8 +1655,6 @@ codeunit 5334 "CRM Setup Defaults"
 
     [Scope('OnPrem')]
     procedure RecreateSalesOrderNotesJobQueueEntry(EnqueueJobQueEntry: Boolean)
-    var
-        JobQueueEntry: Record "Job Queue Entry";
     begin
         RecreateJobQueueEntry(
           EnqueueJobQueEntry,
@@ -1406,8 +1672,6 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     procedure ResetCRMNAVConnectionData()
-    var
-        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CRMIntegrationManagement.SetCRMNAVConnectionUrl(GetUrl(CLIENTTYPE::Web));
     end;
@@ -1521,13 +1785,20 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(DATABASE::"CRM Invoice");
             DATABASE::"Sales Invoice Line":
                 exit(DATABASE::"CRM Invoicedetail");
-            DATABASE::"Price List Line",
-            DATABASE::"Sales Price":
+#if not CLEAN19
+            DATABASE::"Sales Price",
+#endif
+            DATABASE::"Price List Line":
                 exit(DATABASE::"CRM Productpricelevel");
             DATABASE::"Salesperson/Purchaser":
                 exit(DATABASE::"CRM Systemuser");
             DATABASE::"Unit of Measure":
                 exit(DATABASE::"CRM Uomschedule");
+            Database::"Unit Group":
+                exit(Database::"CRM Uomschedule");
+            Database::"Item Unit Of Measure",
+                Database::"Resource Unit Of Measure":
+                exit(Database::"CRM Uom");
             DATABASE::Opportunity:
                 exit(DATABASE::"CRM Opportunity");
             DATABASE::"Sales Header":
@@ -1559,8 +1830,13 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::"Price List Line",
           DATABASE::"Sales Invoice Header",
           DATABASE::"Sales Invoice Line",
+#if not CLEAN19
           DATABASE::"Sales Price",
-          DATABASE::"Unit of Measure":
+#endif
+          DATABASE::"Unit of Measure",
+          DATABASE::"Unit Group",
+          DATABASE::"Item Unit of Measure",
+          DATABASE::"Resource Unit of Measure":
                 exit(IntegrationTableMapping.Direction::ToIntegrationTable);
             DATABASE::"Payment Terms",
           DATABASE::"Shipment Method",
@@ -1595,6 +1871,10 @@ codeunit 5334 "CRM Setup Defaults"
         CRMUomschedule: Record "CRM Uomschedule";
         Opportunity: Record Opportunity;
         CRMOpportunity: Record "CRM Opportunity";
+        UnitGroup: Record "Unit Group";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        ResourceUnitOfMeasure: Record "Resource Unit of Measure";
+        CRMUom: Record "CRM Uom";
         FieldNo: Integer;
     begin
         OnBeforeGetNameFieldNo(TableID, FieldNo);
@@ -1637,6 +1917,14 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(Opportunity.FieldNo(Description));
             DATABASE::"CRM Opportunity":
                 exit(CRMOpportunity.FieldNo(Name));
+            DATABASE::"Unit Group":
+                exit(UnitGroup.FieldNo(Code));
+            DATABASE::"Item Unit of Measure":
+                exit(ItemUnitOfMeasure.FieldNo(Code));
+            DATABASE::"Resource Unit of Measure":
+                exit(ResourceUnitOfMeasure.FieldNo(Code));
+            DATABASE::"CRM Uom":
+                exit(CRMUom.FieldNo(Name));
         end;
     end;
 
@@ -1750,7 +2038,12 @@ codeunit 5334 "CRM Setup Defaults"
         // Only NAV
         AddEntityTableMapping('pricelevel', DATABASE::"Customer Price Group", TempNameValueBuffer);
         AddEntityTableMapping('transactioncurrency', DATABASE::Currency, TempNameValueBuffer);
-        AddEntityTableMapping('uomschedule', DATABASE::"Unit of Measure", TempNameValueBuffer);
+        if CRMIntegrationManagement.IsUnitGroupMappingEnabled() then begin
+            AddEntityTableMapping('uomschedule', DATABASE::"Unit Group", TempNameValueBuffer);
+            AddEntityTableMapping('uom', DATABASE::"Item Unit of Measure", TempNameValueBuffer);
+            AddEntityTableMapping('uom', DATABASE::"Resource Unit of Measure", TempNameValueBuffer);
+        end else
+            AddEntityTableMapping('uomschedule', DATABASE::"Unit of Measure", TempNameValueBuffer);
 
         // Only CRM
         AddEntityTableMapping('incident', DATABASE::"CRM Incident", TempNameValueBuffer);
@@ -1900,6 +2193,21 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetUnitGroupUoMScheduleMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetItemUnitOfMeasureUoMMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeResetResourceUnitOfMeasureUoMMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueueEntry: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeResetOpportunityMapping(var IntegrationTableMappingName: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -1934,10 +2242,13 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetCustomerPriceGroupPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnResetItemProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
@@ -1979,10 +2290,13 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetSalesPriceProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
     begin
     end;
+#endif
 }
 
 

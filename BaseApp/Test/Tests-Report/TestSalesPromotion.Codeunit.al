@@ -1,3 +1,4 @@
+#if not CLEAN19
 codeunit 134603 "Report Sales Promotion Test"
 {
     Subtype = Test;
@@ -79,3 +80,4 @@ codeunit 134603 "Report Sales Promotion Test"
             Error('The following info message was expected: %1', InfoMsg);
     end;
 }
+#endif

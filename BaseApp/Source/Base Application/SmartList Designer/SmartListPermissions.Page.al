@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9848 "SmartList Permissions"
 {
     Caption = 'SmartList Permissions';
@@ -8,6 +9,9 @@ page 9848 "SmartList Permissions"
     ShowFilter = false;
     SourceTable = "Designed Query Permission";
     UsageCategory = None;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -96,3 +100,4 @@ page 9848 "SmartList Permissions"
         exit(true);
     end;
 }
+#endif

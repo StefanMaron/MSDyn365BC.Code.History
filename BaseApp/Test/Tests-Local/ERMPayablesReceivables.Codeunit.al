@@ -1471,11 +1471,13 @@ codeunit 142052 "ERM Payables/Receivables"
         LibraryVariableStorage.Dequeue(CurrencyCode);
         AdjustExchangeRates.Currency.SetFilter(Code, CurrencyCode);
         AdjustExchangeRates.EndingDate.SetValue(CalcDate(Format(LibraryRandom.RandInt(5)) + 'M', WorkDate));  // 1 Using Random for No. of Months.
-        AdjustExchangeRates.PostingDate.SetValue(WorkDate);  // Posting Date.
-        AdjustExchangeRates.DocumentNo.SetValue(LibraryRandom.RandInt(1000));  // Document No.
-        AdjustExchangeRates.AdjCustVendBank.SetValue(true);  // Adjust Customer/Vendor.
-        AdjustExchangeRates.AdjGLAcc.SetValue(false);  // Adjust G/L Account.
-        AdjustExchangeRates.OK.Invoke;
+        AdjustExchangeRates.PostingDate.SetValue(WorkDate);
+        AdjustExchangeRates.DocumentNo.SetValue(LibraryRandom.RandInt(1000));
+        AdjustExchangeRates.AdjBankAcc.SetValue(true);
+        AdjustExchangeRates.AdjCustAcc.SetValue(true);
+        AdjustExchangeRates.AdjVendAcc.SetValue(true);
+        AdjustExchangeRates.AdjGLAcc.SetValue(false);
+        AdjustExchangeRates.OK.Invoke();
     end;
 
     [ModalPageHandler]
