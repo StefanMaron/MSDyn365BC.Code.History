@@ -2,6 +2,7 @@
 
 using Microsoft.Utilities;
 using System.IO;
+using Microsoft.Foundation.NoSeries;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Utilities;
@@ -92,20 +93,32 @@ table 1514 "Sent Notification Entry"
         exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo(ID)))
     end;
 
+    procedure InsertRecord()
+    var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
+    begin
+        if not Insert(true) then begin
+            SequenceNoMgt.RebaseSeqNo(DATABASE::"Sent Notification Entry");
+            Rec.ID := SequenceNoMgt.GetNextSeqNo(DATABASE::"Sent Notification Entry");
+            Insert(true);
+        end;
+    end;
+
     procedure NewRecord(NotificationEntry: Record "Notification Entry"; NotificationContent: Text; NotificationMethod: Option)
     var
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         OutStream: OutStream;
     begin
         Clear(Rec);
         OnNewRecordOnBeforeTransferFields(NotificationEntry);
         TransferFields(NotificationEntry);
-        ID := GetLastEntryNo() + 1;
+        Rec.ID := SequenceNoMgt.GetNextSeqNo(DATABASE::"Sent Notification Entry");
         "Notification Content".CreateOutStream(OutStream);
         OutStream.WriteText(NotificationContent);
         "Notification Method" := "Notification Method Type".FromInteger(NotificationMethod);
         "Sent Date-Time" := CurrentDateTime;
         OnNewRecordOnBeforeInsert(Rec, NotificationEntry, NotificationContent, NotificationMethod);
-        Insert(true);
+        InsertRecord();
     end;
 
     [Scope('OnPrem')]
