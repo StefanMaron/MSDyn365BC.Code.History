@@ -568,8 +568,8 @@
                 ToSalesHeader, OldSalesHeader, FromSalesHeader, FromSalesShptHeader, FromSalesInvHeader,
                 FromReturnRcptHeader, FromSalesCrMemoHeader, FromSalesHeaderArchive);
 
-            Invoice := false;
-            Ship := false;
+            ClearInvoiceAndShip(ToSalesHeader);
+
             if Status = Status::Released then begin
                 Status := Status::Open;
                 ReleaseDocument := true;
@@ -619,6 +619,19 @@
                 Modify;
             OnCopySalesDocWithHeader(FromDocType.AsInteger(), FromDocNo, ToSalesHeader, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader);
         end;
+    end;
+
+    local procedure ClearInvoiceAndShip(var ToSalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearInvoiceAndShip(ToSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        ToSalesHeader.Invoice := false;
+        ToSalesHeader.Ship := false;
     end;
 
     local procedure CopySalesHeaderFromSalesHeader(FromDocType: Enum "Sales Document Type From"; FromSalesHeader: Record "Sales Header"; OldSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header")
@@ -1479,7 +1492,14 @@
     end;
 
     procedure UpdateSalesHeaderWhenCopyFromSalesHeader(var SalesHeader: Record "Sales Header"; OriginalSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateSalesHeaderWhenCopyFromSalesHeader(SalesHeader, OriginalSalesHeader, FromDocType, IsHandled);
+        if IsHandled then
+            exit;
+
         ClearSalesLastNoSFields(SalesHeader);
         with SalesHeader do begin
             Status := Status::Open;
@@ -2072,7 +2092,8 @@
                         if ToPurchLine."Unit Cost" = 0 then
                             QtyToAssign := 0
                         else
-                            QtyToAssign := ValueEntry."Cost Amount (Actual)" * CurrencyFactor / ToPurchLine."Unit Cost";
+                            QtyToAssign :=
+                              Sign(ToPurchLine.Quantity) * Abs(ValueEntry."Cost Amount (Actual)") * CurrencyFactor / ToPurchLine."Unit Cost";
                         SumQtyToAssign += QtyToAssign;
 
                         ItemChargeAssgntPurch.InsertItemChargeAssignmentWithValuesTo(
@@ -2145,7 +2166,8 @@
                             Currency.InitRoundingPrecision;
                         end;
 
-                        QtyToAssign := ValueEntry."Sales Amount (Actual)" * CurrencyFactor / ToSalesLine."Unit Price";
+                        QtyToAssign :=
+                          Sign(ToSalesLine.Quantity) * Abs(ValueEntry."Sales Amount (Actual)") * CurrencyFactor / ToSalesLine."Unit Price";
                         SumQtyToAssign += QtyToAssign;
 
                         ItemChargeAssgntSales.InsertItemChargeAssignmentWithValuesTo(
@@ -2715,7 +2737,7 @@
                             if IsTimeForUpdate then
                                 Window.Update(2, ToLineCounter);
 
-                            OnCopySalesShptLinesToDocOnBeforeCopySalesLine(ToSalesHeader, FromSalesLineBuf, FromSalesShptLine);
+                            OnCopySalesShptLinesToDocOnBeforeCopySalesLine(ToSalesHeader, FromSalesLineBuf, FromSalesShptLine, CopyItemTrkg);
 
                             if CopySalesDocLine(
                                  ToSalesHeader, ToSalesLine, FromSalesHeader, FromSalesLineBuf, NextLineNo, LinesNotCopied, false,
@@ -5702,7 +5724,7 @@
             end;
 
         if CopyThisLine then begin
-            OnCopyArchSalesLineOnBeforeToSalesLineInsert(ToSalesLine, FromSalesLineArchive, RecalculateLines, NextLineNo);
+            OnCopyArchSalesLineOnBeforeToSalesLineInsert(ToSalesLine, FromSalesLineArchive, RecalculateLines, NextLineNo, TransferOldExtLines);
             ToSalesLine.Insert();
             OnCopyArchSalesLineOnAfterToSalesLineInsert(ToSalesLine, FromSalesLineArchive, RecalculateLines);
         end else
@@ -5825,7 +5847,7 @@
             end;
 
         if CopyThisLine then begin
-            OnCopyArchPurchLineOnBeforeToPurchLineInsert(ToPurchLine, FromPurchLineArchive, RecalculateLines, NextLineNo);
+            OnCopyArchPurchLineOnBeforeToPurchLineInsert(ToPurchLine, FromPurchLineArchive, RecalculateLines, NextLineNo, TransferOldExtLines);
             ToPurchLine.Insert();
             OnCopyArchPurchLineOnAfterToPurchLineInsert(ToPurchLine, FromPurchLineArchive, RecalculateLines);
         end else
@@ -6684,6 +6706,8 @@
                 "Pmt. Discount Date" := 0D;
             end;
         end;
+
+        OnAfterUpdatePurchCreditMemoHeader(PurchaseHeader);
     end;
 
     local procedure UpdateSalesCreditMemoHeader(var SalesHeader: Record "Sales Header")
@@ -6791,10 +6815,16 @@
                 FirstLineText := true;
     end;
 
-    procedure InitAndCheckSalesDocuments(FromDocType: Option; FromDocNo: Code[20]; var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesShipmentHeader: Record "Sales Shipment Header"; var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var FromReturnReceiptHeader: Record "Return Receipt Header"; var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var FromSalesHeaderArchive: Record "Sales Header Archive"): Boolean
+    procedure InitAndCheckSalesDocuments(FromDocType: Option; FromDocNo: Code[20]; var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; var FromSalesShipmentHeader: Record "Sales Shipment Header"; var FromSalesInvoiceHeader: Record "Sales Invoice Header"; var FromReturnReceiptHeader: Record "Return Receipt Header"; var FromSalesCrMemoHeader: Record "Sales Cr.Memo Header"; var FromSalesHeaderArchive: Record "Sales Header Archive") Result: Boolean
     var
         FromDocType2: Enum "Sales Document Type From";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitAndCheckSalesDocuments(FromDocType2, FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader, ToSalesHeader, ToSalesLine, MoveNegLines, IncludeHeader, RecalculateLines, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         FromDocType2 := "Sales Document Type From".FromInteger(FromDocType);
         with ToSalesHeader do
             case FromDocType2 of
@@ -7889,6 +7919,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdatePurchCreditMemoHeader(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdatePurchLine(var ToPurchHeader: Record "Purchase Header"; var ToPurchLine: Record "Purchase Line"; var FromPurchHeader: Record "Purchase Header"; var FromPurchLine: Record "Purchase Line"; var CopyThisLine: Boolean; RecalculateAmount: Boolean; FromPurchDocType: Option; var CopyPostedDeferral: Boolean; RecalculateLines: Boolean)
     begin
     end;
@@ -8154,6 +8189,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearInvoiceAndShip(var ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeClearSalesBlanketOrderFields(var ToSalesLine: Record "Sales Line"; ToSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -8165,6 +8205,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsCopyItemTrkg(var ItemLedgEntry: Record "Item Ledger Entry"; var CopyItemTrkg: Boolean; var FillExactCostRevLink: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitAndCheckSalesDocuments(FromDocType: enum "Sales Document Type From"; FromDocNo: Code[20]; FromDocOccurrenceNo: Integer; FromDocVersionNo: Integer; var FromSalesHeader: Record "Sales Header"; var ToSalesHeader: Record "Sales Header"; var ToSalesLine: Record "Sales Line"; MoveNegLines: boolean; IncludeHeader: Boolean; RecalculateLines: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8190,6 +8235,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLineQtyBaseFromReversibleQtyBase(var FromSalesLine: Record "Sales Line"; var SalesLineBuffer: record "Sales Line"; ReversibleQtyBase: decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesHeaderWhenCopyFromSalesHeader(var SalesHeader: Record "Sales Header"; OriginalSalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8229,7 +8279,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyArchSalesLineOnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; FromSalesLineArchive: Record "Sales Line Archive"; RecalculateLines: Boolean; var NextLineNo: Integer)
+    local procedure OnCopyArchSalesLineOnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; FromSalesLineArchive: Record "Sales Line Archive"; RecalculateLines: Boolean; var NextLineNo: Integer; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines")
     begin
     end;
 
@@ -8239,7 +8289,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopyArchPurchLineOnBeforeToPurchLineInsert(var ToPurchLine: Record "Purchase Line"; FromPurchLineArchive: Record "Purchase Line Archive"; RecalculateLines: Boolean; var NextLineNo: Integer)
+    local procedure OnCopyArchPurchLineOnBeforeToPurchLineInsert(var ToPurchLine: Record "Purchase Line"; FromPurchLineArchive: Record "Purchase Line Archive"; RecalculateLines: Boolean; var NextLineNo: Integer; var TransferOldExtLines: Codeunit "Transfer Old Ext. Text Lines")
     begin
     end;
 
@@ -8549,7 +8599,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCopySalesShptLinesToDocOnBeforeCopySalesLine(ToSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; FromSalesShptLine: record "Sales Shipment Line")
+    local procedure OnCopySalesShptLinesToDocOnBeforeCopySalesLine(ToSalesHeader: Record "Sales Header"; var FromSalesLine: Record "Sales Line"; FromSalesShptLine: record "Sales Shipment Line"; CopyItemTrkg: Boolean)
     begin
     end;
 

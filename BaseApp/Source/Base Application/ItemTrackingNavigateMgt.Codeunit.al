@@ -1,4 +1,4 @@
-codeunit 6529 "Item Tracking Navigate Mgt."
+﻿codeunit 6529 "Item Tracking Navigate Mgt."
 {
 
     trigger OnRun()
@@ -1302,12 +1302,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindItemLedgerEntryOnBeforeCaseDocumentType(var ItemLedgerEntry: Record "Item Ledger Entry"; RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnFindReservEntryOnBeforeCaseDocumentType(var ReservationEntry: Record "Reservation Entry"; RecRef: RecordRef; var IsHandled: Boolean)
     begin
     end;

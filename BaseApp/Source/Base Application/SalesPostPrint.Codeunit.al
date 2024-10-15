@@ -6,6 +6,8 @@ codeunit 82 "Sales-Post + Print"
     var
         SalesHeader: Record "Sales Header";
     begin
+        OnBeforeOnRun(Rec);
+
         SalesHeader.Copy(Rec);
         Code(SalesHeader);
         Rec := SalesHeader;
@@ -53,12 +55,24 @@ codeunit 82 "Sales-Post + Print"
         if SalesSetup."Post & Print with Job Queue" and not SendReportAsEmail then
             SalesPostViaJobQueue.EnqueueSalesDoc(SalesHeader)
         else begin
-            CODEUNIT.Run(CODEUNIT::"Sales-Post", SalesHeader);
+            RunSalesPost(SalesHeader);
             GetReport(SalesHeader);
         end;
 
         OnAfterPost(SalesHeader);
         Commit();
+    end;
+
+    local procedure RunSalesPost(var SalesHeader: Record "Sales Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunSalesPost(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        Codeunit.Run(Codeunit::"Sales-Post", SalesHeader);
     end;
 
     procedure GetReport(var SalesHeader: Record "Sales Header")
@@ -93,11 +107,17 @@ codeunit 82 "Sales-Post + Print"
             end;
     end;
 
-    local procedure ConfirmPost(var SalesHeader: Record "Sales Header"; DefaultOption: Integer): Boolean
+    local procedure ConfirmPost(var SalesHeader: Record "Sales Header"; DefaultOption: Integer) Result: Boolean
     var
         ConfirmManagement: Codeunit "Confirm Management";
         Selection: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeConfirmPostProcedure(SalesHeader, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if DefaultOption > 3 then
             DefaultOption := 3;
         if DefaultOption <= 0 then
@@ -241,7 +261,17 @@ codeunit 82 "Sales-Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPostProcedure(var SalesHeader: Record "Sales Header"; var DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetReport(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean; SendReportAsEmail: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var SalesHeader: Record "Sales Header")
     begin
     end;
 
@@ -262,6 +292,11 @@ codeunit 82 "Sales-Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintShip(var SalesHeader: Record "Sales Header"; SendReportAsEmail: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunSalesPost(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 }

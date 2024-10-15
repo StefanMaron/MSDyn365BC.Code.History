@@ -2159,7 +2159,13 @@ table 5901 "Service Item Line"
     local procedure RecreateServLines(var ServLine2: Record "Service Line")
     var
         TempServLine: Record "Service Line" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTempServLine(Rec, xRec, ServLine2, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServLine2.Find('-') then begin
             ServLine2.LockTable();
             repeat
@@ -2490,6 +2496,11 @@ table 5901 "Service Item Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateDim(var ServiceItemLine: Record "Service Item Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempServLine(var ServiceItemLine: Record "Service Item Line"; xServiceItemLine: Record "Service Item Line"; var ServLine2: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 

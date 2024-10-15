@@ -1392,6 +1392,8 @@
             if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then
                 WMSManagement.GetDefaultBin("Item No.", "Variant Code", ToLocationCode, "Transfer-To Bin Code");
         end;
+
+        OnAfterGetDefaultBin(Rec, FromLocationCode, ToLocationCode);
     end;
 
     procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal; Direction: Integer)
@@ -1656,6 +1658,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterFilterLinesWithItemToPlan(var Item: Record Item; IsReceipt: Boolean; IsSupplyForPlanning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDefaultBin(var TransferLine: Record "Transfer Line"; FromLocationCode: Code[10]; ToLocationCode: Code[10])
     begin
     end;
 

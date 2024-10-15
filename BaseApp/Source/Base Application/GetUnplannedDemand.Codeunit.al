@@ -20,7 +20,7 @@ codeunit 5520 "Get Unplanned Demand"
         JobPlanningLine.SetRange(Status, JobPlanningLine.Status::Order);
 
         RecordCounter := SalesLine.Count + ProdOrderComp.Count + ServLine.Count + JobPlanningLine.Count;
-        OnBeforeOpenPlanningWindow(RecordCounter);
+        OnBeforeOpenPlanningWindow(RecordCounter, ProdOrderComp);
         OpenWindow(ProgressMsg, RecordCounter);
 
         GetUnplannedSalesLine(Rec);
@@ -139,6 +139,7 @@ codeunit 5520 "Get Unplanned Demand"
                                 SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
                                 InsertUnplannedDemand(
                                 UnplannedDemand, "Demand Type"::Sales, SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesHeader.Status.AsInteger());
+                                OnGetUnplannedSalesLineOnAfterInsertUnplannedDemand(SalesLine, UnplannedDemand);
                             end;
                             InsertSalesLine(UnplannedDemand);
                         end;
@@ -146,6 +147,8 @@ codeunit 5520 "Get Unplanned Demand"
     end;
 
     local procedure GetUnplannedProdOrderComp(var UnplannedDemand: Record "Unplanned Demand")
+    var
+        NeedInsertUnplannedDemand: Boolean;
     begin
         OnBeforeGetUnplannedProdOrderComp(UnplannedDemand, ProdOrderComp);
 
@@ -155,9 +158,11 @@ codeunit 5520 "Get Unplanned Demand"
                     UpdateWindow;
                     DemandQtyBase := GetProdOrderCompNeededQty(ProdOrderComp);
                     if DemandQtyBase > 0 then begin
-                        if not ((ProdOrderComp.Status.AsInteger() = "Demand SubType") and
-                                (ProdOrderComp."Prod. Order No." = "Demand Order No."))
-                        then
+                        NeedInsertUnplannedDemand :=
+                            not ((ProdOrderComp.Status.AsInteger() = "Demand SubType") and
+                            (ProdOrderComp."Prod. Order No." = "Demand Order No."));
+                        OnGetUnplannedProdOrderCompOnAfterCalcNeedInsertUnplannedDemand(UnplannedDemand, ProdOrderComp, NeedInsertUnplannedDemand);
+                        if NeedInsertUnplannedDemand then
                             InsertUnplannedDemand(
                                 UnplannedDemand, "Demand Type"::Production,
                                 ProdOrderComp.Status.AsInteger(), ProdOrderComp."Prod. Order No.", ProdOrderComp.Status.AsInteger());
@@ -184,6 +189,7 @@ codeunit 5520 "Get Unplanned Demand"
                             AsmHeader.Get(AsmLine."Document Type", AsmLine."Document No.");
                             InsertUnplannedDemand(
                               UnplannedDemand, "Demand Type"::Assembly, AsmLine."Document Type".AsInteger(), AsmLine."Document No.", AsmHeader.Status);
+                            OnGetUnplannedAsmLineOnAfterInsertUnplannedDemand(UnplannedDemand);
                         end;
                         InsertAsmLine(UnplannedDemand);
                     end;
@@ -208,6 +214,7 @@ codeunit 5520 "Get Unplanned Demand"
                             ServHeader.Get(ServLine."Document Type", ServLine."Document No.");
                             InsertUnplannedDemand(
                               UnplannedDemand, "Demand Type"::Service, ServLine."Document Type".AsInteger(), ServLine."Document No.", ServHeader.Status.AsInteger());
+                            OnGetUnplannedServLineOnAfterInsertUnplannedDemand(UnplannedDemand);
                         end;
                         InsertServLine(UnplannedDemand);
                     end;
@@ -232,6 +239,7 @@ codeunit 5520 "Get Unplanned Demand"
                             Job.Get(JobPlanningLine."Job No.");
                             InsertUnplannedDemand(
                               UnplannedDemand, "Demand Type"::Job, JobPlanningLine.Status, JobPlanningLine."Job No.", Job.Status.AsInteger());
+                            OnGetUnplannedJobPlanningLineOnAfterInsertUnplannedDemand(UnplannedDemand);
                         end;
                         InsertJobPlanningLine(UnplannedDemand);
                     end;
@@ -317,6 +325,7 @@ codeunit 5520 "Get Unplanned Demand"
               SalesLine."Line No.", 0, SalesLine."No.", SalesLine.Description, SalesLine."Variant Code", SalesLine."Location Code",
               SalesLine."Bin Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
               DemandQtyBase, SalesLine."Shipment Date");
+            OnInsertSalesLineOnAfterInitRecord(UnplannedDemand, SalesLine);
             Reserve := SalesLine.Reserve = SalesLine.Reserve::Always;
             "Special Order" := SalesLine."Special Order";
             "Purchasing Code" := SalesLine."Purchasing Code";
@@ -395,7 +404,14 @@ codeunit 5520 "Get Unplanned Demand"
     end;
 
     local procedure InsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand"; DemandType: Enum "Unplanned Demand Type"; DemandSubtype: Integer; DemandOrderNo: Code[20]; DemandStatus: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertUnplannedDemand(UnplannedDemand, DemandType, DemandSubtype, DemandOrderNo, DemandStatus, IsHandled);
+        if IsHandled then
+            exit;
+
         with UnplannedDemand do begin
             Init;
             "Demand Type" := DemandType;
@@ -439,6 +455,7 @@ codeunit 5520 "Get Unplanned Demand"
                       (UnplannedDemand."Demand Type" = UnplannedDemand."Demand Type"::Sales) and
                       (UnplannedDemand."Demand SubType" = SalesLine."Document Type"::Order.AsInteger());
 
+                    OnCalcNeededDemandsOnAfterCalcForceIncludeDemand(UnplannedDemand, ForceIncludeDemand);
                     if ForceIncludeDemand or (UnplannedDemand."Needed Qty. (Base)" > 0)
                     then begin
                         UnplannedDemand.Insert();
@@ -546,7 +563,7 @@ codeunit 5520 "Get Unplanned Demand"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOpenPlanningWindow(var RecordCounter: Integer)
+    local procedure OnBeforeOpenPlanningWindow(var RecordCounter: Integer; var ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 
@@ -581,7 +598,22 @@ codeunit 5520 "Get Unplanned Demand"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand"; DemandType: Enum "Unplanned Demand Type"; DemandSubtype: Integer; DemandOrderNo: Code[20]; DemandStatus: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetProdOrderCompNeededQty(ProdOrderComponent: Record "Prod. Order Component"; var NeededQty: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcNeededDemandsOnAfterCalcForceIncludeDemand(var UnplannedDemand: Record "Unplanned Demand"; var ForceIncludeDemand: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedAsmLineOnAfterInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
     begin
     end;
 
@@ -591,9 +623,33 @@ codeunit 5520 "Get Unplanned Demand"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedJobPlanningLineOnAfterInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedServLineOnAfterInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedSalesLineOnAfterInsertUnplannedDemand(var SalesLine: Record "Sales Line"; var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetUnplannedProdOrderCompOnAfterCalcNeedInsertUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand"; var ProdOrderComp: Record "Prod. Order Component"; var NeedInsertUnplannedDemand: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilterToSpecificSalesOrder(ItemFilter: Text)
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertSalesLineOnAfterInitRecord(var UnplannedDemand: Record "Unplanned Demand"; var SalesLine: Record "Sales Line")
+    begin
+    end;
 }
 

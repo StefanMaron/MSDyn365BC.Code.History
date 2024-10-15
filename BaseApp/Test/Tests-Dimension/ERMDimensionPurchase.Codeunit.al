@@ -1030,6 +1030,326 @@ codeunit 134476 "ERM Dimension Purchase"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure PurchaseInvoiceMultipleLinesAndDimensionsWithReverseChargeVAT()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: array[5] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        Index: Integer;
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding]
+        // [SCENARIO 377909] System does not loss cent remainder when it posts multiple VAT entries with "VAT Calculation Type" = Reverse Charge VAT
+
+        Initialize();
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine[Index], PurchaseHeader, PurchaseLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            PurchaseLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            PurchaseLine[Index].Validate("Direct Unit Cost", 25.8);
+            PurchaseLine[Index].Modify(true);
+        end;
+
+        PurchaseLine[Index].Validate("Direct Unit Cost", 35.0);
+        PurchaseLine[Index].Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+
+        VerifyVATEntriesAmountAndAmountACY(
+            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceMultipleLinesAndDimensionsWithNormalVAT()
+    var
+        Vendor: Record Vendor;
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: array[5] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        Index: Integer;
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+    begin
+        // [FEATURE] [Normal VAT] [VAT] [Dimension] [Rounding]
+        // [SCENARIO 377909] System does not loss cent remainder when it posts multiple VAT entries with "VAT Calculation Type" = Normal VAT
+
+        Initialize();
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine[Index], PurchaseHeader, PurchaseLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            PurchaseLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            PurchaseLine[Index].Validate("Direct Unit Cost", 25.8);
+            PurchaseLine[Index].Modify(true);
+        end;
+
+        PurchaseLine[Index].Validate("Direct Unit Cost", 35.0);
+        PurchaseLine[Index].Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.94, 5.93, 5.94, 5.93);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 0, 0, 0, 0, 0);
+
+        VerifyVATEntriesAmountAndAmountACY(
+            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceMultipleLinesAndDimensionsWithReverseChargeVATACY()
+    var
+        Vendor: Record Vendor;
+        Currency: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: array[5] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        ExchangeRate: Decimal;
+        Index: Integer;
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding] [Additional-Currency] [ACY]
+        // [SCENARIO 377909] System does not loss cent remainder when it posts multiple VAT entries with "VAT Calculation Type" = Reverse Charge VAT and get's "Amount Rounding Precision" from currency for rounding in "Additional-Currency Amount" field
+
+        Initialize();
+
+        ExchangeRate := 19;
+
+        Currency.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), ExchangeRate, ExchangeRate);
+        Currency."Amount Rounding Precision" := 0.1;
+        Currency.Modify(true);
+        LibraryERM.SetAddReportingCurrency(Currency.Code);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine[Index], PurchaseHeader, PurchaseLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            PurchaseLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            PurchaseLine[Index].Validate("Direct Unit Cost", 25.8);
+            PurchaseLine[Index].Modify(true);
+        end;
+
+        PurchaseLine[Index].Validate("Direct Unit Cost", 35.0);
+        PurchaseLine[Index].Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 8.05, 5.93, 5.94, 5.93, 5.94);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 153, 112.7, 112.9, 112.7, 112.9);
+
+        VerifyVATEntriesAmountAndAmountACY(
+            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceFCYMultipleLinesAndDimensionsWithReverseChargeVATACYIsFCY()
+    var
+        Vendor: Record Vendor;
+        CurrencyFCY: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: array[5] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        ExchangeRateFCY: Decimal;
+        Index: Integer;
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding]
+        // [SCENARIO 377909] System does not loss cent remainder when it posts multiple VAT entries with "VAT Calculation Type" = Reverse Charge VAT and get's "Amount Rounding Precision" from currency for rounding in "Additional-Currency Amount" field
+
+        Initialize();
+
+        ExchangeRateFCY := 1 / 19;
+
+        CurrencyFCY.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        LibraryERM.CreateExchangeRate(CurrencyFCY.Code, WorkDate(), ExchangeRateFCY, ExchangeRateFCY);
+        CurrencyFCY."Amount Rounding Precision" := 0.1;
+        CurrencyFCY.Modify(true);
+
+        LibraryERM.SetAddReportingCurrency(CurrencyFCY.Code);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CurrencyFCY.Code);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine[Index], PurchaseHeader, PurchaseLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            PurchaseLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            PurchaseLine[Index].Validate("Direct Unit Cost", 25.8);
+            PurchaseLine[Index].Modify(true);
+        end;
+
+        PurchaseLine[Index].Validate("Direct Unit Cost", 35.0);
+        PurchaseLine[Index].Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 8.1, 5.9, 5.9, 6, 5.9);
+
+        VerifyVATEntriesAmountAndAmountACY(
+            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
+    [Test]
+    procedure PurchaseInvoiceFCYMultipleLinesAndDimensionsWithReverseChargeVATACYIsNotFCY()
+    var
+        Vendor: Record Vendor;
+        CurrencyFCY: Record Currency;
+        CurrencyACY: Record Currency;
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GLAccount: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+        DimensionValue: array[5] of Record "Dimension Value";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: array[5] of Record "Purchase Line";
+        VATEntry: Record "VAT Entry";
+        ExchangeRateFCY: Decimal;
+        ExchangeRateACY: Decimal;
+        Index: Integer;
+        DocumentNo: Code[20];
+        ExpectedVATAmount: array[5] of Decimal;
+        ExpectedVATAmountACY: array[5] of Decimal;
+    begin
+        // [FEATURE] [Reverse Charge VAT] [VAT] [Dimension] [Rounding]
+        // [SCENARIO 377909] System does not loss cent remainder when it posts multiple VAT entries with "VAT Calculation Type" = Reverse Charge VAT and get's "Amount Rounding Precision" from currency for rounding in "Additional-Currency Amount" field
+
+        Initialize();
+
+        ExchangeRateFCY := 1 / 19;
+        ExchangeRateACY := 13;
+
+        CurrencyFCY.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        LibraryERM.CreateExchangeRate(CurrencyFCY.Code, WorkDate(), ExchangeRateFCY, ExchangeRateFCY);
+        CurrencyFCY."Amount Rounding Precision" := 0.1;
+        CurrencyFCY.Modify(true);
+
+        CurrencyACY.Get(LibraryERM.CreateCurrencyWithGLAccountSetup());
+        LibraryERM.CreateExchangeRate(CurrencyACY.Code, WorkDate(), ExchangeRateACY, ExchangeRateACY);
+        CurrencyACY."Amount Rounding Precision" := 0.1;
+        CurrencyACY.Modify(true);
+
+        LibraryERM.SetAddReportingCurrency(CurrencyACY.Code);
+
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", 23);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Currency Code", CurrencyFCY.Code);
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue[1]);
+        for Index := 2 to ArrayLen(DimensionValue) do
+            LibraryDimension.CreateDimensionValue(DimensionValue[Index], DimensionValue[1]."Dimension Code");
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        for Index := 1 to ArrayLen(DimensionValue) do begin
+            LibraryPurchase.CreatePurchaseLine(
+              PurchaseLine[Index], PurchaseHeader, PurchaseLine[Index].Type::"G/L Account", GLAccount."No.", 1);
+            PurchaseLine[Index].Validate("Shortcut Dimension 1 Code", DimensionValue[Index].Code);
+            PurchaseLine[Index].Validate("Direct Unit Cost", 25.8);
+            PurchaseLine[Index].Modify(true);
+        end;
+
+        PurchaseLine[Index].Validate("Direct Unit Cost", 35.0);
+        PurchaseLine[Index].Modify(true);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        InitializeExpectedVATAmounts(ExpectedVATAmount, 152.95, 112.75, 112.74, 112.75, 112.74);
+        InitializeExpectedVATAmounts(ExpectedVATAmountACY, 1988.4, 1465.8, 1465.6, 1465.8, 1465.6);
+
+        VerifyVATEntriesAmountAndAmountACY(
+            VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1049,9 +1369,19 @@ codeunit 134476 "ERM Dimension Purchase"
         IsInitialized := true;
         Commit();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Purchase");
+    end;
+
+    local procedure InitializeExpectedVATAmounts(var ExpectedVATAmount: array[5] of decimal; Amount1: Decimal; Amount2: Decimal; Amount3: Decimal; Amount4: Decimal; Amount5: Decimal)
+    begin
+        ExpectedVATAmount[1] := Amount1;
+        ExpectedVATAmount[2] := Amount2;
+        ExpectedVATAmount[3] := Amount3;
+        ExpectedVATAmount[4] := Amount4;
+        ExpectedVATAmount[5] := Amount5;
     end;
 
     local procedure ApplyAndPostVendorEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
@@ -1809,6 +2139,32 @@ codeunit 134476 "ERM Dimension Purchase"
         TempDimensionSetEntry.SetRange("Dimension Code", DimensionValue."Dimension Code");
         TempDimensionSetEntry.FindFirst;
         TempDimensionSetEntry.TestField("Dimension Value Code", DimensionValue.Code);
+    end;
+
+    local procedure VerifyVATEntriesAmountAndAmountACY(VATProdPostingGroup: Code[20]; DocumentNo: Code[20]; ExpectedVATAmount: array[5] of Decimal; ExpectedVATAmountACY: array[5] of Decimal)
+    var
+        VATEntry: Record "VAT Entry";
+        VATEntryAmount: array[5] of Decimal;
+        VATEntryAmountACY: array[5] of Decimal;
+        Index: Integer;
+    begin
+
+        VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(VATEntry, ArrayLen(ExpectedVATAmount));
+
+        Index := 0;
+        VATEntry.FindSet();
+        repeat
+            Index += 1;
+            VATEntryAmount[Index] := VATEntry.Amount;
+            VATEntryAmountACY[Index] := VATEntry."Additional-Currency Amount";
+        until VATEntry.Next() = 0;
+
+        for Index := 1 to ArrayLen(ExpectedVATAmount) do begin
+            Assert.AreEqual(ExpectedVATAmount[Index], VATEntryAmount[Index], StrSubstNo('Incorrect Amount in "VAT Entry"[%1]', Index));
+            Assert.AreEqual(ExpectedVATAmountACY[Index], VATEntryAmountACY[Index], StrSubstNo('Incorrect Additional-Currency Amount in "VAT Entry"[%1]', Index));
+        end;
     end;
 
     [ConfirmHandler]

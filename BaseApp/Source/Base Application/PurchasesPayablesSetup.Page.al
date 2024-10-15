@@ -67,7 +67,7 @@ page 460 "Purchases & Payables Setup"
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if the invoice discount amount is automatically calculated with purchase documents. If this check box is selected, then the invoice discount amount is calculated automatically when you do either of the following on a sales document: View statistics, View a test report, Print, Post.';
+                    ToolTip = 'Specifies if the invoice discount amount is automatically calculated with purchase documents. If this check box is selected, then the invoice discount amount is calculated automatically, based on purchase lines where the Allow Invoice Disc. field is selected.';
                 }
                 field("Calc. Inv. Disc. per VAT ID"; "Calc. Inv. Disc. per VAT ID")
                 {
