@@ -831,14 +831,24 @@ report 7305 "Whse.-Source - Create Document"
         WhseDoc: Option "Whse. Mov.-Worksheet","Posted Receipt","Internal Pick","Internal Put-away",Production,"Put-away Worksheet",Assembly,"Service Order",Job;
         SourceTableCaption: Text;
         CreateErrorText: Text;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 activity no. %2 has been created.';
         Text001: Label '%1 activities no. %2 to %3 have been created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrintDoc: Boolean;
         EverythingHandled: Boolean;
         WhseWkshLineFound: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label '\For %1 with existing Warehouse Worksheet Lines, no %2 lines have been created.';
+#pragma warning restore AA0470
         Text003: Label 'There is nothing to handle.';
+#pragma warning disable AA0470
         Text004: Label 'You can create a Movement only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BreakbulkFilter: Boolean;
         ShowSummary: Boolean;
         ReservedFromStock: Enum "Reservation From Stock";

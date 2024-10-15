@@ -114,9 +114,6 @@ codeunit 5062 SegCriteriaManagement
         SegCriteriaLine.Type := SegCriteriaLine.Type::Filter;
         SegCriteriaLine."Table No." := TableNo;
         SegCriteriaLine."Table View" := TableView;
-#if not CLEAN22
-        SegCriteriaLine.View := CopyStr(TableView, 1, MaxStrLen(SegCriteriaLine.View));
-#endif
         OnBeforeInsertCriteriaFilterOnBeforeSegCriteriaLineInsert(SegCriteriaLine);
         SegCriteriaLine.Insert();
 
@@ -129,14 +126,6 @@ codeunit 5062 SegCriteriaManagement
         OnBeforeInsertCriteriaFilterOnBeforeSegCriteriaLineModify(SegCriteriaLine);
         SegCriteriaLine.Modify();
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedure InsertCriteriaFilters()', '22.0')]
-    procedure InsertCriteriaFilter(SegmentNo: Code[20]; TableNo: Integer; "Filter": Text[250]; View: Text[250])
-    begin
-        InsertCriteriaFilters(SegmentNo, TableNo, Filter, View);
-    end;
-#endif
 
     procedure GetSegCriteriaFilters(TableNo: Integer; TableView: Text): Text
     var
@@ -174,32 +163,13 @@ codeunit 5062 SegCriteriaManagement
         end;
 
         OnAfterGetSegCriteriaFilters(TableNo, TableView, TableFilters);
-#if not CLEAN22
-        OnAfterSegCriteriaFilter(TableNo, TableView, TableFilters);
-#endif
         exit(TableFilters);
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by procedure GetSegCriteriaFilters()', '22.0')]
-    procedure SegCriteriaFilter(TableNo: Integer; View: Text[250]): Text[250]
-    begin
-        exit(CopyStr(GetSegCriteriaFilters(TableNo, View), 1, 250));
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSegCriteriaFilters(TableNo: Integer; TableView: Text; var TableFilters: Text)
     begin
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by event OnAfterGetSegCriteriaFilters()', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterSegCriteriaFilter(TableNo: Integer; View: Text[250]; var Filters: Text[250])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertCriteriaAction(SegmentNo: Code[20]; var CalledFromReportNo: Integer; var AllowExistingContacts: Boolean; var ExpandContact: Boolean; var AllowCompanyWithPersons: Boolean; var IgnoreExclusion: Boolean; var EntireCompanies: Boolean; var IsHandled: Boolean)
@@ -220,14 +190,6 @@ codeunit 5062 SegCriteriaManagement
     local procedure OnBeforeInsertSegmentCriteriaFilter(SegmentNo: Code[20]; var TableNo: Integer; var TableFilter: Text; var TableView: Text; var Handled: Boolean)
     begin
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by event OnBeforeInsertSegmentCriteriaFilter()', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertCriteriaFilter(SegmentNo: Code[20]; var TableNo: Integer; var "Filter": Text[250]; var View: Text[250]; var Handled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertCriteriaFilterOnBeforeSegCriteriaLineInsert(var SegCriteriaLine: Record "Segment Criteria Line")

@@ -184,24 +184,22 @@ codeunit 142077 "VAT - Vies Declaration XML"
         VATEntry: Record "VAT Entry";
         EntryNo: Integer;
     begin
-        with VATEntry do begin
-            FindLast();
-            EntryNo := "Entry No.";
-            Init();
-            "Entry No." := EntryNo + 1;
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            "Document No." := Format("Entry No.");
-            "Document Type" := "Document Type"::Invoice;
-            Type := Type::Sale;
-            Validate("Bill-to/Pay-to No.", Customer."No.");
-            "VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
-            "EU 3-Party Trade" := EU3Party;
-            "EU Service" := EUService;
-            Amount := -LibraryRandom.RandDecInRange(10, 1000, 2);
-            Base := -LibraryRandom.RandDecInRange(10, 1000, 2);
-            Insert();
-        end
+        VATEntry.FindLast();
+        EntryNo := VATEntry."Entry No.";
+        VATEntry.Init();
+        VATEntry."Entry No." := EntryNo + 1;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry."Document No." := Format(VATEntry."Entry No.");
+        VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry.Validate("Bill-to/Pay-to No.", Customer."No.");
+        VATEntry."VAT Bus. Posting Group" := Customer."VAT Bus. Posting Group";
+        VATEntry."EU 3-Party Trade" := EU3Party;
+        VATEntry."EU Service" := EUService;
+        VATEntry.Amount := -LibraryRandom.RandDecInRange(10, 1000, 2);
+        VATEntry.Base := -LibraryRandom.RandDecInRange(10, 1000, 2);
+        VATEntry.Insert();
     end;
 
     local procedure CreateNoSeries(StartingNo: Code[20]): Code[20]
@@ -234,34 +232,28 @@ codeunit 142077 "VAT - Vies Declaration XML"
 
     local procedure FindCustomer(var Customer: Record Customer)
     begin
-        with Customer do begin
-            SetFilter("VAT Bus. Posting Group", '<>%1', '');
-            SetFilter("VAT Registration No.", '<>%1', '');
-            FindFirst();
-        end
+        Customer.SetFilter("VAT Bus. Posting Group", '<>%1', '');
+        Customer.SetFilter("VAT Registration No.", '<>%1', '');
+        Customer.FindFirst();
     end;
 
     local procedure UpdateCompanyInformation(CompanyName: Text[100]) OldCompanyName: Text[100]
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            OldCompanyName := Name;
-            Validate(Name, CompanyName);
-            Modify();
-        end;
+        CompanyInformation.Get();
+        OldCompanyName := CompanyInformation.Name;
+        CompanyInformation.Validate(Name, CompanyName);
+        CompanyInformation.Modify();
     end;
 
     local procedure UpdateVATReportSetup(CompanyName: Text[100])
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            Validate("Company Name", CompanyName);
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup.Validate("Company Name", CompanyName);
+        VATReportSetup.Modify();
     end;
 
     local procedure VerifyElementInXMLDoc(ElementName: Text; ExpectedValue: Text): Boolean
@@ -306,14 +298,14 @@ codeunit 142077 "VAT - Vies Declaration XML"
         LibraryVariableStorage.Dequeue(ReportingDateVar);
         LibraryVariableStorage.Dequeue(NoSeriesVar);
         LibraryVariableStorage.Dequeue(VATBusPostingGroupVar);
-        with VATVIESDeclarationXML do begin
-            ReportingType.SetValue(ReportingTypeVar);
-            RepPeriodFrom.SetValue(ReportingDateVar); // Starting Date
-            RepPeriodTo.SetValue(ReportingDateVar); // Ending Date
-            NoSeries.SetValue(NoSeriesVar);
-            "VAT Entry".SetFilter("VAT Bus. Posting Group", VATBusPostingGroupVar);
-            SaveAsXml(FileMgt.ServerTempFileName('xml'), FileMgt.ServerTempFileName('xml'));
-        end;
+        VATVIESDeclarationXML.ReportingType.SetValue(ReportingTypeVar);
+        VATVIESDeclarationXML.RepPeriodFrom.SetValue(ReportingDateVar);
+        // Starting Date
+        VATVIESDeclarationXML.RepPeriodTo.SetValue(ReportingDateVar);
+        // Ending Date
+        VATVIESDeclarationXML.NoSeries.SetValue(NoSeriesVar);
+        VATVIESDeclarationXML."VAT Entry".SetFilter("VAT Bus. Posting Group", VATBusPostingGroupVar);
+        VATVIESDeclarationXML.SaveAsXml(FileMgt.ServerTempFileName('xml'), FileMgt.ServerTempFileName('xml'));
     end;
 }
 

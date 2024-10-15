@@ -18,7 +18,6 @@ codeunit 132542 TestMappingToW1Tables
         LibraryRandom: Codeunit "Library - Random";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         IsInitialized: Boolean;
-        BalAccTypeErr: Label '%1 must be equal to ''%2''  in Data Exch. Def: Code=%3. Current value is ''%4''.', Comment = '%1=field caption,%2=definition type,%3=Data Exch. Def Code,%4=Data Exch. Def Code Value';
         BankStmtImpFormatBalAccErr: Label '%1 must be blank. When %2 = %3, then %1 on the Bank Account card will be used in %4 %5=''%6'',%7=''%8''.', Comment = '%1 = Bank Statement Import Format;%2 = Bal. Account Type;%3 = value;%4 = Gen. Journal Batch;%5 = Journal Template Name;%6 = value;%7 = Name;%8 = value';
         WrongNoOfLinesErr: Label 'Wrong number of lines imported.';
 
@@ -639,9 +638,7 @@ codeunit 132542 TestMappingToW1Tables
         asserterror GenJnlLine.ImportBankStatement();
 
         // Verify
-        Assert.ExpectedError(
-          StrSubstNo(BalAccTypeErr, DataExchDef.FieldCaption(Type), DataExchDef.Type::"Bank Statement Import",
-            DataExchDef.Code, DataExchDef.Type::"Payment Export"));
+        Assert.ExpectedTestFieldError(DataExchDef.FieldCaption(Type), Format(DataExchDef.Type::"Bank Statement Import"));
     end;
 
     [Test]
@@ -754,17 +751,14 @@ codeunit 132542 TestMappingToW1Tables
         // Setup
         TempDataExchMapping.InsertRecForExport(DataExchDef.Code, DataExchLineDef.Code,
           DATABASE::"Gen. Journal Line", '', CODEUNIT::"Payment Export Mgt");
-
         // Exercise
-        with TempDataExchFieldMapping do begin
-            "Data Exch. Def Code" := DataExchDef.Code;
-            "Data Exch. Line Def Code" := DataExchLineDef.Code;
-            "Table ID" := TempDataExchMapping."Table ID";
-            "Column No." := DataExchColumnDef."Column No.";
-            "Field ID" := 1;
-            Optional := false;
-            Insert(true);
-        end;
+        TempDataExchFieldMapping."Data Exch. Def Code" := DataExchDef.Code;
+        TempDataExchFieldMapping."Data Exch. Line Def Code" := DataExchLineDef.Code;
+        TempDataExchFieldMapping."Table ID" := TempDataExchMapping."Table ID";
+        TempDataExchFieldMapping."Column No." := DataExchColumnDef."Column No.";
+        TempDataExchFieldMapping."Field ID" := 1;
+        TempDataExchFieldMapping.Optional := false;
+        TempDataExchFieldMapping.Insert(true);
 
         // Verify
         TempDataExchFieldMapping.TestField(Multiplier, 1);
@@ -1538,16 +1532,14 @@ codeunit 132542 TestMappingToW1Tables
         DataExch.SetRange("Data Exch. Def Code", DataExchDefCode);
         DataExch.FindFirst();
 
-        with BankAccReconciliationLine do begin
-            Assert.AreEqual(LineCount, Count, WrongNoOfLinesErr);
-            FindSet();
-            repeat
-                i += 1;
-                TestField("Statement Amount", ExpectedDecimal[i]);
-                TestField("Data Exch. Line No.", i);
-                TestField("Data Exch. Entry No.", DataExch."Entry No.");
-            until Next() = 0;
-        end;
+        Assert.AreEqual(LineCount, BankAccReconciliationLine.Count, WrongNoOfLinesErr);
+        BankAccReconciliationLine.FindSet();
+        repeat
+            i += 1;
+            BankAccReconciliationLine.TestField("Statement Amount", ExpectedDecimal[i]);
+            BankAccReconciliationLine.TestField("Data Exch. Line No.", i);
+            BankAccReconciliationLine.TestField("Data Exch. Entry No.", DataExch."Entry No.");
+        until BankAccReconciliationLine.Next() = 0;
     end;
 
     local procedure CreateGenJnlBatchWithBalBankAcc(var GenJnlBatch: Record "Gen. Journal Batch"; DataExchDefCode: Code[20])
@@ -1768,10 +1760,9 @@ codeunit 132542 TestMappingToW1Tables
         LatestDate: Date;
         TemporalDate: Date;
     begin
-        foreach TemporalDate in PostingDates do begin
+        foreach TemporalDate in PostingDates do
             if TemporalDate > LatestDate then
                 LatestDate := TemporalDate;
-        end;
         BankAccReconciliation.Validate("Statement Date", LatestDate);
     end;
 

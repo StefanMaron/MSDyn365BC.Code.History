@@ -138,6 +138,15 @@ page 674 "Job Queue Log Entries"
                     Rec.ShowErrorMessage();
                 end;
             }
+            action("Show Job Queue Entry")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Show Job Queue Entry';
+                Image = ViewJob;
+                RunObject = Page "Job Queue Entries";
+                RunPageLink = ID = field(ID);
+                ToolTip = 'View the job queue entries.';
+            }
             action("Show Error Call Stack")
             {
                 ApplicationArea = Basic, Suite;
@@ -196,6 +205,9 @@ page 674 "Job Queue Log Entries"
                 {
                 }
                 actionref(SetStatusToError_Promoted; SetStatusToError)
+                {
+                }
+                actionref("Show Job Queue Entry_Promoted"; "Show Job Queue Entry")
                 {
                 }
                 group(Category_Delete)

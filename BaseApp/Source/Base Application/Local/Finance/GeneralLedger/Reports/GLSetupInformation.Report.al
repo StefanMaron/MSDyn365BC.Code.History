@@ -1386,7 +1386,7 @@ report 11514 "G/L Setup Information"
             }
             dataitem("Field"; "Field")
             {
-                DataItemTableView = sorting(TableNo, "No.") ORDER(Ascending) where(RelationTableNo = filter(= 308));
+                DataItemTableView = sorting(TableNo, "No.") order(ascending) where(RelationTableNo = filter(= 308));
 
                 trigger OnAfterGetRecord()
                 var
@@ -1428,7 +1428,7 @@ report 11514 "G/L Setup Information"
             }
             dataitem("Integer"; "Integer")
             {
-                DataItemTableView = sorting(Number) order(Ascending);
+                DataItemTableView = sorting(Number) order(ascending);
                 column(ErrorText_Number_; ErrorText[Number])
                 {
                 }

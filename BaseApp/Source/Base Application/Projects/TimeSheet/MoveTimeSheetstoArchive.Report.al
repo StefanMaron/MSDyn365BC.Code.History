@@ -64,8 +64,12 @@ report 953 "Move Time Sheets to Archive"
         TimeSheetMgt: Codeunit "Time Sheet Management";
         Window: Dialog;
         Counter: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Moving time sheets to archive  #1########## @2@@@@@@@@@@@@@';
         Text002: Label '%1 time sheets have been moved to the archive.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CounterTotal: Integer;
 
     [IntegrationEvent(false, false)]

@@ -272,11 +272,13 @@ report 5985 "Contract Price Update - Test"
         OldUpdateDate2: Date;
         UpdateToDate: Date;
 
+#pragma warning disable AA0074
         Text000: Label 'You must fill in the Price Update % field.';
         Text001: Label 'The price update % is unusually large.\\Do you want to update it anyway?';
         Text002: Label 'The program has stopped the batch job at your request.';
         Text003: Label 'You must fill in the Update to Date field.';
         Text005: Label 'The price update period is empty.';
+#pragma warning restore AA0074
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Contract_Price_Update___TestCaptionLbl: Label 'Contract Price Update - Test';
         Update_to_dateCaptionLbl: Label 'Update to Date';

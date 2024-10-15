@@ -1,9 +1,8 @@
 namespace System.Security.AccessControl;
 
-#if not CLEAN22
-using Microsoft;
-#endif
+#if not CLEAN25
 using Microsoft.Foundation.Reporting;
+#endif
 using Microsoft.Finance.AuditFileExport;
 using Microsoft.Purchases.Document;
 #if not CLEAN24
@@ -18,13 +17,7 @@ permissionset 1001 "LOCAL"
     Assignable = true;
     Caption = 'Country/region-specific func.';
 
-#if not CLEAN22
-    Permissions = tabledata Certificate = RIMD,
-                  tabledata "DACH Report Selections" = RIMD,
-#else
-    Permissions = tabledata "DACH Report Selections" = RIMD,
-#endif
-                  tabledata "Data Exp. Primary Key Buffer" = RIMD,
+    Permissions = tabledata "Data Exp. Primary Key Buffer" = RIMD,
                   tabledata "Data Export" = RIMD,
                   tabledata "Data Export Buffer" = RIMD,
                   tabledata "Data Export Record Definition" = RIMD,
@@ -40,6 +33,9 @@ permissionset 1001 "LOCAL"
                   tabledata "Delivery Reminder Line" = RIMD,
                   tabledata "Delivery Reminder Term" = RIMD,
                   tabledata "Delivery Reminder Text" = RIMD,
+#if not CLEAN25
+                  tabledata "DACH Report Selections" = RIMD,
+#endif
 #if not CLEAN24
                   tabledata "Expect. Phys. Inv. Track. Line" = RIMD,
 #endif

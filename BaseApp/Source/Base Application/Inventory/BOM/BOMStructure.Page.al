@@ -170,7 +170,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByEvent());
+                        ShowItemAvailability("Item Availability Type"::"Event");
                     end;
                 }
                 action(Period)
@@ -182,7 +182,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByPeriod());
+                        ShowItemAvailability("Item Availability Type"::Period);
                     end;
                 }
                 action(Variant)
@@ -194,7 +194,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByVariant());
+                        ShowItemAvailability("Item Availability Type"::Variant);
                     end;
                 }
                 action(Location)
@@ -207,7 +207,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByLocation());
+                        ShowItemAvailability("Item Availability Type"::Location);
                     end;
                 }
                 action(Lot)
@@ -230,7 +230,7 @@ page 5870 "BOM Structure"
 
                     trigger OnAction()
                     begin
-                        ShowItemAvailability(ItemAvailabilityFormsMgt.ByBOM());
+                        ShowItemAvailability("Item Availability Type"::BOM);
                     end;
                 }
             }
@@ -311,7 +311,6 @@ page 5870 "BOM Structure"
         Item: Record Item;
         AssemblyHeader: Record "Assembly Header";
         ProdOrderLine: Record "Prod. Order Line";
-        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
         IsParentExpr: Boolean;
         HasWarning: Boolean;
         CouldNotFindBOMLevelsErr: Label 'Could not find items with BOM levels.';
@@ -402,9 +401,10 @@ page 5870 "BOM Structure"
             Page.RunModal(Page::"BOM Warning Log", TempBOMWarningLog);
     end;
 
-    local procedure ShowItemAvailability(AvailType: Option)
+    local procedure ShowItemAvailability(AvailType: Enum "Item Availability Type")
     var
         ItemForShowAvailability: Record Item;
+        ItemAvailabilityFormsMgt: Codeunit "Item Availability Forms Mgt";
     begin
         Rec.TestField(Type, Rec.Type::Item);
 
@@ -415,7 +415,7 @@ page 5870 "BOM Structure"
         if ShowBy <> ShowBy::Item then
             ItemForShowAvailability.SetFilter("Location Filter", Rec."Location Code");
 
-        ItemAvailabilityFormsMgt.ShowItemAvailFromItem(Item, AvailType);
+        ItemAvailabilityFormsMgt.ShowItemAvailabilityFromItem(ItemForShowAvailability, AvailType);
     end;
 
     [IntegrationEvent(false, false)]

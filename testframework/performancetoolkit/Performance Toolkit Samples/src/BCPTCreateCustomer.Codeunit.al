@@ -28,6 +28,7 @@ codeunit 149126 "BCPT Create Customer" implements "BCPT Test Param. Provider"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeriesLine: Record "No. Series Line";
+        RecordModified: Boolean;
     begin
         SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Customer Nos.");
@@ -38,9 +39,12 @@ codeunit 149126 "BCPT Create Customer" implements "BCPT Test Param. Provider"
                 NoSeriesLine."Ending No." := '';
                 NoSeriesLine.Validate(Implementation, NoSeriesLine.Implementation::Sequence);
                 NoSeriesLine.Modify(true);
+                RecordModified := true;
             end;
         until NoSeriesLine.Next() = 0;
-        Commit(); //Commit to avoid deadlocks
+
+        if RecordModified then
+            Commit(); //Commit to avoid deadlocks
 
         if Evaluate(CustomerTemplateToUse, BCPTTestContext.GetParameter(CustomerTemplateParamLbl)) then;
     end;

@@ -413,16 +413,6 @@ table 7000 "Price List Header"
         exit(PriceListManagement.IsAllowedEditingActivePrice("Price Type"));
     end;
 
-#if not CLEAN22
-    [Obsolete('Use IsCRMIntegrationAllowed with updated parameters', '22.0')]
-    procedure IsCRMIntegrationAllowed(StatusActiveFilterApplied: Boolean): Boolean;
-    begin
-        exit(
-            ((StatusActiveFilterApplied and (Rec.Status = Rec.Status::Active)) or not StatusActiveFilterApplied) and
-            not Rec."Allow Updating Defaults");
-    end;
-#endif
-
     procedure IsCRMIntegrationAllowed(StatusActiveFilterApplied: Boolean; AllowUpdatingDefaultsFilterApplied: Boolean): Boolean;
     begin
         exit(

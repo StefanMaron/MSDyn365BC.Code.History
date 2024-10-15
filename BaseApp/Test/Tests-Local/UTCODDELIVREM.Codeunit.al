@@ -48,7 +48,7 @@ codeunit 142034 "UT COD DELIVREM"
         CreateDeliveryReminderHeader(DeliveryReminderHeader);
 
         // Exercise.
-        PrintDocumentComfort.DeliveryRemindPrint(DeliveryReminderHeader);
+        PrintDocumentComfort.PrintDeliveryReminder(DeliveryReminderHeader);
 
         // Verify: Verify Report Delivery Reminder Test executed, added Report Handler DeliveryReminderTestReportHandler.
     end;

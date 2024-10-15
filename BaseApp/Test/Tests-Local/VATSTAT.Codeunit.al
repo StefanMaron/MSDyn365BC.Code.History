@@ -957,14 +957,14 @@ codeunit 144001 VATSTAT
     [Scope('OnPrem')]
     procedure TestRelocationOfLocalVATReports()
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
     begin
-        DACHReportSelections.Get(DACHReportSelections.Usage::"VAT Statement", 1);
-        Assert.AreEqual(11110, DACHReportSelections."Report ID", 'Report 11110 was expected');
-        DACHReportSelections.Get(DACHReportSelections.Usage::"Sales VAT Acc. Proof", 1);
-        Assert.AreEqual(11, DACHReportSelections."Report ID", 'Report 11 was expected');
-        DACHReportSelections.Get(DACHReportSelections.Usage::"VAT Statement Schedule", 1);
-        Assert.AreEqual(11010, DACHReportSelections."Report ID", 'Report 11010 was expected');
+        ReportSelections.Get(ReportSelections.Usage::"VAT Statement", 1);
+        Assert.AreEqual(11110, ReportSelections."Report ID", 'Report 11110 was expected');
+        ReportSelections.Get(ReportSelections.Usage::"Sales VAT Acc. Proof", 1);
+        Assert.AreEqual(11, ReportSelections."Report ID", 'Report 11 was expected');
+        ReportSelections.Get(ReportSelections.Usage::"VAT Statement Schedule", 1);
+        Assert.AreEqual(11010, ReportSelections."Report ID", 'Report 11010 was expected');
     end;
 
     [Test]
@@ -1560,19 +1560,17 @@ codeunit 144001 VATSTAT
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
-        with VATStatementLine do begin
-            SetFilter("Statement Template Name", TemplateName);
-            SetFilter("Row No.", RowNo);
-            FindFirst();
-            if not StringContains("Row Totaling", RowTotalingFilter) then begin
-                if Add then begin
-                    if "Row Totaling" <> '' then
-                        RowTotalingFilter := '|' + RowTotalingFilter;
-                    "Row Totaling" := CopyStr("Row Totaling" + RowTotalingFilter, 1, MaxStrLen("Row Totaling"));
-                end else
-                    "Row Totaling" := CopyStr(RowTotalingFilter, 1, MaxStrLen("Row Totaling"));
-                Modify();
-            end;
+        VATStatementLine.SetFilter("Statement Template Name", TemplateName);
+        VATStatementLine.SetFilter("Row No.", RowNo);
+        VATStatementLine.FindFirst();
+        if not StringContains(VATStatementLine."Row Totaling", RowTotalingFilter) then begin
+            if Add then begin
+                if VATStatementLine."Row Totaling" <> '' then
+                    RowTotalingFilter := '|' + RowTotalingFilter;
+                VATStatementLine."Row Totaling" := CopyStr(VATStatementLine."Row Totaling" + RowTotalingFilter, 1, MaxStrLen(VATStatementLine."Row Totaling"));
+            end else
+                VATStatementLine."Row Totaling" := CopyStr(RowTotalingFilter, 1, MaxStrLen(VATStatementLine."Row Totaling"));
+            VATStatementLine.Modify();
         end;
     end;
 
@@ -1930,24 +1928,22 @@ codeunit 144001 VATSTAT
     begin
         VATStatementTemplate.FindFirst();
 
-        with VATStatementLine do begin
-            SetRange("Statement Template Name", VATStatementTemplate.Name);
-            if FindLast() then
-                LineNoToCreate := "Line No." + 10000
-            else
-                LineNoToCreate := 1;
+        VATStatementLine.SetRange("Statement Template Name", VATStatementTemplate.Name);
+        if VATStatementLine.FindLast() then
+            LineNoToCreate := VATStatementLine."Line No." + 10000
+        else
+            LineNoToCreate := 1;
 
-            Init();
-            Validate("Line No.", LineNoToCreate);
-            Validate("Row No.", RowNo);
-            Validate(Type, Type::"VAT Entry Totaling");
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Validate("VAT Bus. Posting Group", BusPostingGroup);
-            Validate("VAT Prod. Posting Group", ProdPostingGroup);
-            Validate("Amount Type", "Amount Type"::Amount);
-            Validate(Print, true);
-            Insert(true);
-        end;
+        VATStatementLine.Init();
+        VATStatementLine.Validate("Line No.", LineNoToCreate);
+        VATStatementLine.Validate("Row No.", RowNo);
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.Validate("Gen. Posting Type", VATStatementLine."Gen. Posting Type"::Purchase);
+        VATStatementLine.Validate("VAT Bus. Posting Group", BusPostingGroup);
+        VATStatementLine.Validate("VAT Prod. Posting Group", ProdPostingGroup);
+        VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
+        VATStatementLine.Validate(Print, true);
+        VATStatementLine.Insert(true);
     end;
 
     local procedure CreateRowTotVATStmtLine(RowNo: Code[10]; RowTotaling: Code[10])
@@ -1958,21 +1954,19 @@ codeunit 144001 VATSTAT
     begin
         VATStatementTemplate.FindFirst();
 
-        with VATStatementLine do begin
-            SetRange("Statement Template Name", VATStatementTemplate.Name);
-            if FindLast() then
-                LineNoToCreate := "Line No." + 10000
-            else
-                LineNoToCreate := 1;
+        VATStatementLine.SetRange("Statement Template Name", VATStatementTemplate.Name);
+        if VATStatementLine.FindLast() then
+            LineNoToCreate := VATStatementLine."Line No." + 10000
+        else
+            LineNoToCreate := 1;
 
-            Init();
-            Validate("Line No.", LineNoToCreate);
-            Validate("Row No.", RowNo);
-            Validate(Type, Type::"Row Totaling");
-            Validate("Row Totaling", RowTotaling);
-            Validate(Print, true);
-            Insert(true);
-        end;
+        VATStatementLine.Init();
+        VATStatementLine.Validate("Line No.", LineNoToCreate);
+        VATStatementLine.Validate("Row No.", RowNo);
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"Row Totaling");
+        VATStatementLine.Validate("Row Totaling", RowTotaling);
+        VATStatementLine.Validate(Print, true);
+        VATStatementLine.Insert(true);
     end;
 
     local procedure GetDomesticGroup(): Code[20]

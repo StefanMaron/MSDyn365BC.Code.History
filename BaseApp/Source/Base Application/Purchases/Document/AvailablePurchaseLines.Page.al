@@ -103,7 +103,7 @@ page 501 "Available - Purchase Lines"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -257,9 +257,13 @@ page 501 "Available - Purchase Lines"
         Direction: Enum "Transfer Direction";
         CurrentSubType: Option;
 
+#pragma warning disable AA0074
         Text000: Label 'Fully reserved.';
         Text001: Label 'Do you want to cancel the reservation?';
+#pragma warning disable AA0470
         Text003: Label 'Available Quantity is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         QtyToReserve: Decimal;

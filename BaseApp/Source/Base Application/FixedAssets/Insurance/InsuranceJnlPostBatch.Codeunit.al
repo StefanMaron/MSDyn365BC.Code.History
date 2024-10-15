@@ -37,9 +37,13 @@ codeunit 5653 "Insurance Jnl.-Post Batch"
         LastDocNo2: Code[20];
         LastPostedDocNo: Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

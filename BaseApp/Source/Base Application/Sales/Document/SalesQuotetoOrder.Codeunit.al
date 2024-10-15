@@ -91,8 +91,12 @@ codeunit 86 "Sales-Quote to Order"
         SalesOrderLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'An open %1 is linked to this %2. The %1 has to be closed before the %2 can be converted to an %3. Do you want to close the %1 now and continue the conversion?', Comment = 'An open Opportunity is linked to this Quote. The Opportunity has to be closed before the Quote can be converted to an Order. Do you want to close the Opportunity now and continue the conversion?';
         Text001: Label 'An open %1 is still linked to this %2. The conversion to an %3 was aborted.', Comment = 'An open Opportunity is still linked to this Quote. The conversion to an Order was aborted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CopyApprovalEntryQuoteToOrder(SalesHeader: Record "Sales Header"; SalesOrderHeader: Record "Sales Header")
     var

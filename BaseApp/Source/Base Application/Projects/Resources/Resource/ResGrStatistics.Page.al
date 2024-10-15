@@ -548,7 +548,9 @@ page 230 "Res. Gr. Statistics"
         InvoicedPct: array[4] of Decimal;
         Profit: array[4] of Decimal;
         ResGrProfitPct: array[4] of Decimal;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 
     protected var
         ResGrDateFilter: array[4] of Text[30];

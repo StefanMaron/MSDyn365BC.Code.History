@@ -3,7 +3,6 @@ codeunit 138200 "Normal DemoData"
     Subtype = Test;
     TestPermissions = Disabled;
 
-
     trigger OnRun()
     begin
         // [FEATURE] [DEMO] [Extended]
@@ -11,7 +10,6 @@ codeunit 138200 "Normal DemoData"
 
     var
         Assert: Codeunit Assert;
-        NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
         XOUTGOINGTxt: Label 'OUTGOING';
         XINCOMETxt: Label 'INCOME';
@@ -37,7 +35,6 @@ codeunit 138200 "Normal DemoData"
         Assert.AreEqual(IsDemoCompany, CompanyInformation."Demo Company", StrSubstNo('%1 must be set to true for Company: %2', CompanyInformation.FieldName("Demo Company"), CompanyInformation.Name));
     end;
 
-
     [Test]
     [Scope('OnPrem')]
     procedure CountSalesDocuments()
@@ -46,13 +43,11 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO] There is 0 Sales Invoice and 0 documents of other types
-        with SalesHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 0);
+        SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
+        Assert.RecordCount(SalesHeader, 0);
 
-            SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(SalesHeader, 0);
-        end;
+        SalesHeader.SetFilter("Document Type", '<>%1', SalesHeader."Document Type"::Invoice);
+        Assert.RecordCount(SalesHeader, 0);
     end;
 
     [Test]
@@ -63,31 +58,11 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO] There are 0 Purchase Invoices and 0 documents of other types
-        with PurchHeader do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 0);
+        PurchHeader.SetRange("Document Type", PurchHeader."Document Type"::Invoice);
+        Assert.RecordCount(PurchHeader, 0);
 
-            SetFilter("Document Type", '<>%1', "Document Type"::Invoice);
-            Assert.RecordCount(PurchHeader, 0);
-        end;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostPurchInvoices()
-    var
-        PurchHeader: Record "Purchase Header";
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO] There are no Purchase Invoices to post
-        with PurchHeader do begin
-            // [WHEN] Post all Invoices
-            Reset();
-            SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst();
-            // [THEN] Error: 'There is no Purchase Header within the filter.'
-            Assert.ExpectedError(NoPurchHeaderErr);
-        end;
+        PurchHeader.SetFilter("Document Type", '<>%1', PurchHeader."Document Type"::Invoice);
+        Assert.RecordCount(PurchHeader, 0);
     end;
 
     [Test]
@@ -277,9 +252,8 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Electronic Document]
         // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
-        with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Service Validation".AsInteger() do
-                ElectronicDocumentFormat.Get('PEPPOL BIS3', UsageOption);
+        for UsageOption := ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger() to ElectronicDocumentFormat.Usage::"Service Validation".AsInteger() do
+            ElectronicDocumentFormat.Get('PEPPOL BIS3', UsageOption);
     end;
 
     [Test]
@@ -319,16 +293,14 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [VAT Return Period]
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" default setup
-        with VATReportSetup do begin
-            Get();
-            TestField("VAT Return Period No. Series");
-            TestField("Report Version", '');
-            TestField("Period Reminder Calculation", DummyDateFormula);
-            TestField("Update Period Job Frequency", "Update Period Job Frequency"::Never);
-            TestField("Manual Receive Period CU ID", 0);
-            TestField("Receive Submitted Return CU ID", 0);
-            TestField("Auto Receive Period CU ID", 0);
-        end;
+        VATReportSetup.Get();
+        VATReportSetup.TestField("VAT Return Period No. Series");
+        VATReportSetup.TestField("Report Version", '');
+        VATReportSetup.TestField("Period Reminder Calculation", DummyDateFormula);
+        VATReportSetup.TestField("Update Period Job Frequency", VATReportSetup."Update Period Job Frequency"::Never);
+        VATReportSetup.TestField("Manual Receive Period CU ID", 0);
+        VATReportSetup.TestField("Receive Submitted Return CU ID", 0);
+        VATReportSetup.TestField("Auto Receive Period CU ID", 0);
     end;
 
     [Test]
@@ -343,27 +315,6 @@ codeunit 138200 "Normal DemoData"
         DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
         Assert.RecordIsNotEmpty(DefaultDimension);
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Test]
-    [Obsolete('Not Used.', '22.0')]
-    procedure AdvancedIntrastatChecklist()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
-    begin
-        Assert.RecordCount(AdvancedIntrastatChecklist, 26);
-
-        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist AT");
-        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form AT");
-        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Disk Tax Auth AT");
-
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Form AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Disk Tax Auth AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
-    end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure AccountScheduleHideCurrencySymbol()
@@ -403,33 +354,6 @@ codeunit 138200 "Normal DemoData"
         ColumnLayout.Get(ColumnLayoutName, LineNo);
         ColumnLayout.TestField("Hide Currency Symbol", true);
     end;
-
-#if not CLEAN22
-    local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), '');
-    end;
-
-    local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
-    var
-        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
-    begin
-        AdvancedIntrastatChecklist.SetRange("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
-        AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
-        AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
-        AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
-        Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
-    end;
-#endif
 
     [Test]
     procedure GBIsExcludedFromEUCountry()

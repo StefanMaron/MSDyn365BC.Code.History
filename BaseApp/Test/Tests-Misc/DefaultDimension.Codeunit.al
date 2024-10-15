@@ -85,15 +85,14 @@ codeunit 134487 "Default Dimension"
         // [FEATURE] [UT]
         // [SCENARIO] All tables returned by COD408.DefaultDimObjectNoList() have captions, are not obsolete, and Primary Key of one field.
         DimensionManagement.DefaultDimObjectNoList(TempAllObjWithCaption);
-        with TempAllObjWithCaption do
-            if FindSet() then
-                repeat
-                    TableMetadata.Get("Object ID");
-                    if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
-                        TableMetadata.FieldError(ObsoleteState);
-                    TestField("Object Caption");
-                    Assert.IsTrue(PKContainsOneField("Object ID"), 'PK contains not one field:' + Format("Object ID"));
-                until Next() = 0;
+        if TempAllObjWithCaption.FindSet() then
+            repeat
+                TableMetadata.Get(TempAllObjWithCaption."Object ID");
+                if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
+                    TableMetadata.FieldError(ObsoleteState);
+                TempAllObjWithCaption.TestField("Object Caption");
+                Assert.IsTrue(PKContainsOneField(TempAllObjWithCaption."Object ID"), 'PK contains not one field:' + Format(TempAllObjWithCaption."Object ID"));
+            until TempAllObjWithCaption.Next() = 0;
     end;
 
     [Test]

@@ -891,6 +891,9 @@ report 210 "Blanket Sales Order"
                         column(Sales_Header___Sell_to_Customer_No__Caption; "Sales Header".FieldCaption("Sell-to Customer No."))
                         {
                         }
+                        column(ShipToPhoneNo; "Sales Header"."Ship-to Phone No.")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -1096,13 +1099,19 @@ report 210 "Blanket Sales Order"
         LogInteraction: Boolean;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ArchiveDocument: Boolean;
         LogInteractionEnable: Boolean;
 
+#pragma warning disable AA0074
         Text004: Label 'Blanket Sales Order %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
@@ -1114,6 +1123,8 @@ report 210 "Blanket Sales Order"
         Blanket_Sales_Order_No_CaptionLbl: Label 'Blanket Sales Order No.';
         Header_DimensionsCaptionLbl: Label 'Header Dimensions';
         Unit_PriceCaptionLbl: Label 'Unit Price';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AmountCaptionLbl: Label 'Amount';
         Shipment_DateCaptionLbl: Label 'Shipment Date';
         ContinuedCaptionLbl: Label 'Continued';

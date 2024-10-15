@@ -624,13 +624,11 @@ codeunit 142059 "UT REP FIXEDASSET"
     local procedure CreateAndUpdateFADepreciationBook(var FADepreciationBook: Record "FA Depreciation Book"; FANo: Code[20]; FAPostingGroup: Code[20]; DepreciationBookCode: Code[10])
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
-        with FADepreciationBook do begin
-            Validate("FA Posting Group", FAPostingGroup);
-            Validate("Depreciation Starting Date", WorkDate());
-            Validate(
-              "Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
-            Modify(true);
-        end;
+        FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
+        FADepreciationBook.Validate(
+          "Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
+        FADepreciationBook.Modify(true);
     end;
 
     local procedure CreateFALedgerEntry(FANo: Code[20]; DepreciationBookCode: Code[10]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"): Decimal
@@ -763,15 +761,13 @@ codeunit 142059 "UT REP FIXEDASSET"
         FAJournalSetup.FindFirst();
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
         DocumentNo := NoSeries.PeekNextNo(GenJournalBatch."No. Series");
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
-            SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            FindSet();
-            repeat
-                GenJournalLine.Validate("Document No.", DocumentNo);
-                GenJournalLine.Modify(true);
-            until GenJournalLine.Next() = 0;
-        end;
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.FindSet();
+        repeat
+            GenJournalLine.Validate("Document No.", DocumentNo);
+            GenJournalLine.Modify(true);
+        until GenJournalLine.Next() = 0;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -780,13 +776,11 @@ codeunit 142059 "UT REP FIXEDASSET"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GenJournalLine do begin
-            Validate("Document No.", "Account No.");
-            Validate("FA Posting Type", FAPostingType);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", GLAccount."No.");
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Document No.", GenJournalLine."Account No.");
+        GenJournalLine.Validate("FA Posting Type", FAPostingType);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalLine.Modify(true);
     end;
 
     local procedure UpdateFAPostingGroup(var FAPostingGroup: Record "FA Posting Group")
@@ -812,14 +806,12 @@ codeunit 142059 "UT REP FIXEDASSET"
             LibraryUtility.GenerateRandomCode(FAReclassJournalLine.FieldNo("Document No."), DATABASE::"FA Reclass. Journal Line"),
             1,
             LibraryUtility.GetFieldLength(DATABASE::"FA Reclass. Journal Line", FAReclassJournalLine.FieldNo("Document No."))));
-        with FAReclassJournalLine do begin
-            Validate("FA No.", FANo);
-            Validate("New FA No.", NewFANo);
-            Validate("Reclassify Acq. Cost %", AcqCostPercent);
-            Validate("Reclassify Acquisition Cost", true);
-            Validate("Reclassify Depreciation", true);
-            Modify(true);
-        end;
+        FAReclassJournalLine.Validate("FA No.", FANo);
+        FAReclassJournalLine.Validate("New FA No.", NewFANo);
+        FAReclassJournalLine.Validate("Reclassify Acq. Cost %", AcqCostPercent);
+        FAReclassJournalLine.Validate("Reclassify Acquisition Cost", true);
+        FAReclassJournalLine.Validate("Reclassify Depreciation", true);
+        FAReclassJournalLine.Modify(true);
     end;
 
     local procedure VerifyFixedAssetNameAndDescription(FANo: Variant; FADescription: Variant)

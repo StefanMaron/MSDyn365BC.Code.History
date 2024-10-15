@@ -138,15 +138,23 @@ report 6002 "Delete Service Document Log"
         HideConfirmationDlg: Boolean;
         OnPostReportStatus: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'There is nothing to delete.';
+#pragma warning disable AA0470
         Text001: Label '%1 %2 records will be deleted.\\Do you want to continue?', Comment = '10 Service Docuent Log record(s) will be deleted.\\Do you want to continue?';
+#pragma warning restore AA0470
         Text003: Label 'No records were deleted.';
+#pragma warning disable AA0470
         Text004: Label '%1 records were deleted.';
         Text005: Label '%1 record was deleted.';
+#pragma warning restore AA0470
         Text006: Label 'Do you want to delete the service order log entries for deleted service orders?';
+#pragma warning disable AA0470
         Text007: Label 'Log entries processed: #1######\\';
         Text008: Label 'Log entries deleted:   #2######\\';
+#pragma warning restore AA0470
         Text009: Label '@3@@@@@@@@@@@@@@@@@@@@@@@@@@@@@';
+#pragma warning restore AA0074
 
     procedure SetHideConfirmationDlg(HideDlg: Boolean)
     begin

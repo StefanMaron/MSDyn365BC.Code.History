@@ -270,43 +270,6 @@ codeunit 136501 "UT Time Sheets Approval"
         TearDown();
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure TimeSheetOnAfterProcessSubmit()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TempTimeSheetLine: Record "Time Sheet Line" temporary;
-        LibraryTimeSheetLocal: Codeunit "Library - Time Sheet";
-        TimeSheet: TestPage "Time Sheet";
-        i: Integer;
-    begin
-        // [FEATURE] [UT] [UI] [Submit]
-        // [SCENARIO 271237] Extension has possibility to catch approve of timesheet lines on TimeSheet page for further processing
-        Initialize();
-
-        // [GIVEN] Time sheet with several lines
-        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        for i := 1 to LibraryRandom.RandIntInRange(3, 5) do
-            CreateTimeSheetResourceLineWithUniqDescription(TimeSheetHeader);
-
-        // [GIVEN] Subscribe to TimeSheet.OnAfterProcess event
-        BindSubscription(LibraryTimeSheetLocal);
-
-        // [GIVEN] Open TimeSheet page
-        TimeSheet.OpenEdit();
-        TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-
-        // [WHEN] Submit all lines action is being invoked
-        TimeSheet.Submit.Invoke();
-
-        // [THEN] TimeSheet.OnAfterProcess event provided all processed lines
-        LibraryTimeSheetLocal.GetTimeSheetLineBuffer(TempTimeSheetLine);
-        VerifyTimeSheetLineBuffer(TempTimeSheetLine, TimeSheetHeader."No.");
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
@@ -486,14 +449,12 @@ codeunit 136501 "UT Time Sheets Approval"
         HumanResourceUnitOfMeasure: Record "Human Resource Unit of Measure";
     begin
         LibraryTimeSheet.FindCauseOfAbsence(CauseOfAbsence);
-        with CauseOfAbsence do begin
-            if "Unit of Measure Code" = '' then begin
-                HumanResourceUnitOfMeasure.FindFirst();
-                Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
-                Modify(true);
-            end;
-            exit(Code);
+        if CauseOfAbsence."Unit of Measure Code" = '' then begin
+            HumanResourceUnitOfMeasure.FindFirst();
+            CauseOfAbsence.Validate("Unit of Measure Code", HumanResourceUnitOfMeasure.Code);
+            CauseOfAbsence.Modify(true);
         end;
+        exit(CauseOfAbsence.Code);
     end;
 
     local procedure DoSubmitApprove(var TimeSheetLine: Record "Time Sheet Line")
@@ -547,14 +508,6 @@ codeunit 136501 "UT Time Sheets Approval"
             TimeSheetLineBuffer.Next();
         until TimeSheetLine.Next() = 0;
     end;
-
-#if not CLEAN22
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
-    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
-    begin
-        Result := false;
-    end;
-#endif
 
     [StrMenuHandler]
     [Scope('OnPrem')]

@@ -40,7 +40,7 @@ page 5911 "Service Comment Sheet"
 
     trigger OnAfterGetCurrRecord()
     begin
-        CurrPage.Caption := CopyStr(Caption() + CaptionString, 1, 80);
+        CurrPage.Caption := Caption() + CaptionString;
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -54,67 +54,66 @@ page 5911 "Service Comment Sheet"
     end;
 
     var
-        CaptionString: Text[80];
+        CaptionString: Text;
 
     procedure Caption(): Text
     var
-        ServHeader: Record "Service Header";
+        ServiceCommentLine: Record "Service Comment Line";
+        ServiceHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
-        ServContractLine: Record "Service Contract Line";
-        ServContract: Record "Service Contract Header";
-        ServCommentLine: Record "Service Comment Line";
-        ServItem: Record "Service Item";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceItem: Record "Service Item";
         Loaner: Record Loaner;
     begin
-        Clear(ServCommentLine);
         if Rec.GetFilter("Table Name") <> '' then
-            Evaluate(ServCommentLine."Table Name", Rec.GetFilter("Table Name"));
+            Evaluate(ServiceCommentLine."Table Name", Rec.GetFilter("Table Name"));
 
         if Rec.GetFilter("Table Subtype") <> '' then
-            Evaluate(ServCommentLine."Table Subtype", Rec.GetFilter("Table Subtype"));
+            Evaluate(ServiceCommentLine."Table Subtype", Rec.GetFilter("Table Subtype"));
 
         if Rec.GetFilter("No.") <> '' then
-            Evaluate(ServCommentLine."No.", Rec.GetFilter("No."));
+            Evaluate(ServiceCommentLine."No.", Rec.GetFilter("No."));
 
         if Rec.GetFilter(Type) <> '' then
-            Evaluate(ServCommentLine.Type, Rec.GetFilter(Type));
+            Evaluate(ServiceCommentLine.Type, Rec.GetFilter(Type));
 
         if Rec.GetFilter("Table Line No.") <> '' then
-            Evaluate(ServCommentLine."Table Line No.", Rec.GetFilter("Table Line No."));
+            Evaluate(ServiceCommentLine."Table Line No.", Rec.GetFilter("Table Line No."));
 
-        if ServCommentLine."Table Line No." > 0 then
-            if ServItemLine.Get(ServCommentLine."Table Subtype", ServCommentLine."No.", ServCommentLine."Table Line No.") then
+        if ServiceCommentLine."Table Line No." > 0 then
+            if ServItemLine.Get(ServiceCommentLine."Table Subtype", ServiceCommentLine."No.", ServiceCommentLine."Table Line No.") then
                 exit(
                   StrSubstNo('%1 %2 %3 - %4 ', ServItemLine."Document Type", ServItemLine."Document No.",
-                    ServItemLine.Description, ServCommentLine.Type));
+                    ServItemLine.Description, ServiceCommentLine.Type));
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Header" then
-            if ServHeader.Get(ServCommentLine."Table Subtype", ServCommentLine."No.") then
+        if ServiceCommentLine."Table Name" = ServiceCommentLine."Table Name"::"Service Header" then
+            if ServiceHeader.Get(ServiceCommentLine."Table Subtype", ServiceCommentLine."No.") then
                 exit(
-                  StrSubstNo('%1 %2 %3 - %4 ', ServHeader."Document Type", ServHeader."No.",
-                    ServHeader.Description, ServCommentLine.Type));
+                  StrSubstNo('%1 %2 %3 - %4 ', ServiceHeader."Document Type", ServiceHeader."No.",
+                    ServiceHeader.Description, ServiceCommentLine.Type));
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Contract" then
-            if ServContractLine.Get(ServCommentLine."Table Subtype",
-                 ServCommentLine."No.", ServCommentLine."Table Line No.")
+        if ServiceCommentLine."Table Name" = ServiceCommentLine."Table Name"::"Service Contract" then
+            if ServiceContractLine.Get(ServiceCommentLine."Table Subtype",
+                 ServiceCommentLine."No.", ServiceCommentLine."Table Line No.")
             then
                 exit(
-                  StrSubstNo('%1 %2 %3 - %4 ', ServContractLine."Contract Type", ServContractLine."Contract No.",
-                    ServContractLine.Description, ServCommentLine.Type));
+                  StrSubstNo('%1 %2 %3 - %4 ', ServiceContractLine."Contract Type", ServiceContractLine."Contract No.",
+                    ServiceContractLine.Description, ServiceCommentLine.Type));
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Contract" then
-            if ServContract.Get(ServCommentLine."Table Subtype", ServCommentLine."No.") then
+        if ServiceCommentLine."Table Name" = ServiceCommentLine."Table Name"::"Service Contract" then
+            if ServiceContractHeader.Get(ServiceCommentLine."Table Subtype", ServiceCommentLine."No.") then
                 exit(
-                  StrSubstNo('%1 %2 %3 - %4 ', ServContract."Contract Type",
-                    ServContract."Contract No.", ServContract.Description, ServCommentLine.Type));
+                  StrSubstNo('%1 %2 %3 - %4 ', ServiceContractHeader."Contract Type",
+                    ServiceContractHeader."Contract No.", ServiceContractHeader.Description, ServiceCommentLine.Type));
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::"Service Item" then
-            if ServItem.Get(ServCommentLine."No.") then
-                exit(StrSubstNo('%1 %2 - %3 ', ServItem."No.", ServItem.Description, ServCommentLine.Type));
+        if ServiceCommentLine."Table Name" = ServiceCommentLine."Table Name"::"Service Item" then
+            if ServiceItem.Get(ServiceCommentLine."No.") then
+                exit(StrSubstNo('%1 %2 - %3 ', ServiceItem."No.", ServiceItem.Description, ServiceCommentLine.Type));
 
-        if ServCommentLine."Table Name" = ServCommentLine."Table Name"::Loaner then
-            if Loaner.Get(ServCommentLine."No.") then
-                exit(StrSubstNo('%1 %2 - %3 ', Loaner."No.", Loaner.Description, ServCommentLine.Type));
+        if ServiceCommentLine."Table Name" = ServiceCommentLine."Table Name"::Loaner then
+            if Loaner.Get(ServiceCommentLine."No.") then
+                exit(StrSubstNo('%1 %2 - %3 ', Loaner."No.", Loaner.Description, ServiceCommentLine.Type));
     end;
 }
 

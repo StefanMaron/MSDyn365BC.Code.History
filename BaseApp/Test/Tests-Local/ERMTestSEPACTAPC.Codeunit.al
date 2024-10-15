@@ -203,34 +203,30 @@ codeunit 144060 "ERM Test SEPA CT APC"
 
     local procedure CreateGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            Init();
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-              "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", 1);
+        GenJnlLine.Init();
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
+          GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor, Vendor."No.", 1);
 
-            Validate("Recipient Bank Account", VendorBankAccount.Code);
-            Validate("Currency Code", EURCode);
-            Validate(Amount, DefaultLineAmount);
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccount."No.");
-            Validate("Message to Recipient", LibraryUtility.GenerateGUID());
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Recipient Bank Account", VendorBankAccount.Code);
+        GenJnlLine.Validate("Currency Code", EURCode);
+        GenJnlLine.Validate(Amount, DefaultLineAmount);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
+        GenJnlLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJnlLine.Validate("Message to Recipient", LibraryUtility.GenerateGUID());
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateBankExpSetup()
     begin
-        with BankExportImportSetup do begin
-            if Find() then
-                Delete(true);
-            Code := 'SEPA-TEST';
-            Validate(Direction, Direction::Export);
-            Validate("Processing Codeunit ID", CODEUNIT::"SEPA CT APC-Export File");
-            Validate("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.03");
-            Validate("Check Export Codeunit", CODEUNIT::"SEPA CT-Check Line");
-            Insert(true);
-        end;
+        if BankExportImportSetup.Find() then
+            BankExportImportSetup.Delete(true);
+        BankExportImportSetup.Code := 'SEPA-TEST';
+        BankExportImportSetup.Validate(Direction, BankExportImportSetup.Direction::Export);
+        BankExportImportSetup.Validate("Processing Codeunit ID", CODEUNIT::"SEPA CT APC-Export File");
+        BankExportImportSetup.Validate("Processing XMLport ID", XMLPORT::"SEPA CT pain.001.001.03");
+        BankExportImportSetup.Validate("Check Export Codeunit", CODEUNIT::"SEPA CT-Check Line");
+        BankExportImportSetup.Insert(true);
     end;
 
     local procedure VerifyApcRequirements(TempBlob: Codeunit "Temp Blob")

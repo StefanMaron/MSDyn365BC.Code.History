@@ -122,6 +122,9 @@ report 406 "Purchase - Invoice"
                     column(CompanyInfoEMail; CompanyInfo."E-Mail")
                     {
                     }
+                    column(CompanyPicture; DummyCompanyInfo.Picture)
+                    {
+                    }
                     column(CompanyInfoVATRegNo; CompanyInfo."VAT Registration No.")
                     {
                     }
@@ -566,6 +569,10 @@ report 406 "Purchase - Invoice"
                             TotalAmountVAT += "Amount Including VAT" - Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalPaymentDiscountOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+
+                            if FirstLineHasBeenOutput then
+                                Clear(DummyCompanyInfo.Picture);
+                            FirstLineHasBeenOutput := true;
                         end;
 
                         trigger OnPreDataItem()
@@ -592,6 +599,8 @@ report 406 "Purchase - Invoice"
                                         VATAmountText := Text012;
                                 until PurchInvLine.Next() = 0;
                             end;
+                            FirstLineHasBeenOutput := false;
+                            DummyCompanyInfo.Picture := CompanyInfo.Picture;
                         end;
                     }
                     dataitem(VATCounter; "Integer")
@@ -749,6 +758,9 @@ report 406 "Purchase - Invoice"
                         column(ShiptoAddressCaption; ShiptoAddressCaptionLbl)
                         {
                         }
+                        column(ShipToPhoneNo; "Purch. Inv. Header"."Ship-to Phone No.")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -791,6 +803,7 @@ report 406 "Purchase - Invoice"
 
                 trigger OnAfterGetRecord()
                 begin
+                    FirstLineHasBeenOutput := false;
                     if Number > 1 then begin
                         OutputNo := OutputNo + 1;
                         CopyText := FormatDocument.GetCOPYText();
@@ -821,6 +834,7 @@ report 406 "Purchase - Invoice"
 
             trigger OnAfterGetRecord()
             begin
+                FirstLineHasBeenOutput := false;
                 CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
                 CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
@@ -832,6 +846,11 @@ report 406 "Purchase - Invoice"
                 PricesInclVATtxt := Format("Prices Including VAT");
 
                 DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                FirstLineHasBeenOutput := false;
             end;
 
             trigger OnPostDataItem()
@@ -898,6 +917,7 @@ report 406 "Purchase - Invoice"
     trigger OnInitReport()
     begin
         GLSetup.Get();
+        CompanyInfo.SetAutoCalcFields(Picture);
         CompanyInfo.Get();
 
         OnAfterInitReport();
@@ -920,6 +940,7 @@ report 406 "Purchase - Invoice"
     end;
 
     var
+        DummyCompanyInfo: Record "Company Information";
         GLSetup: Record "General Ledger Setup";
         ShipmentMethod: Record "Shipment Method";
         PaymentTerms: Record "Payment Terms";
@@ -973,12 +994,17 @@ report 406 "Purchase - Invoice"
         TotalInvoiceDiscountAmount: Decimal;
         TotalPaymentDiscountOnVAT: Decimal;
 
+#pragma warning disable AA0074
         Text004: Label 'Purchase - Invoice %1', Comment = '%1 = Document No.';
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
         Text010: Label 'Purchase - Prepayment Invoice %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text011: Label '%1% VAT';
+#pragma warning restore AA0470
         Text012: Label 'VAT Amount';
         CompanyInfoPhoneNoCaptionLbl: Label 'Phone No.';
         CompanyInfoVATRegistrationNoCaptionLbl: Label 'VAT Registration No.';
@@ -986,6 +1012,7 @@ report 406 "Purchase - Invoice"
         CompanyInfoBankNameCaptionLbl: Label 'Bank';
         CompanyInfoBankAccountNoCaptionLbl: Label 'Account No.';
         PurchInvHeaderDueDateCaptionLbl: Label 'Due Date';
+#pragma warning restore AA0074
         InvoiceNoCaptionLbl: Label 'Invoice No.';
         PurchInvHeaderPostingDateCaptionLbl: Label 'Posting Date';
         PageCaptionLbl: Label 'Page';
@@ -1026,6 +1053,7 @@ report 406 "Purchase - Invoice"
     protected var
         CompanyInfo: Record "Company Information";
         TempVATAmountLine: Record "VAT Amount Line" temporary;
+        FirstLineHasBeenOutput: Boolean;
 
     local procedure DocumentCaption(): Text[250]
     begin

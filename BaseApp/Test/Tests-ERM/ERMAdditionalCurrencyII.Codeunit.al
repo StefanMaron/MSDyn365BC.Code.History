@@ -196,6 +196,7 @@
         // in case of decreasing Exchange Rate Amount
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
+
 #if not CLEAN23
     [Test]
     [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,StatisticsMessageHandler')]
@@ -219,6 +220,7 @@
         SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
 #endif
+
     local procedure SalesInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -417,6 +419,7 @@
         // in case of decreasing Exchange Rate Amount
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, false);
     end;
+
 #if not CLEAN23
     [Test]
     [HandlerFunctions('AdjustExchReqPageHandler,AdjustExchConfirmHandler,StatisticsMessageHandler')]
@@ -440,6 +443,7 @@
         PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
 #endif
+
     local procedure PurchInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
@@ -1082,6 +1086,7 @@
         Reply := true;
     end;
 #endif
+
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; Amount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1208,6 +1213,7 @@
           ExpectedAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
 #if not CLEAN23
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure StatisticsMessageHandler(Message: Text[1024])

@@ -14,9 +14,11 @@ codeunit 843 "Cash Flow Wksh. - Register"
     var
         CFWkshLine: Record "Cash Flow Worksheet Line";
 
+#pragma warning disable AA0074
         Text1001: Label 'Do you want to register the worksheet lines?';
         Text1002: Label 'There is nothing to register.';
         Text1003: Label 'The worksheet lines were successfully registered.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     begin

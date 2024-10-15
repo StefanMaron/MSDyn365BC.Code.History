@@ -93,17 +93,15 @@ codeunit 138500 "Common Demodata"
         // [SCENARIO] There are 12 VAT posting setup entries: 2 - "Reverse Charge VAT", none - "Full VAT" and 'Sales Tax'
         Initialize();
 
-        with VATPostingSetup do begin
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Reverse Charge VAT");
-            Assert.RecordCount(VATPostingSetup, 2);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
+        Assert.RecordCount(VATPostingSetup, 2);
 
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT", "VAT Calculation Type"::"Sales Tax");
-            Assert.RecordCount(VATPostingSetup, 0);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Full VAT", VATPostingSetup."VAT Calculation Type"::"Sales Tax");
+        Assert.RecordCount(VATPostingSetup, 0);
 
-            Reset();
-            SetRange("EU Service", true);
-            Assert.RecordCount(VATPostingSetup, 1);
-        end;
+        VATPostingSetup.Reset();
+        VATPostingSetup.SetRange("EU Service", true);
+        Assert.RecordCount(VATPostingSetup, 1);
     end;
 
     [Test]

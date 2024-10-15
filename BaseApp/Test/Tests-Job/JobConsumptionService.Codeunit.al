@@ -19,7 +19,6 @@ codeunit 136301 "Job Consumption Service"
         LibraryUtility: Codeunit "Library - Utility";
         Initialized: Boolean;
         UndoConsumptionJobError: Label 'You cannot undo consumption on the line because it has been already posted to Projects.';
-        QuantityConsumedErrorServTier: Label 'Quantity Consumed must be equal to ''0''  in %1: %2=%3, %4=%5, %6=%7. Current value is ''%8''.';
         JobBlockedError: Label '%1 %2 must not be blocked with type %3.';
         UnknownError: Label 'Unknown error.';
 
@@ -370,41 +369,33 @@ codeunit 136301 "Job Consumption Service"
         TempJobJournalLine: Record "Job Journal Line" temporary;
     begin
         // Get the document number from the posted shipment.
-        with ServiceLine do
-            case "Document Type" of
-                "Document Type"::Order:
-                    ServiceShipmentHeader.SetRange("Order No.", "Document No.");
-                "Document Type"::Invoice:
-                    ServiceShipmentHeader.SetRange("Order No.", "Document No.");
-                else
-                    Assert.Fail(StrSubstNo('Unsupported service document type: %1', "Document Type"))
-            end;
+        case ServiceLine."Document Type" of
+            ServiceLine."Document Type"::Order:
+                ServiceShipmentHeader.SetRange("Order No.", ServiceLine."Document No.");
+            ServiceLine."Document Type"::Invoice:
+                ServiceShipmentHeader.SetRange("Order No.", ServiceLine."Document No.");
+            else
+                Assert.Fail(StrSubstNo('Unsupported service document type: %1', ServiceLine."Document Type"))
+        end;
         Assert.AreEqual(1, ServiceShipmentHeader.Count, '# service shipment headers.');
         ServiceShipmentHeader.FindFirst();
-
         // Use a job journal line to verify.
-        with TempJobJournalLine do begin
-            "Job No." := ServiceLine."Job No.";
-            "Job Task No." := ServiceLine."Job Task No.";
-            "Document No." := ServiceShipmentHeader."No.";
-            "Line Type" := ServiceLine."Job Line Type";
-            Description := ServiceLine.Description;
-            Quantity := ServiceLine."Qty. to Consume";
-            "Unit Cost (LCY)" := ServiceLine."Unit Cost (LCY)";
-            "Unit Price (LCY)" := ServiceLine."Unit Price";
-            Insert();
-        end;
+        TempJobJournalLine."Job No." := ServiceLine."Job No.";
+        TempJobJournalLine."Job Task No." := ServiceLine."Job Task No.";
+        TempJobJournalLine."Document No." := ServiceShipmentHeader."No.";
+        TempJobJournalLine."Line Type" := ServiceLine."Job Line Type";
+        TempJobJournalLine.Description := ServiceLine.Description;
+        TempJobJournalLine.Quantity := ServiceLine."Qty. to Consume";
+        TempJobJournalLine."Unit Cost (LCY)" := ServiceLine."Unit Cost (LCY)";
+        TempJobJournalLine."Unit Price (LCY)" := ServiceLine."Unit Price";
+        TempJobJournalLine.Insert();
 
         LibraryJob.VerifyJobJournalPosting(false, TempJobJournalLine)
     end;
 
     local procedure VerifyJobConsumedError(ServiceLine: Record "Service Line")
     begin
-        Assert.AreEqual(
-          StrSubstNo(QuantityConsumedErrorServTier, ServiceLine.TableCaption(), ServiceLine.FieldCaption("Document Type"),
-            ServiceLine."Document Type", ServiceLine.FieldCaption("Document No."), ServiceLine."Document No.",
-            ServiceLine.FieldCaption("Line No."), ServiceLine."Line No.", ServiceLine."Quantity Consumed"),
-          GetLastErrorText, UnknownError);
+        Assert.ExpectedTestFieldError(ServiceLine.FieldCaption("Quantity Consumed"), Format(0));
     end;
 
     local procedure VerifyJobFieldsOnServiceLines(ServiceHeader: Record "Service Header")

@@ -775,6 +775,7 @@ codeunit 139178 "CRM Connection String"
     local procedure InitializeCDSConnectionSetup()
     var
         CDSConnectionSetup: Record "CDS Connection Setup";
+        ClientSecret: Text;
     begin
         CDSConnectionSetup.DeleteAll();
         CDSConnectionSetup."Is Enabled" := true;
@@ -782,7 +783,8 @@ codeunit 139178 "CRM Connection String"
         CDSConnectionSetup."Authentication Type" := CDSConnectionSetup."Authentication Type"::Office365;
         CDSConnectionSetup.Insert();
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
     end;

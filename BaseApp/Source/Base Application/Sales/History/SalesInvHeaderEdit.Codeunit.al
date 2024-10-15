@@ -20,6 +20,9 @@ codeunit 1409 "Sales Inv. Header - Edit"
         SalesInvoiceHeader.ReadIsolation(IsolationLevel::UpdLock);
         SalesInvoiceHeader.Find();
         OnRunOnBeforeAssignValues(SalesInvoiceHeader, Rec);
+        SalesInvoiceHeader."Shipping Agent Code" := Rec."Shipping Agent Code";
+        SalesInvoiceHeader."Shipping Agent Service Code" := Rec."Shipping Agent Service Code";
+        SalesInvoiceHeader."Package Tracking No." := Rec."Package Tracking No.";
         SalesInvoiceHeader."Payment Method Code" := Rec."Payment Method Code";
         SalesInvoiceHeader."Payment Reference" := Rec."Payment Reference";
         SalesInvoiceHeader."Company Bank Account Code" := Rec."Company Bank Account Code";

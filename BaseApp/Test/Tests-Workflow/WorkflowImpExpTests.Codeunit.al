@@ -265,12 +265,10 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // [THEN] Workflow contains setup for Specific Approver assigned to "User"
         LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
-        with WorkflowStepArgument do begin
-            Get(WorkflowStep.Argument);
-            TestField("Approver Type", "Approver Type"::Approver);
-            TestField("Approver Limit Type", "Approver Limit Type"::"Specific Approver");
-            TestField("Approver User ID", UserSetup."User ID");
-        end;
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.TestField("Approver Type", WorkflowStepArgument."Approver Type"::Approver);
+        WorkflowStepArgument.TestField("Approver Limit Type", WorkflowStepArgument."Approver Limit Type"::"Specific Approver");
+        WorkflowStepArgument.TestField("Approver User ID", UserSetup."User ID");
     end;
 
     [Test]
@@ -308,17 +306,15 @@ codeunit 134208 "Workflow Imp./Exp. Tests"
 
         // [THEN] Workflow contains setup for Specific Approver but not assigned to any user
         LibraryWorkflow.FindWorkflowStepForCreateApprovalRequests(WorkflowStep, Workflow.Code);
-        with WorkflowStepArgument do begin
-            Get(WorkflowStep.Argument);
-            TestField("Approver Type", "Approver Type"::Approver);
-            TestField("Approver Limit Type", "Approver Limit Type"::"Specific Approver");
-            TestField("Approver User ID", '');
-        end;
+        WorkflowStepArgument.Get(WorkflowStep.Argument);
+        WorkflowStepArgument.TestField("Approver Type", WorkflowStepArgument."Approver Type"::Approver);
+        WorkflowStepArgument.TestField("Approver Limit Type", WorkflowStepArgument."Approver Limit Type"::"Specific Approver");
+        WorkflowStepArgument.TestField("Approver User ID", '');
     end;
 
     [Test]
-    PROCEDURE ImportWorkflowWithEmptyCode();
-    VAR
+    procedure ImportWorkflowWithEmptyCode();
+    var
         Workflow: Record Workflow;
         TempBlob: Codeunit "Temp Blob";
         OutStream: OutStream;

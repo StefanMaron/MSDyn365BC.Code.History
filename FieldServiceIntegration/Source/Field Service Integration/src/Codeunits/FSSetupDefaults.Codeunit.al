@@ -7,6 +7,8 @@ namespace Microsoft.Integration.DynamicsFieldService;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.SyncEngine;
+using Microsoft.Inventory.Location;
+using Microsoft.Inventory.Setup;
 using Microsoft.Utilities;
 using System.Threading;
 using Microsoft.Projects.Project.Job;
@@ -28,6 +30,7 @@ codeunit 6611 "FS Setup Defaults"
     internal procedure ResetConfiguration(var FSConnectionSetup: Record "FS Connection Setup")
     var
         CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+        CRMSetupDefault: Codeunit "CRM Setup Defaults";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -43,6 +46,8 @@ codeunit 6611 "FS Setup Defaults"
         ResetProjectJournalLineWOServiceMapping(FSConnectionSetup, 'PJLINE-WORDERSERVICE', true);
         ResetServiceItemCustomerAssetMapping(FSConnectionSetup, 'SVCITEM-CUSTASSET', true);
         ResetResourceBookableResourceMapping(FSConnectionSetup, 'RESOURCE-BOOKABLERSC', true);
+        ResetLocationMapping(FSConnectionSetup, 'LOCATION', true, false);
+        CRMSetupDefault.ResetItemProductMapping('ITEM-PRODUCT', true);
         SetCustomIntegrationsTableMappings(FSConnectionSetup);
     end;
 
@@ -173,6 +178,13 @@ codeunit 6611 "FS Setup Defaults"
           FSWorkOrderProduct.FieldNo(TransactionCurrencyId),
           IntegrationFieldMapping.Direction::FromIntegrationTable,
           '', true, false);
+
+        InsertIntegrationFieldMapping(
+                 IntegrationTableMappingName,
+                 JobJournalLine.FieldNo("Location Code"),
+                 FSWorkOrderProduct.FieldNo(WarehouseId),
+                 IntegrationFieldMapping.Direction::FromIntegrationTable,
+                 '', true, false);
 
         OnAfterResetProjectJournalLineWOProductMapping(IntegrationTableMappingName);
 
@@ -390,6 +402,60 @@ codeunit 6611 "FS Setup Defaults"
         RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 1, ShouldRecreateJobQueueEntry, 5);
     end;
 
+    internal procedure ResetLocationMapping(var FSConnectionSetup: Record "FS Connection Setup"; IntegrationTableMappingName: Code[20]; ShouldRecreateJobQueueEntry: Boolean; SkipLocationMandatoryCheck: Boolean)
+    var
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        InventorySetup: Record "Inventory Setup";
+        Location: Record Location;
+        FSWarehouse: Record "FS Warehouse";
+    begin
+        if not SkipLocationMandatoryCheck then
+            if InventorySetup.Get() and (not InventorySetup."Location Mandatory") then
+                exit;
+
+        Location.SetRange("Use As In-Transit", false);
+        Location.SetFilter("Job Consump. Whse. Handling", '''' + Format(Location."Job Consump. Whse. Handling"::"No Warehouse Handling") + '''|''' +
+                                    Format(Location."Job Consump. Whse. Handling"::"Warehouse Pick (optional)") + '''|''' +
+                                    Format(Location."Job Consump. Whse. Handling"::"Inventory Pick") + '''');
+        Location.SetFilter("Asm. Consump. Whse. Handling", '''' + Format(Location."Asm. Consump. Whse. Handling"::"No Warehouse Handling") + '''|''' +
+                                    Format(Location."Asm. Consump. Whse. Handling"::"Warehouse Pick (optional)") + '''|''' +
+                                    Format(Location."Asm. Consump. Whse. Handling"::"Inventory Movement") + '''');
+
+        InsertIntegrationTableMapping(
+          IntegrationTableMapping, IntegrationTableMappingName,
+          Database::Location, Database::"FS Warehouse",
+          FSWarehouse.FieldNo(WarehouseId), FSWarehouse.FieldNo(ModifiedOn),
+          '', '', false);
+
+        IntegrationTableMapping.SetTableFilter(
+          GetTableFilterFromView(Database::Location, Location.TableCaption(), Location.GetView()));
+        IntegrationTableMapping."Synch. After Bulk Coupling" := true;
+        IntegrationTableMapping."Create New in Case of No Match" := true;
+        IntegrationTableMapping.Modify();
+
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          Location.FieldNo(Code),
+          FSWarehouse.FieldNo(Name),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        InsertIntegrationFieldMapping(
+          IntegrationTableMappingName,
+          Location.FieldNo(Name),
+          FSWarehouse.FieldNo(Description),
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
+          '', true, false);
+
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationFieldMapping.FindFirst();
+        IntegrationFieldMapping."Use For Match-Based Coupling" := true;
+        IntegrationFieldMapping.Modify();
+
+        RecreateJobQueueEntryFromIntTableMapping(IntegrationTableMapping, 1, ShouldRecreateJobQueueEntry, 5);
+    end;
+
     local procedure ShouldResetServiceItemMapping(): Boolean
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
@@ -511,6 +577,8 @@ codeunit 6611 "FS Setup Defaults"
                 CDSTableNo := Database::"FS Customer Asset";
             Database::"Job Task":
                 CDSTableNo := Database::"FS Project Task";
+            Database::Location:
+                CDSTableNo := Database::"FS Warehouse";
         end;
 
         if CDSTableNo <> 0 then
@@ -541,6 +609,9 @@ codeunit 6611 "FS Setup Defaults"
         CRMSetupDefaults.AddEntityTableMapping('msdyn_workorderservice', Database::"Job Journal Line", TempNameValueBuffer);
         CRMSetupDefaults.AddEntityTableMapping('msdyn_workorderservice', Database::"FS Work Order Service", TempNameValueBuffer);
 
+        CRMSetupDefaults.AddEntityTableMapping('msdyn_warehouse', Database::Location, TempNameValueBuffer);
+        CRMSetupDefaults.AddEntityTableMapping('msdyn_warehouse', Database::"FS Warehouse", TempNameValueBuffer);
+
         TempNameValueBuffer.SetRange(Name, 'product');
         TempNameValueBuffer.SetRange(Value, Format(Database::Resource));
         if TempNameValueBuffer.FindFirst() then
@@ -560,6 +631,8 @@ codeunit 6611 "FS Setup Defaults"
         FSProjectTask: Record "FS Project Task";
         JobTask: Record "Job Task";
         JobJournalLine: Record "Job Journal Line";
+        Location: Record Location;
+        FSWarehouse: Record "FS Warehouse";
     begin
         if not FSConnectionSetup.IsEnabled() then
             exit;
@@ -581,6 +654,10 @@ codeunit 6611 "FS Setup Defaults"
                 FieldNo := JobTask.FieldNo("Job Task No.");
             Database::"Job Journal Line":
                 FieldNo := JobJournalLine.FieldNo(Description);
+            Database::"FS Warehouse":
+                FieldNo := FSWarehouse.FieldNo(Name);
+            Database::Location:
+                FieldNo := Location.FieldNo(Code);
         end;
     end;
 
@@ -593,7 +670,8 @@ codeunit 6611 "FS Setup Defaults"
             Database::"Work Type",
             Database::"Resource":
                 exit(IntegrationTableMapping.Direction::Bidirectional);
-            Database::"Job Task":
+            Database::"Job Task",
+            Database::Location:
                 exit(IntegrationTableMapping.Direction::ToIntegrationTable);
             Database::"Job Journal Line":
                 exit(IntegrationTableMapping.Direction::FromIntegrationTable);
@@ -643,6 +721,9 @@ codeunit 6611 "FS Setup Defaults"
                     if IntegrationTableMapping."Integration Table ID" = Database::"FS Work Order Service" then
                         ResetProjectJournalLineWOServiceMapping(FSConnectionSetup, IntegrationTableMapping.Name, true);
                 end;
+            Database::Location:
+                if IntegrationTableMapping."Integration Table ID" = Database::"FS Warehouse" then
+                    ResetLocationMapping(FSConnectionSetup, IntegrationTableMapping.Name, true, false);
         end;
     end;
 

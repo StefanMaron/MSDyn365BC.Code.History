@@ -347,6 +347,7 @@ page 1368 "Monitor Field Setup Wizard"
     local procedure ValidateAndFinishSetup()
     var
         GuidedExperience: Codeunit "Guided Experience";
+        MonitorFieldSetUpLbl: Label 'The Monitor Field feature has been set up by UserSecurityId %1.', Locked = true;
     begin
         MonitorSensitiveField.SetSetupTable(MonitorUserId, EmailAccountId, EmailAccountName, EmailConnector);
 
@@ -354,6 +355,7 @@ page 1368 "Monitor Field Setup Wizard"
         MonitorSensitiveField.EnableMonitor(false);
 
         GuidedExperience.CompleteAssistedSetup(ObjectType::Page, page::"Monitor Field Setup Wizard");
+        Session.LogAuditMessage(StrSubstNo(MonitorFieldSetUpLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 3, 0);
         if OpenMonitorWorksheetPage then
             Page.Run(Page::"Monitored Fields Worksheet");
     end;

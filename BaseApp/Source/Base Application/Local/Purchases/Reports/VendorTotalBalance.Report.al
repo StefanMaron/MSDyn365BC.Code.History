@@ -248,7 +248,7 @@ report 11004 "Vendor Total-Balance"
                     DetailedVendorLedgEntry.SetRange("Posting Date", StartDate, EndDate);
                     DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Realized Loss",
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
-                    OnAfterGetRecordVendorPeriodOnAfterDetailedVendorLedgEntrySetFilters(DetailedVendorLedgEntry);  
+                    OnAfterGetRecordVendorPeriodOnAfterDetailedVendorLedgEntrySetFilters(DetailedVendorLedgEntry);
                     if DetailedVendorLedgEntry.FindSet() then
                         repeat
                             DetailedVendorLedgEntry2.Reset();
@@ -256,7 +256,7 @@ report 11004 "Vendor Total-Balance"
                             DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                             DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedVendorLedgEntry2.SetRange("Document Type", DetailedVendorLedgEntry2."Document Type"::Payment);
-                            if DetailedVendorLedgEntry2.FindSet() then begin
+                            if DetailedVendorLedgEntry2.FindSet() then
                                 repeat
                                     if ((DetailedVendorLedgEntry."Debit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Credit Amount (LCY)" <> 0)) or
                                        ((DetailedVendorLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Debit Amount (LCY)" <> 0))
@@ -264,8 +264,8 @@ report 11004 "Vendor Total-Balance"
                                         AdjPeriodAmount := AdjPeriodAmount +
                                           DetailedVendorLedgEntry."Debit Amount (LCY)" +
                                           DetailedVendorLedgEntry."Credit Amount (LCY)";
-                                until DetailedVendorLedgEntry2.Next() = 0;
-                            end else begin
+                                until DetailedVendorLedgEntry2.Next() = 0
+                            else begin
                                 VendorLedgEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                                 if VendorLedgEntry."Closed by Entry No." <> 0 then begin
                                     VendorLedgEntry2.Get(VendorLedgEntry."Closed by Entry No.");
@@ -323,7 +323,7 @@ report 11004 "Vendor Total-Balance"
                             DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                             DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedVendorLedgEntry2.SetRange("Document Type", DetailedVendorLedgEntry2."Document Type"::Payment);
-                            if DetailedVendorLedgEntry2.FindSet() then begin
+                            if DetailedVendorLedgEntry2.FindSet() then
                                 repeat
                                     if ((DetailedVendorLedgEntry."Debit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Credit Amount (LCY)" <> 0)) or
                                        ((DetailedVendorLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedVendorLedgEntry2."Debit Amount (LCY)" <> 0))
@@ -331,8 +331,8 @@ report 11004 "Vendor Total-Balance"
                                         AdjYearAmount := AdjYearAmount +
                                           DetailedVendorLedgEntry."Debit Amount (LCY)" +
                                           DetailedVendorLedgEntry."Credit Amount (LCY)";
-                                until DetailedVendorLedgEntry2.Next() = 0;
-                            end else begin
+                                until DetailedVendorLedgEntry2.Next() = 0
+                            else begin
                                 VendorLedgEntry.Get(DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                                 if VendorLedgEntry."Closed by Entry No." <> 0 then begin
                                     VendorLedgEntry2.Get(VendorLedgEntry."Closed by Entry No.");

@@ -1059,28 +1059,26 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
         LibraryManufacturing.OutputJournalExplodeOrderLineRouting(ItemJournalBatch, ProdOrderLine, PostingDate);
-        with ItemJournalLine do begin
-            SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", ItemJournalBatch.Name);
-            SetRange("Entry Type", "Entry Type"::Output);
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Order Line No.", ProdOrderLine."Line No.");
-            if FindSet() then
-                repeat
-                    ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
-                    ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
-                    ProdOrderRoutingLine.SetRange("Operation No.", "Operation No.");
-                    if ProdOrderRoutingLine.FindFirst() then begin
-                        Validate("Setup Time", ProdOrderRoutingLine."Setup Time");
-                        Validate("Run Time", ProdOrderRoutingLine."Run Time");
-                        Validate("Output Quantity", OutputQty);
-                        if OutputQty < 0 then
-                            Validate("Applies-to Entry", AppliesToEntry);
-                        Modify();
-                    end;
-                until Next() = 0;
-        end;
+        ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
+        ItemJournalLine.SetRange("Order Line No.", ProdOrderLine."Line No.");
+        if ItemJournalLine.FindSet() then
+            repeat
+                ProdOrderRoutingLine.SetRange(Status, ProdOrderLine.Status);
+                ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+                ProdOrderRoutingLine.SetRange("Operation No.", ItemJournalLine."Operation No.");
+                if ProdOrderRoutingLine.FindFirst() then begin
+                    ItemJournalLine.Validate("Setup Time", ProdOrderRoutingLine."Setup Time");
+                    ItemJournalLine.Validate("Run Time", ProdOrderRoutingLine."Run Time");
+                    ItemJournalLine.Validate("Output Quantity", OutputQty);
+                    if OutputQty < 0 then
+                        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
+                    ItemJournalLine.Modify();
+                end;
+            until ItemJournalLine.Next() = 0;
         LibraryInventory.PostItemJournalBatch(ItemJournalBatch);
     end;
 
@@ -1177,14 +1175,12 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order No.", OrderNo);
-            SetRange("Posting Date", PostingDate);
-            FindFirst();
-            if "Item Ledger Entry Type" = "Item Ledger Entry Type"::Output then
-                exit("Cost Amount (Expected)");
-            exit("Cost Amount (Actual)");
-        end;
+        ValueEntry.SetRange("Order No.", OrderNo);
+        ValueEntry.SetRange("Posting Date", PostingDate);
+        ValueEntry.FindFirst();
+        if ValueEntry."Item Ledger Entry Type" = ValueEntry."Item Ledger Entry Type"::Output then
+            exit(ValueEntry."Cost Amount (Expected)");
+        exit(ValueEntry."Cost Amount (Actual)");
     end;
 
     local procedure CalculateNetCost(BOP: Decimal; Consumption: Decimal; Output: Decimal; Capacity: Decimal): Decimal

@@ -564,12 +564,10 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     var
         FinanceChargeTerms: Record "Finance Charge Terms";
     begin
-        with FinanceChargeTerms do begin
-            SetFilter("Due Date Calculation", '<>''''');
-            FindFirst();
-            ClearFinanceChargeInterestRate(Code);
-            exit(Code);
-        end;
+        FinanceChargeTerms.SetFilter("Due Date Calculation", '<>''''');
+        FinanceChargeTerms.FindFirst();
+        ClearFinanceChargeInterestRate(FinanceChargeTerms.Code);
+        exit(FinanceChargeTerms.Code);
     end;
 
     local procedure ClearFinanceChargeInterestRate(FinChargeTermsCode: Code[10])
@@ -599,19 +597,17 @@ codeunit 134911 "ERM Create Finance Charge Memo"
         VarDateFormula: DateFormula;
     begin
         LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
-        with FinanceChargeTerms do begin
-            Validate("Interest Period (Days)", LibraryRandom.RandIntInRange(10, 30));
-            Evaluate(VarDateFormula, '<+' + Format(LibraryRandom.RandIntInRange(2, 10)) + 'D>');
-            Validate("Grace Period", VarDateFormula);
-            Validate("Interest Rate", LibraryRandom.RandDecInRange(1, 5, 2));
-            Validate("Additional Fee (LCY)", LibraryRandom.RandDecInRange(1, 10, 2));
-            Validate("Post Interest", true);
-            Validate("Post Additional Fee", true);
-            Evaluate(VarDateFormula, '<+' + Format(DueDateMonths) + 'M>');
-            Validate("Due Date Calculation", VarDateFormula);
-            Modify();
-            exit(Code);
-        end;
+        FinanceChargeTerms.Validate("Interest Period (Days)", LibraryRandom.RandIntInRange(10, 30));
+        Evaluate(VarDateFormula, '<+' + Format(LibraryRandom.RandIntInRange(2, 10)) + 'D>');
+        FinanceChargeTerms.Validate("Grace Period", VarDateFormula);
+        FinanceChargeTerms.Validate("Interest Rate", LibraryRandom.RandDecInRange(1, 5, 2));
+        FinanceChargeTerms.Validate("Additional Fee (LCY)", LibraryRandom.RandDecInRange(1, 10, 2));
+        FinanceChargeTerms.Validate("Post Interest", true);
+        FinanceChargeTerms.Validate("Post Additional Fee", true);
+        Evaluate(VarDateFormula, '<+' + Format(DueDateMonths) + 'M>');
+        FinanceChargeTerms.Validate("Due Date Calculation", VarDateFormula);
+        FinanceChargeTerms.Modify();
+        exit(FinanceChargeTerms.Code);
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]): Decimal
@@ -626,13 +622,11 @@ codeunit 134911 "ERM Create Finance Charge Memo"
     begin
         // Create and Post Sales Invoice. Using Random value for Quantity.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
-        with SalesHeader do begin
-            Validate("Currency Code", CurrencyCode);
-            Validate("Posting Date", PostingDate);
-            Validate("Document Date", PostingDate);
-            Validate("Due Date", PostingDate);
-            Modify(true);
-        end;
+        SalesHeader.Validate("Currency Code", CurrencyCode);
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", PostingDate);
+        SalesHeader.Validate("Due Date", PostingDate);
+        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(), LibraryRandom.RandInt(10));
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         SalesInvoiceHeader.CalcFields("Amount Including VAT");

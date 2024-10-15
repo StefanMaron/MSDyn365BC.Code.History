@@ -4,7 +4,7 @@ codeunit 5190 "Create Job"
     InherentPermissions = X;
 
     var
-        FixRateJobNameLbl: Label 'Installation of S-100 Semi-Automatic', MaxLength = 100;
+        FixRateJobNameLbl: Label 'Installation of S-200 Semi-Automatic', MaxLength = 100;
         FixRateJobPhase1DescriptionLbl: Label 'Phase 1 - Planning and specs', MaxLength = 100;
         PreInstallationTaskDescriptionLbl: Label 'Pre-installation requirements', MaxLength = 100;
         FixRateJobChecklistDescriptionLbl: Label 'Check-list:', MaxLength = 100;
@@ -17,9 +17,9 @@ codeunit 5190 "Create Job"
         FixRateJobInstallationTaskLbl: Label 'Installation', MaxLength = 100;
         FixRateJobConfigurationTaskTok: Label 'Configuration', MaxLength = 100;
         FixRateJobPhase2TotalDescriptionLbl: Label 'Phase 2 - Total', MaxLength = 100;
-        RecurringJobNameLbl: Label 'Supplies and maintenance of S-100 Semi-Automatic', MaxLength = 100;
-        RecurringTaskMonthlyDescriptionLbl: Label 'Phase 1 - Planning and specs', MaxLength = 100;
-        RecurringTaskAnnuallyDescriptionLbl: Label 'Pre-installation requirements', MaxLength = 100;
+        RecurringJobNameLbl: Label 'Supplies and maintenance of S-200 Semi-Automatic', MaxLength = 100;
+        RecurringTaskMonthlyDescriptionLbl: Label 'Monthly maintenance', MaxLength = 100;
+        RecurringTaskAnnuallyDescriptionLbl: Label 'Annual maintenance', MaxLength = 100;
         WIPJobNameLbl: Label 'Software update', MaxLength = 100;
 
     trigger OnRun()
@@ -32,40 +32,40 @@ codeunit 5190 "Create Job"
     local procedure CreateFixRateJob()
     var
         JobsModuleSetup: Record "Jobs Module Setup";
-        FixRateJob: Record Job;
+        FixedRateJob: Record Job;
         ContosoJob: Codeunit "Contoso Job";
         JobTaskIndent: Codeunit "Job Task-Indent";
     begin
         JobsModuleSetup.Get();
 
-        FixRateJob := ContosoJob.InsertJob(FixRateJobNameLbl, JobsModuleSetup."Customer No.", FixRateJobExternalDocumentNo());
+        FixedRateJob := ContosoJob.InsertJob(FixRateJobNameLbl, JobsModuleSetup."Customer No.", FixRateJobExternalDocumentNo());
 
-        ContosoJob.InsertJobTask(FixRateJob."No.", '100', FixRateJobPhase1DescriptionLbl, Enum::"Job Task Type"::"Begin-Total");
-        ContosoJob.InsertJobTask(FixRateJob."No.", FixRateJobPreInstallTask(), PreInstallationTaskDescriptionLbl, Enum::"Job Task Type"::"Posting");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Resource, JobsModuleSetup."Resource Installer No.", 3, '', JobsModuleSetup."Job Location");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Service No.", 3, PreInstallationTaskDescriptionLbl, JobsModuleSetup."Job Location");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobChecklistDescriptionLbl);
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobSpaceRequirementDescriptionLbl);
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobWaterRequirementDescriptionLbl);
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobElectricalRequirementDescriptionLbl);
-        ContosoJob.InsertJobTask(FixRateJob."No.", '199', FixRateJobPhase1TotalDescriptionLbl, Enum::"Job Task Type"::"End-Total");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", '100', FixRateJobPhase1DescriptionLbl, Enum::"Job Task Type"::"Begin-Total");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", FixRateJobPreInstallTask(), PreInstallationTaskDescriptionLbl, Enum::"Job Task Type"::"Posting");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Resource, JobsModuleSetup."Resource Installer No.", 3, '', JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Service No.", 3, PreInstallationTaskDescriptionLbl, JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobChecklistDescriptionLbl);
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobSpaceRequirementDescriptionLbl);
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobWaterRequirementDescriptionLbl);
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobPreInstallTask(), Enum::"Job Planning Line Line Type"::Billable, FixRateJobElectricalRequirementDescriptionLbl);
+        ContosoJob.InsertJobTask(FixedRateJob."No.", '199', FixRateJobPhase1TotalDescriptionLbl, Enum::"Job Task Type"::"End-Total");
 
-        ContosoJob.InsertJobTask(FixRateJob."No.", '200', FixRateJobPhase2DescriptionLbl, Enum::"Job Task Type"::"Begin-Total");
-        ContosoJob.InsertJobTask(FixRateJob."No.", FixRateJobDeliveryTask(), FixRateJobDeliveryTaskDescriptionLbl, Enum::"Job Task Type"::"Posting");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobDeliveryTask(), Enum::"Job Planning Line Line Type"::"Both Budget and Billable", Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Machine No.", 1, '', JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", '200', FixRateJobPhase2DescriptionLbl, Enum::"Job Task Type"::"Begin-Total");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", FixRateJobDeliveryTask(), FixRateJobDeliveryTaskDescriptionLbl, Enum::"Job Task Type"::"Posting");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobDeliveryTask(), Enum::"Job Planning Line Line Type"::"Both Budget and Billable", Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Machine No.", 1, '', JobsModuleSetup."Job Location");
 
-        ContosoJob.InsertJobTask(FixRateJob."No.", FixRateJobInstallationTask(), FixRateJobInstallationTaskLbl, Enum::"Job Task Type"::"Posting");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobInstallationTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Resource, JobsModuleSetup."Resource Installer No.", 3, '', JobsModuleSetup."Job Location");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobInstallationTask(), Enum::"Job Planning Line Line Type"::Billable, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Service No.", 2, FixRateJobInstallationTaskLbl, JobsModuleSetup."Job Location");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobInstallationTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Consumable No.", 1, '', JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", FixRateJobInstallationTask(), FixRateJobInstallationTaskLbl, Enum::"Job Task Type"::"Posting");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobInstallationTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Resource, JobsModuleSetup."Resource Installer No.", 3, '', JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobInstallationTask(), Enum::"Job Planning Line Line Type"::Billable, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Service No.", 2, FixRateJobInstallationTaskLbl, JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobInstallationTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Consumable No.", 1, '', JobsModuleSetup."Job Location");
 
-        ContosoJob.InsertJobTask(FixRateJob."No.", FixRateJobConfigurationTask(), FixRateJobConfigurationTaskTok, Enum::"Job Task Type"::"Posting");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobConfigurationTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Resource, JobsModuleSetup."Resource Installer No.", 1, '', JobsModuleSetup."Job Location");
-        ContosoJob.InsertJobPlanningLine(FixRateJob."No.", FixRateJobConfigurationTask(), Enum::"Job Planning Line Line Type"::Billable, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Service No.", 2, FixRateJobConfigurationTaskTok, JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", FixRateJobConfigurationTask(), FixRateJobConfigurationTaskTok, Enum::"Job Task Type"::"Posting");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobConfigurationTask(), Enum::"Job Planning Line Line Type"::Budget, Enum::"Job Planning Line Type"::Resource, JobsModuleSetup."Resource Installer No.", 1, '', JobsModuleSetup."Job Location");
+        ContosoJob.InsertJobPlanningLine(FixedRateJob."No.", FixRateJobConfigurationTask(), Enum::"Job Planning Line Line Type"::Billable, Enum::"Job Planning Line Type"::Item, JobsModuleSetup."Item Service No.", 2, FixRateJobConfigurationTaskTok, JobsModuleSetup."Job Location");
 
-        ContosoJob.InsertJobTask(FixRateJob."No.", '299', FixRateJobPhase2TotalDescriptionLbl, Enum::"Job Task Type"::"End-Total");
+        ContosoJob.InsertJobTask(FixedRateJob."No.", '299', FixRateJobPhase2TotalDescriptionLbl, Enum::"Job Task Type"::"End-Total");
 
-        JobTaskIndent.Indent(FixRateJob."No.");
+        JobTaskIndent.Indent(FixedRateJob."No.");
     end;
 
     local procedure CreateWIPJob()

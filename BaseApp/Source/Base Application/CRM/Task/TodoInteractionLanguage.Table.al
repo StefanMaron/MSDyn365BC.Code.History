@@ -51,10 +51,12 @@ table 5196 "To-do Interaction Language"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You have canceled the create process.';
         Text001: Label 'Replace existing attachment?';
         Text002: Label 'You have canceled the import process.';
         Text003: Label 'You cannot create attachments here.';
+#pragma warning restore AA0074
 
     [Scope('OnPrem')]
     procedure CreateAttachment(PageNotEditable: Boolean): Boolean

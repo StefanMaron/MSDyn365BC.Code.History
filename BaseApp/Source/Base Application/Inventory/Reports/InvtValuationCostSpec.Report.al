@@ -245,8 +245,12 @@ report 5801 "Invt. Valuation - Cost Spec."
         ResultForTotalCost: Decimal;
         ResultForRemainingQty: Decimal;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'As of %1';
+#pragma warning restore AA0470
         Text001: Label 'Enter the valuation date.';
+#pragma warning restore AA0074
 
     protected var
         ValuationDate: Date;

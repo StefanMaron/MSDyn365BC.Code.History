@@ -16,18 +16,24 @@ codeunit 240 ItemJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 journal';
+#pragma warning restore AA0470
         Text001: Label 'RECURRING';
         Text002: Label 'Recurring Item Journal';
         Text003: Label 'DEFAULT';
         Text004: Label 'Default Journal';
+#pragma warning restore AA0074
         OldItemNo: Code[20];
         OldCapNo: Code[20];
         OldCapType: Enum "Capacity Type";
         OldProdOrderNo: Code[20];
         OldOperationNo: Code[20];
+#pragma warning disable AA0074
         Text005: Label 'REC-';
         Text006: Label 'Recurring ';
+#pragma warning restore AA0074
         OpenFromBatch: Boolean;
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order"; RecurringJnl: Boolean; var ItemJnlLine: Record "Item Journal Line"; var JnlSelected: Boolean)

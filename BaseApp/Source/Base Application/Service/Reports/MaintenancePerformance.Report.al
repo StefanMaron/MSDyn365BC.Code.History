@@ -170,8 +170,10 @@ report 5982 "Maintenance Performance"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You must enter the current date.';
         Text001: Label 'Service Period: ';
+#pragma warning restore AA0074
         ServContractLine: Record "Service Contract Line";
         ServShptHeader: Record "Service Shipment Header";
         RespCenter: Record "Responsibility Center";

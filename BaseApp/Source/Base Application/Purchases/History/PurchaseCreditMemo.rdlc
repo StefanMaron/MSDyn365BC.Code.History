@@ -8949,6 +8949,9 @@ End Function</Code>
         <Field Name="CompanyInfoEMail">
           <DataField>CompanyInfoEMail</DataField>
         </Field>
+        <Field Name="CompanyPicture">
+          <DataField>CompanyPicture</DataField>
+        </Field>
         <Field Name="CompanyInfoVATRegNo">
           <DataField>CompanyInfoVATRegNo</DataField>
         </Field>
@@ -9347,6 +9350,9 @@ End Function</Code>
         </Field>
         <Field Name="ShipToAddressCaption">
           <DataField>ShipToAddressCaption</DataField>
+        </Field>
+        <Field Name="ShipToPhoneNo">
+          <DataField>ShipToPhoneNo</DataField>
         </Field>
       </Fields>
       <Query>

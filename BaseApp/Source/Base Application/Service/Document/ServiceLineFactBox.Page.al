@@ -35,7 +35,7 @@ page 9124 "Service Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
+                    ServAvailabilityMgt.ShowItemAvailabilityFromServLine(Rec, "Item Availability Type"::"Event");
                 end;
             }
             field("STRSUBSTNO('%1',ServInfoPaneMgt.CalcNoOfSubstitutions(Rec))"; StrSubstNo('%1', ServInfoPaneMgt.CalcNoOfSubstitutions(Rec)))
@@ -89,7 +89,7 @@ page 9124 "Service Line FactBox"
 
     var
         ServInfoPaneMgt: Codeunit "Service Info-Pane Management";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        ServAvailabilityMgt: Codeunit "Serv. Availability Mgt.";
 
     local procedure ShowDetails()
     var

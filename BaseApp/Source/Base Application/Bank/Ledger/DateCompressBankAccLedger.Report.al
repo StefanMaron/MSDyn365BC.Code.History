@@ -296,10 +296,14 @@ report 1498 "Date Compress Bank Acc. Ledger"
         DataArchiveProviderExists: Boolean;
 
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label '%1 must be specified.';
         Text004: Label 'Date compressing bank account ledger entries...\\Bank Account No.       #1##########\Date                   #2######\\No. of new entries     #3######\No. of entries deleted #4######';
+#pragma warning restore AA0470
         Text009: Label 'Date Compressed';
         Text010: Label 'Retain Dimensions';
+#pragma warning restore AA0074
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 

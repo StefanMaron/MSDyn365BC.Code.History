@@ -74,8 +74,10 @@ codeunit 132201 "Library - Inventory"
     procedure ClearItemJournal(ItemJournalTemplate: Record "Item Journal Template"; ItemJournalBatch: Record "Item Journal Batch")
     var
         ItemJournalLine: Record "Item Journal Line";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
     begin
         Clear(ItemJournalLine);
+        Clear(SequenceNoMgt);
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalTemplate.Name);
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.DeleteAll();
@@ -1346,7 +1348,7 @@ codeunit 132201 "Library - Inventory"
         InventorySetup.Modify();
     end;
 
-    procedure SetAverageCostSetup(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure SetAverageCostSetup(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     begin
         InventorySetup.Get();
         InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
@@ -1354,7 +1356,7 @@ codeunit 132201 "Library - Inventory"
         InventorySetup.Modify();
     end;
 
-    procedure SetAverageCostSetupInAccPeriods(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure SetAverageCostSetupInAccPeriods(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     var
         AccountingPeriod: Record "Accounting Period";
     begin
@@ -1396,7 +1398,7 @@ codeunit 132201 "Library - Inventory"
     end;
 #endif
 
-    procedure UpdateAverageCostSettings(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure UpdateAverageCostSettings(AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     begin
         InventorySetup.Get();
         InventorySetup."Average Cost Calc. Type" := AverageCostCalcType;
@@ -1436,7 +1438,7 @@ codeunit 132201 "Library - Inventory"
             until GeneralPostingSetup.Next() = 0;
     end;
 
-    procedure UpdateInventorySetup(var InventorySetup2: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Option)
+    procedure UpdateInventorySetup(var InventorySetup2: Record "Inventory Setup"; AutomaticCostPosting: Boolean; ExpectedCostPostingtoGL: Boolean; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AverageCostCalcType: Enum "Average Cost Calculation Type"; AverageCostPeriod: Enum "Average Cost Period Type")
     begin
         InventorySetup2.Get();
         InventorySetup2.Validate("Automatic Cost Posting", AutomaticCostPosting);

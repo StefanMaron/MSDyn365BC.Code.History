@@ -41,7 +41,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T001_SalesLineAddsActivatedCampaignOnHeaderAsSource()
     var
-        Campaign: Array[5] of Record Campaign;
+        Campaign: array[5] of Record Campaign;
         Contact: Record Contact;
         Customer: Record Customer;
         Item: Record Item;
@@ -53,7 +53,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
         // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
-        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, false);
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Invoice for customer 'A', where 'Campaign No.' is 'HdrCmp'
@@ -76,7 +76,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T002_SalesLineAddsActivatedCustomerCampaignAsSource()
     var
-        Campaign: Array[5] of Record Campaign;
+        Campaign: array[5] of Record Campaign;
         Contact: Record Contact;
         Customer: Record Customer;
         Item: Record Item;
@@ -88,7 +88,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
         // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
-        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, false);
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Invoice for customer 'A', where 'Campaign No.' is <blank>
@@ -110,7 +110,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T003_SalesLineAddsActivatedContactCampaignAsSource()
     var
-        Campaign: Array[5] of Record Campaign;
+        Campaign: array[5] of Record Campaign;
         Contact: Record Contact;
         Customer: Record Customer;
         Item: Record Item;
@@ -122,7 +122,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Customer 'A' has none activated Campaigns, "Primary Contact No." is 'C'
         // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
-        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, True);
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, true);
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Invoice for customer 'A', where 'Campaign No.' is <blank>
@@ -1161,7 +1161,7 @@ codeunit 134159 "Test Price Calculation - V16"
         VerifyJobSources(Job, PurchaseLinePrice, 0, 0, 0);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
     [Test]
     [Obsolete('Not Used.', '23.0')]
@@ -1990,7 +1990,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Customer: Record Customer;
         Item: Record Item;
         PriceListLine: Record "Price List Line";
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesLinePrice: Codeunit "Sales Line - Price";
@@ -2003,11 +2003,9 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] ApplyDiscount() updates 'Line Discount %' in sales line.
         Initialize();
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'B' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
         // [GIVEN] Two "Sales Line discount" records for Item 'X': 15% and 14.99%
         PriceListLine.DeleteAll();
         LibrarySales.CreateCustomer(Customer);
@@ -2045,7 +2043,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine: Record "Price List Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        PriceCalculationSetup: Array[5] of Record "Price Calculation Setup";
+        PriceCalculationSetup: array[5] of Record "Price Calculation Setup";
         SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         PriceCalculation: interface "Price Calculation";
@@ -2055,11 +2053,9 @@ codeunit 134159 "Test Price Calculation - V16"
         // [SCENARIO] ApplyPrice() updates 'Unit Price' in sales line.
         Initialize();
         // [GIVEN] 2 setup lines: 'A','B' for 'Sale' for 'All' asset types, 'B' - default
-        with PriceCalculationSetup[5] do begin
-            DeleteAll();
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::Test, false);
-            LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], Method::"Lowest Price", Type::Sale, "Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
-        end;
+        PriceCalculationSetup[5].DeleteAll();
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[1], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::Test, false);
+        LibraryPriceCalculation.AddSetup(PriceCalculationSetup[2], PriceCalculationSetup[5].Method::"Lowest Price", PriceCalculationSetup[5].Type::Sale, PriceCalculationSetup[5]."Asset Type"::" ", "Price Calculation Handler"::"Business Central (Version 16.0)", true);
 
         // [GIVEN] Item 'X', where "Unit Price" is 100
         ExpectedPrice := LibraryRandom.RandDec(1000, 2);
@@ -2275,7 +2271,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Alloe Line Disc." is 'No'
-        CreatePriceLine(PriceListLine, Customer, Item, False);
+        CreatePriceLine(PriceListLine, Customer, Item, false);
         // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
         CreateDiscountLine(PriceListLineDisc, Customer, Item);
         // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
@@ -2311,7 +2307,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C, "Allow Line Disc." is 'No'
-        CreatePriceLine(PriceListLine, Customer, Item, False);
+        CreatePriceLine(PriceListLine, Customer, Item, false);
         // [GIVEN] Price List Line, where "Amount Type" is 'Discount', "Source No." is 'C
         CreateDiscountLine(PriceListLineDisc, Customer, Item);
         // [GIVEN] Sales Invoice for Customer 'C' selling Item 'I'
@@ -2958,7 +2954,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [HandlerFunctions('MessageHandler')]
     procedure T192_SalesLineChangeActivatedCampaignOnHeaderAsSource()
     var
-        Campaign: Array[2] of Record Campaign;
+        Campaign: array[2] of Record Campaign;
         PriceListLine: array[2] of Record "Price List Line";
         Contact: Record Contact;
         Customer: Record Customer;
@@ -3057,7 +3053,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Item 'I'
         LibraryInventory.CreateItem(Item);
         // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'C'
-        CreatePriceLine(PriceListLine, Customer, Item, False);
+        CreatePriceLine(PriceListLine, Customer, Item, false);
         // [GIVEN] Sales Order for Customer 'C' selling Item 'I'
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         // [GIVEN] Calculate price, by validating Quantity
@@ -3158,7 +3154,7 @@ codeunit 134159 "Test Price Calculation - V16"
         // [GIVEN] Item 'I'
         LibraryInventory.CreateItem(Item);
         // [GIVEN] Price List Line, where "Amount Type" is 'Price', "Source No." is 'V'
-        CreatePriceLine(PriceListLine, Vendor, Item, False);
+        CreatePriceLine(PriceListLine, Vendor, Item, false);
         // [GIVEN] Purchase Order for Vendor 'V' selling Item 'I'
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Return Order", Vendor."No.");
         // [GIVEN] Calculate price, by validating Quantity
@@ -3424,7 +3420,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T230_SalesLineGetsCustomerSourcesForResource()
     var
-        Campaign: Array[5] of Record Campaign;
+        Campaign: array[5] of Record Campaign;
         Contact: Record Contact;
         Customer: Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
@@ -3438,7 +3434,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
         // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
-        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, false);
         // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
         SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
 
@@ -3466,7 +3462,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T231_SalesLineGetsCustomerSourcesForResourceWithJob()
     var
-        Campaign: Array[5] of Record Campaign;
+        Campaign: array[5] of Record Campaign;
         Contact: Record Contact;
         Customer: Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
@@ -3483,7 +3479,7 @@ codeunit 134159 "Test Price Calculation - V16"
         LibraryJob.CreateJob(Job);
         // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
         // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
-        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, false);
         // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
         SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
 
@@ -3665,7 +3661,7 @@ codeunit 134159 "Test Price Calculation - V16"
     [Test]
     procedure T236_ServiceLineGetsCustomerSourcesForResource()
     var
-        Campaign: Array[5] of Record Campaign;
+        Campaign: array[5] of Record Campaign;
         Contact: Record Contact;
         Customer: Record Customer;
         CustomerDiscountGroup: Record "Customer Discount Group";
@@ -3679,7 +3675,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Initialize();
         // [GIVEN] Customer 'A' has one activated Campaign 'CustCmp', "Primary Contact No." is 'C'
         // [GIVEN] Contact 'C' has one activated Campaign 'ContCmp'
-        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, False);
+        CreateCustomerWithContactAndActivatedCampaigns(Customer, Contact, Campaign, false);
         // [GIVEN] Customer 'A', where "Customer Discount Group" is 'CDG', "Customer Price Group" is 'CPG'
         SetGroupsOnCustomer(Customer, CustomerDiscountGroup, CustomerPriceGroup);
 
@@ -5571,7 +5567,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateCustomerItemDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CustomerCode: Code[20]; Item: Record Item; Discount: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -5606,7 +5602,7 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceListLine.Modify();
     end;
 
-    local procedure CreateCustomerWithContactAndActivatedCampaigns(var Customer: Record Customer; var Contact: Record Contact; var Campaign: Array[5] of Record Campaign; SkipCustomerCampaign: Boolean)
+    local procedure CreateCustomerWithContactAndActivatedCampaigns(var Customer: Record Customer; var Contact: Record Contact; var Campaign: array[5] of Record Campaign; SkipCustomerCampaign: Boolean)
     var
         CampaignTargetGr: Record "Campaign Target Group";
         i: Integer;

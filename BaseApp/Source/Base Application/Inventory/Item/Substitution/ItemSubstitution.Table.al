@@ -256,9 +256,11 @@ table 5715 "Item Substitution"
         SubCondition: Record "Substitution Condition";
         ItemVariant: Record "Item Variant";
 
+#pragma warning disable AA0074
         Text000: Label 'You can not set up an item to be substituted by itself.';
         Text001: Label 'This substitute is interchangeable. \';
         Text002: Label 'Do you want to delete the corresponding substitute?';
+#pragma warning restore AA0074
 
     local procedure CreateSubstitution(ItemNo1: Code[20]; Variant1: Code[10]; ItemNo2: Code[20]; Variant2: Code[10]; Substitutable: Boolean)
     begin

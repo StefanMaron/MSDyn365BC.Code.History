@@ -139,8 +139,8 @@ page 6319 "Power BI Management"
 
         if not IsNullGuid(TargetReportId) and (TargetReportUrl <> '') then begin
             CurrPage.PowerBIManagement.InitializeReport(TargetReportUrl, TargetReportId,
-                AzureADMgt.GetAccessToken(PowerBIServiceMgt.GetPowerBIResourceUrl(),
-                PowerBIServiceMgt.GetPowerBiResourceName(), false), Url);
+                AzureADMgt.GetAccessTokenAsSecretText(PowerBIServiceMgt.GetPowerBIResourceUrl(),
+                PowerBIServiceMgt.GetPowerBiResourceName(), false).Unwrap(), Url);
 
             CurrPage.Update();
         end;

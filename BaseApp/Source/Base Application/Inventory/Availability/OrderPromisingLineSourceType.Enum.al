@@ -54,10 +54,8 @@ enum 99000880 "Order Promising Line Source Type"
     {
         Caption = 'Transfer';
     }
-    value(12; "Service Order")
-    {
-        Caption = 'Service Order';
-    }
+    // Implemented in enum extension "Serv. Order. Prom. Source Type"
+    // value(12; "Service Order") { Caption = 'Service Order'; }
     value(13; Job)
     {
         Caption = 'Project';

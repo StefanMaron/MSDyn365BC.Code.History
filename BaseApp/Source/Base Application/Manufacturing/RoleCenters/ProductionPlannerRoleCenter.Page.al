@@ -58,6 +58,10 @@ page 9010 "Production Planner Role Center"
             {
                 ApplicationArea = Suite;
             }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
             part("Emails"; "Email Activities")
             {
                 ApplicationArea = Basic, Suite;
@@ -309,7 +313,7 @@ page 9010 "Production Planner Role Center"
                     RunObject = Page "Item Journal Batches";
                     RunPageView = where("Template Type" = const(Transfer),
                                         Recurring = const(false));
-                    ToolTip = 'Change information recorded on item ledger entries. Typical inventory information to reclassify includes dimensions and sales campaign codes, but you can also perform basic inventory transfers by reclassifying location and bin codes. Serial or lot numbers and their expiration dates must be reclassified with the Item Tracking Reclassification journal.';
+                    ToolTip = 'Change information recorded on item ledger entries. Typical inventory information to reclassify includes dimensions and sales campaign codes, but you can also perform basic inventory transfers by reclassifying location and bin codes. Serial, lot or package numbers and their expiration dates must be reclassified with the Item Tracking Reclassification journal.';
                 }
                 action(RevaluationJournals)
                 {
@@ -762,7 +766,7 @@ page 9010 "Production Planner Role Center"
                     Caption = 'Item &Tracing';
                     Image = ItemTracing;
                     RunObject = Page "Item Tracing";
-                    ToolTip = 'Trace where a lot or serial number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
+                    ToolTip = 'Trace where a serial, lot or package number assigned to the item was used, for example, to find which lot a defective component came from or to find all the customers that have received items containing the defective component.';
                 }
                 action("Navi&gate")
                 {

@@ -26,12 +26,11 @@ page 1024 "Job Task Statistics"
                     group(Resource)
                     {
                         Caption = 'Resource';
-                        field(Text000; Text000)
+                        field(Text000; '')
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Price LCY';
                             ToolTip = 'Specifies the price amounts, expressed in the local currency.';
-                            Visible = false;
                         }
                         field(SchedulePriceLCY; PL[1])
                         {
@@ -81,12 +80,11 @@ page 1024 "Job Task Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field("Cost LCY"; Text000)
+                        field("Cost LCY"; '')
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Cost LCY';
                             ToolTip = 'Specifies the project cost amount, expressed in the local currency.';
-                            Visible = false;
                         }
                         field(ScheduleCostLCY; CL[1])
                         {
@@ -136,12 +134,11 @@ page 1024 "Job Task Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field("Profit LCY"; Text000)
+                        field("Profit LCY"; '')
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Profit LCY';
                             ToolTip = 'Specifies the profit amounts, expressed in the local currency.';
-                            Visible = false;
                         }
                         field(ScheduleProfitLCY; PL[1] - CL[1])
                         {
@@ -692,12 +689,11 @@ page 1024 "Job Task Statistics"
                     group(Control1904522201)
                     {
                         Caption = 'Resource';
-                        field(Price; Text000)
+                        field(Price; '')
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Price';
                             ToolTip = 'Specifies the price amounts.';
-                            Visible = false;
                         }
                         field(SchedulePrice; P[1])
                         {
@@ -747,10 +743,11 @@ page 1024 "Job Task Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field(Placeholder11; Text000)
+                        field(Placeholder11; '')
                         {
                             ApplicationArea = Jobs;
-                            Visible = false;
+                            Caption = 'Cost';
+                            ToolTip = 'Specifies the project cost amounts.';
                         }
                         field(ScheduleCost; C[1])
                         {
@@ -800,10 +797,11 @@ page 1024 "Job Task Statistics"
                                 JobCalcStatistics.ShowLedgEntry(1, false);
                             end;
                         }
-                        field(Placeholder12; Text000)
+                        field(Placeholder12; '')
                         {
                             ApplicationArea = Jobs;
-                            Visible = false;
+                            Caption = 'Profit';
+                            ToolTip = 'Specifies the profit amounts.';
                         }
                         field(ScheduleProfit; P[1] - C[1])
                         {
@@ -1370,6 +1368,8 @@ page 1024 "Job Task Statistics"
         PL: array[16] of Decimal;
         P: array[16] of Decimal;
         C: array[16] of Decimal;
+#pragma warning disable AA0074
         Text000: Label 'Placeholder';
+#pragma warning restore AA0074
 }
 

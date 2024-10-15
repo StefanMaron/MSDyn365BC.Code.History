@@ -980,14 +980,12 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", CurrencyCode);
-            FindLast();
-            "Starting Date" := OnDate;
-            Validate("Exchange Rate Amount", "Exchange Rate Amount" * Factor);
-            Validate("Adjustment Exch. Rate Amount", "Exchange Rate Amount");
-            Insert();
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindLast();
+        CurrencyExchangeRate."Starting Date" := OnDate;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", CurrencyExchangeRate."Exchange Rate Amount" * Factor);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Insert();
     end;
 
     local procedure CreateCurrencyWithExchRate(Delta: Decimal) CurrencyCode: Code[10]
@@ -1080,18 +1078,16 @@ codeunit 134885 "ERM Exch. Rate Adjmt. Apply"
         CurrExchRate: Record "Currency Exchange Rate";
         ExpectedACYAmount: Decimal;
     begin
-        with GLEntry do begin
-            FindLast();
-            SetRange("Transaction No.", "Transaction No.");
-            FindSet();
-            repeat
-                ExpectedACYAmount :=
-                  Round(
-                    CurrExchRate.ExchangeAmtLCYToFCY(
-                      "Posting Date", AddCurrencyCode, Amount, CurrExchRate.ExchangeRate("Posting Date", AddCurrencyCode)));
-                Assert.AreEqual(ExpectedACYAmount, "Additional-Currency Amount", FieldName("Additional-Currency Amount"));
-            until Next() = 0;
-        end;
+        GLEntry.FindLast();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        GLEntry.FindSet();
+        repeat
+            ExpectedACYAmount :=
+              Round(
+                CurrExchRate.ExchangeAmtLCYToFCY(
+                  GLEntry."Posting Date", AddCurrencyCode, GLEntry.Amount, CurrExchRate.ExchangeRate(GLEntry."Posting Date", AddCurrencyCode)));
+            Assert.AreEqual(ExpectedACYAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldName("Additional-Currency Amount"));
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20])

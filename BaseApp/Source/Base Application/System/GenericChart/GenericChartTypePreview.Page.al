@@ -49,8 +49,10 @@ page 9184 "Generic Chart Type Preview"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Sample Chart Data', Comment = 'Sample Chart Data';
         Text003: Label 'Cat', Comment = 'Cat';
+#pragma warning restore AA0074
         ChartAddInInitialized: Boolean;
 
     [Scope('OnPrem')]

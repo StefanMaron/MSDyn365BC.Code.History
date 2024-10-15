@@ -18,12 +18,10 @@ codeunit 132574 "Payment Export Validation UT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
-        BankImportDoesNotExistErr: Label 'The Bank Export/Import Setup does not exist.';
         EmptyPaymentDetailsErr: Label '%1 or %2 must be used for payments.', Comment = '%1=Field;%2=Field';
         FieldBlankErr: Label '%1 must have a value in %2.', Comment = '%1=table name, %2=field name. Example: Customer must have a value in Name.';
         FieldKeyBlankErr: Label '%1 %2 must have a value in %3.', Comment = '%1=table name, %2=key field value, %3=field name. Example: Customer 10000 must have a value in Name.';
         FieldMustHaveValueErr: Label '%1 must have a value';
-        FormatNotDefinedErr: Label 'The %1 does not exist. Identification fields and values: Code=''%2''';
         HasErrorsErr: Label 'The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.';
         MissingPaymentMethodErr: Label '%1 must be used for payments.', Comment = '%1=Field;%2=Field';
         MustBePositiveErr: Label 'The amount must be positive.';
@@ -33,7 +31,6 @@ codeunit 132574 "Payment Export Validation UT"
         WrongBalAccountErr: Label '%1 for the %2 is different from %3 on %4: %5.', Comment = '%1=Field;%1=Table;%3=Value;%4=Table;%5=Value';
         LibraryPaymentFormat: Codeunit "Library - Payment Format";
         IsInitialized: Boolean;
-        CheckPrintedMustBeEqualNoMsg: Label 'Check Printed must be equal to ''No''  in Gen. Journal Line';
         PostOutOfOrderErr: Label 'You have one or more documents that must be posted before you post document no. %1 according to your company''s No. Series setup.', Comment = '%1=Document No.';
 
     [Test]
@@ -304,7 +301,6 @@ codeunit 132574 "Payment Export Validation UT"
         GenJnlBatch: Record "Gen. Journal Batch";
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
-        BankExportImportSetup: Record "Bank Export/Import Setup";
         CreditTransferRegister: Record "Credit Transfer Register";
         PmtExportMgtGenJnlLine: Codeunit "Pmt Export Mgt Gen. Jnl Line";
     begin
@@ -328,7 +324,7 @@ codeunit 132574 "Payment Export Validation UT"
         asserterror PmtExportMgtGenJnlLine.ExportGenJnlLine(GenJnlLine, CreditTransferRegister);
 
         // Verify
-        Assert.ExpectedError(StrSubstNo(FormatNotDefinedErr, BankExportImportSetup.TableCaption(), BankAcc."Payment Export Format"));
+        Assert.ExpectedErrorCannotFind(Database::"Bank Export/Import Setup", BankAcc."Payment Export Format");
     end;
 
     [Test]
@@ -485,7 +481,7 @@ codeunit 132574 "Payment Export Validation UT"
         asserterror CODEUNIT.Run(CODEUNIT::"Export Payment File (Yes/No)", GenJnlLine);
 
         // Verify the error in the next step after document no. check
-        Assert.ExpectedError(BankImportDoesNotExistErr);
+        Assert.ExpectedErrorCannotFind(Database::"Bank Export/Import Setup");
     end;
 
     [Test]
@@ -1518,7 +1514,7 @@ codeunit 132574 "Payment Export Validation UT"
         asserterror GenJournalLine.ExportPaymentFile();
 
         // [THEN] Error "Check Printed must be equal to 'No' in Gen. Journal Line" should be show
-        Assert.ExpectedError(CheckPrintedMustBeEqualNoMsg);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Check Printed"), Format(false));
     end;
 
     local procedure Initialize()

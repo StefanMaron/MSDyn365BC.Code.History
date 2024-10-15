@@ -84,8 +84,12 @@ table 5943 "Troubleshooting Header"
         NoSeries: Codeunit "No. Series";
         Troubleshooting: Page Troubleshooting;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'No %1 was found.';
         Text001: Label 'No %1 was found for %2 %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure AssistEdit(OldTblshtHeader: Record "Troubleshooting Header"): Boolean
     begin

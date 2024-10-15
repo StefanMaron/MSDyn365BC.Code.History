@@ -226,11 +226,15 @@ report 99001025 "Refresh Production Order"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Refreshing Production Orders...\\';
+#pragma warning disable AA0470
         Text001: Label 'Status         #1##########\';
         Text002: Label 'No.            #2##########';
+#pragma warning restore AA0470
         Text003: Label 'Routings must be calculated, when lines are calculated.';
         Text004: Label 'Component Need must be calculated, when lines are calculated.';
+#pragma warning restore AA0074
         CalcProdOrder: Codeunit "Calculate Prod. Order";
         CreateProdOrderLines: Codeunit "Create Prod. Order Lines";
         WhseProdRelease: Codeunit "Whse.-Production Release";
@@ -241,8 +245,14 @@ report 99001025 "Refresh Production Order"
         CalcRoutings: Boolean;
         CalcComponents: Boolean;
         CreateInbRqst: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'One or more of the lines on this %1 require special warehouse handling. The %2 for these lines has been set to blank.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         DeletePickedLinesQst: Label 'Components for production order %1 have already been picked. Do you want to continue?', Comment = 'Production order no.: Components for production order 101001 have already been picked. Do you want to continue?';
+#pragma warning restore AA0470
 
     local procedure CheckReservationExist()
     var

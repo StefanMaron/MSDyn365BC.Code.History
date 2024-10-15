@@ -10,7 +10,6 @@ using Microsoft.HumanResources.Employee;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Projects.Resources.Setup;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 using System.Security.User;
 
@@ -53,12 +52,11 @@ table 951 "Time Sheet Line"
                     "Job No." := '';
                     Clear("Job Id");
                     "Job Task No." := '';
-                    "Service Order No." := '';
-                    "Service Order Line No." := 0;
                     "Cause of Absence Code" := '';
                     Description := '';
                     "Assembly Order No." := '';
                     "Assembly Order Line No." := 0;
+                    OnValidateTypeOnAfterClearFields(Rec);
 
                     UpdateApproverID();
                     if Type = Type::Absence then
@@ -148,22 +146,6 @@ table 951 "Time Sheet Line"
         field(13; "Service Order No."; Code[20])
         {
             Caption = 'Service Order No.';
-            TableRelation = if (Posted = const(false)) "Service Header"."No." where("Document Type" = const(Order));
-
-            trigger OnValidate()
-            var
-                ServiceHeader: Record "Service Header";
-            begin
-                if "Service Order No." <> '' then begin
-                    TestField(Type, Type::Service);
-                    ServiceHeader.Get(ServiceHeader."Document Type"::Order, "Service Order No.");
-                    Description := CopyStr(
-                        StrSubstNo(Text003, "Service Order No.", ServiceHeader."Customer No."),
-                        1,
-                        MaxStrLen(Description));
-                end else
-                    Description := '';
-            end;
         }
         field(14; "Service Order Line No."; Integer)
         {
@@ -313,10 +295,13 @@ table 951 "Time Sheet Line"
         JobTask: Record "Job Task";
         TimeSheetHeader: Record "Time Sheet Header";
         TimeSheetDetail: Record "Time Sheet Detail";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'There is no employee linked with resource %1.';
         Text002: Label 'Status must be Open or Rejected in line with Time Sheet No.=''%1'', Line No.=''%2''.';
-        Text003: Label 'Service order %1 for customer %2';
+#pragma warning restore AA0470
         Text005: Label 'Select a type before you enter an activity.';
+#pragma warning restore AA0074
         PrivacyBlockedErr: Label 'You cannot use resource %1 because they are marked as blocked due to privacy.', Comment = '%1=resource no.';
 
     procedure TestStatus()
@@ -438,7 +423,6 @@ table 951 "Time Sheet Line"
     var
         TimeSheetLineResDetail: Page "Time Sheet Line Res. Detail";
         TimeSheetLineJobDetail: Page "Time Sheet Line Job Detail";
-        TimeSheetLineServiceDetail: Page "Time Sheet Line Service Detail";
         TimeSheetLineAssembDetail: Page "Time Sheet Line Assemb. Detail";
         TimeSheetLineAbsenceDetail: Page "Time Sheet Line Absence Detail";
         IsHandled: Boolean;
@@ -466,12 +450,6 @@ table 951 "Time Sheet Line"
                     TimeSheetLineAbsenceDetail.SetParameters(Rec, ManagerRole);
                     if TimeSheetLineAbsenceDetail.RunModal() = ACTION::OK then
                         TimeSheetLineAbsenceDetail.GetRecord(Rec);
-                end;
-            Type::Service:
-                begin
-                    TimeSheetLineServiceDetail.SetParameters(Rec, ManagerRole);
-                    if TimeSheetLineServiceDetail.RunModal() = ACTION::OK then
-                        TimeSheetLineServiceDetail.GetRecord(Rec);
                 end;
             Type::"Assembly Order":
                 begin
@@ -532,6 +510,13 @@ table 951 "Time Sheet Line"
         "Job Id" := Job.SystemId;
     end;
 
+    procedure SetExclusionTypeFilter()
+    begin
+        SetFilter(Type, '<>%1', Type::"Assembly Order");
+
+        OnAfterSetExclusionTypeFilter(Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateApproverID(var TimeSheetLine: Record "Time Sheet Line")
     begin
@@ -564,6 +549,16 @@ table 951 "Time Sheet Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckWorkType(var TimeSheetLine: Record "Time Sheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateTypeOnAfterClearFields(var TimeSheetLine: Record "Time Sheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetExclusionTypeFilter(var TimeSheetLine: Record "Time Sheet Line")
     begin
     end;
 }

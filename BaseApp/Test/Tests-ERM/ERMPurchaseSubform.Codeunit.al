@@ -5118,12 +5118,10 @@ codeunit 134394 "ERM Purchase Subform"
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
-        with ItemUnitOfMeasure do begin
-            SetRange("Item No.", ItemNo);
-            SetFilter(Code, '<>%1', BaseUOMCode);
-            FindFirst();
-            exit(Code);
-        end;
+        ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        ItemUnitOfMeasure.SetFilter(Code, '<>%1', BaseUOMCode);
+        ItemUnitOfMeasure.FindFirst();
+        exit(ItemUnitOfMeasure.Code);
     end;
 
     local procedure SetCurrencyOnOrderAndVerify(PurchaseOrder: TestPage "Purchase Order"; CurrencyCode: Code[10]; Item: Record Item; PurchaseLine: Record "Purchase Line"; ExchangeRate: Decimal)

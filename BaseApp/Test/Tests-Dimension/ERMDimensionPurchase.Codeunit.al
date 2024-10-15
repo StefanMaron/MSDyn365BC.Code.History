@@ -1935,7 +1935,7 @@ codeunit 134476 "ERM Dimension Purchase"
         VendNo: Code[20];
         ExpectedDimID: Integer;
     begin
-        // [SCENARIO 490897] Dimensions are being deleted from Purchase Order headers when changing the ‚ÄúShip-to‚Äù field.
+        // [SCENARIO 490897] Dimensions are being deleted from Purchase Order headers when changing the ìShip-toî field.
         Initialize();
 
         // [GIVEN] Create Multiple Dimensions, it's Dimension Values, and Vendor

@@ -1301,14 +1301,11 @@ codeunit 134380 "ERM Dimension"
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
         DimMgt: Codeunit DimensionManagement;
     begin
-        with TempDimSetEntry do begin
-            ;
-            Init();
-            "Dimension Code" := DimensionValue."Dimension Code";
-            "Dimension Value Code" := DimensionValue.Code;
-            "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert();
-        end;
+        TempDimSetEntry.Init();
+        TempDimSetEntry."Dimension Code" := DimensionValue."Dimension Code";
+        TempDimSetEntry."Dimension Value Code" := DimensionValue.Code;
+        TempDimSetEntry."Dimension Value ID" := DimensionValue."Dimension Value ID";
+        TempDimSetEntry.Insert();
 
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
     end;
@@ -1442,13 +1439,11 @@ codeunit 134380 "ERM Dimension"
 
     local procedure VerifyReclasDimSetBufferDimNames(ReclasDimensionSetBuffer: Record "Reclas. Dimension Set Buffer"; ExpectedDimValueName: Text[50]; ExpectedNewDimValueName: Text[50])
     begin
-        with ReclasDimensionSetBuffer do begin
-            CalcFields("Dimension Value Name", "New Dimension Value Name");
-            "Dimension Value Name" := CopyStr("Dimension Value Name", 1, MaxStrLen("Dimension Value Name"));
-            "New Dimension Value Name" := CopyStr("New Dimension Value Name", 1, MaxStrLen("New Dimension Value Name"));
-            Assert.AreEqual(ExpectedDimValueName, "Dimension Value Name", FieldCaption("Dimension Value Name"));
-            Assert.AreEqual(ExpectedNewDimValueName, "New Dimension Value Name", FieldCaption("New Dimension Value Name"));
-        end;
+        ReclasDimensionSetBuffer.CalcFields("Dimension Value Name", "New Dimension Value Name");
+        ReclasDimensionSetBuffer."Dimension Value Name" := CopyStr(ReclasDimensionSetBuffer."Dimension Value Name", 1, MaxStrLen(ReclasDimensionSetBuffer."Dimension Value Name"));
+        ReclasDimensionSetBuffer."New Dimension Value Name" := CopyStr(ReclasDimensionSetBuffer."New Dimension Value Name", 1, MaxStrLen(ReclasDimensionSetBuffer."New Dimension Value Name"));
+        Assert.AreEqual(ExpectedDimValueName, ReclasDimensionSetBuffer."Dimension Value Name", ReclasDimensionSetBuffer.FieldCaption("Dimension Value Name"));
+        Assert.AreEqual(ExpectedNewDimValueName, ReclasDimensionSetBuffer."New Dimension Value Name", ReclasDimensionSetBuffer.FieldCaption("New Dimension Value Name"));
     end;
 
     local procedure VerifyDimValueCodeCannotBeAssignedToField("Record": Variant; FieldID: Integer; DimValueCode: Code[20])

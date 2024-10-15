@@ -11,6 +11,7 @@ using Microsoft.Sales.Document;
 
 codeunit 5720 "Item Reference Management"
 {
+    Permissions = TableData "Item Reference" = rid;
 
     trigger OnRun()
     begin

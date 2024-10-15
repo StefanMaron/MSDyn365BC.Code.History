@@ -801,32 +801,28 @@ codeunit 142060 "ERM Sales/Purchase Report"
 
     local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with VendorLedgerEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
-            "Posting Date" := WorkDate();
-            Open := true;
-            Insert();
-            CreateDetailedVendorLedgerEntry(VendorLedgerEntry);
-        end;
+        VendorLedgerEntry.Init();
+        VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
+        VendorLedgerEntry."Vendor No." := LibraryPurchase.CreateVendorNo();
+        VendorLedgerEntry."Document No." := LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry.Open := true;
+        VendorLedgerEntry.Insert();
+        CreateDetailedVendorLedgerEntry(VendorLedgerEntry);
     end;
 
     local procedure CreateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry")
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
-            "Vendor No." := VendorLedgerEntry."Vendor No.";
-            "Posting Date" := WorkDate();
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
+        DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
+        DetailedVendorLedgEntry."Posting Date" := WorkDate();
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure EnqueueValuesForCrossBorderServiceReport(Value: Code[20]; StatisticOn: Option; AdditionalReportingCurrency: Boolean)

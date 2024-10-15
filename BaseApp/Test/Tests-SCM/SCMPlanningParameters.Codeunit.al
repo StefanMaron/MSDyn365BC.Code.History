@@ -97,15 +97,13 @@ codeunit 137022 "SCM Planning Parameters"
 
     local procedure InitializeItem(var Item: Record Item; ReorderingPolicy: Enum "Reordering Policy"; ReorderPoint: Integer; ReorderQty: Integer; MaxInventory: Integer; SafetyStock: Integer)
     begin
-        with Item do begin
-            Get("No.");
-            Validate("Reordering Policy", ReorderingPolicy);
-            Validate("Reorder Point", ReorderPoint);
-            Validate("Reorder Quantity", ReorderQty);
-            Validate("Maximum Inventory", MaxInventory);
-            Validate("Safety Stock Quantity", SafetyStock);
-            Modify(true);
-        end;
+        Item.Get(Item."No.");
+        Item.Validate("Reordering Policy", ReorderingPolicy);
+        Item.Validate("Reorder Point", ReorderPoint);
+        Item.Validate("Reorder Quantity", ReorderQty);
+        Item.Validate("Maximum Inventory", MaxInventory);
+        Item.Validate("Safety Stock Quantity", SafetyStock);
+        Item.Modify(true);
     end;
 
     local procedure InitializeFixedReorderROP(var Item: Record Item; ReorderPoint: Integer; ReorderQty: Integer; SafetyStock: Integer)

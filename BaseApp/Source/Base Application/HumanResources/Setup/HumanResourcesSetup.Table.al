@@ -57,6 +57,10 @@ table 5218 "Human Resources Setup"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot change %1 because there are %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

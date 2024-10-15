@@ -387,7 +387,9 @@ page 5976 "Posted Service Shpt. Subform"
 
     var
         ServLoanerMgt: Codeunit ServLoanerManagement;
+#pragma warning disable AA0074
         Text000: Label 'You can view the Service Item Log only for service item lines with the specified Service Item No.';
+#pragma warning restore AA0074
 
     local procedure ShowServShipmentLines()
     var

@@ -67,14 +67,6 @@ page 6300 "Azure AD App Setup Wizard"
                         ShowCaption = false;
                         Caption = '';
                     }
-                    label("Para1.1.3")
-                    {
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'This label is no longer required and will be removed, extensions should extend from another property.';
-                        ObsoleteTag = '17.0';
-                        ApplicationArea = Basic, Suite;
-                        Visible = false;
-                    }
                 }
                 group("Para1.2")
                 {

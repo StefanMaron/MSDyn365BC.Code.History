@@ -497,11 +497,9 @@ codeunit 142075 "UT SWS"
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
 
-        with CopyItem do begin
-            TargetItemNo.SetValue(ItemNo);
-            GeneralItemInformation.SetValue(true);
-            OK().Invoke();
-        end;
+        CopyItem.TargetItemNo.SetValue(ItemNo);
+        CopyItem.GeneralItemInformation.SetValue(true);
+        CopyItem.OK().Invoke();
     end;
 }
 

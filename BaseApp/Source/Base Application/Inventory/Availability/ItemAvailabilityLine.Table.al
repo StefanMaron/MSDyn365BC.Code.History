@@ -37,5 +37,24 @@ table 99000832 "Item Availability Line"
     fieldgroups
     {
     }
+
+    procedure InsertEntry(TableNo: Integer; FieldNo: Integer; TableCaption: Text; Qty: Decimal; QtyByUOM: Decimal; Sign: Integer)
+    begin
+        if Qty = 0 then
+            exit;
+
+        Rec."Table No." := TableNo;
+        Rec.QuerySource := FieldNo;
+        Rec.Name := CopyStr(TableCaption, 1, MaxStrLen(Rec.Name));
+        Rec.Quantity := AdjustWithQtyByUnitOfMeasure(Qty * Sign, QtyByUOM);
+        Rec.Insert();
+    end;
+
+    local procedure AdjustWithQtyByUnitOfMeasure(QuantityBase: Decimal; QuantityByUOM: Decimal): Decimal
+    begin
+        if QuantityByUOM <> 0 then
+            exit(QuantityBase / QuantityByUOM);
+        exit(QuantityBase);
+    end;
 }
 

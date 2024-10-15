@@ -795,14 +795,20 @@ table 901 "Assembly Line"
         SkipVerificationsThatChangeDatabase: Boolean;
         CalledFromHeader: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
+#pragma warning disable AA0470
         Text002: Label 'You cannot rename an %1.';
         Text003: Label '%1 cannot be higher than the %2, which is %3.';
+#pragma warning restore AA0470
         Text029: Label 'must be positive', Comment = 'starts with "Quantity"';
+#pragma warning disable AA0470
         Text042: Label 'When posting the Applied to Ledger Entry, %1 will be opened first.';
         Text049: Label '%1 cannot be later than %2 because the %3 is set to %4.';
         Text050: Label 'Due Date %1 is before work date %2.';
         Text99000002: Label 'You cannot change %1 when %2 is ''%3''.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         ConfirmDeleteQst: Label '%1 = %2 is greater than %3 = %4. If you delete the %5, the items will remain in the operation area until you put them away.\Related Item Tracking information defined during pick will be deleted.\Do you still want to delete the %5?', Comment = '%1 = FieldCaption("Qty. Picked"), %2 = "Qty. Picked", %3 = FieldCaption(Consumed Quantity), %4 = Consumed Quantity, %5 = TableCaption';
 
@@ -1786,7 +1792,7 @@ table 901 "Assembly Line"
     var
         OrderTracking: Page "Order Tracking";
     begin
-        OrderTracking.SetAsmLine(Rec);
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Remaining Quantity (Base)", Rec."Due Date", Rec."Due Date");
         OrderTracking.RunModal();
     end;
 

@@ -31,6 +31,7 @@ codeunit 9175 "User Settings Impl."
         UserCreatedAppNameTxt: Label '(User-created)';
         DescriptionFilterTxt: Label 'Navigation menu only.';
         NotEnoughPermissionsErr: Label 'You cannot open this page. Only administrators can access settings for other users.';
+        UserSettingsUpdatedLbl: Label 'The user settings (UserSecurityId %1) has been updated with the values: Language ID %2, Locale ID %3, Company %4, Time Zone %5, Profile ID %6 by UserSecurityId %7 ', Locked = true;
 
     procedure GetPageId(): Integer
     var
@@ -81,8 +82,10 @@ codeunit 9175 "User Settings Impl."
     begin
         TempAllProfile.Reset();
         TempAllProfile.DeleteAll();
+
         AllProfile.SetRange(Enabled, true);
         AllProfile.SetFilter(Description, '<> %1', DescriptionFilterTxt);
+
         if AllProfile.FindSet() then
             repeat
                 TempAllProfile := AllProfile;
@@ -90,6 +93,8 @@ codeunit 9175 "User Settings Impl."
                     TempAllProfile."App Name" := UserCreatedAppNameTxt;
                 TempAllProfile.Insert();
             until AllProfile.Next() = 0;
+
+        TempAllProfile.SetCurrentKey(Caption, "Profile ID");
     end;
 
     procedure GetUserSettings(UserSecurityID: Guid; var UserSettingsRec: Record "User Settings")
@@ -107,7 +112,9 @@ codeunit 9175 "User Settings Impl."
         UserSettingsRec."User ID" := UserPersonalization."User ID";
         UserSettingsRec."Profile ID" := UserPersonalization."Profile ID";
         UserSettingsRec."App ID" := UserPersonalization."App ID";
+#pragma warning disable AL0432 // All profiles are now in the tenant scope
         UserSettingsRec.Scope := UserPersonalization.Scope;
+#pragma warning restore AL0432
 
         if UserSettingsRec."Profile ID" = '' then begin
             AllProfile.SetRange("Default Role Center", true);
@@ -171,7 +178,9 @@ codeunit 9175 "User Settings Impl."
         UserPersonalization.Company := NewUserSettings.Company;
         UserPersonalization."Time Zone" := NewUserSettings."Time Zone";
         UserPersonalization."Profile ID" := NewUserSettings."Profile ID";
+#pragma warning disable AL0432 // All profiles are now in the tenant scope
         UserPersonalization.Scope := NewUserSettings.Scope;
+#pragma warning restore AL0432
         UserPersonalization."App ID" := NewUserSettings."App ID";
         UserPersonalization.Modify();
 
@@ -179,6 +188,8 @@ codeunit 9175 "User Settings Impl."
         ApplicationUserSettings."Teaching Tips" := NewUserSettings."Teaching Tips";
         ApplicationUserSettings."Legacy Action Bar" := NewUserSettings."Legacy Action Bar";
         ApplicationUserSettings.Modify();
+        Session.LogAuditMessage(StrSubstNo(UserSettingsUpdatedLbl, UserPersonalization."User SID", UserPersonalization."Language ID", UserPersonalization."Locale ID",
+            UserPersonalization.Company, UserPersonalization."Time Zone", UserPersonalization."Profile ID", UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 2, 0);
     end;
 
     local procedure UpdateCurrentUsersSettings(OldUserSettings: Record "User Settings"; NewUserSettings: Record "User Settings")
@@ -539,11 +550,15 @@ codeunit 9175 "User Settings Impl."
         TempAllProfile: Record "All Profile" temporary;
     begin
         PopulateProfiles(TempAllProfile);
+#pragma warning disable AL0432 // All profiles are now in the tenant scope
         if TempAllProfile.Get(UserPersonalization.Scope, UserPersonalization."App ID", UserPersonalization."Profile ID") then;
+#pragma warning restore AL0432
         if Page.RunModal(Page::Roles, TempAllProfile) = Action::LookupOK then begin
             UserPersonalization."Profile ID" := TempAllProfile."Profile ID";
             UserPersonalization."App ID" := TempAllProfile."App ID";
+#pragma warning disable AL0432 // All profiles are now in the tenant scope
             UserPersonalization.Scope := TempAllProfile.Scope;
+#pragma warning restore AL0432
             UserPersonalization.CalcFields("Role");
         end;
     end;

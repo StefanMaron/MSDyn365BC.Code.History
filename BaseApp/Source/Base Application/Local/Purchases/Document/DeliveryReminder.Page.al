@@ -133,13 +133,10 @@ page 5005270 "Delivery Reminder"
                     ToolTip = 'View or add comments for the record.';
                 }
             }
-        }
-        area(creation)
-        {
             action("Delivery Reminder")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = 'Delivery Reminder';
+                Caption = 'Create Delivery Reminder';
                 Image = ReceiptReminder;
                 RunObject = Page "Delivery Reminder";
                 RunPageMode = Create;
@@ -206,7 +203,7 @@ page 5005270 "Delivery Reminder"
 
                     trigger OnAction()
                     begin
-                        PrintDocumentProfessional.DeliveryRemindPrint(Rec);
+                        PrintDocumentProfessional.PrintDeliveryReminder(Rec);
                     end;
                 }
                 action(Issue)

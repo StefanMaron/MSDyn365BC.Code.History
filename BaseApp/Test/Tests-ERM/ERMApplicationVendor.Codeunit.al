@@ -1,6 +1,6 @@
 ﻿codeunit 134011 "ERM Application Vendor"
 {
-    // // [FEATURE] [Purchase] [Application]
+    // [FEATURE] [Purchase] [Application]
     // Unsupported version tags:
     // NA: Unable to Execute
     // ES: Unable to Execute
@@ -47,13 +47,12 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorInvPmt("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorInvPmt("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                VendorInvPmt("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                VendorInvPmt("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            VendorInvPmt(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorInvPmt(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            VendorInvPmt(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            VendorInvPmt(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -65,16 +64,15 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorInvPmtDisc("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate discount ledger entries and will thus fail to close.
-                asserterror VendorInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                DeltaAssert.Reset();
-                asserterror VendorInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                DeltaAssert.Reset();
-            end;
+        for Stepwise := false to true do begin
+            VendorInvPmtDisc(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorInvPmtDisc(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            // The following two combinations do not generate discount ledger entries and will thus fail to close.
+            asserterror VendorInvPmtDisc(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            DeltaAssert.Reset();
+            asserterror VendorInvPmtDisc(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            DeltaAssert.Reset();
+        end;
     end;
 
     [Test]
@@ -86,13 +84,12 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorInvPmtVAT("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorInvPmtVAT("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                VendorInvPmtVAT("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                VendorInvPmtVAT("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            VendorInvPmtVAT(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorInvPmtVAT(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            VendorInvPmtVAT(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            VendorInvPmtVAT(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -104,13 +101,12 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorInvPmtCorrection("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorInvPmtCorrection("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                VendorInvPmtCorrection("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                VendorInvPmtCorrection("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            VendorInvPmtCorrection(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorInvPmtCorrection(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            VendorInvPmtCorrection(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            VendorInvPmtCorrection(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -122,14 +118,13 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorPmtDiscVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror VendorPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                asserterror VendorPmtDiscVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            VendorPmtDiscVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorPmtDiscVATAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
+            asserterror VendorPmtDiscVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            asserterror VendorPmtDiscVATAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -143,14 +138,13 @@
 
         SetupPaymentTolerance();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorPmtTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror VendorPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                asserterror VendorPmtTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            VendorPmtTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorPmtTolVATAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
+            asserterror VendorPmtTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            asserterror VendorPmtTolVATAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -164,14 +158,13 @@
 
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<5D>');
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise);
-                VendorPmtDiscTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                // The following two combinations do not generate payment discount / tolerance ledger entries and will thus fail to close.
-                asserterror VendorPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                asserterror VendorPmtDiscTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            VendorPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise);
+            VendorPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+            // The following two combinations do not generate payment discount / tolerance ledger entries and will thus fail to close.
+            asserterror VendorPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise);
+            asserterror VendorPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise);
+        end;
     end;
 
     [Test]
@@ -184,17 +177,16 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-                VendorRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-                VendorRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-                VendorRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-            end;
+        for Stepwise := false to true do begin
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+        end;
     end;
 
     [Test]
@@ -207,17 +199,16 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-                VendorRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-                VendorRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-                VendorRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-            end;
+        for Stepwise := false to true do begin
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+            VendorRealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+        end;
     end;
 #if not CLEAN23
     [Test]
@@ -231,17 +222,16 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-                VendorUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-                VendorUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-                VendorUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
-            end;
+        for Stepwise := false to true do begin
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Gain");
+        end;
     end;
 
     [Test]
@@ -255,17 +245,16 @@
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                VendorUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-                VendorUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-                VendorUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise,
-                  1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-                VendorUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise,
-                  0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
-            end;
+        for Stepwise := false to true do begin
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, VendorAmount, Stepwise,
+              1.1, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+            VendorUnrealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -VendorAmount, Stepwise,
+              0.9, DtldVendorLedgEntry."Entry Type"::"Realized Loss");
+        end;
     end;
 
     [Test]
@@ -297,33 +286,30 @@
         LibraryPurchase.CreateVendor(Vendor);
 
         GetGLBalancedBatch(GenJournalBatch);
-        for i := 1 to 3 do
-            with GenJournalLine do begin
-                // [GIVEN] Post Invoice in "FCY" on WorkDate
-                InvAmount := LibraryRandom.RandDec(1000, 2);
-                DocumentNo := CreateJournalLine(
-                    GenJournalLine, GenJournalBatch, "Document Type"::Invoice, "Account Type"::Vendor,
-                    Vendor."No.", -InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                RunGenJnlPostLine(GenJournalLine);
-
-                // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
-                CreateJournalLine(
-                  GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Vendor,
-                  Vendor."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-                Validate("Applies-to Doc. No.", DocumentNo);
-                Modify();
-                RunGenJnlPostLine(GenJournalLine);
-
-                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
-                CreateJournalLine(
-                  GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Vendor,
-                  Vendor."No.", InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-                Validate("Applies-to Doc. No.", DocumentNo);
-                Modify();
-                RunGenJnlPostLine(GenJournalLine);
-            end;
+        for i := 1 to 3 do begin
+            // [GIVEN] Post Invoice in "FCY" on WorkDate
+            InvAmount := LibraryRandom.RandDec(1000, 2);
+            DocumentNo := CreateJournalLine(
+                GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor,
+                Vendor."No.", -InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            RunGenJnlPostLine(GenJournalLine);
+            // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
+            CreateJournalLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+              Vendor."No.", InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+            GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+            GenJournalLine.Modify();
+            RunGenJnlPostLine(GenJournalLine);
+            // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
+            CreateJournalLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor,
+              Vendor."No.", InvAmount - GenJournalLine.Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+            GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+            GenJournalLine.Modify();
+            RunGenJnlPostLine(GenJournalLine);
+        end;
 
         LastTransactionNo[1] := GetLastTransactionNo();
 
@@ -579,6 +565,7 @@
     procedure ApplyingPaymentToBothInvoiceAndCrMemoWithNoDiscount1()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
     begin
         // [SCENARIO 233340] When payment amount is not sufficient to close applied invoice and credit memo, the remaining amount is left on the last applied entry.
@@ -595,7 +582,7 @@
 
         // [THEN] Remaining amount: invoice = 0, credit-memo = 1, payment = 0.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 1, 0);
-        Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+        Assert.ExpectedTestFieldError(VendLedgEntry.FieldCaption("Remaining Amount"), Format(0));
     end;
 
     [Test]
@@ -603,6 +590,7 @@
     procedure ApplyingPaymentToBothInvoiceAndCrMemoWithNoDiscount2()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        VendLedgEntry: Record "Vendor Ledger Entry";
         VendorNo: Code[20];
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close applied invoice and credit memo, the remaining amount is left on the payment entry.
@@ -619,7 +607,7 @@
 
         // [THEN] Remaining amount: invoice = 0, credit-memo = 0, payment = 1.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 0, 1);
-        Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+        Assert.ExpectedTestFieldError(VendLedgEntry.FieldCaption("Remaining Amount"), Format(0));
     end;
 
     [Test]
@@ -627,6 +615,7 @@
     procedure ApplyingPaymentToBothInvoiceAndCrMemoWithDiscount1()
     var
         Vendor: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close both invoice and credit memo only if the invoice has payment discount, the remaining amount is left on the payment entry. Extra payment amount < discount amount.
@@ -643,7 +632,7 @@
 
         // [THEN] Remaining amount: invoice = 0, credit-memo = 0, payment = 4.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 0, 4);
-        Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+        Assert.ExpectedTestFieldError(VendLedgEntry.FieldCaption("Remaining Amount"), Format(0));
     end;
 
     [Test]
@@ -651,6 +640,7 @@
     procedure ApplyingPaymentToBothInvoiceAndCrMemoWithDiscount2()
     var
         Vendor: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close both invoice and credit memo only if the invoice has payment discount, the remaining amount is left on the payment entry. Extra payment amount > discount amount.
@@ -667,7 +657,7 @@
 
         // [THEN] Remaining amount: invoice = 0, credit-memo = 0, payment = 6.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 0, 6);
-        Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+        Assert.ExpectedTestFieldError(VendLedgEntry.FieldCaption("Remaining Amount"), Format(0));
     end;
 
     [Test]
@@ -675,6 +665,7 @@
     procedure ApplyingPaymentToBothInvoiceAndCrMemoWithDiscount3()
     var
         Vendor: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is not sufficient to close both invoice and credit memo even with a payment discount on the invoice, the remaining amount is left on the last applied entry.
@@ -691,7 +682,7 @@
 
         // [THEN] Remaining amount: invoice = 0, credit-memo = 1, payment = 0.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 1, 0);
-        Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+        Assert.ExpectedTestFieldError(VendLedgEntry.FieldCaption("Remaining Amount"), Format(0));
     end;
 
     [Test]
@@ -699,6 +690,7 @@
     procedure ApplyingPaymentToBothInvoiceAndCrMemoWithDiscount4()
     var
         Vendor: Record Vendor;
+        VendLedgEntry: Record "Vendor Ledger Entry";
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 233340] When payment amount is sufficient to close both invoice and credit memo only if the invoice has payment discount, the remaining amount is left on the payment entry.
@@ -715,7 +707,7 @@
 
         // [THEN] Remaining amount: invoice = 0, credit-memo = 0, payment = 1.
         asserterror VerifyInvoiceCrMemoAndPaymentRemAmounts(GenJournalLine."Document No.", 0, 0, 1);
-        Assert.KnownFailure('Remaining Amount must be equal to ''0''  in Vendor Ledger Entry', 252156);
+        Assert.ExpectedTestFieldError(VendLedgEntry.FieldCaption("Remaining Amount"), Format(0));
     end;
 
     [Test]
@@ -1355,23 +1347,20 @@
         Desc: Text[30];
     begin
         ClearJournalBatch(GenJournalBatch);
-
         // Create four documents with seperate document no. and external document no. but with unique description.
-        with GenJournalLine do begin
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Vendor,
-                Vendor."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, DocumentNo, '');
-            Desc := DocumentNo;
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Vendor,
-                Vendor."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Vendor,
-                Vendor."No.", PmtAmount / 2, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, InvType, "Account Type"::Vendor,
-                Vendor."No.", -InvAmount, '<0D>', InvCurrencyCode, IncStr(DocumentNo), Desc);
-        end;
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Vendor,
+            Vendor."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, DocumentNo, '');
+        Desc := DocumentNo;
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Vendor,
+            Vendor."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Vendor,
+            Vendor."No.", PmtAmount / 2, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, InvType, GenJournalLine."Account Type"::Vendor,
+            Vendor."No.", -InvAmount, '<0D>', InvCurrencyCode, IncStr(DocumentNo), Desc);
 
         PostJournalBatch(GenJournalBatch);
         exit(Desc);
@@ -1419,41 +1408,35 @@
 
     local procedure MockVendLedgEntry(var VendLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with VendLedgerEntry do begin
-            Init();
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(VendLedgerEntry, FieldNo("Entry No."));
-            Open := true;
-            Insert();
-            MockDtldLedgEntry("Entry No.");
-        end;
+        VendLedgerEntry.Init();
+        VendLedgerEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(VendLedgerEntry, VendLedgerEntry.FieldNo("Entry No."));
+        VendLedgerEntry.Open := true;
+        VendLedgerEntry.Insert();
+        MockDtldLedgEntry(VendLedgerEntry."Entry No.");
     end;
 
     local procedure MockDtldLedgEntry(VendLedgEntryNo: Integer)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DetailedVendorLedgEntry do begin
-            Init();
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Vendor Ledger Entry No." := VendLedgEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DetailedVendorLedgEntry.Init();
+        DetailedVendorLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, DetailedVendorLedgEntry.FieldNo("Entry No."));
+        DetailedVendorLedgEntry."Vendor Ledger Entry No." := VendLedgEntryNo;
+        DetailedVendorLedgEntry."Entry Type" := DetailedVendorLedgEntry."Entry Type"::"Initial Entry";
+        DetailedVendorLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DetailedVendorLedgEntry.Insert();
     end;
 
     local procedure MockAppliedVendLedgEntry(var VendLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with VendLedgerEntry do begin
-            MockVendLedgEntry(VendLedgerEntry);
-            "Amount to Apply" := LibraryRandom.RandDec(100, 2);
-            "Applies-to ID" := LibraryUtility.GenerateGUID();
-            "Accepted Pmt. Disc. Tolerance" := true;
-            "Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
-            Modify();
-        end;
+        MockVendLedgEntry(VendLedgerEntry);
+        VendLedgerEntry."Amount to Apply" := LibraryRandom.RandDec(100, 2);
+        VendLedgerEntry."Applies-to ID" := LibraryUtility.GenerateGUID();
+        VendLedgerEntry."Accepted Pmt. Disc. Tolerance" := true;
+        VendLedgerEntry."Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
+        VendLedgerEntry.Modify();
     end;
 
     local procedure PostJournalBatch(GenJournalBatch: Record "Gen. Journal Batch")
@@ -1670,16 +1653,14 @@
 
     local procedure GetVATBalancedBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GLAccount: Record "G/L Account")
     begin
-        with GenJournalBatch do begin
-            SetRange("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            SetRange("Bal. Account No.", GLAccount."No.");
-            if not FindFirst() then begin
-                GetGLBalancedBatch(GenJournalBatch);
-                Name := 'VendorVAT';
-                "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-                "Bal. Account No." := GLAccount."No.";
-                Insert(true);
-            end;
+        GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.SetRange("Bal. Account No.", GLAccount."No.");
+        if not GenJournalBatch.FindFirst() then begin
+            GetGLBalancedBatch(GenJournalBatch);
+            GenJournalBatch.Name := 'VendorVAT';
+            GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+            GenJournalBatch."Bal. Account No." := GLAccount."No.";
+            GenJournalBatch.Insert(true);
         end;
     end;
 
@@ -1717,22 +1698,18 @@
 
     local procedure VerifyVendorEntriesClosed(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with VendorLedgerEntry do begin
-            FindFirst();
-            repeat
-                Assert.IsFalse(Open, StrSubstNo('Vendor ledger entry %1 did not close.', "Entry No."));
-            until Next() = 0;
-        end;
+        VendorLedgerEntry.FindFirst();
+        repeat
+            Assert.IsFalse(VendorLedgerEntry.Open, StrSubstNo('Vendor ledger entry %1 did not close.', VendorLedgerEntry."Entry No."));
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyVendorEntriesOpen(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
-        with VendorLedgerEntry do begin
-            FindFirst();
-            repeat
-                Assert.IsTrue(Open, StrSubstNo('Vendor ledger entry %1 did not open.', "Entry No."));
-            until Next() = 0;
-        end;
+        VendorLedgerEntry.FindFirst();
+        repeat
+            Assert.IsTrue(VendorLedgerEntry.Open, StrSubstNo('Vendor ledger entry %1 did not open.', VendorLedgerEntry."Entry No."));
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyAppliedLedgerEntry(VendLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50])
@@ -1777,16 +1754,14 @@
 
     local procedure VerifyVLEPaymentDisc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendLedgerEntryIsOpen: Boolean; RemPaymentDiscPossible: Decimal; RemainingAmount: Decimal)
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Document Type", DocType);
-            FindFirst();
-            Assert.AreEqual(VendLedgerEntryIsOpen, Open, FieldCaption(Open));
-            Assert.AreEqual(
-              RemPaymentDiscPossible, "Remaining Pmt. Disc. Possible",
-              FieldCaption("Remaining Pmt. Disc. Possible"));
-            CalcFields("Remaining Amount");
-            Assert.AreEqual(RemainingAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
-        end;
+        VendorLedgerEntry.SetRange("Document Type", DocType);
+        VendorLedgerEntry.FindFirst();
+        Assert.AreEqual(VendLedgerEntryIsOpen, VendorLedgerEntry.Open, VendorLedgerEntry.FieldCaption(Open));
+        Assert.AreEqual(
+          RemPaymentDiscPossible, VendorLedgerEntry."Remaining Pmt. Disc. Possible",
+          VendorLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"));
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        Assert.AreEqual(RemainingAmount, VendorLedgerEntry."Remaining Amount", VendorLedgerEntry.FieldCaption("Remaining Amount"));
     end;
 
     local procedure VerifyBlankAppliestoID(VendorNo: Code[20]; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")

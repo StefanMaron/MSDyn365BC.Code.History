@@ -44,8 +44,6 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         Text029: Label 'Project Ledger Entry - (Line Amount) <> Project Ledger Entry - (Quantity * Unit Cost - Line Discount Amount).';
         Text030: Label 'There should be no record in Project Planning Line for a PO posted with Receive option.';
         Initialized: Boolean;
-        JobNoError: Label '%1 must not be specified when %2 = %3 in Purchase Line', Comment = '%1: Field1;%2:Field2;%3:FieldValue';
-        JobTaskTypeErr: Label '%1 must be equal to ''%2''  in %3', Comment = '%1: Field;%2:FieldValue:%3:TableCaption';
 
     local procedure Initialize()
     var
@@ -555,11 +553,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         asserterror CreatePurchaseOrderWithJob(JobTaskType, PurchaseLine.Type::Item, CreateItem(), PurchaseLine."Job Line Type"::Budget);
 
         // Verify: Verify error message.
-        Assert.IsTrue(
-          StrPos(
-            GetLastErrorText,
-            StrSubstNo(JobTaskTypeErr, JobTask.FieldCaption("Job Task Type"), JobTask."Job Task Type"::Posting, JobTask.TableCaption())) >
-          0, 'Error message must be same.');
+        Assert.ExpectedTestFieldError(JobTask.FieldCaption("Job Task Type"), Format(JobTask."Job Task Type"::Posting));
     end;
 
     local procedure PurchaseOrderWithDifferentLineType(Type: Enum "Purchase Line Type"; No: Code[20])
@@ -571,9 +565,7 @@ codeunit 132521 "JOBs-60SP1-Scripts"
         asserterror CreatePurchaseOrderWithJob(JobTask."Job Task Type"::Posting, Type, No, PurchaseLine."Job Line Type"::Budget);
 
         // Verify: Verify error message.
-        Assert.IsTrue(
-          StrPos(GetLastErrorText, StrSubstNo(JobNoError, PurchaseLine.FieldCaption("Job No."), PurchaseLine.FieldCaption(Type), Type)) >
-          0, 'Error message must be same.');
+        Assert.ExpectedTestFieldError(PurchaseLine.FieldCaption("Job No."), '');
     end;
 
     local procedure VerifyJobPlanWithPurchOrder(var TempPurchHeader: Record "Purchase Header" temporary; var TempPurchLine: Record "Purchase Line" temporary)

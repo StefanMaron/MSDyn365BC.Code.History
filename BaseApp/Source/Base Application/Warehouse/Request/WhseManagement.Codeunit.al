@@ -1,16 +1,6 @@
 ﻿namespace Microsoft.Warehouse.Request;
 
-using Microsoft.Assembly.Document;
-using Microsoft.Foundation.UOM;
 using Microsoft.Inventory.Journal;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Job;
-using Microsoft.Projects.Project.Journal;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
@@ -26,9 +16,8 @@ codeunit 5775 "Whse. Management"
     end;
 
     var
-        UOMMgt: Codeunit "Unit of Measure Management";
-
-        Text000: Label 'The Source Document is not defined.';
+        SourceDocumentNotDefinedErr: Label 'The Source Document is not defined.';
+        SourceDocumentDoesNotExistErr: Label 'The %1 does not exist. Filters: %2.', Comment = '%1 = Table caption; %2 = filters';
 
     procedure GetWhseActivSourceDocument(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Activity Source Document"
     begin
@@ -62,8 +51,6 @@ codeunit 5775 "Whse. Management"
                 SourceDocument := "Warehouse Request Source Document"::"Prod. Consumption";
             WhseJournalSourceDocument::"Item Jnl.":
                 SourceDocument := "Warehouse Request Source Document"::"Prod. Output";
-            WhseJournalSourceDocument::"Serv. Order":
-                SourceDocument := "Warehouse Request Source Document"::"Service Order";
             WhseJournalSourceDocument::"Assembly Order":
                 SourceDocument := "Warehouse Request Source Document"::"Assembly Order";
             WhseJournalSourceDocument::"Assembly Consumption":
@@ -73,6 +60,8 @@ codeunit 5775 "Whse. Management"
             else
                 SourceDocument := WhseJournalSourceDocument;
         end;
+
+        OnAfterGetWhseRqstSourceDocument(WhseJournalSourceDocument, SourceDocument);
     end;
 
     procedure GetSourceDocumentType(SourceType: Integer; SourceSubtype: Integer): Enum "Warehouse Journal Source Document"
@@ -86,43 +75,6 @@ codeunit 5775 "Whse. Management"
             exit(SourceDocumentType);
 
         case SourceType of
-            Database::"Sales Line":
-                case SourceSubtype of
-                    1:
-                        exit("Warehouse Journal Source Document"::"S. Order");
-                    2:
-                        exit("Warehouse Journal Source Document"::"S. Invoice");
-                    3:
-                        exit("Warehouse Journal Source Document"::"S. Credit Memo");
-                    5:
-                        exit("Warehouse Journal Source Document"::"S. Return Order");
-                end;
-            Database::"Purchase Line":
-                case SourceSubtype of
-                    1:
-                        exit("Warehouse Journal Source Document"::"P. Order");
-                    2:
-                        exit("Warehouse Journal Source Document"::"P. Invoice");
-                    3:
-                        exit("Warehouse Journal Source Document"::"P. Credit Memo");
-                    5:
-                        exit("Warehouse Journal Source Document"::"P. Return Order");
-                end;
-            Database::"Service Line":
-                exit("Warehouse Journal Source Document"::"Serv. Order");
-            Database::"Prod. Order Component":
-                exit("Warehouse Journal Source Document"::"Prod. Consumption");
-            Database::"Assembly Line":
-                exit("Warehouse Journal Source Document"::"Assembly Consumption");
-            Database::"Assembly Header":
-                exit("Warehouse Journal Source Document"::"Assembly Order");
-            Database::"Transfer Line":
-                case SourceSubtype of
-                    0:
-                        exit("Warehouse Journal Source Document"::"Outb. Transfer");
-                    1:
-                        exit("Warehouse Journal Source Document"::"Inb. Transfer");
-                end;
             Database::"Item Journal Line":
                 case SourceSubtype of
                     0:
@@ -136,10 +88,6 @@ codeunit 5775 "Whse. Management"
                     5:
                         exit("Warehouse Journal Source Document"::"Output Jnl.");
                 end;
-            Database::"Job Journal Line":
-                exit("Warehouse Journal Source Document"::"Job Jnl.");
-            Database::Job:
-                exit("Warehouse Journal Source Document"::"Job Usage");
         end;
 
         IsHandled := false;
@@ -147,7 +95,7 @@ codeunit 5775 "Whse. Management"
         if IsHandled then
             exit(SourceDocumentType);
 
-        Error(Text000);
+        Error(SourceDocumentNotDefinedErr);
     end;
 
     procedure GetSourceDocument(SourceType: Integer; SourceSubtype: Integer): Integer
@@ -165,43 +113,6 @@ codeunit 5775 "Whse. Management"
             exit(SourceDocument);
 
         case SourceType of
-            Database::"Sales Line":
-                case SourceSubtype of
-                    1:
-                        exit(SourceDocument::"S. Order");
-                    2:
-                        exit(SourceDocument::"S. Invoice");
-                    3:
-                        exit(SourceDocument::"S. Credit Memo");
-                    5:
-                        exit(SourceDocument::"S. Return Order");
-                end;
-            Database::"Purchase Line":
-                case SourceSubtype of
-                    1:
-                        exit(SourceDocument::"P. Order");
-                    2:
-                        exit(SourceDocument::"P. Invoice");
-                    3:
-                        exit(SourceDocument::"P. Credit Memo");
-                    5:
-                        exit(SourceDocument::"P. Return Order");
-                end;
-            Database::"Service Line":
-                exit(SourceDocument::"Serv. Order");
-            Database::"Prod. Order Component":
-                exit(SourceDocument::"Prod. Consumption");
-            Database::"Assembly Line":
-                exit(SourceDocument::"Assembly Consumption");
-            Database::"Assembly Header":
-                exit(SourceDocument::"Assembly Order");
-            Database::"Transfer Line":
-                case SourceSubtype of
-                    0:
-                        exit(SourceDocument::"Outb. Transfer");
-                    1:
-                        exit(SourceDocument::"Inb. Transfer");
-                end;
             Database::"Item Journal Line":
                 case SourceSubtype of
                     0:
@@ -215,13 +126,11 @@ codeunit 5775 "Whse. Management"
                     5:
                         exit(SourceDocument::"Output Jnl.");
                 end;
-            Database::"Job Journal Line":
-                exit(SourceDocument::"Job Jnl.");
         end;
         OnAfterGetJournalSourceDocument(SourceType, SourceSubtype, SourceDocument, IsHandled);
         if IsHandled then
             exit(SourceDocument);
-        Error(Text000);
+        Error(SourceDocumentNotDefinedErr);
     end;
 
     procedure GetSourceType(WhseWkshLine: Record "Whse. Worksheet Line") SourceType: Integer
@@ -238,16 +147,10 @@ codeunit 5775 "Whse. Management"
                 SourceType := Database::"Posted Whse. Receipt Line";
             WhseWkshLine."Whse. Document Type"::Shipment:
                 SourceType := Database::"Warehouse Shipment Line";
-            WhseWkshLine."Whse. Document Type"::Production:
-                SourceType := Database::"Prod. Order Component";
-            WhseWkshLine."Whse. Document Type"::Assembly:
-                SourceType := Database::"Assembly Line";
             WhseWkshLine."Whse. Document Type"::"Internal Put-away":
                 SourceType := Database::"Whse. Internal Put-away Line";
             WhseWkshLine."Whse. Document Type"::"Internal Pick":
                 SourceType := Database::"Whse. Internal Pick Line";
-            WhseWkshLine."Whse. Document Type"::Job:
-                SourceType := Database::Job;
         end;
     end;
 
@@ -271,85 +174,11 @@ codeunit 5775 "Whse. Management"
     end;
 
     local procedure GetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyOutstanding: Decimal; var QtyBaseOutstanding: Decimal)
-    var
-        SalesLine: Record "Sales Line";
-        PurchaseLine: Record "Purchase Line";
-        TransferLine: Record "Transfer Line";
-        ServiceLine: Record "Service Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
-        ProdOrderLine: Record "Prod. Order Line";
-        JobPlanningLine: Record "Job Planning Line";
     begin
-        case SourceType of
-            Database::"Sales Line":
-                if SalesLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
-                    QtyOutstanding := SalesLine."Outstanding Quantity";
-                    QtyBaseOutstanding := SalesLine."Outstanding Qty. (Base)";
-                end;
-            Database::"Purchase Line":
-                if PurchaseLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
-                    QtyOutstanding := PurchaseLine."Outstanding Quantity";
-                    QtyBaseOutstanding := PurchaseLine."Outstanding Qty. (Base)";
-                end;
-            Database::"Transfer Line":
-                if TransferLine.Get(SourceNo, SourceLineNo) then
-                    case SourceSubType of
-                        0: // Direction = Outbound
-                            begin
-                                QtyOutstanding :=
-                                  Round(
-                                    TransferLine."Whse Outbnd. Otsdg. Qty (Base)" / (QtyOutstanding / QtyBaseOutstanding),
-                                    UOMMgt.QtyRndPrecision());
-                                QtyBaseOutstanding := TransferLine."Whse Outbnd. Otsdg. Qty (Base)";
-                            end;
-                        1: // Direction = Inbound
-                            begin
-                                QtyOutstanding :=
-                                  Round(
-                                    TransferLine."Whse. Inbnd. Otsdg. Qty (Base)" / (QtyOutstanding / QtyBaseOutstanding),
-                                    UOMMgt.QtyRndPrecision());
-                                QtyBaseOutstanding := TransferLine."Whse. Inbnd. Otsdg. Qty (Base)";
-                            end;
-                    end;
-            Database::"Service Line":
-                if ServiceLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
-                    QtyOutstanding := ServiceLine."Outstanding Quantity";
-                    QtyBaseOutstanding := ServiceLine."Outstanding Qty. (Base)";
-                end;
-            Database::"Prod. Order Component":
-                if ProdOrderComp.Get(SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo) then begin
-                    QtyOutstanding := ProdOrderComp."Remaining Quantity";
-                    QtyBaseOutstanding := ProdOrderComp."Remaining Qty. (Base)";
-                end;
-            Database::"Assembly Line":
-                if AssemblyLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
-                    QtyOutstanding := AssemblyLine."Remaining Quantity";
-                    QtyBaseOutstanding := AssemblyLine."Remaining Quantity (Base)";
-                end;
-            Database::"Prod. Order Line":
-                if ProdOrderLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
-                    QtyOutstanding := ProdOrderLine."Remaining Quantity";
-                    QtyBaseOutstanding := ProdOrderLine."Remaining Qty. (Base)";
-                end;
-            Database::Job, Database::"Job Planning Line":
-                begin
-                    JobPlanningLine.Setrange(Status, "Job Planning Line Status"::Order);
-                    JobPlanningLine.SetRange("Job No.", SourceNo);
-                    JobPlanningLine.SetRange("Job Contract Entry No.", SourceLineNo);
-                    if JobPlanningLine.FindFirst() then begin
-                        QtyOutstanding := JobPlanningLine."Remaining Qty.";
-                        QtyBaseOutstanding := JobPlanningLine."Remaining Qty. (Base)";
-                    end;
-                end;
-            else begin
-                QtyOutstanding := 0;
-                QtyBaseOutstanding := 0;
-            end;
-        end;
+        QtyOutstanding := 0;
+        QtyBaseOutstanding := 0;
 
-        OnAfterGetSrcDocLineQtyOutstanding(
-          SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, QtyOutstanding, QtyBaseOutstanding);
+        OnAfterGetSrcDocLineQtyOutstanding(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, QtyOutstanding, QtyBaseOutstanding);
     end;
 
     procedure SetSourceFilterForWhseRcptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SetKey: Boolean)
@@ -420,6 +249,11 @@ codeunit 5775 "Whse. Management"
         OnAfterSetSourceFilterForPostedWhseShptLine(PostedWhseShipmentLine, SourceType, SourceSubType, SourceNo, SourceLineNo, SetKey);
     end;
 
+    procedure GetSourceDocumentDoesNotExistErr(): Text;
+    begin
+        exit(SourceDocumentDoesNotExistErr);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var QtyOutstanding: Decimal; var QtyBaseOutstanding: Decimal)
     begin
@@ -467,6 +301,11 @@ codeunit 5775 "Whse. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetJournalSourceDocument(SourceType: Integer; SourceSubtype: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetWhseRqstSourceDocument(WhseJournalSourceDocument: Enum "Warehouse Journal Source Document"; var SourceDocument: Enum "Warehouse Request Source Document")
     begin
     end;
 }

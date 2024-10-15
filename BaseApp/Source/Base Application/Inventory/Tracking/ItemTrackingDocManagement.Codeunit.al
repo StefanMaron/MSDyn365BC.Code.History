@@ -13,8 +13,6 @@ using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 
 codeunit 6503 "Item Tracking Doc. Management"
 {
@@ -261,8 +259,6 @@ codeunit 6503 "Item Tracking Doc. Management"
                     RetrieveTrackingPurchase(TempTrackingSpecBuffer, SourceID, SourceSubType);
                 Database::"Sales Header":
                     RetrieveTrackingSales(TempTrackingSpecBuffer, SourceID, SourceSubType);
-                Database::"Service Header":
-                    RetrieveTrackingService(TempTrackingSpecBuffer, SourceID, SourceSubType);
                 Database::"Purch. Rcpt. Header":
                     RetrieveTrackingPurchaseReceipt(TempTrackingSpecBuffer, SourceID);
                 Database::"Sales Shipment Header":
@@ -275,10 +271,6 @@ codeunit 6503 "Item Tracking Doc. Management"
                     RetrieveTrackingPurhInvHeader(TempTrackingSpecBuffer, SourceID);
                 Database::"Purch. Cr. Memo Hdr.":
                     RetrieveTrackingPurchCrMemoHeader(TempTrackingSpecBuffer, SourceID);
-                Database::"Service Shipment Header":
-                    RetrieveTrackingServiceShipment(TempTrackingSpecBuffer, SourceID);
-                Database::"Service Invoice Header":
-                    RetrieveTrackingServiceInvoice(TempTrackingSpecBuffer, SourceID);
                 else begin
                     OnRetrieveDocumentItemTracking(TempTrackingSpecBuffer, SourceID, Found, SourceType, SourceSubType, RetrieveAsmItemTracking);
                     if not Found then
@@ -425,34 +417,6 @@ codeunit 6503 "Item Tracking Doc. Management"
         end;
     end;
 
-    local procedure RetrieveTrackingService(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; SourceSubType: Option)
-    var
-        ServLine: Record "Service Line";
-        Item: Record Item;
-        Descr: Text[100];
-    begin
-        ServLine.SetRange("Document Type", SourceSubType);
-        ServLine.SetRange("Document No.", SourceID);
-        if not ServLine.IsEmpty() then begin
-            ServLine.FindSet();
-            repeat
-                if (ServLine.Type = ServLine.Type::Item) and
-                   (ServLine."No." <> '') and
-                   (ServLine."Quantity (Base)" <> 0)
-                then begin
-                    if Item.Get(ServLine."No.") then
-                        Descr := Item.Description;
-                    FindReservEntries(
-                        TempTrackingSpecBuffer, Database::"Service Line", ServLine."Document Type".AsInteger(),
-                        ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
-                    FindTrackingEntries(
-                        TempTrackingSpecBuffer, Database::"Service Line", ServLine."Document Type".AsInteger(),
-                        ServLine."Document No.", '', 0, ServLine."Line No.", Descr);
-                end;
-            until ServLine.Next() = 0;
-        end;
-    end;
-
     local procedure RetrieveTrackingSalesShipment(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20])
     var
         SalesShipmentLine: Record "Sales Shipment Line";
@@ -582,52 +546,6 @@ codeunit 6503 "Item Tracking Doc. Management"
                       Database::"Purch. Cr. Memo Line", 0, PurchCrMLine."Document No.", '', 0, PurchCrMLine."Line No.", Descr);
                 end;
             until PurchCrMLine.Next() = 0;
-        end;
-    end;
-
-    local procedure RetrieveTrackingServiceShipment(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20])
-    var
-        ServShptLine: Record "Service Shipment Line";
-        Item: Record Item;
-        Descr: Text[100];
-    begin
-        ServShptLine.SetRange("Document No.", SourceID);
-        if not ServShptLine.IsEmpty() then begin
-            ServShptLine.FindSet();
-            repeat
-                if (ServShptLine.Type = ServShptLine.Type::Item) and
-                   (ServShptLine."No." <> '') and
-                   (ServShptLine."Quantity (Base)" <> 0)
-                then begin
-                    if Item.Get(ServShptLine."No.") then
-                        Descr := Item.Description;
-                    FindShptRcptEntries(TempTrackingSpecBuffer,
-                      Database::"Service Shipment Line", 0, ServShptLine."Document No.", '', 0, ServShptLine."Line No.", Descr);
-                end;
-            until ServShptLine.Next() = 0;
-        end;
-    end;
-
-    local procedure RetrieveTrackingServiceInvoice(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20])
-    var
-        ServInvLine: Record "Service Invoice Line";
-        Item: Record Item;
-        Descr: Text[100];
-    begin
-        ServInvLine.SetRange("Document No.", SourceID);
-        if not ServInvLine.IsEmpty() then begin
-            ServInvLine.FindSet();
-            repeat
-                if (ServInvLine.Type = ServInvLine.Type::Item) and
-                   (ServInvLine."No." <> '') and
-                   (ServInvLine."Quantity (Base)" <> 0)
-                then begin
-                    if Item.Get(ServInvLine."No.") then
-                        Descr := Item.Description;
-                    FindInvoiceEntries(TempTrackingSpecBuffer,
-                      Database::"Service Invoice Line", 0, ServInvLine."Document No.", '', 0, ServInvLine."Line No.", Descr);
-                end;
-            until ServInvLine.Next() = 0;
         end;
     end;
 
@@ -785,6 +703,8 @@ codeunit 6503 "Item Tracking Doc. Management"
     end;
 
     procedure TableSignFactor(TableNo: Integer): Integer
+    var
+        Sign: Integer;
     begin
         if TableNo in [
                        Database::"Sales Line",
@@ -796,12 +716,14 @@ codeunit 6503 "Item Tracking Doc. Management"
                        Database::"Return Shipment Line",
                        Database::"Invt. Shipment Line",
                        Database::"Planning Component",
-                       Database::"Posted Assembly Line",
-                       Database::"Service Line",
-                       Database::"Service Shipment Line",
-                       Database::"Service Invoice Line"]
+                       Database::"Posted Assembly Line"]
         then
             exit(-1);
+
+
+        OnAfterTableSignFactor(TableNo, Sign);
+        if Sign <> 0 then
+            exit(Sign);
 
         exit(1);
     end;
@@ -973,7 +895,7 @@ codeunit 6503 "Item Tracking Doc. Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnRetrieveDocumentItemTracking(var TempTrackingSpecBuffer: Record "Tracking Specification" temporary; SourceID: Code[20]; var Found: Boolean; SourceType: Integer; SourceSubType: Option; RetrieveAsmItemTracking: Boolean)
     begin
     end;
@@ -1040,6 +962,11 @@ codeunit 6503 "Item Tracking Doc. Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnShowItemTrackingForEntityOnBeforeTempItemLedgEntryInsert(var TempItemLedgerEntry: Record "Item Ledger Entry" temporary; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTableSignFactor(TableNo: Integer; var Sign: Integer);
     begin
     end;
 }

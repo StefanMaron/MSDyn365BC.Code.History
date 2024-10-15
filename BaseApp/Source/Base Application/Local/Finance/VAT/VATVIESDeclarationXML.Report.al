@@ -97,13 +97,12 @@ report 11108 "VAT - VIES Declaration XML"
             begin
                 Clear(VATRegNo);
                 if "VAT Registration No." = '' then begin
-                    if Customer."No." <> "Bill-to/Pay-to No." then begin
+                    if Customer."No." <> "Bill-to/Pay-to No." then
                         if not Customer.Get("Bill-to/Pay-to No.") then
                             Clear(Customer)
                         else
                             if Customer."VAT Registration No." = '' then
                                 Error(Text014, Customer."No.", Customer.Name);
-                    end;
                     VATRegNo := Customer."VAT Registration No."
                 end else
                     VATRegNo := "VAT Registration No.";
@@ -364,14 +363,12 @@ report 11108 "VAT - VIES Declaration XML"
 
         ServerFileName := FileManagement.ServerTempFileName('xml');
 
-        if Reportingtype = Reportingtype::"Normal transmission" then begin
+        if Reportingtype = Reportingtype::"Normal transmission" then
             if Reportingdate <> 0D then
                 Error(Text002);
-        end;
-        if Reportingtype = Reportingtype::"Recall of an earlier report" then begin
+        if Reportingtype = Reportingtype::"Recall of an earlier report" then
             if Reportingdate = 0D then
                 Error(Text003);
-        end;
         if NoSeries.Code = '' then
             Error(Text1160004);
 
@@ -418,7 +415,7 @@ report 11108 "VAT - VIES Declaration XML"
         Reportingtype: Option "Normal transmission","Recall of an earlier report";
 #if not CLEAN23
         VATDateType: Enum "VAT Date Type";
-#endif       
+#endif
         PaketNr: Code[9];
         AmountsInReportCurrency: Boolean;
         GesamtrueckDone: Boolean;

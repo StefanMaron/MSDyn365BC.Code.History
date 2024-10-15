@@ -120,13 +120,5 @@ codeunit 1251 "Record Match Mgt."
     begin
         exit(DelChr(DelChr(InputString, '<'), '>'));
     end;
-
-#if not CLEAN22
-    [Obsolete('Numeric matches are not considered below the Lower limit threshold. This procedure is unused', '22.0')]
-    procedure SetRespectThresholdForNumbers(NewValue: Boolean)
-    begin
-    end;
-#endif
-
 }
 

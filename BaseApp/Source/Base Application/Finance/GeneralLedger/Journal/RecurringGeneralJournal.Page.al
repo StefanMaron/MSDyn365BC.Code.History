@@ -295,20 +295,23 @@ page 283 "Recurring General Journal"
                         CurrPage.Update(false);
                     end;
                 }
+#if not CLEAN25
                 field("Allocation Account No."; Rec."Selected Alloc. Account No.")
                 {
                     ApplicationArea = All;
                     Caption = 'Allocation Account No.';
                     ToolTip = 'Specifies the allocation account number that will be used to distribute the amounts during the posting process.';
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '25.0';
 
                     trigger OnValidate()
-                    var
-                        GenJournalAllocAccMgt: Codeunit "Gen. Journal Alloc. Acc. Mgt.";
                     begin
-                        GenJournalAllocAccMgt.VerifySelectedAllocationAccountNo(Rec);
+                        Error(AllocationAccountValidationErr);
                     end;
                 }
+#endif
                 field("Bill-to/Pay-to No."; Rec."Bill-to/Pay-to No.")
                 {
                     ApplicationArea = Suite;
@@ -731,12 +734,16 @@ page 283 "Recurring General Journal"
                         CurrPage.Update(false);
                     end;
                 }
+#if not CLEAN25
                 action(RedistributeAccAllocations)
                 {
                     ApplicationArea = All;
                     Caption = 'Redistribute Account Allocations';
                     Image = EditList;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '25.0';
 #pragma warning disable AA0219
                     ToolTip = 'Use this action to redistribute the account allocations for this line.';
 #pragma warning restore AA0219
@@ -758,7 +765,12 @@ page 283 "Recurring General Journal"
                     Caption = 'Generate lines from Allocation Account Line';
                     Image = CreateLinesFromJob;
                     Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field is obsolete and will be removed in a future version.';
+                    ObsoleteTag = '25.0';
+#pragma warning disable AA0219
                     ToolTip = 'Use this action to replace the Allocation Account line with the actual lines that would be generated from the line itself.';
+#pragma warning restore AA0219
 
                     trigger OnAction()
                     var
@@ -775,6 +787,7 @@ page 283 "Recurring General Journal"
                         CurrPage.Update(false);
                     end;
                 }
+#endif
             }
             group("Page")
             {
@@ -938,10 +951,13 @@ page 283 "Recurring General Journal"
         DimensionBalanceLine: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
         VATDateEnabled: Boolean;
+#if not CLEAN25        
 #pragma warning disable AA0137
         UseAllocationAccountNumber: Boolean;
-#pragma warning restore AA0137        
+#pragma warning restore AA0137
         ActionOnlyAllowedForAllocationAccountsErr: Label 'This action is only available for lines that have Allocation Account set as Account Type or Balancing Account Type.';
+        AllocationAccountValidationErr: Label 'Using Allocation Accounts is not allowed for recurring general journal lines.';
+#endif
 
     protected var
         GenJnlManagement: Codeunit GenJnlManagement;

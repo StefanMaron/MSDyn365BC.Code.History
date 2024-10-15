@@ -220,8 +220,8 @@ table 5005351 "Phys. Inventory Order Line"
         {
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(7380; "Phys Invt Counting Period Code"; Code[10])
         {

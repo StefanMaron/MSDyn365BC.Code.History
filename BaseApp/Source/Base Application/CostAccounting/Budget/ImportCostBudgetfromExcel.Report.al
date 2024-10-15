@@ -185,23 +185,31 @@ report 1143 "Import Cost Budget from Excel"
         RecNo: Integer;
         Description: Text[50];
         ImportOption: Option "Replace entries","Add entries";
+#pragma warning disable AA0074
         Text000: Label 'You must specify a budget name to which to import.';
+#pragma warning disable AA0470
         Text001: Label 'Do you want to create %1 with the name %2?';
         Text003: Label 'Are you sure that you want to %1 for the budget name %2?';
         Text004: Label '%1 table has been successfully updated with %2 entries.';
+#pragma warning restore AA0470
         Text006: Label 'Import Excel File';
         Text007: Label 'Analyzing Data...\\';
         Text009: Label 'Cost Type No';
+#pragma warning disable AA0470
         Text011: Label 'The text %1 can only be specified once in the Excel worksheet.';
+#pragma warning restore AA0470
         Text014: Label 'Date';
         Text017: Label 'Cost Center Code';
         Text018: Label 'Cost Object Code';
+#pragma warning disable AA0470
         Text019: Label 'You cannot import %1 value, which is not available in the %2 table.';
+#pragma warning restore AA0470
         Text023: Label 'You cannot import the same information more than once.';
         Text025: Label 'Cost Types have not been found in the Excel worksheet.';
         Text026: Label 'Dates have not been recognized in the Excel worksheet.';
         Text027: Label 'Replace entries,Add entries';
         Text028: Label 'Importing from Excel worksheet';
+#pragma warning restore AA0074
         ExcelFileExtensionTok: Label '.xlsx', Locked = true;
 
     local procedure AnalyzeData()

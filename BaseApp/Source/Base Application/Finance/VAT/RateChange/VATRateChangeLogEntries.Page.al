@@ -6,7 +6,6 @@ using Microsoft.Inventory.Item;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
 page 553 "VAT Rate Change Log Entries"
@@ -107,8 +106,6 @@ page 553 "VAT Rate Change Log Entries"
                         SalesLine: Record "Sales Line";
                         PurchaseHeader: Record "Purchase Header";
                         PurchaseLine: Record "Purchase Line";
-                        ServiceHeader: Record "Service Header";
-                        ServiceLine: Record "Service Line";
                         PageManagement: Codeunit "Page Management";
                         RecRef: RecordRef;
                         IsHandled: Boolean;
@@ -140,15 +137,9 @@ page 553 "VAT Rate Change Log Entries"
                                     PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
                                     PageManagement.PageRunModal(PurchaseHeader);
                                 end;
-                            Database::"Service Line":
-                                begin
-                                    RecRef.SetTable(ServiceLine);
-                                    ServiceHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-                                    PageManagement.PageRunModal(ServiceHeader);
-                                end;
                             else begin
                                 IsHandled := false;
-                                OnAfterShow(Rec, IsHandled);
+                                OnAfterShow(Rec, IsHandled, RecRef);
                                 if not IsHandled then
                                     Message(Text0001);
                             end;
@@ -176,11 +167,13 @@ page 553 "VAT Rate Change Log Entries"
     end;
 
     var
+#pragma warning disable AA0074
         Text0001: Label 'Search for the pages to see this entry.';
         Text0002: Label 'The related entry has been posted or deleted.';
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShow(VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; var IsHandled: Boolean)
+    local procedure OnAfterShow(VATRateChangeLogEntry: Record "VAT Rate Change Log Entry"; var IsHandled: Boolean; RecRef: RecordRef)
     begin
     end;
 }

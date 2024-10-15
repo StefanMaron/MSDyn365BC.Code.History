@@ -87,9 +87,11 @@ table 205 "Resource Unit of Measure"
     var
         Res: Record Resource;
 
+#pragma warning disable AA0074
         Text000: Label 'must be greater than 0', Comment = 'starts with "Qty. per Unit of Measure"';
         Text001: Label 'You cannot change the value %2 of the %1 field for resource %3 because it is the resource''''s %4, and there are one or more open ledger entries for the resource.', Comment = '%1 = Resource Unit of Measure, %2 = Resource Unit of Measure Code, %3 = Resource No., %4 = Base Unit of Measure';
         Text002: Label 'You cannot delete the value %2 of the %1 field for resource %3 because it is the resource''''s %4.', Comment = '%1 = Resource Unit of Measure, %2 = Resource Unit of Measure Code, %3 = Resource No., %4 = Base Unit of Measure';
+#pragma warning restore AA0074
         CannotModifyBaseUnitOfMeasureErr: Label 'You cannot modify %1 %2 for resource %3 because it is the resource''s %4.', Comment = '%1 Table name (Item Unit of measure), %2 Value of Measure (KG, PCS...), %3 Item ID, %4 Base unit of Measure';
 
     local procedure VerifyDelete()

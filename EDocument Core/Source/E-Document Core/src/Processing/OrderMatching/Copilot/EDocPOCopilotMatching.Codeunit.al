@@ -17,7 +17,9 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
     InherentEntitlements = X;
 
     var
+        EDocAIMatchingFunction: Codeunit "E-Doc. PO AOAI Function";
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        GroundResult: Boolean;
         CostDifferenceThreshold: Decimal;
         AzureOpenAIFailureErr: Label 'Sorry, something went wrong. Please try again.';
         LearnMoreUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2262630', Locked = true;
@@ -46,7 +48,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         if TempEDocumentImportedLine.IsEmpty() or TempPurchaseLine.IsEmpty() then
             exit(true);
 
-        TaskTokenCount := ApproximateTokenCount(SystemPromptTxt.Unwrap());
+        TaskTokenCount := ApproximateTokenCount(SystemPromptTxt);
 
         if TempEDocumentImportedLine.FindSet() then begin
             repeat
@@ -75,7 +77,8 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
                 Message(NoLinesCouldBeMatchedMsg);
         end;
 
-        GroundCopilotMatching(TempEDocumentImportedLine, TempPurchaseLine, TempAIProposalBuffer);
+        if GroundResult then
+            GroundCopilotMatching(TempEDocumentImportedLine, TempPurchaseLine, TempAIProposalBuffer);
     end;
 
     procedure CostDifference(POCost: Decimal; PODiscount: Decimal; EdocCost: Decimal; EDocDiscount: Decimal): Decimal
@@ -101,15 +104,14 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         AzureOpenAI: Codeunit "Azure OpenAi";
         AOAIDeployments: Codeunit "AOAI Deployments";
         AOAIChatCompletionParams: Codeunit "AOAI Chat Completion Params";
-        EDocAIMatchingFunction: Codeunit "E-Doc. PO AOAI Function";
         AOAIChatMessages: Codeunit "AOAI Chat Messages";
-        AOAIOperationResponse: Codeunit "AOAI Operation Response";
         AOAIFunctionResponse: Codeunit "AOAI Function Response";
+        AOAIOperationResponse: Codeunit "AOAI Operation Response";
     begin
         Session.LogMessage('0000MOT', AttempToUseCopilotMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
 
         // Generate OpenAI Completion
-        AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT4Latest());
+        AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT4oLatest());
         AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"E-Document Matching Assistance");
 
         AOAIChatCompletionParams.SetMaxTokens(MaxTokens());
@@ -128,7 +130,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
             Session.LogMessage('0000MOU', SuccessfulRequestMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
 
             if AOAIOperationResponse.IsFunctionCall() then begin
-                AOAIFunctionResponse := AOAIOperationResponse.GetFunctionResponse();
+                AOAIFunctionResponse := AOAIOperationResponse.GetFunctionResponses().Get(1); // There will only be one result due to tool choice
                 if AOAIFunctionResponse.IsSuccess() then begin
                     TempAIProposalBuffer.Copy(AOAIFunctionResponse.GetResult(), true);
                     Session.LogMessage('0000MMJ', StrSubstNo(MatchingCountTxt, NumberOfFoundMatches), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FeatureName());
@@ -136,7 +138,6 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
                     FeatureTelemetry.LogError('0000MTC', FeatureName(), 'FunctionCall', StrSubstNo(FunctionCallErr, AOAIFunctionResponse.GetFunctionName()))
             end else
                 FeatureTelemetry.LogError('0000MJD', FeatureName(), 'ProcessAnswer', 'tool_calls not found in the completion answer');
-
         end
         else begin
             Session.LogMessage('0000MFN', StrSubstNo(NotSuccessfulRequestErr, AOAIOperationResponse.GetStatusCode(), AOAIOperationResponse.GetError()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::All, 'Category', FeatureName());
@@ -144,26 +145,13 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         end;
     end;
 
-    procedure IsCopilotEnabled(): Boolean
-    var
-        AIMatchingImpl: Codeunit "E-Doc. PO Copilot Matching";
-        AzureOpenAI: Codeunit "Azure OpenAI";
-    begin
-        AIMatchingImpl.RegisterAICapability();
-        if not AzureOpenAI.IsEnabled(Enum::"Copilot Capability"::"E-Document Matching Assistance", true) then
-            exit(false);
-
-        exit(true);
-    end;
-
     procedure IsCopilotVisible(): Boolean
     var
-        EnvironmentInformation: Codeunit "Environment Information";
+        CopilotCapability: Codeunit "Copilot Capability";
+        AIMatchingImpl: Codeunit "E-Doc. PO Copilot Matching";
     begin
-        if not EnvironmentInformation.IsSaaSInfrastructure() then
-            exit(false);
-
-        exit(true);
+        AIMatchingImpl.RegisterAICapability();
+        exit(CopilotCapability.IsCapabilityRegistered(Enum::"Copilot Capability"::"E-Document Matching Assistance"));
     end;
 
     procedure SumUnitCostForAIMatches(var TempAIProposalBuffer: Record "E-Doc. PO Match Prop. Buffer" temporary) Sum: Decimal
@@ -302,7 +290,7 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
     local procedure GetSystemPrompt(): SecretText
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
-        Prompt: Text;
+        Prompt: SecretText;
     begin
         if AzureKeyVault.GetAzureKeyVaultSecret('EDocumentMappingPromptV2', Prompt) then
             exit(Prompt);
@@ -327,15 +315,25 @@ codeunit 6163 "E-Doc. PO Copilot Matching"
         exit('E-Document Purchase Order Matching with AI');
     end;
 
+    procedure GetFunction(var Response: Codeunit "E-Doc. PO AOAI Function")
+    begin
+        Response := EDocAIMatchingFunction;
+    end;
+
+    procedure SetGrounding(Ground: Boolean)
+    begin
+        GroundResult := Ground;
+    end;
+
     [NonDebuggable]
-    local procedure ApproximateTokenCount(TextInput: Text): Decimal
+    local procedure ApproximateTokenCount(TextInput: SecretText): Decimal
     var
         AverageWordsPerToken: Decimal;
         TokenCount: Integer;
         WordsInInput: Integer;
     begin
         AverageWordsPerToken := 0.6; // Based on OpenAI estimate
-        WordsInInput := TextInput.Split(' ', ',', '.', '!', '?', ';', ':', '/n').Count;
+        WordsInInput := TextInput.Unwrap().Split(' ', ',', '.', '!', '?', ';', ':', '/n').Count;
         TokenCount := Round(WordsInInput / AverageWordsPerToken, 1);
         exit(TokenCount);
     end;

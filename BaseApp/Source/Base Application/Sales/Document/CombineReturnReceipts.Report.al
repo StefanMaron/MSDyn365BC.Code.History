@@ -213,15 +213,21 @@ report 6653 "Combine Return Receipts"
         NoOfSalesInv: Integer;
         ReportLanguage: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
         Text001: Label 'Enter the document date.';
         Text002: Label 'Combining return receipts...\\';
+#pragma warning disable AA0470
         Text003: Label 'Customer No.        #1##########\';
         Text004: Label 'Return Order No.    #2##########\';
         Text005: Label 'Return Receipt No.  #3##########';
         Text007: Label 'Not all the credit memos were posted. A total of %1 credit memos were not posted.';
+#pragma warning restore AA0470
         Text008: Label 'There is nothing to combine.';
+#pragma warning disable AA0470
         Text010: Label 'The return receipts are now combined and the number of credit memos created is %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         VATDateEmptyErr: Label 'Enter the VAT date.';
 
     protected var

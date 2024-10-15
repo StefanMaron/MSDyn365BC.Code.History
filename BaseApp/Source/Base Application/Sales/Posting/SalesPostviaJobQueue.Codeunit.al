@@ -50,10 +50,12 @@ codeunit 88 "Sales Post via Job Queue"
     end;
 
     var
+#pragma warning disable AA0074
         PostDescription: Label 'Post Sales %1 %2.', Comment = '%1 = document type, %2 = document number. Example: Post Sales Order 1234.';
         PostAndPrintDescription: Label 'Post and Print Sales %1 %2.', Comment = '%1 = document type, %2 = document number. Example: Post Sales Order 1234.';
         Confirmation: Label '%1 %2 has been scheduled for posting.', Comment = '%1=document type, %2=number, e.g. Order 123  or Invoice 234.';
         WrongJobQueueStatus: Label '%1 %2 cannot be posted because it has already been scheduled for posting. Choose the Remove from Job Queue action to reset the job queue status and then post again.', Comment = '%1 = document type, %2 = document number. Example: Sales Order 1234 or Invoice 1234.';
+#pragma warning restore AA0074
         DefaultCategoryCodeLbl: Label 'SALESBCKGR', Locked = true;
         DefaultCategoryDescLbl: Label 'Def. Background Sales Posting', Locked = true;
 

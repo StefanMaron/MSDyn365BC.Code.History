@@ -23,6 +23,7 @@ codeunit 23 "Item Jnl.-Post Batch"
     Permissions = TableData "Item Journal Batch" = rimd,
                   TableData "Warehouse Register" = r;
     TableNo = "Item Journal Line";
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -41,9 +42,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
         ItemLedgEntry: Record "Item Ledger Entry";
-        WhseEntry: Record "Warehouse Entry";
         ItemReg: Record "Item Register";
-        WhseReg: Record "Warehouse Register";
         GLSetup: Record "General Ledger Setup";
         InvtSetup: Record "Inventory Setup";
         AccountingPeriod: Record "Accounting Period";
@@ -68,14 +67,20 @@ codeunit 23 "Item Jnl.-Post Batch"
         SuppressCommit: Boolean;
         WindowIsOpen: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
         Text008: Label 'There are new postings made in the period you want to revalue item no. %1.\';
+#pragma warning restore AA0470
         Text009: Label 'You must calculate the inventory value again.';
+#pragma warning disable AA0470
         Text010: Label 'One or more reservation entries exist for the item with %1 = %2, %3 = %4, %5 = %6 which may be disrupted if you post this negative adjustment. Do you want to continue?', Comment = 'One or more reservation entries exist for the item with Item No. = 1000, Location Code = BLUE, Variant Code = NEW which may be disrupted if you post this negative adjustment. Do you want to continue?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var
@@ -113,21 +118,21 @@ codeunit 23 "Item Jnl.-Post Batch"
         OpenProgressDialog();
 
         CheckLines(ItemJnlLine);
+        GLSetup.SetLoadFields("Amount Rounding Precision");
+        GLSetup.Get();
+
         // Find next register no.
         ItemLedgEntry.LockTable();
         if ItemLedgEntry.FindLast() then;
-        if WhseTransaction then begin
-            WhseEntry.LockTable();
-            if WhseEntry.FindLast() then;
-        end;
 
         ItemReg.LockTable();
         ItemRegNo := ItemReg.GetLastEntryNo() + 1;
 
-        WhseReg.LockTable();
-        WhseRegNo := WhseReg.GetLastEntryNo() + 1;
+        if WhseTransaction then
+            WhseJnlPostLine.LockIfLegacyPosting();
 
-        GLSetup.Get();
+        BindSubscription(this); // To set WhseRegNo if a warehouse entry is created
+
         PhysInvtCount := false;
         // Post lines
         OnCodeOnBeforePostLines(ItemJnlLine, NoOfRecords);
@@ -137,8 +142,8 @@ codeunit 23 "Item Jnl.-Post Batch"
         // Copy register no. and current journal batch name to item journal
         if not ItemReg.FindLast() or (ItemReg."No." <> ItemRegNo) then
             ItemRegNo := 0;
-        if not WhseReg.FindLast() or (WhseReg."No." <> WhseRegNo) then
-            WhseRegNo := 0;
+
+        UnBindSubscription(this); 
 
         OnAfterCopyRegNos(ItemJnlLine, ItemRegNo, WhseRegNo);
 
@@ -148,6 +153,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         if ItemJnlLine."Line No." = 0 then
             ItemJnlLine."Line No." := WhseRegNo;
 
+        InvtSetup.SetLoadFields("Automatic Cost Adjustment", "Automatic Cost Posting");
         InvtSetup.Get();
         if InvtSetup.AutomaticCostAdjmtRequired() then
             InvtAdjmtHandler.MakeInventoryAdjustment(true, InvtSetup."Automatic Cost Posting");
@@ -174,6 +180,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         Clear(ItemJnlPostLine);
         Clear(WhseJnlPostLine);
         Clear(InvtAdjmtHandler);
+
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
 
@@ -661,6 +668,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJnlTemplateType: Option;
         IsHandled: Boolean;
     begin
+        Item.SetLoadFields(Type);
         if Item.Get(ItemJnlLine."Item No.") then
             if Item.IsNonInventoriableType() then
                 exit;
@@ -918,6 +926,13 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemJournalLine.CreateItemTrackingLines(false);
         ItemJournalLine.ClearTracking();
         ItemJournalLine.ClearDates();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Jnl.-Register Line", 'OnAfterInsertWhseEntry', '', false, false)]
+    local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+        if WarehouseEntry."Warehouse Register No." > WhseRegNo then
+            WhseRegNo := WarehouseEntry."Warehouse Register No.";
     end;
 
     [IntegrationEvent(false, false)]

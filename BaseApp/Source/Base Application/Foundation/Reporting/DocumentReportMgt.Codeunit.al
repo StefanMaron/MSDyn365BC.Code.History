@@ -20,11 +20,15 @@ codeunit 9651 "Document Report Mgt."
         ClientTypeMgt: Codeunit "Client Type Management";
 
         UpgradeNotSupportedErr: Label 'Upgrade is not supported after version 20.';
+#pragma warning disable AA0470
         TemplateValidationQst: Label 'The Word layout does not comply with the current report design (for example, fields are missing or the report ID is wrong).\The following errors were detected during the layout validation:\%1\Do you want to continue?';
         TemplateValidationErr: Label 'The Word layout does not comply with the current report design (for example, fields are missing or the report ID is wrong).\The following errors were detected during the document validation:\%1\You must update the layout to match the current report design.';
+#pragma warning restore AA0470
         AbortWithValidationErr: Label 'The Word layout action has been canceled because of validation errors.';
+#pragma warning disable AA0470
         TemplateAfterUpdateValidationErr: Label 'The automatic update could not resolve all the conflicts in the current Word layout. For example, the layout uses fields that are missing in the report design or the report ID is wrong.\The following errors were detected:\%1\You must manually update the layout to match the current report design.';
         UpgradeMessageMsg: Label 'The report upgrade process returned the following log messages:\%1.';
+#pragma warning restore AA0470
         NoReportLayoutUpgradeRequiredMsg: Label 'The layout upgrade process completed without detecting any required changes in the current application.';
         CompanyInformationPicErr: Label 'The document contains elements that cannot be converted to PDF. This may be caused by missing image data in the document.';
 
@@ -64,9 +68,9 @@ codeunit 9651 "Document Report Mgt."
 
     procedure TryUpdateRdlcLayout(reportId: Integer; RdlcStream: InStream; RdlcUpdatedStream: OutStream; CachedCustomPart: Text; CurrentCustomPart: Text; IgnoreDelete: Boolean): Text
     var
-        NAVWordXMLMerger: DotNet RdlcReportManager;
+        RdlcReportManager: DotNet RdlcReportManager;
     begin
-        exit(NAVWordXMLMerger.TryUpdateRdlcLayout(reportId, RdlcStream, RdlcUpdatedStream,
+        exit(RdlcReportManager.TryUpdateRdlcLayout(reportId, RdlcStream, RdlcUpdatedStream,
             CachedCustomPart, CurrentCustomPart, IgnoreDelete));
     end;
 
@@ -75,6 +79,20 @@ codeunit 9651 "Document Report Mgt."
         NAVWordXmlMerger: DotNet WordReportManager;
     begin
         NAVWordXmlMerger.NewWordDocumentLayout(DocumentStream, REPORT.WordXmlPart(ReportId));
+    end;
+
+    procedure NewRdlcLayout(ReportId: Integer; var DocumentStream: OutStream)
+    var
+        RdlcReportManager: DotNet RdlcReportManager;
+    begin
+        RdlcReportManager.NewRdlcLayout(DocumentStream, ReportId);
+    end;
+
+    procedure NewExcelLayout(ReportId: Integer; var DocumentStream: OutStream)
+    var
+        ExcelReportManager: DotNet ExcelReportManager;
+    begin
+        ExcelReportManager.NewExcelLayout(DocumentStream, ReportId);
     end;
 
     procedure ConvertWordToPdf(var TempBlob: Codeunit "Temp Blob"; ReportID: Integer)

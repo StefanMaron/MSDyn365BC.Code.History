@@ -37,7 +37,6 @@ using Microsoft.Purchases.Reports;
 using Microsoft.Purchases.Setup;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 
 page 8905 "Purchasing Manager Role Center"
@@ -323,12 +322,6 @@ page 8905 "Purchasing Manager Role Center"
                         Caption = 'Item Substitutions';
                         RunObject = report "Item Substitutions";
                     }
-                    // action("Order")
-                    // {
-                    //     ApplicationArea = Suite;
-                    //     Caption = 'Order';
-                    //     RunObject = codeunit 8815;
-                    // }
                     action("Purchasing Deferral Summary")
                     {
                         ApplicationArea = Suite;
@@ -387,12 +380,6 @@ page 8905 "Purchasing Manager Role Center"
                     ApplicationArea = Assembly;
                     Caption = 'Assembly Orders';
                     RunObject = page "Assembly Orders";
-                }
-                action("Orders3")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    RunObject = page "Service Orders";
                 }
                 action("Jobs")
                 {
@@ -794,12 +781,18 @@ page 8905 "Purchasing Manager Role Center"
                     Caption = 'Report Selections Purchase';
                     RunObject = page "Report Selection - Purchase";
                 }
+#if not CLEAN25
                 action("Report Selection - Comf. Purch")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Report Selection - Comf. Purch';
                     RunObject = page "Report Selection - Comf. Purch";
+                    Visible = false;
+                    ObsoleteReason = 'Replaced by action Report Selection Purchase';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '25.0';
                 }
+#endif
                 action("Req. Worksheet")
                 {
                     ApplicationArea = Planning;

@@ -11,6 +11,8 @@ page 5603 "Main Asset Statistics"
     LinksAllowed = false;
     PageType = Card;
     SourceTable = "FA Depreciation Book";
+    AboutTitle = 'About Main Asset Statistics';
+    AboutText = 'Here you overview the number of fixed asset components for a main asset and the total acquisition cost, depreciation, and book value for the main asset.';
 
     layout
     {

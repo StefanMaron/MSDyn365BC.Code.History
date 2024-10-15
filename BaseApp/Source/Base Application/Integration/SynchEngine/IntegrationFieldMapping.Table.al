@@ -168,6 +168,9 @@ table 5336 "Integration Field Mapping"
         key(Key3; "Match Priority")
         {
         }
+        key(Key4; "Transformation Rule")
+        {
+        }
     }
 
     fieldgroups

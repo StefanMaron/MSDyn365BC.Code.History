@@ -32,13 +32,11 @@ codeunit 137093 "SCM Kitting - D4"
         LeadTimeMgt: Codeunit "Lead-Time Management";
         isInitialized: Boolean;
         ChangeLocationQst: Label 'Do you want to update the Location Code on the lines?';
-        ComponentIsNotAvailableErr: Label 'Component availability issue for assembly item %1. Component should be available!';
-        ComponentIsAvailableErr: Label 'Component should not be available for assembly item %1!';
+        ComponentIsNotAvailableErr: Label 'Component availability issue for assembly item %1. Component should be available!', Comment = '%1: Item No.';
+        ComponentIsAvailableErr: Label 'Component should not be available for assembly item %1!', Comment = '%1: Item No.';
         WorkDate2: Date;
         WorkDate10D: Date;
-        WrongValueInAsmLineErr: Label 'Wrong %1 in Asm. Order line.';
-        AsmAvailBufNotExistsErr: Label 'Asm. Availability Test Buffer does not exist';
-        PostedNoSeriesErr: Label 'Posted Assembly Order Nos. must have a value in Assembly Setup: Primary Key=. It cannot be zero or empty.';
+        WrongValueInAsmLineErr: Label 'Wrong %1 in Asm. Order line.', Comment = '%1: The name of the field where the error is found.';
 
     [Normal]
     local procedure Initialize()
@@ -66,7 +64,7 @@ codeunit 137093 "SCM Kitting - D4"
     begin
         WorkDate2 := CalcSafeDate(WorkDate()); // to avoid Due Date Before Work Date message.
         WorkDate10D := CalcDate('<10D>', WorkDate2);
-        AssemblySetup();
+        InitializeSetup();
         SetupItemJournal();
 
         LocationSetup(LocationBlue, false);
@@ -84,7 +82,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Normal]
-    local procedure AssemblySetup()
+    local procedure InitializeSetup()
     var
         AssemblySetup: Record "Assembly Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -146,14 +144,18 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     local procedure AddComponent(ParentItem: Record Item; var BOMComponent: Record "BOM Component")
+    begin
+        AddComponent(ParentItem, BOMComponent, 1);
+    end;
+
+    local procedure AddComponent(ParentItem: Record Item; var BOMComponent: Record "BOM Component"; QtyPer: Decimal)
     var
         Item: Record Item;
     begin
-        Clear(Item);
         LibraryInventory.CreateItem(Item);
         CreateAssemblyListComponent(
-          BOMComponent, BOMComponent.Type::Item, Item."No.", ParentItem."No.", '',
-          BOMComponent."Resource Usage Type"::Direct, Item."Base Unit of Measure");
+            BOMComponent, BOMComponent.Type::Item, Item."No.", ParentItem."No.", '',
+            BOMComponent."Resource Usage Type"::Direct, Item."Base Unit of Measure", QtyPer);
     end;
 
     local procedure SetRandComponentQuantityPer(var BOMComponent: Record "BOM Component"): Decimal
@@ -163,17 +165,14 @@ codeunit 137093 "SCM Kitting - D4"
         exit(BOMComponent."Quantity per");
     end;
 
-    [Normal]
-    local procedure CreateAssemblyListComponent(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10])
+    local procedure CreateAssemblyListComponent(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QtyPer: Decimal)
     begin
-        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, 1, UOM);
-        with BOMComponent do begin
-            if ComponentType = Type::Resource then
-                Validate("Resource Usage Type", ResourceUsage);
-            Validate("Variant Code", VariantCode);
-            Validate(Description, LibraryUtility.GenerateRandomCode(FieldNo(Description), DATABASE::"BOM Component"));
-            Modify(true);
-        end;
+        LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QtyPer, UOM);
+        if ComponentType = BOMComponent.Type::Resource then
+            BOMComponent.Validate("Resource Usage Type", ResourceUsage);
+        BOMComponent.Validate("Variant Code", VariantCode);
+        BOMComponent.Validate(Description, LibraryUtility.GenerateRandomCode(BOMComponent.FieldNo(Description), DATABASE::"BOM Component"));
+        BOMComponent.Modify(true);
     end;
 
     [Normal]
@@ -243,25 +242,23 @@ codeunit 137093 "SCM Kitting - D4"
         LineNo: Integer;
     begin
         Clear(ProdOrderComponent);
-        with ProdOrderComponent do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
 
-            if FindLast() then
-                LineNo := "Line No." + 10000
-            else
-                LineNo := 10000;
+        if ProdOrderComponent.FindLast() then
+            LineNo := ProdOrderComponent."Line No." + 10000
+        else
+            LineNo := 10000;
 
-            Validate(Status, ProductionOrder.Status);
-            Validate("Prod. Order No.", ProductionOrder."No.");
-            Validate("Line No.", LineNo);
-            Validate("Prod. Order Line No.", 10000);
-            Validate("Item No.", ItemNo);
-            Validate("Variant Code", VariantCode);
-            Validate("Location Code", LocationCode);
-            Validate("Quantity per", QuantityPer);
-            Insert(true);
-        end;
+        ProdOrderComponent.Validate(Status, ProductionOrder.Status);
+        ProdOrderComponent.Validate("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.Validate("Line No.", LineNo);
+        ProdOrderComponent.Validate("Prod. Order Line No.", 10000);
+        ProdOrderComponent.Validate("Item No.", ItemNo);
+        ProdOrderComponent.Validate("Variant Code", VariantCode);
+        ProdOrderComponent.Validate("Location Code", LocationCode);
+        ProdOrderComponent.Validate("Quantity per", QuantityPer);
+        ProdOrderComponent.Insert(true);
         exit(QuantityPer);
     end;
 
@@ -399,7 +396,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssemblyHeader.Modify(true);
     end;
 
-    local procedure PostAssemblyOrderQty(var AssemblyHeader: Record "Assembly Header"; Qty: Integer)
+    local procedure PostAssemblyOrderQty(var AssemblyHeader: Record "Assembly Header"; Qty: Decimal)
     begin
         AssemblyHeader.Validate("Quantity to Assemble", Qty);
         AssemblyHeader.Modify(true);
@@ -476,12 +473,10 @@ codeunit 137093 "SCM Kitting - D4"
     local procedure FindAssemblyLine(AssemblyHeader: Record "Assembly Header"; LineNo: Integer; var AssemblyLine: Record "Assembly Line")
     begin
         Clear(AssemblyLine);
-        with AssemblyLine do begin
-            SetRange("Document Type", AssemblyHeader."Document Type");
-            SetRange("Document No.", AssemblyHeader."No.");
-            FindSet();
-            Next(LineNo - 1);
-        end;
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindSet();
+        AssemblyLine.Next(LineNo - 1);
     end;
 
     [Test]
@@ -722,7 +717,7 @@ codeunit 137093 "SCM Kitting - D4"
         asserterror LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo(), '', 0, '');
 
         // [THEN] Error in testing field Posting No. Series is expected
-        Assert.ExpectedError(PostedNoSeriesErr);
+        Assert.ExpectedTestFieldError(AssemblySetup.FieldCaption("Posted Assembly Order Nos."), '');
     end;
 
     [Test]
@@ -1923,20 +1918,21 @@ codeunit 137093 "SCM Kitting - D4"
         Initialize();
 
         LocationCode := '';
+        QtyOnAssemble := LibraryRandom.RandIntInRange(100, 200);
+
         // [GIVEN] Create the assembled Item "X"
         LibraryInventory.CreateItem(Item);
         for i := 1 to 2 do begin
             // [GIVEN] Add two components with "Quantity per": "Qp1", "Qp2"
-            AddComponent(Item, BOMComponent[i]);
-            SetRandComponentQuantityPer(BOMComponent[i]);
-            QtyOnInventory[i] := RandInt();
+            AddComponent(Item, BOMComponent[i], i + 1);
+            QtyOnInventory[i] := QtyOnAssemble * BOMComponent[i]."Quantity per" - i * 10;
+
             // [GIVEN] Add inventory for both components: "Q1", "Q2"
             AddInventory(BOMComponent[i]."No.", '', LocationCode, QtyOnInventory[i]);
             AbleToAssemble[i] := QtyOnInventory[i] / BOMComponent[i]."Quantity per";
         end;
 
         // [WHEN] Create Assembly Order for "X" missing both components
-        QtyOnAssemble := MinValue(QtyOnInventory[1], QtyOnInventory[2]);
         CreateAssemblyOrder(AssemblyHeader, Item."No.", LocationCode, '', WorkDate2, QtyOnAssemble);
         Commit();
         AssemblyHeader.ShowAvailability();
@@ -2481,7 +2477,7 @@ codeunit 137093 "SCM Kitting - D4"
         AssertAvailabilityLineStatic(AssemblyHeader, 2);
         // [THEN] the Page contains two lines
         asserterror AssertAvailabilityLineStatic(AssemblyHeader, 3);
-        Assert.ExpectedError(AsmAvailBufNotExistsErr);
+        Assert.ExpectedErrorCannotFind(Database::"Asm. Availability Test Buffer");
     end;
 
     [Test]
@@ -2538,7 +2534,7 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,SendAssemblyAvailabilityNotificationHandler')]
     [Scope('OnPrem')]
     procedure LineAbleToAssembleAfterPostedOrderUndo()
     var
@@ -2600,8 +2596,6 @@ codeunit 137093 "SCM Kitting - D4"
     end;
 
     local procedure ComponentsAvailable(AssemblyHeader: Record "Assembly Header"): Boolean
-    var
-        LibraryAssembly: Codeunit "Library - Assembly";
     begin
         exit(LibraryAssembly.ComponentsAvailable(AssemblyHeader));
     end;
