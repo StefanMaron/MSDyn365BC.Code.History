@@ -44,6 +44,27 @@ codeunit 134380 "ERM Dimension"
         CountOfLocalTablesErr: Label 'Count of local tables should be %1, but it is %2.';
 
     [Test]
+    procedure DimValueListHidesBlockedDimValues()
+    var
+        Dimension: Record Dimension;
+        DimensionValue: array[2] of Record "Dimension Value";
+        TestDimensionValueList: TestPage "Dimension Value List";
+    begin
+        Initialize();
+        LibraryDim.CreateDimension(Dimension);
+        LibraryDim.CreateDimensionValue(DimensionValue[1], Dimension.Code);
+        LibraryDim.CreateDimensionValue(DimensionValue[2], Dimension.Code);
+        DimensionValue[2].Blocked := true;
+        DimensionValue[2].Modify();
+
+        TestDimensionValueList.OpenEdit();
+        TestDimensionValueList.Filter.SetFilter("Dimension Code", Dimension.Code);
+        Assert.IsTrue(TestDimensionValueList.First(), 'not found 1st line');
+        TestDimensionValueList.Code.AssertEquals(DimensionValue[1].Code);
+        Assert.IsFalse(TestDimensionValueList.Next(), 'found 2nd line');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ValPosting_Mandatory()
     var

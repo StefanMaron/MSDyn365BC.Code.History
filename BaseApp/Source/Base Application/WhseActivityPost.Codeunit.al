@@ -721,6 +721,7 @@ codeunit 7324 "Whse.-Activity-Post"
     var
         WhseComment: Record "Warehouse Comment Line";
         WhseComment2: Record "Warehouse Comment Line";
+        RecordLinkManagement: Codeunit "Record Link Management";
     begin
         if WhseActivHeader.Type = WhseActivHeader.Type::"Invt. Put-away" then begin
             PostedInvtPutAwayHeader.Init();
@@ -731,6 +732,7 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPutAwayHeader."Source Type" := PostedSourceType;
             OnBeforePostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
             PostedInvtPutAwayHeader.Insert(true);
+            RecordLinkManagement.CopyLinks(WhseActivHeader, PostedInvtPutAwayHeader);
             OnAfterPostedInvtPutAwayHeaderInsert(PostedInvtPutAwayHeader, WhseActivHeader);
         end else begin
             PostedInvtPickHeader.Init();
@@ -741,6 +743,7 @@ codeunit 7324 "Whse.-Activity-Post"
             PostedInvtPickHeader."Source Type" := PostedSourceType;
             OnBeforePostedInvtPickHeaderInsert(PostedInvtPickHeader, WhseActivHeader);
             PostedInvtPickHeader.Insert(true);
+            RecordLinkManagement.CopyLinks(WhseActivHeader, PostedInvtPickHeader);
             OnAfterPostedInvtPickHeaderInsert(PostedInvtPickHeader, WhseActivHeader);
         end;
 

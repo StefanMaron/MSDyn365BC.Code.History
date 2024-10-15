@@ -109,6 +109,7 @@ codeunit 501 OAuth2
         OAuth2Impl.AcquireTokensAndTokenCacheByAuthorizationCode(ClientId, ClientSecret, OAuthAuthorityUrl, RedirectURL, Scopes, PromptInteraction, AccessToken, IdToken, TokenCache, Error);
     end;
 
+#pragma warning disable AS0022
     /// <summary>
     /// Gets the authentication token via the On-Behalf-Of OAuth2 v1.0 protocol flow. 
     /// </summary>
@@ -116,6 +117,7 @@ codeunit 501 OAuth2
     /// <param name="ResourceURL">The Application ID of the resource the application is requesting access to. This parameter can be empty.</param>
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [Obsolete('Replaced with AcquireOnBehalfOfToken with Scopes parameter', '18.0')]
     [TryFunction]
     procedure AcquireOnBehalfOfToken(RedirectURL: Text; ResourceURL: Text; var AccessToken: Text)
@@ -130,6 +132,7 @@ codeunit 501 OAuth2
     /// <param name="Scopes">A list of scopes that you want the user to consent to.</param>
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfOfToken(RedirectURL: Text; Scopes: List of [Text]; var AccessToken: Text)
     begin
@@ -144,6 +147,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="IdToken">Exit parameter containing the id token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfOfTokens(RedirectURL: Text; Scopes: List of [Text]; var AccessToken: Text; var IdToken: Text)
     begin
@@ -270,6 +274,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="RefreshToken">Exit parameter containing the refresh_token that you acquired when you requested an access token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfAccessTokenAndRefreshToken(OAuthAuthorityUrl: Text; RedirectURL: Text; ResourceURL: Text; var AccessToken: Text; var RefreshToken: Text)
     begin
@@ -285,6 +290,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="TokenCache">Exit parameter containing the token cache acquired when the access token was requested .</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [Obsolete('Replaced with AcquireOnBehalfAccessTokenAndTokenCache with Scopes parameter', '18.0')]
     [TryFunction]
     procedure AcquireOnBehalfAccessTokenAndTokenCache(OAuthAuthorityUrl: Text; RedirectURL: Text; ResourceURL: Text; var AccessToken: Text; var TokenCache: Text)
@@ -301,6 +307,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="RefreshToken">Exit parameter containing the refresh_token that you acquired when you requested an access token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfAccessTokenAndRefreshToken(OAuthAuthorityUrl: Text; RedirectURL: Text; Scopes: List of [Text]; var AccessToken: Text; var RefreshToken: Text)
     begin
@@ -316,6 +323,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="TokenCache">Exit parameter containing the token cache acquired when the access token was requested .</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfAccessTokenAndTokenCache(OAuthAuthorityUrl: Text; RedirectURL: Text; Scopes: List of [Text]; var AccessToken: Text; var TokenCache: Text)
     begin
@@ -332,6 +340,7 @@ codeunit 501 OAuth2
     /// <param name="IdToken">Exit parameter containing the id token.</param>
     /// <param name="TokenCache">Exit parameter containing the token cache acquired when the access token was requested .</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfTokensAndTokenCache(OAuthAuthorityUrl: Text; RedirectURL: Text; Scopes: List of [Text]; var AccessToken: Text; var IdToken: Text; var TokenCache: Text)
     begin
@@ -348,6 +357,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="NewRefreshToken">Exit parameter containing the new refresh token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfOfTokenByRefreshToken(ClientId: Text; RedirectURL: Text; ResourceURL: Text; RefreshToken: Text; var AccessToken: Text; var NewRefreshToken: Text)
     begin
@@ -364,6 +374,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="NewTokenCache">Exit parameter containing the new token cache.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [Obsolete('Replaced with AcquireOnBehalfOfTokenByTokenCache with Scopes parameter', '18.0')]
     [TryFunction]
     procedure AcquireOnBehalfOfTokenByTokenCache(LoginHint: Text; RedirectURL: Text; ResourceURL: Text; TokenCache: Text; var AccessToken: Text; var NewTokenCache: Text)
@@ -381,6 +392,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="NewRefreshToken">Exit parameter containing the new refresh token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfOfTokenByRefreshToken(ClientId: Text; RedirectURL: Text; Scopes: List of [Text]; RefreshToken: Text; var AccessToken: Text; var NewRefreshToken: Text)
     begin
@@ -397,6 +409,7 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="NewTokenCache">Exit parameter containing the new token cache.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfOfTokenByTokenCache(LoginHint: Text; RedirectURL: Text; Scopes: List of [Text]; TokenCache: Text; var AccessToken: Text; var NewTokenCache: Text)
     begin
@@ -414,6 +427,7 @@ codeunit 501 OAuth2
     /// <param name="IdToken">Exit parameter containing the id token.</param>
     /// <param name="NewTokenCache">Exit parameter containing the new token cache.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireOnBehalfOfTokensByTokenCache(LoginHint: Text; RedirectURL: Text; Scopes: List of [Text]; TokenCache: Text; var AccessToken: Text; var IdToken: Text; var NewTokenCache: Text)
     begin
@@ -484,11 +498,13 @@ codeunit 501 OAuth2
     /// <param name="AccessToken">Exit parameter containing the access token.</param>
     /// <param name="IdToken">Exit parameter containing the id token.</param>
     [NonDebuggable]
+    [Scope('OnPrem')]
     [TryFunction]
     procedure AcquireTokensWithUserCredentials(OAuthAuthorityUrl: Text; Scopes: List of [Text]; UserName: Text; Credential: Text; var AccessToken: Text; var IdToken: Text)
     begin
         OAuth2Impl.AcquireTokensWithUserCredentials(OAuthAuthorityUrl, Scopes, UserName, Credential, AccessToken, IdToken);
     end;
+#pragma warning restore AS0022
 
     /// <summary>
     /// Returns the default Business Central redirectURL 

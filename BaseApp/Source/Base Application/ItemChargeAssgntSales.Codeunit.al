@@ -261,7 +261,10 @@
         ItemChargeAssgntSales.SetRange("Document Type", SalesLine."Document Type");
         ItemChargeAssgntSales.SetRange("Document No.", SalesLine."Document No.");
         ItemChargeAssgntSales.SetRange("Document Line No.", SalesLine."Line No.");
-        if ItemChargeAssgntSales.FindFirst() then
+        if ItemChargeAssgntSales.FindFirst() then begin
+            ItemChargeAssgntSales.ModifyAll("Amount to Assign", 0);
+            ItemChargeAssgntSales.ModifyAll("Qty. to Assign", 0);
+
             case SelectionTxt of
                 AssignEquallyMenuText:
                     AssignEqually(ItemChargeAssgntSales, Currency, TotalQtyToAssign, TotalAmtToAssign);
@@ -278,6 +281,7 @@
                             Error(ItemChargesNotAssignedErr);
                     end;
             end;
+        end;
     end;
 
     procedure AssignEquallyMenuText(): Text
