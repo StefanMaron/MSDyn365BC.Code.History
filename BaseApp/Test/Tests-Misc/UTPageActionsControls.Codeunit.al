@@ -20,6 +20,7 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryERM: Codeunit "Library - ERM";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryJob: Codeunit "Library - Job";
         AmountRoundingValidationErr: Label 'Validation error for Field: %1,  Message = ''You cannot change the contents of the %2 field because there are posted ledger entries.';
         TypeSaaSValidationErr: Label 'error for Field: TypeSaaS,  Message = ''Your entry of ''0'' is not an acceptable value for ''Type''.';
         LibraryMarketing: Codeunit "Library - Marketing";
@@ -30,7 +31,8 @@ codeunit 134341 "UT Page Actions & Controls"
         LibraryService: Codeunit "Library - Service";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
-        PageFieldNotVisibleErr: Label '%1 must not be visible.';
+        IsInitialized: Boolean;
+        PageFieldNotVisibleErr: Label '%1 must not be visible.';        
 
     [Test]
     [HandlerFunctions('ItemTrackingMPH,PostedSalesInvoiceLinesMPH')]
@@ -3619,7 +3621,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" is not 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are Visible on page Customer Posting Groups
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         CustPstGrps.OpenEdit;
         Assert.IsTrue(
@@ -3628,7 +3630,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(
           CustPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldVisibleErr, CustPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
     end;
 
     [Test]
@@ -3641,6 +3642,7 @@ codeunit 134341 "UT Page Actions & Controls"
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" and "Payment Tolerance %" are 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are not Visible on page Customer Posting Groups
 
+        Initialize();
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
         GeneralLedgerSetup.Modify(true);
@@ -3651,7 +3653,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsFalse(
           CustPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldNotVisibleErr, CustPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
     end;
 
     [Test]
@@ -3662,6 +3663,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" is not 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are Visible on page Vendor Posting Groups
+        Initialize();
         LibraryPmtDiscSetup.SetPmtTolerance(0);
         VndrPstGrps.OpenEdit;
         Assert.IsTrue(
@@ -3670,7 +3672,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsTrue(
           VndrPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldVisibleErr, VndrPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
     end;
 
     [Test]
@@ -3682,6 +3683,7 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         // [FEATURE] [Sales] [Quote]
         // [SCENARIO 304263] When "Max. Pmt. Tolerance Amount" and "Payment Tolerance %"are 0, fields "Payment Tolerance Credit Acc." and "Payment Tolerance Debit Acc." are not Visible on page Vendor Posting Groups
+        Initialize();
         GeneralLedgerSetup.Validate("Payment Tolerance %", 0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 0);
         GeneralLedgerSetup.Modify(true);
@@ -3692,7 +3694,6 @@ codeunit 134341 "UT Page Actions & Controls"
         Assert.IsFalse(
           VndrPstGrps."Payment Tolerance Debit Acc.".Visible,
           StrSubstNo(PageFieldNotVisibleErr, VndrPstGrps."Payment Tolerance Debit Acc.".Caption));
-        LibrarySetupStorage.Restore;
     end;
 
     [Test]
@@ -4253,20 +4254,69 @@ codeunit 134341 "UT Page Actions & Controls"
         CreateTask."Salesperson Code".SetValue(SalesPerson.Code);
 
         // [THEN] Field 'Salesperson Code' is enabled
-        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should be enabled');
 
         // [WHEN] 'Team Task' = True
         CreateTask.TeamTask.SetValue(true);
 
         // [THEN] Field 'Salesperson Code' is enabled
-        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        Assert.AreEqual(false, CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should be disable');
+        Assert.AreEqual('', CreateTask."Salesperson Code".Value, 'Salesperson Code should be empty');
 
         // [WHEN] 'Team Task' = True
         CreateTask.TeamTask.SetValue(false);
 
         // [THEN] Field 'Salesperson Code' is enabled
-        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), '');
+        Assert.AreEqual(true, CreateTask."Salesperson Code".Enabled(), 'Salesperson Code should be enabled');
+
+        CreateTask."Salesperson Code".SetValue(SalesPerson.Code); // needed to close page without error message
         CreateTask.OK().Invoke();
+    end;
+
+    [Test]
+    [HandlerFunctions('ContactListPageHandler')]
+    [Scope('OnPrem')]
+    procedure BilltoContactLookupOnJobCardPage()
+    var
+        Job: Record Job;
+        Contact: Record Contact;
+        Customer: Record Customer;
+        JobCard: TestPage "Job Card";
+    begin
+        // [SCENARIO 407536] "Bill-to Contact No." lookup in "Job Card" must update "Bill-to Contact No."
+        Initialize();
+        LibraryApplicationArea.EnableJobsSetup;
+
+        // [GIVEN] Job and Contact "C1"
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", '');
+        Job.Modify(true);
+
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+
+        JobCard.Trap();
+
+        // [WNEN] Open Job Card and invoke "Bill-to Contact No." lookup and choose "C1"
+        Page.Run(Page::"Job Card", Job);
+        LibraryVariableStorage.Enqueue(Contact."No.");
+        JobCard."Bill-to Contact No.".Lookup();
+
+        // [THEN] "Job Card"."Bill-to Contact No." = "C1"
+        JobCard."Bill-to Contact No.".AssertEquals(Contact."No.");
+
+        LibraryVariableStorage.AssertEmpty();
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    local procedure Initialize()
+    begin
+        LibrarySetupStorage.Restore();
+        if IsInitialized then
+            exit;
+
+        IsInitialized := true;
+        LibrarySetupStorage.Save(Database::"General Ledger Setup");
+        Commit();
     end;
 
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
@@ -5197,6 +5247,14 @@ codeunit 134341 "UT Page Actions & Controls"
     begin
         VATStatementTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText);
         VATStatementTemplateList.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ContactListPageHandler(var ContactList: TestPage "Contact List")
+    begin
+        ContactList.GoToKey(LibraryVariableStorage.DequeueText());
+        ContactList.OK().Invoke();
     end;
 }
 

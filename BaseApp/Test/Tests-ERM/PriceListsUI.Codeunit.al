@@ -952,6 +952,42 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    procedure T031_ItemCardSpecialSalesPriceListTxtSkipsInactivePrices()
+    var
+        Item: Record Item;
+        PriceListLine: Record "Price List Line";
+        ItemCard: TestPage "Item Card";
+    begin
+        Initialize(true);
+
+        // [GIVEN] Item 'X'
+        LibraryInventory.CreateItem(Item);
+        Item.Modify();
+
+        // [GIVEN] Draft Purchase Price List Line for Item 'X'
+        LibraryPriceCalculation.CreatePurchPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Vendors", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Draft;
+        PriceListLine.Modify();
+        // [GIVEN] Inactive Sales Price List Line for Item 'X'
+        LibraryPriceCalculation.CreateSalesDiscountLine(
+            PriceListLine, '', "Price Source Type"::"All Customers", '',
+            "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := PriceListLine.Status::Inactive;
+        PriceListLine.Modify();
+
+        // [WHEN] Open Item card for 'X'
+        ItemCard.Trap();
+        Page.Run(Page::"Item Card", Item);
+
+        // [THEN] Item card is open, where Purchase section: 'View existing prices...', Sales section: 'Create new...'
+        ItemCard.SpecialPurchPriceListTxt.AssertEquals(ViewExistingTxt);
+        ItemCard.SpecialSalesPriceListTxt.AssertEquals(CreateNewTxt);
+        ItemCard.Close();
+    end;
+
+    [Test]
     procedure T040_ValidateCurrencyCodeDifferentFromSource()
     var
         Currency: Record Currency;
@@ -2922,6 +2958,61 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    [HandlerFunctions('SimpleDuplicatePriceLinesModalHandler')]
+    procedure T193_VerifyMultipleActiveLinesModifiedInReviewPage()
+    var
+        Item: Record Item;
+        PriceListHeader: array[2] of Record "Price List Header";
+        PriceListLine: Record "Price List Line";
+        PriceSource: Record "Price Source";
+        PriceListLineReview: TestPage "Price List Line Review";
+    begin
+        // [FEATURE] [Allow Editing Active Price]
+        // [SCENARIO 411619] Multiple lines in two price lists become duplicate after modification but can be resolved.
+        Initialize(true);
+        // [GIVEN] "Allow Editing Active Price" is Yes for Sales
+        LibraryPriceCalculation.AllowEditingActiveSalesPrice();
+        // [GIVEN] 2 active price lists, each has 1 draft and 1 active lines for Item 'I'
+        LibraryInventory.CreateItem(Item);
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[1], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader[1].Status := "Price Status"::Active;
+        PriceListHeader[1].Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader[1], "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Minimum Quantity" := 1;
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader[2], "Price Type"::Sale, "Price Source Type"::"All Customers", '');
+        PriceListHeader[2].Status := "Price Status"::Active;
+        PriceListHeader[2].Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine.Status := "Price Status"::Active;
+        PriceListLine.Modify();
+        LibraryPriceCalculation.CreatePriceListLine(
+            PriceListLine, PriceListHeader[2], "Price Amount Type"::Price, "Price Asset Type"::Item, Item."No.");
+        PriceListLine."Minimum Quantity" := 1;
+        PriceListLine.Modify();
+        // [GIVEN] Open "Price List Line Review" 
+        PriceListLineReview.OpenEdit();
+        PriceListLineReview.Filter.Setfilter(
+            "Price List Code", StrSubstNo('%1|%2', PriceListHeader[1].Code, PriceListHeader[2].Code));
+
+        // [WHEN] Run 'Verify Lines' action
+        Commit();
+        PriceListLineReview.VerifyLines.Invoke();
+
+        // [THEN] "Status" is 'Active' in 2 modified lines
+        Assert.AreEqual('Active', PriceListLineReview.Status.Value, 'Status.Value #1');
+        Assert.IsTrue(PriceListLineReview.Next(), 'not found 2nd line');
+        Assert.AreEqual('Active', PriceListLineReview.Status.Value, 'Status.Value #2');
+        Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd line');
+    end;
+
+    [Test]
     [HandlerFunctions('ResourceListModalHandler')]
     procedure T200_WorkTypeVariantCodeOnSalesPriceListLineResource()
     var
@@ -3602,6 +3693,12 @@ codeunit 134117 "Price Lists UI"
 
         Assert.IsTrue(DuplicatePriceLines.First(), 'not found the first line');
         Assert.IsTrue(DuplicatePriceLines.Remove.AsBoolean(), 'Remove.Value must be true in the first line');
+        DuplicatePriceLines.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure SimpleDuplicatePriceLinesModalHandler(var DuplicatePriceLines: TestPage "Duplicate Price Lines")
+    begin
         DuplicatePriceLines.OK().Invoke();
     end;
 
