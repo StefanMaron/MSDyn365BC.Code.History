@@ -473,66 +473,42 @@ page 9203 "Budget Matrix"
                 end;
             DimType::"Global Dimension 1":
                 begin
-                    if GlobalDim1Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim1Filter);
-                    DimVal."Dimension Code" := GLSetup."Global Dimension 1 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, GlobalDim1Filter, GLSetup."Global Dimension 1 Code", DimCodeBuf);
                     Found := DimVal.Find(Which);
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Global Dimension 2":
                 begin
-                    if GlobalDim2Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim2Filter);
-                    DimVal."Dimension Code" := GLSetup."Global Dimension 2 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, GlobalDim2Filter, GLSetup."Global Dimension 2 Code", DimCodeBuf);
                     Found := DimVal.Find(Which);
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 1":
                 begin
-                    if BudgetDim1Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim1Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 1 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim1Filter, GLBudgetName."Budget Dimension 1 Code", DimCodeBuf);
                     Found := DimVal.Find(Which);
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 2":
                 begin
-                    if BudgetDim2Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim2Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 2 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim2Filter, GLBudgetName."Budget Dimension 2 Code", DimCodeBuf);
                     Found := DimVal.Find(Which);
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 3":
                 begin
-                    if BudgetDim3Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim3Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 3 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim3Filter, GLBudgetName."Budget Dimension 3 Code", DimCodeBuf);
                     Found := DimVal.Find(Which);
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 4":
                 begin
-                    if BudgetDim4Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim4Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 4 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim4Filter, GLBudgetName."Budget Dimension 4 Code", DimCodeBuf);
                     Found := DimVal.Find(Which);
                     if Found then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
@@ -583,72 +559,59 @@ page 9203 "Budget Matrix"
                 end;
             DimType::"Global Dimension 1":
                 begin
-                    if GlobalDim1Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim1Filter);
-                    DimVal."Dimension Code" := GLSetup."Global Dimension 1 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, GlobalDim1Filter, GLSetup."Global Dimension 1 Code", DimCodeBuf);
                     ResultSteps := DimVal.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Global Dimension 2":
                 begin
-                    if GlobalDim2Filter <> '' then
-                        DimVal.SetFilter(Code, GlobalDim2Filter);
-                    DimVal."Dimension Code" := GLSetup."Global Dimension 2 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, GlobalDim2Filter, GLSetup."Global Dimension 2 Code", DimCodeBuf);
                     ResultSteps := DimVal.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 1":
                 begin
-                    if BudgetDim1Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim1Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 1 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim1Filter, GLBudgetName."Budget Dimension 1 Code", DimCodeBuf);
                     ResultSteps := DimVal.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 2":
                 begin
-                    if BudgetDim2Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim2Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 2 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim2Filter, GLBudgetName."Budget Dimension 2 Code", DimCodeBuf);
                     ResultSteps := DimVal.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 3":
                 begin
-                    if BudgetDim3Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim3Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 3 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim3Filter, GLBudgetName."Budget Dimension 3 Code", DimCodeBuf);
                     ResultSteps := DimVal.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
             DimType::"Budget Dimension 4":
                 begin
-                    if BudgetDim4Filter <> '' then
-                        DimVal.SetFilter(Code, BudgetDim4Filter);
-                    DimVal."Dimension Code" := GLBudgetName."Budget Dimension 4 Code";
-                    DimVal.SetRange("Dimension Code", DimVal."Dimension Code");
-                    DimVal.Code := DimCodeBuf.Code;
+                    SetDimensionValueFilters(DimVal, BudgetDim4Filter, GLBudgetName."Budget Dimension 4 Code", DimCodeBuf);
                     ResultSteps := DimVal.Next(Steps);
                     if ResultSteps <> 0 then
                         CopyDimValToBuf(DimVal, DimCodeBuf);
                 end;
         end;
         exit(ResultSteps);
+    end;
+
+    local procedure SetDimensionValueFilters(var DimensionValue: Record "Dimension Value"; CodeFilter: Code[250]; SetupDimensionCode: Code[20]; DimensionCodeBuffer: Record "Dimension Code Buffer")
+    begin
+        if CodeFilter <> '' then
+            DimensionValue.SetFilter(Code, CodeFilter);
+        DimensionValue."Dimension Code" := SetupDimensionCode;
+        DimensionValue.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DimensionValue.Code := DimensionCodeBuffer.Code;
+
+        OnAfterSetDimensionValueFilters(DimensionValue);
     end;
 
     local procedure CopyGLAccToBuf(var TheGLAcc: Record "G/L Account"; var TheDimCodeBuf: Record "Dimension Code Buffer")
@@ -1023,6 +986,11 @@ page 9203 "Budget Matrix"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetIncomeBalanceGLAccFilterOnGLAcc(var GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDimensionValueFilters(var DimensionValue: Record "Dimension Value")
     begin
     end;
 }

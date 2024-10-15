@@ -62,7 +62,7 @@ page 9239 "Sales Budget Overview Matrix"
                         DrillDown(true, ValueType::"Sales Amount");
                     end;
                 }
-                field(CostAmount; +CalcAmt("Item Analysis Value Type"::"Sales Amount", false))
+                field(CostAmount; +CalcAmt("Item Analysis Value Type"::"Cost Amount", false))
                 {
                     ApplicationArea = SalesBudget;
                     AutoFormatExpression = FormatStr;

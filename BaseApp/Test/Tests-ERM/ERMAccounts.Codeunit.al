@@ -668,7 +668,7 @@ codeunit 134020 "ERM Accounts"
         ExpectedDateFilter: Text;
     begin
         // [FEATURE] [UI] [G/L Balance] [Date Filter]
-        // [SCENARIO 413277] G/L Balance by Dimension applies date filter for option "View as" = "Balance at Date"
+        // [SCENARIO 413277] G/L Balance by Dimension does not apply date filter for option "View as" = "Balance at Date"
         Initialize();
 
         // [GIVEN] G/L Balance by Dimension with parameters "Period Type" = Month, "Amount Type" = "Balance at Date"
@@ -676,6 +676,7 @@ codeunit 134020 "ERM Accounts"
         GLBalancebyDimension.PeriodType.SetValue("Analysis Period Type"::Month);
         GLBalancebyDimension.AmountType.SetValue("Analysis Amount Type"::"Balance at Date");
         GLBalancebyDimension.ClosingEntryFilter.SetValue(0);
+
         // [GIVEN] Set "Date Filter" = "01.01.21..01.03.21"
         StartDate := CalcDate('<-CM>', WorkDate());
         EndDate := CalcDate('<-CM+2M', StartDate);
@@ -688,8 +689,8 @@ codeunit 134020 "ERM Accounts"
 
         // [WHEN] DrillDown ammount for column 1 (in handler GLBalancebyDimMatrixDrillDownAmount1Handler)
 
-        // [THEN] General Ledger Entries page has Posting Date filter = "01.01.21..C31.01.21"
-        ExpectedDateFilter := StrSubstNo('%1..%2', StartDate, ClosingDate(CalcDate('<CM>', StartDate)));
+        // [THEN] General Ledger Entries page has Posting Date filter = "''..C31.01.21"
+        ExpectedDateFilter := StrSubstNo('''''..%1', ClosingDate(CalcDate('<CM>', StartDate)));
         Assert.AreEqual(ExpectedDateFilter, GeneralLedgerEntries.Filter.GetFilter("Posting Date"), 'Invalid date filter');
     end;
 

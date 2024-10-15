@@ -916,7 +916,14 @@ table 5092 Opportunity
     end;
 
     procedure CheckStatus()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckStatus(Rec, OppEntry, IsHandled);
+        If IsHandled then
+            exit;
+
         if "Creation Date" = 0D then
             ErrorMessage(FieldCaption("Creation Date"));
         if Description = '' then
@@ -961,6 +968,7 @@ table 5092 Opportunity
         "Wizard Contact Name" := '';
         "Wizard Campaign Description" := '';
 
+        OnFinishWizardOnBeforeInsertOpportunity(Rec, OppEntry);
         InsertOpportunity(Rec, OppEntry, RMCommentLineTmp, ActivateFirstStage);
         Delete;
 
@@ -1182,6 +1190,11 @@ table 5092 Opportunity
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckStatus(var Opportunity: Record Opportunity; var OppEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnCreateOppFromOppOnAfterInit(var Opportunity: Record Opportunity)
     begin
@@ -1194,6 +1207,11 @@ table 5092 Opportunity
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateQuoteOnBeforePageRun(var SalesHeader: Record "Sales Header"; var Opportunity: Record Opportunity)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFinishWizardOnBeforeInsertOpportunity(var Opportunity: Record Opportunity; var OppEntry: Record "Opportunity Entry")
     begin
     end;
 }
