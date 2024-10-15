@@ -36,6 +36,7 @@ codeunit 142055 "UT REP Vendor 1099"
         GetAmtINT01: Label 'GetAmtINT01';
         GetAmtMISC02: Label 'GetAmtMISC02';
         GetAmtNEC01Tok: Label 'GetAmtNEC01';
+        GetAmtDIV03Tok: Label 'GetAmtDIV03';
         GetAmtDIV13Tok: Label 'GetAmtDIV13';
         GetAmtCombinedDivCodeAB: Label 'GetAmtCombinedDivCodeAB';
         IRS1099CodeDiv: Label 'DIV-01-A';
@@ -1547,6 +1548,48 @@ codeunit 142055 "UT REP Vendor 1099"
         Workdate := OldWorkDate;
     end;
 
+    [Test]
+    [HandlerFunctions('Vendor1099Div2022TestPrintRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2022WithTestPrintOption()
+    begin
+        // [SCENARIO 460207] Stan can print "Vendor 1099 Div 2022" report with a "Test Print" option
+
+        Initialize();
+        LibraryVariableStorage.Enqueue(CreateVendor());
+
+        // [WHEN] Run "Vendor 1099 Div 2022" report with "Test Print" option enabled
+        REPORT.Run(REPORT::"Vendor 1099 Div 2022");
+
+        // [THEN] "DIV-03" code prints with amount equals test amount of 9999999.99
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtDIV03Tok, 9999999.99);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099Div2021TestPrintRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2021WithTestPrintOption()
+    begin
+        // [SCENARIO 460207] Stan can print "Vendor 1099 Div 2021" report with a "Test Print" option
+
+        Initialize();
+        LibraryVariableStorage.Enqueue(CreateVendor());
+
+        // [WHEN] Run "Vendor 1099 Div 2021" report with "Test Print" option enabled
+        REPORT.Run(REPORT::"Vendor 1099 Div 2021");
+
+        // [THEN] "DIV-03" code prints with amount equals test amount of 9999999.99
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(GetAmtDIV03Tok, 9999999.99);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -1866,6 +1909,24 @@ codeunit 142055 "UT REP Vendor 1099"
     procedure Vendor1099Div2022RPH(var Vendor1099Div2022: TestRequestPage "Vendor 1099 Div 2022")
     begin
         Vendor1099Div2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Div2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2021TestPrintRPH(var Vendor1099Div2021: TestRequestPage "Vendor 1099 Div 2021")
+    begin
+        Vendor1099Div2021.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Div2021.TestPrint.SetValue(true);
+        Vendor1099Div2021.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure Vendor1099Div2022TestPrintRPH(var Vendor1099Div2022: TestRequestPage "Vendor 1099 Div 2022")
+    begin
+        Vendor1099Div2022.Vendor.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        Vendor1099Div2022.TestPrint.SetValue(true);
         Vendor1099Div2022.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 

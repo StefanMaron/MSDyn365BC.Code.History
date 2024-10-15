@@ -1368,7 +1368,13 @@ codeunit 7302 "WMS Management"
         ReturnReceiptHeader: Record "Return Receipt Header";
         TransShipmentHeader: Record "Transfer Shipment Header";
         TransReceiptHeader: Record "Transfer Receipt Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowPostedSourceDocument(PostedSourceDoc, PostedSourceNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case PostedSourceDoc of
             PostedSourceDoc::"Posted Shipment":
                 begin
@@ -1419,7 +1425,13 @@ codeunit 7302 "WMS Management"
         ProdOrder: Record "Production Order";
         AssemblyHeader: Record "Assembly Header";
         Job: Record Job;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowSourceDocCard(SourceType, SourceSubtype, SourceNo, IsHandled);
+        if IsHandled then
+            exit;
+
         case SourceType of
             DATABASE::"Sales Line":
                 begin
@@ -2122,9 +2134,7 @@ codeunit 7302 "WMS Management"
         MachineCenter: Record "Machine Center";
     begin
         if MachineCenter.Get(MachineCenterNo) then begin
-            if (MachineCenter."Location Code" = LocationCode) and
-               (MachineCenter."From-Production Bin Code" <> '')
-            then
+            if MachineCenter."Location Code" = LocationCode then
                 exit(MachineCenter.GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
 
             exit(GetWorkCenterBinCode(MachineCenter."Work Center No.", LocationCode, UseFlushingMethod, FlushingMethod));
@@ -2307,6 +2317,16 @@ codeunit 7302 "WMS Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLocationIsAllowed(LocationCode: Code[10]; var LocationAllowed: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowPostedSourceDocument(PostedSourceDoc: Enum "Warehouse Shipment Posted Source Document"; PostedSourceNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowSourceDocCard(SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

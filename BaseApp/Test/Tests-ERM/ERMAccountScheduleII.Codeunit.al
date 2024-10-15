@@ -1729,7 +1729,6 @@ codeunit 134994 "ERM Account Schedule II"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('ConfirmYesHandler')]
     procedure AccountScheduleResetColumnLayoutOnAccountScheduleChangeAccScheduleOverviewPage()
     var
         AccScheduleName: array[2] of Record "Acc. Schedule Name";
@@ -2470,12 +2469,6 @@ codeunit 134994 "ERM Account Schedule II"
         AccountSchedule.ShowCurrencySymbolCtrl.SetValue(true);
         LibraryVariableStorage.AssertEmpty();
         AccountSchedule.OK().Invoke();
-    end;
-
-    [ConfirmHandler]
-    procedure ConfirmYesHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     [ConfirmHandler]

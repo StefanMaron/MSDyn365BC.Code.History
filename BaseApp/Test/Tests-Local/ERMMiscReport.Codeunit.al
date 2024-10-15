@@ -2281,24 +2281,17 @@ codeunit 142060 "ERM Misc. Report"
         // [GIVEN] Create Sales Order and post the shipment.
         CreateSalesOrder(SalesHeader, SalesLine);
         PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        Quantity := SalesLine.Quantity;
+        ItemNo := SalesLine."No.";
 
         // [THEN] Undo Shipment.
         SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
         SalesShipmentLine.FindLast();
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
-
-        // [GIVEN] Create one more Sales document and Inoive and shipped to get the value in report.
-        ItemNo := SalesLine."No.";
-        CreateAndPostSalesOrder(SalesLine, ItemNo, '', WorkDate());
-        Quantity := SalesLine."Quantity Shipped";
-
-        // [THEN] Create and post Sales Return Order.
-        CreateAndModifySalesDocument(
-            SalesLine, SalesLine."Document Type"::"Return Order", SalesLine."No.", '', WorkDate(), '', '', SalesLine."Sell-to Customer No.");
-        PostSalesDocument(SalesLine);
+        Commit();
 
         // [THEN] Enqueue values to report Item Sales by Customer.
-        EnqueueValuesForItemSalesByCustomerReport(0, 0, 0, 0, SalesLine."No.", '', false);
+        EnqueueValuesForItemSalesByCustomerReport(0, 0, 0, 0, SalesLine."No.", SalesHeader."Sell-to Customer No.", false);
 
         // [THEN] Run Item Sales By Customer report.
         REPORT.Run(REPORT::"Item Sales by Customer");
@@ -2307,9 +2300,9 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange(ItemNoCapLbl, SalesLine."No.");
         LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, 0);
-        LibraryReportDataset.GetNextRow;
         LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, Quantity);
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, -Quantity);
     end;
 
     local procedure Initialize()

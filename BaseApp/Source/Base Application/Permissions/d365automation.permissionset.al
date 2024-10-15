@@ -1137,6 +1137,7 @@ permissionset 5117 "D365 AUTOMATION"
                   tabledata "Put-away Template Line" = RIMD,
                   tabledata Qualification = RIMD,
                   tabledata "Quality Measure" = RIMD,
+                  tabledata "Query Metadata" = imd,
                   tabledata "RapidStart Services Cue" = RIMD,
                   tabledata Rating = RIMD,
                   tabledata "RC Headlines User Data" = RIMD,

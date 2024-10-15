@@ -157,7 +157,6 @@ report 7318 "Whse.-Shipment - Create Pick"
 
     requestpage
     {
-
         layout
         {
             area(content)

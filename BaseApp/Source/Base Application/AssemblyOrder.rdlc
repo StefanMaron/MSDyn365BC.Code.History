@@ -3406,6 +3406,7 @@
                                                                   <Style>
                                                                     <FontFamily>Segoe UI</FontFamily>
                                                                     <FontSize>8pt</FontSize>
+                                                                    <Format>=Fields!QuantityPer_AssemblyLineFormat.Value</Format>
                                                                   </Style>
                                                                 </TextRun>
                                                               </TextRuns>
@@ -3440,6 +3441,7 @@
                                                                   <Style>
                                                                     <FontFamily>Segoe UI</FontFamily>
                                                                     <FontSize>8pt</FontSize>
+                                                                    <Format>=Fields!Quantity_AssemblyLineFormat.Value</Format>
                                                                   </Style>
                                                                 </TextRun>
                                                               </TextRuns>
@@ -3576,6 +3578,7 @@
                                                                   <Style>
                                                                     <FontFamily>Segoe UI</FontFamily>
                                                                     <FontSize>8pt</FontSize>
+                                                                    <Format>=Fields!QuantityToConsume_AssemblyLineFormat.Value</Format>
                                                                   </Style>
                                                                 </TextRun>
                                                               </TextRuns>

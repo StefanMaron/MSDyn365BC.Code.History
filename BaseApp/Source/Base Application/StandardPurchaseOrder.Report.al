@@ -757,7 +757,6 @@
                     PrepmtVATAmount := TempPrepmtVATAmountLine.GetTotalVATAmount();
                     PrepmtVATBaseAmount := TempPrepmtVATAmountLine.GetTotalVATBase();
                     PrepmtTotalAmountInclVAT := TempPrepmtVATAmountLine.GetTotalAmountInclVAT();
-                    TaxAmount := VATAmount;
                     TotalAmount := TotalSubTotal + TotalInvoiceDiscountAmount + TaxAmount;
                 end;
             }
@@ -1347,7 +1346,7 @@
         exit(BreakdownTextAmount);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterFormatDocumentFields(var PurchaseHeader: Record "Purchase Header")
     begin
     end;

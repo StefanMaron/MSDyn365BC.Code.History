@@ -1293,7 +1293,7 @@ codeunit 144083 "EMail Custom Report Layout"
     begin
         TempErrorMessage.FindSet();
         repeat
-            Assert.ExpectedMessage(TempErrorMessage.Description, ErrorMessages.Description.Value);
+            Assert.ExpectedMessage(TempErrorMessage."Message", ErrorMessages.Description.Value);
             ErrorMessages."Message Type".AssertEquals(TempErrorMessage."Message Type");
             Stop := TempErrorMessage.Next() = 0;
             if NOT Stop then

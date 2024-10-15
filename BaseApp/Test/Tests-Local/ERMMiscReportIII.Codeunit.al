@@ -1746,6 +1746,54 @@ codeunit 142062 "ERM Misc. Report III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('PrintCheckStubStubReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyZIPCodeInRemitAddressOnPrintedVendorCheckWhenUsingReportCheckStubStub()
+    var
+        BankAccount: Record "Bank Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        ReportSelections: Record "Report Selections";
+        Vendor: Record Vendor;
+        RemitAddress: Record "Remit Address";
+        PaymentJournal: TestPage "Payment Journal";
+    begin
+        // [SCENARIO 460209] ZIP code on the "Remit to" address is not showing on the printed vendor's check when using report layout 10412
+        Initialize();
+
+        // [GIVEN] Vendor Exist with Remit Address as Default
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreateRemitToAddress(RemitAddress, Vendor."No.");
+        RemitAddress.Validate(Default, true);
+        RemitAddress.Modify();
+
+        // [GIVEN] Create Payment Journal With "Remit-to Code" for Vendor 
+        CreateGenJournalLineWithBankAccount(GenJournalLine, "Gen. Journal Document Type"::Payment, "Gen. Journal Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(500, 0), "Bank Payment Type"::"Computer Check");
+        GenJournalLine.Validate("Remit-to Code", RemitAddress.Code);
+        GenJournalLine.Modify();
+
+        // [GIVEN] Report 10412 is set as report for Check
+        ReportSelections.Get(ReportSelections.Usage::"B.Check", 1);
+        ReportSelections.Validate("Report ID", REPORT::"Check (Check/Stub/Stub)");
+        ReportSelections.Modify();
+
+        // [GIVEN] Select Bank Account and Last Check No On Report
+        BankAccount.Get(GenJournalLine."Bal. Account No.");
+        BankAccount.Validate("Last Check No.", Format(LibraryRandom.RandInt(10000)));
+        BankAccount.Modify();
+        LibraryVariableStorage.Enqueue(BankAccount."No.");
+        LibraryVariableStorage.Enqueue(false);
+        Commit();
+
+        // [WHEN] Check printed from Payment Journal page
+        PaymentJournal.OpenEdit();
+        PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
+        PaymentJournal.PrintCheck.Invoke();
+
+        // [VERIFY] ZIP Code On Report
+        VerifyZipCodeOnReport(RemitAddress."Post Code");
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2462,6 +2510,11 @@ codeunit 142062 "ERM Misc. Report III"
           PercentString4Cap, Format(Round(-Amount[4] / GrandTotal * 100), 0, FormatString) + '%');
     end;
 
+    local procedure VerifyZipCodeOnReport(ZipCode: Code[20])
+    begin
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists('CheckToAddr_6_', ZipCode);
+    end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]

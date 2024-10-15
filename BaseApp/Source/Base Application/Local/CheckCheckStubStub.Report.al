@@ -765,6 +765,9 @@ report 10412 "Check (Check/Stub/Stub)"
                     column(Stub2PostingDesc_9_; Stub2PostingDesc[9])
                     {
                     }
+                    column(CheckToAddr_6_; CheckToAddr[6])
+                    {
+                    }
                     column(CheckToAddr_5_; CheckToAddr[5])
                     {
                     }

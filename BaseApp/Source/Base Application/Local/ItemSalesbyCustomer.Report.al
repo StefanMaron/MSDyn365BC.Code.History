@@ -217,9 +217,11 @@ report 10145 "Item Sales by Customer"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    InvoicedQuantity: Decimal;
                 begin
+                    if not IncludeReturns then
+                        if "Document Type" in ["Document Type"::"Sales Credit Memo", "Document Type"::"Sales Return Receipt", "Document Type"::"Service Credit Memo"] then
+                            CurrReport.Skip();
+
                     if ("Source No." <> PrevSourceNo) or ("Variant Code" <> PrevVariantCode) then begin
                         if PrintToExcel then begin
                             CalcProfitPct();
@@ -236,22 +238,13 @@ report 10145 "Item Sales by Customer"
                         PrevVariantCode := "Variant Code";
                     end;
                     CalcFields("Cost Amount (Actual)");
-
+                    "Invoiced Quantity" := -"Invoiced Quantity";
                     with ValueEntry do begin
                         SetRange("Item Ledger Entry No.", "Item Ledger Entry"."Entry No.");
                         CalcSums("Sales Amount (Actual)", "Discount Amount");
                         "Discount Amount" := -"Discount Amount";
                         Profit := "Sales Amount (Actual)" + "Item Ledger Entry"."Cost Amount (Actual)";
-
-                        SetFilter("Document Type", '<>%1', "Item Ledger Entry"."Document Type");
-                        CalcSums("Invoiced Quantity");
-                        InvoicedQuantity := "Invoiced Quantity";
                     end;
-
-                    IF not IncludeReturns then
-                        "Invoiced Quantity" := -InvoicedQuantity
-                    else
-                        "Invoiced Quantity" := -"Invoiced Quantity";
 
                     if "Source No." <> '' then
                         Cust.Get("Source No.")
@@ -278,9 +271,7 @@ report 10145 "Item Sales by Customer"
                 begin
                     Clear(Profit);
                     if IncludeReturns then
-                        SetFilter("Invoiced Quantity", '<>0')
-                    else
-                        SetFilter("Invoiced Quantity", '<0');
+                        SetFilter("Invoiced Quantity", '<>0');
 
                     with ValueEntry do begin
                         Reset();
