@@ -300,9 +300,11 @@ page 11511 "Swiss QR-Bill Manual Print"
                     SwissQRBillPrintSelectDoc: Page "Swiss QR-Bill Print Select Doc";
                 begin
                     SwissQRBillPrintSelectDoc.LookupMode(true);
-                    if SwissQRBillPrintSelectDoc.RunModal() = Action::LookupOK then
+                    if SwissQRBillPrintSelectDoc.RunModal() = Action::LookupOK then begin
+                        SwissQRBillPrintSelectDoc.GetSelectedRecord(SourceDocRefRef);
                         if SwissQRBillPrintSelectDoc.GetSelectedLedgerEntry() <> 0 then
                             LoadFromCustLedgerEntry(SwissQRBillPrintSelectDoc.GetSelectedLedgerEntry());
+                    end;
                 end;
             }
             action(EditPrinted)
@@ -340,6 +342,7 @@ page 11511 "Swiss QR-Bill Manual Print"
     var
         UltimateDebitorCustomer: Record Customer;
         SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SourceDocRefRef: RecordRef;
         SourceDocumentText: Text;
         CreditorIBANValue: Text;
         CreditorQRIBANValue: Text;
@@ -380,7 +383,8 @@ page 11511 "Swiss QR-Bill Manual Print"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         if CustLedgerEntry.Get(EntryNo) then begin
-            SetSourceRecord(CustLedgerEntry."Entry No.");
+            Rec.InitSourceRecord(SourceDocRefRef);
+            Rec.SetSourceRecord(CustLedgerEntry."Entry No.");
             UltimateDebitorCustomer.Get(CustLedgerEntry."Customer No.");
             SourceDocumentText := CustLedgerEntry.Description;
             NotifySourceDocIsAlreadyPrinted();

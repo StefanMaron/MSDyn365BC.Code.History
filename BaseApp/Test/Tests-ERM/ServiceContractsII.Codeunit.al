@@ -36,6 +36,9 @@ codeunit 136145 "Service Contracts II"
         ConfirmLaterInvoiceToDateQst: Label 'The Invoice-to Date is later than the work date.\\Confirm that this is the correct date.';
         NextPlannedServiceDateConfirmQst: Label 'The Next Planned Service Date field is empty on one or more service contract lines, and service orders cannot be created automatically. Do you want to continue?';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in %3', Comment = '%1 = Field Caption , %2 = Expected Value , %3 = Table Caption';
+        CreateServiceInvoiceQst: Label 'Do you want to create an invoice for the contract?';
+        DescriptionLbl: Label '%1 - %2', Comment = '%1 = Start Date of Month, %2 = End Date of Month';
+        DescriptionMustMatchErr: Label 'Description must match.';
 
     [Test]
     [HandlerFunctions('ServiceContractTemplateListHandler,CreateContractServiceOrdersRequestPageHandler,CreateContractInvoicesRequestPageHandler,YesConfirmHandler,MessageHandler')]
@@ -1681,6 +1684,117 @@ codeunit 136145 "Service Contracts II"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('SignContractConfirmHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CreateServContractInvoicesPartialYearForPrepaidServContractWithExpDate()
+    var
+        Customer: Record Customer;
+        ServiceItem: Record "Service Item";
+        ServiceItemGroup: Record "Service Item Group";
+        ServicePriceGroup: Record "Service Price Group";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        LockOpenServContract: Codeunit "Lock-OpenServContract";
+        SignServContractDoc: Codeunit SignServContractDoc;
+        ServiceContract: TestPage "Service Contract";
+        ContractStartingDate: Date;
+        ContractExpirationDate: Date;
+        DefaultContractValue: Decimal;
+        Description: Text[100];
+    begin
+        // [SCENARIO 489462] When Creating Service Invoice for a partial year prepaid contract, the invoice is not allocated out to the full end of the Contract's Expiration Date.
+        Initialize();
+
+        // [GIVEN] Generate and Save Contract Starting date in a Variable.
+        ContractStartingDate := CalcDate('<-CM+14D>', WorkDate());
+
+        // [GIVEN] Generate and Save Contract Expiration date in a Variable.
+        ContractExpirationDate := CalcDate('<CM+7M+1D>', ContractStartingDate);
+
+        // [GIVEN] Create a Customer.
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Create a Service Item Group.
+        LibraryService.CreateServiceItemGroup(ServiceItemGroup);
+
+        // [GIVEN] Create a Service Price Group.
+        LibraryService.CreateServicePriceGroup(ServicePriceGroup);
+
+        // [GIVEN] Generate and save Default Contract Value in a Variable.
+        DefaultContractValue := LibraryRandom.RandDecInRange(3000, 4000, 0);
+
+        // [GIVEN] Create a Service Item.
+        CreateServiceItemAndValidateFields(
+            ServiceItem,
+            Customer."No.",
+            ServiceItemGroup.Code,
+            ServicePriceGroup.Code,
+            DefaultContractValue,
+            ContractStartingDate);
+
+        // [GIVEN] Create a Service Contract Header.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        CreateServiceContractHeaderAndValidateFields(
+            ServiceContractHeader,
+            Customer."No.",
+            ContractStartingDate,
+            ContractExpirationDate);
+
+        // [GIVEN] Create a Service Contract Line.
+        CreateServiceContractLineAndValidateFields(
+            ServiceContractLine,
+            ServiceContractHeader,
+            ServiceItem."No.",
+            DefaultContractValue,
+            ContractStartingDate,
+            ContractExpirationDate);
+
+        // [GIVEN] Validate Allow Unbalanced Amounts, Annual Amount 
+        // And Invoice Period in Service Contract Header.
+        ServiceContractHeader.Validate("Allow Unbalanced Amounts", false);
+        ServiceContractHeader.Validate("Annual Amount", DefaultContractValue);
+        ServiceContractHeader.Validate("Invoice Period", ServiceContractHeader."Invoice Period"::Year);
+        ServiceContractHeader.Modify(true);
+
+        // [GIVEN] Change WorkDate.
+        WorkDate(CalcDate('<CM+2D>', ContractStartingDate));
+
+        // [GIVEN] Lock Service Contract.
+        LockOpenServContract.LockServContract(ServiceContractHeader);
+
+        // [GIVEN] Sign Service Contract.
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        SignServContractDoc.SignContract(ServiceContractHeader);
+
+        // [GIVEN] Open Service Contract page and run Create Service Contract action.
+        ServiceContract.OpenEdit();
+        ServiceContract.GoToRecord(ServiceContractHeader);
+        LibraryVariableStorage.Enqueue(false);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(StrSubstNo(SignServContractQst, ServiceContractHeader."Contract No."));
+        ServiceContract.CreateServiceInvoice.Invoke();
+
+        // [GIVEN] Generate and save Description in a Variable.
+        Description := StrSubstNo(
+            DescriptionLbl,
+            CalcDate('<-CM>', ContractExpirationDate),
+            CalcDate('<CM>', ContractExpirationDate));
+
+        // [WHEN] Find last Service Invoice Line.
+        FindlastServiceLine(ServiceContractHeader, ServiceHeader, ServiceLine);
+
+        // [VERIFY] Verify last Service Line is of Start and End Date of Expiration Date month.
+        Assert.AreEqual(ServiceLine.Description, Description, DescriptionMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2692,11 +2806,94 @@ codeunit 136145 "Service Contracts II"
             (StrPos(Question, ConfirmLaterInvoiceToDateQst) <> 0);
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure SignContractConfirmHandler(SignContractMessage: Text[1024]; var Result: Boolean)
+    var
+        CreateServiceInvoiceWithinPeriod: Boolean;
+    begin
+        CreateServiceInvoiceWithinPeriod := LibraryVariableStorage.DequeueBoolean();
+        case true of
+            SignContractMessage = Format(LibraryVariableStorage.DequeueText()):
+                Result := true;
+            SignContractMessage = Format(CreateServiceInvoiceQst):
+                Result := true;
+            CreateServiceInvoiceWithinPeriod = true:
+                Result := true;
+            else
+                Result := false;
+        end;
+    end;
+
     local procedure DeleteObjectOptionsIfNeeded()
     var
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
     end;
+
+    local procedure CreateServiceItemAndValidateFields(
+        var ServiceItem: Record "Service Item";
+        CustomerNo: Code[20];
+        ServiceItemGroupCode: Code[10];
+        ServicePriceGroupCode: Code[10];
+        DefaultContractValue: Decimal;
+        InstallationDate: Date)
+    begin
+        LibraryService.CreateServiceItem(ServiceItem, CustomerNo);
+        ServiceItem.Validate("Service Item Group Code", ServiceItemGroupCode);
+        ServiceItem.Validate("Service Price Group Code", ServicePriceGroupCode);
+        ServiceItem.Validate("Default Contract Value", DefaultContractValue);
+        ServiceItem.Validate("Installation Date", InstallationDate);
+        ServiceItem.Modify(true);
+    end;
+
+    local procedure CreateServiceContractHeaderAndValidateFields(
+        var ServiceContractHeader: Record "Service Contract Header";
+        CustomerNo: Code[20];
+        StartingDate: Date;
+        ExpirationDate: Date)
+    begin
+        LibraryService.CreateServiceContractHeader(ServiceContractHeader, ServiceContractHeader."Contract Type"::Contract, CustomerNo);
+        ServiceContractHeader.Validate(Prepaid, true);
+        ServiceContractHeader.Validate("Starting Date", StartingDate);
+        ServiceContractHeader.Validate("Expiration Date", ExpirationDate);
+        ServiceContractHeader.Validate("Combine Invoices", true);
+        ServiceContractHeader.Validate("Contract Lines on Invoice", true);
+        ServiceContractHeader.Modify(true);
+    end;
+
+    local procedure CreateServiceContractLineAndValidateFields(
+        var ServiceContractLine: Record "Service Contract Line";
+        var ServiceContractHeader: Record "Service Contract Header";
+        ServiceItemNo: Code[20];
+        LineAmount: Decimal;
+        StartingDate: Date;
+        ExpirationDate: Date)
+    begin
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItemNo);
+        ServiceContractLine.Validate("Line Value", LineAmount);
+        ServiceContractLine.Validate("Line Amount", LineAmount);
+        ServiceContractLine.Validate("Starting Date", StartingDate);
+        ServiceContractLine.Validate("Contract Expiration Date", ExpirationDate);
+        ServiceContractLine.Validate("Next Planned Service Date", StartingDate);
+        ServiceContractLine.Modify(true);
+    end;
+
+    local procedure FindlastServiceLine(
+        var ServiceContractHeader: Record "Service Contract Header";
+        var Serviceheader: Record "Service Header";
+        var ServiceLine: Record "Service Line")
+    begin
+        ServiceHeader.SetRange("Document Type", ServiceHeader."Document Type"::Invoice);
+        ServiceHeader.SetRange("Contract No.", ServiceContractHeader."Contract No.");
+        ServiceHeader.FindFirst();
+
+        ServiceLine.SetRange("Document Type", ServiceLine."Document Type"::Invoice);
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange(Type, ServiceLine.Type::"G/L Account");
+        ServiceLine.FindLast();
+    end;
+
 }
 

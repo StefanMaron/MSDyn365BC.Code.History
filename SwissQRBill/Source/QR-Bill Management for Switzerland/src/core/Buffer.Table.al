@@ -373,6 +373,7 @@ table 11510 "Swiss QR-Bill Buffer"
 
     var
         SwissQRBillMgt: Codeunit "Swiss QR-Bill Mgt.";
+        SourceDocRecRef: RecordRef;
 
     procedure AddBufferRecord(SourceSwissQRBillBuffer: Record "Swiss QR-Bill Buffer")
     begin
@@ -471,9 +472,6 @@ table 11510 "Swiss QR-Bill Buffer"
     end;
 
     internal procedure SetUltimateDebitorInfo(Customer: Record Customer)
-    var
-        Language: Codeunit Language;
-        LanguageId: Integer;
     begin
         "UDebtor Name" := CopyStr(Customer.Name, 1, MaxStrLen("Creditor Name"));
         "UDebtor Street Or AddrLine1" := CopyStr(Customer.Address, 1, MaxStrLen("Creditor Street Or AddrLine1"));
@@ -482,18 +480,53 @@ table 11510 "Swiss QR-Bill Buffer"
         "UDebtor City" := Customer.City;
         "UDebtor Country" := CopyStr(Customer."Country/Region Code", 1, MaxStrLen("Creditor Country"));
 
-        LanguageId := Language.GetLanguageId(Customer."Language Code");
+        SetLanguageCode(Customer."Language Code");
+    end;
 
-        case true of
-            SwissQRBillMgt.GetLanguagesIdDEU().Contains(Format(LanguageId)):
-                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdDEU());
-            SwissQRBillMgt.GetLanguagesIdFRA().Contains(Format(LanguageId)):
-                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdFRA());
-            SwissQRBillMgt.GetLanguagesIdITA().Contains(Format(LanguageId)):
-                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdITA());
-            else
-                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdENU());
+    internal procedure SetUltimateDebitorInfo(DocumentRecRef: RecordRef)
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        BillToName: Text[100];
+        BillToAddress: Text[100];
+        BillToAddress2: Text[50];
+        BillToPostCode: Code[20];
+        BillToCity: Text[30];
+        BillToCountryRegion: Code[10];
+        LanguageCode: Code[10];
+    begin
+        case DocumentRecRef.Number of
+            Database::"Sales Invoice Header":
+                begin
+                    DocumentRecRef.SetTable(SalesInvoiceHeader);
+                    BillToName := SalesInvoiceHeader."Bill-to Name";
+                    BillToAddress := SalesInvoiceHeader."Bill-to Address";
+                    BillToAddress2 := SalesInvoiceHeader."Bill-to Address 2";
+                    BillToPostCode := SalesInvoiceHeader."Bill-to Post Code";
+                    BillToCity := SalesInvoiceHeader."Bill-to City";
+                    BillToCountryRegion := SalesInvoiceHeader."Bill-to Country/Region Code";
+                    LanguageCode := SalesInvoiceHeader."Language Code";
+                end;
+            Database::"Service Invoice Header":
+                begin
+                    DocumentRecRef.SetTable(ServiceInvoiceHeader);
+                    BillToName := ServiceInvoiceHeader."Bill-to Name";
+                    BillToAddress := ServiceInvoiceHeader."Bill-to Address";
+                    BillToAddress2 := ServiceInvoiceHeader."Bill-to Address 2";
+                    BillToPostCode := ServiceInvoiceHeader."Bill-to Post Code";
+                    BillToCity := ServiceInvoiceHeader."Bill-to City";
+                    BillToCountryRegion := ServiceInvoiceHeader."Bill-to Country/Region Code";
+                    LanguageCode := ServiceInvoiceHeader."Language Code";
+                end;
         end;
+        "UDebtor Name" := CopyStr(BillToName, 1, MaxStrLen("Creditor Name"));
+        "UDebtor Street Or AddrLine1" := CopyStr(BillToAddress, 1, MaxStrLen("Creditor Street Or AddrLine1"));
+        "UDebtor BuildNo Or AddrLine2" := CopyStr(BillToAddress2, 1, MaxStrLen("Creditor BuildNo Or AddrLine2"));
+        "UDebtor Postal Code" := CopyStr(BillToPostCode, 1, MaxStrLen("Creditor Postal Code"));
+        "UDebtor City" := BillToCity;
+        "UDebtor Country" := CopyStr(BillToCountryRegion, 1, MaxStrLen("Creditor Country"));
+
+        SetLanguageCode(LanguageCode);
     end;
 
     procedure GetCreditorInfo(var Customer: Record Customer): Boolean
@@ -536,6 +569,24 @@ table 11510 "Swiss QR-Bill Buffer"
         Customer.City := "UDebtor City";
         Customer."Country/Region Code" := "UDebtor Country";
         exit(true);
+    end;
+
+    local procedure SetLanguageCode(LanguageCode: Code[10])
+    var
+        Language: Codeunit Language;
+        LanguageId: Integer;
+    begin
+        LanguageId := Language.GetLanguageId(LanguageCode);
+        case true of
+            SwissQRBillMgt.GetLanguagesIdDEU().Contains(Format(LanguageId)):
+                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdDEU());
+            SwissQRBillMgt.GetLanguagesIdFRA().Contains(Format(LanguageId)):
+                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdFRA());
+            SwissQRBillMgt.GetLanguagesIdITA().Contains(Format(LanguageId)):
+                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdITA());
+            else
+                "Language Code" := Language.GetLanguageCode(SwissQRBillMgt.GetLanguageIdENU());
+        end;
     end;
 
     internal procedure LoadLayout(QRBillLayoutCode: Code[20])
@@ -592,6 +643,11 @@ table 11510 "Swiss QR-Bill Buffer"
                 "Unstructured Message" := '';
     end;
 
+    internal procedure InitSourceRecord(RecRef: RecordRef)
+    begin
+        SourceDocRecRef := RecRef;
+    end;
+
     procedure SetSourceRecord(CustomerLedgerEntryNo: Integer)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -618,9 +674,12 @@ table 11510 "Swiss QR-Bill Buffer"
         LoadLayout(PaymentMethod."Swiss QR-Bill Layout");
         SwissQRBillLayout.Get("QR-Bill Layout");
 
-        if CustLedgerEntry."Customer No." <> '' then
-            if Customer.Get(CustLedgerEntry."Customer No.") then
-                SetUltimateDebitorInfo(Customer);
+        if SourceDocRecRef.Number in [Database::"Sales Invoice Header", Database::"Service Invoice Header"] then
+            SetUltimateDebitorInfo(SourceDocRecRef)
+        else
+            if CustLedgerEntry."Customer No." <> '' then
+                if Customer.Get(CustLedgerEntry."Customer No.") then
+                    SetUltimateDebitorInfo(Customer);
 
         LoadSourceRecordBillingInformation(SwissQRBillLayout);
         if PaymentMethod."Swiss QR-Bill Bank Account No." <> '' then

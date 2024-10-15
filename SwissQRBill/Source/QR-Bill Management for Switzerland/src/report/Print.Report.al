@@ -20,8 +20,11 @@ report 11510 "Swiss QR-Bill Print"
             trigger OnAfterGetRecord()
             var
                 TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
+                RecRef: RecordRef;
             begin
                 if SwissQRBillMgt.AllowedCurrencyCode("Currency Code") then begin
+                    RecRef.GetTable(SalesInvoiceHeader);
+                    TempSwissQRBillBuffer.InitSourceRecord(RecRef);
                     TempSwissQRBillBuffer.InitBuffer('');
                     TempSwissQRBillBuffer.SetSourceRecord("Cust. Ledger Entry No.");
                     SwissQRBillBuffer.AddBufferRecord(TempSwissQRBillBuffer);
@@ -43,12 +46,15 @@ report 11510 "Swiss QR-Bill Print"
             trigger OnAfterGetRecord()
             var
                 TempSwissQRBillBuffer: Record "Swiss QR-Bill Buffer" temporary;
+                RecRef: RecordRef;
                 LedgerEntryNo: Integer;
             begin
                 if SwissQRBillMgt.AllowedCurrencyCode("Currency Code") then
                     if SwissQRBillMgt.FindCustLedgerEntry(
                            LedgerEntryNo, "Bill-to Customer No.", DocumentType::Invoice, "No.", "Posting Date")
                     then begin
+                        RecRef.GetTable(ServiceInvoiceHeader);
+                        TempSwissQRBillBuffer.InitSourceRecord(RecRef);
                         TempSwissQRBillBuffer.InitBuffer('');
                         TempSwissQRBillBuffer.SetSourceRecord(LedgerEntryNo);
                         SwissQRBillBuffer.AddBufferRecord(TempSwissQRBillBuffer);
