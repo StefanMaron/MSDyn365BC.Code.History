@@ -129,8 +129,6 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     local procedure CheckSalesPosting()
-    var
-        Sign: Integer;
     begin
         with FALedgEntry do begin
             if FADeprBook."Acquisition Date" = 0D then
@@ -159,12 +157,8 @@ codeunit 5606 "FA Check Consistency"
                 SetRange("FA Posting Date");
                 if Find('-') then
                     repeat
-                        if "Entry No." = FALedgEntry2."Entry No." then
-                            Sign := -1
-                        else
-                            Sign := 1;
-                        NewAmount := NewAmount + Sign * Amount;
-                        if NewAmount < 0 then
+                        NewAmount := NewAmount + Amount;
+                        if NewAmount > 0 then
                             CreatePostingTypeError;
                     until Next = 0;
             end;
