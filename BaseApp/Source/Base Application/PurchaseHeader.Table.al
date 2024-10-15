@@ -270,6 +270,7 @@ table 38 "Purchase Header"
                     Vendor.Get("Pay-to Vendor No.");
 
                 if Vendor.LookupVendor(Vendor) then begin
+                    xRec := Rec;
                     "Pay-to Name" := Vendor.Name;
                     Validate("Pay-to Vendor No.", Vendor."No.");
                 end;
@@ -1172,6 +1173,7 @@ table 38 "Purchase Header"
                     Vendor.Get("Buy-from Vendor No.");
 
                 if Vendor.LookupVendor(Vendor) then begin
+                    xRec := Rec;
                     "Buy-from Vendor Name" := Vendor.Name;
                     Validate("Buy-from Vendor No.", Vendor."No.");
                 end;
@@ -2978,9 +2980,9 @@ table 38 "Purchase Header"
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
         InvtSetup: Record "Inventory Setup";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountry: Record "Registration Country/Region";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -3060,7 +3062,7 @@ table 38 "Purchase Header"
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NoSeriesLink: Record "No. Series Link";
         ArchiveManagement: Codeunit ArchiveManagement;
         IsHandled: Boolean;
@@ -4398,7 +4400,7 @@ table 38 "Purchase Header"
         end
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetPstdDocLinesToRevere()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
@@ -4708,7 +4710,7 @@ table 38 "Purchase Header"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
     procedure GetPostingDescription(PurchHeader: Record "Purchase Header"): Text[100]
     var
         PostingDesc: Record "Posting Description";
@@ -4736,7 +4738,7 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -4975,7 +4977,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure OnCheckPurchasePostRestrictions()
     begin
     end;
@@ -5969,6 +5971,20 @@ table 38 "Purchase Header"
             exit;
 
         FullDocTypeTxt := SelectStr("Document Type" + 1, FullPurchaseTypesTxt);
+    end;
+
+    procedure ShipOrReceiveInventoriableTypeItems(): Boolean
+    begin
+        // NAVCZ
+        PurchLine.Reset();
+        PurchLine.SetRange("Document Type", "Document Type");
+        PurchLine.SetRange("Document No.", "No.");
+        PurchLine.SetRange(Type, PurchLine.Type::Item);
+        if PurchLine.FindSet() then
+            repeat
+                if ((PurchLine."Qty. to Receive" <> 0) or (PurchLine."Return Qty. to Ship" <> 0)) and PurchLine.IsInventoriableItem() then
+                    exit(true);
+            until PurchLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

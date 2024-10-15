@@ -18,6 +18,11 @@ page 31067 "VIES Declaration Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies trade type for the declaration header (sales, purchases or both).';
+
+                    trigger OnValidate()
+                    begin
+                        SetControlsEditable();
+                    end;
                 }
                 field("Line Type"; "Line Type")
                 {
@@ -78,28 +83,47 @@ page 31067 "VIES Declaration Subform"
                 field("Number of Supplies"; "Number of Supplies")
                 {
                     ApplicationArea = Basic, Suite;
+                    Editable = NumberOfSuppliesEditable;
                     ToolTip = 'Specifies the number of supplies.';
                 }
                 field("Amount (LCY)"; "Amount (LCY)")
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
+                    Editable = AmountLCYEditable;
                     ToolTip = 'Specifies the amount of the entry in LCY.';
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownAmountLCY;
+                        DrillDownAmountLCY();
                     end;
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Trade Role Type"; "Trade Role Type")
                 {
                     ApplicationArea = Basic, Suite;
+                    Editable = TradeRoleTypeEditable;
                     ToolTip = 'Specifies the trade role for the declaration line of direct trade, intermediate trade, or property movement.';
+                }
+                field("Record Code"; "Record Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies type of call-off stock trades. Can take values: 1=Transfer to the stock, 2=Return item to vendor, 3=change in the expected customer';
+
+                    trigger OnValidate()
+                    begin
+                        SetControlsEditable();
+                    end;
+                }
+                field("VAT Reg. No. of Original Cust."; "VAT Reg. No. of Original Cust.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = VATRegNoOfOriginalCustEditable;
+                    ToolTip = 'Specifies VAT Registration No. of original supposed customer for call-off stock items.';
                 }
             }
         }
@@ -109,9 +133,14 @@ page 31067 "VIES Declaration Subform"
     {
     }
 
+    trigger OnAfterGetCurrRecord()
+    begin
+        SetControlsEditable();
+    end;
+
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -127,5 +156,17 @@ page 31067 "VIES Declaration Subform"
         Vend: Record Vendor;
         CustList: Page "Customer List";
         VendList: Page "Vendor List";
+        NumberOfSuppliesEditable: Boolean;
+        AmountLCYEditable: Boolean;
+        TradeRoleTypeEditable: Boolean;
+        VATRegNoOfOriginalCustEditable: Boolean;
+
+    procedure SetControlsEditable()
+    begin
+        NumberOfSuppliesEditable := "Trade Type" <> "Trade Type"::" ";
+        AmountLCYEditable := "Trade Type" <> "Trade Type"::" ";
+        TradeRoleTypeEditable := "Trade Type" <> "Trade Type"::" ";
+        VATRegNoOfOriginalCustEditable := "Record Code" = "Record Code"::"3";
+    end;
 }
 

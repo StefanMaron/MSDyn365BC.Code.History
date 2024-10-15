@@ -130,6 +130,12 @@ report 31060 "VIES Declaration"
             column(VIES_Declaration_Header_No_; "No.")
             {
             }
+            column(SECTIONBLbl; SECTIONBLbl)
+            {
+            }
+            column(SECTIONCLbl; SECTIONCLbl)
+            {
+            }
             dataitem("VIES Declaration Line"; "VIES Declaration Line")
             {
                 DataItemLink = "VIES Declaration No." = FIELD("No.");
@@ -158,6 +164,21 @@ report 31060 "VIES Declaration"
                 {
                 }
                 column(VIES_Declaration_Line_Line_No_; "Line No.")
+                {
+                }
+                column(VIES_Declaration_Line_Trade_Type; "Trade Type")
+                {
+                }
+                column(VIES_Declaration_Line_Record_Code; "Record Code")
+                {
+                }
+                column(VIES_Declaration_Line_VAT_Reg_No_of_Original_Cust; "VAT Reg. No. of Original Cust.")
+                {
+                }
+                column(VIES_Declaration_Line_Record_Code_Caption; FieldCaption("Record Code"))
+                {
+                }
+                column(VIES_Declaration_Line_VAT_Reg_No_of_Original_Cust_Caption; FieldCaption("VAT Reg. No. of Original Cust."))
                 {
                 }
 
@@ -236,6 +257,8 @@ report 31060 "VIES Declaration"
         VIES_Declaration_Header__VIES_Declaration_Header__YearCaptionLbl: Label 'Year';
         Post_Code_CityCaptionLbl: Label 'Post Code/City';
         Name_and_Address_CaptionLbl: Label 'Name and Address:';
+        SECTIONBLbl: Label 'SECTION B', Comment = 'name of section';
+        SECTIONCLbl: Label 'SECTION C', Comment = 'name of section';
         CompanyInfo: Record "Company Information";
         CompanyOfficials: Record "Company Officials";
         FormatAddr: Codeunit "Format Address";

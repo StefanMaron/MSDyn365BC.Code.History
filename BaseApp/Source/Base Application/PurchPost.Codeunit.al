@@ -29,8 +29,11 @@
         TempVATAmountLineRemainder: Record "VAT Amount Line" temporary;
         InvtSetup: Record "Inventory Setup";
         TempDropShptPostBuffer: Record "Drop Shpt. Post. Buffer" temporary;
+        ErrorContextElementProcessLines: Codeunit "Error Context Element";
+        ErrorContextElementPostLine: Codeunit "Error Context Element";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        ZeroPurchLineRecID: RecordId;
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
         SavedSuppressCommit: Boolean;
@@ -69,6 +72,8 @@
         EverythingInvoiced := true;
 
         // Lines
+        GetZeroPurchLineRecID(PurchHeader, ZeroPurchLineRecID);
+        ErrorMessageMgt.PushContext(ErrorContextElementProcessLines, ZeroPurchLineRecID, 0, PostDocumentLinesMsg);
         OnBeforePostLines(TempPurchLineGlobal, PurchHeader, PreviewMode, SuppressCommit);
 
         LineCount := 0;
@@ -81,6 +86,7 @@
         PurchaseLinesProcessed := false;
         if TempPurchLineGlobal.FindSet() then
             repeat
+                ErrorMessageMgt.PushContext(ErrorContextElementPostLine, TempPurchLineGlobal.RecordId, 0, PostDocumentLinesMsg);
                 ItemJnlRollRndg := false;
                 LineCount := LineCount + 1;
                 if GuiAllowed and not HideProgressWindow then
@@ -103,6 +109,7 @@
         OnAfterPostPurchLines(
           PurchHeader, PurchRcptHeader, PurchInvHeader, PurchCrMemoHeader, ReturnShptHeader, WhseShip, WhseReceive, PurchaseLinesProcessed,
           SuppressCommit, EverythingInvoiced);
+        ErrorMessageMgt.Finish(ZeroPurchLineRecID);
 
         if PurchHeader.IsCreditDocType then begin
             ReverseAmount(TotalPurchLine);
@@ -268,6 +275,7 @@
         WhseShip: Boolean;
         InvtPickPutaway: Boolean;
         PositiveWhseEntrycreated: Boolean;
+        PostDocumentLinesMsg: Label 'Post document lines.';
         UnpostedInvoiceDuplicateQst: Label 'An unposted invoice for order %1 exists. To avoid duplicate postings, delete order %1 or invoice %2.\Do you still want to post order %1?', Comment = '%1 = Order No.,%2 = Invoice No.';
         InvoiceDuplicateInboxQst: Label 'An invoice for order %1 exists in the IC inbox. To avoid duplicate postings, cancel invoice %2 in the IC inbox.\Do you still want to post order %1?', Comment = '%1 = Order No.';
         PostedInvoiceDuplicateQst: Label 'Posted invoice %1 already exists for order %2. To avoid duplicate postings, do not post order %2.\Do you still want to post order %2?', Comment = '%1 = Invoice No., %2 = Order No.';
@@ -297,6 +305,16 @@
         SuppressCommit: Boolean;
         CheckPurchHeaderMsg: Label 'Check purchase document fields.';
         HideProgressWindow: Boolean;
+
+    local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
+    var
+        ZeroPurchLine: Record "Purchase Line";
+    begin
+        ZeroPurchLine."Document Type" := PurchHeader."Document Type";
+        ZeroPurchLine."Document No." := PurchHeader."No.";
+        ZeroPurchLine."Line No." := 0;
+        PurchLineRecID := ZeroPurchLine.RecordId;
+    end;
 
     procedure CopyToTempLines(PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary)
     var
@@ -622,7 +640,7 @@
                 if IntrastatTransaction and (PurchHeader.Ship or PurchHeader.Receive) and (Type = Type::Item) then begin
                     if StatReportingSetup."Tariff No. Mandatory" then
                         TestField("Tariff No.");
-                    if StatReportingSetup."Net Weight Mandatory" then
+                    if StatReportingSetup."Net Weight Mandatory" and IsInventoriableItem() then
                         TestField("Net Weight");
                     if StatReportingSetup."Country/Region of Origin Mand." then
                         TestField("Country/Region of Origin Code");
@@ -5180,7 +5198,7 @@
         SumPurchLines2(PurchHeader, NewPurchLine, OldPurchLine, QtyType, true);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure TransferNonDedVAT(var GenJnlLine: Record "Gen. Journal Line"; InvPostingBuffer: Record "Invoice Post. Buffer")
     begin
         // NAVCZ
@@ -7354,7 +7372,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CheckItemChargeForReceive(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
@@ -7383,7 +7401,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CheckItemChargeForShip(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
@@ -7417,7 +7435,7 @@
         with PurchHeader do begin
             if Ship or Receive then
                 IntrastatTransaction := IsIntrastatTransaction;
-            if IntrastatTransaction then begin
+            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
                 StatReportingSetup.Get();
                 if StatReportingSetup."Transaction Type Mandatory" then
                     TestField("Transaction Type");

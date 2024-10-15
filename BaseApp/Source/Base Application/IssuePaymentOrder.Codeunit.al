@@ -17,7 +17,6 @@ codeunit 11706 "Issue Payment Order"
         PaymentOrderManagement: Codeunit "Payment Order Management";
         EmptyPostErr: Label 'There is nothing to post.';
         ApprovalProcessReopenErr: Label 'The approval process must be cancelled or completed to reopen this document.';
-        ContinueQst: Label 'Do you want to continue?';
 
     local procedure "Code"()
     var
@@ -90,34 +89,30 @@ codeunit 11706 "Issue Payment Order"
     local procedure CheckPaymentOrderLines(PmtOrdHdr: Record "Payment Order Header")
     var
         PmtOrdLn: Record "Payment Order Line";
-        TempErrorMessage: Record "Error Message" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckPaymentOrderLines(PmtOrdHdr, IsHandled);
+        if IsHandled then
+            exit;
+
         with PmtOrdLn do begin
             PaymentOrderManagement.ClearErrorMessageLog;
             SetPaymentOrderLineFilters(PmtOrdLn, PmtOrdHdr);
             FindSet;
             repeat
-                PaymentOrderManagement.CheckPaymentOrderLineFormat(PmtOrdLn, false);
-                PaymentOrderManagement.CheckPaymentOrderLineBankAccountNo(PmtOrdLn, false);
-                PaymentOrderManagement.CheckPaymentOrderLineCustVendBlocked(PmtOrdLn, false);
-                PaymentOrderManagement.CheckPaymentOrderLineApply(PmtOrdLn, false);
+                IsHandled := false;
+                OnBeforeCheckPaymentOrderLine(PmtOrdLn, IsHandled);
+                if not IsHandled then begin
+                    PaymentOrderManagement.CheckPaymentOrderLineFormat(PmtOrdLn, false);
+                    PaymentOrderManagement.CheckPaymentOrderLineBankAccountNo(PmtOrdLn, false);
+                    PaymentOrderManagement.CheckPaymentOrderLineCustVendBlocked(PmtOrdLn, false);
+                    PaymentOrderManagement.CheckPaymentOrderLineApply(PmtOrdLn, false);
+                    PaymentOrderManagement.CheckPaymentOrderLineCustom(PmtOrdLn, false);
+                end;
             until Next = 0;
 
-            PaymentOrderManagement.CopyErrorMessageToTemp(TempErrorMessage);
-            if TempErrorMessage.HasErrors(true) then
-                TempErrorMessage.ShowErrorMessages(true);
-
-            TempErrorMessage.Reset;
-            TempErrorMessage.SetRange("Message Type", TempErrorMessage."Message Type"::Warning);
-            TempErrorMessage.SetFilter("Field Number", '%1|%2|%3',
-              FieldNo("Applies-to C/V/E Entry No."),
-              FieldNo("Letter No."),
-              FieldNo("Letter Line No."));
-            if TempErrorMessage.FindSet then
-                repeat
-                    if not Confirm(StrSubstNo('%1\\%2', TempErrorMessage.Description, ContinueQst)) then
-                        Error('');
-                until TempErrorMessage.Next = 0;
+            PaymentOrderManagement.ProcessErrorMessages(true, true);
         end;
     end;
 
@@ -125,6 +120,7 @@ codeunit 11706 "Issue Payment Order"
     begin
         PmtOrdLn.SetRange("Payment Order No.", PmtOrdHdr."No.");
         PmtOrdLn.SetRange("Skip Payment", false);
+        OnAfterSetPaymentOrderLineFilters(PmtOrdLn, PmtOrdHdr);
     end;
 
     [Scope('OnPrem')]
@@ -172,6 +168,11 @@ codeunit 11706 "Issue Payment Order"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPaymentOrderLineFilters(var PaymentOrderLine: Record "Payment Order Line"; PaymentOrderHeader: Record "Payment Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIssuedPaymentOrderHeaderInsert(var IssuedPaymentOrderHeader: Record "Issued Payment Order Header"; var PaymentOrderHeader: Record "Payment Order Header")
     begin
     end;
@@ -193,6 +194,16 @@ codeunit 11706 "Issue Payment Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheck(var PaymentOrderHeader: Record "Payment Order Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPaymentOrderLines(var PaymentOrderHeader: Record "Payment Order Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPaymentOrderLine(var PaymentOrderLine: Record "Payment Order Line"; var IsHandled: Boolean);
     begin
     end;
 }

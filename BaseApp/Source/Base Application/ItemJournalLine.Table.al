@@ -3792,8 +3792,9 @@ table 83 "Item Journal Line"
     procedure CheckIntrastat()
     begin
         // NAVCZ
-        if "Intrastat Transaction" then begin
-            StatReportingSetup.Get;
+        GetItem();
+        if "Intrastat Transaction" and Item.IsInventoriableType() then begin
+            StatReportingSetup.Get();
             if StatReportingSetup."Transaction Type Mandatory" and ("Transaction Type" = '') then
                 Error(Text26500, FieldCaption("Transaction Type"), "Item No.");
             if StatReportingSetup."Transaction Spec. Mandatory" and ("Transaction Specification" = '') then

@@ -240,6 +240,7 @@ table 36 "Sales Header"
                     Customer.Get("Bill-to Customer No.");
 
                 if Customer.LookupCustomer(Customer) then begin
+                    xRec := Rec;
                     "Bill-to Name" := Customer.Name;
                     Validate("Bill-to Customer No.", Customer."No.");
                 end;
@@ -342,7 +343,7 @@ table 36 "Sales Header"
                           FieldCaption("Ship-to Code"));
                     SalesLine.Reset;
                 end;
-                             
+
                 if "Ship-to Code" <> '' then begin
                     if xRec."Ship-to Code" <> '' then begin
                         GetCust("Sell-to Customer No.");
@@ -1200,6 +1201,7 @@ table 36 "Sales Header"
                     Customer.Get("Sell-to Customer No.");
 
                 if Customer.LookupCustomer(Customer) then begin
+                    xRec := Rec;
                     "Sell-to Customer Name" := Customer.Name;
                     Validate("Sell-to Customer No.", Customer."No.");
                 end;
@@ -3303,13 +3305,13 @@ table 36 "Sales Header"
         InvtSetup: Record "Inventory Setup";
         Location: Record Location;
         WhseRequest: Record "Warehouse Request";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         RegistrationCountry: Record "Registration Country/Region";
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         CompanyInfo: Record "Company Information";
         Salesperson: Record "Salesperson/Purchaser";
-        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         PerfCountryCurrExchRate: Record "Perf. Country Curr. Exch. Rate";
         UserSetupMgt: Codeunit "User Setup Management";
         NoSeriesMgt: Codeunit NoSeriesManagement;
@@ -3401,7 +3403,7 @@ table 36 "Sales Header"
 
     procedure InitRecord()
     var
-        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+        [Obsolete('The functionality of No. Series Enhancements will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         NoSeriesLink: Record "No. Series Link";
         ArchiveManagement: Codeunit ArchiveManagement;
         PostingNoSeries: Boolean;
@@ -5423,7 +5425,7 @@ table 36 "Sales Header"
     end;
 
     [Scope('OnPrem')]
-    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)', '15.3')]
     procedure GetPostingDescription(SalesHeader: Record "Sales Header"): Text[100]
     var
         PostingDesc: Record "Posting Description";
@@ -5528,7 +5530,7 @@ table 36 "Sales Header"
         exit(false);
     end;
 
-    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure UpdatePerformCountryCurrFactor()
     begin
         // NAVCZ
@@ -7052,6 +7054,20 @@ table 36 "Sales Header"
                         end;
                 end;
             until CurrentSalesLine.Next = 0;
+    end;
+
+    procedure ShipOrReceiveInventoriableTypeItems(): Boolean
+    begin
+        // NAVCZ
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", "Document Type");
+        SalesLine.SetRange("Document No.", "No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        if SalesLine.FindSet() then
+            repeat
+                if ((SalesLine."Qty. to Ship" <> 0) or (SalesLine."Return Qty. to Receive" <> 0)) and SalesLine.IsInventoriableItem() then
+                    exit(true);
+            until SalesLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

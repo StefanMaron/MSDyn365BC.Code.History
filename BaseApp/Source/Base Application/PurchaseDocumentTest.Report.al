@@ -1504,8 +1504,8 @@ report 402 "Purchase Document - Test"
                 // NAVCZ
                 if Ship or Receive then
                     IntrastatTransaction := IsIntrastatTransaction;
-                if IntrastatTransaction then begin
-                    StatReportingSetup.Get;
+                if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
+                    StatReportingSetup.Get();
                     if StatReportingSetup."Transaction Type Mandatory" then
                         if "Transaction Type" = '' then
                             AddError(
@@ -1938,7 +1938,7 @@ report 402 "Purchase Document - Test"
                                         if "Tariff No." = '' then
                                             AddError(
                                               StrSubstNo(MustBeForErr, Item.FieldCaption("Tariff No."), false, Item.TableCaption, "No."));
-                                    if StatReportingSetup."Net Weight Mandatory" then
+                                    if StatReportingSetup."Net Weight Mandatory" and IsInventoriableItem() then
                                         if "Net Weight" = 0 then
                                             AddError(
                                               StrSubstNo(MustBeForErr, Item.FieldCaption("Net Weight"), false, Item.TableCaption, "No."));

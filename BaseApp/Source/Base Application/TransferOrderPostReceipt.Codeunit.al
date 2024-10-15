@@ -44,8 +44,8 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
             // NAVCZ
             IntrastatTransaction := IsIntrastatTransaction;
-            if IntrastatTransaction then begin
-                StatReportingSetup.Get;
+            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
+                StatReportingSetup.Get();
                 if StatReportingSetup."Transaction Type Mandatory" then
                     TestField("Transaction Type");
                 if StatReportingSetup."Transaction Spec. Mandatory" then
@@ -111,7 +111,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
                     if IntrastatTransaction then begin
                         if StatReportingSetup."Tariff No. Mandatory" then
                             TransLine.TestField("Tariff No.");
-                        if StatReportingSetup."Net Weight Mandatory" then
+                        if StatReportingSetup."Net Weight Mandatory" and (TransLine."Item No." <> '') and Item.IsInventoriableType() then
                             TransLine.TestField("Net Weight");
                         if StatReportingSetup."Country/Region of Origin Mand." then
                             TransLine.TestField("Country/Region of Origin Code");

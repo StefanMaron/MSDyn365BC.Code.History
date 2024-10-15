@@ -12,13 +12,23 @@ table 31067 "VIES Declaration Line"
         field(2; "Trade Type"; Option)
         {
             Caption = 'Trade Type';
-            OptionCaption = 'Purchase,Sale';
-            OptionMembers = Purchase,Sale;
+            OptionCaption = 'Purchase,Sale, ';
+            OptionMembers = Purchase,Sale," ";
+            InitValue = " ";
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
+
+                if "Trade Type" = "Trade Type"::" " then begin
+                    "Trade Role Type" := "Trade Role Type"::" ";
+                    "Number of Supplies" := 0;
+                    "Amount (LCY)" := 0;
+                end;
+
+                "Record Code" := "Record Code"::" ";
+                "VAT Reg. No. of Original Cust." := '';
             end;
         }
         field(6; "Line No."; Integer)
@@ -33,7 +43,7 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
+                TestStatusOpen();
             end;
         }
         field(8; "Related Line No."; Integer)
@@ -51,8 +61,8 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
             end;
         }
         field(11; "VAT Registration No."; Text[20])
@@ -61,8 +71,8 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
                 if "VAT Registration No." <> xRec."VAT Registration No." then
                     "Corrected Reg. No." := true;
             end;
@@ -74,8 +84,9 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
+                CheckTradeType();
                 if "Amount (LCY)" <> xRec."Amount (LCY)" then
                     "Corrected Amount" := true;
             end;
@@ -86,8 +97,8 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
             end;
         }
         field(14; "Registration No."; Text[20])
@@ -96,8 +107,8 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
             end;
         }
         field(15; "EU 3-Party Intermediate Role"; Boolean)
@@ -106,8 +117,8 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
             end;
         }
         field(17; "Number of Supplies"; Decimal)
@@ -118,8 +129,9 @@ table 31067 "VIES Declaration Line"
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
+                CheckTradeType();
             end;
         }
         field(20; "Corrected Reg. No."; Boolean)
@@ -135,13 +147,15 @@ table 31067 "VIES Declaration Line"
         field(25; "Trade Role Type"; Option)
         {
             Caption = 'Trade Role Type';
-            OptionCaption = 'Direct Trade,Intermediate Trade,Property Movement';
-            OptionMembers = "Direct Trade","Intermediate Trade","Property Movement";
+            OptionCaption = 'Direct Trade,Intermediate Trade,Property Movement, ';
+            OptionMembers = "Direct Trade","Intermediate Trade","Property Movement"," ";
+            InitValue = " ";
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
-                CheckLineType;
+                TestStatusOpen();
+                CheckLineType();
+                CheckTradeType();
             end;
         }
         field(29; "System-Created"; Boolean)
@@ -156,6 +170,33 @@ table 31067 "VIES Declaration Line"
         field(31; "Report Line Number"; Integer)
         {
             Caption = 'Report Line Number';
+        }
+        field(35; "Record Code"; Option)
+        {
+            Caption = 'Record Code';
+            OptionCaption = ' ,1,2,3';
+            OptionMembers = " ","1","2","3";
+
+            trigger OnValidate()
+            begin
+                if "Record Code" = xRec."Record Code" then
+                    exit;
+
+                TestField("Trade Type", "Trade Type"::" ");
+                TestField("Trade Role Type", "Trade Role Type"::" ");
+                TestField("Number of Supplies", 0);
+                TestField("Amount (LCY)", 0);
+                "VAT Reg. No. of Original Cust." := '';
+            end;
+        }
+        field(36; "VAT Reg. No. of Original Cust."; Text[20])
+        {
+            Caption = 'VAT Reg. No. of Original Cust.';
+
+            trigger OnValidate()
+            begin
+                TestField("Record Code", "Record Code"::"3");
+            end;
         }
     }
 
@@ -182,17 +223,17 @@ table 31067 "VIES Declaration Line"
 
     trigger OnDelete()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
     end;
 
     trigger OnInsert()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
     end;
 
     trigger OnModify()
     begin
-        TestStatusOpen;
+        TestStatusOpen();
         if ("Line Type" = "Line Type"::Cancellation) and (CurrFieldNo <> FieldNo("Line Type")) then
             Error(CancelModifyErr);
     end;
@@ -235,17 +276,28 @@ table 31067 "VIES Declaration Line"
     end;
 
     [Scope('OnPrem')]
-    procedure GetVATRegNo() VATRegNo: Code[20]
-    var
-        Country: Record "Country/Region";
+    procedure GetVATRegNo(): Code[20]
     begin
-        VATRegNo := "VAT Registration No.";
+        exit(FormatVATRegNo("VAT Registration No."));
+    end;
 
-        if "Country/Region Code" <> '' then begin
-            Country.Get("Country/Region Code");
-            if CopyStr("VAT Registration No.", 1, StrLen(Country."EU Country/Region Code")) = Country."EU Country/Region Code" then
-                VATRegNo := CopyStr("VAT Registration No.", StrLen(Country."EU Country/Region Code") + 1);
-        end;
+    [Scope('OnPrem')]
+    procedure GetOrigCustVATRegNo(): Code[20]
+    begin
+        exit(FormatVATRegNo("VAT Reg. No. of Original Cust."));
+    end;
+
+    local procedure FormatVATRegNo(VATRegNo: Code[20]): Code[20]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if "Country/Region Code" = '' then
+            exit(VATRegNo);
+
+        CountryRegion.Get("Country/Region Code");
+        if CopyStr(VATRegNo, 1, StrLen(CountryRegion."EU Country/Region Code")) = CountryRegion."EU Country/Region Code" then
+            exit(CopyStr(VATRegNo, StrLen(CountryRegion."EU Country/Region Code") + 1));
+        exit(VATRegNo);
     end;
 
     [Scope('OnPrem')]
@@ -297,6 +349,12 @@ table 31067 "VIES Declaration Line"
     begin
         if "Line Type" = "Line Type"::Cancellation then
             Error(CancelModifyErr);
+    end;
+
+    local procedure CheckTradeType()
+    begin
+        if "Trade Type" = "Trade Type"::" " then
+            FieldError("Trade Type");
     end;
 }
 

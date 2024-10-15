@@ -1029,7 +1029,7 @@ table 210 "Job Journal Line"
             ObsoleteState = Pending;
             ObsoleteReason = 'The functionality of Item consumption for FA maintenance will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
             ObsoleteTag = '15.3';
-            
+
             trigger OnValidate()
             begin
                 if "FA No." = '' then
@@ -1885,8 +1885,8 @@ table 210 "Job Journal Line"
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
         // NAVCZ
-        if (Type = Type::Item) and "Intrastat Transaction" then begin
-            StatReportingSetup.Get;
+        if "Intrastat Transaction" and IsInventoriableItem() then begin
+            StatReportingSetup.Get();
             if StatReportingSetup."Transaction Type Mandatory" and ("Transaction Type" = '') then
                 Error(Text1220000, FieldCaption("Transaction Type"), "No.");
             if StatReportingSetup."Transaction Spec. Mandatory" and ("Transaction Specification" = '') then

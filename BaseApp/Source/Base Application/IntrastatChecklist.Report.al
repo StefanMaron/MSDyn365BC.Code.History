@@ -137,6 +137,9 @@ report 502 "Intrastat - Checklist"
                 }
 
                 trigger OnAfterGetRecord()
+                var
+                    Item: Record Item;
+                    ItemIsInventoriable: Boolean;
                 begin
                     if ("Tariff No." = '') and
                        ("Country/Region Code" = '') and
@@ -147,16 +150,21 @@ report 502 "Intrastat - Checklist"
                         CurrReport.Skip;
 
                     // NAVCZ
+                    ItemIsInventoriable := false;
+                    if Item.Get("Item No.") then
+                        ItemIsInventoriable := Item.IsInventoriableType();
                     if StatReportingSetup."Tariff No. Mandatory" then
                         ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Tariff No."), ErrorMessage."Message Type"::Error);
                     if StatReportingSetup."Country/Region of Origin Mand." and (Type <> Type::Shipment) then
                         ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Country/Region Code"), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Transaction Type Mandatory" then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Transaction Type"), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Transport Method Mandatory" then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Transport Method"), ErrorMessage."Message Type"::Error);
-                    if StatReportingSetup."Net Weight Mandatory" then
-                        ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Total Weight"), ErrorMessage."Message Type"::Error);
+                    if ItemIsInventoriable then begin
+                        if StatReportingSetup."Transaction Type Mandatory" then
+                            ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Transaction Type"), ErrorMessage."Message Type"::Error);
+                        if StatReportingSetup."Transport Method Mandatory" then
+                            ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Transport Method"), ErrorMessage."Message Type"::Error);
+                        if StatReportingSetup."Net Weight Mandatory" then
+                            ErrorMessage.LogIfEmpty("Intrastat Jnl. Line", FieldNo("Total Weight"), ErrorMessage."Message Type"::Error);
+                    end;
                     if not CountryOfOrigin.Get("Country/Region of Origin Code") then
                         Clear(CountryOfOrigin);
                     // NAVCZ

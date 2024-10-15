@@ -43,7 +43,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 WhsePosting := true;
             // NAVCZ
             IntrastatTransaction := IsIntrastatTransaction;
-            if IntrastatTransaction then
+            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then
                 CheckTransHeaderMandatoryFields(TransHeader);
             // NAVCZ
 
@@ -104,7 +104,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     if IntrastatTransaction then begin
                         if StatReportingSetup."Tariff No. Mandatory" then
                             TransLine.TestField("Tariff No.");
-                        if StatReportingSetup."Net Weight Mandatory" then
+                        if StatReportingSetup."Net Weight Mandatory" and (TransLine."Item No." <> '') and Item.IsInventoriableType() then
                             TransLine.TestField("Net Weight");
                         if StatReportingSetup."Country/Region of Origin Mand." then
                             TransLine.TestField("Country/Region of Origin Code");

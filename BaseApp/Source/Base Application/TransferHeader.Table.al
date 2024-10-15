@@ -1324,6 +1324,22 @@ table 5740 "Transfer Header"
 
         OnAfterAddTransferLineFromReceiptLine(TransferLine, PurchRcptLine, TempItemLedgerEntry);
     end;
+    
+    procedure ShipOrReceiveInventoriableTypeItems(): Boolean
+    var
+        TransferLine: Record "Transfer Line";
+        Item: Record Item;
+    begin
+        // NAVCZ   
+        TransferLine.SetRange("Document No.", "No.");
+        TransferLine.SetFilter("Item No.", '<>%1', '');
+        if TransferLine.FindSet() then
+            repeat
+              if Item.Get(TransferLine."Item No.") then
+                if ((TransferLine."Qty. to Receive" <> 0) or (TransferLine."Qty. to Ship" <> 0)) and Item.IsInventoriableType() then
+                    exit(true);
+            until TransferLine.Next() = 0;
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateTransLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; FieldID: Integer)
@@ -1350,7 +1366,7 @@ table 5740 "Transfer Header"
 
         Location.TestField("Require Put-away", false);
         Location.TestField("Require Receive", false);
-    end;
+    end;    
 
     [IntegrationEvent(false, false)]
     local procedure OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line")

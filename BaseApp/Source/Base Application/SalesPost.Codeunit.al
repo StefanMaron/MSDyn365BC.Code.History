@@ -36,6 +36,7 @@
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
         ErrorContextElementProcessLines: Codeunit "Error Context Element";
         ErrorContextElementPostLine: Codeunit "Error Context Element";
+        ZeroSalesLineRecID: RecordId;
         HasATOShippedNotInvoiced: Boolean;
         EverythingInvoiced: Boolean;
         SavedPreviewMode: Boolean;
@@ -80,7 +81,8 @@
         EverythingInvoiced := true;
 
         // Lines
-        ErrorMessageMgt.PushContext(ErrorContextElementProcessLines, Database::"Sales Line", 0, PostDocumentLinesMsg);
+        GetZeroSalesLineRecID(SalesHeader, ZeroSalesLineRecID);
+        ErrorMessageMgt.PushContext(ErrorContextElementProcessLines, ZeroSalesLineRecID, 0, PostDocumentLinesMsg);
         OnBeforePostLines(TempSalesLineGlobal, SalesHeader, SuppressCommit, PreviewMode);
 
         LineCount := 0;
@@ -119,7 +121,7 @@
         OnAfterPostSalesLines(
           SalesHeader, SalesShptHeader, SalesInvHeader, SalesCrMemoHeader, ReturnRcptHeader, WhseShip, WhseReceive, SalesLinesProcessed,
           SuppressCommit, EverythingInvoiced);
-        ErrorMessageMgt.Finish(Database::"Sales Line");
+        ErrorMessageMgt.Finish(ZeroSalesLineRecID);
         if not SalesHeader.IsCreditDocType then begin
             ReverseAmount(TotalSalesLine);
             ReverseAmount(TotalSalesLineLCY);
@@ -310,6 +312,16 @@
         PostDocumentLinesMsg: Label 'Post document lines.';
         HideProgressWindow: Boolean;
 
+    local procedure GetZeroSalesLineRecID(SalesHeader: Record "Sales Header"; var SalesLineRecID: RecordId)
+    var
+        ZeroSalesLine: Record "Sales Line";
+    begin
+        ZeroSalesLine."Document Type" := SalesHeader."Document Type";
+        ZeroSalesLine."Document No." := SalesHeader."No.";
+        ZeroSalesLine."Line No." := 0;
+        SalesLineRecID := ZeroSalesLine.RecordId;
+    end;
+
     procedure CopyToTempLines(SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary)
     var
         SalesLine: Record "Sales Line";
@@ -428,6 +440,7 @@
         CheckDimensions: Codeunit "Check Dimensions";
         ErrorContextElement: Codeunit "Error Context Element";
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
+        ReportDistributionManagement: Codeunit "Report Distribution Management";	
         SetupRecID: RecordID;
         ModifyHeader: Boolean;
         RefreshTempLinesNeeded: Boolean;
@@ -510,6 +523,8 @@
             // NAVCZ
 
             CheckAssosOrderLines(SalesHeader);
+
+            ReportDistributionManagement.RunDefaultCheckSalesElectronicDocument(SalesHeader);
 
             OnAfterCheckSalesDoc(SalesHeader, SuppressCommit, WhseShip, WhseReceive);
             ErrorMessageMgt.Finish(RecordId);
@@ -1620,11 +1635,6 @@
             end;
             TestSalesLineJob(SalesLine);
 
-            if Type = Type::Item then
-                DummyTrackingSpecification.CheckItemTrackingQuantity(
-                  DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.",
-                  "Qty. to Ship (Base)", "Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
-
             case "Document Type" of
                 "Document Type"::Order:
                     TestField("Return Qty. to Receive", 0);
@@ -1961,7 +1971,7 @@
                 if IntrastatTransaction and (SalesHeader.Ship or SalesHeader.Receive) and (Type = Type::Item) then begin
                     if StatReportingSetup."Tariff No. Mandatory" then
                         TestField("Tariff No.");
-                    if StatReportingSetup."Net Weight Mandatory" then
+                    if StatReportingSetup."Net Weight Mandatory" and IsInventoriableItem() then
                         TestField("Net Weight");
                 end;
             // NAVCZ
@@ -7031,7 +7041,7 @@
         with SalesHeader do begin
             if Ship or Receive then
                 IntrastatTransaction := IsIntrastatTransaction;
-            if IntrastatTransaction then begin
+            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems then begin
                 StatReportingSetup.Get();
                 if StatReportingSetup."Transaction Type Mandatory" then
                     TestField("Transaction Type");

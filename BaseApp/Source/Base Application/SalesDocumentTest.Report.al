@@ -1503,8 +1503,8 @@ report 202 "Sales Document - Test"
                 // NAVCZ
                 if Ship or Receive then
                     IntrastatTransaction := IsIntrastatTransaction;
-                if IntrastatTransaction then begin
-                    StatReportingSetup.Get;
+                if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
+                    StatReportingSetup.Get();
                     if StatReportingSetup."Transaction Type Mandatory" then
                         if "Transaction Type" = '' then
                             AddError(

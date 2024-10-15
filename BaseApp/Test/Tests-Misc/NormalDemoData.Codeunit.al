@@ -235,12 +235,10 @@ codeunit 138200 "Normal DemoData"
         UsageOption: Option;
     begin
         // [FEATURE] [Electronic Document]
-        // [SCENARIO 278316] Electronic document format has setup for PEPPOL 2.0, 2.1 for all Usage options
+        // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do begin
-                Get('PEPPOL 2.0', UsageOption);
-                Get('PEPPOL 2.1', UsageOption);
-            end;
+            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
+                Get('PEPPOL BIS3', UsageOption);
     end;
 
     [Test]

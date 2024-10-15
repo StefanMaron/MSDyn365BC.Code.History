@@ -190,6 +190,12 @@ report 31068 "VIES Declaration - Test"
             column(VIES_Declaration_Header__Declaration_Period_Caption; FieldCaption("Declaration Period"))
             {
             }
+            column(SECTIONBLbl; SECTIONBLbl)
+            {
+            }
+            column(SECTIONCLbl; SECTIONCLbl)
+            {
+            }
             dataitem(HeaderErrorCounter; "Integer")
             {
                 DataItemTableView = SORTING(Number);
@@ -290,6 +296,18 @@ report 31068 "VIES Declaration - Test"
                 column(VIES_Declaration_Line_Line_No_; "Line No.")
                 {
                 }
+                column(VIES_Declaration_Line_Record_Code; "Record Code")
+                {
+                }
+                column(VIES_Declaration_Line_VAT_Reg_No_of_Original_Cust; "VAT Reg. No. of Original Cust.")
+                {
+                }
+                column(VIES_Declaration_Line_Record_Code_Caption; FieldCaption("Record Code"))
+                {
+                }
+                column(VIES_Declaration_Line_VAT_Reg_No_of_Original_Cust_Caption; FieldCaption("VAT Reg. No. of Original Cust."))
+                {
+                }
                 dataitem(LineErrorCounter; "Integer")
                 {
                     DataItemTableView = SORTING(Number);
@@ -387,6 +405,8 @@ report 31068 "VIES Declaration - Test"
         Post_Code_CityCaptionLbl: Label 'Post Code/City';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
         ErrorText_Number__Control1470075CaptionLbl: Label 'Warning!';
+        SECTIONBLbl: Label 'SECTION B', Comment = 'name of section';
+        SECTIONCLbl: Label 'SECTION C', Comment = 'name of section';
 
     local procedure AddError(Text: Text[250])
     begin

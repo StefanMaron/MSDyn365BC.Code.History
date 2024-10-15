@@ -82,7 +82,7 @@ page 118 "General Ledger Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
-                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date cannot be deleted.';
+                    ToolTip = 'Specifies if and when general ledger accounts can be deleted. If you enter a date, G/L accounts with entries on or after this date can be deleted only after confirmation by the user.';
                 }
                 field("Check G/L Account Usage"; "Check G/L Account Usage")
                 {

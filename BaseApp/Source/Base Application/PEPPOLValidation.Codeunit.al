@@ -69,6 +69,7 @@ codeunit 1620 "PEPPOL Validation"
 
             if "Document Type" in ["Document Type"::Invoice, "Document Type"::Order] then
                 TestField("Shipment Date");
+            TestField("Your Reference");
             TestField("Ship-to Address");
             TestField("Ship-to City");
             TestField("Ship-to Post Code");

@@ -193,7 +193,7 @@ xmlport 31060 "VIES Declaration"
                         XmlName = 'sest_telef';
                     }
                 }
-                tableelement(line; "VIES Declaration Line")
+                tableelement(Line; "VIES Declaration Line")
                 {
                     XmlName = 'VetaR';
                     UseTemporary = true;
@@ -241,6 +241,44 @@ xmlport 31060 "VIES Declaration"
                         Amount := Format(Line."Amount (LCY)", 0, 9);
                     end;
                 }
+                tableelement(CallOfStockLine; "VIES Declaration Line")
+                {
+                    XmlName = 'VetaS';
+                    UseTemporary = true;
+
+                    fieldattribute(coslineno; CallOfStockLine."Report Line Number")
+                    {
+                        Occurrence = Optional;
+                        XmlName = 'c_rad';
+                    }
+                    textattribute(cosvatregno)
+                    {
+                        Occurrence = Optional;
+                        XmlName = 'c_vat';
+                    }
+                    textattribute(cosorigvatregno)
+                    {
+                        Occurrence = Optional;
+                        XmlName = 'c_vat_puv';
+                    }
+                    textattribute(cosrecordcode)
+                    {
+                        Occurrence = Optional;
+                        XmlName = 'k_cos';
+                    }
+                    fieldattribute(k_stat; CallOfStockLine."Country/Region Code")
+                    {
+                        Occurrence = Optional;
+                        XmlName = 'k_stat';
+                    }
+
+                    trigger OnAfterGetRecord()
+                    begin
+                        cosvatregno := CallOfStockLine.GetVATRegNo();
+                        cosorigvatregno := CallOfStockLine.GetOrigCustVATRegNo();
+                        cosrecordcode := Format(CallOfStockLine."Record Code");
+                    end;
+                }
             }
         }
     }
@@ -267,13 +305,14 @@ xmlport 31060 "VIES Declaration"
     [Scope('OnPrem')]
     procedure SetLines(var TempVIESLine: Record "VIES Declaration Line")
     begin
-        Line.Reset;
-        Line.DeleteAll;
-        if TempVIESLine.Find('-') then
-            repeat
-                Line := TempVIESLine;
-                Line.Insert;
-            until TempVIESLine.Next = 0;
+        DeleteVIESLines(Line);
+        DeleteVIESLines(CallOfStockLine);
+
+        TempVIESLine.SetFilter("Trade Type", '<>%1', TempVIESLine."Trade Type"::" ");
+        Line.Copy(TempVIESLine, true);
+
+        TempVIESLine.SetRange("Trade Type", TempVIESLine."Trade Type"::" ");
+        CallOfStockLine.Copy(TempVIESLine, true);
     end;
 
     [Scope('OnPrem')]
@@ -287,6 +326,12 @@ xmlport 31060 "VIES Declaration"
             OfficialsJobTitle := CompanyOfficials."Job Title";
             OfficialsPhoneNo := CompanyOfficials."Phone No.";
         end;
+    end;
+
+    local procedure DeleteVIESLines(var TempVIESDeclarationLine: Record "VIES Declaration Line" temporary)
+    begin
+        TempVIESDeclarationLine.Reset();
+        TempVIESDeclarationLine.DeleteAll();
     end;
 }
 

@@ -12,7 +12,13 @@ codeunit 11705 "Bank Statement Management"
         GLSetup: Record "General Ledger Setup";
         UserSetupLine: Record "User Setup Line";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeBankStatementSelection(BankStmtHdr, StatSelected, IsHandled);
+        if IsHandled then
+            exit;
+
         StatSelected := true;
 
         BankAcc.Reset;
@@ -43,7 +49,13 @@ codeunit 11705 "Bank Statement Management"
         GLSetup: Record "General Ledger Setup";
         UserSetupLine: Record "User Setup Line";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIssuedBankStatementSelection(IssuedBankStmtHdr, StatSelected, IsHandled);
+        if IsHandled then
+            exit;
+
         StatSelected := true;
 
         BankAcc.Reset;
@@ -65,6 +77,16 @@ codeunit 11705 "Bank Statement Management"
             IssuedBankStmtHdr.SetRange("Bank Account No.", BankAcc."No.");
             IssuedBankStmtHdr.FilterGroup := 0;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeBankStatementSelection(var BankStmtHdr: Record "Bank Statement Header"; var StatSelected: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIssuedBankStatementSelection(var IssuedBankStmtHdr: Record "Issued Bank Statement Header"; var StatSelected: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 
