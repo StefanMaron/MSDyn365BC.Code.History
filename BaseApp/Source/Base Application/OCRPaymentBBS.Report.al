@@ -300,6 +300,8 @@ report 15000064 "OCR Payment - BBS"
             end;
         end;
 
+        OnCreatePaymentOnBeforeSetTransTypeText(GenJnlLine, SalesSetup, KID);
+
         case TransType of
             '10':
                 TransTypeText := Text10601;
@@ -512,6 +514,11 @@ report 15000064 "OCR Payment - BBS"
         DateVariant := BbsDate;
         TypeHelper.Evaluate(DateVariant, OCRDateString, 'ddMMyy', 'no');
         BbsDate := DateVariant;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePaymentOnBeforeSetTransTypeText(var GenJnlLine: Record "Gen. Journal Line"; SalesSetup: Record "Sales & Receivables Setup"; KID: Text[30])
+    begin
     end;
 }
 

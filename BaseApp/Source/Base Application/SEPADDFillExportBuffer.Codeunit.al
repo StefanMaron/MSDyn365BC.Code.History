@@ -82,6 +82,7 @@ codeunit 1231 "SEPA DD-Fill Export Buffer"
                 "Payment Information ID" := TempDirectDebitCollectionEntry."Transaction ID";
                 "End-to-End ID" := TempDirectDebitCollectionEntry."Transaction ID";
                 "Message to Recipient 1" := TempDirectDebitCollectionEntry."Applies-to Entry Description";
+                "Message to Recipient 2" := TempDirectDebitCollectionEntry."Message to Recipient";
 
                 OnBeforeInsertPaymentExportData(PaymentExportData, TempDirectDebitCollectionEntry);
                 Insert(true);

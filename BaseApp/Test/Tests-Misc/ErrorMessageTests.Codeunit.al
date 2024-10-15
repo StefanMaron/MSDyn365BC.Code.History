@@ -27,10 +27,12 @@ codeunit 135000 "Error Message Tests"
         IfNotEqualToErr: Label '''%1'' in ''%2'' must be equal to %3.', Comment = '%1=caption of a field, %2=key of record, %3=integer';
         InvalidErrorMessageDataErr: Label 'Invalid data in Error Message table.';
         ErrorLoggedForValidDataErr: Label 'An error was logged for valid data.';
+        FieldMustNotBeErr: Label '%1 must not be %2', Comment = '%1 - field name, %2 - field value';
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryErrorMessage: Codeunit "Library - Error Message";
         DevMsgNotTemporaryErr: Label 'This function can only be used when the record is temporary.';
         DrillDownErr: Label 'The NavDrilldownAction method is not supported.';
 
@@ -1320,12 +1322,168 @@ codeunit 135000 "Error Message Tests"
         Assert.IsTrue(JobQueueLogEntry.GetErrorCallStack() <> '', '"Error Call Stack" should not be empty');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogTestFieldEmptyValue()
+    var
+        DummySalesHeader: Record "Sales Header";
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391579] LogTestField for option field without value parameter logs error 
+        Initialize;
+
+        // [GIVEN] Activate error handling
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+
+        // [WHEN] Run LogTestField for Sales Header "Document Type"
+        ErrorMessageMgt.LogTestField(DummySalesHeader, DummySalesHeader.FieldNo("Document Type"));
+
+        // [THEN] Error "Document Type must not be Quote" logged 
+        ErrorMessageHandler.AppendTo(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        Assert.AreEqual(
+            StrSubstNo(FieldMustNotBeErr, DummySalesHeader.FieldCaption("Document Type"), DummySalesHeader."Document Type"),
+            TempErrorMessage.Description,
+            'Invalid error message');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogTestFieldEmptyValueCheckContextFieldNo()
+    var
+        DummySalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391579] LogTestField for option field without value parameter logs error with Context Field No.
+        Initialize;
+
+        // [GIVEN] Activate error handling with Gen. Journal Line context 
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        LibrarySales.CreateCustomer(Customer);
+        ErrorMessageMgt.PushContext(ErrorContextElement, Customer.RecordId, Customer.FieldNo(Name), '');
+
+        // [WHEN] Run LogTestField for Sales Header "Document Type" 
+        ErrorMessageMgt.LogTestField(DummySalesHeader, DummySalesHeader.FieldNo("Document Type"));
+
+        // [THEN] Error message has "Source Field Number" = 1 (Document Type), "Context Field Number" = 2 (Name)
+        ErrorMessageHandler.AppendTo(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField("Field Number", DummySalesHeader.FieldNo("Document Type"));
+        TempErrorMessage.TestField("Context Field Number", Customer.FieldNo(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogTestFieldCheckContextFieldNo()
+    var
+        DummySalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391579] LogTestField for option field with value parameter logs error with Context Field No.
+        Initialize;
+
+        // [GIVEN] Activate error handling with Gen. Journal Line context 
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        LibrarySales.CreateCustomer(Customer);
+        ErrorMessageMgt.PushContext(ErrorContextElement, Customer.RecordId, Customer.FieldNo(Name), '');
+
+        // [WHEN] Run LogTestField for Sales Header "Document Type" 
+        ErrorMessageMgt.LogTestField(DummySalesHeader, DummySalesHeader.FieldNo("Document Type"), DummySalesHeader."Document Type"::"Return Order");
+
+        // [THEN] Error message has "Source Field Number" = 1 (Document Type), "Context Field Number" = 2 (Name)
+        ErrorMessageHandler.AppendTo(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField("Field Number", DummySalesHeader.FieldNo("Document Type"));
+        TempErrorMessage.TestField("Context Field Number", Customer.FieldNo(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LogFieldErrorCheckContextFieldNo()
+    var
+        DummySalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        TempErrorMessage: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorContextElement: Codeunit "Error Context Element";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391579] LogFieldError for option field logs error with Context Field No.
+        Initialize;
+
+        // [GIVEN] Activate error handling with Gen. Journal Line context 
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+        LibrarySales.CreateCustomer(Customer);
+        ErrorMessageMgt.PushContext(ErrorContextElement, Customer.RecordId, Customer.FieldNo(Name), '');
+
+        // [WHEN] Run LogFieldError for Sales Header "Document Type" 
+        ErrorMessageMgt.LogFieldError(DummySalesHeader, DummySalesHeader.FieldNo("Document Type"), '');
+
+        // [THEN] Error message has "Source Field Number" = 1 (Document Type), "Context Field Number" = 2 (Name)
+        ErrorMessageHandler.AppendTo(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        TempErrorMessage.TestField("Field Number", DummySalesHeader.FieldNo("Document Type"));
+        TempErrorMessage.TestField("Context Field Number", Customer.FieldNo(Name));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UTGetFieldNo()
+    var
+        TableWithFieldCaption: Record TableWithFieldCaption;
+        TempErrorMessage: Record "Error Message" temporary;
+        TempErrorMessageActual: Record "Error Message" temporary;
+        ErrorMessageMgt: Codeunit "Error Message Management";
+        ErrorMessageHandler: Codeunit "Error Message Handler";
+        ErrorMessages: Page "Error Messages";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 391579] Function GetFieldNo of LibraryErrorMessage codeunit uses field caption to find a field
+        Initialize;
+
+        // [GIVEN] Activate error handling 
+        ErrorMessageMgt.Activate(ErrorMessageHandler);
+
+        // [GIVEN] Run LogFieldError for MyField TableWithFieldCaption (Field Number = 2)
+        ErrorMessageMgt.LogFieldError(TableWithFieldCaption, TableWithFieldCaption.FieldNo(MyField), '');
+        ErrorMessageHandler.AppendTo(TempErrorMessage);
+        TempErrorMessage.FindFirst();
+        // [GIVEN] Set created error message to the Error Messages page
+        ErrorMessages.SetRecords(TempErrorMessage);
+
+        // [GIVEN] TrapErrorMessages for LibraryErrorMessage
+        LibraryErrorMessage.TrapErrorMessages();
+        ErrorMessages.Run();
+
+        // [WHEN] Run LibraryErrorMessage.GetErrorMessages
+        LibraryErrorMessage.GetErrorMessages(TempErrorMessageActual);
+
+        // [THEN] Error message has "Source Field Number" = 2 (MyField)
+        TempErrorMessageActual.FindFirst();
+        TempErrorMessageActual.TestField("Field Number", TableWithFieldCaption.FieldNo(MyField));
+    end;
+
     local procedure Initialize()
     var
         DataTypeBuffer: Record "Data Type Buffer";
         ErrorMessage: Record "Error Message";
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Error Message Tests");
+        LibraryErrorMessage.Clear();
         DataTypeBuffer.DeleteAll();
         ErrorMessage.DeleteAll();
 

@@ -11,66 +11,101 @@ page 7021 "Suggest Price Lines"
         {
             group(All)
             {
-                field("From Price List Code"; Rec."From Price List Code")
+                ShowCaption = false;
+                group(Line)
                 {
-                    ApplicationArea = Basic, Suite;
+                    ShowCaption = false;
                     Visible = CopyLines;
-                    Caption = 'From Price List';
-                    ToolTip = 'Specifies the price list code to copy lines from.';
+                    field("From Price List Code"; Rec."From Price List Code")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'From Price List';
+                        ToolTip = 'Specifies the price list code to copy lines from.';
 
-                    trigger OnLookup(var Text: Text): Boolean
-                    var
-                        PriceListHeader: Record "Price List Header";
-                        PriceUXManagement: Codeunit "Price UX Management";
-                    begin
-                        PriceListHeader.Get(Rec."To Price List Code");
-                        Rec."From Price List Code" := Rec."To Price List Code";
-                        if PriceUXManagement.LookupPriceLists(
-                            PriceListHeader."Source Group", PriceListHeader."Price Type", Rec."From Price List Code")
-                        then begin
-                            PriceListHeader.Get(Rec."From Price List Code");
-                            Rec.Validate("From Price List Code");
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            PriceListHeader: Record "Price List Header";
+                            PriceUXManagement: Codeunit "Price UX Management";
+                        begin
+                            PriceListHeader.Get(Rec."To Price List Code");
+                            Rec."From Price List Code" := Rec."To Price List Code";
+                            if PriceUXManagement.LookupPriceLists(
+                                PriceListHeader."Source Group", PriceListHeader."Price Type", Rec."From Price List Code")
+                            then begin
+                                PriceListHeader.Get(Rec."From Price List Code");
+                                Rec.Validate("From Price List Code");
+                                CurrPage.Update(true);
+                            end;
+                        end;
+
+                        trigger OnValidate()
+                        begin
                             CurrPage.Update(true);
                         end;
-                    end;
+                    }
+                    field("Price Line Filter"; Rec."Price Line Filter")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Price Line Filter';
+                        ToolTip = 'Specifies the filters applied to the product table.';
+                        Editable = false;
 
-                    trigger OnValidate()
-                    begin
-                        CurrPage.Update(true);
-                    end;
+                        trigger OnAssistEdit()
+                        begin
+                            Rec.EditPriceLineFilter();
+                        end;
+                    }
+                    field("Copy As New Lines"; Rec."Copy As New Lines")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Visible = CopyToWorksheet;
+                        Editable = CreateNewLinesEditable;
+                        ToolTip = 'Specifies if the suggested lines will become new lines in the target price list.';
+                        trigger OnValidate()
+                        begin
+                            ShowDefaults := Rec."Copy As New Lines" or not Rec."Copy Lines";
+                            CurrPage.Update(true);
+                        end;
+                    }
                 }
-                field("Price Line Filter"; Rec."Price Line Filter")
+                group(Product)
                 {
-                    ApplicationArea = Basic, Suite;
-                    Visible = CopyLines;
-                    Caption = 'Price Line Filter';
-                    ToolTip = 'Specifies the filters applied to the product table.';
-                    Editable = false;
-
-                    trigger OnAssistEdit()
-                    begin
-                        Rec.EditPriceLineFilter();
-                    end;
-                }
-                field("Product Type"; Rec."Asset Type")
-                {
-                    ApplicationArea = Basic, Suite;
+                    ShowCaption = false;
                     Visible = not CopyLines;
-                    Caption = 'Product Type';
-                    ToolTip = 'Specifies the product type that defines the table being a source for the suggested price list lines.';
-                }
-                field("Product Filter"; Rec."Asset Filter")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Visible = not CopyLines;
-                    Caption = 'Product Filter';
-                    ToolTip = 'Specifies the filters applied to the product table.';
-                    Editable = false;
+                    field("Product Type"; Rec."Asset Type")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Product Type';
+                        ToolTip = 'Specifies the product type that defines the table being a source for the suggested price list lines.';
+                    }
+                    field("Product Filter"; Rec."Asset Filter")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Product Filter';
+                        ToolTip = 'Specifies the filters applied to the product table.';
+                        Editable = false;
 
-                    trigger OnAssistEdit()
-                    begin
-                        Rec.EditAssetFilter();
-                    end;
+                        trigger OnAssistEdit()
+                        begin
+                            Rec.EditAssetFilter();
+                        end;
+                    }
+                }
+                group(DefaultsGroup)
+                {
+                    ShowCaption = false;
+                    Visible = ShowDefaults;
+                    field(Defaults; Defaults)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Editable = false;
+                        Caption = 'Defaults';
+                        ToolTip = 'Specifies the fields of the price list header that is used as defaults for new lines created in the worksheet.';
+                        trigger OnDrillDown()
+                        begin
+                            ShowPriceListFilters();
+                        end;
+                    }
                 }
                 group(Options)
                 {
@@ -111,9 +146,24 @@ page 7021 "Suggest Price Lines"
     }
 
     trigger OnOpenPage()
+    var
+        PriceListHeader: Record "Price List Header";
     begin
+        if not Rec."Update Multiple Price Lists" then begin
+            Rec."Copy As New Lines" := true;
+            CreateNewLinesEditable := false;
+        end else
+            CreateNewLinesEditable := true;
         Rec.Insert();
+        if (Rec."To Price List Code" <> '') and (Defaults = '') then
+            if PriceListHeader.Get(Rec."To Price List Code") then begin
+                TempDefaultsPriceListHeader := PriceListHeader;
+                Defaults := GetDefaults();
+            end;
+
         CopyLines := Rec."Copy Lines";
+        CopyToWorksheet := Rec."Copy Lines" and Rec.Worksheet;
+        ShowDefaults := (Rec."Copy As New Lines" or not Rec."Copy Lines") and Rec.Worksheet;
         if CopyLines then
             DataCaption := DataCaptionCopyLbl
         else
@@ -121,8 +171,54 @@ page 7021 "Suggest Price Lines"
     end;
 
     var
+        TempDefaultsPriceListHeader: Record "Price List Header" temporary;
+        Defaults: Text;
         DataCaption: Text;
         DataCaptionCopyLbl: Label 'Copy existing';
         DataCaptionSuggestLbl: Label 'Create new';
+        DefaultsLbl: Label '%1 = %2; ', Locked = true;
+        CopyToWorksheet: Boolean;
+        ShowDefaults: Boolean;
+        CreateNewLinesEditable: Boolean;
         CopyLines: Boolean;
+
+    procedure GetDefaults(var PriceListHeader: Record "Price List Header")
+    begin
+        PriceListHeader := TempDefaultsPriceListHeader;
+    end;
+
+    local procedure GetDefaults() Result: Text
+    begin
+        Result := GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Source Type"), Format(TempDefaultsPriceListHeader."Source Type"), true);
+        Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Parent Source No."), TempDefaultsPriceListHeader."Parent Source No.", false);
+        Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Source No."), TempDefaultsPriceListHeader."Source No.", false);
+        Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Currency Code"), TempDefaultsPriceListHeader."Currency Code", false);
+        Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Starting Date"), format(TempDefaultsPriceListHeader."Starting Date"), false);
+        Result += GetDefaults(TempDefaultsPriceListHeader.FieldCaption("Ending Date"), format(TempDefaultsPriceListHeader."Ending Date"), false);
+    end;
+
+    local procedure GetDefaults(FldName: Text; FldValue: Text; ShowBlank: Boolean): Text;
+    begin
+        if ShowBlank or (FldValue <> '') then
+            exit(StrSubstNo(DefaultsLbl, FldName, FldValue))
+    end;
+
+    procedure SetDefaults(PriceListHeader: Record "Price List Header")
+    begin
+        TempDefaultsPriceListHeader := PriceListHeader;
+        Defaults := GetDefaults();
+    end;
+
+    local procedure ShowPriceListFilters()
+    var
+        PriceListFilters: Page "Price List Filters";
+    begin
+        PriceListFilters.Set(TempDefaultsPriceListHeader);
+        PriceListFilters.LookupMode(true);
+        if PriceListFilters.RunModal() = Action::LookupOK then begin
+            PriceListFilters.GetRecord(TempDefaultsPriceListHeader);
+            Defaults := GetDefaults();
+            CurrPage.Update(false);
+        end;
+    end;
 }

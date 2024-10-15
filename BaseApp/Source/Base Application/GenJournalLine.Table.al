@@ -746,6 +746,7 @@
                                     EmplLedgEntry.SetRange("Document Type", xRec."Applies-to Doc. Type");
                                 EmplLedgEntry.SetRange("Employee No.", TempGenJnlLine."Account No.");
                                 EmplLedgEntry.SetRange(Open, true);
+                                OnAppliesToDocNoValidateOnAfterEmplLedgEntrySetFilters(Rec, EmplLedgEntry);
                                 if EmplLedgEntry.FindFirst then begin
                                     if EmplLedgEntry."Amount to Apply" <> 0 then begin
                                         EmplLedgEntry."Amount to Apply" := 0;
@@ -1717,6 +1718,8 @@
             TableRelation = "VAT Product Posting Group";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 if "Bal. Account Type" in
                    ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor, "Bal. Account Type"::"Bank Account"]
@@ -1725,21 +1728,24 @@
 
                 "Bal. VAT %" := 0;
                 "Bal. VAT Calculation Type" := "Bal. VAT Calculation Type"::"Normal VAT";
-                if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then begin
-                    GetVATPostingSetup("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group");
-                    "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
-                    case "Bal. VAT Calculation Type" of
-                        "Bal. VAT Calculation Type"::"Normal VAT":
-                            "Bal. VAT %" := VATPostingSetup."VAT %";
-                        "Bal. VAT Calculation Type"::"Full VAT":
-                            case "Bal. Gen. Posting Type" of
-                                "Bal. Gen. Posting Type"::Sale:
-                                    TestField("Bal. Account No.", VATPostingSetup.GetSalesAccount(false));
-                                "Bal. Gen. Posting Type"::Purchase:
-                                    TestField("Bal. Account No.", VATPostingSetup.GetPurchAccount(false));
-                            end;
+                IsHandled := false;
+                OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(Rec, VATPostingSetup, IsHandled);
+                if not IsHandled then
+                    if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then begin
+                        GetVATPostingSetup("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group");
+                        "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+                        case "Bal. VAT Calculation Type" of
+                            "Bal. VAT Calculation Type"::"Normal VAT":
+                                "Bal. VAT %" := VATPostingSetup."VAT %";
+                            "Bal. VAT Calculation Type"::"Full VAT":
+                                case "Bal. Gen. Posting Type" of
+                                    "Bal. Gen. Posting Type"::Sale:
+                                        TestField("Bal. Account No.", VATPostingSetup.GetSalesAccount(false));
+                                    "Bal. Gen. Posting Type"::Purchase:
+                                        TestField("Bal. Account No.", VATPostingSetup.GetPurchAccount(false));
+                                end;
+                        end;
                     end;
-                end;
                 Validate("Bal. VAT %");
                 NorwegianVATTools.InitVATCode_GenJnlLine(Rec, true);
             end;
@@ -3367,7 +3373,7 @@
         FirstTempDocNo: Code[20];
         LastTempDocNo: Code[20];
     begin
-        if GuiAllowed() and not DIALOG.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true) then
+        if SkipRenumberDocumentNo() then
             exit;
         TestField("Check Printed", false);
 
@@ -3399,6 +3405,18 @@
         RenumberDocNoOnLines(DocNo, GenJnlLine2);
 
         Get("Journal Template Name", "Journal Batch Name", "Line No.");
+    end;
+
+    local procedure SkipRenumberDocumentNo() Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSkipRenumberDocumentNo(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        exit(GuiAllowed() and not DIALOG.Confirm(StrSubstNo(RenumberDocNoQst, ProductName.Short()), true));
     end;
 
     local procedure RenumberDocNoOnLines(var DocNo: Code[20]; var GenJnlLine2: Record "Gen. Journal Line")
@@ -5667,6 +5685,8 @@
         "VAT %" := IssuedReminderLine."VAT %";
         Validate(Amount, IssuedReminderLine.Amount + IssuedReminderLine."VAT Amount");
         "VAT Amount" := IssuedReminderLine."VAT Amount";
+
+        OnAfterCopyFromIssuedReminderLine(Rec, IssuedReminderLine);
     end;
 
     procedure CopyFromPrepmtInvoiceBuffer(PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer")
@@ -7998,6 +8018,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAppliesToDocNoValidateOnAfterEmplLedgEntrySetFilters(var GenJournalLine: Record "Gen. Journal Line"; var EmplLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -8014,6 +8039,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSource(var GenJournalLine: Record "Gen. Journal Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyFromIssuedReminderLine(var GenJournalLine: Record "Gen. Journal Line"; IssuedReminderLine: Record "Issued Reminder Line")
     begin
     end;
 
@@ -8039,6 +8069,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckBalAccountNoOnJobNoValidation(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSkipRenumberDocumentNo(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -8109,6 +8144,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDocumentBalanceOnBeforeCalcBalance(var GenJournalLine: Record "Gen. Journal Line"; GenJnlTemplate: Record "Gen. Journal Template")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBalVATProdPostingGroupOnBeforeBalVATCalculationCheck(var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -81,6 +81,8 @@
             IF (Type = CONST(Cost)) "Service Cost";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 CheckIfCanBeModified;
 
@@ -138,7 +140,11 @@
 
                 if Type <> Type::" " then begin
                     PlanPriceCalcByField(FieldNo("No."));
-                    Validate("VAT Prod. Posting Group");
+
+                    IsHandled := false;
+                    OnBeforeValidateVATProdPostingGroup(Rec, xRec, IsHandled);
+                    if not IsHandled then
+                        Validate("VAT Prod. Posting Group");
                     Validate("Unit of Measure Code");
                     if Quantity <> 0 then begin
                         InitOutstanding;
@@ -3381,6 +3387,11 @@
     end;
 
     procedure AutoReserve()
+    begin
+        AutoReserve(true);
+    end;
+
+    procedure AutoReserve(ShowReservationForm: Boolean)
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
         ReservationEntry: Record "Reservation Entry";
@@ -3403,7 +3414,7 @@
             ReservMgt.AutoReserve(FullAutoReservation, '', "Order Date", QtyToReserve, QtyToReserveBase);
             Find;
             ServiceMgtSetup.Get();
-            if (not FullAutoReservation) and (not ServiceMgtSetup."Skip Manual Reservation") then begin
+            if (not FullAutoReservation) and (not ServiceMgtSetup."Skip Manual Reservation") and ShowReservationForm then begin
                 Commit();
                 if ConfirmManagement.GetResponse(ManualReserveQst, true) then begin
                     ShowReservation();
@@ -3462,6 +3473,7 @@
             CatalogItemMgt.NonStockFSM(Rec);
             Validate("No.", "No.");
             Validate("Unit Price", NonstockItem."Unit Price");
+            OnShowNonstockOnAfterUpdateFromNonstockItem(Rec, xRec);
         end;
 
         OnAfterShowNonstock(Rec);
@@ -5770,6 +5782,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemTrackingOnBeforeCreateEntry(var Rec: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATProdPostingGroup(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowNonstockOnAfterUpdateFromNonstockItem(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line")
     begin
     end;
 }

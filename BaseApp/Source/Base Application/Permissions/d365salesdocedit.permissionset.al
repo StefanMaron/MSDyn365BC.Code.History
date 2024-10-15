@@ -47,6 +47,7 @@ permissionset 9783 "D365 SALES DOC, EDIT"
                   tabledata "Price List Header" = RIMD,
                   tabledata "Price List Line" = RIMD,
                   tabledata "Price Source" = RIMD,
+                  tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Record Buffer" = Rimd,
                   tabledata "Resource Cost" = R,
                   tabledata "Resource Price" = R,

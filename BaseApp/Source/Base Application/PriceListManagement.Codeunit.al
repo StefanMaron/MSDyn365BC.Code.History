@@ -2,21 +2,31 @@ codeunit 7017 "Price List Management"
 {
     var
         AllLinesVerifiedMsg: Label 'All price list lines are verified.';
-        EmptyPriceSourceErr: Label 'Price source information is missing.';
+        EmptyPriceSourceErr: Label 'You must specify what the price applies to.';
+        ImplementPricesMsg: Label 'Implementing price changes: inserted - %1, modified - %2, skipped - %3', Comment = '%1, %2, %3 are numbers';
         VerifyLinesLbl: Label 'Verify lines';
-        VerifyLinesMsg: Label 'Not verified lines will not be taken into account during price calculation.';
-        VerifyLinesActionMsg: Label 'Not verified lines will not be taken into account during price calculation. Run Verify Lines action to activate modified lines.';
+        VerifyLinesMsg: Label 'You must verify and activate modified lines to include them in price calculations.';
+        VerifyLinesActionMsg: Label 'Prices that have been changed but not verified will not be included in price calculations. Use the Verify Lines action to verify and activate the changed lines.';
         VerifyLinesNotificationIdTxt: Label '0CDA03EA-8E9F-45BF-B2D7-0F9FADF5F966', Locked = true;
+        ImplementedPriceNotificationIdTxt: Label '2BD32F12-A55D-4527-B885-ED881CC61D24', Locked = true;
+        UpgradeNotificationGuidTok: Label '40BEF749-FD08-4355-B4AE-AC3423A82006', Locked = true;
+        SourceGroupUpdateMsg: Label 'There are price list line records with not defined Source Group field. You are not allowed to copy the lines from the existing price lists.';
+        CompleteSourceGroupUpgradeLbl: Label 'Complete the upgrade process for setting the Source Group field in price list lines.';
+        FixTok: Label 'Fix';
 
     procedure AddLines(var PriceListHeader: Record "Price List Header")
     var
         PriceLineFilters: Record "Price Line Filters";
         SuggestPriceLine: Page "Suggest Price Lines";
     begin
+        PriceLineFilters.Worksheet := PriceListHeader.IsTemporary();
+        if PriceLineFilters.Worksheet then
+            SuggestPriceLine.SetDefaults(PriceListHeader);
         PriceLineFilters.Initialize(PriceListHeader, false);
         SuggestPriceLine.SetRecord(PriceLineFilters);
         if SuggestPriceLine.RunModal() = Action::OK then begin
             SuggestPriceLine.GetRecord(PriceLineFilters);
+            SuggestPriceLine.GetDefaults(PriceListHeader);
             AddLines(PriceListHeader, PriceLineFilters);
         end;
     end;
@@ -41,12 +51,13 @@ codeunit 7017 "Price List Management"
         RecRef.Close();
     end;
 
-    local procedure AddLine(var ToPriceListHeader: Record "Price List Header"; PriceAsset: Record "Price Asset"; PriceLineFilters: Record "Price Line Filters")
+    local procedure AddLine(ToPriceListHeader: Record "Price List Header"; PriceAsset: Record "Price Asset"; PriceLineFilters: Record "Price Line Filters")
     var
         PriceListLine: Record "Price List Line";
     begin
         PriceListLine."Price List Code" := ToPriceListHeader.Code;
         PriceListLine."Line No." := 0; // autoincrement
+        ToPriceListHeader."Allow Updating Defaults" := false; // to copy defaults
         PriceListLine.CopyFrom(ToPriceListHeader);
         PriceListLine."Amount Type" := "Price Amount Type"::Price;
         PriceListLine.CopyFrom(PriceAsset);
@@ -62,7 +73,10 @@ codeunit 7017 "Price List Management"
                     PriceListLine.Validate("Unit Cost", PriceAsset."Unit Price 2");
                 end;
         end;
-        PriceListLine.Insert(true);
+        if PriceLineFilters.Worksheet then
+            InsertWorksheetLine(ToPriceListHeader, PriceListLine)
+        else
+            PriceListLine.Insert(true);
     end;
 
     local procedure AdjustAmount(var Price: Decimal; PriceLineFilters: Record "Price Line Filters")
@@ -138,14 +152,25 @@ codeunit 7017 "Price List Management"
     end;
 
     procedure CopyLines(var ToPriceListHeader: Record "Price List Header")
+    begin
+        CopyLines(ToPriceListHeader, true)
+    end;
+
+    procedure CopyLines(var ToPriceListHeader: Record "Price List Header"; UpdateMultiplePriceLists: Boolean)
     var
         PriceLineFilters: Record "Price Line Filters";
         SuggestPriceLine: Page "Suggest Price Lines";
     begin
+        PriceLineFilters."Update Multiple Price Lists" := UpdateMultiplePriceLists;
+        PriceLineFilters.Worksheet := ToPriceListHeader.IsTemporary();
+        if PriceLineFilters.Worksheet then
+            SuggestPriceLine.SetDefaults(ToPriceListHeader);
         PriceLineFilters.Initialize(ToPriceListHeader, true);
         SuggestPriceLine.SetRecord(PriceLineFilters);
         if SuggestPriceLine.RunModal() = Action::OK then begin
             SuggestPriceLine.GetRecord(PriceLineFilters);
+            if PriceLineFilters."Copy As New Lines" then
+                SuggestPriceLine.GetDefaults(ToPriceListHeader);
             CopyLines(ToPriceListHeader, PriceLineFilters);
         end;
     end;
@@ -155,10 +180,16 @@ codeunit 7017 "Price List Management"
         FromPriceListHeader: Record "Price List Header";
         FromPriceListLine: Record "Price List Line";
     begin
-        FromPriceListHeader.Get(PriceLineFilters."From Price List Code");
         if PriceLineFilters."Price Line Filter" <> '' then
             FromPriceListLine.SetView(PriceLineFilters."Price Line Filter");
-        FromPriceListLine.SetRange("Price List Code", PriceLineFilters."From Price List Code");
+        if PriceLineFilters."From Price List Code" <> '' then begin
+            FromPriceListHeader.Get(PriceLineFilters."From Price List Code");
+            FromPriceListLine.SetRange("Price List Code", PriceLineFilters."From Price List Code");
+        end;
+        if PriceLineFilters.Worksheet then begin
+            FromPriceListLine.SetRange("Price Type", ToPriceListHeader."Price Type");
+            FromPriceListLine.SetRange("Source Group", ToPriceListHeader."Source Group");
+        end;
         if FromPriceListLine.FindSet() then
             repeat
                 CopyLine(PriceLineFilters, FromPriceListLine, ToPriceListHeader);
@@ -170,12 +201,18 @@ codeunit 7017 "Price List Management"
         ToPriceListLine: Record "Price List Line";
     begin
         ToPriceListLine := FromPriceListLine;
-        ToPriceListLine."Price List Code" := PriceLineFilters."To Price List Code";
-        ToPriceListLine.CopyFrom(ToPriceListHeader);
+        if not PriceLineFilters.Worksheet then begin
+            ToPriceListLine."Price List Code" := PriceLineFilters."To Price List Code";
+            ToPriceListLine.CopyFrom(ToPriceListHeader);
+        end;
         AdjustAmount(ToPriceListLine."Unit Price", PriceLineFilters);
         AdjustAmount(ToPriceListLine."Direct Unit Cost", PriceLineFilters);
-        ToPriceListLine."Line No." := 0;
-        ToPriceListLine.Insert(true);
+        if PriceLineFilters.Worksheet then
+            CopyToWorksheetLine(ToPriceListLine, FromPriceListLine, PriceLineFilters."Copy As New Lines")
+        else begin
+            ToPriceListLine."Line No." := 0;
+            ToPriceListLine.Insert(true);
+        end;
     end;
 
     procedure FindDuplicatePrices(PriceListHeader: Record "Price List Header"; SearchInside: Boolean; var DuplicatePriceLine: Record "Duplicate Price Line") Found: Boolean;
@@ -224,6 +261,47 @@ codeunit 7017 "Price List Management"
         exit(DuplicatePriceListLine.FindFirst());
     end;
 
+    procedure GetDefaultPriceListCode(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group"; FailIfBlank: Boolean): Code[20];
+    var
+        JobsSetup: Record "Jobs Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        if SourceGroup = SourceGroup::Job then begin
+            JobsSetup.Get();
+            case PriceType of
+                "Price Type"::Sale:
+                    begin
+                        if FailIfBlank then
+                            JobsSetup.TestField("Default Sales Price List Code");
+                        exit(JobsSetup."Default Sales Price List Code");
+                    end;
+                "Price Type"::Purchase:
+                    begin
+                        if FailIfBlank then
+                            JobsSetup.TestField("Default Purch Price List Code");
+                        exit(JobsSetup."Default Purch Price List Code");
+                    end;
+            end;
+        end else
+            case PriceType of
+                "Price Type"::Sale:
+                    begin
+                        SalesReceivablesSetup.Get();
+                        if FailIfBlank then
+                            SalesReceivablesSetup.TestField("Default Price List Code");
+                        exit(SalesReceivablesSetup."Default Price List Code");
+                    end;
+                "Price Type"::Purchase:
+                    begin
+                        PurchasesPayablesSetup.Get();
+                        if FailIfBlank then
+                            PurchasesPayablesSetup.TestField("Default Price List Code");
+                        exit(PurchasesPayablesSetup."Default Price List Code");
+                    end;
+            end;
+    end;
+
     procedure IsAllowedEditingActivePrice(PriceType: Enum "Price Type"): Boolean;
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -231,15 +309,11 @@ codeunit 7017 "Price List Management"
     begin
         case PriceType of
             "Price Type"::Sale:
-                begin
-                    SalesReceivablesSetup.Get();
+                if SalesReceivablesSetup.Get() then
                     exit(SalesReceivablesSetup."Allow Editing Active Price");
-                end;
             "Price Type"::Purchase:
-                begin
-                    PurchasesPayablesSetup.Get();
+                if PurchasesPayablesSetup.Get() then
                     exit(PurchasesPayablesSetup."Allow Editing Active Price");
-                end;
         end;
     end;
 
@@ -249,6 +323,17 @@ codeunit 7017 "Price List Management"
     begin
         VerifyLinesNotification.Id := GetVerifyLinesNotificationId();
         VerifyLinesNotification.Message := VerifyLinesActionMsg;
+        VerifyLinesNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        VerifyLinesNotification.Send();
+    end;
+
+    local procedure SendNotificationNewPriceImplementation(InsertedUpdatedLeft: array[3] of Integer)
+    var
+        VerifyLinesNotification: Notification;
+    begin
+        VerifyLinesNotification.Id := GetImplementedPriceNotificationId();
+        VerifyLinesNotification.Message :=
+            StrSubstNo(ImplementPricesMsg, InsertedUpdatedLeft[1], InsertedUpdatedLeft[2], InsertedUpdatedLeft[3]);
         VerifyLinesNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         VerifyLinesNotification.Send();
     end;
@@ -263,6 +348,11 @@ codeunit 7017 "Price List Management"
         VerifyLinesNotification.SetData(PriceListHeader.FieldName(Code), PriceListHeader.Code);
         VerifyLinesNotification.AddAction(VerifyLinesLbl, CODEUNIT::"Price List Management", 'ActivateDraftLines');
         VerifyLinesNotification.Send();
+    end;
+
+    local procedure GetImplementedPriceNotificationId() Id: Guid;
+    begin
+        Evaluate(Id, ImplementedPriceNotificationIdTxt);
     end;
 
     local procedure GetVerifyLinesNotificationId() Id: Guid;
@@ -308,9 +398,7 @@ codeunit 7017 "Price List Management"
     begin
         if PriceListLine.FindSet() then
             repeat
-                PriceListLine.VerifySource();
-                if PriceListLine."Asset Type" <> PriceListLine."Asset Type"::" " then
-                    PriceListLine.TestField("Asset No.");
+                PriceListLine.Verify();
             until PriceListLine.Next() = 0;
     end;
 
@@ -318,6 +406,9 @@ codeunit 7017 "Price List Management"
     var
         DuplicatePriceLine: Record "Duplicate Price Line";
     begin
+        if PriceListHeader.Status <> PriceListHeader.Status::Active then
+            exit(false);
+
         if FindDuplicatePrices(PriceListHeader, true, DuplicatePriceLine) then
             if not ResolveDuplicatePrices(PriceListHeader, DuplicatePriceLine) then
                 exit(false);
@@ -477,7 +568,6 @@ codeunit 7017 "Price List Management"
     local procedure SetHeadersFilters(PriceListLine: Record "Price List Line"; var DuplicatePriceListLine: Record "Price List Line")
     begin
         DuplicatePriceListLine.SetRange("Price Type", PriceListLine."Price Type");
-        DuplicatePriceListLine.SetRange(Status, "Price Status"::Active);
         DuplicatePriceListLine.SetRange("Source Type", PriceListLine."Source Type");
         DuplicatePriceListLine.SetRange("Parent Source No.", PriceListLine."Parent Source No.");
         DuplicatePriceListLine.SetRange("Source No.", PriceListLine."Source No.");
@@ -496,7 +586,7 @@ codeunit 7017 "Price List Management"
         case PriceListLine."Asset Type" of
             "Price Asset Type"::Item:
                 DuplicatePriceListLine.SetRange("Variant Code", PriceListLine."Variant Code");
-            "Price Asset Type"::Resource:
+            "Price Asset Type"::Resource, "Price Asset Type"::"Resource Group":
                 DuplicatePriceListLine.SetRange("Work Type Code", PriceListLine."Work Type Code");
         end;
     end;
@@ -521,6 +611,62 @@ codeunit 7017 "Price List Management"
         end;
     end;
 
+    procedure ImplementNewPrices(var PriceWorksheetLine: Record "Price Worksheet Line")
+    var
+        PriceListLine: Record "Price List Line";
+        InsertedUpdatedLeft: array[3] of Integer;
+    begin
+        PriceWorksheetLine.SetFilter("Price List Code", '<>%1', '');
+        if PriceWorksheetLine.FindSet(true) then begin
+            repeat
+                if not PriceWorksheetLine.Verify() then
+                    InsertedUpdatedLeft[3] += 1
+                else
+                    if not ImplementNewPrice(PriceWorksheetLine, PriceListLine, InsertedUpdatedLeft) then
+                        InsertedUpdatedLeft[3] += 1;
+            until PriceWorksheetLine.Next() = 0;
+            SendNotificationNewPriceImplementation(InsertedUpdatedLeft);
+            if InsertedUpdatedLeft[1] + InsertedUpdatedLeft[2] > 0 then begin
+                Commit();
+                PriceListLine.MarkedOnly(true);
+                ActivateDraftLines(PriceListLine);
+            end;
+        end;
+    end;
+
+    local procedure ImplementNewPrice(var PriceWorksheetLine: Record "Price Worksheet Line"; var PriceListLine: Record "Price List Line"; var InsertedUpdatedLeft: array[3] of Integer) Implemented: Boolean;
+    begin
+        Implemented := false;
+        PriceListLine.TransferFields(PriceWorksheetLine);
+        if PriceWorksheetLine."Existing Line" then begin
+            PriceListLine.Status := PriceListLine.Status::Draft;
+            if PriceListLine.Modify(true) then begin
+                InsertedUpdatedLeft[2] += 1;
+                Implemented := true;
+            end;
+        end else begin
+            PriceListLine."Line No." := 0;
+            if PriceListLine.Insert(true) then begin
+                InsertedUpdatedLeft[1] += 1;
+                Implemented := true;
+            end;
+        end;
+        if Implemented then begin
+            PriceWorksheetLine.Delete();
+            PriceListLine.Mark(true);
+        end;
+    end;
+
+    local procedure InsertWorksheetLine(var ToPriceListHeader: Record "Price List Header"; var PriceListLine: Record "Price List Line")
+    var
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        PriceWorksheetLine.TransferFields(PriceListLine);
+        PriceWorksheetLine."Line No." := 0;
+        PriceWorksheetLine."Source Group" := ToPriceListHeader."Source Group";
+        PriceWorksheetLine.Insert(true);
+    end;
+
     [EventSubscriber(ObjectType::Table, Database::"Price List Line", 'OnBeforeModifyEvent', '', false, false)]
     local procedure OnAfterCopyToPriceSource(var Rec: Record "Price List Line"; var xRec: Record "Price List Line"; RunTrigger: Boolean);
     begin
@@ -535,6 +681,59 @@ codeunit 7017 "Price List Management"
             if xRec.Find() and (xRec.Status = Rec.Status) then
                 if IsAllowedEditingActivePrice(Rec."Price Type") then
                     Rec.Status := Rec.Status::Draft;
+    end;
+
+    local procedure CopyToWorksheetLine(ToPriceListLine: Record "Price List Line"; FromPriceListLine: Record "Price List Line"; CreateNewLine: Boolean)
+    var
+        PriceWorksheetLine: Record "Price Worksheet Line";
+    begin
+        PriceWorksheetLine.TransferFields(ToPriceListLine);
+        PriceWorksheetLine."Existing Unit Price" := FromPriceListLine."Unit Price";
+        PriceWorksheetLine."Existing Direct Unit Cost" := FromPriceListLine."Direct Unit Cost";
+        if CreateNewLine then begin
+            PriceWorksheetLine."Price List Code" := '';
+            PriceWorksheetLine.Status := PriceWorksheetLine.Status::Draft;
+            PriceWorksheetLine."Existing Line" := false;
+            PriceWorksheetLine."Line No." := 0;
+        end else
+            PriceWorksheetLine."Existing Line" := true;
+        PriceWorksheetLine.Insert(true);
+    end;
+
+    procedure VerifySourceGroupInLines(): Boolean;
+    var
+        PriceListLine: Record "Price List Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeNotification: Notification;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupFixedUpgradeTag()) or
+           UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSyncPriceListLineStatusUpgradeTag())
+        then
+            exit(true);
+
+        UpgradeNotification.Id := UpgradeNotificationGuidTok;
+        UpgradeNotification.Message(SourceGroupUpdateMsg);
+        UpgradeNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
+        UpgradeNotification.AddAction(FixTok, Codeunit::"Price List Management", 'UpdateSourceGroupInLines');
+        NotificationLifecycleMgt.SendNotification(UpgradeNotification, PriceListLine.RecordId());
+    end;
+
+    procedure UpdateSourceGroupInLines(UpgradeNotification: Notification)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.Init();
+        JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
+        JobQueueEntry.Validate("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.Validate("Object ID to Run", Codeunit::"Set Price Line Source Group");
+        JobQueueEntry.Description := CompleteSourceGroupUpgradeLbl;
+        JobQueueEntry."Earliest Start Date/Time" := CurrentDateTime();
+        JobQueueEntry."Maximum No. of Attempts to Run" := 1;
+        JobQueueEntry.Insert(true);
+
+        Page.Run(PAGE::"Job Queue Entry Card", JobQueueEntry);
     end;
 
     [IntegrationEvent(false, false)]

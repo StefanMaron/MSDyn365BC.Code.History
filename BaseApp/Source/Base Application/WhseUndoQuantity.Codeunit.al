@@ -283,7 +283,13 @@ codeunit 7320 "Whse. Undo Quantity"
         WhseRcptHeader: Record "Warehouse Receipt Header";
         WhseRcptLine: Record "Warehouse Receipt Line";
         WhseManagement: Codeunit "Whse. Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWhseRcptLine(PostedWhseRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PostedWhseRcptLine do begin
             WhseManagement.SetSourceFilterForWhseRcptLine(WhseRcptLine, "Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
             if WhseRcptLine.FindFirst then begin
@@ -307,7 +313,13 @@ codeunit 7320 "Whse. Undo Quantity"
     var
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseShptLine: Record "Warehouse Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWhseShptLine(PostedWhseShptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PostedWhseShptLine do begin
             WhseShptLine.SetSourceFilter("Source Type", "Source Subtype", "Source No.", "Source Line No.", true);
             if WhseShptLine.FindFirst then begin
@@ -509,6 +521,16 @@ codeunit 7320 "Whse. Undo Quantity"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTempWhseJnlLineOnAfterWhseEntrySetFilters(ItemJnlLine: Record "Item Journal Line"; SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; RefDoc: Integer; var WhseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseRcptLine(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWhseShptLine(PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

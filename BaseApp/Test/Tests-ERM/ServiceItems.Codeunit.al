@@ -713,6 +713,53 @@ codeunit 136103 "Service Items"
     end;
 
     [Test]
+    [HandlerFunctions('CommentSheetPageHandler,ConfirmHandlerFalse')]
+    [Scope('OnPrem')]
+    procedure AddCommentForServiceContractLine()
+    var
+        ServiceItem: Record "Service Item";
+        ServiceContractAccountGroup: Record "Service Contract Account Group";
+        ServiceContractHeader: Record "Service Contract Header";
+        ServiceContractLine: Record "Service Contract Line";
+        ServiceCommentLine: Record "Service Comment Line";
+        ServContractLineList: Page "Serv. Item List (Contract)";
+        PageServContractLineList: TestPage "Serv. Item List (Contract)";
+        Comment: Text[80];
+    begin
+        // [SCENARIO 395348] Test adding a Comment on Service Item page.
+        Initialize();
+
+        // [GIVEN] Service Contract with one line Service Item created.
+        CreateServItemWithSalesUnitAmt(ServiceItem);
+        LibraryService.CreateServiceContractAcctGrp(ServiceContractAccountGroup);
+        CreateServiceContractHeader(ServiceContractHeader, ServiceItem."Customer No.");
+        LibraryService.CreateServiceContractLine(ServiceContractLine, ServiceContractHeader, ServiceItem."No.");
+
+        // [WHEN] Add the comment 'X' to the service contract line
+        Comment :=
+            CopyStr(
+                LibraryUtility.GenerateRandomCode(ServiceCommentLine.FieldNo(Comment), DATABASE::"Service Comment Line"),
+                1, LibraryUtility.GetFieldLength(DATABASE::"Service Comment Line", ServiceCommentLine.FieldNo(Comment)));
+        LibraryVariableStorage.Enqueue(Comment);
+
+        PageServContractLineList.Trap();
+        Page.Run(Page::"Serv. Item List (Contract)", ServiceContractLine);
+        PageServContractLineList."Co&mments".Invoke(); // add comment by CommentSheetPageHandler
+
+        // [THEN] Service Comment Line contains the 'General' comment 'X' for the Service Contract Line.
+        ServiceCommentLine.SetRange("Table Name", "Service Comment Table Name"::"Service Contract");
+        ServiceCommentLine.SetRange("Table Subtype", ServiceContractLine."Contract Type");
+        ServiceCommentLine.SetRange("No.", ServiceContractLine."Contract No.");
+        ServiceCommentLine.SetRange("Table Line No.", ServiceContractLine."Line No.");
+        Assert.RecordCount(ServiceCommentLine, 1);
+        ServiceCommentLine.FindFirst();
+        ServiceCommentLine.TestField(Comment, Comment);
+        ServiceCommentLine.TestField(Type, Enum::"Service Comment Line Type"::General);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure TestServShpmntCreatedFrmSerOrd()
     var
@@ -3561,6 +3608,15 @@ codeunit 136103 "Service Items"
     begin
         PostedPurchaseDocumentLines.PostedReceiptsBtn.SetValue(DocumentType::"Posted Receipts");
         PostedPurchaseDocumentLines.OK.Invoke;
+    end;
+
+    [PageHandler]
+    procedure CommentSheetPageHandler(var ServiceCommentSheet: TestPage "Service Comment Sheet")
+    var
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        ServiceCommentSheet.Comment.SetValue(LibraryVariableStorage.DequeueText());
+        ServiceCommentSheet.OK.Invoke;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::MoveEntries, 'OnBeforeMoveVendEntries', '', false, false)]

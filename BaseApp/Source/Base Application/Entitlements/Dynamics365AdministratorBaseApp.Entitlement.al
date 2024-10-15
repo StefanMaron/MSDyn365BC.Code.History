@@ -10,6 +10,7 @@ entitlement "Dynamics 365 Administrator BaseApp"
                          "D365 MONITOR FIELDS",
                          "D365 RAPIDSTART",
                          "D365 READ",
+                         "LOCAL",
                          "Reten. Pol. Setup - BaseApp",
                          "Security - Baseapp";
 }
