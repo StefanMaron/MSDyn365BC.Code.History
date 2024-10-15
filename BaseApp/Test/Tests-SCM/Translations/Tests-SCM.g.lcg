@@ -11030,6 +11030,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Journal - NamedType WrongFilterOnProdOrderCompListErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 571731545 - Method 4111435698 - NamedType 1932321731" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Prod. Order Capacity Need Time Calc. Error]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Journal - Method CheckValues - NamedType ProdOrderCapacityNeedTimeCalcError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1635960933 - NamedType 3980652915" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You do not have enough inventory to meet the demand for items in one or more lines]]></Val>
