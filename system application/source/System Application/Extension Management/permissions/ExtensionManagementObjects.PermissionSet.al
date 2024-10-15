@@ -31,5 +31,6 @@ permissionset 2504 "Extension Management - Objects"
                   page "Extn. Orphaned App Details" = X,
                   page "Extn Deployment Status Detail" = X,
                   page "Marketplace Extn Deployment" = X,
-                  page "Upload And Deploy Extension" = X;
+                  page "Upload And Deploy Extension" = X,
+                  table "Extension Installation" = X;
 }

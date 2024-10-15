@@ -31,8 +31,12 @@ codeunit 139619 "E-Doc. Integration Mock" implements "E-Document Integration"
         exit(Success);
     end;
 
-    procedure GetApproval(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var http: HttpResponseMessage): Boolean
+    procedure GetApproval(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
+    var
+        Success: Boolean;
     begin
+        OnGetApproval(EDocument, HttpRequest, HttpResponse, Success);
+        exit(Success);
     end;
 
     procedure Cancel(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage): Boolean
@@ -64,6 +68,12 @@ codeunit 139619 "E-Doc. Integration Mock" implements "E-Document Integration"
     local procedure OnGetResponse(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage; var Success: Boolean);
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetApproval(var EDocument: Record "E-Document"; var HttpRequest: HttpRequestMessage; var HttpResponse: HttpResponseMessage; var Success: Boolean);
+    begin
+    end;
+
 
 
 

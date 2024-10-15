@@ -255,6 +255,8 @@ codeunit 99000810 "Calculate Planning Route Line"
                     CalendarEntry."Ending Time",
                     Round(AvQtyBase * 100 / RelevantEfficiency / ConCurrCap, 1, '>'));
                 RemainNeedQtyBase := RemainNeedQtyBase - AvQtyBase;
+                OnCreatingLoadBackOnAfterUpdateRemainNeedQtyBase(PlanningRoutingLine, CalendarEntry, StartingTime);
+
                 if Write then begin
                     RemainNeedQty := Round(RemainNeedQtyBase / CurrentTimeFactor, CurrentRounding);
                     CreatePlanningCapNeed(
@@ -334,6 +336,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                   Round(AvQtyBase * 100 / RelevantEfficiency / ConCurrCap, 1, '>');
                 if AvQtyBase >= 0 then
                     RemainNeedQtyBase := RemainNeedQtyBase - AvQtyBase;
+                OnCreatingLoadForwardOnAfterUpdateRemainNeedQtyBase(PlanningRoutingLine, CalendarEntry, EndingTime);
                 if Write then begin
                     RemainNeedQty := Round(RemainNeedQtyBase / CurrentTimeFactor, CurrentRounding);
                     CreatePlanningCapNeed(
@@ -1717,6 +1720,16 @@ codeunit 99000810 "Calculate Planning Route Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFinitelyLoadCapForward(var PlanningRoutingLine: Record "Planning Routing Line"; TimeType: Enum "Routing Time Type"; var ProdStartingDate: Date; var ProdStartingTime: Time; var IsHandled: Boolean; ConstrainedCapacity: Record "Capacity Constrained Resource"; ResourceIsConstrained: Boolean; ParentWorkCenter: Record "Capacity Constrained Resource"; ParentIsConstrained: Boolean; var ProdEndingTime: Time; var ProdEndingDate: Date; var ConCurrCap: Decimal; var CalendarEntry: Record "Calendar Entry"; var RemainNeedQty: Decimal; var WorkCenter: Record "Work Center"; var CurrentTimeFactor: Decimal; var CurrentRounding: Decimal; var CalculateRoutingLine: Codeunit "Calculate Routing Line"; var ReqLine: Record "Requisition Line"; var FirstInBatch: Boolean; var FirstEntry: Boolean; var NextCapNeedLineNo: Integer; var LotSize: Decimal; var PlanningResiliency: Boolean; var TempPlanningErrorLog: Record "Planning Error Log" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatingLoadForwardOnAfterUpdateRemainNeedQtyBase(PlanningRoutingLine: Record "Planning Routing Line"; CalendarEntry: Record "Calendar Entry"; var EndingTime: Time)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatingLoadBackOnAfterUpdateRemainNeedQtyBase(PlanningRoutingLine: Record "Planning Routing Line"; CalendarEntry: Record "Calendar Entry"; var StartingTime: Time)
     begin
     end;
 }

@@ -36,6 +36,23 @@ page 2678 "Redistribute Acc. Allocations"
                     StyleExpr = DifferenceAmountStyle;
                     Editable = false;
                 }
+                field(QuantityToAllocate; QuantityToAllocate)
+                {
+                    Caption = 'Quantity to Allocate';
+                    ApplicationArea = All;
+                    Visible = QuantityVisible;
+                    ToolTip = 'Specifies the quantity to be allocated to the Destination Account.';
+                    Editable = false;
+                }
+                field(QuantityToAllocateDifference; QuantityToAllocateDifference)
+                {
+                    Caption = 'Remaining Quantity to Allocate';
+                    ApplicationArea = All;
+                    Visible = QuantityVisible;
+                    ToolTip = 'Specifies the remaining quantity to be allocated to one of the lines.';
+                    StyleExpr = DifferenceQuantityStyle;
+                    Editable = false;
+                }
             }
 
             repeater(MainContent)
@@ -45,7 +62,7 @@ page 2678 "Redistribute Acc. Allocations"
                     Caption = 'Destination Account Type';
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the Destination Account.';
-                    
+
                     trigger OnValidate()
                     begin
                         UpdateDestinationAccountName();
@@ -71,9 +88,21 @@ page 2678 "Redistribute Acc. Allocations"
                     ToolTip = 'Specifies the name of the Destination Account.';
                     Editable = false;
                 }
+                field(Quantity; Rec.Quantity)
+                {
+                    Caption = 'Quantity';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the quantity to be allocated to the Destination Account.';
+                    Visible = QuantityVisible;
+                    trigger OnValidate()
+                    begin
+                        CalculateDifference();
+                    end;
+                }
                 field(Amount; Rec.Amount)
                 {
                     Caption = 'Amount';
+                    Editable = not QuantityVisible;
                     ApplicationArea = All;
                     ToolTip = 'Specifies the amount to be allocated to the Destination Account.';
 
@@ -100,16 +129,16 @@ page 2678 "Redistribute Acc. Allocations"
 
                 Scope = Page;
 
-    trigger OnAction()
-    begin
-        Rec.ResetToDefault(Rec, ParentSystemId, ParentTableId);
-        Rec.Reset();
-        Modified := false;
-        if Rec.FindFirst() then;
-        CurrPage.Update(false);
-        DifferenceAmount := 0;
-        DifferenceAmountStyle := '';
-    end;
+                trigger OnAction()
+                begin
+                    Rec.ResetToDefault(Rec, ParentSystemId, ParentTableId);
+                    Rec.Reset();
+                    Modified := false;
+                    if Rec.FindFirst() then;
+                    CurrPage.Update(false);
+                    DifferenceAmount := 0;
+                    DifferenceAmountStyle := '';
+                end;
             }
             action(Dimensions)
             {
@@ -150,6 +179,10 @@ page 2678 "Redistribute Acc. Allocations"
         Rec.Reset();
         if Rec.FindFirst() then
             Rec.SetRange("Allocation Account No.", Rec."Allocation Account No.");
+
+        QuantityVisible := Rec.GetQuantityVisible(Rec);
+        if QuantityVisible then
+            Rec.GetQuantityDataForRedistributePage(Rec, ParentSystemId, ParentTableId, AmountPerUnit, QuantityToAllocate);
     end;
 
     trigger OnAfterGetRecord()
@@ -208,7 +241,20 @@ page 2678 "Redistribute Acc. Allocations"
         TotalsAllocationLine: Record "Allocation Line";
     begin
         TotalsAllocationLine.Copy(Rec, true);
-        TotalsAllocationLine.CalcSums(Amount);
+
+        if QuantityVisible then begin
+            TotalsAllocationLine.CalcSums(Quantity);
+            QuantityToAllocateDifference := QuantityToAllocate - TotalsAllocationLine.Quantity;
+            if QuantityToAllocateDifference <> 0 then
+                DifferenceQuantityStyle := 'Attention'
+            else
+                DifferenceQuantityStyle := '';
+
+            TotalsAllocationLine.Amount := TotalsAllocationLine.Quantity * AmountPerUnit;
+            Rec.Amount := Rec.Quantity * AmountPerUnit;
+        end else
+            TotalsAllocationLine.CalcSums(Amount);
+
         DifferenceAmount := AmountToAllocate - TotalsAllocationLine.Amount;
         if DifferenceAmount <> 0 then
             DifferenceAmountStyle := 'Attention'
@@ -225,11 +271,16 @@ page 2678 "Redistribute Acc. Allocations"
 
     var
         DifferenceAmountStyle: Text;
+        DifferenceQuantityStyle: Text;
         DifferenceAmount: Decimal;
         AmountToAllocate: Decimal;
+        QuantityToAllocate: Decimal;
+        QuantityToAllocateDifference: Decimal;
+        AmountPerUnit: Decimal;
         PostingDate: Date;
         ParentSystemId: Guid;
         ParentTableId: Integer;
         Modified: Boolean;
+        QuantityVisible: Boolean;
         SaveChangesQst: Label 'Do you want to save the changes?';
 }
