@@ -81,10 +81,6 @@ codeunit 1233 "SEPA DD-Check Line"
                 else begin
                     CustomerBankAccount.Get(Customer."No.", SEPADirectDebitMandate."Customer Bank Account Code");
                     if not GLSetup."SEPA Export w/o Bank Acc. Data" then begin
-                        if CustomerBankAccount."SWIFT Code" = '' then
-                            AddFieldEmptyError(
-                              DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption("SWIFT Code"),
-                              CustomerBankAccount.Code);
                         if CustomerBankAccount.IBAN = '' then
                             AddFieldEmptyError(
                               DirectDebitCollectionEntry, CustomerBankAccount.TableCaption, CustomerBankAccount.FieldCaption(IBAN),

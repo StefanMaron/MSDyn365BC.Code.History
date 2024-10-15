@@ -1582,6 +1582,41 @@
             VATPostingSetup."VAT Prod. Posting Group", DocumentNo, ExpectedVATAmount, ExpectedVATAmountACY);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,EditDimensionSetEntriesHandler')]
+    [Scope('OnPrem')]
+    procedure QuoteWithDimension()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Dimension: Record Dimension;
+        DefaultDimension: Record "Default Dimension";
+        DimensionValue: Record "Dimension Value";
+        PurchaseQuotePage: TestPage "Purchase Quote";
+        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
+    begin
+        // [SCENARIO 446055] Header Dimensions will be deleted in a purchase document without a confirm message when you select ship to custom address
+
+        // [GIVEN] Create Vendor and Item with Default Dimension, Purchase Quote.
+        Initialize();
+        LibraryDimension.FindDimension(Dimension);
+        CreatePurchaseOrder(
+          PurchaseHeader, PurchaseLine, Dimension.Code, FindDifferentDimension(Dimension.Code), DefaultDimension."Value Posting"::" ",
+          PurchaseHeader."Document Type"::Quote);
+        LibraryDimension.CreateDimWithDimValue(DimensionValue);
+        LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code");
+        LibraryVariableStorage.Enqueue(DimensionValue.Code);
+        LibraryVariableStorage.Enqueue(true); // to reply Yes on second confirmation
+
+        // [WHEN] Open the page, click on Dimensions and assign the dimension
+        PurchaseQuotePage.OpenEdit();
+        PurchaseQuotePage.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        PurchaseQuotePage.Dimensions.Invoke();
+
+        // [THEN] Verify the confirmation triggered when custom address is selected 
+        PurchaseQuotePage.ShippingOptionWithLocation.SetValue(ShipToOptions::"Custom Address");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

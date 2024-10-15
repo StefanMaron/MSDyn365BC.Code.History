@@ -1527,6 +1527,48 @@ codeunit 144200 "FatturaPA Test"
         Assert.RecordCount(TempXMLBuffer, 3);
     end;
 
+    [Test]
+    procedure UnitaMisuraWhenUoMHasLongValue()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        UnitOfMeasure: Record "Unit of Measure";
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempBlob: Codeunit "Temp Blob";
+        ClientFileName: Text[250];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 444574] UnitaMisura tag value when Item has Unit of Measure with Description value of length 50.
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Item.
+        CreateSalesDocument(
+            SalesHeader, CreatePaymentMethod(), CreatePaymentTerms(), CreateCustomer(), SalesHeader."Document Type"::Invoice);
+
+        // [GIVEN] Item has Unit of Measure with Description value of length 50.
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        UpdateDescriptionOnUoM(
+            SalesLine."Unit of Measure Code",
+            CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(UnitOfMeasure.Description)), 1, MaxStrLen(UnitOfMeasure.Description)));
+        SalesLine.Validate("Unit of Measure Code");
+        SalesLine.Modify(true);
+
+        // [GIVEN] Sales Invoice is posted.
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        SalesInvoiceHeader.SetRecFilter();
+
+        // [WHEN] The document is exported to FatturaPA.
+        ElectronicDocumentFormat.SendElectronically(
+            TempBlob, ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] UnitaMisura tag contains first 10 charachters of Description field of Unit of Measure.
+        LibraryITLocalization.LoadTempXMLBufferFromTempBlob(TempXMLBuffer, TempBlob);
+        AssertCurrentElementValue(
+            TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/UnitaMisura',
+            CopyStr(SalesLine."Unit of Measure", 1, 10));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2161,6 +2203,15 @@ codeunit 144200 "FatturaPA Test"
         Item.Get(ItemNo);
         Item.Validate(GTIN, GTIN);
         Item.Modify(true);
+    end;
+
+    local procedure UpdateDescriptionOnUoM(UnitOfMeasureCode: Code[10]; NewDescription: Text[50])
+    var
+        UnitOfMeasure: Record "Unit of Measure";
+    begin
+        UnitOfMeasure.Get(UnitOfMeasureCode);
+        UnitOfMeasure.Validate(Description, NewDescription);
+        UnitOfMeasure.Modify(true);
     end;
 
     local procedure VerifyTransmissionData(var TempXMLBuffer: Record "XML Buffer" temporary; FormatoTrasmissione: Text)

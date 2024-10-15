@@ -1440,7 +1440,7 @@
         {
             AutoFormatType = 1;
             CalcFormula = Sum(Contributions."Gross Amount" WHERE("Vendor No." = FIELD("No."),
-                                                                  "Payment Date" = FIELD("Date Filter")));
+                                                                  "Related Date" = FIELD("Date Filter")));
             Caption = 'Soc. Sec. Company Base';
             FieldClass = FlowField;
         }

@@ -151,6 +151,7 @@ page 12112 "Withholding Tax Card"
                         WithholdingTaxLinesPage.SetTableView(WithholdingTaxLine);
                         Modify(true);
                         Commit();
+                        WithholdingTaxLinesPage.SetTotalAmount(Rec."Base - Excluded Amount");
                         WithholdingTaxLinesPage.RunModal();
                         SetBaseExcludedStyleExpr();
                     end;

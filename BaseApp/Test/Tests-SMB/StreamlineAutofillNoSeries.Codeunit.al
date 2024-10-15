@@ -1406,6 +1406,51 @@ codeunit 138100 "Streamline. Autofill No Series"
         DocumentNoVisibility.ClearState();
     end;
 
+    [Test]
+    [HandlerFunctions('SelectCustomerTemplListHandlerOK')]
+    [Scope('OnPrem')]
+    procedure CreateCustomer_WithNoSeries_InUse()
+    var
+        Customer: Record Customer;
+        NoSeries: Record "No. Series";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        CustomerCard: TestPage "Customer Card";
+        NoSeriesCode: Code[20];
+        NewNo: Code[20];
+    begin
+        Initialize();
+
+        // [SCENARIO 447824] Date Order in No. Series does not work correctly, an error message is shown on attempting to fill a gap in the no. series
+        // [GIVEN] Create No. Series and assign to "Customer Nos."
+        NoSeriesCode := CreateNonVisibleNoSeries(true);
+        NoSeries.Get(NoSeriesCode);
+        NoSeries.Validate("Manual Nos.", true);
+        NoSeries."Date Order" := true;
+        NoSeries.Modify();
+        SetSalesReceivablesSetup_CustomerNos(NoSeriesCode);
+
+        // [WHEN] NoSeries for Customer is set and opennew CustomerCard
+        CustomerCard.OpenNew();
+        if CustomerCard."No.".Value = '' then begin
+            NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
+            SetNoSeriesDefaultNos(NoSeriesCode, false);
+            CustomerCard."No.".Value(NewNo);
+            SetNoSeriesDefaultNos(NoSeriesCode, true);
+        end;
+        CustomerCard.OK.Invoke;
+
+        // [WHEN] A new customer is created using the next Number in the series bypassing the UI
+        NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
+        with Customer do begin
+            Init();
+            "No." := NewNo;
+            Insert();
+        end;
+
+        // [THEN] A new CustomerCard is opened without errors.
+        CustomerCard.OpenNew();
+    end;
+
     local procedure Initialize()
     var
         NoSeries: Record "No. Series";
