@@ -498,7 +498,7 @@ page 11730 "Cash Document"
 
                     trigger OnAction()
                     begin
-                        Release(CODEUNIT::"Cash Document-Release", NavigateAfterRelease::"Released Document");
+                        ReleaseDocument(CODEUNIT::"Cash Document-Release", NavigateAfterRelease::"Released Document");
                     end;
                 }
                 action(ReleaseAndNew)
@@ -510,7 +510,7 @@ page 11730 "Cash Document"
 
                     trigger OnAction()
                     begin
-                        Release(CODEUNIT::"Cash Document-Release", NavigateAfterRelease::"New Document");
+                        ReleaseDocument(CODEUNIT::"Cash Document-Release", NavigateAfterRelease::"New Document");
                     end;
                 }
                 action(ReleaseAndPrint)
@@ -522,7 +522,7 @@ page 11730 "Cash Document"
 
                     trigger OnAction()
                     begin
-                        Release(CODEUNIT::"Cash Document-Release + Print", NavigateAfterRelease::Nowhere);
+                        ReleaseDocument(CODEUNIT::"Cash Document-Release + Print", NavigateAfterRelease::"Do Nothing");
                     end;
                 }
                 action(Reopen)
@@ -555,7 +555,7 @@ page 11730 "Cash Document"
 
                     trigger OnAction()
                     begin
-                        Post(CODEUNIT::"Cash Document-Post (Yes/No)", NavigateAfterPost::"Posted Document");
+                        PostDocument(CODEUNIT::"Cash Document-Post (Yes/No)", NavigateAfterPost::"Posted Document");
                     end;
                 }
                 action(PostAndNew)
@@ -571,7 +571,7 @@ page 11730 "Cash Document"
 
                     trigger OnAction()
                     begin
-                        Post(CODEUNIT::"Cash Document-Post (Yes/No)", NavigateAfterPost::"New Document");
+                        PostDocument(CODEUNIT::"Cash Document-Post (Yes/No)", NavigateAfterPost::"New Document");
                     end;
                 }
                 action(PostAndPrint)
@@ -584,7 +584,7 @@ page 11730 "Cash Document"
 
                     trigger OnAction()
                     begin
-                        Post(CODEUNIT::"Cash Document-Post + Print", NavigateAfterPost::Nowhere);
+                        PostDocument(CODEUNIT::"Cash Document-Post + Print", NavigateAfterPost::"Do Nothing");
                     end;
                 }
                 action(Preview)
@@ -714,8 +714,8 @@ page 11730 "Cash Document"
     var
         UniSingleInstCU: Codeunit "Universal Single Inst. CU";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        NavigateAfterPost: Option "Posted Document","New Document",Nowhere;
-        NavigateAfterRelease: Option "Released Document","New Document",Nowhere;
+        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
+        NavigateAfterRelease: Option "Released Document","New Document","Do Nothing";
         [InDataSet]
         DateEditable: Boolean;
         ReceiptEditable: Boolean;
@@ -731,7 +731,7 @@ page 11730 "Cash Document"
         DocumentIsPosted: Boolean;
         DocumentIsReleased: Boolean;
 
-    local procedure Post(PostingCodeunitID: Integer; Navigate: Option)
+    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
     var
         CashDocumentHeader: Record "Cash Document Header";
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -754,7 +754,7 @@ page 11730 "Cash Document"
         end;
     end;
 
-    local procedure Release(ReleasingCodeunitID: Integer; Navigate: Option)
+    local procedure ReleaseDocument(ReleasingCodeunitID: Integer; Navigate: Option)
     var
         CashDocumentHeader: Record "Cash Document Header";
         CashDocRelease: Codeunit "Cash Document-Release";
@@ -799,7 +799,7 @@ page 11730 "Cash Document"
         BankAccount: Record "Bank Account";
     begin
         if not BankAccount.Get("Cash Desk No.") then
-            BankAccount.Init;
+            BankAccount.Init();
 
         ReceiveToChecking :=
           ("Cash Document Type" = "Cash Document Type"::Receipt) and
@@ -840,7 +840,7 @@ page 11730 "Cash Document"
     var
         CashDocumentHeader: Record "Cash Document Header";
     begin
-        CashDocumentHeader.Init;
+        CashDocumentHeader.Init();
         CashDocumentHeader.Validate("Cash Desk No.", "Cash Desk No.");
         CashDocumentHeader.Validate("Cash Document Type", "Cash Document Type");
         CashDocumentHeader.Insert(true);

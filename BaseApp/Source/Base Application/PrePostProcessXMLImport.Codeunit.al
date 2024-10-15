@@ -62,7 +62,7 @@ codeunit 1262 "Pre & Post Process XML Import"
         DataExchFieldDetails: Query "Data Exch. Field Details";
         StatementCurrencyCode: Code[10];
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         DataExchFieldDetails.SetFilter(FieldValue, '<>%1&<>%2', '', GLSetup."LCY Code");
         if HasDataExchFieldValue(DataExchFieldDetails, DataExch."Entry No.", CurrencyCodePathFilter) then
@@ -119,7 +119,7 @@ codeunit 1262 "Pre & Post Process XML Import"
         GeneralLedgerSetup: Record "General Ledger Setup";
         DataExchFieldDetails: Query "Data Exch. Field Details";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         DataExchFieldDetails.SetFilter(FieldValue, '<>%1&<>%2', '', GeneralLedgerSetup.GetCurrencyCode(BankAccount."Currency Code"));
         if HasDataExchFieldValue(DataExchFieldDetails, DataExch."Entry No.", CurrCodePathFilter) then

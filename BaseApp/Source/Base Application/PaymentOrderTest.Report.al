@@ -127,17 +127,10 @@ report 11710 "Payment Order - Test"
                 }
 
                 trigger OnAfterGetRecord()
-                var
-                    IsHandled: Boolean;
                 begin
-                    IsHandled := false;
-                    OnBeforeCheckPaymentOrderLine("Payment Order Line", IsHandled);
-                    if not IsHandled then begin
-                        PaymentOrderManagement.CheckPaymentOrderLineCustVendBlocked("Payment Order Line", false);
-                        PaymentOrderManagement.CheckPaymentOrderLineApply("Payment Order Line", false);
-                        PaymentOrderManagement.CheckPaymentOrderLineFormat("Payment Order Line", false);
-                        PaymentOrderManagement.CheckPaymentOrderLineCustom("Payment Order Line", false);
-                    end;
+                    PaymentOrderManagement.CheckPaymentOrderLineCustVendBlocked("Payment Order Line", false);
+                    PaymentOrderManagement.CheckPaymentOrderLineApply("Payment Order Line", false);
+                    PaymentOrderManagement.CheckPaymentOrderLineFormat("Payment Order Line", false);
                     PaymentOrderManagement.CopyErrorMessageToTemp("Error Message");
 
                     TotalAmount += "Amount to Pay";
@@ -204,11 +197,6 @@ report 11710 "Payment Order - Test"
             Filters := Filter
         else
             Filters += StrSubstNo(', %1', Filter);
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPaymentOrderLine(var PaymentOrderLine: Record "Payment Order Line"; var IsHandled: Boolean);
-    begin
     end;
 }
 

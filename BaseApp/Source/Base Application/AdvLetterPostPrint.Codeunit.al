@@ -54,7 +54,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
         if PreviewMode then
             GenJnlPostPreview.ThrowError;
 
-        Commit;
+        Commit();
 
         if Print then begin
             SalesPostAdvances.xGetLastPostNo(LastPrepaymentNo);
@@ -92,7 +92,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             if Print then begin
                 SalesPostAdvances.xGetLastPostNo(LastCrMemoNo);
                 SalesCrMemoHeader."No." := LastCrMemoNo;
@@ -130,7 +130,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
         if PreviewMode then
             GenJnlPostPreview.ThrowError;
 
-        Commit;
+        Commit();
 
         if Print then begin
             PurchPostAdvances.xGetLastPostNo(LastPrepaymentNo);
@@ -168,7 +168,7 @@ codeunit 31010 "Adv.Letter-Post+Print"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             if Print then begin
                 PurchPostAdvances.xGetLastPostNo(LastCrMemoNo);
                 PurchCrMemoHdr."No." := LastCrMemoNo;

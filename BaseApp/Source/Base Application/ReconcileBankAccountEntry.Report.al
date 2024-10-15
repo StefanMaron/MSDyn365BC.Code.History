@@ -86,12 +86,12 @@ report 11711 "Reconcile Bank Account Entry"
 
                     if TempBuffer.Get(GLAccNo) then begin
                         TempBuffer."Net Change in Jnl." += "Amount (LCY)";
-                        TempBuffer.Modify;
+                        TempBuffer.Modify();
                     end else begin
-                        TempBuffer.Init;
+                        TempBuffer.Init();
                         TempBuffer."No." := GLAccNo;
                         TempBuffer."Net Change in Jnl." := "Amount (LCY)";
-                        TempBuffer.Insert;
+                        TempBuffer.Insert();
                     end;
                 end;
             }
@@ -172,7 +172,7 @@ report 11711 "Reconcile Bank Account Entry"
 
             trigger OnPreDataItem()
             begin
-                TempBuffer.Reset;
+                TempBuffer.Reset();
                 SetRange(Number, 1, TempBuffer.Count);
 
                 GLAcc.SetFilter("Date Filter", "Bank Account".GetFilter("Date Filter"));

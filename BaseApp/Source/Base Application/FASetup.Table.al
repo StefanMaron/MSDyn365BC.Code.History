@@ -80,10 +80,10 @@ table 5603 "FA Setup"
                         repeat
                             if FADeprBook.Get(FixedAsset."No.", "Tax Depr. Book") then begin
                                 FixedAsset."Tax Depreciation Group Code" := FADeprBook."Depreciation Group Code";
-                                FixedAsset.Modify;
+                                FixedAsset.Modify();
                             end else begin
                                 FixedAsset."Tax Depreciation Group Code" := '';
-                                FixedAsset.Modify;
+                                FixedAsset.Modify();
                             end;
                         until FixedAsset.Next = 0;
                 end;

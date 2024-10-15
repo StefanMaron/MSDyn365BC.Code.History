@@ -215,7 +215,7 @@ page 6631 "Sales Return Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         ShowReservationEntries(true);
                         UpdateForm(true);
                     end;
@@ -1023,7 +1023,7 @@ page 6631 "Sales Return Order Subform"
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveSalesLine.DeleteLine(Rec);
@@ -1041,7 +1041,7 @@ page 6631 "Sales Return Order Subform"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         Currency.InitRoundingPrecision;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
@@ -1097,8 +1097,6 @@ page 6631 "Sales Return Order Subform"
         IsFoundation: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         LocationCodeVisible: Boolean;
-        IsCommentLine: Boolean;
-        IsBlankNumber: Boolean;
         CurrPageIsEditable: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
@@ -1108,6 +1106,10 @@ page 6631 "Sales Return Order Subform"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1148,7 +1150,7 @@ page 6631 "Sales Return Order Subform"
 
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord;
-            Commit;
+            Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
@@ -1256,7 +1258,7 @@ page 6631 "Sales Return Order Subform"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         LocationCodeMandatory := InventorySetup."Location Mandatory" and (Type = Type::Item);
     end;
 

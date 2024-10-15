@@ -30,7 +30,6 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ClearType: Option "Posting Group","Location Posting Setup","Posting Group Setup";
         ItemPostGrErr: Label 'Inventory Posting Group must have a value in Item: No.=%1. It cannot be zero or empty.';
         ResPostGrErr: Label 'Gen. Prod. Posting Group must have a value in Resource: No.=%1. It cannot be zero or empty.';
-        NoSeriesErr: Label 'You have insufficient quantity of Item';
         ZeroQtyErr: Label 'There is nothing to post.';
         AsmItemPostingErr: Label 'Gen. Prod. Posting Group must have a value in Item Journal Line: Journal Template Name=, Journal Batch Name=, Line No.=0. It cannot be zero or empty.';
         isInitialized: Boolean;
@@ -45,6 +44,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         MsgUpdateDim: Label 'Do you want to update the Dimensions on the lines?';
         ErrorSelectDimValue: Label 'Select Dimension Value Code';
         ErrorInvalidDimensions: Label 'The dimensions that are used in Order ';
+        NoSeriesErr: Label 'You have insufficient quantity of Item';
         NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
@@ -68,13 +68,12 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D3 - Part 1");
     end;
@@ -607,7 +606,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ShortcutDimensionCode: Code[20];
         DimensionSetID: Integer;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         if Num = 1 then
             ShortcutDimensionCode := GeneralLedgerSetup."Shortcut Dimension 1 Code"
         else
@@ -1094,7 +1093,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
           InventorySetup."Average Cost Period"::Day);
 
         // Exercise.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
         PostedAssemblyHeader.FindFirst;
         if PerPostingGroup then
@@ -1386,7 +1385,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         Item.Validate("Overhead Rate", 5);
         Item.Validate("Single-Level Capacity Cost", 7);
         Item.Validate("Single-Level Cap. Ovhd Cost", 11);
-        Item.Modify;
+        Item.Modify();
 
         BOMComponent.SetRange("Parent Item No.", Item."No.");
         if BOMComponent.FindSet then

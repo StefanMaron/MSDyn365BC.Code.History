@@ -2263,6 +2263,25 @@ page 42 "Sales Order"
                             DocPrint.PrintSalesOrder(Rec, Usage::"Order Confirmation");
                         end;
                     }
+                    action(AttachAsPDF)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Attach as PDF';
+                        Ellipsis = true;
+                        Image = PrintAttachment;
+                        Promoted = true;
+                        PromotedCategory = Category11;
+                        ToolTip = 'Create a PDF file and attach it to the document.';
+
+                        trigger OnAction()
+                        var
+                            SalesHeader: Record "Sales Header";
+                        begin
+                            SalesHeader := Rec;
+                            SalesHeader.SetRecFilter();
+                            DocPrint.PrintSalesOrderToDocumentAttachment(SalesHeader, DocPrint.GetSalesOrderPrintToAttachmentOption(Rec));
+                        end;
+                    }
                 }
             }
         }
@@ -2323,7 +2342,7 @@ page 42 "Sales Order"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        xRec.Init;
+        xRec.Init();
         "Responsibility Center" := UserMgt.GetSalesFilter;
         if (not DocNoVisible) and ("No." = '') then
             SetSellToCustomerFromFilter;
@@ -2431,7 +2450,7 @@ page 42 "Sales Order"
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
+    procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
     var
         SalesHeader: Record "Sales Header";
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
@@ -2463,7 +2482,7 @@ page 42 "Sales Order"
             NavigateAfterPost::"New Document":
                 if DocumentIsPosted then begin
                     Clear(SalesHeader);
-                    SalesHeader.Init;
+                    SalesHeader.Init();
                     SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Order);
                     OnPostOnBeforeSalesHeaderInsert(SalesHeader);
                     SalesHeader.Insert(true);
@@ -2526,10 +2545,10 @@ page 42 "Sales Order"
         AdvLetterNo: Code[20];
     begin
         // NAVCZ
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Calc. Inv. Discount" then begin
             CurrPage.SalesLines.PAGE.CalcInvDisc;
-            Commit;
+            Commit();
             Find;
         end;
 
@@ -2539,7 +2558,7 @@ page 42 "Sales Order"
         SalesPostAdvances.Letter(Rec, AdvLetterNo, SalesAPTempl.Code);
 
         if AdvLetter.Get(AdvLetterNo) then begin
-            Commit;
+            Commit();
             if AdvLetter."Template Code" <> '' then
                 AdvLetter.SetRange("Template Code", AdvLetter."Template Code");
             PAGE.Run(PAGE::"Sales Advance Letter", AdvLetter);
@@ -2561,7 +2580,7 @@ page 42 "Sales Order"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ExternalDocNoMandatory := SalesReceivablesSetup."Ext. Doc. No. Mandatory"
     end;
 
@@ -2647,7 +2666,7 @@ page 42 "Sales Order"
     var
         LocationsQuery: Query "Locations from items Sales";
     begin
-        if Status <> Status::Released then begin
+        if TestStatusIsNotReleased then begin
             LocationsQuery.SetRange(Document_No, "No.");
             LocationsQuery.SetRange(Require_Pick, true);
             LocationsQuery.Open;

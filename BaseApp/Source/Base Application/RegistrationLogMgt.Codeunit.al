@@ -112,7 +112,7 @@ codeunit 11798 "Registration Log Mgt."
         RegnLog: Record "Registration Log";
         Ret: Text;
     begin
-        RegnLog.Init;
+        RegnLog.Init();
 
         Ret := Address[1];
         if Ret = '' then
@@ -187,7 +187,7 @@ codeunit 11798 "Registration Log Mgt."
         with RegnLog do begin
             SetRange("Account Type", AccType);
             SetRange("Account No.", AccNo);
-            DeleteAll;
+            DeleteAll();
         end;
     end;
 
@@ -218,7 +218,7 @@ codeunit 11798 "Registration Log Mgt."
     begin
         with RegnLog do begin
             LogUnloggedRegistrationNumbers(AccType, AccNo);
-            Commit;
+            Commit();
             SetRange("Account Type", AccType);
             SetRange("Account No.", AccNo);
             PAGE.RunModal(PAGE::"Registration Log", RegnLog);
@@ -232,13 +232,13 @@ codeunit 11798 "Registration Log Mgt."
         RegLookupExtDataHndl: Codeunit "Reg. Lookup Ext. Data Hndl";
     begin
         if not RegNoSrvConfig.FindFirst then begin
-            RegNoSrvConfig.Init;
-            RegNoSrvConfig.Insert;
+            RegNoSrvConfig.Init();
+            RegNoSrvConfig.Insert();
         end;
 
         RegNoSrvConfig."Service Endpoint" := RegLookupExtDataHndl.GetRegistrationNoValidationWebServiceURL;
         RegNoSrvConfig.Enabled := false;
-        RegNoSrvConfig.Modify;
+        RegNoSrvConfig.Modify();
     end;
 
     [Scope('OnPrem')]

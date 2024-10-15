@@ -52,7 +52,7 @@ report 31084 "Suggest Reverse Charge Lines"
         StartDate: Date;
         EndDate: Date;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         ReverseChargeLn.SetRange("Reverse Charge No.", ReverseChargeHdr."No.");
         if ReverseChargeLn.FindLast then
@@ -468,7 +468,7 @@ report 31084 "Suggest Reverse Charge Lines"
     begin
         LastLineNo += 10000;
 
-        ReverseChargeLn.Init;
+        ReverseChargeLn.Init();
         ReverseChargeLn."Reverse Charge No." := ReverseChargeHdr."No.";
         ReverseChargeLn."Line No." := LastLineNo;
         ReverseChargeLn.Insert(true);
@@ -489,7 +489,7 @@ report 31084 "Suggest Reverse Charge Lines"
         ReverseChargeLn."Document Quantity" := DocumentQty;
         ReverseChargeLn."Document Unit of Measure Code" := DocumentUnitOfMeasureCode;
         ReverseChargeLn."Document Tariff No." := DocumentTariffNo;
-        ReverseChargeLn.Modify;
+        ReverseChargeLn.Modify();
     end;
 
     local procedure CalcQty(Type: Option; No: Code[20]; Qty: Decimal; QtyBase: Decimal; UnitOfMeasureCode: Code[10]; VATStatUnitOfMeasureCode: Code[10]): Decimal
@@ -530,7 +530,7 @@ report 31084 "Suggest Reverse Charge Lines"
         if CurrCode = '' then
             VATBaseAmtLCY := VATBaseAmt
         else begin
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine.Validate("VAT Bus. Posting Group", VATBusPostGroup);
             GenJnlLine.Validate("VAT Prod. Posting Group", VATProdPostGroup);
             GenJnlLine.Validate("Posting Date", PostingDate);

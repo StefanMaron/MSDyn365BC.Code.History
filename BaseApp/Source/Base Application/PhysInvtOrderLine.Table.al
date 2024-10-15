@@ -68,7 +68,7 @@ table 5876 "Phys. Invt. Order Line"
 
                 "Use Item Tracking" := PhysInvtTrackingMgt.SuggestUseTrackingLines(Item);
 
-                GetShelfNo;
+                GetShelfNo();
             end;
         }
         field(21; "Variant Code"; Code[10])
@@ -83,7 +83,7 @@ table 5876 "Phys. Invt. Order Line"
 
                 if "Variant Code" <> xRec."Variant Code" then begin
                     ResetQtyExpected;
-                    GetShelfNo;
+                    GetShelfNo();
                 end;
 
                 if "Variant Code" = '' then
@@ -109,7 +109,7 @@ table 5876 "Phys. Invt. Order Line"
                 if "Location Code" <> xRec."Location Code" then
                     ResetQtyExpected;
 
-                GetShelfNo;
+                GetShelfNo();
             end;
         }
         field(23; "Bin Code"; Code[20])
@@ -383,10 +383,10 @@ table 5876 "Phys. Invt. Order Line"
 
         ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", true);
 
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         ReservEntry.SetSourceFilter(DATABASE::"Phys. Invt. Order Line", 0, "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', 0);
-        ReservEntry.DeleteAll;
+        ReservEntry.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -432,7 +432,7 @@ table 5876 "Phys. Invt. Order Line"
             Item.Get("Item No.");
     end;
 
-    local procedure TestStatusOpen()
+    procedure TestStatusOpen()
     begin
         GetPhysInvtOrderHeader;
         PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Open);
@@ -459,13 +459,13 @@ table 5876 "Phys. Invt. Order Line"
 
         // Create Expected Phys. Invt. Tracking Lines:
         if "Use Item Tracking" then begin
-            ExpPhysInvtTracking.Reset;
+            ExpPhysInvtTracking.Reset();
             ExpPhysInvtTracking.SetRange("Order No", "Document No.");
             ExpPhysInvtTracking.SetRange("Order Line No.", "Line No.");
-            ExpPhysInvtTracking.DeleteAll;
+            ExpPhysInvtTracking.DeleteAll();
 
             if not PhysInvtTrackingMgt.LocationIsBinMandatory("Location Code") then begin
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey(
                   "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
                 ItemLedgEntry.SetRange("Item No.", "Item No.");
@@ -485,14 +485,14 @@ table 5876 "Phys. Invt. Order Line"
                         end else begin
                             ExpPhysInvtTracking."Quantity (Base)" += ItemLedgEntry.Quantity;
                             OnCalcQtyAndTrackLinesExpectedOnBeforeModifyFromItemLedgEntry(ExpPhysInvtTracking, ItemLedgEntry);
-                            ExpPhysInvtTracking.Modify;
+                            ExpPhysInvtTracking.Modify();
                         end;
                     until ItemLedgEntry.Next = 0;
                 ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
                 TestQtyExpected;
             end else begin
                 if PhysInvtTrackingMgt.GetTrackingNosFromWhse(Item) then begin
-                    WhseEntry.Reset;
+                    WhseEntry.Reset();
                     WhseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code");
                     WhseEntry.SetRange("Location Code", "Location Code");
                     WhseEntry.SetRange("Bin Code", "Bin Code");
@@ -512,7 +512,7 @@ table 5876 "Phys. Invt. Order Line"
                             end else begin
                                 ExpPhysInvtTracking."Quantity (Base)" += WhseEntry."Qty. (Base)";
                                 OnCalcQtyAndTrackLinesExpectedOnBeforeInsertFromWhseEntry(ExpPhysInvtTracking, WhseEntry);
-                                ExpPhysInvtTracking.Modify;
+                                ExpPhysInvtTracking.Modify();
                             end;
                         until WhseEntry.Next = 0;
                     ExpPhysInvtTracking.DeleteLine("Document No.", "Line No.", false);
@@ -541,7 +541,7 @@ table 5876 "Phys. Invt. Order Line"
 
         TestStatusOpen;
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         if ItemLedgEntry.FindLast then
@@ -551,7 +551,7 @@ table 5876 "Phys. Invt. Order Line"
 
         if PhysInvtTrackingMgt.LocationIsBinMandatory("Location Code") then begin
             TestField("Bin Code");
-            WhseEntry.Reset;
+            WhseEntry.Reset();
             WhseEntry.SetCurrentKey("Location Code", "Bin Code", "Item No.", "Variant Code");
             WhseEntry.SetRange("Location Code", "Location Code");
             WhseEntry.SetRange("Bin Code", "Bin Code");
@@ -563,7 +563,7 @@ table 5876 "Phys. Invt. Order Line"
             QtyExpected := WhseEntry."Qty. (Base)";
         end else begin
             TestField("Bin Code", '');
-            ItemLedgEntry.Reset;
+            ItemLedgEntry.Reset();
 
             ItemLedgEntry.SetCurrentKey(
               "Item No.", "Entry Type", "Variant Code", "Drop Shipment", "Location Code", "Posting Date");
@@ -614,7 +614,7 @@ table 5876 "Phys. Invt. Order Line"
     begin
         Sum := 0;
 
-        PhysInvtRecordLine.Reset;
+        PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
         PhysInvtRecordLine.SetRange("Order No.", "Document No.");
         PhysInvtRecordLine.SetRange("Order Line No.", "Line No.");
@@ -657,7 +657,7 @@ table 5876 "Phys. Invt. Order Line"
 
         GetPhysInvtOrderHeader;
 
-        ItemJnlLine.Init;
+        ItemJnlLine.Init();
         OnCalcCostsOnAfterInitItemJnlLine(Rec, ItemJnlLine);
 
         ItemJnlLine."Posting Date" := PhysInvtOrderHeader."Posting Date";
@@ -726,7 +726,7 @@ table 5876 "Phys. Invt. Order Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
@@ -770,7 +770,7 @@ table 5876 "Phys. Invt. Order Line"
         TestField("Item No.");
         TestField("On Recording Lines", true);
 
-        PhysInvtRecordLine.Reset;
+        PhysInvtRecordLine.Reset();
         PhysInvtRecordLine.SetCurrentKey("Order No.", "Order Line No.");
         PhysInvtRecordLine.SetRange("Order No.", "Document No.");
         PhysInvtRecordLine.SetRange("Order Line No.", "Line No.");
@@ -785,7 +785,7 @@ table 5876 "Phys. Invt. Order Line"
         TestField("Item No.");
         TestField("Qty. Exp. Calculated", true);
 
-        ExpPhysInvtTracking.Reset;
+        ExpPhysInvtTracking.Reset();
         ExpPhysInvtTracking.SetRange("Order No", "Document No.");
         ExpPhysInvtTracking.SetRange("Order Line No.", "Line No.");
         PAGE.RunModal(0, ExpPhysInvtTracking);
@@ -800,7 +800,7 @@ table 5876 "Phys. Invt. Order Line"
         PhysInvtOrderHeader.Get("Document No.");
         PhysInvtOrderHeader.TestField(Status, PhysInvtOrderHeader.Status::Finished);
 
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         ReservEntry.SetSourceFilter(DATABASE::"Phys. Invt. Order Line", 0, "Document No.", "Line No.", true);
         ReservEntry.SetSourceFilter('', 0);
         case Which of
@@ -843,7 +843,7 @@ table 5876 "Phys. Invt. Order Line"
         GetPhysInvtOrderHeader;
         PhysInvtOrderHeader.TestField("Posting Date");
 
-        PhysInvtLedgEntry.Reset;
+        PhysInvtLedgEntry.Reset();
         PhysInvtLedgEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Posting Date");
         PhysInvtLedgEntry.SetRange("Item No.", "Item No.");
         PhysInvtLedgEntry.SetRange("Variant Code", "Variant Code");
@@ -855,9 +855,9 @@ table 5876 "Phys. Invt. Order Line"
 
     local procedure GetShelfNo()
     begin
-        GetItem;
+        GetItem();
         "Shelf No." := Item."Shelf No.";
-        GetFieldsFromSKU;
+        GetFieldsFromSKU();
     end;
 
     procedure GetFieldsFromSKU()
@@ -868,7 +868,7 @@ table 5876 "Phys. Invt. Order Line"
 
     procedure ShowBinContentItem()
     begin
-        BinContent.Reset;
+        BinContent.Reset();
         BinContent.SetCurrentKey("Item No.");
         BinContent.SetRange("Item No.", "Item No.");
 
@@ -877,7 +877,7 @@ table 5876 "Phys. Invt. Order Line"
 
     procedure ShowBinContentBin()
     begin
-        BinContent.Reset;
+        BinContent.Reset();
         BinContent.SetCurrentKey("Location Code", "Bin Code");
         BinContent.SetRange("Location Code", "Location Code");
         BinContent.SetRange("Bin Code", "Bin Code");

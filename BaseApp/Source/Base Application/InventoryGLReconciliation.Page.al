@@ -235,7 +235,7 @@ page 5845 "Inventory - G/L Reconciliation"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         TestWarning;
         InvtReportHeader.SetFilter("Item Filter", ItemFilter);
         InvtReportHeader.SetFilter("Location Filter", LocationFilter);

@@ -19,10 +19,10 @@ report 594 "Get Item Ledger Entries"
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
                     if IntrastatJnlLine2.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Entry Type" in ["Entry Type"::Sale, "Entry Type"::Purchase] then begin
-                        ItemLedgEntry.Reset;
+                        ItemLedgEntry.Reset();
                         ItemLedgEntry.SetCurrentKey("Document No.", "Document Type");
                         ItemLedgEntry.SetRange("Document No.", "Document No.");
                         ItemLedgEntry.SetRange("Item No.", "Item No.");
@@ -34,18 +34,18 @@ report 594 "Get Item Ledger Entries"
                             if ItemLedgEntry.FindSet then
                                 repeat
                                     if IsItemLedgerEntryCorrected(ItemLedgEntry, "Entry No.") then
-                                        CurrReport.Skip;
+                                        CurrReport.Skip();
                                 until ItemLedgEntry.Next = 0;
                         end;
                     end;
 
                     if not HasCrossedBorder("Item Ledger Entry") or IsService("Item Ledger Entry") or IsServiceItem("Item No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     CalculateTotals("Item Ledger Entry");
 
                     if (TotalAmt = 0) and SkipZeroAmounts then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     InsertItemJnlLine;
                 end;
@@ -86,10 +86,10 @@ report 594 "Get Item Ledger Entries"
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
                     if IntrastatJnlLine2.FindFirst or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if IsJobService("Job Ledger Entry") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     InsertJobLedgerLine;
                 end;
@@ -113,15 +113,15 @@ report 594 "Get Item Ledger Entries"
                 if ShowItemCharges then begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Item Ledger Entry No.");
                     if IntrastatJnlLine2.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if "Item Ledger Entry".Get("Item Ledger Entry No.")
                     then begin
                         if "Item Ledger Entry"."Posting Date" in [StartDate .. EndDate] then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if "Country/Region".Get("Item Ledger Entry"."Country/Region Code") then
                             if "Country/Region"."Intrastat Code" = '' then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                         // NAVCZ
                         if "Item Ledger Entry".Correction or
                            not "Item Ledger Entry"."Intrastat Transaction" or
@@ -130,12 +130,12 @@ report 594 "Get Item Ledger Entries"
                                  "Item Ledger Entry"."Entry Type"::Sale,
                                  "Item Ledger Entry"."Entry Type"::Transfer])
                         then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         if "Item Ledger Entry"."Entry Type" in
                            ["Item Ledger Entry"."Entry Type"::Sale,
                             "Item Ledger Entry"."Entry Type"::Purchase]
                         then begin
-                            ItemLedgEntry.Reset;
+                            ItemLedgEntry.Reset();
                             ItemLedgEntry.SetCurrentKey("Document No.", "Document Type");
                             ItemLedgEntry.SetRange("Document No.", "Item Ledger Entry"."Document No.");
                             ItemLedgEntry.SetRange("Item No.", "Item Ledger Entry"."Item No.");
@@ -150,13 +150,13 @@ report 594 "Get Item Ledger Entries"
                                 if ItemLedgEntry.FindSet then
                                     repeat
                                         if IsItemLedgerEntryCorrected(ItemLedgEntry, "Item Ledger Entry"."Entry No.") then
-                                            CurrReport.Skip;
+                                            CurrReport.Skip();
                                     until ItemLedgEntry.Next = 0;
                             end;
                         end;
                         // NAVCZ
                         if not HasCrossedBorder("Item Ledger Entry") or IsService("Item Ledger Entry") then // NAVCZ
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         CalculateTotals2("Value Entry");  // NAVCZ
                         InsertValueEntryLine;
                     end;
@@ -167,7 +167,7 @@ report 594 "Get Item Ledger Entries"
             begin
                 // NAVCZ
                 if not StatReportingSetup."Include other Period add.Costs" then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 // NAVCZ
 
                 SetRange("Posting Date", StartDate, EndDate);
@@ -267,7 +267,7 @@ report 594 "Get Item Ledger Entries"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlLine."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
-        IntrastatJnlLine.LockTable;
+        IntrastatJnlLine.LockTable();
         if IntrastatJnlLine.FindLast then;
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
@@ -495,7 +495,7 @@ report 594 "Get Item Ledger Entries"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Additional Reporting Currency" <> '' then
                 Currency.Get(GLSetup."Additional Reporting Currency");
         end;
@@ -506,7 +506,7 @@ report 594 "Get Item Ledger Entries"
     begin
         // NAVCZ
         if not StatReportingSetupRead then
-            StatReportingSetup.Get;
+            StatReportingSetup.Get();
         StatReportingSetupRead := true;
     end;
 
@@ -1310,7 +1310,7 @@ report 594 "Get Item Ledger Entries"
         if not ItemLedgerEntry."Completely Invoiced" then
             exit(false);
 
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item Ledger Entry No.");
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetFilter("Invoiced Quantity", '<>%1', 0);

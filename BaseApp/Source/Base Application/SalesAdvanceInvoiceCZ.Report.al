@@ -236,9 +236,9 @@ report 31001 "Sales - Advance Invoice CZ"
                     trigger OnAfterGetRecord()
                     begin
                         if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                            VATPostingSetup.Init;
+                            VATPostingSetup.Init();
 
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -250,7 +250,7 @@ report 31001 "Sales - Advance Invoice CZ"
 
                     trigger OnPreDataItem()
                     begin
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.DeleteAll();
                     end;
                 }
                 dataitem(VATCounter; "Integer")
@@ -320,7 +320,7 @@ report 31001 "Sales - Advance Invoice CZ"
                     begin
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VATClause.GetDescription("Sales Invoice Header");
                     end;
 

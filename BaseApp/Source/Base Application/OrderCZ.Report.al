@@ -458,7 +458,7 @@ report 31092 "Order CZ"
 
     trigger OnInitReport()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
     end;
 
     trigger OnPreReport()

@@ -22,13 +22,13 @@ report 31063 "Test Tariff Numbers"
 
                 if TempTariffNoBuffer.Get("Tariff No.") then begin
                     TempTariffNoBuffer."Total Amount" += 1;
-                    TempTariffNoBuffer.Modify;
+                    TempTariffNoBuffer.Modify();
                 end else
                     if not TariffNo.Get("Tariff No.") then begin
-                        TempTariffNoBuffer.Init;
+                        TempTariffNoBuffer.Init();
                         TempTariffNoBuffer."Currency Code" := "Tariff No.";
                         TempTariffNoBuffer."Total Amount" := 1;
-                        TempTariffNoBuffer.Insert;
+                        TempTariffNoBuffer.Insert();
                     end;
             end;
 
@@ -94,7 +94,7 @@ report 31063 "Test Tariff Numbers"
 
             trigger OnPreDataItem()
             begin
-                TempTariffNoBuffer.Reset;
+                TempTariffNoBuffer.Reset();
                 SetRange(Number, 1, TempTariffNoBuffer.Count);
             end;
         }

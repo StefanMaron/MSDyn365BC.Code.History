@@ -154,11 +154,9 @@ table 312 "Purchases & Payables Setup"
                 PrepaymentMgt.CreateAndStartJobQueueEntryPurchase("Prepmt. Auto Update Frequency");
             end;
         }
-        field(35; "Default Posting Date"; Option)
+        field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            OptionCaption = 'Work Date,No Date';
-            OptionMembers = "Work Date","No Date";
         }
         field(36; "Default Qty. to Receive"; Option)
         {
@@ -379,21 +377,46 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Exact Cost Reversing Mandatory';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+            InitValue = "Lowest Price";
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Purchase);
+            end;
+        }
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {

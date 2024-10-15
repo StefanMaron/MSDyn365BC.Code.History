@@ -1,4 +1,4 @@
-﻿page 450 "Issued Finance Charge Memo"
+page 450 "Issued Finance Charge Memo"
 {
     Caption = 'Issued Finance Charge Memo';
     Editable = false;

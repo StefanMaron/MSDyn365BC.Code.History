@@ -38,7 +38,7 @@ codeunit 759 "Job Chart Mgt"
     var
         MyJob: Record "My Job";
     begin
-        TempRangeJob.DeleteAll;
+        TempRangeJob.DeleteAll();
 
         with MyJob do begin
             SetRange("User ID", UserId);
@@ -47,7 +47,7 @@ codeunit 759 "Job Chart Mgt"
                 repeat
                     if Job.Get("Job No.") then begin
                         TempRangeJob := Job;
-                        TempRangeJob.Insert;
+                        TempRangeJob.Insert();
                     end;
                 until Next = 0;
         end;

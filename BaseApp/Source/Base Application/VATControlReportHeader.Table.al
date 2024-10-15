@@ -181,7 +181,7 @@ table 31100 "VAT Control Report Header"
         TestModifyAllowed;
         TestDeleteAllowed;
 
-        VATCtrlRptLn.Reset;
+        VATCtrlRptLn.Reset();
         VATCtrlRptLn.SetRange("Control Report No.", "No.");
         VATCtrlRptLn.DeleteAll(true);
     end;
@@ -229,7 +229,7 @@ table 31100 "VAT Control Report Header"
     var
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("VAT Control Report Nos.");
         exit(StatReportingSetup."VAT Control Report Nos.");
     end;
@@ -306,7 +306,7 @@ table 31100 "VAT Control Report Header"
 
     local procedure LineExists(): Boolean
     begin
-        VATCtrlRptLn.Reset;
+        VATCtrlRptLn.Reset();
         VATCtrlRptLn.SetRange("Control Report No.", "No.");
         exit(VATCtrlRptLn.FindFirst);
     end;
@@ -318,7 +318,7 @@ table 31100 "VAT Control Report Header"
 
     local procedure TestDeleteAllowed()
     begin
-        VATCtrlRptLn.Reset;
+        VATCtrlRptLn.Reset();
         VATCtrlRptLn.SetRange("Control Report No.", "No.");
         VATCtrlRptLn.SetFilter("Closed by Document No.", '<>%1', '');
         if VATCtrlRptLn.FindFirst then

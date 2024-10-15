@@ -604,12 +604,12 @@ page 5972 "Posted Service Credit Memo"
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "Pre-Assigned No.");
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

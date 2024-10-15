@@ -11,8 +11,6 @@ codeunit 134267 "Payment Proposal UT"
     end;
 
     var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         ZeroVATPostingSetup: Record "VAT Posting Setup";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
@@ -44,10 +42,10 @@ codeunit 134267 "Payment Proposal UT"
         AppliedPaymentEntry.DeleteAll(true);
         CloseExistingEntries;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
 
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<0D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
         if IsInitialized then
             exit;
 
@@ -58,7 +56,7 @@ codeunit 134267 "Payment Proposal UT"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payment Proposal UT");
     end;
@@ -107,7 +105,7 @@ codeunit 134267 "Payment Proposal UT"
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
         TempPaymentApplicationProposal.FindFirst;
         TempPaymentApplicationProposal.Validate(Applied, true);
-        TempPaymentApplicationProposal.Modify;
+        TempPaymentApplicationProposal.Modify();
 
         // validate Applied on CrMemo
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
@@ -136,18 +134,18 @@ codeunit 134267 "Payment Proposal UT"
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
         TempPaymentApplicationProposal.FindFirst;
         TempPaymentApplicationProposal.Validate(Applied, true);
-        TempPaymentApplicationProposal.Modify;
+        TempPaymentApplicationProposal.Modify();
 
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
         TempPaymentApplicationProposal.FindFirst;
         TempPaymentApplicationProposal.Validate(Applied, true);
-        TempPaymentApplicationProposal.Modify;
+        TempPaymentApplicationProposal.Modify();
 
         // validate Applied on CrMemo
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::"Credit Memo");
         TempPaymentApplicationProposal.FindLast;
         TempPaymentApplicationProposal.Validate(Applied, true);
-        TempPaymentApplicationProposal.Modify;
+        TempPaymentApplicationProposal.Modify();
 
         // Result - Ok
         Assert.AreNotEqual(0, TempPaymentApplicationProposal."Applied Amount", 'Application for second Cr.Memo.');
@@ -169,7 +167,7 @@ codeunit 134267 "Payment Proposal UT"
         PopulatePaymentApplicationProposal(BankAccReconLine, TempPaymentApplicationProposal);
 
         BankAccReconLine.Difference := 0;
-        BankAccReconLine.Modify;
+        BankAccReconLine.Modify();
 
         // Apply Inv
         TempPaymentApplicationProposal.SetRange("Document Type", TempPaymentApplicationProposal."Document Type"::Invoice);
@@ -234,7 +232,7 @@ codeunit 134267 "Payment Proposal UT"
     var
         AppliedPaymentEntryRecRef: RecordRef;
         PaymentApplicationProposalRecRef: RecordRef;
-        CommonFieldsFieldRef: array[22] of FieldRef;
+        CommonFieldsFieldRef: array[18] of FieldRef;
         PaymentProposalSpecificFieldRef: array[10] of FieldRef;
     begin
         GetCommonFields(CommonFieldsFieldRef);
@@ -264,7 +262,7 @@ codeunit 134267 "Payment Proposal UT"
         PaymentProposalSpecificFieldRef: array[10] of FieldRef;
     begin
         GetPaymentProposalSpecificFields(PaymentProposalSpecificFieldRef);
-        AppliedPaymentEntry.Init;
+        AppliedPaymentEntry.Init();
         AppliedPaymentEntryRecRef.GetTable(AppliedPaymentEntry);
         VerifyFieldDefinitionsDontExistInTargetTable(AppliedPaymentEntryRecRef, PaymentProposalSpecificFieldRef);
     end;
@@ -1040,7 +1038,7 @@ codeunit 134267 "Payment Proposal UT"
         // Verify
         Difference := 0;
         NoOfEntries := 1;
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         Assert.AreEqual(TempPaymentApplicationProposal."Applied Amount", Amount, 'Applied Amount was not set');
         VerifyBankAccReconciliationLineIsUpdatedCorrectly(
           BankAccReconciliationLine, TempPaymentApplicationProposal, CustLedgerEntry, Amount, Difference, NoOfEntries);
@@ -1080,7 +1078,7 @@ codeunit 134267 "Payment Proposal UT"
         NoOfEntries := 1;
         Assert.AreEqual(TempPaymentApplicationProposal."Applied Amount", Amount, 'Applied Amount was not set');
 
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         VerifyBankAccReconciliationLineIsUpdatedCorrectly(
           BankAccReconciliationLine, TempPaymentApplicationProposal, CustLedgerEntry, Amount, Difference, NoOfEntries);
         VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
@@ -1118,7 +1116,7 @@ codeunit 134267 "Payment Proposal UT"
         NoOfEntries := 1;
         Assert.AreEqual(TempPaymentApplicationProposal."Applied Amount", Amount, 'Applied Amount was not set');
 
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         VerifyBankAccReconciliationLineIsUpdatedCorrectly(
           BankAccReconciliationLine, TempPaymentApplicationProposal, CustLedgerEntry, Amount, Difference, NoOfEntries);
         VerifyAppliedPaymentEntryMatchesProposalLine(TempPaymentApplicationProposal);
@@ -1158,7 +1156,7 @@ codeunit 134267 "Payment Proposal UT"
         Difference := Amount;
         NoOfEntries := 0;
 
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         VerifyBankAccReconciliationLineIsUpdatedCorrectly(
           BankAccReconciliationLine, TempPaymentApplicationProposal, CustLedgerEntry, Amount, Difference, NoOfEntries);
         VerifyAppliedPaymentEntryDoesntExist(TempPaymentApplicationProposal);
@@ -2088,7 +2086,6 @@ codeunit 134267 "Payment Proposal UT"
         SecondLineAmount := Amount - FirstLineAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -2178,9 +2175,9 @@ codeunit 134267 "Payment Proposal UT"
     begin
         Initialize;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2210,9 +2207,9 @@ codeunit 134267 "Payment Proposal UT"
     begin
         Initialize;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -2289,7 +2286,6 @@ codeunit 134267 "Payment Proposal UT"
         SecondLineAmount := Amount - FirstLineAmount - CustLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -2342,7 +2338,7 @@ codeunit 134267 "Payment Proposal UT"
     begin
         I := 1;
         RecRef.Open(DATABASE::"Payment Application Proposal");
-        PaymentApplicationProposal.Init;
+        PaymentApplicationProposal.Init();
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Bank Account No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Statement No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Statement Line No.")));
@@ -2361,12 +2357,6 @@ codeunit 134267 "Payment Proposal UT"
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Due Date")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("External Document No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Match Confidence")));
-        // NAVCZ
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Variable Symbol")));
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Specific Symbol")));
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Constant Symbol")));
-        AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Currency Factor")));
-        // NAVCZ
     end;
 
     local procedure GetPaymentProposalSpecificFields(var FieldRefArray: array[10] of FieldRef)
@@ -2377,7 +2367,7 @@ codeunit 134267 "Payment Proposal UT"
     begin
         I := 1;
         RecRef.Open(DATABASE::"Payment Application Proposal");
-        PaymentApplicationProposal.Init;
+        PaymentApplicationProposal.Init();
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo(Applied)));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Pmt. Disc. Due Date")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Remaining Pmt. Disc. Possible")));
@@ -2390,7 +2380,7 @@ codeunit 134267 "Payment Proposal UT"
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Stmt To Rem. Amount Difference")));
     end;
 
-    local procedure AddToArray(var FieldRefArray: array[22] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
+    local procedure AddToArray(var FieldRefArray: array[18] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)
     begin
         FieldRefArray[I] := CurrFieldRef;
         I += 1;
@@ -2484,10 +2474,6 @@ codeunit 134267 "Payment Proposal UT"
     begin
         TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
         CODEUNIT.Run(CODEUNIT::"Get Bank Stmt. Line Candidates", TempPaymentApplicationProposal);
-        // NAVCZ
-        TempPaymentApplicationProposal.SetFilter("Account Type", '<>%1',
-          TempPaymentApplicationProposal."Account Type"::"G/L Account");
-        // NAVCZ
         TempPaymentApplicationProposal.FindFirst;
     end;
 
@@ -2497,7 +2483,6 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -2549,7 +2534,7 @@ codeunit 134267 "Payment Proposal UT"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         Clear(CustLedgerEntry);
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst;
         CustLedgerEntry.CalcFields("Remaining Amount");
@@ -2569,7 +2554,7 @@ codeunit 134267 "Payment Proposal UT"
     local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20])
     begin
         Clear(TempPaymentApplicationProposal);
-        TempPaymentApplicationProposal.Init;
+        TempPaymentApplicationProposal.Init();
         TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
         TempPaymentApplicationProposal."Account Type" := AccountType;
         TempPaymentApplicationProposal."Account No." := AccountNo;
@@ -2581,7 +2566,7 @@ codeunit 134267 "Payment Proposal UT"
         AppliedPaymentEntry: Record "Applied Payment Entry";
         AppliedPaymentEntryRecordRef: RecordRef;
         PaymentApplicationProposalRecordRef: RecordRef;
-        CommonFieldsFieldRef: array[22] of FieldRef;
+        CommonFieldsFieldRef: array[18] of FieldRef;
         AppliedPmtEntryFieldRef: FieldRef;
         PaymentProposalFieldRef: FieldRef;
         I: Integer;
@@ -2761,11 +2746,11 @@ codeunit 134267 "Payment Proposal UT"
     begin
         BankAcc.FindFirst;
 
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconLine."Statement Type"::"Payment Application";
         BankAccReconciliation."Bank Account No." := BankAcc."No.";
         BankAccReconciliation."Statement No." := Format(LibraryRandom.RandIntInRange(40, 60));
-        BankAccReconciliation.Insert;
+        BankAccReconciliation.Insert();
 
         BankAccReconLine."Statement Type" := BankAccReconciliation."Statement Type";
         BankAccReconLine."Bank Account No." := BankAccReconciliation."Bank Account No.";
@@ -2775,7 +2760,7 @@ codeunit 134267 "Payment Proposal UT"
         BankAccReconLine."Account Type" := BankAccReconLine."Account Type"::Customer;
         BankAccReconLine.Difference := LibraryRandom.RandIntInRange(1000, 2000);
         BankAccReconLine."Transaction Date" := WorkDate;
-        BankAccReconLine.Insert;
+        BankAccReconLine.Insert();
     end;
 
     [MessageHandler]
@@ -2795,30 +2780,6 @@ codeunit 134267 "Payment Proposal UT"
     procedure MsgWantToApplyCreditMemoAndInvoices(Message: Text[1024])
     begin
         Assert.AreNotEqual(0, StrPos(Message, 'want to apply credit memos and invoices'), 'Wrong Message on Cr.Memo application')
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    begin
-        // NAVCZ
-        if BankPmtApplRuleCode.Code = '' then
-            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    begin
-        // NAVCZ
-        if TextToAccMappingCode.Code = '' then
-            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
-        exit(TextToAccMappingCode.Code);
-    end;
-
-    local procedure UpdateBankAccount(BankAcc: Record "Bank Account")
-    begin
-        // NAVCZ
-        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
-        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
-        BankAcc.Modify;
     end;
 }
 

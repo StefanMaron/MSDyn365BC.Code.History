@@ -25,7 +25,7 @@ codeunit 211 "Res. Jnl.-Check Line"
         if IsHandled then
             exit;
 
-        GLSetup.Get;
+        GLSetup.Get();
         with ResJnlLine do begin
             if EmptyLine then
                 exit;
@@ -46,7 +46,7 @@ codeunit 211 "Res. Jnl.-Check Line"
             CheckDimensions(ResJnlLine);
 
             // NAVCZ
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserChecksMgt.CheckResJournalLine(ResJnlLine);
             // NAVCZ

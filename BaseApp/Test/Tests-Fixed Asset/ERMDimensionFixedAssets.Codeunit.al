@@ -35,10 +35,9 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
         LibraryFiscalYear.CreateFiscalYear;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateFAPostingType; // NAVCZ
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Fixed Assets");
     end;
 
@@ -853,7 +852,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGLAccountWithDimension(DefaultDimension);
         CreateFixedAssetDepreciation(FADepreciationBook);
-        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::"Book Value (Loss)"); // NAVCZ
+        CreateAndAttachDimensionOnFAAllocation(FAAllocation, FADepreciationBook."FA Posting Group", FAAllocation."Allocation Type"::Loss);
         UpdateAccountNoInFAAllocation(FAAllocation, DefaultDimension."No.");
 
         CreateGenJournalBatch(GenJournalBatch);
@@ -1315,7 +1314,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
-        GenJournalTemplate.Init;
+        GenJournalTemplate.Init();
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Assets);
         GenJournalTemplate.SetRange(Recurring, false);
 
@@ -1517,7 +1516,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         OldInsuranceDeprBook := FASetup."Insurance Depr. Book";
         FASetup.Validate("Insurance Depr. Book", InsuranceDeprBook);
         FASetup.Modify(true)
@@ -1578,7 +1577,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         AutomaticInsurancePostingOld := FASetup."Automatic Insurance Posting";
         FASetup.Validate("Automatic Insurance Posting", AutomaticInsurancePosting);
         FASetup.Modify(true);
@@ -1726,7 +1725,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         FAJournalSetup2: Record "FA Journal Setup";
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FAJournalSetup2.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
         FAJournalSetup2.FindFirst;
         FAJournalSetup.TransferFields(FAJournalSetup2, false);
@@ -1816,7 +1815,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         GenJournalBatch.Get(FAJournalSetup."Gen. Jnl. Template Name", FAJournalSetup."Gen. Jnl. Batch Name");
         GenJournalBatch."Posting No. Series" :=
           LibraryUtility.GenerateRandomCode20(GenJournalBatch.FieldNo("Posting No. Series"), DATABASE::"Gen. Journal Batch");
-        GenJournalBatch.Modify;
+        GenJournalBatch.Modify();
     end;
 
     local procedure UpdateInsuranceJournalBatchPostingNoSeries(DepreciationBookCode: Code[10])
@@ -1828,7 +1827,7 @@ codeunit 134478 "ERM Dimension Fixed Assets"
         InsuranceJournalBatch.Get(FAJournalSetup."Insurance Jnl. Template Name", FAJournalSetup."Insurance Jnl. Batch Name");
         InsuranceJournalBatch."Posting No. Series" :=
           LibraryUtility.GenerateRandomCode20(InsuranceJournalBatch.FieldNo("Posting No. Series"), DATABASE::"Insurance Journal Batch");
-        InsuranceJournalBatch.Modify;
+        InsuranceJournalBatch.Modify();
     end;
 
     local procedure PostAcquisitionCost(var FADepreciationBook: Record "FA Depreciation Book")

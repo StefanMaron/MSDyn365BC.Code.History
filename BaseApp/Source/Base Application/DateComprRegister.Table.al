@@ -125,6 +125,13 @@ table 87 "Date Compr. Register"
         Text000: Label 'The entry cannot be unapplied, because the %1 has been compressed.';
         Text001: Label 'The transaction cannot be reversed, because the %1 has been compressed.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("No.")))
+    end;
+
     procedure InitRegister(TableID: Integer; RegNo: Integer; StartingDate: Date; EndingDate: Date; PeriodLength: Integer; EntryFilter: Text[250]; RelatedRegNo: Integer; SourceCode: Code[10])
     begin
         Init;

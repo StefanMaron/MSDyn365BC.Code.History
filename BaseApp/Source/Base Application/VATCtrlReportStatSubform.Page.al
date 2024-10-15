@@ -86,7 +86,7 @@ page 31105 "VAT Ctrl.Report Stat. Subform"
     [Scope('OnPrem')]
     procedure SetTempVATCtrlRepBuffer(var NewVATCtrlRptBuf: Record "VAT Control Report Buffer")
     begin
-        DeleteAll;
+        DeleteAll();
         if NewVATCtrlRptBuf.FindSet then
             repeat
                 Copy(NewVATCtrlRptBuf);

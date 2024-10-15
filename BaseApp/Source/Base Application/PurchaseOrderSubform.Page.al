@@ -1,4 +1,4 @@
-﻿page 54 "Purchase Order Subform"
+page 54 "Purchase Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -791,6 +791,18 @@
                     ToolTip = 'Specifies the number of this line.';
                     Visible = false;
                 }
+                field("Over-Receipt Quantity"; "Over-Receipt Quantity")
+                {
+                    ApplicationArea = All;
+                    Visible = OverReceiptAllowed;
+                    ToolTip = 'Specifies over-receipt cuantity.';
+                }
+                field("Over-Receipt Code"; "Over-Receipt Code")
+                {
+                    ApplicationArea = All;
+                    Visible = OverReceiptAllowed;
+                    ToolTip = 'Specifies over-receipt code.';
+                }
             }
             group(Control43)
             {
@@ -1212,8 +1224,9 @@
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
-                    Visible = IsSaasExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1248,7 +1261,7 @@
         ReservePurchLine: Codeunit "Purch. Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReservePurchLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReservePurchLine.DeleteLine(Rec);
@@ -1266,7 +1279,7 @@
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
         Currency.InitRoundingPrecision;
@@ -1290,9 +1303,11 @@
     var
         ServerSetting: Codeunit "Server Setting";
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
 
         SetDimensionsVisibility;
+        SetOverReceiptControlsVisibility();
     end;
 
     var
@@ -1316,10 +1331,8 @@
         TypeAsText: Text[30];
         ItemChargeStyleExpression: Text;
         InvDiscAmountEditable: Boolean;
-        IsCommentLine: Boolean;
         IsFoundation: Boolean;
-        IsBlankNumber: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
         CurrPageIsEditable: Boolean;
         DimVisible1: Boolean;
@@ -1330,6 +1343,12 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        OverReceiptAllowed: Boolean;
+        SuppressTotals: Boolean;
+
+    protected var
+        IsBlankNumber: Boolean;
+        IsCommentLine: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1341,6 +1360,9 @@
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        if SuppressTotals then
+            exit;
+
         PurchaseHeader.Get("Document Type", "Document No.");
         if PurchaseHeader.InvoicedLineExists then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
@@ -1435,6 +1457,9 @@
 
     procedure RedistributeTotalsOnAfterValidate()
     begin
+        if SuppressTotals then
+            exit;
+
         CurrPage.SaveRecord;
 
         DocumentTotals.PurchaseRedistributeInvoiceDiscountAmounts(Rec, VATAmount, TotalPurchaseLine);
@@ -1448,6 +1473,9 @@
 
     local procedure CalculateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.PurchaseCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculatePurchaseSubPageTotals(
           TotalPurchaseHeader, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
@@ -1456,6 +1484,9 @@
 
     procedure DeltaUpdateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.PurchaseDeltaUpdateTotals(Rec, xRec, TotalPurchaseLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
@@ -1521,6 +1552,13 @@
             if ApplicationAreaMgmtFacade.IsFoundationEnabled then
                 if xRec."Document No." = '' then
                     Type := Type::Item;
+    end;
+
+    local procedure SetOverReceiptControlsVisibility()
+    var
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        OverReceiptAllowed := OverReceiptMgt.IsOverReceiptAllowed();
     end;
 
     [IntegrationEvent(TRUE, false)]

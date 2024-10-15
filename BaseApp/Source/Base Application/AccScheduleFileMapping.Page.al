@@ -83,7 +83,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(1);
+                        ValidateColumn(1);
                         AfterValidate(1);
                     end;
                 }
@@ -100,7 +100,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(2);
+                        ValidateColumn(2);
                         AfterValidate(2);
                     end;
                 }
@@ -117,7 +117,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(3);
+                        ValidateColumn(3);
                         AfterValidate(3);
                     end;
                 }
@@ -134,7 +134,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(4);
+                        ValidateColumn(4);
                         AfterValidate(4);
                     end;
                 }
@@ -151,7 +151,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(5);
+                        ValidateColumn(5);
                         AfterValidate(5);
                     end;
                 }
@@ -168,7 +168,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(6);
+                        ValidateColumn(6);
                         AfterValidate(6);
                     end;
                 }
@@ -185,7 +185,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(7);
+                        ValidateColumn(7);
                         AfterValidate(7);
                     end;
                 }
@@ -202,7 +202,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(8);
+                        ValidateColumn(8);
                         AfterValidate(8);
                     end;
                 }
@@ -219,7 +219,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(9);
+                        ValidateColumn(9);
                         AfterValidate(9);
                     end;
                 }
@@ -236,7 +236,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(10);
+                        ValidateColumn(10);
                         AfterValidate(10);
                     end;
                 }
@@ -253,7 +253,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(11);
+                        ValidateColumn(11);
                         AfterValidate(11);
                     end;
                 }
@@ -270,7 +270,7 @@ page 31081 "Acc. Schedule File Mapping"
 
                     trigger OnValidate()
                     begin
-                        OnValidate(12);
+                        ValidateColumn(12);
                         AfterValidate(12);
                     end;
                 }
@@ -367,7 +367,7 @@ page 31081 "Acc. Schedule File Mapping"
         ColumnNo: Integer;
     begin
         Clear(ColumnValues);
-        StmtFileMapping.Reset;
+        StmtFileMapping.Reset();
         StmtFileMapping.SetRange("Schedule Name", CurrentSchedName);
         StmtFileMapping.SetRange("Schedule Line No.", "Line No.");
         StmtFileMapping.SetRange("Schedule Column Layout Name", CurrentColumnName);
@@ -393,7 +393,7 @@ page 31081 "Acc. Schedule File Mapping"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if NewCurrentSchedName <> '' then
             CurrentSchedName := NewCurrentSchedName;
         if CurrentSchedName = '' then
@@ -437,7 +437,7 @@ page 31081 "Acc. Schedule File Mapping"
     end;
 
     [Scope('OnPrem')]
-    procedure OnValidate(ColumnNo: Integer)
+    procedure ValidateColumn(ColumnNo: Integer)
     begin
         if ColumnValues[ColumnNo] <> '' then begin
             Clear(StmtFileMapping2);
@@ -451,13 +451,13 @@ page 31081 "Acc. Schedule File Mapping"
         TempColumnLayout := ColumnLayoutArr[ColumnNo];
 
         if ColumnValues[ColumnNo] <> '' then begin
-            StmtFileMapping2.Init;
+            StmtFileMapping2.Init();
             StmtFileMapping2."Schedule Name" := CurrentSchedName;
             StmtFileMapping2."Schedule Line No." := "Line No.";
             StmtFileMapping2."Schedule Column Layout Name" := CurrentColumnName;
             StmtFileMapping2."Schedule Column No." := TempColumnLayout."Line No.";
             StmtFileMapping2.Validate("Excel Cell", ColumnValues[ColumnNo]);
-            if StmtFileMapping2.Insert then;
+            if StmtFileMapping2.Insert() then;
         end;
     end;
 
@@ -465,7 +465,7 @@ page 31081 "Acc. Schedule File Mapping"
     begin
         TempColumnLayout := ColumnLayoutArr[ColumnNo];
 
-        StmtFileMapping.Reset;
+        StmtFileMapping.Reset();
         StmtFileMapping.SetRange("Schedule Name", CurrentSchedName);
         StmtFileMapping.SetRange("Schedule Line No.", "Line No.");
         StmtFileMapping.SetRange("Schedule Column Layout Name", CurrentColumnName);

@@ -235,7 +235,6 @@ page 31098 "Reverse Charge"
             group(Release)
             {
                 Caption = 'Release';
-                Image = Release;
                 action("Re&lease")
                 {
                     ApplicationArea = Basic, Suite;

@@ -286,10 +286,10 @@ xmlport 11763 "Reverse Charge Export"
                             if ReverseChargeLn."Document Tariff No." <> '' then
                                 TariffNumber.Get("Document Tariff No.")
                             else
-                                TariffNumber.Init;
+                                TariffNumber.Init();
 
                             if TariffNumber."Allow Empty Unit of Meas.Code" then begin
-                                UnitOfMeasure.Init;
+                                UnitOfMeasure.Init();
                                 roz_pl := '';
                             end else begin
                                 TestField("Unit of Measure Code");
@@ -380,8 +380,8 @@ xmlport 11763 "Reverse Charge Export"
 
     trigger OnPreXmlPort()
     begin
-        StatReportingSetup.Get;
-        CoInfo.Get;
+        StatReportingSetup.Get();
+        CoInfo.Get();
     end;
 
     var

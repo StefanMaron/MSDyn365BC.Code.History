@@ -754,7 +754,7 @@ page 132 "Posted Sales Invoice"
             {
                 ApplicationArea = Basic, Suite;
                 ShowFilter = false;
-                Visible = false;
+                Visible = NOT IsOfficeAddin;
             }
             systempart(Control1900383207; Links)
             {
@@ -1000,6 +1000,24 @@ page 132 "Posted Sales Invoice"
                     SalesInvHeader := Rec;
                     CurrPage.SetSelectionFilter(SalesInvHeader);
                     SalesInvHeader.EmailRecords(true);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesInvoiceHeader: Record "Sales Invoice Header";
+                begin
+                    SalesInvoiceHeader := Rec;
+                    SalesInvoiceHeader.SetRecFilter();
+                    PrintToDocumentAttachment(SalesInvoiceHeader);
                 end;
             }
             action("&Navigate")

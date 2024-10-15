@@ -1,4 +1,4 @@
-﻿page 46 "Sales Order Subform"
+page 46 "Sales Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -1368,8 +1368,9 @@
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
                     PromotedOnly = true;
+                    Visible = IsSaaSExcelAddinEnabled;
                     ToolTip = 'Send the data in the sub page to an Excel file for analysis or editing';
-                    Visible = IsSaasExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1405,7 +1406,7 @@
         ReserveSalesLine: Codeunit "Sales Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveSalesLine.DeleteLineConfirm(Rec) then
                 exit(false);
 
@@ -1425,8 +1426,8 @@
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
-        SalesSetup.Get;
-        InventorySetup.Get;
+        SalesSetup.Get();
+        InventorySetup.Get();
         Currency.InitRoundingPrecision;
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled;
@@ -1457,7 +1458,8 @@
         if Location.ReadPermission then
             LocationCodeVisible := not Location.IsEmpty;
 
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
 
         SetDimensionsVisibility;
     end;
@@ -1466,12 +1468,10 @@
         Currency: Record Currency;
         TotalSalesHeader: Record "Sales Header";
         TotalSalesLine: Record "Sales Line";
-        SalesHeader: Record "Sales Header";
         SalesSetup: Record "Sales & Receivables Setup";
         InventorySetup: Record "Inventory Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         SalesCalcDiscountByType: Codeunit "Sales - Calc Discount By Type";
@@ -1485,10 +1485,8 @@
         UnitofMeasureCodeIsChangeable: Boolean;
         LocationCodeVisible: Boolean;
         IsFoundation: Boolean;
-        IsCommentLine: Boolean;
         CurrPageIsEditable: Boolean;
-        IsBlankNumber: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         InvoiceDiscountAmount: Decimal;
         InvoiceDiscountPct: Decimal;
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
@@ -1502,6 +1500,11 @@
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        SuppressTotals: Boolean;
+
+    protected var
+        IsCommentLine: Boolean;
+        IsBlankNumber: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1514,6 +1517,9 @@
         SalesHeader: Record "Sales Header";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        if SuppressTotals then
+            exit;
+            
         SalesHeader.Get("Document Type", "Document No.");
         if SalesHeader.InvoicedLineExists then
             if not ConfirmManagement.GetResponseOrDefault(UpdateInvDiscountQst, true) then
@@ -1578,7 +1584,7 @@
         OnBeforeInsertExtendedText(Rec);
         if TransferExtendedText.SalesCheckIfAnyExtText(Rec, Unconditionally) then begin
             CurrPage.SaveRecord;
-            Commit;
+            Commit();
             TransferExtendedText.InsertSalesExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
@@ -1610,16 +1616,12 @@
 
     procedure ShowPrices()
     begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLinePrice(SalesHeader, Rec);
+        PickPrice();
     end;
 
     procedure ShowLineDisc()
     begin
-        SalesHeader.Get("Document Type", "Document No.");
-        Clear(SalesPriceCalcMgt);
-        SalesPriceCalcMgt.GetSalesLineLineDisc(SalesHeader, Rec);
+        PickDiscount();
     end;
 
     procedure OrderPromisingLine()
@@ -1688,14 +1690,13 @@
 
     local procedure QuantityOnAfterValidate()
     begin
-        if Type = Type::Item then
+        if Type = Type::Item then begin
+            CurrPage.SaveRecord;
             case Reserve of
                 Reserve::Always:
-                    begin
-                        CurrPage.SaveRecord;
-                        AutoReserve;
-                    end;
+                    AutoReserve;
             end;
+        end;
 
         OnAfterQuantityOnAfterValidate(Rec, xRec);
     end;
@@ -1761,6 +1762,9 @@
 
     local procedure CalculateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.SalesCheckIfDocumentChanged(Rec, xRec);
         DocumentTotals.CalculateSalesSubPageTotals(TotalSalesHeader, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         DocumentTotals.RefreshSalesLine(Rec);
@@ -1768,6 +1772,9 @@
 
     procedure DeltaUpdateTotals()
     begin
+        if SuppressTotals then
+            exit;
+
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if "Line Amount" <> xRec."Line Amount" then
             SendLineInvoiceDiscountResetNotification;
@@ -1777,6 +1784,9 @@
     var
         SalesHeader: Record "Sales Header";
     begin
+        if SuppressTotals then
+            exit;
+
         CurrPage.SaveRecord;
 
         SalesHeader.Get("Document Type", "Document No.");

@@ -411,7 +411,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
@@ -596,7 +596,7 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         // [THEN] "Batch Processing Parameter" table empty after cleaning B[2]
         BatchProcessingParameter.SetRange("Batch ID", BatchID[2]);
-        BatchProcessingParameter.DeleteAll;
+        BatchProcessingParameter.DeleteAll();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -802,7 +802,6 @@ codeunit 134391 "ERM Sales Batch Posting"
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        UpdateGeneralLedgerSetup; // NAVCZ
         isInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales Batch Posting");
@@ -822,7 +821,7 @@ codeunit 134391 "ERM Sales Batch Posting"
     var
         CustInvDisc: Record "Cust. Invoice Disc.";
     begin
-        CustInvDisc.Init;
+        CustInvDisc.Init();
         CustInvDisc.Validate(Code, CustomerNo);
         CustInvDisc.Validate("Discount %", LibraryRandom.RandIntInRange(10, 20));
         CustInvDisc.Insert(true);
@@ -850,27 +849,17 @@ codeunit 134391 "ERM Sales Batch Posting"
         BatchProcessingParameter: Record "Batch Processing Parameter";
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
-        BatchProcessingParameter.Init;
+        BatchProcessingParameter.Init();
         BatchProcessingParameter."Batch ID" := BatchID;
         BatchProcessingParameter."Parameter Id" := ParameterId;
         BatchProcessingParameter."Parameter Value" := Format(ParameterValue);
-        BatchProcessingParameter.Insert;
+        BatchProcessingParameter.Insert();
 
         BatchProcessingSessionMap."Record ID" := SalesHeader.RecordId;
         BatchProcessingSessionMap."Batch ID" := BatchProcessingParameter."Batch ID";
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := BachSessionID;
-        BatchProcessingSessionMap.Insert;
-    end;
-
-    local procedure UpdateGeneralLedgerSetup()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get;
-        GLSetup."Use VAT Date" := true;
-        GLSetup.Modify;
+        BatchProcessingSessionMap.Insert();
     end;
 
     local procedure RunBatchPostSales(DocumentType: Option; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
@@ -881,7 +870,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryVariableStorage.Enqueue(DocumentNoFilter);
         LibraryVariableStorage.Enqueue(PostingDate);
 
-        Commit;
+        Commit();
         case DocumentType of
             SalesHeader."Document Type"::Invoice:
                 REPORT.RunModal(REPORT::"Batch Post Sales Invoices", true, true, SalesHeader);
@@ -907,7 +896,7 @@ codeunit 134391 "ERM Sales Batch Posting"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Calc. Inv. Discount", CalcInvDisc);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -916,10 +905,10 @@ codeunit 134391 "ERM Sales Batch Posting"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Posted Invoice Nos.", SalesReceivablesSetup."Invoice Nos.");
         SalesReceivablesSetup."Shipment on Invoice" := false;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure CreateInvoiceReportSelection()

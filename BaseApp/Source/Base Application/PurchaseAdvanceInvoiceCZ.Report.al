@@ -224,9 +224,9 @@ report 31021 "Purchase - Advance Invoice CZ"
                     trigger OnAfterGetRecord()
                     begin
                         if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                            VATPostingSetup.Init;
+                            VATPostingSetup.Init();
 
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -238,7 +238,7 @@ report 31021 "Purchase - Advance Invoice CZ"
 
                     trigger OnPreDataItem()
                     begin
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.DeleteAll();
                     end;
                 }
                 dataitem(VATCounter; "Integer")

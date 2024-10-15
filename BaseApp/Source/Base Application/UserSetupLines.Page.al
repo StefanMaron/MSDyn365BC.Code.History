@@ -61,7 +61,7 @@ page 11798 "User Setup Lines"
 
     trigger OnOpenPage()
     begin
-        UserSetupLine.Init;
+        UserSetupLine.Init();
         SetLinesFilter;
     end;
 

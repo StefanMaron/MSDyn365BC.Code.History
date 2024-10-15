@@ -96,7 +96,7 @@ table 11758 "Registration Log"
     [Scope('OnPrem')]
     procedure InitRegLog(var RegistrationLog: Record "Registration Log"; AcountType: Option; AccountNo: Code[20]; RegNo: Text[20])
     begin
-        RegistrationLog.Init;
+        RegistrationLog.Init();
         RegistrationLog."Account Type" := AcountType;
         RegistrationLog."Account No." := AccountNo;
         RegistrationLog."Registration No." := RegNo;

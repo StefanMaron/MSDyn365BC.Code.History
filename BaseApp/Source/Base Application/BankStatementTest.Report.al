@@ -80,7 +80,7 @@ report 11707 "Bank Statement - Test"
                     begin
                         IssueBankStatement.ReturnError(ErrorText, Number);
                         if ErrorText = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 

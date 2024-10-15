@@ -186,7 +186,7 @@ page 31106 "Export VAT Control Report"
         CompanyOfficials: Record "Company Officials";
     begin
         UpdateDateParameters;
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         if CompanyOfficials.Get(StatReportingSetup."VAT Stat. Filled by Empl. No.") then
             FilledByEmployeeNo := CompanyOfficials."No.";
         XmlFormat := StatReportingSetup."VAT Control Report Xml Format";
@@ -262,7 +262,7 @@ page 31106 "Export VAT Control Report"
         VATControlReport.SetParameters(
           Month, Quarter, Year, DeclarationType, ReasonsObservedOn, FilledByEmployeeNo, FastAppelReaction, AppelDocumentNo, XmlFormat);
         if PrintInIntegers then begin
-            TempVATCtrlRptBuf.Reset;
+            TempVATCtrlRptBuf.Reset();
             if TempVATCtrlRptBuf.FindSet then
                 repeat
                     TempVATCtrlRptBuf."Base 1" := Round(TempVATCtrlRptBuf."Base 1", 1);
@@ -273,10 +273,10 @@ page 31106 "Export VAT Control Report"
                     TempVATCtrlRptBuf."Amount 3" := Round(TempVATCtrlRptBuf."Amount 3", 1);
                     TempVATCtrlRptBuf."Total Base" := Round(TempVATCtrlRptBuf."Total Base", 1);
                     TempVATCtrlRptBuf."Total Amount" := Round(TempVATCtrlRptBuf."Total Amount", 1);
-                    TempVATCtrlRptBuf.Modify;
+                    TempVATCtrlRptBuf.Modify();
                 until TempVATCtrlRptBuf.Next = 0;
         end;
-        TempVATCtrlRptBuf.Reset;
+        TempVATCtrlRptBuf.Reset();
         VATControlReport.CopyBuffer(TempVATCtrlRptBuf);
         VATControlReport.SetDestination(OutputStream);
         VATControlReport.Export;

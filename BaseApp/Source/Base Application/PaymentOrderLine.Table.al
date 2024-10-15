@@ -78,7 +78,7 @@ table 11709 "Payment Order Line"
                         Type::Customer:
                             begin
                                 if not Cust.Get("No.") then
-                                    Cust.Init;
+                                    Cust.Init();
                                 Cust.TestField(Blocked, Cust.Blocked::" ");
                                 Cust.TestField("Privacy Blocked", false);
                                 Name := Cust.Name;
@@ -97,7 +97,7 @@ table 11709 "Payment Order Line"
                         Type::Vendor:
                             begin
                                 if not Vend.Get("No.") then
-                                    Vend.Init;
+                                    Vend.Init();
                                 Vend.TestField(Blocked, Vend.Blocked::" ");
                                 Vend.TestField("Privacy Blocked", false);
                                 Name := Vend.Name;
@@ -117,7 +117,7 @@ table 11709 "Payment Order Line"
                             begin
                                 TestField("Currency Code", '');
                                 if not Employee.Get("No.") then
-                                    Employee.Init;
+                                    Employee.Init();
                                 Employee.TestField("Privacy Blocked", false);
                                 Name := CopyStr(Employee.FullName, 1, MaxStrLen(Name));
                                 "Account No." := Employee."Bank Account No.";
@@ -130,7 +130,7 @@ table 11709 "Payment Order Line"
                     Type::"Bank Account":
                         begin
                             if not BankAcc.Get("No.") then
-                                BankAcc.Init;
+                                BankAcc.Init();
                             BankAcc.TestField(Blocked, false);
                             "Account No." := BankAcc."Bank Account No.";
                             "Specific Symbol" := BankAcc."Specific Symbol";
@@ -159,7 +159,7 @@ table 11709 "Payment Order Line"
                     Type::Vendor:
                         begin
                             if not VendBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
-                                VendBankAcc.Init;
+                                VendBankAcc.Init();
                             "Account No." := VendBankAcc."Bank Account No.";
                             "Specific Symbol" := VendBankAcc."Specific Symbol";
                             "Transit No." := VendBankAcc."Transit No.";
@@ -169,7 +169,7 @@ table 11709 "Payment Order Line"
                     Type::Customer:
                         begin
                             if not CustBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
-                                CustBankAcc.Init;
+                                CustBankAcc.Init();
                             "Account No." := CustBankAcc."Bank Account No.";
                             "Specific Symbol" := CustBankAcc."Specific Symbol";
                             "Transit No." := CustBankAcc."Transit No.";
@@ -197,7 +197,7 @@ table 11709 "Payment Order Line"
                 TestStatusOpen;
                 BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.CheckCzBankAccountNo("Account No.");
 
                 if "Account No." <> xRec."Account No." then begin
@@ -311,11 +311,9 @@ table 11709 "Payment Order Line"
                 Positive := ("Amount (LCY) to Pay" > 0);
             end;
         }
-        field(13; "Applies-to Doc. Type"; Option)
+        field(13; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -1118,7 +1116,7 @@ table 11709 "Payment Order Line"
     begin
         if not GLSetupRead then begin
             GLSetupRead := true;
-            GLSetup.Get;
+            GLSetup.Get();
         end;
     end;
 
@@ -1128,7 +1126,7 @@ table 11709 "Payment Order Line"
         GetPaymentOrder;
         if PmtOrdHdr."Uncertainty Pay.Check DateTime" <> 0DT then begin
             PmtOrdHdr."Uncertainty Pay.Check DateTime" := 0DT;
-            PmtOrdHdr.Modify;
+            PmtOrdHdr.Modify();
         end;
     end;
 

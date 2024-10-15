@@ -24,7 +24,7 @@ codeunit 11708 "Issue Payment Order + Print"
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Issue Payment Order", PmtOrdHdr);
-        Commit;
+        Commit();
         Message(IssuedSuccesfullyMsg);
 
         IssuedPmtOrdHdr.Get(PmtOrdHdr."Last Issuing No.");

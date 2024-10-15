@@ -286,7 +286,7 @@ codeunit 11795 "User Setup Adv. Management"
             SelectedDim.SetRange("Object Type", 1);
             SelectedDim.SetRange("Object ID", DATABASE::"User Setup");
             SelectedDim.SetRange("Analysis View Code", '');
-            SelectedDim.DeleteAll;
+            SelectedDim.DeleteAll();
             TempDimSelectionBuf.SetCurrentKey(Level, Code);
             TempDimSelectionBuf.SetRange(Selected, true);
             if TempDimSelectionBuf.Find('-') then
@@ -299,7 +299,7 @@ codeunit 11795 "User Setup Adv. Management"
                     SelectedDim."New Dimension Value Code" := TempDimSelectionBuf."New Dimension Value Code";
                     SelectedDim."Dimension Value Filter" := TempDimSelectionBuf."Dimension Value Filter";
                     SelectedDim.Level := TempDimSelectionBuf.Level;
-                    SelectedDim.Insert;
+                    SelectedDim.Insert();
                 until TempDimSelectionBuf.Next = 0;
         end;
     end;
@@ -420,7 +420,7 @@ codeunit 11795 "User Setup Adv. Management"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GLSetup."User Checks Allowed");
     end;
 

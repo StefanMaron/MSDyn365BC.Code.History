@@ -21,7 +21,7 @@ codeunit 31032 "Prepayment Links Management"
     begin
         with AdvanceLinkBuf do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
             Clear(TempAdvanceLinkBufCurrLn);
             Clear(TempAdvanceLinkBuf);
 
@@ -691,7 +691,7 @@ codeunit 31032 "Prepayment Links Management"
                             else
                                 SalesAdvanceLetterLine."Applies-to ID" := "Links-To ID";
                             SalesAdvanceLetterLine."Amount Linked To Journal Line" := "Amount To Link";
-                            SalesAdvanceLetterLine.Modify;
+                            SalesAdvanceLetterLine.Modify();
                         end;
                     end else
                         if PurchAdvanceLetterLine.Get("Document No.", "Entry No.") then begin
@@ -700,7 +700,7 @@ codeunit 31032 "Prepayment Links Management"
                             else
                                 PurchAdvanceLetterLine."Applies-to ID" := "Links-To ID";
                             PurchAdvanceLetterLine."Amount Linked To Journal Line" := "Amount To Link";
-                            PurchAdvanceLetterLine.Modify;
+                            PurchAdvanceLetterLine.Modify();
                         end;
                 until Next = 0;
         end;
@@ -727,7 +727,7 @@ codeunit 31032 "Prepayment Links Management"
                     SalesAdvanceLetterLine.TestField("Amount Linked To Journal Line", 0);
                     SalesAdvanceLetterLine."Link Code" := LinkCode;
                     SalesAdvanceLetterLine."Amount Linked To Journal Line" := SalesAdvanceLetterLine."Amount To Link";
-                    SalesAdvanceLetterLine.Modify;
+                    SalesAdvanceLetterLine.Modify();
                     Result := Result + SalesAdvanceLetterLine."Amount To Link";
                 until SalesAdvanceLetterLine.Next = 0;
         end;
@@ -748,7 +748,7 @@ codeunit 31032 "Prepayment Links Management"
                 SalesAdvanceLetterLine2 := SalesAdvanceLetterLine;
                 SalesAdvanceLetterLine2."Link Code" := '';
                 SalesAdvanceLetterLine2."Amount Linked To Journal Line" := 0;
-                SalesAdvanceLetterLine2.Modify;
+                SalesAdvanceLetterLine2.Modify();
             until SalesAdvanceLetterLine.Next = 0;
     end;
 
@@ -773,7 +773,7 @@ codeunit 31032 "Prepayment Links Management"
                     PurchAdvanceLetterLine.TestField("Amount Linked To Journal Line", 0);
                     PurchAdvanceLetterLine."Link Code" := LinkCode;
                     PurchAdvanceLetterLine."Amount Linked To Journal Line" := -PurchAdvanceLetterLine."Amount To Link";
-                    PurchAdvanceLetterLine.Modify;
+                    PurchAdvanceLetterLine.Modify();
                     Result := Result + PurchAdvanceLetterLine."Amount To Link";
                 until PurchAdvanceLetterLine.Next = 0;
         end;
@@ -794,7 +794,7 @@ codeunit 31032 "Prepayment Links Management"
                 PurchAdvanceLetterLine2 := PurchAdvanceLetterLine;
                 PurchAdvanceLetterLine2."Link Code" := '';
                 PurchAdvanceLetterLine2."Amount Linked To Journal Line" := 0;
-                PurchAdvanceLetterLine2.Modify;
+                PurchAdvanceLetterLine2.Modify();
             until PurchAdvanceLetterLine.Next = 0;
     end;
 
@@ -832,7 +832,7 @@ codeunit 31032 "Prepayment Links Management"
             CashDocLine.Validate(Amount, AmountToLink);
             CashDocLine.Validate("Advance Letter Link Code", LinkCode);
             CashDocLine.Validate("Posting Group", PostingGroup);
-            CashDocLine.Modify;
+            CashDocLine.Modify();
         end;
     end;
 
@@ -855,7 +855,7 @@ codeunit 31032 "Prepayment Links Management"
                 UnLinkWholePurchLetter(CashDocLine."Advance Letter Link Code");
         end;
         CashDocLine.Validate("Advance Letter Link Code", '');
-        CashDocLine.Modify;
+        CashDocLine.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -894,7 +894,7 @@ codeunit 31032 "Prepayment Links Management"
                 GenJnlLine.Validate(Amount, AmountToLink);
             GenJnlLine.Validate("Advance Letter Link Code", LinkCode);
             GenJnlLine.Validate("Posting Group", PostingGroupCode);
-            GenJnlLine.Modify;
+            GenJnlLine.Modify();
         end;
     end;
 
@@ -907,7 +907,7 @@ codeunit 31032 "Prepayment Links Management"
         else
             UnLinkWholePurchLetter(GenJnlLine."Advance Letter Link Code");
         GenJnlLine.Validate("Advance Letter Link Code", '');
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
     end;
 
     [Scope('OnPrem')]

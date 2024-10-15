@@ -194,6 +194,10 @@ codeunit 134827 "UT Item Table"
         // Verify Item Base Unit of Measure
         Assert.AreNotEqual(Item."Base Unit of Measure", InternationalUoMEachTxt,
           StrSubstNo('Item Base Unit of Measure should not be equal to %1', InternationalUoMEachTxt));
+        Assert.AreNotEqual(Item."Sales Unit of Measure", InternationalUoMEachTxt,
+          StrSubstNo('Item Sales Unit of Measure should not be equal to %1', InternationalUoMEachTxt));
+        Assert.AreNotEqual(Item."Purch. Unit of Measure", InternationalUoMEachTxt,
+          StrSubstNo('Item Purch. Unit of Measure should not be equal to %1', InternationalUoMEachTxt));
     end;
 
     [Test]
@@ -527,7 +531,7 @@ codeunit 134827 "UT Item Table"
         CreateItemFromNameAndBlocked(Item[4], RandomText2, false);
 
         Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText1), '');
-        Assert.AreEqual(Item[2]."No.", Item[1].GetItemNo(RandomText2), '');
+        Assert.AreEqual(Item[4]."No.", Item[1].GetItemNo(RandomText2), '');
     end;
 
     local procedure Initialize()

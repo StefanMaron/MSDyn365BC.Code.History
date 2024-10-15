@@ -464,8 +464,8 @@ page 31126 "EET Simple Registration"
 
     local procedure GetSetup()
     begin
-        GLSetup.Get;
-        EETServiceSetup.Get;
+        GLSetup.Get();
+        EETServiceSetup.Get();
         InitVATRate;
     end;
 
@@ -483,7 +483,7 @@ page 31126 "EET Simple Registration"
 
     local procedure LookupBusinessPremises(var Text: Text): Boolean
     begin
-        EETBusinessPremises.Reset;
+        EETBusinessPremises.Reset();
         EETBusinessPremises.Code := "Business Premises Code";
         if EETBusinessPremises.Find then;
         if PAGE.RunModal(0, EETBusinessPremises) = ACTION::LookupOK then begin
@@ -504,7 +504,7 @@ page 31126 "EET Simple Registration"
 
     local procedure LookupCashRegister(var Text: Text): Boolean
     begin
-        EETCashRegister.Reset;
+        EETCashRegister.Reset();
         EETCashRegister.SetRange("Business Premises Code", "Business Premises Code");
         EETCashRegister."Business Premises Code" := "Business Premises Code";
         EETCashRegister.Code := "Cash Register Code";
@@ -708,7 +708,7 @@ page 31126 "EET Simple Registration"
         if not Confirm(SendToServiceQst, false) then
             exit;
 
-        EETEntry.Init;
+        EETEntry.Init();
         EETEntry.CopySourceInfoFromEntry(Rec, false);
 
         EETEntry."Total Sales Amount" := TotalSalesAmount;
@@ -729,7 +729,7 @@ page 31126 "EET Simple Registration"
         EETEntry.TestField("Total Sales Amount", EETEntry.SumPartialAmounts);
 
         NewEETEntryNo := EETEntryMgt.CreateEETEntrySimple(EETEntry, true, false, true);
-        Commit;
+        Commit();
 
         EETEntryMgt.RegisterEntry(NewEETEntryNo);
 
@@ -739,7 +739,7 @@ page 31126 "EET Simple Registration"
         Clear(TotalSalesAmount);
         ValidateTotalSalesAmount;
 
-        Commit;
+        Commit();
         if EETEntry.Get(NewEETEntryNo) then
             if Confirm(StrSubstNo(OpenNewEntryQst, EETEntry."Entry No."), true) then
                 PAGE.Run(PAGE::"EET Entry Card", EETEntry);

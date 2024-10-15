@@ -2998,9 +2998,6 @@ End Function</Code>
         <Field Name="Header">
           <DataField>Header</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0_0______FORMAT_TIME_0_0_">
           <DataField>FORMAT_TODAY_0_0______FORMAT_TIME_0_0_</DataField>
         </Field>

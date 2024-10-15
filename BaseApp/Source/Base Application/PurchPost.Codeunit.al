@@ -1,4 +1,4 @@
-﻿codeunit 90 "Purch.-Post"
+codeunit 90 "Purch.-Post"
 {
     Permissions = TableData "Sales Header" = m,
                   TableData "Sales Line" = m,
@@ -160,7 +160,6 @@
         CannotInvoiceBeforeAssocSalesOrderErr: Label 'You cannot invoice this purchase order before the associated sales orders have been invoiced. Please invoice sales order %1 before invoicing this purchase order.', Comment = '%1 = Document No.';
         ReceiptSameSignErr: Label 'must have the same sign as the receipt';
         ReceiptLinesDeletedErr: Label 'Receipt lines have been deleted.';
-        CannotPurchaseResourcesErr: Label 'You cannot purchase resources.';
         PurchaseAlreadyExistsErr: Label 'Purchase %1 %2 already exists for this vendor.', Comment = '%1 = Document Type, %2 = Document No.';
         InvoiceMoreThanReceivedErr: Label 'You cannot invoice order %1 for more than you have received.', Comment = '%1 = Order No.';
         CannotPostBeforeAssosSalesOrderErr: Label 'You cannot post this purchase order before the associated sales orders have been invoiced. Post sales order %1 before posting this purchase order.', Comment = '%1 = Sales Order No.';
@@ -275,7 +274,6 @@
         WhseShip: Boolean;
         InvtPickPutaway: Boolean;
         PositiveWhseEntrycreated: Boolean;
-        PostDocumentLinesMsg: Label 'Post document lines.';
         UnpostedInvoiceDuplicateQst: Label 'An unposted invoice for order %1 exists. To avoid duplicate postings, delete order %1 or invoice %2.\Do you still want to post order %1?', Comment = '%1 = Order No.,%2 = Invoice No.';
         InvoiceDuplicateInboxQst: Label 'An invoice for order %1 exists in the IC inbox. To avoid duplicate postings, cancel invoice %2 in the IC inbox.\Do you still want to post order %1?', Comment = '%1 = Order No.';
         PostedInvoiceDuplicateQst: Label 'Posted invoice %1 already exists for order %2. To avoid duplicate postings, do not post order %2.\Do you still want to post order %2?', Comment = '%1 = Invoice No., %2 = Order No.';
@@ -305,6 +303,8 @@
         SuppressCommit: Boolean;
         CheckPurchHeaderMsg: Label 'Check purchase document fields.';
         HideProgressWindow: Boolean;
+        OverReceiptApprovalErr: Label 'There are lines with over-receipt required for approval.';
+        PostDocumentLinesMsg: Label 'Post document lines.';
 
     local procedure GetZeroPurchLineRecID(PurchHeader: Record "Purchase Header"; var PurchLineRecID: RecordId)
     var
@@ -572,6 +572,8 @@
             InsertPostedHeaders(PurchHeader);
 
             UpdateIncomingDocument("Incoming Document Entry No.", "Posting Date", GenJnlLineDocNo);
+
+            CheckOverReceiptApproval(PurchHeader);
         end;
 
         OnAfterCheckAndUpdate(PurchHeader, SuppressCommit, PreviewMode);
@@ -659,7 +661,7 @@
                     PostGLAccICLine(PurchHeader, PurchLine, ICGenJnlLineNo);
                 Type::Item:
                     PostItemLine(PurchHeader, PurchLine, TempDropShptPostBuffer);
-                3:
+                Type::Resource:
                     PostResourceLine(PurchHeader, PurchLine);
                 Type::"Charge (Item)":
                     PostItemChargeLine(PurchHeader, PurchLine);
@@ -933,7 +935,7 @@
         OnAfterPostItemTrackingLine(PurchHeader, PurchLine, WhseReceive, WhseShip, InvtPickPutaway);
     end;
 
-    local procedure PostItemJnlLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; QtyToBeReceived: Decimal; QtyToBeReceivedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; ItemLedgShptEntryNo: Integer; ItemChargeNo: Code[20]; TrackingSpecification: Record "Tracking Specification"): Integer
+    procedure PostItemJnlLine(PurchHeader: Record "Purchase Header"; PurchLine: Record "Purchase Line"; QtyToBeReceived: Decimal; QtyToBeReceivedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; ItemLedgShptEntryNo: Integer; ItemChargeNo: Code[20]; TrackingSpecification: Record "Tracking Specification"): Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         OriginalItemJnlLine: Record "Item Journal Line";
@@ -1809,7 +1811,7 @@
         IsHandled := false;
         OnBeforePostResourceLine(PurchaseHeader, PurchaseLine, IsHandled);
         if not IsHandled then
-            Error(CannotPurchaseResourcesErr);
+            PostResJnlLine(PurchaseHeader, PurchaseLine);
     end;
 
     local procedure InitAssocItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; SalesOrderHeader: Record "Sales Header"; SalesOrderLine: Record "Sales Line"; PurchHeader: Record "Purchase Header"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal)
@@ -2086,7 +2088,7 @@
                       TempDropShptPostBuffer."Order No.", TempDropShptPostBuffer."Order Line No.");
                     SalesOrderLine."Quantity Shipped" := SalesOrderLine."Quantity Shipped" + TempDropShptPostBuffer.Quantity;
                     SalesOrderLine."Qty. Shipped (Base)" := SalesOrderLine."Qty. Shipped (Base)" + TempDropShptPostBuffer."Quantity (Base)";
-                    SalesOrderLine.InitOutstanding;
+                    SalesOrderLine.InitOutstanding();
                     if SalesSetup."Default Quantity to Ship" <> SalesSetup."Default Quantity to Ship"::Blank then
                         SalesOrderLine.InitQtyToShip
                     else begin
@@ -3198,7 +3200,7 @@
 
                 if ModifyLine then begin
                     OnUpdateBlanketOrderLineOnBeforeInitOutstanding(BlanketOrderPurchLine, PurchLine, Ship, Receive, Invoice);
-                    BlanketOrderPurchLine.InitOutstanding;
+                    BlanketOrderPurchLine.InitOutstanding();
 
                     IsHandled := false;
                     OnUpdateBlanketOrderLineOnBeforeCheck(BlanketOrderPurchLine, PurchLine, IsHandled);
@@ -4066,6 +4068,7 @@
         ReservationEntry: Record "Reservation Entry";
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemJnlLine: Record "Item Journal Line";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
@@ -4074,10 +4077,6 @@
         PurchLineQtyToHandle: Decimal;
         TrackingQtyToHandle: Decimal;
         Inbound: Boolean;
-        SNRequired: Boolean;
-        LotRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LotInfoRequired: Boolean;
         CheckPurchLine: Boolean;
     begin
         // if a PurchaseLine is posted with ItemTracking then tracked quantity must be equal to posted quantity
@@ -4110,10 +4109,9 @@
                     if Item."Item Tracking Code" <> '' then begin
                         Inbound := (Quantity * SignFactor) > 0;
                         ItemTrackingCode.Code := Item."Item Tracking Code";
-                        ItemTrackingManagement.GetItemTrackingSettings(ItemTrackingCode,
-                          ItemJnlLine."Entry Type"::Purchase, Inbound,
-                          SNRequired, LotRequired, SNInfoRequired, LotInfoRequired);
-                        CheckPurchLine := not SNRequired and not LotRequired;
+                        ItemTrackingManagement.GetItemTrackingSetup(
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Purchase, Inbound, ItemTrackingSetup);
+                        CheckPurchLine := not ItemTrackingSetup.TrackingRequired();
                         if CheckPurchLine then
                             CheckPurchLine := CheckTrackingExists(TempItemPurchLine);
                     end else
@@ -4873,7 +4871,7 @@
 
         PurchLine.LockTable();
         SalesLine.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
             GLEntry.LockTable();
             if GLEntry.FindLast then;
@@ -5198,7 +5196,7 @@
         SumPurchLines2(PurchHeader, NewPurchLine, OldPurchLine, QtyType, true);
     end;
 
-    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
+    [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure TransferNonDedVAT(var GenJnlLine: Record "Gen. Journal Line"; InvPostingBuffer: Record "Invoice Post. Buffer")
     begin
         // NAVCZ
@@ -7151,6 +7149,7 @@
                     if PurchHeader.Receive then begin
                         "Quantity Received" += "Qty. to Receive";
                         "Qty. Received (Base)" += "Qty. to Receive (Base)";
+                        "Over-Receipt Quantity" := 0;
                     end;
                     if PurchHeader.Ship then begin
                         "Return Qty. Shipped" += "Return Qty. to Ship";
@@ -7190,7 +7189,7 @@
 
                     OnPostUpdateOrderLineOnBeforeInitOutstanding(PurchHeader, TempPurchLine);
 
-                    InitOutstanding;
+                    InitOutstanding();
 
                     SetDefaultQtyBlank := PurchSetup."Default Qty. to Receive" = PurchSetup."Default Qty. to Receive"::Blank;
                     OnPostUpdateOrderLineOnSetDefaultQtyBlank(PurchHeader, TempPurchLine, PurchSetup, SetDefaultQtyBlank);
@@ -7257,7 +7256,7 @@
                           PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted";
                         PurchOrderLine."Prepmt VAT Diff. to Deduct" := 0;
                     end;
-                    PurchOrderLine.InitOutstanding;
+                    PurchOrderLine.InitOutstanding();
                     PurchOrderLine.Modify();
                     OnPostUpdateInvoiceLineOnAfterPurchOrderLineModify(PurchOrderLine, TempPurchLine);
                 until Next() = 0;
@@ -7289,7 +7288,7 @@
                     if Abs(PurchOrderLine."Quantity Invoiced") > Abs(PurchOrderLine."Return Qty. Shipped") then
                         Error(InvoiceMoreThanShippedErr, PurchOrderLine."Document No.");
                     PurchOrderLine.InitQtyToInvoice;
-                    PurchOrderLine.InitOutstanding;
+                    PurchOrderLine.InitOutstanding();
                     PurchOrderLine.Modify();
                 until Next() = 0;
         end;
@@ -7372,7 +7371,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure CheckItemChargeForReceive(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
@@ -7401,7 +7400,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
     local procedure CheckItemChargeForShip(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
@@ -7730,6 +7729,39 @@
         SuppressCommit := NewSuppressCommit;
     end;
 
+    local procedure CheckOverReceiptApproval(PurchaseHeader: Record "Purchase Header")
+    var
+        OverReceiptPurchaseLine: Record "Purchase Line";
+        OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+    begin
+        if not OverReceiptMgt.IsOverReceiptAllowed() then
+            exit;
+
+        OverReceiptPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        OverReceiptPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        OverReceiptPurchaseLine.SetRange("Over-Receipt Approval Status", OverReceiptPurchaseLine."Over-Receipt Approval Status"::Pending);
+        if not OverReceiptPurchaseLine.IsEmpty then
+            Error(OverReceiptApprovalErr);
+    end;
+
+    local procedure PostResJnlLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    var
+        ResJournalLine: Record "Res. Journal Line";
+        ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
+    begin
+        if PurchaseLine."Qty. to Invoice" = 0 then
+            exit;
+
+        with ResJournalLine do begin
+            Init();
+            CopyFrom(PurchaseHeader);
+            CopyDocumentFields(GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PurchaseHeader."Posting No. Series");
+            CopyFrom(PurchaseLine);
+
+            ResJnlPostLine.RunWithCheck(ResJournalLine);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterBlanketOrderPurchLineModify(var BlanketOrderPurchLine: Record "Purchase Line"; PurchaseLine: Record "Purchase Line"; Ship: Boolean; Receive: Boolean; Invoice: Boolean)
     begin
@@ -7781,7 +7813,6 @@
     end;
 
     [IntegrationEvent(false, false)]
-    [Scope('OnPrem')]
     procedure OnAfterPostPurchaseDoc(var PurchaseHeader: Record "Purchase Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20]; CommitIsSupressed: Boolean)
     begin
     end;

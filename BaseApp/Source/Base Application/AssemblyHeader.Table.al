@@ -30,7 +30,7 @@ table 900 "Assembly Header"
             begin
                 TestStatusOpen;
                 if "No." <> xRec."No." then begin
-                    AssemblySetup.Get;
+                    AssemblySetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode);
                     "No. Series" := '';
                 end;
@@ -382,11 +382,9 @@ table 900 "Assembly Header"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(50; "Planning Flexibility"; Option)
+        field(50; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None';
-            OptionMembers = Unlimited,"None";
 
             trigger OnValidate()
             begin
@@ -528,7 +526,7 @@ table 900 "Assembly Header"
                 NoSeriesMgt: Codeunit NoSeriesManagement;
             begin
                 AsmHeader := Rec;
-                AssemblySetup.Get;
+                AssemblySetup.Get();
                 TestNoSeries;
                 if NoSeriesMgt.LookupSeries(GetPostingNoSeriesCode, "Posting No. Series") then
                     Validate("Posting No. Series");
@@ -541,7 +539,7 @@ table 900 "Assembly Header"
             begin
                 TestStatusOpen;
                 if "Posting No. Series" <> '' then begin
-                    AssemblySetup.Get;
+                    AssemblySetup.Get();
                     TestNoSeries;
                     NoSeriesMgt.TestSeries(GetPostingNoSeriesCode, "Posting No. Series");
                 end;
@@ -633,7 +631,7 @@ table 900 "Assembly Header"
     begin
         CheckIsNotAsmToOrder;
 
-        AssemblySetup.Get;
+        AssemblySetup.Get();
 
         if "No." = '' then begin
             TestNoSeries;
@@ -758,7 +756,7 @@ table 900 "Assembly Header"
     begin
         with AssemblyHeader do begin
             Copy(Rec);
-            AssemblySetup.Get;
+            AssemblySetup.Get();
             TestNoSeries;
             if NoSeriesMgt.SelectSeries(GetNoSeriesCode, OldAssemblyHeader."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -772,7 +770,7 @@ table 900 "Assembly Header"
 
     local procedure TestNoSeries()
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         case "Document Type" of
             "Document Type"::Quote:
                 AssemblySetup.TestField("Assembly Quote Nos.");
@@ -830,18 +828,17 @@ table 900 "Assembly Header"
     begin
         TestField("Item No.");
         Clear(Reservation);
-        Reservation.SetAssemblyHeader(Rec);
-        Reservation.RunModal;
+        Reservation.SetReservSource(Rec);
+        Reservation.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
         TestField("Item No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        AssemblyHeaderReserve.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -866,7 +863,7 @@ table 900 "Assembly Header"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
@@ -907,7 +904,7 @@ table 900 "Assembly Header"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -918,6 +915,53 @@ table 900 "Assembly Header"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+    end;
+
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Remaining Quantity" - Abs("Reserved Quantity");
+        RemainingQtyBase := "Remaining Quantity (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Remaining Quantity";
+        QtyToReserveBase := "Remaining Quantity (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text[80]
+    begin
+        exit(StrSubstNo('%1 %2', "Document Type", "No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Assembly Header", "Document Type", "No.", 0, '', 0);
+        ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        ReservEntry."Expected Receipt Date" := "Due Date";
+        ReservEntry."Shipment Date" := "Due Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Assembly Header", "Document Type", "No.", 0, false);
+        ReservEntry.SetSourceFilter('', 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
     end;
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
@@ -945,6 +989,22 @@ table 900 "Assembly Header"
     begin
         FilterLinesWithItemToPlan(Item, DocumentType);
         exit(not IsEmpty);
+    end;
+
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(
+          "Document Type", "Item No.", "Variant Code", "Location Code", "Due Date");
+        SetRange("Document Type", DocumentType);
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Due Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Remaining Quantity (Base)", '>0')
+        else
+            SetFilter("Remaining Quantity (Base)", '<0');
     end;
 
     [Scope('OnPrem')]
@@ -1335,7 +1395,7 @@ table 900 "Assembly Header"
         WhseSourceCreateDocument: Report "Whse.-Source - Create Document";
     begin
         AssemblyLineMgt.CreateWhseItemTrkgForAsmLines(Rec);
-        Commit;
+        Commit();
 
         TestField(Status, Status::Released);
         if CompletelyPicked then
@@ -1357,7 +1417,7 @@ table 900 "Assembly Header"
     begin
         TestField(Status, Status::Released);
 
-        WhseRequest.Reset;
+        WhseRequest.Reset();
         WhseRequest.SetCurrentKey("Source Document", "Source No.");
         WhseRequest.SetRange("Source Document", WhseRequest."Source Document"::"Assembly Consumption");
         WhseRequest.SetRange("Source No.", "No.");
@@ -1442,7 +1502,7 @@ table 900 "Assembly Header"
         exit("Assemble to Order");
     end;
 
-    local procedure CheckIsNotAsmToOrder()
+    procedure CheckIsNotAsmToOrder()
     begin
         CalcFields("Assemble to Order");
         TestField("Assemble to Order", false);
@@ -1549,7 +1609,7 @@ table 900 "Assembly Header"
         AssemblyLine: Record "Assembly Line";
         DirectLineCost: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         AssemblyLine.SetRange("Document Type", "Document Type");
         AssemblyLine.SetRange("Document No.", "No.");
@@ -1598,6 +1658,11 @@ table 900 "Assembly Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitRemaining(var AssemblyHeader: Record "Assembly Header"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; AssemblyHeader: Record "Assembly Header");
     begin
     end;
 

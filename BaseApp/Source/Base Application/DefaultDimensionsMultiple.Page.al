@@ -98,7 +98,7 @@ page 542 "Default Dimensions-Multiple"
 
     procedure ClearTempDefaultDim()
     begin
-        TempDefaultDim2.DeleteAll;
+        TempDefaultDim2.DeleteAll();
     end;
 
     local procedure SetCommonDefaultDim()
@@ -132,7 +132,7 @@ page 542 "Default Dimensions-Multiple"
                             OnBeforeSetCommonDefaultCopyFields(DefaultDim, Rec);
                             DefaultDim.Modify(true);
                         end else begin
-                            DefaultDim.Init;
+                            DefaultDim.Init();
                             DefaultDim."Table ID" := TempDefaultDim3."Table ID";
                             DefaultDim."No." := TempDefaultDim3."No.";
                             DefaultDim."Dimension Code" := "Dimension Code";
@@ -152,14 +152,14 @@ page 542 "Default Dimensions-Multiple"
         TotalRecNo := TotalRecNo + 1;
         TempDefaultDim3."Table ID" := TableID;
         TempDefaultDim3."No." := No;
-        TempDefaultDim3.Insert;
+        TempDefaultDim3.Insert();
 
         DefaultDim.SetRange("Table ID", TableID);
         DefaultDim.SetRange("No.", No);
         if DefaultDim.Find('-') then
             repeat
                 TempDefaultDim2 := DefaultDim;
-                TempDefaultDim2.Insert;
+                TempDefaultDim2.Insert();
             until DefaultDim.Next = 0;
     end;
 
@@ -169,7 +169,7 @@ page 542 "Default Dimensions-Multiple"
         RecNo: Integer;
     begin
         Reset;
-        DeleteAll;
+        DeleteAll();
         if Dim.Find('-') then
             repeat
                 RecNo := 0;

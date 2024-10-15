@@ -326,7 +326,7 @@ page 31012 "Sales Adv. Letter Link. Card"
     begin
         SalesHeader.Get(DocType, DocNo);
         TempSalesHeader := SalesHeader;
-        TempSalesHeader.Insert;
+        TempSalesHeader.Insert();
         CurrencyCode := SalesHeader."Currency Code";
     end;
 

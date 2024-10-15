@@ -15,9 +15,6 @@ report 11778 "Open Customer Entries at Date"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -106,7 +103,7 @@ report 11778 "Open Customer Entries at Date"
 
                 trigger OnPreDataItem()
                 begin
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -218,7 +215,7 @@ report 11778 "Open Customer Entries at Date"
                             CalcFields("Original Amount", "Remaining Amount");
 
                         if not (("Remaining Amt. (LCY)" <> 0) or ("Remaining Amount" <> 0)) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if "Currency Code" = '' then
                             Currency := GLSetup."LCY Code"
@@ -321,7 +318,7 @@ report 11778 "Open Customer Entries at Date"
                     trigger OnPreDataItem()
                     begin
                         if not TCurrencyBuffer.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, TCurrencyBuffer.Count);
                     end;
                 }
@@ -336,21 +333,21 @@ report 11778 "Open Customer Entries at Date"
                         Cust.Next;
 
                     if CustActual = CustCount then begin
-                        Cust.Reset;
-                        Cust.Init;
+                        Cust.Reset();
+                        Cust.Init();
                         Cust."No." := '';
                         lreCustEntry.SetCurrentKey("Customer No.");
                         lreCustEntry.SetRange("Customer No.", '');
                         if lreCustEntry.IsEmpty then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
-                    TCurrencyBuffer.DeleteAll;
+                    TCurrencyBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not Cust.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CustCount := Cust.Count + 1;
                     CustActual := 0;
@@ -440,7 +437,7 @@ report 11778 "Open Customer Entries at Date"
                 trigger OnPreDataItem()
                 begin
                     if not TTotalCurrencyBuffer.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, TTotalCurrencyBuffer.Count);
                 end;
@@ -501,10 +498,10 @@ report 11778 "Open Customer Entries at Date"
                 begin
                     if Number = 1 then begin
                         if not TGLAccBuffer.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if TGLAccBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     GLAcc.Get(TGLAccBuffer."No.");
                     GLAcc.CalcFields("Net Change");
@@ -513,11 +510,11 @@ report 11778 "Open Customer Entries at Date"
                 trigger OnPreDataItem()
                 begin
                     if SkipGLAcc then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    TGLAccBuffer.Reset;
+                    TGLAccBuffer.Reset();
                     if TGLAccBuffer.IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, TGLAccBuffer.Count);
                     GLAcc.SetFilter("Date Filter", Customer.GetFilter("Date Filter"));
@@ -673,7 +670,7 @@ report 11778 "Open Customer Entries at Date"
         ltcILC: Label 'In local currency';
         ltcIEC: Label ' and in original currency.';
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         Cust.CopyFilters(Customer);
         CustFilter := Customer.GetFilters;
         CustDateFilter := Customer.GetFilter("Date Filter");

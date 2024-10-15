@@ -89,7 +89,7 @@ codeunit 31120 "EET Service Mgt."
         CertificateManagement: Codeunit "Certificate Management";
         CommonName: Text;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CommonName := CertificateManagement.GetCertificateCommonName(DotNetX509Certificate2);
         if CompanyInformation."VAT Registration No." <> CommonName then
             LogMessage(TempErrorMessage."Message Type"::Error, '',
@@ -139,8 +139,8 @@ codeunit 31120 "EET Service Mgt."
               EETEntry."Security Code (BKP)", EETNamespacePrefixTxt, EETNamespaceTxt, BKPControlCodeXmlNode);
         end;
 
-        CompanyInformation.Get;
-        EETServiceSetup.Get;
+        CompanyInformation.Get();
+        EETServiceSetup.Get();
         with EETEntry do begin
             AddAttribute(HeaderXmlNode, 'uuid_zpravy', "Message UUID");
             AddAttribute(HeaderXmlNode, 'dat_odesl', FormatedCurrentDateTime);
@@ -302,7 +302,7 @@ codeunit 31120 "EET Service Mgt."
 
         InitializeSecurityProtocol;
 
-        EETServiceSetup.Get;
+        EETServiceSetup.Get();
         with SOAPWebServiceRequestMgt do begin
             SetGlobals(RequestContentInStream, EETServiceSetup."Service URL", '', '');
             SetTimeout(EETServiceSetup."Limit Response Time");
@@ -535,7 +535,7 @@ codeunit 31120 "EET Service Mgt."
         else
             TempErrorMessage.Validate("Additional Information", StrSubstNo(ErrorCodeTxt, MessageCode));
 
-        TempErrorMessage.Modify;
+        TempErrorMessage.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -547,7 +547,7 @@ codeunit 31120 "EET Service Mgt."
     [Scope('OnPrem')]
     procedure HasWarnings(): Boolean
     begin
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         TempErrorMessage.SetRange("Message Type", TempErrorMessage."Message Type"::Warning);
         exit(not TempErrorMessage.IsEmpty);
     end;
@@ -579,7 +579,7 @@ codeunit 31120 "EET Service Mgt."
         if GetLastErrorText <> '' then
             exit(GetLastErrorText);
 
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         TempErrorMessage.FindFirst;
         exit(TempErrorMessage.Description);
     end;
@@ -602,7 +602,7 @@ codeunit 31120 "EET Service Mgt."
         if (GetLastErrorText <> ResponseContentError) and (GetLastErrorText <> '') then
             LogMessage(TempErrorMessage."Message Type"::Error, GetLastErrorCode, GetLastErrorText);
 
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         TempErrorMessage.CopyToTemp(TempErrorMessage2);
     end;
 
@@ -614,7 +614,7 @@ codeunit 31120 "EET Service Mgt."
         RecRef: RecordRef;
     begin
         if not EETServiceSetup.Get then begin
-            EETServiceSetup.Init;
+            EETServiceSetup.Init();
             EETServiceSetup.Insert(true);
         end;
         RecRef.GetTable(EETServiceSetup);

@@ -45,7 +45,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -74,7 +74,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Credit Memo", true, false, SalesCrMemoHeader);
 
         // verify
@@ -106,7 +106,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -138,7 +138,7 @@ codeunit 134067 "Test VAT Clause"
         UpdateVATClause(VATClause, GenerateVATClauseDescription, GenerateVATClauseDescription);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -168,7 +168,7 @@ codeunit 134067 "Test VAT Clause"
         VATClause.Delete(true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -219,10 +219,10 @@ codeunit 134067 "Test VAT Clause"
         CreateVATPostingSetupAndAssignVATClause(VATPostingSetup1, VATClause1);
 
         LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
-        // NAVCZ
-        CreateVATPostingSetupWithVATIdentifier(
-          VATPostingSetup2, VATPostingSetup1."VAT Bus. Posting Group", VATProdPostingGroup.Code);
-        // NAVCZ
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATPostingSetup1."VAT Bus. Posting Group", VATProdPostingGroup.Code);
+        VATPostingSetup2.Validate("VAT Identifier",
+          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup2."VAT Identifier")));
+        VATPostingSetup2.Modify(true);
 
         AssignVATClauseToVATPostingSetup(VATPostingSetup2, VATClause2);
 
@@ -256,10 +256,10 @@ codeunit 134067 "Test VAT Clause"
         CreateVATPostingSetupAndAssignVATClause(VATPostingSetup1, VATClause1);
 
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
-        // NAVCZ
-        CreateVATPostingSetupWithVATIdentifier(
-          VATPostingSetup2, VATBusinessPostingGroup.Code, VATPostingSetup1."VAT Prod. Posting Group");
-        // NAVCZ
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup2, VATBusinessPostingGroup.Code, VATPostingSetup1."VAT Prod. Posting Group");
+        VATPostingSetup2.Validate("VAT Identifier",
+          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup2."VAT Identifier")));
+        VATPostingSetup2.Modify(true);
         AssignVATClauseToVATPostingSetup(VATPostingSetup2, VATClause2);
 
         // exercise
@@ -291,7 +291,7 @@ codeunit 134067 "Test VAT Clause"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify
@@ -325,42 +325,11 @@ codeunit 134067 "Test VAT Clause"
         AssignVATClauseToVATPostingSetup(VATPostingSetup, VATClause2);
 
         // exercise: Save-Invoice Report as XML
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvHeader);
 
         // verify - the invoice is printed with the original VATClause.
         VerifySalesInvoiceVATClause(VATClause.Code, VATClause.Description, VATClause."Description 2");
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceCZRequestPageHandler')]
-    [Scope('OnPrem')]
-    procedure TestVATClauseSalesInvoiceCZ()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesInvHeader: Record "Sales Invoice Header";
-        VATClause: Record "VAT Clause";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // NAVCZ
-        // setup
-        Initialize;
-
-        CreateVATPostingSetupAndAssignVATClause(VATPostingSetup, VATClause);
-
-        CreateSalesDoc(SalesHeader, VATPostingSetup, '', SalesHeader."Document Type"::Invoice); // LanguageCode = ''
-        LibrarySales.PostSalesDocument(SalesHeader, false, true);
-
-        // exercise: Save-Invoice Report as XML
-        REPORT.Run(REPORT::"Sales - Invoice CZ", true, false, SalesInvHeader);
-
-        // verify
-        LibraryReportDataset.LoadDataSetFile;
-
-        if LibraryReportDataset.GetNextRow then begin
-            LibraryReportDataset.AssertElementWithValueExists('VATClauseDescription', VATClause.Description);
-            LibraryReportDataset.AssertElementWithValueExists('VATClauseDescription2', VATClause."Description 2");
-        end
     end;
 
     [Test]
@@ -635,7 +604,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClause(var VATClause: Record "VAT Clause")
     begin
-        VATClause.Init;
+        VATClause.Init();
         VATClause.Validate(Code, CopyStr(LibraryUtility.GenerateRandomCode(VATClause.FieldNo(Code), DATABASE::"VAT Clause"),
             1, LibraryUtility.GetFieldLength(DATABASE::"VAT Clause", VATClause.FieldNo(Code))));
         VATClause.Validate(Description, GenerateVATClauseDescription);
@@ -645,7 +614,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClauseTranslation(var VATClauseTranslation: Record "VAT Clause Translation"; VATClause: Record "VAT Clause")
     begin
-        VATClauseTranslation.Init;
+        VATClauseTranslation.Init();
         VATClauseTranslation.Validate("VAT Clause Code", VATClause.Code);
         VATClauseTranslation.Validate("Language Code", GetRandomLanguageCode);
         VATClauseTranslation.Validate(Description, GenerateVATClauseDescription);
@@ -655,7 +624,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClauseByDocType(var VATClauseByDocType: Record "VAT Clause by Doc. Type"; DocumentType: Integer; VATClause: Record "VAT Clause")
     begin
-        VATClauseByDocType.Init;
+        VATClauseByDocType.Init();
         VATClauseByDocType.Validate("VAT Clause Code", VATClause.Code);
         VATClauseByDocType.Validate("Document Type", DocumentType);
         VATClauseByDocType.Validate(Description, GenerateVATClauseDescription);
@@ -665,7 +634,7 @@ codeunit 134067 "Test VAT Clause"
 
     local procedure CreateVATClauseByDocTypeTranslation(var VATClauseByDocTypeTrans: Record "VAT Clause by Doc. Type Trans."; VATClauseByDocType: Record "VAT Clause by Doc. Type")
     begin
-        VATClauseByDocTypeTrans.Init;
+        VATClauseByDocTypeTrans.Init();
         VATClauseByDocTypeTrans.Validate("VAT Clause Code", VATClauseByDocType."VAT Clause Code");
         VATClauseByDocTypeTrans.Validate("Document Type", VATClauseByDocType."Document Type");
         VATClauseByDocTypeTrans.Validate("Language Code", GetRandomLanguageCode);
@@ -682,15 +651,6 @@ codeunit 134067 "Test VAT Clause"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
-    end;
-
-    local procedure CreateVATPostingSetupWithVATIdentifier(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20])
-    begin
-        // NAVCZ
-        LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProdPostingGroup);
-        VATPostingSetup.Validate("VAT Identifier",
-          CopyStr(LibraryERM.CreateRandomVATIdentifierAndGetCode, 1, MaxStrLen(VATPostingSetup."VAT Identifier")));
-        VATPostingSetup.Modify(true);
     end;
 
     local procedure CreateVATPostingSetupAndAssignVATClause(var VATPostingSetup: Record "VAT Posting Setup"; var VATClause: Record "VAT Clause")
@@ -731,7 +691,7 @@ codeunit 134067 "Test VAT Clause"
         "count": Integer;
         randomNum: Integer;
     begin
-        Language.Init;
+        Language.Init();
         randomNum := LibraryRandom.RandIntInRange(1, Language.Count);
         repeat
             count += 1;
@@ -745,13 +705,6 @@ codeunit 134067 "Test VAT Clause"
     procedure SalesInvoiceRequestPageHandler(var SalesInvoiceRequestPage: TestRequestPage "Sales - Invoice")
     begin
         SalesInvoiceRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceCZRequestPageHandler(var SalesInvoiceCZRequestPage: TestRequestPage "Sales - Invoice CZ")
-    begin
-        SalesInvoiceCZRequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [RequestPageHandler]

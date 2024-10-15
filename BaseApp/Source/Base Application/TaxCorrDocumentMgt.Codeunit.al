@@ -44,7 +44,7 @@ codeunit 11763 "Tax Corr. Document Mgt."
     procedure CreateDocLine(var VATEntry: Record "VAT Entry" temporary; OriginalInvoiceNo: Code[20])
     begin
         VATEntry."VAT Date" := VATEntry."Posting Date";
-        VATEntry.Modify;
+        VATEntry.Modify();
 
         if SourceIsServiceDoc then
             ServiceTaxCorrDocMgt.CreateCrMemoLine(VATEntry, OriginalInvoiceNo)
@@ -107,7 +107,7 @@ codeunit 11763 "Tax Corr. Document Mgt."
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 
@@ -124,7 +124,7 @@ codeunit 11763 "Tax Corr. Document Mgt."
           ToSalesHeader, NextLineNo,
           StrSubstNo(TextTaxDocTxt, TaxDocumentNo));
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         if not SalesReceivablesSetup."Copy As Tax Corr. Document" then
             exit;
 
@@ -194,15 +194,15 @@ codeunit 11763 "Tax Corr. Document Mgt."
 
     local procedure ClearVATEntryBuffer()
     begin
-        TempVATEntry.Reset;
-        TempVATEntry.DeleteAll;
+        TempVATEntry.Reset();
+        TempVATEntry.DeleteAll();
         Clear(TempVATEntry);
     end;
 
     local procedure InsertVATEntryBuffer(TempVATEntry2: Record "VAT Entry" temporary)
     begin
         TempVATEntry := TempVATEntry2;
-        TempVATEntry.Insert;
+        TempVATEntry.Insert();
     end;
 
     [Scope('OnPrem')]

@@ -185,7 +185,7 @@ codeunit 136315 "Send Job To Calendar"
         // [GIVEN] We have a job planning line.
         CreateJobPlanningLine(JobPlanningLine, Resource, 10);
         Job.Get(JobPlanningLine."Job No.");
-        Customer.Init;
+        Customer.Init();
         Customer.Name := 'John';
         Customer."E-Mail" := 'john@contoso.com';
         Customer."Phone No." := 'hello';
@@ -678,7 +678,7 @@ codeunit 136315 "Send Job To Calendar"
         User.SetRange("User Name", Resource."Time Sheet Owner User ID");
         User.FindFirst;
         User."Authentication Email" := '';
-        User.Modify;
+        User.Modify();
 
         // [WHEN] Job Planning Lines page runs
         JobPlanningLines.Trap;
@@ -915,13 +915,13 @@ codeunit 136315 "Send Job To Calendar"
         JobPlanningLine.DeleteAll(false);
         JobPlanningLineCalendar.DeleteAll(false);
 
-        SMTPMailSetup.DeleteAll;
-        SMTPMailSetup.Init;
+        SMTPMailSetup.DeleteAll();
+        SMTPMailSetup.Init();
         SMTPMailSetup."SMTP Server" := 'localhost';
         SMTPMailSetup."SMTP Server Port" := 9999;
         SMTPMailSetup."User ID" := SMTPSenderTxt;
         SMTPMailSetup.Authentication := SMTPMailSetup.Authentication::Anonymous;
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.Insert();
 
         if IsInitialized then
             exit;
@@ -945,17 +945,17 @@ codeunit 136315 "Send Job To Calendar"
 
         LibraryJob.CreateJob(Job);
         Job.Validate(Description, CreateGuid);
-        Job.Modify;
+        Job.Modify();
 
         LibraryJob.CreateJobTask(Job, JobTask);
         JobTask.Validate(Description, CreateGuid);
-        JobTask.Modify;
+        JobTask.Modify();
 
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Resource, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("Unit Price", JobPlanningLine."Unit Cost" * (1 + LibraryRandom.RandInt(100) / 100));
         JobPlanningLine.Quantity := Quantity;
         JobPlanningLine."No." := Resource."No.";
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         LibraryMarketing.CreateCompanyContact(Contact);
         Customer.Get(Job."Bill-to Customer No.");
@@ -963,7 +963,7 @@ codeunit 136315 "Send Job To Calendar"
         Customer.Address := CopyStr(CreateGuid, 2, 13);
         Customer.City := CopyStr(CreateGuid, 2, 5);
         Customer."Country/Region Code" := CopyStr(CreateGuid, 2, 2);
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateJobPlanningLineWithUnicodeDescription(var JobPlanningLine: Record "Job Planning Line"; var Resource: Record Resource; Quantity: Decimal)
@@ -986,14 +986,14 @@ codeunit 136315 "Send Job To Calendar"
         LibraryResource: Codeunit "Library - Resource";
     begin
         LibraryResource.CreateResource(Resource, '');
-        User.Init;
+        User.Init();
         User.Validate("User Name", LibraryUtility.GenerateRandomCode(User.FieldNo("User Name"), DATABASE::User));
         User.Validate("User Security ID", CreateGuid);
         User.Validate("Authentication Email", AuthEmail);
         User.Insert(true);
 
         Resource."Time Sheet Owner User ID" := User."User Name";
-        Resource.Modify;
+        Resource.Modify();
     end;
 
     local procedure GetICSText(TempEmailItem: Record "Email Item" temporary) ICSText: Text
@@ -1058,7 +1058,7 @@ codeunit 136315 "Send Job To Calendar"
             LibraryDocumentApprovals.CreateUserSetup(UserSetup, UserId, '');
         if UserSetup."E-Mail" = '' then begin
             UserSetup."E-Mail" := CopyStr(RandomEmail, 1, MaxStrLen(UserSetup."E-Mail"));
-            UserSetup.Modify;
+            UserSetup.Modify();
         end;
     end;
 

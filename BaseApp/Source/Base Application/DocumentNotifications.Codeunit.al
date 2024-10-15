@@ -221,7 +221,7 @@ codeunit 1390 "Document Notifications"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PAGE.RunModal(PAGE::"General Ledger Setup", GeneralLedgerSetup);
     end;
 

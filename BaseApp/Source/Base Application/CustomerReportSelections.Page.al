@@ -17,7 +17,7 @@ page 9657 "Customer Report Selections"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Usage';
-                    OptionCaption = 'Quote,Confirmation Order,Invoice,Credit Memo,Customer Statement,Job Quote,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Adv. Letter,Adv. Invoice,Adv. Cr.Memo';
+                    OptionCaption = 'Quote,Confirmation Order,Invoice,Credit Memo,Customer Statement,Job Quote,Reminder,Shipment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Adv. Letter,Adv. Invoice,Adv. Cr.Memo';
                     ToolTip = 'Specifies which type of document the report is used for.';
 
                     trigger OnValidate()
@@ -35,6 +35,10 @@ page 9657 "Customer Report Selections"
                                 Usage := Usage::"C.Statement";
                             Usage2::"Job Quote":
                                 Usage := Usage::JQ;
+                            Usage2::Reminder:
+                                Usage := Usage::Reminder;
+                            Usage2::Shipment:
+                                Usage := Usage::"S.Shipment";
                             // NAVCZ
                             Usage2::"Adv. Letter":
                                 Usage := Usage::"S.Adv.Let";
@@ -101,6 +105,11 @@ page 9657 "Customer Report Selections"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Send To Email';
                     ToolTip = 'Specifies that the report is used when sending emails.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        ShowSelectedContacts();
+                    end;
                 }
                 field("Use for Email Body"; "Use for Email Body")
                 {
@@ -138,11 +147,54 @@ page 9657 "Customer Report Selections"
 
     actions
     {
+        area(Processing)
+        {
+            action(CopyFromReportSelectionsAction)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Copy from Report Selection';
+                Image = Copy;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                ToolTip = 'Copy reports that are set up on the Report Selection page.';
+
+                trigger OnAction()
+                var
+                    ReportSelections: Record "Report Selections";
+                    CustomReportSelection: Record "Custom Report Selection";
+                begin
+                    CustomReportSelection := Rec;
+                    FilterCustomerUsageReportSelections(ReportSelections);
+                    CopyFromReportSelections(ReportSelections, Database::Customer, GetFilter("Source No."));
+                    CurrPage.SetRecord(CustomReportSelection);
+                end;
+            }
+
+            action(SelectFromContactsAction)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Select Email from Contacts';
+                Image = ContactFilter;
+                Promoted = true;
+                PromotedOnly = true;
+                PromotedCategory = Process;
+                ToolTip = 'Select an email address from the list of contacts.';
+
+                trigger OnAction()
+                var
+                    ContBusRel: Record "Contact Business Relation";
+                begin
+                    GetSendToEmailFromContactsSelection(ContBusRel."Link to Table"::Customer, GetFilter("Source No."));
+                end;
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         MapTableUsageValueToPageValue;
+        GetSendToEmail(false);
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -152,7 +204,7 @@ page 9657 "Customer Report Selections"
     end;
 
     var
-        Usage2: Option Quote,"Confirmation Order",Invoice,"Credit Memo","Customer Statement","Job Quote",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"Adv. Letter","Adv. Invoice","Adv. Cr.Memo";
+        Usage2: Option Quote,"Confirmation Order",Invoice,"Credit Memo","Customer Statement","Job Quote",Reminder,Shipment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"Adv. Letter","Adv. Invoice","Adv. Cr.Memo";
         CouldNotFindCustomReportLayoutErr: Label 'There is no custom report layout with %1 in the description.', Comment = '%1 Description of custom report layout';
 
     local procedure MapTableUsageValueToPageValue()
@@ -172,6 +224,10 @@ page 9657 "Customer Report Selections"
                 Usage2 := Usage2::"Customer Statement";
             CustomReportSelection.Usage::JQ:
                 Usage2 := Usage2::"Job Quote";
+            CustomReportSelection.Usage::Reminder:
+                Usage2 := Usage2::Reminder;
+            CustomReportSelection.Usage::"S.Shipment":
+                Usage2 := Usage2::Shipment;
             // NAVCZ
             CustomReportSelection.Usage::"S.Adv.Let":
                 Usage2 := Usage2::"Adv. Letter";
@@ -181,6 +237,25 @@ page 9657 "Customer Report Selections"
                 Usage2 := Usage2::"Adv. Cr.Memo";
         // NAVCZ
         end;
+    end;
+
+    local procedure FilterCustomerUsageReportSelections(var ReportSelections: Record "Report Selections")
+    var
+        CustomReportSelection: Record "Custom Report Selection";
+    begin
+        ReportSelections.SetFilter(
+            Usage, '%1|%2|%3|%4|%5|%6|%7|%8|%9|%10|%11',
+            CustomReportSelection.Usage::"S.Quote",
+            CustomReportSelection.Usage::"S.Order",
+            CustomReportSelection.Usage::"S.Invoice",
+            CustomReportSelection.Usage::"S.Cr.Memo",
+            CustomReportSelection.Usage::"C.Statement",
+            CustomReportSelection.Usage::JQ,
+            CustomReportSelection.Usage::Reminder,
+            CustomReportSelection.Usage::"S.Shipment",
+            CustomReportSelection.Usage::"S.Adv.Let",
+            CustomReportSelection.Usage::"S.Adv.Inv",
+            CustomReportSelection.Usage::"S.Adv.CrM");
     end;
 }
 

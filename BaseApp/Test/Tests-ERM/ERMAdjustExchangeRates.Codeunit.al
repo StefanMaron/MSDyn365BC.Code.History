@@ -19,7 +19,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchangeRates()
     var
@@ -55,7 +55,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,YesConfirmHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateACYStartDate()
     var
@@ -127,7 +127,7 @@ codeunit 134083 "ERM Adjust Exchange Rates"
         if IsInitialized then
             exit;
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
@@ -246,22 +246,6 @@ codeunit 134083 "ERM Adjust Exchange Rates"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        // NAVCZ
-        Reply := true;
     end;
 }
 

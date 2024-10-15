@@ -54,7 +54,7 @@ report 11702 "Copy Payment Order"
         if DocNo = '' then
             Error(DocNoErr);
 
-        BankStmtLn.LockTable;
+        BankStmtLn.LockTable();
         BankStmtLn.SetRange("Bank Statement No.", BankStmtHdr."No.");
         if BankStmtLn.FindLast then
             LineNo := BankStmtLn."Line No.";
@@ -63,7 +63,7 @@ report 11702 "Copy Payment Order"
         if IssuedPmtOrdLn.FindSet then
             repeat
                 LineNo += 10000;
-                BankStmtLn.Init;
+                BankStmtLn.Init();
                 BankStmtLn.Validate("Bank Statement No.", BankStmtHdr."No.");
                 BankStmtLn."Line No." := LineNo;
                 BankStmtLn.Description := IssuedPmtOrdLn.Description;
@@ -75,8 +75,7 @@ report 11702 "Copy Payment Order"
                 BankStmtLn."Transit No." := IssuedPmtOrdLn."Transit No.";
                 BankStmtLn.IBAN := IssuedPmtOrdLn.IBAN;
                 BankStmtLn."SWIFT Code" := IssuedPmtOrdLn."SWIFT Code";
-                OnBeforeBankStatementLineInsert(BankStmtLn, IssuedPmtOrdLn);
-                BankStmtLn.Insert;
+                BankStmtLn.Insert();
             until IssuedPmtOrdLn.Next = 0;
     end;
 
@@ -89,11 +88,6 @@ report 11702 "Copy Payment Order"
     procedure SetBankStmtHdr(NewBankStmtHdr: Record "Bank Statement Header")
     begin
         BankStmtHdr := NewBankStmtHdr;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeBankStatementLineInsert(var BankStmtLn: Record "Bank Statement Line"; IssuedPmtOrdLn: Record "Issued Payment Order Line")
-    begin
     end;
 }
 

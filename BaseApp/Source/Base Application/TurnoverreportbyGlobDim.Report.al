@@ -26,9 +26,6 @@ report 11772 "Turnover report by Glob. Dim."
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Filters; Filters)
             {
             }
@@ -185,13 +182,13 @@ report 11772 "Turnover report by Glob. Dim."
                        (Debit2 = 0) and (Credit2 = 0) and
                        (FinishedDebit = 0) and (FinishedCredit = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not PrintDim then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     case Detail of
                         Detail::GlDim1:
@@ -211,7 +208,7 @@ report 11772 "Turnover report by Glob. Dim."
                     PrintEmptyDim := not (((Dim1Filter <> '') and (Detail = Detail::GlDim1)) or
                                           ((Dim2Filter <> '') and (Detail = Detail::GlDim2)));
 
-                    DimCount := DimValue.Count;
+                    DimCount := DimValue.Count();
                     if PrintEmptyDim then
                         DimCount += 1;
 
@@ -234,7 +231,7 @@ report 11772 "Turnover report by Glob. Dim."
                        (Debit2 = 0) and (Credit2 = 0) and
                        (FinishedDebit = 0) and (FinishedCredit = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             end;
 
@@ -248,11 +245,11 @@ report 11772 "Turnover report by Glob. Dim."
                     Error(Text003);
 
                 if GLEntry.RecordLevelLocking then begin
-                    GLEntry.LockTable;
+                    GLEntry.LockTable();
                     GLEntry.FindLast;
                 end;
 
-                GLSetup.Get;
+                GLSetup.Get();
                 case Detail of
                     Detail::GlDim1:
                         begin

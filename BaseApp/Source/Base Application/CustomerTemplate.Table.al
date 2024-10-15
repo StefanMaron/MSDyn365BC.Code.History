@@ -215,7 +215,7 @@ table 5105 "Customer Template"
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
         // NAVCZ
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Customer Nos.");
         if NoSeriesMgt.SelectSeries(SalesSetup."Customer Nos.", "No. Series", "No. Series") then
             exit(true);

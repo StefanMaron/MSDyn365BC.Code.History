@@ -33,7 +33,7 @@ table 11766 "Statement File Mapping"
             begin
                 if "Excel Cell" <> '' then begin
                     TestRowColumn("Excel Cell");
-                    StmtFileMapping.Reset;
+                    StmtFileMapping.Reset();
                     StmtFileMapping.SetRange("Schedule Name", "Schedule Name");
                     StmtFileMapping.SetRange("Schedule Column Layout Name", "Schedule Column Layout Name");
                     StmtFileMapping.SetRange("Excel Cell", "Excel Cell");

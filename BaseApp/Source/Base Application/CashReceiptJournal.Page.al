@@ -1,4 +1,4 @@
-﻿page 255 "Cash Receipt Journal"
+page 255 "Cash Receipt Journal"
 {
     AdditionalSearchTerms = 'customer payment';
     ApplicationArea = Basic, Suite;
@@ -1069,7 +1069,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -1132,7 +1133,7 @@
         EnvironmentInfo: Codeunit "Environment Information";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         IsSaaS := EnvironmentInfo.IsSaaS;
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
@@ -1184,7 +1185,7 @@
         ShowWorkflowStatusOnLine: Boolean;
         CanCancelApprovalForJnlBatch: Boolean;
         CanCancelApprovalForJnlLine: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         CanRequestFlowApprovalForBatch: Boolean;
         CanRequestFlowApprovalForBatchAndAllLines: Boolean;
         CanRequestFlowApprovalForBatchAndCurrentLine: Boolean;
@@ -1292,7 +1293,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

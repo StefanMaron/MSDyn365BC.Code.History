@@ -213,7 +213,7 @@ page 31089 "Acc. Schedule Results Overview"
     var
         AccSchedResultColumn: Record "Acc. Schedule Result Column";
     begin
-        AccSchedResultColumn.Reset;
+        AccSchedResultColumn.Reset();
         AccSchedResultColumn.SetRange("Result Code", "Result Code");
 
         case MATRIX_SetWanted of

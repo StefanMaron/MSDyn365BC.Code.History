@@ -90,7 +90,7 @@ table 11786 "Posting Desc. Parameter"
     var
         PostDescription: Record "Posting Description";
     begin
-        Field.Reset;
+        Field.Reset();
         PostDescription.Get("Posting Desc. Code");
         case PostDescription.Type of
             PostDescription.Type::"Sales Document":

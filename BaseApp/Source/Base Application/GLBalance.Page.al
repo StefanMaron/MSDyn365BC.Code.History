@@ -1,4 +1,4 @@
-﻿page 414 "G/L Balance"
+page 414 "G/L Balance"
 {
     Caption = 'G/L Balance';
     PageType = Worksheet;

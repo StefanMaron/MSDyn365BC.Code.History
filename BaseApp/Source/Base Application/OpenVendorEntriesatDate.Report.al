@@ -15,9 +15,6 @@ report 11779 "Open Vendor Entries at Date"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -109,7 +106,7 @@ report 11779 "Open Vendor Entries at Date"
 
                 trigger OnPreDataItem()
                 begin
-                    CurrReport.Break;
+                    CurrReport.Break();
                 end;
             }
             dataitem("Integer"; "Integer")
@@ -224,7 +221,7 @@ report 11779 "Open Vendor Entries at Date"
                             CalcFields("Original Amount", "Remaining Amount");
 
                         if not (("Remaining Amt. (LCY)" <> 0) or ("Remaining Amount" <> 0)) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if "Currency Code" = '' then
                             Currency := GLSetup."LCY Code"
@@ -327,7 +324,7 @@ report 11779 "Open Vendor Entries at Date"
                     trigger OnPreDataItem()
                     begin
                         if not TCurrencyBuffer.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, TCurrencyBuffer.Count);
                     end;
                 }
@@ -342,21 +339,21 @@ report 11779 "Open Vendor Entries at Date"
                         Vend.Next;
 
                     if VendActual = VendCount then begin
-                        Vend.Reset;
-                        Vend.Init;
+                        Vend.Reset();
+                        Vend.Init();
                         Vend."No." := '';
                         lreVendEntry.SetCurrentKey("Vendor No.");
                         lreVendEntry.SetRange("Vendor No.", '');
                         if lreVendEntry.IsEmpty then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
-                    TCurrencyBuffer.DeleteAll;
+                    TCurrencyBuffer.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not Vend.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     VendCount := Vend.Count + 1;
                     VendActual := 0;
@@ -446,7 +443,7 @@ report 11779 "Open Vendor Entries at Date"
                 trigger OnPreDataItem()
                 begin
                     if not TTotalCurrencyBuffer.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, TTotalCurrencyBuffer.Count);
                 end;
@@ -507,10 +504,10 @@ report 11779 "Open Vendor Entries at Date"
                 begin
                     if Number = 1 then begin
                         if not TGLAccBuffer.FindSet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if TGLAccBuffer.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     GLAcc.Get(TGLAccBuffer."No.");
                     GLAcc.CalcFields("Net Change");
@@ -519,11 +516,11 @@ report 11779 "Open Vendor Entries at Date"
                 trigger OnPreDataItem()
                 begin
                     if SkipGLAcc then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    TGLAccBuffer.Reset;
+                    TGLAccBuffer.Reset();
                     if TGLAccBuffer.IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, TGLAccBuffer.Count);
                     GLAcc.SetFilter("Date Filter", Vendor.GetFilter("Date Filter"));
@@ -680,7 +677,7 @@ report 11779 "Open Vendor Entries at Date"
         ltcILC: Label 'In local currency';
         ltcIEC: Label ' and in original currency.';
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         Vend.CopyFilters(Vendor);
         VendFilter := Vendor.GetFilters;
         VendDateFilter := Vendor.GetFilter("Date Filter");

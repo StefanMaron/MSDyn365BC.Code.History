@@ -62,6 +62,13 @@ page 40 "Item Journal"
                     OptionCaption = 'Purchase,Sale,Positive Adjmt.,Negative Adjmt.';
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for price calculation in the journal line.';
+                }
                 field("Document No."; "Document No.")
                 {
                     ApplicationArea = Basic, Suite;
@@ -755,7 +762,8 @@ page 40 "Item Journal"
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -782,7 +790,7 @@ page 40 "Item Journal"
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);
@@ -805,7 +813,7 @@ page 40 "Item Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -834,7 +842,7 @@ page 40 "Item Journal"
         ShortcutDimCode: array[8] of Code[20];
         Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
         Text002: Label 'Standard Item Journal %1 has been successfully created.';
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

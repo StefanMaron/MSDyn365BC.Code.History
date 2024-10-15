@@ -34,32 +34,32 @@ page 5404 "Item Units of Measure"
                 field(Height; Height)
                 {
                     ApplicationArea = Basic, Suite;
+                    StyleExpr = StyleName;
                     ToolTip = 'Specifies the height of one item unit when measured in the unit of measure in the Code field.';
-                    Visible = false;
                 }
                 field(Width; Width)
                 {
                     ApplicationArea = Basic, Suite;
+                    StyleExpr = StyleName;
                     ToolTip = 'Specifies the width of one item unit when measured in the specified unit of measure.';
-                    Visible = false;
                 }
                 field(Length; Length)
                 {
                     ApplicationArea = Basic, Suite;
+                    StyleExpr = StyleName;
                     ToolTip = 'Specifies the length of one item unit when measured in the specified unit of measure.';
-                    Visible = false;
                 }
                 field(Cubage; Cubage)
                 {
                     ApplicationArea = Basic, Suite;
+                    StyleExpr = StyleName;
                     ToolTip = 'Specifies the volume (cubage) of one item unit in the unit of measure in the Code field.';
-                    Visible = false;
                 }
                 field(Weight; Weight)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the weight of one item unit when measured in the specified unit of measure.';
-                    Visible = false;
+                    Visible = true;
                 }
                 field("Indivisible Unit"; "Indivisible Unit")
                 {
@@ -91,7 +91,7 @@ page 5404 "Item Units of Measure"
                     trigger OnValidate()
                     begin
                         Item.TestField("No.");
-                        Item.LockTable;
+                        Item.LockTable();
                         Item.Find;
                         Item.Validate("Base Unit of Measure", ItemBaseUOM);
                         Item.Modify(true);

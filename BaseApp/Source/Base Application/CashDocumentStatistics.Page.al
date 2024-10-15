@@ -141,7 +141,7 @@ page 11734 "Cash Document Statistics"
     var
         TotalCashDocLine: Record "Cash Document Line";
     begin
-        TotalCashDocLine.Reset;
+        TotalCashDocLine.Reset();
         TotalCashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         TotalCashDocLine.SetRange("Cash Document No.", "Cash Document No.");
 
@@ -173,7 +173,7 @@ page 11734 "Cash Document Statistics"
         else
             Currency.Get(CashDocHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with CashDocLine do begin
             SetRange("Cash Desk No.", Rec."Cash Desk No.");
@@ -187,14 +187,14 @@ page 11734 "Cash Document Statistics"
                         "VAT %" := 0;
 
                     if not VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", '', false, Amount >= 0) then begin
-                        VATAmountLine.Init;
+                        VATAmountLine.Init();
                         VATAmountLine."VAT Identifier" := "VAT Identifier";
                         VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         VATAmountLine."VAT %" := "VAT %";
                         VATAmountLine.Modified := true;
                         VATAmountLine.Positive := Amount >= 0;
                         VATAmountLine."Currency Code" := "Currency Code";
-                        VATAmountLine.Insert;
+                        VATAmountLine.Insert();
                     end;
 
                     VATAmountLine."Line Amount" += Amount;
@@ -208,7 +208,7 @@ page 11734 "Cash Document Statistics"
                     VATAmountLine."VAT Amount (LCY)" += "Amount Including VAT (LCY)" - "VAT Base Amount (LCY)";
                     VATAmountLine."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
                     VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
-                    VATAmountLine.Modify;
+                    VATAmountLine.Modify();
                 until Next = 0;
             SetRange("Account Type");
         end;

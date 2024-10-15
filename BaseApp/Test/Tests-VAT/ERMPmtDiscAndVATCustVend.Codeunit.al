@@ -619,7 +619,7 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryPmtDiscSetup.ClearAdjustPmtDiscInVATSetup;
         UpdateDefaultVATSetupPct;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
@@ -739,8 +739,6 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
         GeneralPostingSetup."Sales Pmt. Tol. Debit Acc." := LibraryERM.CreateGLAccountNo;
         GeneralPostingSetup."Purch. Pmt. Tol. Credit Acc." := LibraryERM.CreateGLAccountNo;
-        GeneralPostingSetup."Sales Pmt. Disc. Debit Acc." := LibraryERM.CreateGLAccountNo;
-        GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := LibraryERM.CreateGLAccountNo;
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -801,7 +799,6 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
         LibraryERM.UpdateGLAccountWithPostingSetup(
           GLAccount, GLAccount."Gen. Posting Type"::Sale, GeneralPostingSetup, VATPostingSetup);
         GLAccountNo := GLAccount."No.";
-        UpdateCustInvRoundingAccount(CustomerNo, GLAccountNo);
     end;
 
     local procedure CreateGLAccount(GenProdPostingGroup: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
@@ -1327,17 +1324,6 @@ codeunit 134090 "ERM Pmt Disc And VAT Cust/Vend"
             Validate("Allow VAT Difference", AllowVATDifference);
             Modify(true);
         end;
-    end;
-
-    local procedure UpdateCustInvRoundingAccount(CustomerNo: Code[20]; GLAccountNo: Code[20])
-    var
-        Customer: Record Customer;
-        CustomerPostingGroup: Record "Customer Posting Group";
-    begin
-        Customer.Get(CustomerNo);
-        CustomerPostingGroup.Get(Customer."Customer Posting Group");
-        CustomerPostingGroup.Validate("Invoice Rounding Account", GLAccountNo);
-        CustomerPostingGroup.Modify(true);
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; ExpectedAmount: Decimal; ExpectedVATAmount: Decimal)

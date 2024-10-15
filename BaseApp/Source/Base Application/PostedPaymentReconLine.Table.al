@@ -13,8 +13,7 @@ table 1296 "Posted Payment Recon. Line"
         field(2; "Statement No."; Code[20])
         {
             Caption = 'Statement No.';
-            TableRelation = "Posted Payment Recon. Hdr"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
-            ValidateTableRelation = false;
+            TableRelation = "Bank Acc. Reconciliation"."Statement No." WHERE("Bank Account No." = FIELD("Bank Account No."));
         }
         field(3; "Statement Line No."; Integer)
         {
@@ -89,11 +88,9 @@ table 1296 "Posted Payment Recon. Line"
             Caption = 'Data Exch. Line No.';
             Editable = false;
         }
-        field(21; "Account Type"; Option)
+        field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
         }
         field(22; "Account No."; Code[20])
         {

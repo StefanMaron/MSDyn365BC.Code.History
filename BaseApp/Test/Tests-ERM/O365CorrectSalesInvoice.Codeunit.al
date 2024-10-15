@@ -1700,7 +1700,7 @@ codeunit 138015 "O365 Correct Sales Invoice"
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Customer);
-        ValueEntry.SETRANGE("Source No. 2", Cust."No."); // NAVCZ
+        ValueEntry.SetRange("Source No.", Cust."No.");
         ValueEntry.FindSet;
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";

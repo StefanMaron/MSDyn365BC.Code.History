@@ -186,7 +186,7 @@ codeunit 11768 "Posting Group Management"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Allow Alter Posting Groups");
     end;
 
@@ -194,7 +194,7 @@ codeunit 11768 "Posting Group Management"
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.TestField("Allow Alter Cust. Post. Groups");
     end;
 
@@ -202,7 +202,7 @@ codeunit 11768 "Posting Group Management"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.TestField("Allow Alter Posting Groups");
     end;
 

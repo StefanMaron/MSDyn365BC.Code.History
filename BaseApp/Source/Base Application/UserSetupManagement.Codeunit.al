@@ -56,7 +56,7 @@ codeunit 5700 "User Setup Management"
             if IsHandled then
                 exit(SalesUserRespCenter);
 
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             SalesUserRespCenter := CompanyInfo."Responsibility Center";
             UserLocation := CompanyInfo."Location Code";
             if UserSetup.Get(UserCode) and (UserCode <> '') then
@@ -71,7 +71,7 @@ codeunit 5700 "User Setup Management"
     procedure GetPurchasesFilter(UserCode: Code[50]): Code[10]
     begin
         if not HasGotPurchUserSetup then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             PurchUserRespCenter := CompanyInfo."Responsibility Center";
             UserLocation := CompanyInfo."Location Code";
             if UserSetup.Get(UserCode) and (UserCode <> '') then
@@ -86,7 +86,7 @@ codeunit 5700 "User Setup Management"
     procedure GetServiceFilter(UserCode: Code[50]): Code[10]
     begin
         if not HasGotServUserSetup then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             ServUserRespCenter := CompanyInfo."Responsibility Center";
             UserLocation := CompanyInfo."Location Code";
             if UserSetup.Get(UserCode) and (UserCode <> '') then
@@ -205,7 +205,7 @@ codeunit 5700 "User Setup Management"
     begin
         // NAVCZ
         if not HasGotCashUserSetup then begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             CashUserRespCenter := CompanyInfo."Responsibility Center";
             UserLocation := CompanyInfo."Location Code";
             if UserSetup.Get(UserCode) and (UserCode <> '') then
@@ -288,7 +288,7 @@ codeunit 5700 "User Setup Management"
                 SetupRecordID := UserSetup.RecordId;
             end;
         if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.CheckAllowedPostingDates(1);
             AllowPostingFrom := GLSetup."Allow Posting From";
             AllowPostingTo := GLSetup."Allow Posting To";

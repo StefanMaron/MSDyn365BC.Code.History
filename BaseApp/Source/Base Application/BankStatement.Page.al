@@ -225,7 +225,7 @@ page 11706 "Bank Statement"
 
                     trigger OnAction()
                     begin
-                        Issue(CODEUNIT::"Issue Bank Statement (Yes/No)");
+                        IssueBankStatement(CODEUNIT::"Issue Bank Statement (Yes/No)");
                     end;
                 }
                 action(IssueAndPrint)
@@ -238,7 +238,7 @@ page 11706 "Bank Statement"
 
                     trigger OnAction()
                     begin
-                        Issue(CODEUNIT::"Issue Bank Statement + Print");
+                        IssueBankStatement(CODEUNIT::"Issue Bank Statement + Print");
                     end;
                 }
             }
@@ -273,7 +273,7 @@ page 11706 "Bank Statement"
         DocNoVisible: Boolean;
         OpenIssuedBankStmtQst: Label 'The bank statement has been issued and moved to the Issued Bank Statements window.\\Do you want to open the issued bank statements?';
 
-    local procedure Issue(IssuingCodeunitId: Integer)
+    local procedure IssueBankStatement(IssuingCodeunitId: Integer)
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin

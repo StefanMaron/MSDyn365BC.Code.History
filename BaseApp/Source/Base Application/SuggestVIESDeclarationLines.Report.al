@@ -22,7 +22,7 @@ report 31067 "Suggest VIES Declaration Lines"
                 trigger OnPreDataItem()
                 begin
                     if "VIES Declaration Header"."Trade Type" = "VIES Declaration Header"."Trade Type"::Purchases then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetFilters(VATEntrySale);
 
@@ -44,7 +44,7 @@ report 31067 "Suggest VIES Declaration Lines"
                 trigger OnPreDataItem()
                 begin
                     if "VIES Declaration Header"."Trade Type" = "VIES Declaration Header"."Trade Type"::Sales then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetFilters(VATEntryPurchase);
 
@@ -70,7 +70,7 @@ report 31067 "Suggest VIES Declaration Lines"
                     trigger OnPreDataItem()
                     begin
                         if not IncludingAdvancePayments then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilters(VATEntryAdvance);
                         SetRange(Base);
@@ -108,16 +108,16 @@ report 31067 "Suggest VIES Declaration Lines"
 
                 LastLineNo := 0;
 
-                TempVIESLine.DeleteAll;
-                TempVIESLine.Reset;
-                TransBuffer.DeleteAll;
+                TempVIESLine.DeleteAll();
+                TempVIESLine.Reset();
+                TransBuffer.DeleteAll();
 
                 if DeleteLines then begin
-                    VIESLine.Reset;
+                    VIESLine.Reset();
                     VIESLine.SetRange("VIES Declaration No.", GetRangeMin("No."));
                     if VIESLine.FindFirst then begin
-                        VIESLine.DeleteAll;
-                        Commit;
+                        VIESLine.DeleteAll();
+                        Commit();
                     end;
                 end;
 
@@ -196,20 +196,20 @@ report 31067 "Suggest VIES Declaration Lines"
         if TempVIESLine.FindFirst then begin
             TempVIESLine."Amount (LCY)" += VIESLine."Amount (LCY)";
             UpdateNumberOfSupplies(TempVIESLine, TransactionNo);
-            TempVIESLine.Modify;
+            TempVIESLine.Modify();
         end else begin
             LastLineNo += 10000;
             TempVIESLine := VIESLine;
             TempVIESLine."Line No." := LastLineNo;
             UpdateNumberOfSupplies(TempVIESLine, TransactionNo);
-            TempVIESLine.Insert;
+            TempVIESLine.Insert();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure SaveBuffer()
     begin
-        TempVIESLine.Reset;
+        TempVIESLine.Reset();
         VIESLine.SetRange("VIES Declaration No.", "VIES Declaration Header"."No.");
         if VIESLine.FindLast then;
         LastLineNo := VIESLine."Line No.";
@@ -221,7 +221,7 @@ report 31067 "Suggest VIES Declaration Lines"
                 VIESLine := TempVIESLine;
                 VIESLine."Amount (LCY)" := Round(TempVIESLine."Amount (LCY)", 1, '>');
                 VIESLine."Line No." := LastLineNo;
-                VIESLine.Insert;
+                VIESLine.Insert();
             until TempVIESLine.Next = 0;
     end;
 
@@ -240,7 +240,7 @@ report 31067 "Suggest VIES Declaration Lines"
             VIESLine."Number of Supplies" := VIESLine."Number of Supplies" + 1;
             TransBuffer."Transaction No." := TransactionNo;
             TransBuffer."EU Service" := VIESLine."EU Service";
-            TransBuffer.Insert;
+            TransBuffer.Insert();
         end;
     end;
 

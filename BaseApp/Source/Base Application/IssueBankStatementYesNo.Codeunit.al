@@ -24,7 +24,7 @@ codeunit 11703 "Issue Bank Statement (Yes/No)"
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Issue Bank Statement", BankStmtHdr);
-        Commit;
+        Commit();
 
         if Selection = 2 then begin
             IssuedBankStmtHdr.Get(BankStmtHdr."Last Issuing No.");

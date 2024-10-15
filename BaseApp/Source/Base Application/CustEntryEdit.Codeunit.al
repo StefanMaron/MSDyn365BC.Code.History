@@ -9,7 +9,7 @@ codeunit 103 "Cust. Entry-Edit"
         OnBeforeOnRun(Rec, CustLedgEntry, DtldCustLedgEntry);
 
         CustLedgEntry := Rec;
-        CustLedgEntry.LockTable;
+        CustLedgEntry.LockTable();
         CustLedgEntry.Find;
         CustLedgEntry."On Hold" := "On Hold";
         if CustLedgEntry.Open then begin
@@ -42,7 +42,7 @@ codeunit 103 "Cust. Entry-Edit"
         // NAVCZ
         OnBeforeCustLedgEntryModify(CustLedgEntry, Rec);
         CustLedgEntry.TestField("Entry No.", "Entry No.");
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
         Rec := CustLedgEntry;
     end;
 

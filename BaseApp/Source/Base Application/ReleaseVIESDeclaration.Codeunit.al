@@ -9,7 +9,7 @@ codeunit 31060 "Release VIES Declaration"
         if Status = Status::Released then
             exit;
 
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("VIES Number of Lines");
 
         TestField("VAT Registration No.");
@@ -39,7 +39,7 @@ codeunit 31060 "Release VIES Declaration"
             end;
             VIESDeclarationLine."Report Page Number" := PageNo;
             VIESDeclarationLine."Report Line Number" := LineNo;
-            VIESDeclarationLine.Modify;
+            VIESDeclarationLine.Modify();
         until VIESDeclarationLine.Next = 0;
 
         Status := Status::Released;

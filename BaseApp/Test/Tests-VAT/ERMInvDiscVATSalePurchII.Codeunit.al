@@ -104,7 +104,6 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         // Setup: Update GL Setup, Create Sales Document with two different VAT Posting Setup Items.
         LibraryERM.SetVATRoundingType(VATRoundingDirection);
         CreateVATSalesDocument(SalesHeader, TempSalesLine, DocumentType, CurrencyCode);
-        UpdateCustPostingGroup(SalesHeader."Customer Posting Group"); // NAVCZ
 
         // Exercise: Post the Sales Document.
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -224,7 +223,6 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
 
         // Exercise: Create Purchase Document for two different VAT Posting Groups and Post the document.
         CreateVATPurchaseDocument(PurchaseHeader, TempPurchaseLine, DocumentType, CurrencyCode);
-        UpdateVendPostingGroup(PurchaseHeader."Vendor Posting Group"); // NAVCZ
         DocumentNo := PostPurchaseDocument(PurchaseHeader);
 
         // Verify: Verify VAT Amount On GL Entry.
@@ -596,7 +594,6 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchaseLine."Document No.");
         InvoiceDiscountAmount := UpdatePurchaseLine(PurchaseHeader."No.");
         VATAmount := Round(InvoiceDiscountAmount * PurchaseLine."VAT %" / 100);
-        UpdateGenPostingSetup(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group"); // NAVCZ
 
         // Exercise: Post Purchase Order.
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -754,7 +751,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Inv Disc VAT Sale/Purch II");
     end;
@@ -762,13 +759,13 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     local procedure CopyPurchaseLine(var TempPurchaseLine: Record "Purchase Line" temporary; PurchaseLine: Record "Purchase Line")
     begin
         TempPurchaseLine := PurchaseLine;
-        TempPurchaseLine.Insert;
+        TempPurchaseLine.Insert();
     end;
 
     local procedure CopySalesLine(var TempSalesLine: Record "Sales Line" temporary; SalesLine: Record "Sales Line")
     begin
         TempSalesLine := SalesLine;
-        TempSalesLine.Insert;
+        TempSalesLine.Insert();
     end;
 
     local procedure CreateCurrency(VATRoundingType: Option): Code[10]
@@ -1014,50 +1011,8 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(Round(VATAmount, GeneralLedgerSetup."Amount Rounding Precision", RoundingType));
-    end;
-
-    local procedure UpdateGenPostingSetup(GenBusPostingGroup: Code[20]; GenProdPostingGroup: Code[20])
-    var
-        GeneralPostingSetup: Record "General Posting Setup";
-    begin
-        // NAVCZ
-        GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup."Purch. Inv. Disc. Account" := LibraryERM.CreateGLAccountNo();
-        GeneralPostingSetup.Modify();
-    end;
-
-    local procedure UpdateCustPostingGroup(CustPostingGroupCode: Code[20])
-    var
-        CustPostingGroup: Record "Customer Posting Group";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // NAVCZ
-        FindVATPostingSetup(VATPostingSetup);
-        VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
-
-        CustPostingGroup.Get(CustPostingGroupCode);
-        CustPostingGroup."Invoice Rounding Account" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2);
-        CustPostingGroup.Modify;
-        // NAVCZ
-    end;
-
-    local procedure UpdateVendPostingGroup(VendPostingGroupCode: Code[20])
-    var
-        VendPostingGroup: Record "Vendor Posting Group";
-        VATPostingSetup: Record "VAT Posting Setup";
-    begin
-        // NAVCZ
-        FindVATPostingSetup(VATPostingSetup);
-        VATPostingSetup.SetRange("VAT %", 0);
-        VATPostingSetup.FindFirst;
-
-        VendPostingGroup.Get(VendPostingGroupCode);
-        VendPostingGroup."Invoice Rounding Account" := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, 2);
-        VendPostingGroup.Modify;
-        // NAVCZ
     end;
 
     local procedure UpdateSalesLines(DocumentNo: Code[20]) TotalAmount: Decimal
@@ -1105,7 +1060,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
@@ -1122,7 +1077,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         ActualVATAmount: Decimal;
         ExpectedVATAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
         GLEntry.FindSet;
@@ -1140,7 +1095,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         VATAmountLine: Record "VAT Amount Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATAmountLine.SetRange("VAT %", VATPct);
         VATAmountLine.FindFirst;
         Assert.AreNearlyEqual(
@@ -1178,7 +1133,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempSalesLine.FindSet;
         repeat
             SalesInvoiceLine.Get(DocumentNo, TempSalesLine."Line No.");
@@ -1194,7 +1149,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempSalesLine.FindSet;
         repeat
             SalesCrMemoLine.Get(DocumentNo, TempSalesLine."Line No.");
@@ -1210,7 +1165,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempPurchaseLine.FindSet;
         repeat
             PurchInvLine.Get(DocumentNo, TempPurchaseLine."Line No.");
@@ -1226,7 +1181,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempPurchaseLine.FindSet;
         repeat
             PurchCrMemoLine.Get(DocumentNo, TempPurchaseLine."Line No.");
@@ -1242,7 +1197,7 @@ codeunit 134040 "ERM Inv Disc VAT Sale/Purch II"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindGLEntry(GLEntry, GLAccountNo, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",

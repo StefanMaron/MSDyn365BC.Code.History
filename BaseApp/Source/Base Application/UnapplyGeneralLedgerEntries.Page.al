@@ -140,7 +140,7 @@ page 11776 "Unapply General Ledger Entries"
         DtldGLEntry2.SetCurrentKey("Entry No.");
         DtldGLEntry2.SetRange("Transaction No.", DtldGLEntry."Transaction No.");
         DtldGLEntry2.SetRange("G/L Account No.", DtldGLEntry."G/L Account No.");
-        DeleteAll;
+        DeleteAll();
         if DtldGLEntry2.FindSet then
             repeat
                 Rec := DtldGLEntry2;

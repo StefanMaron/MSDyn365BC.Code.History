@@ -358,7 +358,7 @@ page 31002 "Sales Advance Letters"
     var
         SalesAdvPmtTemplate: Record "Sales Adv. Payment Template";
     begin
-        SalesAdvPmtTemplate.Reset;
+        SalesAdvPmtTemplate.Reset();
         case SalesAdvPmtTemplate.Count of
             0:
                 exit(Result);

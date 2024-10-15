@@ -294,13 +294,13 @@ report 31087 "Finance Charge Memo CZ"
                         trigger OnPreDataItem()
                         begin
                             if not PrintInterestDetail then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     }
 
                     trigger OnAfterGetRecord()
                     begin
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -314,8 +314,8 @@ report 31087 "Finance Charge Memo CZ"
 
                     trigger OnPreDataItem()
                     begin
-                        TempVATAmountLine.Reset;
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.Reset();
+                        TempVATAmountLine.DeleteAll();
                     end;
                 }
                 dataitem(VATCounter; "Integer")

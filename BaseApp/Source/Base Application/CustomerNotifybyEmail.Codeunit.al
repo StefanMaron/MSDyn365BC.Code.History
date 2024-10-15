@@ -22,7 +22,7 @@ codeunit 5915 "Customer-Notify by Email"
         if ServHeader."Notify Customer" <> ServHeader."Notify Customer"::"By Email" then
             exit;
 
-        ServEmailQueue.Init;
+        ServEmailQueue.Init();
         if ServHeader."Ship-to Code" <> '' then
             ServEmailQueue."To Address" := ServHeader."Ship-to E-Mail";
         if ServEmailQueue."To Address" = '' then

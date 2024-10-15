@@ -159,8 +159,8 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
 
         SourceRecordRef.Open(DATABASE::"CRM Contact");
         DestinationRecordRef.Open(DATABASE::Contact);
-        CRMContact.Init;
-        Contact.Init;
+        CRMContact.Init();
+        Contact.Init();
 
         // [GIVEN] A Source CRMContact with Owner set
         // [GIVEN] CRM OwnerId is coupled to CoupledSalesPerson
@@ -226,7 +226,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         // [GIVEN] A new Contact record
         // [WHEN] Executing before insert step
         // [THEN] Error: 'Contact missing Company'.
-        Contact.Init;
+        Contact.Init();
 
         DestinationRecordRef.GetTable(Contact);
 
@@ -239,11 +239,11 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         // [WHEN] Executing before insert step
         // [THEN] Contact, where "Company No." is not blank.
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
-        CRMContact.Init;
+        CRMContact.Init();
         CRMContact.ParentCustomerId := CRMAccount.AccountId;
         SourceRecordRef.GetTable(CRMContact);
 
-        Contact.Init;
+        Contact.Init();
         DestinationRecordRef.GetTable(Contact);
         CRMIntTableSubscriber.OnBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
 
@@ -269,7 +269,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         // [GIVEN] A new SalesPerson record
         // [WHEN] Executing before insert step
         // [THEN] The code field should be set and be unique
-        SalespersonPurchaser.Init;
+        SalespersonPurchaser.Init();
         DestinationRecordRef.GetTable(SalespersonPurchaser);
         SkipItem := false;
         CRMIntTableSubscriber.OnBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
@@ -277,9 +277,9 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         DestinationRecordRef.SetTable(SalespersonPurchaser);
         Assert.IsFalse(SkipItem, 'Did not expect the ShipItem flag to be set');
         Assert.AreNotEqual('', SalespersonPurchaser.Code, 'Expected the code field to be set');
-        SalespersonPurchaser.Insert;
+        SalespersonPurchaser.Insert();
 
-        SecondSalespersonPurchaser.Init;
+        SecondSalespersonPurchaser.Init();
         DestinationRecordRef.GetTable(SecondSalespersonPurchaser);
         SkipItem := false;
         CRMIntTableSubscriber.OnBeforeInsertRecord(SourceRecordRef, DestinationRecordRef);
@@ -332,10 +332,10 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
         AdditionalFieldsWereModified := false;
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
         Customer."Salesperson Code" := SalespersonPurchaser.Code;
-        Customer.Modify;
+        Customer.Modify();
         CRMAccount.OwnerId := CRMSystemuser.SystemUserId;
         CRMAccount.TransactionCurrencyId := DefaultCRMTransactionCurrencyId;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         SourceRecordRef.GetTable(Customer);
         DestinationRecordRef.GetTable(CRMAccount);
@@ -347,7 +347,7 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
 
         LibraryCRMIntegration.CreateCoupledSalespersonAndSystemUser(NewSalespersonPurchaser, NewCRMSystemuser);
         Customer."Salesperson Code" := NewSalespersonPurchaser.Code;
-        Customer.Modify;
+        Customer.Modify();
         SourceRecordRef.GetTable(Customer);
 
         Assert.AreNotEqual(Format(NewCRMSystemuser.SystemUserId),
@@ -540,9 +540,15 @@ codeunit 139168 "CRM Int. Tbl. Map Helper Tests"
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 }

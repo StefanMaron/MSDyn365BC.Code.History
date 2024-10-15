@@ -99,7 +99,7 @@ table 86 "Exch. Rate Adjmt. Reg."
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GLSetup."Additional Reporting Currency");
     end;
 }

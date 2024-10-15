@@ -417,8 +417,8 @@ table 31066 "VIES Declaration Header"
                 TestField(Status, Status::Open);
 
                 if "Taxpayer Type" <> xRec."Taxpayer Type" then begin
-                    CompanyInfo.Get;
-                    StatReportingSetup.Get;
+                    CompanyInfo.Get();
+                    StatReportingSetup.Get();
 
                     case "Taxpayer Type" of
                         "Taxpayer Type"::Individual:
@@ -492,9 +492,9 @@ table 31066 "VIES Declaration Header"
     begin
         TestField(Status, Status::Open);
 
-        VIESDeclarationLine.Reset;
+        VIESDeclarationLine.Reset();
         VIESDeclarationLine.SetRange("VIES Declaration No.", "No.");
-        VIESDeclarationLine.DeleteAll;
+        VIESDeclarationLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -527,8 +527,8 @@ table 31066 "VIES Declaration Header"
         StatReportingSetup: Record "Stat. Reporting Setup";
         Country: Record "Country/Region";
     begin
-        CompanyInfo.Get;
-        StatReportingSetup.Get;
+        CompanyInfo.Get();
+        StatReportingSetup.Get();
         "VAT Registration No." := CompanyInfo."VAT Registration No.";
         "Document Date" := WorkDate;
         Name := StatReportingSetup."Company Trade Name";
@@ -566,7 +566,7 @@ table 31066 "VIES Declaration Header"
     var
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("VIES Declaration Nos.");
         exit(StatReportingSetup."VIES Declaration Nos.");
     end;
@@ -612,7 +612,7 @@ table 31066 "VIES Declaration Header"
             Error(Text002Err, FieldCaption("Start Date"), FieldCaption("End Date"));
 
         if "Corrected Declaration No." = '' then begin
-            VIESDeclarationHeader.Reset;
+            VIESDeclarationHeader.Reset();
             VIESDeclarationHeader.SetCurrentKey("Start Date", "End Date");
             VIESDeclarationHeader.SetRange("Start Date", "Start Date");
             VIESDeclarationHeader.SetRange("End Date", "End Date");
@@ -632,7 +632,7 @@ table 31066 "VIES Declaration Header"
     var
         VIESDeclarationLine: Record "VIES Declaration Line";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VIESDeclarationLine."VAT Registration No." := "VAT Registration No.";
         VIESDeclarationLine."Country/Region Code" := CompanyInfo."Country/Region Code";
         exit(VIESDeclarationLine.GetVATRegNo);
@@ -657,7 +657,7 @@ table 31066 "VIES Declaration Header"
         VIESDeclarationReportNo: Integer;
     begin
         TestField(Status, Status::Released);
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("VIES Declaration Report No.");
         VIESDeclarationReportNo := StatReportingSetup."VIES Declaration Report No.";
         if "Perform. Country/Region Code" <> '' then begin
@@ -682,7 +682,7 @@ table 31066 "VIES Declaration Header"
         TestField(Status, Status::Released);
         if "Declaration Type" = "Declaration Type"::"Corrective-Supplementary" then
             FieldError("Declaration Type");
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("VIES Decl. Exp. Obj. No.");
         VIESDeclExpObjType := StatReportingSetup."VIES Decl. Exp. Obj. Type";
         VIESDeclExpObjNo := StatReportingSetup."VIES Decl. Exp. Obj. No.";
@@ -704,7 +704,7 @@ table 31066 "VIES Declaration Header"
     var
         VIESDeclarationLine: Record "VIES Declaration Line";
     begin
-        VIESDeclarationLine.Reset;
+        VIESDeclarationLine.Reset();
         VIESDeclarationLine.SetRange("VIES Declaration No.", "No.");
         exit(VIESDeclarationLine.FindFirst);
     end;

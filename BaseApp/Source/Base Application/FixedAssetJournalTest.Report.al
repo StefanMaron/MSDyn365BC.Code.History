@@ -166,7 +166,7 @@ report 5602 "Fixed Asset Journal - Test"
                                             AllowPostingTo := UserSetup."Allow FA Posting To";
                                         end;
                                     if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                                        FASetup.Get;
+                                        FASetup.Get();
                                         AllowPostingFrom := FASetup."Allow FA Posting From";
                                         AllowPostingTo := FASetup."Allow FA Posting To";
                                     end;
@@ -198,7 +198,7 @@ report 5602 "Fixed Asset Journal - Test"
                                 AddError(
                                   StrSubstNo(
                                     Text005, FA.TableCaption, "FA No."));
-                                FA.Init;
+                                FA.Init();
                             end;
                             if FA.Blocked then
                                 AddError(
@@ -217,13 +217,13 @@ report 5602 "Fixed Asset Journal - Test"
                                     Text005,
                                     DeprBook.TableCaption,
                                     "Depreciation Book Code"));
-                                DeprBook.Init;
+                                DeprBook.Init();
                             end;
                             if not FADeprBook.Get("FA No.", "Depreciation Book Code") then begin
                                 AddError(
                                   StrSubstNo(
                                     Text007, FADeprBook.TableCaption, "FA No.", "Depreciation Book Code"));
-                                FADeprBook.Init;
+                                FADeprBook.Init();
                             end;
                             if not FA."Budgeted Asset" then
                                 CheckFAIntegration;
@@ -457,7 +457,7 @@ report 5602 "Fixed Asset Journal - Test"
                     Format(FieldCaption("Budgeted FA No.")), Format(FieldCaption("FA No.")),
                     Format(FA.FieldCaption("Budgeted Asset"))));
 
-            FASetup.Get;
+            FASetup.Get();
             if ("FA Posting Type" = "FA Posting Type"::"Acquisition Cost") and
                ("Insurance No." <> '') and (DeprBook.Code <> FASetup."Insurance Depr. Book")
             then

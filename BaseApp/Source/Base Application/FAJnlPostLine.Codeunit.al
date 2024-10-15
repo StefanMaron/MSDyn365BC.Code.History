@@ -33,7 +33,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         FANo: Code[20];
         BudgetNo: Code[20];
         DeprBookCode: Code[10];
-        FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         FAPostingDate: Date;
         Amount2: Decimal;
         SalvageValue: Decimal;
@@ -76,7 +76,7 @@ codeunit 5632 "FA Jnl.-Post Line"
         end;
 
         // NAVCZ
-        FASetup.Get;
+        FASetup.Get();
         if FASetup."Fixed Asset History" and
            (FAJnlLine."FA Posting Type" = FAJnlLine."FA Posting Type"::Disposal) and
            (FASetup."Default Depr. Book" = FAJnlLine."Depreciation Book Code")
@@ -144,7 +144,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure PostFixedAsset()
     begin
-        FA.LockTable;
+        FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
         FA.TestField(Blocked, false);
@@ -179,7 +179,7 @@ codeunit 5632 "FA Jnl.-Post Line"
 
     local procedure PostMaintenance()
     begin
-        FA.LockTable;
+        FA.LockTable();
         DeprBook.Get(DeprBookCode);
         FA.Get(FANo);
         FADeprBook.Get(FANo, DeprBookCode);
@@ -554,7 +554,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                 "FA Posting Type"::"Book Value on Disposal":
                     begin
                         // NAVCZ
-                        FASetup.Get;
+                        FASetup.Get();
                         if FASetup."FA Disposal By Reason Code" then begin
                             FAExtPostingGr.Get("FA Posting Group", 1, "Reason Code");
                             FAExtPostingGr.CalcFields("Allocated Book Value % (Gain)", "Allocated Book Value % (Loss)");
@@ -652,7 +652,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     begin
         if FAReg.FindLast then begin
             FAReg."G/L Register No." := GLRegNo;
-            FAReg.Modify;
+            FAReg.Modify();
         end;
     end;
 
@@ -675,7 +675,7 @@ codeunit 5632 "FA Jnl.-Post Line"
                     FA."Responsible Employee" := '';
                 end;
         end;
-        FA.Modify;
+        FA.Modify();
         FAHistoryEntry.InsertEntry(FAHType, FANo, OldValue, '', 0, true);
     end;
 
@@ -683,7 +683,7 @@ codeunit 5632 "FA Jnl.-Post Line"
     procedure UpdateFAHistoryEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20])
     begin
         // NAVCZ
-        FAHistoryEntry.Reset;
+        FAHistoryEntry.Reset();
         FAHistoryEntry.SetRange(Disposal, true);
         FAHistoryEntry.SetRange("FA No.", FANo);
         FAHistoryEntry.SetRange("Closed by Entry No.", 0);
@@ -700,8 +700,8 @@ codeunit 5632 "FA Jnl.-Post Line"
                     FA."Responsible Employee" := FAHistoryEntry."Old Value";
             end;
             FAHistoryEntry."Closed by Entry No." := FAHistoryEntry.InsertEntry(FAHType, FANo, '', FAHistoryEntry."Old Value", 0, false);
-            FAHistoryEntry.Modify;
-            FA.Modify;
+            FAHistoryEntry.Modify();
+            FA.Modify();
         end;
     end;
 

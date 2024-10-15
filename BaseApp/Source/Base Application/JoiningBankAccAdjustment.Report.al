@@ -49,9 +49,9 @@ report 11773 "Joining Bank. Acc. Adjustment"
                         TBuffer."Posting Date" := "Posting Date";
                     if Descr and (TBuffer.Description = '') and (Description <> '') then
                         TBuffer.Description := Description;
-                    TBuffer.Modify;
+                    TBuffer.Modify();
                 end else begin
-                    TBuffer.Init;
+                    TBuffer.Init();
                     TBuffer."Document No." := lcoDocNo;
                     TBuffer.Amount := "Bank Account Ledger Entry".Amount;
                     TBuffer."Debit Amount" := "Debit Amount";
@@ -63,7 +63,7 @@ report 11773 "Joining Bank. Acc. Adjustment"
                     if Descr then
                         TBuffer.Description := Description;
                     TBuffer.Valid := true;
-                    TBuffer.Insert;
+                    TBuffer.Insert();
                 end;
 
                 if TCurrBuffer.Get("Currency Code") then begin
@@ -72,7 +72,7 @@ report 11773 "Joining Bank. Acc. Adjustment"
                     TCurrBuffer."Total Credit Amount" += "Credit Amount";
                     TCurrBuffer."Total Debit Amount" += "Debit Amount";
                     TCurrBuffer.Counter += 1;
-                    TCurrBuffer.Modify;
+                    TCurrBuffer.Modify();
                 end else begin
                     TCurrBuffer."Currency Code" := "Currency Code";
                     TCurrBuffer."Total Amount" := Amount;
@@ -80,7 +80,7 @@ report 11773 "Joining Bank. Acc. Adjustment"
                     TCurrBuffer."Total Credit Amount" := "Credit Amount";
                     TCurrBuffer."Total Debit Amount" := "Debit Amount";
                     TCurrBuffer.Counter := 1;
-                    TCurrBuffer.Insert;
+                    TCurrBuffer.Insert();
                 end;
             end;
 
@@ -229,7 +229,7 @@ report 11773 "Joining Bank. Acc. Adjustment"
                 trigger OnPreDataItem()
                 begin
                     if not Detail then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CopyFilters("Bank Account Ledger Entry");
                     if DocumentType = 0 then begin
@@ -244,10 +244,10 @@ report 11773 "Joining Bank. Acc. Adjustment"
             begin
                 if Number <> 1 then
                     if TBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 if TBuffer."Amount (LCY)" = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

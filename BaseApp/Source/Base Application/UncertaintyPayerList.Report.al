@@ -83,7 +83,7 @@ report 11762 "Uncertainty Payer List"
                         Clear(UncPayEntry2);
 
                     if OnlyErrors and PublicBankAccount then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     RecCount += 1;
                 end;
@@ -91,9 +91,9 @@ report 11762 "Uncertainty Payer List"
                 trigger OnPreDataItem()
                 begin
                     if not PrintVendBankAcc then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    UncPayEntry2.Reset;
+                    UncPayEntry2.Reset();
                     UncPayEntry2.SetCurrentKey("VAT Registration No.");
                     UncPayEntry2.SetRange("Entry Type", UncPayEntry2."Entry Type"::"Bank Account");
                 end;
@@ -102,7 +102,7 @@ report 11762 "Uncertainty Payer List"
             trigger OnAfterGetRecord()
             begin
                 if "Privacy Blocked" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 case Blocked of
                     Blocked::" ":
@@ -110,7 +110,7 @@ report 11762 "Uncertainty Payer List"
                     Blocked::Payment:
                         ;
                     Blocked::All:
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 Clear(RecCount);
@@ -118,7 +118,7 @@ report 11762 "Uncertainty Payer List"
 
                 if "VAT Registration No." <> '' then begin
                     if not UncPayMgmt.IsVATRegNoExportPossible("VAT Registration No.", "Country/Region Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end else
                     WarningText := Text004;
 
@@ -151,7 +151,7 @@ report 11762 "Uncertainty Payer List"
                 end;
 
                 if OnlyErrors and (WarningText = '') then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

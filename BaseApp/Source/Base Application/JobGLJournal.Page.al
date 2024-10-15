@@ -1,4 +1,4 @@
-﻿page 1020 "Job G/L Journal"
+page 1020 "Job G/L Journal"
 {
     AdditionalSearchTerms = 'project general ledger posting';
     ApplicationArea = Jobs;
@@ -813,7 +813,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -878,7 +879,7 @@
     begin
         PreviewGuid := CreateGuid;
 
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -918,7 +919,7 @@
         AmountVisible: Boolean;
         DebitCreditVisible: Boolean;
         PreviewGuid: Guid;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
         DimVisible1: Boolean;
@@ -948,7 +949,7 @@
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         AmountVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Debit/Credit Only");
         DebitCreditVisible := not (GLSetup."Show Amounts" = GLSetup."Show Amounts"::"Amount Only");
     end;

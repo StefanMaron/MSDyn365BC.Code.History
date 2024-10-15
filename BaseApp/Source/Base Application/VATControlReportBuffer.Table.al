@@ -89,13 +89,11 @@ table 31103 "VAT Control Report Buffer"
             Editable = false;
             TableRelation = "VAT Product Posting Group";
         }
-        field(35; "VAT Calculation Type"; Option)
+        field(35; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             DataClassification = SystemMetadata;
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(40; "VAT Rate"; Option)
         {

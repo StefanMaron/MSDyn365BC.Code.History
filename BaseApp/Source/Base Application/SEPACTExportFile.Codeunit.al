@@ -9,7 +9,7 @@ codeunit 1220 "SEPA CT-Export File"
         BankExportImportSetup: Record "Bank Export/Import Setup";
         ExpUserFeedbackGenJnl: Codeunit "Exp. User Feedback Gen. Jnl.";
     begin
-        LockTable;
+        LockTable();
         BankAccount.Get("Bal. Account No.");
         // NAVCZ
         BankAccount.GetBankExportImportSetup(BankExportImportSetup);
@@ -59,7 +59,7 @@ codeunit 1220 "SEPA CT-Export File"
         RecordRef.GetTable(CreditTransferRegister);
         TempBlob.ToRecordRef(RecordRef, CreditTransferRegister.FieldNo("Exported File"));
         RecordRef.SetTable(CreditTransferRegister);
-        CreditTransferRegister.Modify;
+        CreditTransferRegister.Modify();
     end;
 
     procedure EnableExportToServerFile()

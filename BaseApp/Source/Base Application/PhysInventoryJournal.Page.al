@@ -1,4 +1,4 @@
-﻿page 392 "Phys. Inventory Journal"
+page 392 "Phys. Inventory Journal"
 {
     AdditionalSearchTerms = 'physical count journal,inventory cycle journal';
     ApplicationArea = Basic, Suite;
@@ -590,7 +590,7 @@
                         ItemJnlLine."Line No." := NewLineNo;
                         ItemJnlLine.Validate("Qty. (Calculated)", 0);
                         ItemJnlLine.Validate("Qty. (Phys. Inventory)", 0);
-                        ItemJnlLine.Insert;
+                        ItemJnlLine.Insert();
                         // NAVCZ
                     end;
                 }
@@ -687,7 +687,7 @@
     var
         ReserveItemJnlLine: Codeunit "Item Jnl. Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveItemJnlLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveItemJnlLine.DeleteLine(Rec);

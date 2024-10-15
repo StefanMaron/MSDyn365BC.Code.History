@@ -216,7 +216,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, ReversalSetup(DocumentType, BlockedType, Amount));
         Vendor.Get(VendorLedgerEntry."Vendor No.");
         Vendor.Validate("Privacy Blocked", true);
-        Vendor.Modify;
+        Vendor.Modify();
 
         // Exercise: Reverse Invoice entries for Blocked Vendor.
         ReversalEntry.SetHideDialog(true);
@@ -318,7 +318,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -370,7 +370,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
           GenJournalLine."Account No.", GenJournalLine.Amount);
 
         // Date Compress Vendor Ledger Batch Report as per the option selected and Reverse and Verify the Transaction.
-        asserterror DateCompressAndReverse(GenJournalLine); // NAVCZ
+        DateCompressAndReverse(GenJournalLine);
     end;
 
     [Test]
@@ -407,7 +407,7 @@ codeunit 134128 "ERM Vendor Reversal Message"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostApplnEntry() DocumentNo: Code[20]
@@ -581,14 +581,6 @@ codeunit 134128 "ERM Vendor Reversal Message"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

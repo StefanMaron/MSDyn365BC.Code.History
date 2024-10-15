@@ -4,12 +4,10 @@ table 7602 "Customized Calendar Change"
 
     fields
     {
-        field(1; "Source Type"; Option)
+        field(1; "Source Type"; Enum "Calendar Source Type")
         {
             Caption = 'Source Type';
             Editable = false;
-            OptionCaption = 'Company,Customer,Vendor,Location,Shipping Agent,Service,Bank';
-            OptionMembers = Company,Customer,Vendor,Location,"Shipping Agent",Service,Bank;
         }
         field(2; "Source Code"; Code[20])
         {

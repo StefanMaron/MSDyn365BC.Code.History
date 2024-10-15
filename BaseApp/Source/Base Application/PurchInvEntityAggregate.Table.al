@@ -4,12 +4,10 @@ table 5477 "Purch. Inv. Entity Aggregate"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Purchase Document Type")
         {
             Caption = 'Document Type';
             DataClassification = CustomerContent;
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Buy-from Vendor No."; Code[20])
         {

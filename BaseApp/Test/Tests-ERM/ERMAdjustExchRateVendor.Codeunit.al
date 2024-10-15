@@ -17,7 +17,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateWithHigherValue()
     var
@@ -30,7 +30,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateWithLowerValue()
     var
@@ -64,7 +64,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceGainsLosses()
     var
@@ -105,7 +105,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForVendorTwiceLossesGains()
     var
@@ -156,7 +156,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -188,7 +188,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Currency Code", CreateCurrency);
-        Vendor.Modify;
+        Vendor.Modify();
         exit(Vendor."No.");
     end;
 
@@ -199,10 +199,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         Currency.SetRange(Code, CurrencyCode);
         AdjustExchangeRates.SetTableView(Currency);
-        // NAVCZ
-        AdjustExchangeRates.InitializeRequest2CZ(
-          0D, WorkDate, 'Test', WorkDate, DocumentNo, true, true, true, false, false, true);
-        // NAVCZ
+        AdjustExchangeRates.InitializeRequest2(0D, WorkDate, 'Test', WorkDate, DocumentNo, true, false);
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -262,14 +259,6 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

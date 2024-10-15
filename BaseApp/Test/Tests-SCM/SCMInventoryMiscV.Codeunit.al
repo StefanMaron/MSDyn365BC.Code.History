@@ -32,7 +32,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         PickWorkSheetQtyError: Label '%1 in Pick Worksheet line did not match quantity in Prod. Order for Component %2.';
 
     [Test]
-    [HandlerFunctions('PickSelectionPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PickSelectionPageHandler')]
     [Scope('OnPrem')]
     procedure PickReqAvailableAfterPostConsumpJnl()
     var
@@ -88,11 +88,11 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // Setup: Update Inventory Setup and Sales Receivable Setup.
         Initialize;
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryInventory.UpdateInventorySetup(
           InventorySetup, true, InventorySetup."Expected Cost Posting to G/L", InventorySetup."Automatic Cost Adjustment",
           InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period"::Month);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivableSetup(true);
 
         // Create and post Purchase Order, create and post Sales Order.
@@ -335,7 +335,7 @@ codeunit 137297 "SCM Inventory Misc. V"
               ItemChargeAssignmentPurch[i]."Applies-to Doc. Type"::Invoice,
               PurchaseLine[i]."Document No.", PurchaseLine[i]."Line No.", PurchaseLine[i]."No.",
               0.5, LibraryRandom.RandInt(1000));
-            ItemChargeAssignmentPurch[i].Insert;
+            ItemChargeAssignmentPurch[i].Insert();
         end;
 
         // [WHEN] Post "P"
@@ -529,7 +529,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
         PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
         CODEUNIT.Run(CODEUNIT::"Undo Purchase Receipt Line", PurchRcptLine);
-        Commit;
+        Commit();
 
         // [WHEN] Post purchase order as receipt
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -553,7 +553,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Misc. V");
     end;
 
@@ -944,24 +944,14 @@ codeunit 137297 "SCM Inventory Misc. V"
     begin
         RefInventoryPostingSetup.SetFilter("Inventory Account", '<>%1', '');
         RefInventoryPostingSetup.SetFilter("WIP Account", '<>%1', '');
-        // NAVCZ
-        RefInventoryPostingSetup.SetFilter("Consumption Account", '<>%1', '');
-        RefInventoryPostingSetup.SetFilter("Change In Inv.Of WIP Acc.", '<>%1', '');
-        RefInventoryPostingSetup.SetFilter("Change In Inv.Of Product Acc.", '<>%1', '');
-        // NAVCZ
         RefInventoryPostingSetup.FindFirst;
-        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Location Code", LocationCode);
         InventoryPostingSetup.Validate("Invt. Posting Group Code", InventoryPostingGroupCode);
         if not InventoryPostingSetup.Insert(true) then;
         InventoryPostingSetup."Inventory Account" := RefInventoryPostingSetup."Inventory Account";
         InventoryPostingSetup."WIP Account" := RefInventoryPostingSetup."WIP Account";
-        // NAVCZ
-        InventoryPostingSetup.Validate("Consumption Account", RefInventoryPostingSetup."Consumption Account");
-        InventoryPostingSetup.Validate("Change In Inv.Of WIP Acc.", RefInventoryPostingSetup."Change In Inv.Of WIP Acc.");
-        InventoryPostingSetup.Validate("Change In Inv.Of Product Acc.", RefInventoryPostingSetup."Change In Inv.Of Product Acc.");
-        // NAVCZ
-        InventoryPostingSetup.Modify;
+        InventoryPostingSetup.Modify();
     end;
 
     local procedure UpdateUOMInProdOrderLine(ProductionOrder: Record "Production Order"; ItemUnitOfMeasureCode: Code[10])
@@ -1125,7 +1115,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
     end;

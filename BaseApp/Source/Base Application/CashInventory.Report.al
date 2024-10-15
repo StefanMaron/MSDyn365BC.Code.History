@@ -438,7 +438,7 @@ report 11740 "Cash Inventory"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

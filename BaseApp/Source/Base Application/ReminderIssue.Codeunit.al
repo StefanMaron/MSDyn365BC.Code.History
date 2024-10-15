@@ -47,7 +47,7 @@ codeunit 393 "Reminder-Issue"
             CalcFields("Interest Amount", "Additional Fee", "Remaining Amount", "Add. Fee per Line");
             if ("Interest Amount" = 0) and ("Additional Fee" = 0) and ("Add. Fee per Line" = 0) and ("Remaining Amount" = 0) then
                 Error(Text000);
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField(Reminder);
             SrcCode := SourceCodeSetup.Reminder;
 
@@ -55,7 +55,7 @@ codeunit 393 "Reminder-Issue"
                 TestField("Issuing No. Series");
                 "Issuing No." := NoSeriesMgt.GetNextNo("Issuing No. Series", "Posting Date", true);
                 Modify;
-                Commit;
+                Commit();
             end;
             if "Issuing No." <> '' then
                 DocNo := "Issuing No."
@@ -74,7 +74,7 @@ codeunit 393 "Reminder-Issue"
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
             end;
             // NAVCZ
             if ("Variable Symbol" = '') and (not BankAccount.IsEmpty) then
@@ -85,7 +85,7 @@ codeunit 393 "Reminder-Issue"
                 InitGenJnlLine(GenJnlLine."Account Type"::Customer, "Customer No.", true);
                 GenJnlLine.Validate(Amount, TotalAmount);
                 GenJnlLine.Validate("Amount (LCY)", TotalAmountLCY);
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
             end;
 
             Clear(GenJnlPostLine);
@@ -98,7 +98,7 @@ codeunit 393 "Reminder-Issue"
                     GenJnlPostLine.Run(GenJnlLine2);
                 until GenJnlLine.Next = 0;
 
-            GenJnlLine.DeleteAll;
+            GenJnlLine.DeleteAll();
 
             if (ReminderInterestAmount <> 0) and "Post Interest" then begin
                 TestField("Fin. Charge Terms Code");
@@ -119,11 +119,8 @@ codeunit 393 "Reminder-Issue"
             InsertIssuedReminderHeader(ReminderHeader, IssuedReminderHeader);
 
             if NextEntryNo = 0 then begin
-                ReminderFinChargeEntry.LockTable;
-                if ReminderFinChargeEntry.FindLast then
-                    NextEntryNo := ReminderFinChargeEntry."Entry No." + 1
-                else
-                    NextEntryNo := 1;
+                ReminderFinChargeEntry.LockTable();
+                NextEntryNo := ReminderFinChargeEntry.GetLastEntryNo() + 1;
             end;
 
             ReminderCommentLine.CopyComments(
@@ -145,18 +142,18 @@ codeunit 393 "Reminder-Issue"
                     DtldReminderLine.SetRange("Reminder Line No.", ReminderLine."Line No.");
                     if DtldReminderLine.Find('-') then
                         repeat
-                            DtldIssuedReminderLine.Init;
+                            DtldIssuedReminderLine.Init();
                             DtldIssuedReminderLine.TransferFields(DtldReminderLine);
                             DtldIssuedReminderLine."Issued Reminder No." := IssuedReminderHeader."No.";
-                            DtldIssuedReminderLine.Insert;
+                            DtldIssuedReminderLine.Insert();
                         until DtldReminderLine.Next = 0;
                     // NAVCZ
                 until ReminderLine.Next = 0;
             // NAVCZ
             DtldReminderLine2.SetRange("Reminder No.", ReminderLine."Reminder No.");
-            DtldReminderLine2.DeleteAll;
+            DtldReminderLine2.DeleteAll();
             // NAVCZ
-            ReminderLine.DeleteAll;
+            ReminderLine.DeleteAll();
             Delete;
         end;
 
@@ -215,7 +212,7 @@ codeunit 393 "Reminder-Issue"
     local procedure InitGenJnlLine(AccType: Integer; AccNo: Code[20]; SystemCreatedEntry: Boolean)
     begin
         with ReminderHeader do begin
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Line No." := GenJnlLine."Line No." + 1;
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::Reminder;
             GenJnlLine."Document No." := DocNo;
@@ -268,10 +265,10 @@ codeunit 393 "Reminder-Issue"
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
         IssuedReminderLine.SetRange("Reminder No.", IssuedReminderHeader."No.");
-        IssuedReminderLine.DeleteAll;
+        IssuedReminderLine.DeleteAll();
         // NAVCZ
         DtldIssuedReminderLine.SetRange("Issued Reminder No.", IssuedReminderHeader."No.");
-        DtldIssuedReminderLine.DeleteAll;
+        DtldIssuedReminderLine.DeleteAll();
         // NAVCZ
     end;
 
@@ -281,7 +278,7 @@ codeunit 393 "Reminder-Issue"
             Find;
             "No. Printed" := "No. Printed" + 1;
             Modify;
-            Commit;
+            Commit();
         end;
     end;
 
@@ -289,7 +286,7 @@ codeunit 393 "Reminder-Issue"
     begin
         with ReminderHeader do begin
             Clear(IssuedReminderHeader);
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Deleted Document");
             SourceCode.Get(SourceCodeSetup."Deleted Document");
 
@@ -316,12 +313,12 @@ codeunit 393 "Reminder-Issue"
             if IssuedReminderHeader."No." <> '' then begin
                 IssuedReminderHeader."Shortcut Dimension 1 Code" := '';
                 IssuedReminderHeader."Shortcut Dimension 2 Code" := '';
-                IssuedReminderHeader.Insert;
-                IssuedReminderLine.Init;
+                IssuedReminderHeader.Insert();
+                IssuedReminderLine.Init();
                 IssuedReminderLine."Reminder No." := "No.";
                 IssuedReminderLine."Line No." := 10000;
                 IssuedReminderLine.Description := SourceCode.Description;
-                IssuedReminderLine.Insert;
+                IssuedReminderLine.Insert();
             end;
         end;
     end;
@@ -329,30 +326,30 @@ codeunit 393 "Reminder-Issue"
     procedure ChangeDueDate(var ReminderEntry2: Record "Reminder/Fin. Charge Entry"; NewDueDate: Date; OldDueDate: Date)
     begin
         ReminderEntry2."Due Date" := ReminderEntry2."Due Date" + (NewDueDate - OldDueDate);
-        ReminderEntry2.Modify;
+        ReminderEntry2.Modify();
     end;
 
     local procedure InsertIssuedReminderHeader(ReminderHeader: Record "Reminder Header"; var IssuedReminderHeader: Record "Issued Reminder Header")
     begin
-        IssuedReminderHeader.Init;
+        IssuedReminderHeader.Init();
         IssuedReminderHeader.TransferFields(ReminderHeader);
         IssuedReminderHeader."No." := DocNo;
         IssuedReminderHeader."Pre-Assigned No." := ReminderHeader."No.";
         IssuedReminderHeader."Source Code" := SrcCode;
         IssuedReminderHeader."User ID" := UserId;
         OnBeforeIssuedReminderHeaderInsert(IssuedReminderHeader, ReminderHeader);
-        IssuedReminderHeader.Insert;
+        IssuedReminderHeader.Insert();
     end;
 
     local procedure InsertIssuedReminderLine(ReminderLine: Record "Reminder Line"; IssuedReminderNo: Code[20])
     var
         IssuedReminderLine: Record "Issued Reminder Line";
     begin
-        IssuedReminderLine.Init;
+        IssuedReminderLine.Init();
         IssuedReminderLine.TransferFields(ReminderLine);
         IssuedReminderLine."Reminder No." := IssuedReminderNo;
         OnBeforeIssuedReminderLineInsert(IssuedReminderLine, ReminderLine);
-        IssuedReminderLine.Insert;
+        IssuedReminderLine.Insert();
     end;
 
     local procedure InsertGenJnlLineForFee(var ReminderLine: Record "Reminder Line")
@@ -380,7 +377,7 @@ codeunit 393 "Reminder-Issue"
                 TotalAmount := TotalAmount - GenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - GenJnlLine."Balance (LCY)";
                 GenJnlLine."Bill-to/Pay-to No." := "Customer No.";
-                GenJnlLine.Insert;
+                GenJnlLine.Insert();
             end;
     end;
 
@@ -491,10 +488,10 @@ codeunit 393 "Reminder-Issue"
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgEntry.LockTable;
+        CustLedgEntry.LockTable();
         CustLedgEntry.Get(ReminderFinChargeEntry."Customer Entry No.");
         CustLedgEntry."Last Issued Reminder Level" := ReminderFinChargeEntry."Reminder Level";
-        CustLedgEntry.Modify;
+        CustLedgEntry.Modify();
     end;
 
     local procedure UpdateCustLedgEntriesCalculateInterest(EntryNo: Integer; CurrencyCode: Code[10])
@@ -507,7 +504,7 @@ codeunit 393 "Reminder-Issue"
         CustLedgerEntry.CalcFields("Remaining Amount");
         if CustLedgerEntry."Remaining Amount" = 0 then begin
             CustLedgerEntry."Calculate Interest" := false;
-            CustLedgerEntry.Modify;
+            CustLedgerEntry.Modify();
         end;
         CustLedgerEntry2.SetCurrentKey("Closed by Entry No.");
         CustLedgerEntry2.SetRange("Closed by Entry No.", EntryNo);

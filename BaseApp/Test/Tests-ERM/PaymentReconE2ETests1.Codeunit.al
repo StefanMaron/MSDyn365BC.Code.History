@@ -179,7 +179,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         BankAccRecon.SetRange("Statement Type", BankAccRecon."Statement Type"::"Payment Application");
-        BankAccRecon.DeleteAll;
+        BankAccRecon.DeleteAll();
 
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAccount, '');
@@ -201,7 +201,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     begin
         LibraryLowerPermissions.SetOutsideO365Scope;
         BankAccRecon.SetRange("Statement Type", BankAccRecon."Statement Type"::"Payment Application");
-        BankAccRecon.DeleteAll;
+        BankAccRecon.DeleteAll();
 
         BankStmtFormat := 'SEPA CAMT';
         CreateBankAcc(BankStmtFormat, BankAccount, '');
@@ -665,7 +665,6 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     procedure TestOneFCYSaleOneFCYPmtWithLateDueDatePmtDisc()
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
-        BankAccReconLine: Record "Bank Acc. Reconciliation Line";
         BankAccRecon: Record "Bank Acc. Reconciliation";
         TempBlobUTF8: Codeunit "Temp Blob";
         PmtReconJnl: TestPage "Payment Reconciliation Journal";
@@ -681,19 +680,10 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, CustLedgEntry."Currency Code");
-        // NAVCZ
-        BankAccReconLine.FilterBankRecLines(BankAccRecon);
-        if BankAccReconLine.FindSet then
-            repeat
-                BankAccReconLine.Validate("Currency Code", CustLedgEntry."Currency Code");
-                BankAccReconLine.Modify;
-            until BankAccReconLine.Next = 0;
-        // NAVCZ
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
         HandlePmtDiscDate(CustLedgEntry, PmtReconJnl);
         VerifyPrePost(BankAccRecon, PmtReconJnl);
-        BankAccRecon.CalcFields("Total Transaction Amount"); // NAVCZ
         PmtReconJnl.Post.Invoke;
 
         // Verify that all customers | gls | banks go to zero
@@ -847,7 +837,6 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
     procedure TestMappedGLAccountPayment()
     var
         BankAccRecon: Record "Bank Acc. Reconciliation";
-        BankAccount: Record "Bank Account";
         TextToAccountMapping: Record "Text-to-Account Mapping";
         GLAccount: Record "G/L Account";
         TempBlobUTF8: Codeunit "Temp Blob";
@@ -864,16 +853,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         WriteCAMTHeader(OutStream, '', 'TEST');
         WriteCAMTStmtLine(OutStream, WorkDate, TransactionText, TransactionAmount, '');
         WriteCAMTFooter(OutStream);
+        TextToAccountMapping.Init();
+        TextToAccountMapping."Mapping Text" := TransactionText;
+        TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
+        TextToAccountMapping.Insert();
 
         // Exercise
         CreateBankAccReconAndImportStmt(BankAccRecon, TempBlobUTF8, '');
-        BankAccount.Get(BankAccRecon."Bank Account No.");
-        TextToAccountMapping.Init;
-        TextToAccountMapping."Mapping Text" := TransactionText;
-        TextToAccountMapping."Debit Acc. No." := GLAccount."No.";
-        TextToAccountMapping."Text-to-Account Mapping Code" := BankAccount."Text-to-Account Mapping Code";
-        TextToAccountMapping."Bank Transaction Type" := TextToAccountMapping."Bank Transaction Type"::"+";
-        TextToAccountMapping.Insert;
         PostPaymentToGLAccount(GLAccount."No.", BankAccRecon."Bank Account No.", TransactionAmount);
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
@@ -1475,7 +1461,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         PmtReconJnl.Close;
         BankAccRecon.Find;
         BankAccRecon."Post Payments Only" := true;
-        BankAccRecon.Modify;
+        BankAccRecon.Modify();
         CODEUNIT.Run(CODEUNIT::"Bank Acc. Reconciliation Post", BankAccRecon);
 
         // choose not to import posted non-reconciled transactions
@@ -2312,7 +2298,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // [WHEN] Manually match one with an amount 10
         HandlePmtEntries(CustLedgEntry, PmtReconJnl);
-        Commit;
+        Commit();
 
         // [WHEN] Report is invoked
         PmtReconJnl.TestReport.Invoke;
@@ -2367,7 +2353,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
 
         // [WHEN] Manually match one with an amount 10
         HandlePmtVendorEntries(VendLedgEntry, PmtReconJnl);
-        Commit;
+        Commit();
 
         // [WHEN] Report is invoked
         PmtReconJnl.TestReport.Invoke;
@@ -2519,7 +2505,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
           VendLedgEntry, VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
-        Commit;
+        Commit();
 
         // [WHEN] Report is invoked from Payment Reconciliation Journal
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -2572,7 +2558,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
           VendLedgEntry, VendLedgEntry2, BankAccRecon."Bank Account No.");
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         HandlePmtEntries(CustLedgEntry, PmtReconJnl);
-        Commit;
+        Commit();
 
         // [WHEN] Bank Reconciliation Report is run
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -2621,7 +2607,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // [WHEN] Update one Bank Acc Ledger Entry to closed and delete one ledger for reporting errors
         LibraryLowerPermissions.SetOutsideO365Scope;
         UpdateBankAccLedgerEntry(BankAccRecon."Bank Account No.", CustLedgEntry."Customer No.", ExpectedError1, ExpectedError2);
-        Commit;
+        Commit();
 
         // [WHEN] Report is run for Payment Reconciliation Journal
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -2666,7 +2652,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // [WHEN] Update Cust Ledger Entry to closed,change amount on one and delete second ledger for reporting errors
         LibraryLowerPermissions.SetOutsideO365Scope;
         UpdateCustLedgerEntry(CustLedgEntry."Customer No.", ExpectedError1, ExpectedError2, ExpectedError3);
-        Commit;
+        Commit();
 
         // [WHEN] Report is run for Payment Reconciliation Journal
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -2709,12 +2695,12 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         // [WHEN] Automatic apply is run
         OpenPmtReconJnl(BankAccRecon, PmtReconJnl);
         ApplyAutomatically(PmtReconJnl);
-        Commit;
+        Commit();
 
         // [WHEN] Update Vendor Ledger Entry to closed,change amount on one and delete second ledger for reporting errors
         LibraryLowerPermissions.SetOutsideO365Scope;
         UpdateVendLedgerEntry(VendLedgEntry."Vendor No.", ExpectedError1, ExpectedError2, ExpectedError3);
-        Commit;
+        Commit();
 
         // [WHEN] Report is run for Payment Reconciliation Journal
         LibraryVariableStorage.Enqueue(BankAccRecon."Bank Account No.");
@@ -2823,7 +2809,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Credit Warnings" := SalesReceivablesSetup."Credit Warnings"::"No Warning";
         SalesReceivablesSetup.Modify();
         UpdateCustPostingGrp();
@@ -3327,7 +3313,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         GenJournalLine.Validate("Applies-to Doc. Type", CustLedgEntry."Document Type");
         GenJournalLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
         GenJournalLine.Validate("External Document No.", CustLedgEntry."External Document No.");
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -3375,24 +3361,6 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
             GenJournalLine.Modify
         end;
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-    begin
-        // NAVCZ
-        LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    var
-        TextToAccountMappingCode: Record "Text-to-Account Mapping Code";
-    begin
-        // NAVCZ
-        LibraryERM.CreateAccountMappingCode(TextToAccountMappingCode);
-        exit(TextToAccountMappingCode.Code);
     end;
 
     local procedure VerifyPrePost(BankAccRecon: Record "Bank Acc. Reconciliation"; var PmtReconJnl: TestPage "Payment Reconciliation Journal")
@@ -3891,10 +3859,6 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         BankAcc."Bank Branch No." := '123';
         BankAcc."Bank Statement Import Format" := BankStmtFormat;
         BankAcc.Validate("Currency Code", CurrencyCode);
-        // NAVCZ
-        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
-        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
-        // NAVCZ
         BankAcc.Modify(true);
     end;
 
@@ -3939,13 +3903,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         if BankAccountLedgerEntry.Find('-') then begin
             BankAccountLedgerEntry.Open := false;
             BankAccountLedgerEntry.Amount += -40.0;
-            BankAccountLedgerEntry.Modify;
+            BankAccountLedgerEntry.Modify();
             ErrorText1 := StrSubstNo(
                 TableValueWrongErr, BankAccountLedgerEntry.FieldCaption(Open), true,
                 BankAccountLedgerEntry.TableCaption, BankAccountLedgerEntry."Entry No.");
             if BankAccountLedgerEntry.Next <> 0 then begin
                 ErrorText2 := StrSubstNo(TableValueMissingErr, BankAccountLedgerEntry.TableCaption, BankAccountLedgerEntry."Entry No.");
-                BankAccountLedgerEntry.Delete;
+                BankAccountLedgerEntry.Delete();
             end;
         end;
     end;
@@ -3960,7 +3924,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         if CustLedgerEntry.Find('-') then begin
             CustLedgerEntry.Open := false;
-            CustLedgerEntry.Modify;
+            CustLedgerEntry.Modify();
             ErrorText1 := StrSubstNo(
                 TableValueWrongErr, CustLedgerEntry.FieldCaption(Open), true,
                 CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No.");
@@ -3968,13 +3932,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
             DetailedCustLedgEntry.SetRange("Ledger Entry Amount", true);
             if DetailedCustLedgEntry.FindFirst then begin
                 DetailedCustLedgEntry.Amount += -40.0;
-                DetailedCustLedgEntry.Modify;
+                DetailedCustLedgEntry.Modify();
                 ErrorText2 := StrSubstNo(
                     AmountWrongErr, DummyAppliedPaymentEntry.FieldCaption("Applied Amount"), DetailedCustLedgEntry.Amount);
             end;
             if CustLedgerEntry.Next <> 0 then begin
                 ErrorText3 := StrSubstNo(TableValueMissingErr, CustLedgerEntry.TableCaption, CustLedgerEntry."Entry No.");
-                CustLedgerEntry.Delete;
+                CustLedgerEntry.Delete();
             end;
         end;
     end;
@@ -3989,7 +3953,7 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
         VendorLedgerEntry.SetRange("Vendor No.", VendNo);
         if VendorLedgerEntry.Find('-') then begin
             VendorLedgerEntry.Open := false;
-            VendorLedgerEntry.Modify;
+            VendorLedgerEntry.Modify();
             ErrorText1 := StrSubstNo(
                 TableValueWrongErr, VendorLedgerEntry.FieldCaption(Open), true,
                 VendorLedgerEntry.TableCaption, VendorLedgerEntry."Entry No.");
@@ -3997,13 +3961,13 @@ codeunit 134265 "Payment Recon. E2E Tests 1"
             DetailedVendorLedgEntry.SetRange("Ledger Entry Amount", true);
             if DetailedVendorLedgEntry.FindFirst then begin
                 DetailedVendorLedgEntry.Amount += 40.0;
-                DetailedVendorLedgEntry.Modify;
+                DetailedVendorLedgEntry.Modify();
                 ErrorText2 := StrSubstNo(
                     AmountWrongErr, DummyAppliedPaymentEntry.FieldCaption("Applied Amount"), DetailedVendorLedgEntry.Amount);
             end;
             if VendorLedgerEntry.Next <> 0 then begin
                 ErrorText3 := StrSubstNo(TableValueMissingErr, VendorLedgerEntry.TableCaption, VendorLedgerEntry."Entry No.");
-                VendorLedgerEntry.Delete;
+                VendorLedgerEntry.Delete();
             end;
         end;
     end;

@@ -28,7 +28,7 @@ table 5404 "Item Unit of Measure"
             begin
                 // NAVCZ
                 if not UoM.Get(Code) then
-                    UoM.Init;
+                    UoM.Init();
                 "Indivisible Unit" := UoM."Indivisible Unit";
                 // NAVCZ
             end;

@@ -132,12 +132,12 @@ report 31031 "VAT List on Purch. Adv. Letter"
                     begin
                         if Number = 1 then begin
                             if not TempVATAmountLineAdvPmt.Find('-') then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if TempVATAmountLineAdvPmt.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := TempVATAmountLineAdvPmt."VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := TempVATAmountLineAdvPmt."VAT Calculation Type";
                         TempVATAmountLine."VAT %" := TempVATAmountLineAdvPmt."VAT %";
@@ -153,8 +153,8 @@ report 31031 "VAT List on Purch. Adv. Letter"
                     lreVATEntry: Record "VAT Entry";
                     lreVATPostSetup: Record "VAT Posting Setup";
                 begin
-                    TempVATAmountLineAdvPmt.Reset;
-                    TempVATAmountLineAdvPmt.DeleteAll;
+                    TempVATAmountLineAdvPmt.Reset();
+                    TempVATAmountLineAdvPmt.DeleteAll();
                     Clear(TempVATAmountLineAdvPmt);
 
                     with lreVATEntry do begin
@@ -168,7 +168,7 @@ report 31031 "VAT List on Purch. Adv. Letter"
                             repeat
                                 TempVATAmountLineAdvPmt."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
                                 if not lreVATPostSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                                    lreVATPostSetup.Init;
+                                    lreVATPostSetup.Init();
                                 TempVATAmountLineAdvPmt."VAT Identifier" := lreVATPostSetup."VAT Identifier";
                                 TempVATAmountLineAdvPmt."VAT %" := lreVATPostSetup."VAT %";
                                 TempVATAmountLineAdvPmt."VAT Base (LCY)" := "Advance Base" + CalcVATBaseExchRateCorrect(lreVATEntry);
@@ -181,17 +181,17 @@ report 31031 "VAT List on Purch. Adv. Letter"
                     if SkipZero then begin
                         TempVATAmountLineAdvPmt.SetRange("VAT Base (LCY)", 0);
                         TempVATAmountLineAdvPmt.SetRange("VAT Amount (LCY)", 0);
-                        TempVATAmountLineAdvPmt.DeleteAll;
-                        TempVATAmountLineAdvPmt.Reset;
+                        TempVATAmountLineAdvPmt.DeleteAll();
+                        TempVATAmountLineAdvPmt.Reset();
                     end;
                     if TempVATAmountLineAdvPmt.IsEmpty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempVATAmountLine.Reset;
-                    TempVATAmountLine.DeleteAll;
+                    TempVATAmountLine.Reset();
+                    TempVATAmountLine.DeleteAll();
                     Clear(TempVATAmountLine);
                 end;
             }

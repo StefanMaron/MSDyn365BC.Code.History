@@ -15,9 +15,6 @@ report 31039 "FA Assignment/Discharge"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(PageNo; PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -115,7 +112,7 @@ report 31039 "FA Assignment/Discharge"
                     begin
                         Copy("FA History Entry");
                         if ShowReport(ReportCount) then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
@@ -143,7 +140,7 @@ report 31039 "FA Assignment/Discharge"
                                 LastName := '';
                                 LastName2 := '';
                             end else
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end else begin
                         if Employee.FindLast then begin
                             Code := Employee."No.";
@@ -159,7 +156,7 @@ report 31039 "FA Assignment/Discharge"
                                 LastName := Text003Cap;
                                 LastName2 := '';
                             end else
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
                 end;
 
@@ -174,7 +171,6 @@ report 31039 "FA Assignment/Discharge"
                         ShowFlag := true;
 
                     PrintDate := Format(Today, 0, 4);
-                    PageNo := CurrReport.PageNo;
                 end;
             }
             dataitem(Assignment; "Integer")
@@ -191,9 +187,6 @@ report 31039 "FA Assignment/Discharge"
                 {
                 }
                 column(PageCaption; PageCaption)
-                {
-                }
-                column(PageNo_Control1470030; PageNo)
                 {
                 }
                 column(FA_History_Entry__Type_Control1470031; "FA History Entry".Type)
@@ -274,7 +267,7 @@ report 31039 "FA Assignment/Discharge"
                     begin
                         Copy("FA History Entry");
                         if ShowReport(ReportCount2) then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
@@ -313,18 +306,16 @@ report 31039 "FA Assignment/Discharge"
                         Employee.SetRange("No.", "FA History Entry"."New Value");
 
                     PrintDate := Format(Today, 0, 4);
-                    PageNo := CurrReport.PageNo;
                     PageCaption := Text007Cap;
 
                     if ShowFlag then begin
                         ShowFlag := false;
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                     if "FA History Entry"."Old Value" <> '' then begin
                         ShowFlag := false;
                         PrintDate := '';
                         PageCaption := '';
-                        PageNo := 0;
                     end;
                 end;
             }
@@ -364,7 +355,6 @@ report 31039 "FA Assignment/Discharge"
         ShowFlag: Boolean;
         ReportCount: Integer;
         ReportCount2: Integer;
-        PageNo: Integer;
         Text001Cap: Label 'Name';
         Text002Cap: Label 'First Name';
         Text003Cap: Label 'Last Name';
@@ -393,7 +383,7 @@ report 31039 "FA Assignment/Discharge"
     [Scope('OnPrem')]
     procedure ShowReport(var "Count": Integer): Boolean
     begin
-        FixedAsset.Reset;
+        FixedAsset.Reset();
         FixedAsset.SetRange("No.", "FA History Entry"."FA No.");
         if FixedAsset.FindLast then begin
             Description := FixedAsset.Description;

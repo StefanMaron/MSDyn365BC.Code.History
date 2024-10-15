@@ -1,4 +1,4 @@
-﻿page 5605 "FA Error Ledger Entries"
+page 5605 "FA Error Ledger Entries"
 {
     Caption = 'FA Error Ledger Entries';
     DataCaptionFields = "Canceled from FA No.", "Depreciation Book Code";

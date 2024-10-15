@@ -296,9 +296,9 @@ report 31098 "Sales - Shipment CZ"
                         begin
                             TrackingSpecBuf.SetRange("Source Ref. No.", "Sales Shipment Line"."Line No.");
 
-                            TrackingSpecCount := TrackingSpecBuf.Count;
+                            TrackingSpecCount := TrackingSpecBuf.Count();
                             if TrackingSpecCount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, TrackingSpecCount);
                             TrackingSpecBuf.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",

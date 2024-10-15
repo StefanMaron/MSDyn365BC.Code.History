@@ -598,10 +598,10 @@ table 700 "Error Message"
             exit(false);
 
         TempRecordRef.Open(RecordRef.Number, true);
-        TempRecordRef.Init;
+        TempRecordRef.Init();
         TempFieldRef := TempRecordRef.Field(FieldNumber);
         TempFieldRef.Value(FieldRef.Value);
-        TempRecordRef.Insert;
+        TempRecordRef.Insert();
 
         TempFieldRef.SetFilter(FilterString, FilterValue1, FilterValue2);
 
@@ -653,10 +653,10 @@ table 700 "Error Message"
                 TempID += 1;
                 TempErrorMessage := Rec;
                 TempErrorMessage.ID := TempID;
-                TempErrorMessage.Insert;
+                TempErrorMessage.Insert();
             end;
         until Next = 0;
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
     end;
 
     procedure CopyFromTemp(var TempErrorMessage: Record "Error Message" temporary)

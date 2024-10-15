@@ -57,13 +57,11 @@ table 11789 "Detailed Reminder Line"
             Caption = 'Posting Date';
             FieldClass = FlowField;
         }
-        field(11; "Document Type"; Option)
+        field(11; "Document Type"; Enum "Gen. Journal Document Type")
         {
             CalcFormula = Lookup ("Detailed Cust. Ledg. Entry"."Document Type" WHERE("Entry No." = FIELD("Detailed Customer Entry No.")));
             Caption = 'Document Type';
             FieldClass = FlowField;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(12; "Document No."; Code[20])
         {

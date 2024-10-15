@@ -105,6 +105,20 @@ page 1007 "Job Planning Lines"
                     Editable = DescriptionEditable;
                     ToolTip = 'Specifies the name of the resource, item, or G/L account to which this entry applies. You can change the description.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
+                }
+                field("Cost Calculation Method"; "Cost Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the method that will be used for cost calculation in the item journal line.';
+                }
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Jobs;

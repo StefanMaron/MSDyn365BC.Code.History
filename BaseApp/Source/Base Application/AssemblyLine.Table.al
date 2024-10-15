@@ -431,11 +431,9 @@ table 901 "Assembly Line"
                 ValidateDueDate(AssemblyHeader, "Due Date", true);
             end;
         }
-        field(53; Reserve; Option)
+        field(53; Reserve; Enum "Reserve Method")
         {
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
 
             trigger OnValidate()
             begin
@@ -801,20 +799,19 @@ table 901 "Assembly Line"
             TestField("No.");
             TestField(Reserve);
             Clear(Reservation);
-            Reservation.SetAssemblyLine(Rec);
-            Reservation.RunModal;
+            Reservation.SetReservSource(Rec);
+            Reservation.RunModal();
         end;
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
     var
         ReservEntry: Record "Reservation Entry";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
     begin
         if Type = Type::Item then begin
             TestField("No.");
-            ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-            AssemblyLineReserve.FilterReservFor(ReservEntry, Rec);
+            ReservEntry.InitSortingAndFilters(true);
+            SetReservationFilters(ReservEntry);
             if Modal then
                 PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
             else
@@ -843,7 +840,7 @@ table 901 "Assembly Line"
         if "Document Type" <> "Document Type"::Order then
             exit;
 
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         if not AssemblySetup."Stockout Warning" then
             exit;
 
@@ -925,7 +922,7 @@ table 901 "Assembly Line"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetupRead := true
         end
     end;
@@ -959,12 +956,12 @@ table 901 "Assembly Line"
 
         if "Remaining Quantity (Base)" <> 0 then begin
             TestField("Due Date");
-            ReservMgt.SetAssemblyLine(Rec);
+            ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Due Date", "Remaining Quantity", "Remaining Quantity (Base)");
             Find;
             if not FullAutoReservation and (CurrFieldNo <> 0) then
                 if Confirm(Text001, true) then begin
-                    Commit;
+                    Commit();
                     ShowReservation;
                     Find;
                 end;
@@ -1002,6 +999,55 @@ table 901 "Assembly Line"
             AssemblyHeader.Get("Document Type", "Document No.");
     end;
 
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := "Remaining Quantity" - Abs("Reserved Quantity");
+        RemainingQtyBase := "Remaining Quantity (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := "Remaining Quantity";
+        QtyToReserveBase := "Remaining Quantity (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text[80]
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Assembly Line", "Document Type", "Document No.", "Line No.", '', 0);
+        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        if Type <> Type::Item then
+            ReservEntry."Item No." := '';
+        ReservEntry."Expected Receipt Date" := "Due Date";
+        ReservEntry."Shipment Date" := "Due Date";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Assembly Line", "Document Type", "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter('', 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
+    end;
+
     procedure ShowDimensions()
     var
         DimMgt: Codeunit DimensionManagement;
@@ -1024,14 +1070,14 @@ table 901 "Assembly Line"
         if SkipVerificationsThatChangeDatabase then
             exit;
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
 
         "Shortcut Dimension 1 Code" := '';
         "Shortcut Dimension 2 Code" := '';
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         case AssemblySetup."Copy Component Dimensions from" of
             AssemblySetup."Copy Component Dimensions from"::"Order Header":
                 begin
@@ -1158,6 +1204,23 @@ table 901 "Assembly Line"
         exit(not IsEmpty);
     end;
 
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(
+          "Document Type", Type, "No.", "Variant Code", "Location Code", "Due Date");
+        SetRange("Document Type", DocumentType);
+        SetRange(Type, Type::Item);
+        SetRange("No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetFilter("Due Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Remaining Quantity (Base)", '<0')
+        else
+            SetFilter("Remaining Quantity (Base)", '>0');
+    end;
+
     local procedure SelectItemEntry(CurrentFieldNo: Integer)
     var
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -1223,7 +1286,7 @@ table 901 "Assembly Line"
             else
                 GrossRequirement -= OldAssemblyLine."Remaining Quantity";
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         LookaheadDateFormula := CompanyInfo."Check-Avail. Period Calc.";
         if Format(LookaheadDateFormula) <> '' then begin
             AvailabilityDate := Item.GetRangeMax("Date Filter");
@@ -1400,10 +1463,11 @@ table 901 "Assembly Line"
         end;
     end;
 
-    local procedure TestStatusOpen()
+    procedure TestStatusOpen()
     begin
         if StatusCheckSuspended then
             exit;
+
         GetHeader;
         if Type in [Type::Item, Type::Resource] then
             AssemblyHeader.TestField(Status, AssemblyHeader.Status::Open);
@@ -1663,6 +1727,11 @@ table 901 "Assembly Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToConsume(var AssemblyLine: Record "Assembly Line"; xAssemblyLine: Record "Assembly Line"; CurrentFieldNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; AssemblyLine: Record "Assembly Line");
     begin
     end;
 

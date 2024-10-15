@@ -335,7 +335,7 @@ codeunit 136202 "Marketing Document Logging"
         ArchiveManagement.ArchiveSalesDocument(SalesHeader);
 
         // 2. Exercise: Delete Comments for Sales Header and Sales Line, Restore the Archived Sales Document.
-        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         SalesCommentLine.SetRange("No.", SalesHeader."No.");
         SalesCommentLine.DeleteAll(true);
 
@@ -850,16 +850,16 @@ codeunit 136202 "Marketing Document Logging"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         CreateDefaultReportSelection;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."SWIFT Code" := 'A';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Document Logging");
     end;
 
@@ -885,7 +885,7 @@ codeunit 136202 "Marketing Document Logging"
         end;
 
         // Verify: Verify "VAT Amount Specification" shows in Report Archived Sales Return Order when VAT Amount <> 0.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VerifyArchivedSalesReportWithVAT(
           VATProdPostingGroup, Round(SalesLine."VAT %" / 100 * SalesLine."Line Amount", GeneralLedgerSetup."Amount Rounding Precision"));
     end;
@@ -935,7 +935,7 @@ codeunit 136202 "Marketing Document Logging"
         CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Quote);
         UpdateSalesAndReceivableSetup(ArchiveQuotesAndOrders);
         LibrarySales.SetStockoutWarning(false);
-        Commit;
+        Commit();
 
         // 2. Exercise: Make Order from Sales Quote.
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", SalesHeader);
@@ -946,11 +946,11 @@ codeunit 136202 "Marketing Document Logging"
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := Usage;
         ReportSelections.Sequence := Sequence;
         ReportSelections."Report ID" := ReportID;
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
@@ -1043,7 +1043,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive: Record "Sales Header Archive";
         ArchivedSalesQuote: Report "Archived Sales Quote";
     begin
-        Commit;
+        Commit();
         Clear(ArchivedSalesQuote);
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
@@ -1056,7 +1056,7 @@ codeunit 136202 "Marketing Document Logging"
         SalesHeaderArchive: Record "Sales Header Archive";
         ArchSalesReturnOrder: Report "Arch. Sales Return Order";
     begin
-        Commit;
+        Commit();
         Clear(ArchSalesReturnOrder);
         SalesHeaderArchive.SetRange("Document Type", SalesHeader."Document Type");
         SalesHeaderArchive.SetRange("No.", SalesHeader."No.");
@@ -1076,7 +1076,7 @@ codeunit 136202 "Marketing Document Logging"
         PurchaseHeaderArchive: Record "Purchase Header Archive";
         PurchCommentLineArchive: Record "Purch. Comment Line Archive";
     begin
-        PurchaseHeaderArchive.SetRange("Document Type", PurchCommentLine."Document Type");
+        PurchaseHeaderArchive.SetRange("Document Type", PurchCommentLine."Document Type".AsInteger());
         PurchaseHeaderArchive.SetRange("No.", PurchCommentLine."No.");
         PurchaseHeaderArchive.FindFirst;
 
@@ -1090,7 +1090,7 @@ codeunit 136202 "Marketing Document Logging"
     var
         SalesCommentLine: Record "Sales Comment Line";
     begin
-        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesCommentLine.SetRange("Document Type", SalesHeader."Document Type".AsInteger());
         SalesCommentLine.SetRange("No.", SalesHeader."No.");
         SalesCommentLine.SetRange("Document Line No.", DocumentLineNo);
         SalesCommentLine.FindFirst;

@@ -12,15 +12,15 @@ codeunit 11767 CustVendManagement
         VendLedgEntry: Record "Vendor Ledger Entry";
         NextEntryNo: Integer;
     begin
-        CurrencyBuf.Reset;
-        CurrencyBuf.DeleteAll;
-        CVLedgEntry.Reset;
-        CVLedgEntry.DeleteAll;
+        CurrencyBuf.Reset();
+        CurrencyBuf.DeleteAll();
+        CVLedgEntry.Reset();
+        CVLedgEntry.DeleteAll();
         NextEntryNo := 0;
 
         if not AmountsInCurrency then begin
             CurrencyBuf.Code := '';
-            CurrencyBuf.Insert;
+            CurrencyBuf.Insert();
         end;
 
         with CustLedgEntry do begin
@@ -44,11 +44,11 @@ codeunit 11767 CustVendManagement
                         CVLedgEntry.Amount := Amount;
                         CVLedgEntry."Remaining Amount" := "Remaining Amount";
                         CVLedgEntry."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                        CVLedgEntry.Insert;
+                        CVLedgEntry.Insert();
                         if AmountsInCurrency then
                             if not CurrencyBuf.Get("Currency Code") then begin
                                 CurrencyBuf.Code := "Currency Code";
-                                CurrencyBuf.Insert;
+                                CurrencyBuf.Insert();
                             end;
                     end;
                 until Next = 0;
@@ -74,11 +74,11 @@ codeunit 11767 CustVendManagement
                         CVLedgEntry.Amount := Amount;
                         CVLedgEntry."Remaining Amount" := "Remaining Amount";
                         CVLedgEntry."Remaining Amt. (LCY)" := "Remaining Amt. (LCY)";
-                        CVLedgEntry.Insert;
+                        CVLedgEntry.Insert();
                         if AmountsInCurrency then
                             if not CurrencyBuf.Get("Currency Code") then begin
                                 CurrencyBuf.Code := "Currency Code";
-                                CurrencyBuf.Insert;
+                                CurrencyBuf.Insert();
                             end;
                     end;
                 until Next = 0;

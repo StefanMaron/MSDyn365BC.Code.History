@@ -107,9 +107,9 @@ report 31120 "EET Confirmation"
     trigger OnPreReport()
     begin
         Clear(CompanyAddr);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         FormatAddress.Company(CompanyAddr, CompanyInformation);
-        EETServiceSetup.Get;
+        EETServiceSetup.Get();
     end;
 
     var

@@ -15,15 +15,15 @@ report 11700 "Suggest Payments"
             begin
                 if TypeCustomer = TypeCustomer::OnlyBalance then
                     if CustomerBalanceTest("Customer No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if SkipBlocked and CustomerBlockedTest("Customer No.") then begin
                     IsSkippedBlockedCustomer := true;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 AddCustLedgEntry("Cust. Ledger Entry");
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Update(1, "Entry No.");
             end;
@@ -39,7 +39,7 @@ report 11700 "Suggest Payments"
             trigger OnPreDataItem()
             begin
                 if TypeCustomer = TypeCustomer::Nothing then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if TypeCustomer <> TypeCustomer::All then
                     SetRange("Document Type", "Document Type"::"Credit Memo");
@@ -66,15 +66,15 @@ report 11700 "Suggest Payments"
             begin
                 if TypeVendor = TypeVendor::OnlyBalance then
                     if VendorBalanceTest("Vendor No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if SkipBlocked and VendorBlockedTest("Vendor No.") then begin
                     IsSkippedBlockedVendor := true;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 AddVendLedgEntry("Vendor Ledger Entry");
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Update(1, "Entry No.");
             end;
@@ -90,9 +90,9 @@ report 11700 "Suggest Payments"
             trigger OnPreDataItem()
             begin
                 if TypeVendor = TypeVendor::Nothing then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if TypeVendor <> TypeVendor::All then
                     SetRange("Document Type", "Document Type"::Invoice);
@@ -119,15 +119,15 @@ report 11700 "Suggest Payments"
             begin
                 if TypeVendor = TypeVendor::OnlyBalance then
                     if VendorBalanceTest("Vendor No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if SkipBlocked and VendorBlockedTest("Vendor No.") then begin
                     IsSkippedBlockedVendor := true;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 AddVendLedgEntry("Vendor Ledger Entry Disc");
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Update(1, "Entry No.");
             end;
@@ -143,11 +143,11 @@ report 11700 "Suggest Payments"
             trigger OnPreDataItem()
             begin
                 if TypeVendor = TypeVendor::Nothing then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if not UsePaymentDisc then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if TypeVendor <> TypeVendor::All then
                     SetRange("Document Type", "Document Type"::Invoice);
@@ -175,7 +175,7 @@ report 11700 "Suggest Payments"
             begin
                 AddEmplLedgEntry("Employee Ledger Entry");
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Update(1, "Entry No.");
             end;
@@ -191,11 +191,11 @@ report 11700 "Suggest Payments"
             trigger OnPreDataItem()
             begin
                 if TypeEmployee = TypeEmployee::Nothing then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if PmtOrdHdr."Currency Code" <> '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 SetRange("Posting Date", 0D, LastDueDateToPayReq);
 
@@ -214,12 +214,12 @@ report 11700 "Suggest Payments"
             begin
                 if TypeVendor = TypeVendor::OnlyBalance then
                     if VendorBalanceTest("Pay-to Vendor No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if "Amount on Payment Order (LCY)" >= "Amount Including VAT" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipBlocked and VendorBlockedTest("Pay-to Vendor No.") then begin
                     IsSkippedBlockedVendor := true;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 RemAmount := GetRemAmount;
@@ -227,7 +227,7 @@ report 11700 "Suggest Payments"
                     AddPurchaseLetter("Purch. Advance Letter Header");
 
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Update(1, "No.");
             end;
@@ -243,9 +243,9 @@ report 11700 "Suggest Payments"
             trigger OnPreDataItem()
             begin
                 if TypeVendor = TypeVendor::Nothing then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 SetRange("Advance Due Date", 0D, LastDueDateToPayReq);
                 SetRange("Due Date from Line", false);
@@ -278,7 +278,7 @@ report 11700 "Suggest Payments"
                         AddPurchaseLetterLine(PurchAdvLetterLinePerLine);
 
                     if StopPayments then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -291,12 +291,12 @@ report 11700 "Suggest Payments"
             begin
                 if TypeVendor = TypeVendor::OnlyBalance then
                     if VendorBalanceTest("Pay-to Vendor No.") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 if "Amount on Payment Order (LCY)" >= "Amount Including VAT" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipBlocked and VendorBlockedTest("Pay-to Vendor No.") then begin
                     IsSkippedBlockedVendor := true;
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 end;
 
                 Window.Update(1, "No.");
@@ -313,9 +313,9 @@ report 11700 "Suggest Payments"
             trigger OnPreDataItem()
             begin
                 if TypeVendor = TypeVendor::Nothing then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 if StopPayments then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 CopyFilters("Purch. Advance Letter Header");
                 SetRange("Advance Due Date");
@@ -688,7 +688,7 @@ report 11700 "Suggest Payments"
                     while CalMgt.IsNonworkingDay(PmtOrdLn."Due Date", Cal) do
                         PmtOrdLn."Due Date" := CalcDate('<-1D>', PmtOrdLn."Due Date");
                 end;
-                PmtOrdLn.Insert;
+                PmtOrdLn.Insert();
                 AppliedAmount := AppliedAmount + PmtOrdLn."Amount to Pay";
             end;
         end else
@@ -702,7 +702,7 @@ report 11700 "Suggest Payments"
                             PmtOrdLn."Due Date" := CalcDate('<-1D>', PmtOrdLn."Due Date");
                     end;
                     PmtOrdLn."Amount Must Be Checked" := true;
-                    PmtOrdLn.Insert;
+                    PmtOrdLn.Insert();
                     AppliedAmount := AppliedAmount + PmtOrdLn."Amount to Pay";
                 end;
             end;

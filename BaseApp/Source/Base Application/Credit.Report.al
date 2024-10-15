@@ -174,7 +174,7 @@ report 31050 Credit
 
                             if "Remaining Amount" <> 0 then begin
                                 TempCreditLine := "Credit Line";
-                                TempCreditLine.Insert;
+                                TempCreditLine.Insert();
                             end;
 
                             if "Currency Code" = '' then begin
@@ -275,7 +275,7 @@ report 31050 Credit
 
                             if "Remaining Amount" <> 0 then begin
                                 TempCreditLine2 := CreditLine2;
-                                TempCreditLine2.Insert;
+                                TempCreditLine2.Insert();
                             end;
 
                             if "Currency Code" = '' then begin
@@ -301,10 +301,10 @@ report 31050 Credit
                         begin
                             if Number = 1 then begin
                                 if not TempCreditLine.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempCreditLine.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if TempCreditLine."Credit No." <> '' then
                                 if TempCreditLine."Currency Code" = '' then begin
@@ -336,10 +336,10 @@ report 31050 Credit
                         begin
                             if Number = 1 then begin
                                 if not TempCreditLine2.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempCreditLine2.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if TempCreditLine2."Credit No." <> '' then
                                 if TempCreditLine2."Currency Code" = '' then begin
@@ -411,14 +411,12 @@ report 31050 Credit
                     if Number > 1 then
                         OutputNo += 1;
 
-                    CurrReport.PageNo := 1;
-
-                    TempCreditLine.Reset;
-                    TempCreditLine.DeleteAll;
+                    TempCreditLine.Reset();
+                    TempCreditLine.DeleteAll();
                     Clear(TempCreditLine);
 
-                    TempCreditLine2.Reset;
-                    TempCreditLine2.DeleteAll;
+                    TempCreditLine2.Reset();
+                    TempCreditLine2.DeleteAll();
                     Clear(TempCreditLine2);
                 end;
 
@@ -483,8 +481,8 @@ report 31050 Credit
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
-                GLSetup.Get;
+                CompanyInfo.Get();
+                GLSetup.Get();
 
                 AmtFormatTxt := '<Precision,2:2><Sign><Integer><1000Character, ><Decimals>';
             end;

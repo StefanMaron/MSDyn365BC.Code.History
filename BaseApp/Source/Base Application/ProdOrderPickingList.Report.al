@@ -87,7 +87,7 @@ report 99000766 "Prod. Order - Picking List"
                 trigger OnAfterGetRecord()
                 begin
                     if Status = Status::Finished then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     ProdOrder.Get(Status, "Prod. Order No.");
                 end;
 

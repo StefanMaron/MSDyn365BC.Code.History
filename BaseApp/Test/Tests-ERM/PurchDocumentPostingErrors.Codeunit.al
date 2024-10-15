@@ -18,7 +18,6 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
-        VATDateNotAllowedErr: Label 'VAT Date is not within your range of allowed posting dates.';
         NothingToPostErr: Label 'There is nothing to post.';
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Vendor %2.';
 
@@ -55,7 +54,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         TempErrorMessage.TestField("Context Table Number", DATABASE::"Purchase Header");
         TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("Posting Date"));
         // [THEN] "Source" is 'G/L Setup', "Field Name" is 'Allow Posting From'
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         TempErrorMessage.TestField("Record ID", GeneralLedgerSetup.RecordId);
         TempErrorMessage.TestField("Table Number", DATABASE::"General Ledger Setup");
         TempErrorMessage.TestField("Field Number", GeneralLedgerSetup.FieldNo("Allow Posting From"));
@@ -88,7 +87,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "User Setup"
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         UserSetup."Allow Posting To" := WorkDate - 1;
-        UserSetup.Modify;
+        UserSetup.Modify();
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
         PurchHeader.TestField("Posting Date", WorkDate);
@@ -123,124 +122,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         PurchInvoicePage."Posting Date".AssertEquals(WorkDate);
 
         // TearDown
-        UserSetup.Delete;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure T1001_VATDateIsInNotAllowedPeriodInGLSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        PurchHeader: Record "Purchase Header";
-        TempErrorMessage: Record "Error Message" temporary;
-        GeneralLedgerSetupPage: TestPage "General Ledger Setup";
-        PurchInvoicePage: TestPage "Purchase Invoice";
-    begin
-        // [FEATURE] [Country:CZ] [VAT Date]
-        // [SCENARIO] Posting of document, where "VAT Date" is out of the allowed period, set in G/L Setup
-        Initialize;
-        // [GIVEN] "Allow VAT Posting To" is 31.12.2018 in "General Ledger Setup"
-        GeneralLedgerSetup.Get;
-        GeneralLedgerSetup."Allow VAT Posting To" := WorkDate - 1;
-        GeneralLedgerSetup."Use VAT Date" := true;
-        GeneralLedgerSetup.Modify;
-        // [GIVEN] Invoice '1001', where "VAT Date" is 01.01.2019
-        LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
-        PurchHeader.TestField("VAT Date", WorkDate);
-        PurchHeader."Original Document VAT Date" := PurchHeader."VAT Date";
-        PurchHeader.Modify;
-
-        // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
-        PurchHeader.SendToPosting(CODEUNIT::"Purch.-Post");
-
-        // [THEN] "Error Message" page is open, where is one error:
-        // [THEN] "VAT Date is not within your range of allowed posting dates."
-        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
-        TempErrorMessage.TestField(Description, VATDateNotAllowedErr);
-        // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'VAT Date',
-        TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
-        TempErrorMessage.TestField("Context Table Number", DATABASE::"Purchase Header");
-        TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("VAT Date"));
-        // [THEN] "Source" is 'G/L Setup', "Field Name" is 'Allow VAT Posting From'
-        GeneralLedgerSetup.Get;
-        TempErrorMessage.TestField("Record ID", GeneralLedgerSetup.RecordId);
-        TempErrorMessage.TestField("Table Number", DATABASE::"General Ledger Setup");
-        TempErrorMessage.TestField("Field Number", GeneralLedgerSetup.FieldNo("Allow VAT Posting From"));
-        // [WHEN] DrillDown on "Source"
-        GeneralLedgerSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
-        // [THEN] opens "General Ledger Setup" page.
-        GeneralLedgerSetupPage."Allow VAT Posting To".AssertEquals(WorkDate - 1);
-        GeneralLedgerSetupPage.Close;
-
-        // [WHEN] DrillDown on "Description"
-        PurchInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
-        // [THEN] opens "Purchase Invoice" page.
-        PurchInvoicePage."VAT Date".AssertEquals(WorkDate);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure T1002_VATDateIsInNotAllowedPeriodInUserSetup()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        PurchHeader: Record "Purchase Header";
-        TempErrorMessage: Record "Error Message" temporary;
-        UserSetup: Record "User Setup";
-        UserSetupPage: TestPage "User Setup";
-        PurchInvoicePage: TestPage "Purchase Invoice";
-    begin
-        // [FEATURE] [Country:CZ] [VAT Date]
-        // [SCENARIO] Posting of document, where "VAT Date" is out of the allowed period, set in User Setup.
-        Initialize;
-        // [GIVEN] "Allow VAT Posting To" is 31.12.2018 in "User Setup"
-        GeneralLedgerSetup.Get;
-        GeneralLedgerSetup."Use VAT Date" := true;
-        GeneralLedgerSetup.Modify;
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup."Allow VAT Posting To" := WorkDate - 1;
-        UserSetup.Modify;
-        // [GIVEN] Invoice '1001', where "VAT Date" is 01.01.2019
-        LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
-        PurchHeader.TestField("VAT Date", WorkDate);
-        PurchHeader."Original Document VAT Date" := PurchHeader."VAT Date";
-        PurchHeader.Modify;
-
-        // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
-        PurchHeader.SendToPosting(CODEUNIT::"Purch.-Post");
-
-        // [THEN] "Error Message" page is open, where is one error:
-        // [THEN] "VAT Date is not within your range of allowed posting dates."
-        LibraryErrorMessage.GetErrorMessages(TempErrorMessage);
-        Assert.RecordCount(TempErrorMessage, 1);
-        TempErrorMessage.FindFirst;
-        TempErrorMessage.TestField(Description, VATDateNotAllowedErr);
-        // [THEN] "Context" is 'Purchase Header: Invoice, 1001', "Field Name" is 'VAT Date',
-        TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
-        TempErrorMessage.TestField("Context Field Number", PurchHeader.FieldNo("VAT Date"));
-        // [THEN]  "Source" is 'User Setup',  "Field Name" is 'Allow VAT Posting From'
-        TempErrorMessage.TestField("Record ID", UserSetup.RecordId);
-        TempErrorMessage.TestField("Field Number", UserSetup.FieldNo("Allow VAT Posting From"));
-        // [WHEN] DrillDown on "Source"
-        UserSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
-        // [THEN] opens "User Setup" page.
-        UserSetupPage."Allow VAT Posting To".AssertEquals(WorkDate - 1);
-        UserSetupPage.Close;
-
-        // [WHEN] DrillDown on "Description"
-        PurchInvoicePage.Trap;
-        LibraryErrorMessage.DrillDownOnDescription;
-        // [THEN] opens "Purchase Invoice" page.
-        PurchInvoicePage."VAT Date".AssertEquals(WorkDate);
-
-        // TearDown
-        UserSetup.Delete;
+        UserSetup.Delete();
     end;
 
     [Test]
@@ -398,7 +280,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Purch. Document Posting Errors");
     end;
 
@@ -415,8 +297,8 @@ codeunit 132502 "Purch. Document Posting Errors"
     begin
         PurchHeader.Receive := true;
         PurchHeader.Invoice := true;
-        PurchHeader.Modify;
-        Commit;
+        PurchHeader.Modify();
+        Commit();
     end;
 
     [ConfirmHandler]

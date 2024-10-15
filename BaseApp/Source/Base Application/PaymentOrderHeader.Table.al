@@ -37,7 +37,7 @@ table 11708 "Payment Order Header"
             begin
                 TestStatusOpen;
                 if not BankAccount.Get("Bank Account No.") then
-                    BankAccount.Init;
+                    BankAccount.Init();
                 "Account No." := BankAccount."Bank Account No.";
                 BankAccount.TestField(Blocked, false);
                 IBAN := BankAccount.IBAN;
@@ -394,10 +394,10 @@ table 11708 "Payment Order Header"
         if PaymentOrderLinesExist then begin
             Question := StrSubstNo(UpdateOrderLineQst, ChangedFieldName);
             if DIALOG.Confirm(Question, true) then begin
-                PaymentOrderLine.LockTable;
+                PaymentOrderLine.LockTable();
                 Modify;
 
-                PaymentOrderLine.Reset;
+                PaymentOrderLine.Reset();
                 PaymentOrderLine.SetRange("Payment Order No.", "No.");
                 if PaymentOrderLine.Find('-') then
                     repeat
@@ -447,7 +447,7 @@ table 11708 "Payment Order Header"
     var
         PaymentOrderLine: Record "Payment Order Line";
     begin
-        PaymentOrderLine.Reset;
+        PaymentOrderLine.Reset();
         PaymentOrderLine.SetRange("Payment Order No.", "No.");
         exit(PaymentOrderLine.FindFirst);
     end;
@@ -554,7 +554,7 @@ table 11708 "Payment Order Header"
                 if PaymentOrderLine.IsUncertaintyPayerCheckPossible then begin
                     PaymentOrderLine."VAT Uncertainty Payer" := PaymentOrderLine.HasUncertaintyPayer;
                     PaymentOrderLine."Public Bank Account" := PaymentOrderLine.HasPublicBankAccount;
-                    PaymentOrderLine.Modify;
+                    PaymentOrderLine.Modify();
                 end;
             until PaymentOrderLine.Next = 0;
     end;

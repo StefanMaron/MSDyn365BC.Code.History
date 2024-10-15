@@ -49,6 +49,6 @@ table 11780 "VAT Period"
 
     var
         VATPeriod2: Record "VAT Period";
-        MonthTxt: Label '<Month Text>';
+        MonthTxt: Label '<Month Text>', Locked = true;
 }
 

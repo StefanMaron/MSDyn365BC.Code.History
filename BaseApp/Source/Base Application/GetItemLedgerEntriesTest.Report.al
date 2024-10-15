@@ -25,17 +25,17 @@ report 31059 "Get Item Ledger Entries - Test"
                        (("Perform. Country/Region Code" = '') and (CompanyInfo."Country/Region Code" = "Country/Region Code")) or
                        (("Perform. Country/Region Code" <> '') and ("Country/Region Code" = "Perform. Country/Region Code"))
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if Item."No." <> "Item No." then
                         Item.Get("Item No.");
 
                     if Item."Tariff No." = '' then
                         if not greTItem.Get(Item."No.") then begin
-                            greTItem.Init;
+                            greTItem.Init();
                             greTItem."No." := Item."No.";
                             greTItem.Description := Item.Description;
-                            greTItem.Insert;
+                            greTItem.Insert();
                         end;
                 end;
 
@@ -60,17 +60,17 @@ report 31059 "Get Item Ledger Entries - Test"
                 begin
                     IntrastatJnlLine2.SetRange("Source Entry No.", "Entry No.");
                     if IntrastatJnlLine2.FindFirst or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if Item."No." <> "No." then
                         Item.Get("No.");
 
                     if Item."Tariff No." = '' then
                         if not greTItem.Get(Item."No.") then begin
-                            greTItem.Init;
+                            greTItem.Init();
                             greTItem."No." := Item."No.";
                             greTItem.Description := Item.Description;
-                            greTItem.Insert;
+                            greTItem.Insert();
                         end;
                 end;
 
@@ -86,9 +86,6 @@ report 31059 "Get Item Ledger Entries - Test"
         {
             DataItemTableView = SORTING(Number);
             column(USERID; UserId)
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
             {
             }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
@@ -131,7 +128,7 @@ report 31059 "Get Item Ledger Entries - Test"
             trigger OnPreDataItem()
             begin
                 if not greTItem.Find('-') then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 SetRange(Number, 1, greTItem.Count);
             end;
         }
@@ -199,7 +196,7 @@ report 31059 "Get Item Ledger Entries - Test"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

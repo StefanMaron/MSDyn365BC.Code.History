@@ -37,7 +37,7 @@ report 85 "Copy - VAT Posting Setup"
                     ToNonDeductableVATSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     ToNonDeductableVATSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
                     if not ToNonDeductableVATSetup.IsEmpty then
-                        ToNonDeductableVATSetup.DeleteAll;
+                        ToNonDeductableVATSetup.DeleteAll();
 
                     FromNonDeductableVATSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
                     FromNonDeductableVATSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -46,7 +46,7 @@ report 85 "Copy - VAT Posting Setup"
                             ToNonDeductableVATSetup := FromNonDeductableVATSetup;
                             ToNonDeductableVATSetup."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
                             ToNonDeductableVATSetup."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                            ToNonDeductableVATSetup.Insert;
+                            ToNonDeductableVATSetup.Insert();
                         until FromNonDeductableVATSetup.Next = 0;
                     end;
                     // NAVCZ

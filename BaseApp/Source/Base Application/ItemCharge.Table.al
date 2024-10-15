@@ -236,7 +236,7 @@ table 5800 "Item Charge"
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
         // NAVCZ
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
 }

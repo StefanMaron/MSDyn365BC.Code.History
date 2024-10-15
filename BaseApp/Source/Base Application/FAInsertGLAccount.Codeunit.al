@@ -184,7 +184,7 @@ codeunit 5601 "FA Insert G/L Account"
             SetRange(Code, PostingGrCode);
             SetRange("Allocation Type", FAPostingType);
             // NAVCZ
-            FASetup.Get;
+            FASetup.Get();
             if FASetup."FA Disposal By Reason Code" or ExtSetupExist then
                 SetRange("Reason/Maintenance Code", ReasonMaintenanceCode)
             else
@@ -282,8 +282,8 @@ codeunit 5601 "FA Insert G/L Account"
         SkipInsert: Boolean;
     begin
         OnBeforeGetBalAccLocal(GenJnlLine);
-        TempFAGLPostBuf.DeleteAll;
-        TempGenJnlLine.Init;
+        TempFAGLPostBuf.DeleteAll();
+        TempGenJnlLine.Init();
         with GenJnlLine do begin
             Reset;
             Find;
@@ -327,7 +327,7 @@ codeunit 5601 "FA Insert G/L Account"
                     InsertGenJnlLine(GenJnlLine);
                 until TempFAGLPostBuf.Next = 0;
         end;
-        TempFAGLPostBuf.DeleteAll;
+        TempFAGLPostBuf.DeleteAll();
         exit(GenJnlLine."Line No.");
     end;
 
@@ -422,7 +422,7 @@ codeunit 5601 "FA Insert G/L Account"
                 FAPostingType::Maintenance:
                     begin
                         // NAVCZ
-                        FASetup.Get;
+                        FASetup.Get();
                         if FASetup."FA Maintenance By Maint. Code" then begin
                             FAExtPostingGr.Get(Code, 2, ReasonMaintenanceCode);
                             FAExtPostingGr.TestField("Maintenance Bal. Acc.");
@@ -456,7 +456,7 @@ codeunit 5601 "FA Insert G/L Account"
                 FAPostingType::"Book Value Gain":
                     begin
                         // NAVCZ
-                        FASetup.Get;
+                        FASetup.Get();
                         if FASetup."FA Disposal By Reason Code" then begin
                             FAExtPostingGr.Get(Code, 1, ReasonMaintenanceCode);
                             FAExtPostingGr.TestField("Book Val. Acc. on Disp. (Gain)");
@@ -475,7 +475,7 @@ codeunit 5601 "FA Insert G/L Account"
                 FAPostingType::"Book Value Loss":
                     begin
                         // NAVCZ
-                        FASetup.Get;
+                        FASetup.Get();
                         if FASetup."FA Disposal By Reason Code" then begin
                             FAExtPostingGr.Get(Code, 1, ReasonMaintenanceCode);
                             FAExtPostingGr.TestField("Book Val. Acc. on Disp. (Loss)");
@@ -529,16 +529,17 @@ codeunit 5601 "FA Insert G/L Account"
 
     local procedure InsertBufferEntry()
     begin
-        if TempFAGLPostBuf.Find('+') then
-            NextEntryNo := TempFAGLPostBuf."Entry No." + 1
+        if TempFAGLPostBuf.IsEmpty() then
+            NextEntryNo := GLEntryNo
         else
-            NextEntryNo := GLEntryNo;
+            NextEntryNo := TempFAGLPostBuf.GetLastEntryNo() + 1;
+
         TempFAGLPostBuf := FAGLPostBuf;
         TempFAGLPostBuf."Entry No." := NextEntryNo;
         TempFAGLPostBuf."Original General Journal Line" := OrgGenJnlLine;
         TempFAGLPostBuf."Net Disposal" := NetDisp;
         OnInsertBufferEntryOnBeforeBufferInsert(TempFAGLPostBuf, FAGLPostBuf);
-        TempFAGLPostBuf.Insert;
+        TempFAGLPostBuf.Insert();
         NumberOfEntries := NumberOfEntries + 1;
     end;
 
@@ -562,7 +563,7 @@ codeunit 5601 "FA Insert G/L Account"
 
     procedure DeleteAllGLAcc()
     begin
-        TempFAGLPostBuf.DeleteAll;
+        TempFAGLPostBuf.DeleteAll();
         DisposalEntryNo := 0;
         BookValueEntry := false;
     end;
@@ -622,7 +623,7 @@ codeunit 5601 "FA Insert G/L Account"
             else
                 TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss;
         OnBeforeTempFAGLPostBufModify(FAPostingGr2, TempFAGLPostBuf, GLAmount);
-        TempFAGLPostBuf.Modify;
+        TempFAGLPostBuf.Modify();
         FAGLPostBuf := TempFAGLPostBuf;
         if LastDisposal then
             exit;

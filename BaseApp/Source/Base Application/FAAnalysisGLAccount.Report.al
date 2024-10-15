@@ -18,9 +18,6 @@ report 31041 "FA - Analysis G/L Account"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -161,7 +158,7 @@ report 31041 "FA - Analysis G/L Account"
                     trigger OnAfterGetRecord()
                     begin
                         if not FA.Get("FA No.") then
-                            FA.Init;
+                            FA.Init();
 
                         TotalDebit += "Debit Amount";
                         TotalCredit += "Credit Amount";

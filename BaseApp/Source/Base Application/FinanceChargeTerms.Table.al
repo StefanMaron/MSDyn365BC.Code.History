@@ -110,13 +110,13 @@ table 5 "Finance Charge Terms"
         MultipleInterestRate: Record "Multiple Interest Rate";
     begin
         FinChrgText.SetRange("Fin. Charge Terms Code", Code);
-        FinChrgText.DeleteAll;
+        FinChrgText.DeleteAll();
 
         CurrForFinChrgTerms.SetRange("Fin. Charge Terms Code", Code);
-        CurrForFinChrgTerms.DeleteAll;
+        CurrForFinChrgTerms.DeleteAll();
         // NAVCZ
         MultipleInterestRate.SetRange("Finance Charge Code", Code);
-        MultipleInterestRate.DeleteAll;
+        MultipleInterestRate.DeleteAll();
         // NAVCZ
     end;
 
@@ -135,7 +135,7 @@ table 5 "Finance Charge Terms"
         RateFactor: Decimal;
     begin
         // NAVCZ
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Multiple Interest Rates" then begin
             FindMultipleInterestRate(PayDate, MultipleInterestRate);
             StartDate := CalcDate('<1D>', PayDate);
@@ -190,7 +190,7 @@ table 5 "Finance Charge Terms"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         // NAVCZ
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Multiple Interest Rates" then begin
             MultipleInterestRate.SetRange("Finance Charge Code", Code);
             MultipleInterestRate.SetRange("Valid from Date", 0D, CalcDate('<1D>', InterestStartDate));

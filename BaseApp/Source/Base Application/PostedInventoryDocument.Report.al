@@ -16,13 +16,13 @@ report 31078 "Posted Inventory Document"
             trigger OnAfterGetRecord()
             begin
                 ItemReg := "Item Register";
-                CurrReport.Break;
+                CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if "Item Register".GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(ItemLedgerEntry; "Item Ledger Entry")
@@ -51,9 +51,6 @@ report 31078 "Posted Inventory Document"
             {
             }
             column(DocumentNo; "Document No.")
-            {
-            }
-            column(PageNo; CurrReport.PageNo)
             {
             }
             column(IssueDate; Format("Document Date", 0, 4))
@@ -211,7 +208,7 @@ report 31078 "Posted Inventory Document"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

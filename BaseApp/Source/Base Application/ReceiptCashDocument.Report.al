@@ -150,7 +150,7 @@ report 11730 "Receipt Cash Document"
 
                 trigger OnAfterGetRecord()
                 begin
-                    VATAmountLine.Init;
+                    VATAmountLine.Init();
                     VATAmountLine."VAT Identifier" := "VAT Identifier";
                     VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                     VATAmountLine."VAT %" := "VAT %";
@@ -165,7 +165,7 @@ report 11730 "Receipt Cash Document"
 
                 trigger OnPreDataItem()
                 begin
-                    VATAmountLine.DeleteAll;
+                    VATAmountLine.DeleteAll();
                 end;
             }
             dataitem(VATCounter; "Integer")

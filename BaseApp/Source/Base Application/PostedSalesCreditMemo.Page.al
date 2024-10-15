@@ -875,6 +875,24 @@ page 134 "Posted Sales Credit Memo"
                     SalesCrMemoHeader.EmailRecords(true);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category7;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+                begin
+                    SalesCrMemoHeader := Rec;
+                    SalesCrMemoHeader.SetRecFilter();
+                    PrintToDocumentAttachment(SalesCrMemoHeader);
+                end;
+            }
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;

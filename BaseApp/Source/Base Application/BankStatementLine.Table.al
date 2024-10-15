@@ -61,7 +61,7 @@ table 11705 "Bank Statement Line"
                     Type::"Bank Account":
                         begin
                             if not BankAcc.Get("No.") then
-                                BankAcc.Init;
+                                BankAcc.Init();
                             BankAcc.TestField("Account Type", BankAcc."Account Type"::"Bank Account");
                             "Account No." := BankAcc."Bank Account No.";
                             Name := BankAcc.Name;
@@ -69,13 +69,13 @@ table 11705 "Bank Statement Line"
                     Type::Customer:
                         begin
                             if not Cust.Get("No.") then
-                                Cust.Init;
+                                Cust.Init();
                             Name := Cust.Name;
                         end;
                     Type::Vendor:
                         begin
                             if not Vend.Get("No.") then
-                                Vend.Init;
+                                Vend.Init();
                             Name := Vend.Name;
                         end;
                 end;
@@ -98,13 +98,13 @@ table 11705 "Bank Statement Line"
                         Type::Vendor:
                             begin
                                 if not VendBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
-                                    VendBankAcc.Init;
+                                    VendBankAcc.Init();
                                 "Account No." := VendBankAcc."Bank Account No.";
                             end;
                         Type::Customer:
                             begin
                                 if not CustBankAcc.Get("No.", "Cust./Vendor Bank Account Code") then
-                                    CustBankAcc.Init;
+                                    CustBankAcc.Init();
                                 "Account No." := CustBankAcc."Bank Account No.";
                             end
                         else
@@ -128,7 +128,7 @@ table 11705 "Bank Statement Line"
             begin
                 BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
 
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 CompanyInfo.CheckCzBankAccountNo("Account No.");
 
                 if "Account No." <> xRec."Account No." then begin

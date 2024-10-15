@@ -28,8 +28,8 @@ codeunit 5901 ServLoanerManagement
             Loaner.TestField(Lent, false);
             Loaner.TestField(Blocked, false);
 
-            LoanerEntry.LockTable;
-            LoanerEntry.Init;
+            LoanerEntry.LockTable();
+            LoanerEntry.Init();
             LoanerEntry."Entry No." := LoanerEntry.GetNextEntryNo;
             LoanerEntry."Loaner No." := ServItemLine."Loaner No.";
             LoanerEntry."Document Type" := ServItemLine."Document Type" + 1;
@@ -44,7 +44,7 @@ codeunit 5901 ServLoanerManagement
             LoanerEntry."Date Received" := 0D;
             LoanerEntry."Time Received" := 0T;
             LoanerEntry.Lent := true;
-            LoanerEntry.Insert;
+            LoanerEntry.Insert();
             Clear(ServLogMgt);
             ServLogMgt.LoanerLent(LoanerEntry);
         end else
@@ -61,7 +61,7 @@ codeunit 5901 ServLoanerManagement
         if ServItemLine."Loaner No." <> '' then begin
             if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, ServItemLine."Loaner No."), true) then
                 exit;
-            LoanerEntry.Reset;
+            LoanerEntry.Reset();
             LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
             LoanerEntry.SetRange("Document Type", ServItemLine."Document Type" + 1);
             LoanerEntry.SetRange("Document No.", ServItemLine."Document No.");
@@ -71,9 +71,9 @@ codeunit 5901 ServLoanerManagement
                 LoanerEntry."Date Received" := WorkDate;
                 LoanerEntry."Time Received" := Time;
                 LoanerEntry.Lent := false;
-                LoanerEntry.Modify;
+                LoanerEntry.Modify();
                 ServItemLine."Loaner No." := '';
-                ServItemLine.Modify;
+                ServItemLine.Modify();
                 Clear(ServLogMgt);
                 ServLogMgt.LoanerReceived(LoanerEntry);
                 ClearLoanerField(ServItemLine."Document No.", ServItemLine."Line No.", LoanerEntry."Loaner No.");
@@ -99,7 +99,7 @@ codeunit 5901 ServLoanerManagement
         if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text005, ServShipmentItemLine."Loaner No."), true) then
             exit;
         ServShptHeader.Get(ServShipmentItemLine."No.");
-        LoanerEntry.Reset;
+        LoanerEntry.Reset();
         LoanerEntry.SetCurrentKey("Document Type", "Document No.", "Loaner No.", Lent);
         LoanerEntry.SetRange("Document Type", LoanerEntry."Document Type"::Order);
         LoanerEntry.SetRange("Document No.", ServShptHeader."Order No.");
@@ -109,9 +109,9 @@ codeunit 5901 ServLoanerManagement
             LoanerEntry."Date Received" := WorkDate;
             LoanerEntry."Time Received" := Time;
             LoanerEntry.Lent := false;
-            LoanerEntry.Modify;
+            LoanerEntry.Modify();
             ServShipmentItemLine."Loaner No." := '';
-            ServShipmentItemLine.Modify;
+            ServShipmentItemLine.Modify();
             Clear(ServLogMgt);
             ServLogMgt.LoanerReceived(LoanerEntry);
             ClearLoanerField(ServShptHeader."Order No.", ServShipmentItemLine."Line No.", LoanerEntry."Loaner No.");
@@ -131,19 +131,19 @@ codeunit 5901 ServLoanerManagement
         if ServItemLine.Get(ServiceHeader."Document Type"::Order, OrderNo, LineNo) then
             if ServItemLine."Loaner No." = LoanerNo then begin
                 ServItemLine."Loaner No." := '';
-                ServItemLine.Modify;
+                ServItemLine.Modify();
             end;
 
-        ServShptHeader.Reset;
+        ServShptHeader.Reset();
         ServShptHeader.SetCurrentKey("Order No.");
         ServShptHeader.SetRange("Order No.", OrderNo);
         if ServShptHeader.Find('-') then
             repeat
-                ServShptItemLine.Reset;
+                ServShptItemLine.Reset();
                 if ServShptItemLine.Get(ServShptHeader."No.", LineNo) then
                     if ServShptItemLine."Loaner No." = LoanerNo then begin
                         ServShptItemLine."Loaner No." := '';
-                        ServShptItemLine.Modify;
+                        ServShptItemLine.Modify();
                     end;
             until ServShptHeader.Next = 0;
     end;
@@ -169,7 +169,7 @@ codeunit 5901 ServLoanerManagement
                     if ServItemLine.Get(LoanerEntry."Document Type" - 1, LoanerEntry."Document No.", LoanerEntry."Service Item Line No.") then
                         ReceiveLoaner(ServItemLine)
                     else begin
-                        ServShptHeader.Reset;
+                        ServShptHeader.Reset();
                         ServShptHeader.SetCurrentKey("Order No.");
                         ServShptHeader.SetRange("Order No.", LoanerEntry."Document No.");
                         if ServShptHeader.FindLast then begin
@@ -181,7 +181,7 @@ codeunit 5901 ServLoanerManagement
                                 LoanerEntry."Date Received" := WorkDate;
                                 LoanerEntry."Time Received" := Time;
                                 LoanerEntry.Lent := false;
-                                LoanerEntry.Modify;
+                                LoanerEntry.Modify();
                             end;
                     end;
             end else

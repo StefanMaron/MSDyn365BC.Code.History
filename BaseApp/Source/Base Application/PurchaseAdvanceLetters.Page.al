@@ -364,7 +364,7 @@ page 31022 "Purchase Advance Letters"
     var
         PurchAdvPmtTemplate: Record "Purchase Adv. Payment Template";
     begin
-        PurchAdvPmtTemplate.Reset;
+        PurchAdvPmtTemplate.Reset();
         case PurchAdvPmtTemplate.Count of
             0:
                 exit(Result);

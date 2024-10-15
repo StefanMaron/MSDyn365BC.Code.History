@@ -380,10 +380,6 @@ table 79 "Company Information"
                         Error(GLNCheckDigitErr, FieldCaption(GLN));
             end;
         }
-        field(95; "Use GLN in Electronic Document"; Boolean)
-        {
-            Caption = 'Use GLN in Electronic Documents';
-        }
         field(96; "Picture - Last Mod. Date Time"; DateTime)
         {
             Caption = 'Picture - Last Mod. Date Time';
@@ -833,7 +829,7 @@ table 79 "Company Information"
         DocumentFooter: Record "Document Footer";
     begin
         // NAVCZ
-        DocumentFooter.Init;
+        DocumentFooter.Init();
         DocumentFooter.SetFilter("Language Code", '%1|%2', '', LanguageCode);
         if DocumentFooter.FindLast then
             exit(DocumentFooter."Footer Text");

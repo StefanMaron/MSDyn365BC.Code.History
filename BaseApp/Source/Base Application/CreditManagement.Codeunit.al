@@ -34,24 +34,24 @@ codeunit 31050 CreditManagement
             if CustLedgEntry.Find('-') then begin
                 repeat
                     Clear(CreditLine);
-                    CreditLine.Init;
+                    CreditLine.Init();
                     CreditLine.Validate("Credit No.", CreditHeader."No.");
                     CreditLine."Line No." := LineNo;
                     CreditLine.Validate("Source Type", CreditLine."Source Type"::Customer);
                     CreditLine.Validate("Source Entry No.", CustLedgEntry."Entry No.");
-                    CreditLine.Insert;
+                    CreditLine.Insert();
                     LineNo += 10000;
                 until CustLedgEntry.Next = 0;
             end;
             if VendLedgEntry.Find('-') then begin
                 repeat
                     Clear(CreditLine);
-                    CreditLine.Init;
+                    CreditLine.Init();
                     CreditLine.Validate("Credit No.", CreditHeader."No.");
                     CreditLine."Line No." := LineNo;
                     CreditLine.Validate("Source Type", CreditLine."Source Type"::Vendor);
                     CreditLine.Validate("Source Entry No.", VendLedgEntry."Entry No.");
-                    CreditLine.Insert;
+                    CreditLine.Insert();
                     LineNo += 10000;
                 until VendLedgEntry.Next = 0;
             end;
@@ -77,7 +77,7 @@ codeunit 31050 CreditManagement
                         CustLedgEntry."Applies-to ID" := AppliesToID;
                         CustLedgEntry."Amount to Apply" := 0;
                     end;
-                    CustLedgEntry.Modify;
+                    CustLedgEntry.Modify();
                 end;
             CreditLine."Source Type"::Vendor:
                 begin
@@ -92,7 +92,7 @@ codeunit 31050 CreditManagement
                         VendLedgEntry."Applies-to ID" := AppliesToID;
                         VendLedgEntry."Amount to Apply" := 0;
                     end;
-                    VendLedgEntry.Modify;
+                    VendLedgEntry.Modify();
                 end;
         end;
     end;
@@ -112,7 +112,7 @@ codeunit 31050 CreditManagement
 
         Amt := CreditLine."Amount (LCY)";
 
-        CreditLine.Reset;
+        CreditLine.Reset();
         CreditLine.SetRange("Credit No.", CreditHeader."No.");
         CreditLine.SetRange("Manual Change Only", false);
         if CreditLine.FindSet then

@@ -40,7 +40,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -474,7 +474,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         // SETUP: Change VAT Prod. Posting Group to new on one of the lines.
         GetSalesLine(SalesHeader, SalesLine);
-        LineCount := SalesLine.Count;
+        LineCount := SalesLine.Count();
         if First then
             SalesLine.Next
         else
@@ -786,7 +786,6 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // SETUP: Create and Save data to update in a temporary table.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, ERMVATToolHelper.CreateCustomer);
         SalesHeader.Validate("Prices Including VAT", true);
-        SalesHeader.Validate("Prepayment Type", SalesHeader."Prepayment Type"::Prepayment); // NAVCZ
         ERMVATToolHelper.CreateSalesLines(SalesHeader, '', GetLineCount(false));
         TempRecRef.Open(DATABASE::"Sales Line", true);
         ERMVATToolHelper.CreateLinesRefSales(TempRecRef, SalesHeader);
@@ -842,7 +841,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ERMVATToolHelper.CreateSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, '', 1);
         AddLineWithNextLineNo(SalesHeader);
         GetSalesLine(SalesHeader, SalesLine);
-        LineCount := SalesLine.Count;
+        LineCount := SalesLine.Count();
 
         // SETUP: Ship
         ERMVATToolHelper.UpdateQtyToShip(SalesHeader);
@@ -1527,7 +1526,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ReqWkshTemplate.SetRange(Type, ReqWkshName."Template Type"::"Req.");
         ReqWkshTemplate.FindFirst;
         LibraryPlanning.CreateRequisitionWkshName(ReqWkshName, ReqWkshTemplate.Name);
-        ReqLine.Init;
+        ReqLine.Init();
         ReqLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         ReqLine.Validate("Journal Batch Name", ReqWkshName.Name);
         // No INSERT.
@@ -1585,7 +1584,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
 
         for I := 1 to Count do begin
             Clear(ProductionOrder);
-            ProductionOrder.Init;
+            ProductionOrder.Init();
             ProductionOrder.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
             ProductionOrder.Insert(true);
             RecRef.GetTable(ProductionOrder);
@@ -1609,7 +1608,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         ReminderHeader.Validate("Customer No.", ERMVATToolHelper.CreateCustomer);
         ReminderHeader.Modify(true);
         for I := 1 to Count do begin
-            ReminderLine.Init;
+            ReminderLine.Init();
             ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
             ReminderLine.Validate(Type, ReminderLine.Type::"G/L Account");
             RecRef.GetTable(ReminderLine);
@@ -1877,7 +1876,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
     local procedure SetTempTableSales(TempRecRef: RecordRef; var TempSalesLn: Record "Sales Line" temporary)
     begin
         // SETTABLE call required for each record of the temporary table.
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         if TempRecRef.FindSet then begin
             TempSalesLn.SetView(TempRecRef.GetView);
             repeat
@@ -2027,11 +2026,11 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         VATProdPostingGroupNew: Code[20];
         GenProdPostingGroupNew: Code[20];
     begin
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupOld, GenProdPostingGroupOld);
         ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupNew, GenProdPostingGroupNew, TempRecRef.Number);
 
-        SalesLn.Reset;
+        SalesLn.Reset();
         SalesLn.SetFilter("VAT Prod. Posting Group", StrSubstNo(GroupFilter, VATProdPostingGroupOld, VATProdPostingGroupNew));
         SalesLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo(GroupFilter, GenProdPostingGroupOld, GenProdPostingGroupNew));
         SalesLn.FindSet;
@@ -2039,7 +2038,7 @@ codeunit 134051 "ERM VAT Tool - Sales Doc"
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, SalesLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, SalesLn.GetFilters));
 
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         SetTempTableSales(TempRecRef, TempSalesLn);
         TempSalesLn.FindSet;
 

@@ -342,9 +342,9 @@ table 31093 "Reverse Charge Header"
     begin
         TestField(Status, Status::Open);
 
-        ReverseChargeLine.Reset;
+        ReverseChargeLine.Reset();
         ReverseChargeLine.SetRange("Reverse Charge No.", "No.");
-        ReverseChargeLine.DeleteAll;
+        ReverseChargeLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -377,8 +377,8 @@ table 31093 "Reverse Charge Header"
         StatReportingSetup: Record "Stat. Reporting Setup";
         Country: Record "Country/Region";
     begin
-        CompanyInfo.Get;
-        StatReportingSetup.Get;
+        CompanyInfo.Get();
+        StatReportingSetup.Get();
 
         "Document Date" := WorkDate;
 
@@ -415,7 +415,7 @@ table 31093 "Reverse Charge Header"
     var
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("Reverse Charge Nos.");
         exit(StatReportingSetup."Reverse Charge Nos.");
     end;
@@ -463,7 +463,7 @@ table 31093 "Reverse Charge Header"
         if "Start Date" >= "End Date" then
             Error(EarlierThanErr, FieldCaption("Start Date"), FieldCaption("End Date"));
 
-        ReverseChargeHdr.Reset;
+        ReverseChargeHdr.Reset();
         ReverseChargeHdr.SetCurrentKey("Start Date", "End Date");
         ReverseChargeHdr.SetRange("Start Date", "Start Date");
         ReverseChargeHdr.SetRange("End Date", "End Date");
@@ -480,7 +480,7 @@ table 31093 "Reverse Charge Header"
     var
         ReverseChargeLn: Record "Reverse Charge Line";
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         ReverseChargeLn."VAT Registration No." := "VAT Registration No.";
         ReverseChargeLn."Country/Region Code" := CompanyInfo."Country/Region Code";
         exit(ReverseChargeLn.GetVATRegNo);

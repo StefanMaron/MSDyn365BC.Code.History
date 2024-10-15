@@ -425,7 +425,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryInventory.CreateShippingAgent(ShippingAgent);
         LibraryInventory.CreateShippingAgentService(ShippingAgentServices, ShippingAgent.Code, DateFormula);
 
-        SalesShptHeader.Init;
+        SalesShptHeader.Init();
         SalesShptHeader."Shipping Agent Code" := ShippingAgent.Code;
         SalesShptHeader."Shipping Agent Service Code" := ShippingAgentServices.Code;
         SalesShptHeader."Package Tracking No." := LibraryUtility.GenerateGUID;
@@ -459,7 +459,7 @@ codeunit 134658 "Edit Posted Documents"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
 
-        ReturnShptHeader.Init;
+        ReturnShptHeader.Init();
         ReturnShptHeader."Ship-to County" := LibraryUtility.GenerateGUID;
         ReturnShptHeader."Ship-to Country/Region Code" := CountryRegion.Code;
     end;
@@ -472,7 +472,7 @@ codeunit 134658 "Edit Posted Documents"
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibraryInventory.CreateShippingAgent(ShippingAgent);
 
-        ReturnRcptHeader.Init;
+        ReturnRcptHeader.Init();
         ReturnRcptHeader."Bill-to County" := LibraryUtility.GenerateGUID;
         ReturnRcptHeader."Bill-to Country/Region Code" := CountryRegion.Code;
         ReturnRcptHeader."Shipping Agent Code" := ShippingAgent.Code;

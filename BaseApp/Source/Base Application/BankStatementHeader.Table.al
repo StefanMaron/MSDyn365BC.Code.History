@@ -36,7 +36,7 @@ table 11704 "Bank Statement Header"
                 BankAccount: Record "Bank Account";
             begin
                 if not BankAccount.Get("Bank Account No.") then
-                    BankAccount.Init;
+                    BankAccount.Init();
                 "Account No." := BankAccount."Bank Account No.";
                 BankAccount.TestField(Blocked, false);
                 IBAN := BankAccount.IBAN;
@@ -404,12 +404,12 @@ table 11704 "Bank Statement Header"
                 exit;
         end;
 
-        BankStmtLine.LockTable;
+        BankStmtLine.LockTable();
         "Last Date Modified" := Today;
         "User ID" := UserId;
         Modify;
 
-        BankStmtLine.Reset;
+        BankStmtLine.Reset();
         BankStmtLine.SetRange("Bank Statement No.", "No.");
         if BankStmtLine.FindSet then
             repeat
@@ -446,7 +446,7 @@ table 11704 "Bank Statement Header"
     var
         BankStmtLine: Record "Bank Statement Line";
     begin
-        BankStmtLine.Reset;
+        BankStmtLine.Reset();
         BankStmtLine.SetRange("Bank Statement No.", "No.");
         exit(not BankStmtLine.IsEmpty);
     end;

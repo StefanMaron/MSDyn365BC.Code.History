@@ -563,7 +563,6 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         PostedDocumentNo: Code[20];
         Amount: Decimal;
         PaymentTolerance: Decimal;
@@ -581,7 +580,6 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         CreateAndModifyPurchaseLine(PurchaseHeader);
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreateGeneralJournalLine(GenJournalLine, 1, Vendor."No.", GenJournalLine."Document Type"::Payment, 0);  // Taken 1 and 0 to create only one General Journal line with zero amount.
-        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         Amount := OpenGeneralJournalPage(GenJournalLine."Document No.", GenJournalLine."Document Type");
 
         // Exericse.
@@ -1169,7 +1167,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('UnapplyVendorEntriesPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyEntryWithLaterAdjustedExchRate()
     var
@@ -1251,7 +1249,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1732,7 +1730,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Unapplied Purch. Entry Appln.", UnappliedPurchEntryAppln);
         SourceCodeSetup.Modify(true);
     end;
@@ -1743,7 +1741,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
         // Use Random Number Generator for Exchange Rate.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CurrencyExchangeRate.SetRange("Currency Code", GeneralLedgerSetup."Additional Reporting Currency");
         CurrencyExchangeRate.FindFirst;
         LibraryERM.CreateExchRate(CurrencyExchangeRate, GeneralLedgerSetup."Additional Reporting Currency", PostingDate);
@@ -2126,7 +2124,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", PaymentTolerance);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2135,7 +2133,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2166,7 +2164,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Appln. between Currencies", ApplnbetweenCurrencies);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2215,7 +2213,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         Currency: Record Currency;
         AdditionalCurrencyAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Currency.Get(GeneralLedgerSetup."Additional Reporting Currency");
         FindGLEntries(GLEntry, DocumentNo);
         repeat
@@ -2470,13 +2468,6 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     procedure VendorLedgerEntriesPageHandler(var VendorLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
         VendorLedgerEntries.ActionApplyEntries.Invoke;
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [ModalPageHandler]

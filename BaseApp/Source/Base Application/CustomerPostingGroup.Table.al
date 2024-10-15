@@ -535,11 +535,11 @@ table 92 "Customer Posting Group"
         SalesSetup: Record "Sales & Receivables Setup";
         PaymentTerms: Record "Payment Terms";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
         PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         InvRoundingVisible := SalesSetup."Invoice Rounding";
         ApplnRoundingVisible := SalesSetup."Appln. between Currencies" <> SalesSetup."Appln. between Currencies"::None;
     end;
@@ -568,10 +568,10 @@ table 92 "Customer Posting Group"
     begin
         // NAVCZ
         SubstCustPostingGroup.SetRange("Parent Cust. Posting Group", Code);
-        SubstCustPostingGroup.DeleteAll;
-        SubstCustPostingGroup.Reset;
+        SubstCustPostingGroup.DeleteAll();
+        SubstCustPostingGroup.Reset();
         SubstCustPostingGroup.SetRange("Customer Posting Group", Code);
-        SubstCustPostingGroup.DeleteAll;
+        SubstCustPostingGroup.DeleteAll();
     end;
 
     local procedure CheckOpenCustLedgEntries(Prepayment1: Boolean)

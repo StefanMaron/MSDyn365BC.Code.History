@@ -79,13 +79,13 @@ report 11788 "Create VAT Period"
             if FirstPeriodStartDate <> 0D then
                 if (VATPeriodStartDate >= FirstPeriodStartDate) and (VATPeriodStartDate < LastPeriodStartDate) then
                     Error(Text004);
-            VATPeriod.Init;
+            VATPeriod.Init();
             VATPeriod."Starting Date" := VATPeriodStartDate;
             VATPeriod.Validate("Starting Date");
             if (i = 1) or (i = NoOfPeriods + 1) then
                 VATPeriod."New VAT Year" := true;
             if not VATPeriod.Find('=') then
-                VATPeriod.Insert;
+                VATPeriod.Insert();
             VATPeriodStartDate := CalcDate(PeriodLength, VATPeriodStartDate);
         end;
     end;

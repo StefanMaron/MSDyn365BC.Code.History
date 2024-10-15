@@ -221,7 +221,7 @@ report 11743 "Cash Desk Hand Over"
     begin
         CashDesk.Get(CashDeskNo);
         if CashDesk."Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrCode := GLSetup."LCY Code";
         end else
             CurrCode := CashDesk."Currency Code";

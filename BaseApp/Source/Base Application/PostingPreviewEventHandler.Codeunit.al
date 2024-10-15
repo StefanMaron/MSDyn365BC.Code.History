@@ -163,7 +163,7 @@ codeunit 20 "Posting Preview Event Handler"
 
     procedure FillDocumentEntry(var TempDocumentEntry: Record "Document Entry" temporary)
     begin
-        TempDocumentEntry.DeleteAll;
+        TempDocumentEntry.DeleteAll();
         InsertDocumentEntry(TempGLEntry, TempDocumentEntry);
         InsertDocumentEntry(TempVATEntry, TempDocumentEntry);
         InsertDocumentEntry(TempValueEntry, TempDocumentEntry);
@@ -199,12 +199,12 @@ codeunit 20 "Posting Preview Event Handler"
         if RecRef.IsEmpty then
             exit;
 
-        TempDocumentEntry.Init;
+        TempDocumentEntry.Init();
         TempDocumentEntry."Entry No." := RecRef.Number;
         TempDocumentEntry."Table ID" := RecRef.Number;
         TempDocumentEntry."Table Name" := RecRef.Caption;
-        TempDocumentEntry."No. of Records" := RecRef.Count;
-        TempDocumentEntry.Insert;
+        TempDocumentEntry."No. of Records" := RecRef.Count();
+        TempDocumentEntry.Insert();
     end;
 
     procedure PreventCommit()
@@ -215,7 +215,7 @@ codeunit 20 "Posting Preview Event Handler"
             exit;
 
         // Mark any table as inconsistent as long as it is not made consistent later in the transaction
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader.Consistent(false);
         CommitPrevented := true;
     end;
@@ -226,10 +226,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempGLEntry := Rec;
         TempGLEntry."Document No." := '***';
-        TempGLEntry.Insert;
+        TempGLEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 254, 'OnAfterInsertEvent', '', false, false)]
@@ -238,11 +238,11 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempVATEntry := Rec;
         TempVATEntry."Document No." := '***';
         TempVATEntry."Pmt.Disc. Tax Corr.Doc. No." := '***'; // NAVCZ
-        TempVATEntry.Insert;
+        TempVATEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5802, 'OnAfterInsertEvent', '', false, false)]
@@ -251,10 +251,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempValueEntry := Rec;
         TempValueEntry."Document No." := '***';
-        TempValueEntry.Insert;
+        TempValueEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 32, 'OnAfterInsertEvent', '', false, false)]
@@ -263,10 +263,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempItemLedgerEntry := Rec;
         TempItemLedgerEntry."Document No." := '***';
-        TempItemLedgerEntry.Insert;
+        TempItemLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5601, 'OnAfterInsertEvent', '', false, false)]
@@ -275,10 +275,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempFALedgEntry := Rec;
         TempFALedgEntry."Document No." := '***';
-        TempFALedgEntry.Insert;
+        TempFALedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 21, 'OnAfterInsertEvent', '', false, false)]
@@ -287,10 +287,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempCustLedgEntry := Rec;
         TempCustLedgEntry."Document No." := '***';
-        TempCustLedgEntry.Insert;
+        TempCustLedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 21, 'OnAfterModifyEvent', '', false, false)]
@@ -302,7 +302,7 @@ codeunit 20 "Posting Preview Event Handler"
         TempCustLedgEntry := Rec;
         TempCustLedgEntry."Document No." := '***';
         if TempCustLedgEntry.Modify then
-            PreventCommit;
+            PreventCommit();
     end;
 
     [EventSubscriber(ObjectType::Table, 379, 'OnAfterInsertEvent', '', false, false)]
@@ -311,10 +311,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempDtldCustLedgEntry := Rec;
         TempDtldCustLedgEntry."Document No." := '***';
-        TempDtldCustLedgEntry.Insert;
+        TempDtldCustLedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 25, 'OnAfterInsertEvent', '', false, false)]
@@ -323,10 +323,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempVendLedgEntry := Rec;
         TempVendLedgEntry."Document No." := '***';
-        TempVendLedgEntry.Insert;
+        TempVendLedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 25, 'OnAfterModifyEvent', '', false, false)]
@@ -338,7 +338,7 @@ codeunit 20 "Posting Preview Event Handler"
         TempVendLedgEntry := Rec;
         TempVendLedgEntry."Document No." := '***';
         if TempVendLedgEntry.Modify then
-            PreventCommit;
+            PreventCommit();
     end;
 
     [EventSubscriber(ObjectType::Table, 380, 'OnAfterInsertEvent', '', false, false)]
@@ -347,10 +347,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempDtldVendLedgEntry := Rec;
         TempDtldVendLedgEntry."Document No." := '***';
-        TempDtldVendLedgEntry.Insert;
+        TempDtldVendLedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5222, 'OnAfterInsertEvent', '', false, false)]
@@ -359,10 +359,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempEmplLedgEntry := Rec;
         TempEmplLedgEntry."Document No." := '***';
-        TempEmplLedgEntry.Insert;
+        TempEmplLedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5223, 'OnAfterInsertEvent', '', false, false)]
@@ -371,10 +371,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempDtldEmplLedgEntry := Rec;
         TempDtldEmplLedgEntry."Document No." := '***';
-        TempDtldEmplLedgEntry.Insert;
+        TempDtldEmplLedgEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 271, 'OnAfterInsertEvent', '', false, false)]
@@ -383,10 +383,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempBankAccLedgerEntry := Rec;
         TempBankAccLedgerEntry."Document No." := '***';
-        TempBankAccLedgerEntry.Insert;
+        TempBankAccLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 203, 'OnAfterInsertEvent', '', false, false)]
@@ -395,10 +395,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempResLedgerEntry := Rec;
         TempResLedgerEntry."Document No." := '***';
-        TempResLedgerEntry.Insert;
+        TempResLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5907, 'OnAfterInsertEvent', '', false, false)]
@@ -407,10 +407,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempServiceLedgerEntry := Rec;
         TempServiceLedgerEntry."Document No." := '***';
-        TempServiceLedgerEntry.Insert;
+        TempServiceLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5907, 'OnAfterModifyEvent', '', false, false)]
@@ -419,10 +419,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempServiceLedgerEntry := Rec;
         TempServiceLedgerEntry."Document No." := '***';
-        if TempServiceLedgerEntry.Insert then;
+        if TempServiceLedgerEntry.Insert() then;
     end;
 
     [EventSubscriber(ObjectType::Table, 5908, 'OnAfterInsertEvent', '', false, false)]
@@ -431,10 +431,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempWarrantyLedgerEntry := Rec;
         TempWarrantyLedgerEntry."Document No." := '***';
-        TempWarrantyLedgerEntry.Insert;
+        TempWarrantyLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 5625, 'OnAfterInsertEvent', '', false, false)]
@@ -443,10 +443,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempMaintenanceLedgerEntry := Rec;
         TempMaintenanceLedgerEntry."Document No." := '***';
-        TempMaintenanceLedgerEntry.Insert;
+        TempMaintenanceLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 169, 'OnAfterInsertEvent', '', false, false)]
@@ -455,10 +455,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempJobLedgerEntry := Rec;
         TempJobLedgerEntry."Document No." := '***';
-        TempJobLedgerEntry.Insert;
+        TempJobLedgerEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 31022, 'OnAfterInsertEvent', '', false, false)]
@@ -468,10 +468,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempPurchAdvanceLetterEntry := Rec;
         TempPurchAdvanceLetterEntry."Document No." := '***';
-        TempPurchAdvanceLetterEntry.Insert;
+        TempPurchAdvanceLetterEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 31002, 'OnAfterInsertEvent', '', false, false)]
@@ -481,10 +481,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempSalesAdvanceLetterEntry := Rec;
         TempSalesAdvanceLetterEntry."Document No." := '***';
-        TempSalesAdvanceLetterEntry.Insert;
+        TempSalesAdvanceLetterEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 31123, 'OnAfterInsertEvent', '', false, false)]
@@ -494,10 +494,10 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempEETEntry := Rec;
         TempEETEntry."Document No." := '***';
-        TempEETEntry.Insert;
+        TempEETEntry.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 31123, 'OnAfterModifyEvent', '', false, false)]
@@ -507,7 +507,7 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         Rec.CalcFields("Signature Code (PKP)");
         TempEETEntry := Rec;
         TempEETEntry."Document No." := '***';
@@ -522,9 +522,9 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempEETEntryStatus := Rec;
-        TempEETEntryStatus.Insert;
+        TempEETEntryStatus.Insert();
     end;
 
     [EventSubscriber(ObjectType::Table, 700, 'OnAfterInsertEvent', '', false, false)]
@@ -534,9 +534,9 @@ codeunit 20 "Posting Preview Event Handler"
         if Rec.IsTemporary then
             exit;
 
-        PreventCommit;
+        PreventCommit();
         TempErrorMessage := Rec;
-        TempErrorMessage.Insert;
+        TempErrorMessage.Insert();
     end;
 
     [IntegrationEvent(false, false)]

@@ -1059,7 +1059,7 @@ page 43 "Sales Invoice"
                         if not Handled then begin
                             CalcInvDiscForHeader;
                             SalesPostAdvances.SetAmtToDedOnSalesDoc(Rec, true); // NAVCZ
-                            Commit;
+                            Commit();
                             PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                             SalesCalcDiscountByType.ResetRecalculateInvoiceDisc(Rec);
                         end
@@ -1728,6 +1728,24 @@ page 43 "Sales Invoice"
                         CancelBackgroundPosting;
                     end;
                 }
+                action(PrintToAttachment)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Attach as PDF';
+                    Ellipsis = true;
+                    Image = PrintAttachment;
+                    ToolTip = 'Create a PDF file and attach it to the document.';
+
+                    trigger OnAction()
+                    var
+                        SalesHeader: Record "Sales Header";
+                        DocumentPrint: Codeunit "Document-Print";
+                    begin
+                        SalesHeader := Rec;
+                        SalesHeader.SetRecFilter();
+                        DocumentPrint.PrintSalesInvoiceToDocumentAttachment(SalesHeader, DocumentPrint.GetSalesInvoicePrintToAttachmentOption(Rec));
+                    end;
+                }
             }
         }
     }
@@ -1773,7 +1791,7 @@ page 43 "Sales Invoice"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        xRec.Init;
+        xRec.Init();
         "Responsibility Center" := UserMgt.GetSalesFilter;
         if (not DocNoVisible) and ("No." = '') then
             SetSellToCustomerFromFilter;
@@ -1844,8 +1862,6 @@ page 43 "Sales Invoice"
         JobQueuesUsed: Boolean;
         CanCancelApprovalForRecord: Boolean;
         DocumentIsPosted: Boolean;
-        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
-        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
         EmptyShipToCodeErr: Label 'The Code field can only be empty if you select Custom Address in the Ship-to field.';
         IsSaaS: Boolean;
         IsBillToCountyVisible: Boolean;
@@ -1854,6 +1870,10 @@ page 43 "Sales Invoice"
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
         SkipConfirmationDialogOnClosing: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Sell-to Address)","Alternate Shipping Address","Custom Address";
+        BillToOptions: Option "Default (Customer)","Another Customer","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -1900,7 +1920,7 @@ page 43 "Sales Invoice"
                         ShowPostedConfirmationMessage(PreAssignedNo);
                 NavigateAfterPost::"New Document":
                     if DocumentIsPosted then begin
-                        SalesHeader.Init;
+                        SalesHeader.Init();
                         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Invoice);
                         OnPostOnBeforeSalesHeaderInsert(SalesHeader);
                         SalesHeader.Insert(true);
@@ -1962,10 +1982,10 @@ page 43 "Sales Invoice"
         AdvLetterNo: Code[20];
     begin
         // NAVCZ
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Calc. Inv. Discount" then begin
             CurrPage.SalesLines.PAGE.CalcInvDisc;
-            Commit;
+            Commit();
             Find;
         end;
 
@@ -1975,7 +1995,7 @@ page 43 "Sales Invoice"
         SalesPostAdvances.Letter(Rec, AdvLetterNo, SalesAPTempl.Code);
 
         if AdvLetter.Get(AdvLetterNo) then begin
-            Commit;
+            Commit();
             if AdvLetter."Template Code" <> '' then
                 AdvLetter.SetRange("Template Code", AdvLetter."Template Code");
             PAGE.Run(PAGE::"Sales Advance Letter", AdvLetter);
@@ -1997,7 +2017,7 @@ page 43 "Sales Invoice"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         ExternalDocNoMandatory := SalesReceivablesSetup."Ext. Doc. No. Mandatory"
     end;
 

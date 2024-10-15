@@ -1,4 +1,4 @@
-﻿page 390 "Phys. Inventory Ledger Entries"
+page 390 "Phys. Inventory Ledger Entries"
 {
     AdditionalSearchTerms = 'physical count entries,inventory cycle entries';
     ApplicationArea = Basic, Suite;
@@ -235,7 +235,7 @@
                     PhysInvtLedgEntry: Record "Phys. Inventory Ledger Entry";
                 begin
                     // NAVCZ
-                    PhysInvtLedgEntry.Reset;
+                    PhysInvtLedgEntry.Reset();
                     PhysInvtLedgEntry.SetRange("Document No.", "Document No.");
                     PhysInvtLedgEntry.SetRange("Posting Date", "Posting Date");
                     REPORT.Run(REPORT::"Phys. Invt. Counting Document", true, false, PhysInvtLedgEntry);

@@ -818,7 +818,7 @@ page 5600 "Fixed Asset Card"
         FASetup: Record "FA Setup";
     begin
         if FADepreciationBook."Depreciation Book Code" = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             FADepreciationBook.Validate("Depreciation Book Code", FASetup."Default Depr. Book");
             SaveSimpleDepriciationBook("No.");
             LoadDepreciationBooks;

@@ -10,7 +10,7 @@ codeunit 7150 "Update Item Analysis View"
     begin
         if Code <> '' then begin
             InitLastEntryNo;
-            LockTable;
+            LockTable();
             Find;
             UpdateOne(Rec, 2, "Last Entry No." < LastValueEntryNo - 1000);
         end;
@@ -57,8 +57,8 @@ codeunit 7150 "Update Item Analysis View"
 
     procedure InitLastEntryNo()
     begin
-        ValueEntry.Reset;
-        ItemBudgetEntry.Reset;
+        ValueEntry.Reset();
+        ItemBudgetEntry.Reset();
         if LastEntryNoIsInitialized then
             exit;
         with ValueEntry do
@@ -92,7 +92,7 @@ codeunit 7150 "Update Item Analysis View"
         if DirectlyFromPosting then
             ItemAnalysisView2.SetFilter("Last Entry No.", '<%1', LastValueEntryNo);
 
-        ItemAnalysisView2.LockTable;
+        ItemAnalysisView2.LockTable();
         if ItemAnalysisView2.FindSet then
             repeat
                 UpdateOne(ItemAnalysisView2, Which, ItemAnalysisView2."Last Entry No." < LastValueEntryNo - 1000);
@@ -103,7 +103,7 @@ codeunit 7150 "Update Item Analysis View"
 
     procedure Update(var NewItemAnalysisView: Record "Item Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; ShowWindow: Boolean)
     begin
-        NewItemAnalysisView.LockTable;
+        NewItemAnalysisView.LockTable();
         NewItemAnalysisView.Find;
         UpdateOne(NewItemAnalysisView, Which, ShowWindow);
     end;
@@ -133,7 +133,7 @@ codeunit 7150 "Update Item Analysis View"
             if LastItemBudgetEntryNo > ItemAnalysisView."Last Budget Entry No." then begin
                 if ShowProgressWindow then
                     UpdateWindowHeader(DATABASE::"Item Analysis View Budg. Entry", ItemBudgetEntry."Entry No.");
-                ItemBudgetEntry.Reset;
+                ItemBudgetEntry.Reset();
                 ItemBudgetEntry.SetRange("Analysis Area", ItemAnalysisView."Analysis Area");
                 ItemBudgetEntry.SetRange("Entry No.", ItemAnalysisView."Last Budget Entry No." + 1, LastItemBudgetEntryNo);
                 UpdateBudgetEntries(ItemAnalysisView."Last Budget Entry No." + 1);
@@ -143,7 +143,7 @@ codeunit 7150 "Update Item Analysis View"
 
         if Updated then begin
             ItemAnalysisView."Last Date Updated" := Today;
-            ItemAnalysisView.Modify;
+            ItemAnalysisView.Modify();
         end;
         if ShowProgressWindow then
             Window.Close;
@@ -154,7 +154,7 @@ codeunit 7150 "Update Item Analysis View"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ProgressIndicator: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         FilterIsInitialized := false;
         ItemAnalysisViewSource.SetRange(AnalysisArea, ItemAnalysisView."Analysis Area");
         ItemAnalysisViewSource.SetRange(AnalysisViewCode, ItemAnalysisView.Code);
@@ -196,8 +196,8 @@ codeunit 7150 "Update Item Analysis View"
         ItemAnalysisViewBudgetEntry.SetRange("Analysis Area", ItemAnalysisView."Analysis Area");
         ItemAnalysisViewBudgetEntry.SetRange("Analysis View Code", ItemAnalysisView.Code);
         ItemAnalysisViewBudgetEntry.SetFilter("Entry No.", '>%1', DeleteFromEntry);
-        ItemAnalysisViewBudgetEntry.DeleteAll;
-        ItemAnalysisViewBudgetEntry.Reset;
+        ItemAnalysisViewBudgetEntry.DeleteAll();
+        ItemAnalysisViewBudgetEntry.Reset();
 
         if ItemAnalysisView."Item Filter" <> '' then
             ItemBudgetEntry.SetFilter("Item No.", ItemAnalysisView."Item Filter");
@@ -237,7 +237,7 @@ codeunit 7150 "Update Item Analysis View"
             if ItemAnalysisView."Date Compression" <> ItemAnalysisView."Date Compression"::None then
                 EntryNo := 0;
         end;
-        TempItemAnalysisViewEntry.Init;
+        TempItemAnalysisViewEntry.Init();
         TempItemAnalysisViewEntry."Analysis Area" := ItemAnalysisView."Analysis Area";
         TempItemAnalysisViewEntry."Analysis View Code" := ItemAnalysisView.Code;
         TempItemAnalysisViewEntry."Item No." := ItemAnalysisViewSource.ItemNo;
@@ -268,7 +268,7 @@ codeunit 7150 "Update Item Analysis View"
 
             AddValue(TempItemAnalysisViewEntry."Sales Amount (Expected)", ItemAnalysisViewSource.SalesAmountExpected);
             AddValue(TempItemAnalysisViewEntry."Cost Amount (Expected)", ItemAnalysisViewSource.CostAmountExpected);
-            TempItemAnalysisViewEntry.Modify;
+            TempItemAnalysisViewEntry.Modify();
         end else begin
             if (ItemAnalysisViewSource.EntryType = ItemAnalysisViewSource.EntryType::"Direct Cost") and
                (ItemAnalysisViewSource.ItemChargeNo = '')
@@ -282,7 +282,7 @@ codeunit 7150 "Update Item Analysis View"
 
             TempItemAnalysisViewEntry."Sales Amount (Expected)" := ItemAnalysisViewSource.SalesAmountExpected;
             TempItemAnalysisViewEntry."Cost Amount (Expected)" := ItemAnalysisViewSource.CostAmountExpected;
-            TempItemAnalysisViewEntry.Insert;
+            TempItemAnalysisViewEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
@@ -316,12 +316,12 @@ codeunit 7150 "Update Item Analysis View"
             AddValue(TempItemAnalysisViewBudgEntry."Sales Amount", ItemBudgetEntry."Sales Amount");
             AddValue(TempItemAnalysisViewBudgEntry."Cost Amount", ItemBudgetEntry."Cost Amount");
             AddValue(TempItemAnalysisViewBudgEntry.Quantity, ItemBudgetEntry.Quantity);
-            TempItemAnalysisViewBudgEntry.Modify;
+            TempItemAnalysisViewBudgEntry.Modify();
         end else begin
             TempItemAnalysisViewBudgEntry."Sales Amount" := ItemBudgetEntry."Sales Amount";
             TempItemAnalysisViewBudgEntry."Cost Amount" := ItemBudgetEntry."Cost Amount";
             TempItemAnalysisViewBudgEntry.Quantity := ItemBudgetEntry.Quantity;
-            TempItemAnalysisViewBudgEntry.Insert;
+            TempItemAnalysisViewBudgEntry.Insert();
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
@@ -366,7 +366,7 @@ codeunit 7150 "Update Item Analysis View"
             Window.Update(6, Text011);
         if TempItemAnalysisViewEntry.FindSet then
             repeat
-                ItemAnalysisViewEntry.Init;
+                ItemAnalysisViewEntry.Init();
                 ItemAnalysisViewEntry := TempItemAnalysisViewEntry;
 
                 if ((ItemAnalysisView."Analysis Area" = ItemAnalysisView."Analysis Area"::Sales) and
@@ -378,9 +378,9 @@ codeunit 7150 "Update Item Analysis View"
                     (ItemAnalysisViewEntry."Item Ledger Entry Type" = ItemAnalysisViewEntry."Item Ledger Entry Type"::" "))
                 then begin
                     if ItemAnalysisViewEntry.Find then
-                        ItemAnalysisViewEntry.Delete;
+                        ItemAnalysisViewEntry.Delete();
                 end else
-                    if not ItemAnalysisViewEntry.Insert then begin
+                    if not ItemAnalysisViewEntry.Insert() then begin
                         ItemAnalysisViewEntry.Find;
                         AddValue(ItemAnalysisViewEntry.Quantity, TempItemAnalysisViewEntry.Quantity);
                         AddValue(ItemAnalysisViewEntry."Invoiced Quantity", TempItemAnalysisViewEntry."Invoiced Quantity");
@@ -392,10 +392,10 @@ codeunit 7150 "Update Item Analysis View"
                         AddValue(ItemAnalysisViewEntry."Sales Amount (Expected)", TempItemAnalysisViewEntry."Sales Amount (Expected)");
                         AddValue(ItemAnalysisViewEntry."Cost Amount (Expected)", TempItemAnalysisViewEntry."Cost Amount (Expected)");
 
-                        ItemAnalysisViewEntry.Modify;
+                        ItemAnalysisViewEntry.Modify();
                     end;
             until TempItemAnalysisViewEntry.Next = 0;
-        TempItemAnalysisViewEntry.DeleteAll;
+        TempItemAnalysisViewEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
             Window.Update(6, Text010);
@@ -407,17 +407,17 @@ codeunit 7150 "Update Item Analysis View"
             Window.Update(6, Text011);
         if TempItemAnalysisViewBudgEntry.FindSet then
             repeat
-                ItemAnalysisViewBudgetEntry.Init;
+                ItemAnalysisViewBudgetEntry.Init();
                 ItemAnalysisViewBudgetEntry := TempItemAnalysisViewBudgEntry;
-                if not ItemAnalysisViewBudgetEntry.Insert then begin
+                if not ItemAnalysisViewBudgetEntry.Insert() then begin
                     ItemAnalysisViewBudgetEntry.Find;
                     AddValue(ItemAnalysisViewBudgetEntry."Sales Amount", TempItemAnalysisViewBudgEntry."Sales Amount");
                     AddValue(ItemAnalysisViewBudgetEntry."Sales Amount", TempItemAnalysisViewBudgEntry."Cost Amount");
                     AddValue(ItemAnalysisViewBudgetEntry."Sales Amount", TempItemAnalysisViewBudgEntry.Quantity);
-                    ItemAnalysisViewBudgetEntry.Modify;
+                    ItemAnalysisViewBudgetEntry.Modify();
                 end;
             until TempItemAnalysisViewBudgEntry.Next = 0;
-        TempItemAnalysisViewBudgEntry.DeleteAll;
+        TempItemAnalysisViewBudgEntry.DeleteAll();
         NoOfEntries := 0;
         if ShowProgressWindow then
             Window.Update(6, Text010);
@@ -434,7 +434,7 @@ codeunit 7150 "Update Item Analysis View"
             TempDimSetEntry."Dimension Code" := DimCode;
             TempDimSetEntry."Dimension Value Code" := '';
         end;
-        TempDimSetEntry.Insert;
+        TempDimSetEntry.Insert();
         exit(TempDimSetEntry."Dimension Value Code");
     end;
 
@@ -493,7 +493,7 @@ codeunit 7150 "Update Item Analysis View"
             repeat
                 ItemAnalysisView2 := ItemAnalysisView;
                 ItemAnalysisView2."Last Budget Entry No." := NewLastBudgetEntryNo;
-                ItemAnalysisView2.Modify;
+                ItemAnalysisView2.Modify();
             until ItemAnalysisView.Next = 0;
     end;
 
@@ -506,7 +506,7 @@ codeunit 7150 "Update Item Analysis View"
     begin
         with TempDimBuf do begin
             Reset;
-            DeleteAll;
+            DeleteAll();
             Init;
             "Dimension Value Code" := DimValue;
             Insert;
@@ -520,7 +520,7 @@ codeunit 7150 "Update Item Analysis View"
         InFilters: Boolean;
     begin
         if not FilterIsInitialized then begin
-            TempDimEntryBuffer.DeleteAll;
+            TempDimEntryBuffer.DeleteAll();
             FilterIsInitialized := true;
             ItemAnalysisViewFilter.SetRange("Analysis Area", ItemAnalysisView."Analysis Area");
             ItemAnalysisViewFilter.SetRange("Analysis View Code", ItemAnalysisView.Code);
@@ -550,7 +550,7 @@ codeunit 7150 "Update Item Analysis View"
             TempDimEntryBuffer."Dimension Entry No." := 1
         else
             TempDimEntryBuffer."Dimension Entry No." := 0;
-        TempDimEntryBuffer.Insert;
+        TempDimEntryBuffer.Insert();
         exit(InFilters);
     end;
 

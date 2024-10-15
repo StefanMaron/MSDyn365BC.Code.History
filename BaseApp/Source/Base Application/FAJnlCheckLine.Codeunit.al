@@ -19,7 +19,7 @@ codeunit 5631 "FA Jnl.-Check Line"
               Text001,
               FieldCaption("Account Type"), FieldCaption("Bal. Account Type"), "Account Type");
         // NAVCZ
-        FASetup.Get;
+        FASetup.Get();
         // NAVCZ
         if "Account No." <> '' then
             if "Account Type" = "Account Type"::"Fixed Asset" then begin
@@ -107,7 +107,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         end;
 
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."User Checks Allowed" then
             UserSetupAdvMgt.CheckGeneralJournalLine(Rec);
         // NAVCZ
@@ -161,7 +161,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         DeprBookCode: Code[10];
         PostingDate: Date;
         FAPostingDate: Date;
-        FAPostingType: Option "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
+        FAPostingType: Enum "FA Journal Line FA Posting Type";
         FieldErrorText: Text[250];
         Text016: Label '%1 + %2 must be %3.';
         Text017: Label '%1 + %2 must be -%3.';
@@ -218,7 +218,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     local procedure CheckJnlLine()
     begin
         FA.Get(FANo);
-        FASetup.Get;
+        FASetup.Get();
         DeprBook.Get(DeprBookCode);
         FADeprBook.Get(FANo, DeprBookCode);
         CheckFAPostingDate;
@@ -258,7 +258,7 @@ codeunit 5631 "FA Jnl.-Check Line"
                     AllowPostingTo := UserSetup."Allow FA Posting To";
                 end;
             if (AllowPostingFrom = 0D) and (AllowPostingTo = 0D) then begin
-                FASetup.Get;
+                FASetup.Get();
                 AllowPostingFrom := FASetup."Allow FA Posting From";
                 AllowPostingTo := FASetup."Allow FA Posting To";
             end;
@@ -414,7 +414,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         IsHandled: Boolean;
     begin
         // NAVCZ
-        FASetup.Get;
+        FASetup.Get();
         // NAVCZ
         if GenJnlPosting then
             with GenJnlLine do begin
@@ -653,14 +653,14 @@ codeunit 5631 "FA Jnl.-Check Line"
         AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
         IsTest: Boolean;
     begin
-        FASetup.Get;
+        FASetup.Get();
         // NAVCZ
         if (PostingType = PostingType::Disposal) and
            DeprBook."Check Deprication on Disposal"
         then begin
             IsTest := true;
             if FASetup."Tax Depr. Book" = FADeprBook."Depreciation Book Code" then begin
-                FALedgEntry.Reset;
+                FALedgEntry.Reset();
                 FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
                 FALedgEntry.SetRange("FA No.", FANo);
                 FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
@@ -673,7 +673,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             if IsTest then begin
                 FADeprBook.CalcFields("Book Value");
                 if FADeprBook."Book Value" <> 0 then begin
-                    FALedgEntry.Reset;
+                    FALedgEntry.Reset();
                     FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
                     FALedgEntry.SetRange("FA No.", FANo);
                     FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
@@ -688,7 +688,7 @@ codeunit 5631 "FA Jnl.-Check Line"
             (PostingType = PostingType::Appreciation)) and
            DeprBook."Acqui.,Appr.before Depr. Check"
         then begin
-            FALedgEntry.Reset;
+            FALedgEntry.Reset();
             FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             FALedgEntry.SetRange("FA No.", FANo);
             FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
@@ -705,7 +705,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         if (PostingType = PostingType::"Acquisition Cost") and
            DeprBook."All Acquil. in same Year"
         then begin
-            FALedgEntry.Reset;
+            FALedgEntry.Reset();
             FALedgEntry.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             FALedgEntry.SetRange("FA No.", FANo);
             FALedgEntry.SetRange("Depreciation Book Code", DeprBookCode);
@@ -732,7 +732,7 @@ codeunit 5631 "FA Jnl.-Check Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLIntegration(FAPostingType: Option; var GLIntegration: Boolean; GnlJnlPosting: Boolean)
+    local procedure OnAfterSetGLIntegration(FAPostingType: Enum "FA Journal Line FA Posting Type"; var GLIntegration: Boolean; GnlJnlPosting: Boolean)
     begin
     end;
 

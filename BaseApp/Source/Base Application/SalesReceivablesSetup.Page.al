@@ -86,6 +86,11 @@ page 459 "Sales & Receivables Setup"
                     Importance = Additional;
                     ToolTip = 'Specifies the position of your company logo on business letters and documents.';
                 }
+                field("Freight G/L Acc. No."; "Freight G/L Acc. No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the general ledger account that must be used for freight charges.';
+                }
                 field("Default Posting Date"; "Default Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
@@ -173,6 +178,13 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in sales documents.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the price calculation method that will be default for sales transactions.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -236,26 +248,46 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (Item)"; "G/L Entry as Doc. Lines (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (FA)"; "G/L Entry as Doc. Lines (FA)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (Res.)"; "G/L Entry as Doc. Lines (Res.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (Char)"; "G/L Entry as Doc. Lines (Char)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {
@@ -278,6 +310,12 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies a formula that determines how to calculate the quote expiration date based on the document date.';
+                }
+                field("Copy Line Descr. to G/L Entry"; "Copy Line Descr. to G/L Entry")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
             }
             group(Dimensions)
@@ -512,11 +550,6 @@ page 459 "Sales & Receivables Setup"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the item or resource depending on the write-in product type that will be used for Dynamics 365 Sales.';
-                }
-                field("Freight G/L Acc. No."; "Freight G/L Acc. No.")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies the general ledger account that must be used to handle freight charges from Dynamics 365 Sales.';
                 }
             }
         }

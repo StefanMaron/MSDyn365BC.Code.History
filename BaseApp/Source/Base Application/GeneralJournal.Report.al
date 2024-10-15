@@ -18,9 +18,6 @@ report 11777 "General Journal"
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -62,7 +59,7 @@ report 11777 "General Journal"
                 trigger OnAfterGetRecord()
                 begin
                     if Amount = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     if (RecordNo mod 100) = 0 then
                         Window.Update(2, Round(RecordNo / NoOfRecords * 10000, 1));
@@ -77,11 +74,11 @@ report 11777 "General Journal"
                     if TempGLEntry.FindSet and Sum then begin
                         TempGLEntry."Debit Amount" += "Debit Amount";
                         TempGLEntry."Credit Amount" += "Credit Amount";
-                        TempGLEntry.Modify;
+                        TempGLEntry.Modify();
                     end else begin
-                        TempGLEntry.Init;
+                        TempGLEntry.Init();
                         TempGLEntry.TransferFields("G/L Entry");
-                        TempGLEntry.Insert;
+                        TempGLEntry.Insert();
                     end;
                 end;
 
@@ -130,12 +127,12 @@ report 11777 "General Journal"
 
                 trigger OnPostDataItem()
                 begin
-                    TempGLEntry.DeleteAll;
+                    TempGLEntry.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempGLEntry.Reset;
+                    TempGLEntry.Reset();
                     TempGLEntry.SetCurrentKey("Document No.", "Posting Date");
 
                     SetRange(Number, 1, TempGLEntry.Count);

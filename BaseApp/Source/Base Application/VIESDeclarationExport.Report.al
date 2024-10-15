@@ -14,13 +14,13 @@ report 31066 "VIES Declaration Export"
                 VIESLine: Record "VIES Declaration Line";
             begin
                 TestField(Status, Status::Released);
-                TempVIESLine.DeleteAll;
-                TempVIESLine.Reset;
+                TempVIESLine.DeleteAll();
+                TempVIESLine.Reset();
                 VIESLine.SetRange("VIES Declaration No.", "No.");
                 if VIESLine.FindSet then
                     repeat
                         TempVIESLine := VIESLine;
-                        TempVIESLine.Insert;
+                        TempVIESLine.Insert();
                     until VIESLine.Next = 0;
                 ExportToXML;
             end;

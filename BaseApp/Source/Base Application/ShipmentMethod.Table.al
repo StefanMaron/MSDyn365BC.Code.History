@@ -100,8 +100,11 @@ table 10 "Shipment Method"
     end;
 
     trigger OnRename()
+    var
+        CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
         SetLastModifiedDateTime;
+        CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 
     procedure TranslateDescription(var ShipmentMethod: Record "Shipment Method"; Language: Code[10])
@@ -118,7 +121,7 @@ table 10 "Shipment Method"
         StatReportingSetup: Record "Stat. Reporting Setup";
     begin
         // NAVCZ
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         StatReportingSetup.TestField("No Item Charges in Intrastat", false);
     end;
 

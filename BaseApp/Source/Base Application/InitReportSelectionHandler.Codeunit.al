@@ -122,7 +122,7 @@ codeunit 11774 "Init Report Selection Handler"
         ReportSelections: Record "Report Selections";
     begin
         if not ReportSelections.Get(ReportUsage, Sequence) then begin
-            ReportSelections.Init;
+            ReportSelections.Init();
             ReportSelections.Usage := ReportUsage;
             ReportSelections.Sequence := Sequence;
             ReportSelections."Report ID" := ReportID;

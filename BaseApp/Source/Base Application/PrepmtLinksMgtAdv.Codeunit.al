@@ -75,7 +75,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
 
         GetCurrency(SalesHeader."Currency Code");
         TempSalesHeader := SalesHeader;
-        TempSalesHeader.Insert;
+        TempSalesHeader.Insert();
 
         TempSalesHeader.GetPostingLineImage(TempSalesLine, QtyType::General, false);
         case QtyType of
@@ -86,12 +86,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         end;
 
         TempSalesLine.SetRange("Prepmt. Line Amount", 0);
-        TempSalesLine.DeleteAll;
+        TempSalesLine.DeleteAll();
         TempSalesLine.SetRange("Prepmt. Line Amount");
         if QtyType = QtyType::Invoicing then begin
             TempSalesLine.SetRange("Qty. to Invoice", 0);
             TempSalesLine.SetRange("Has Letter Line Relation", false);
-            TempSalesLine.DeleteAll;
+            TempSalesLine.DeleteAll();
             TempSalesLine.SetRange("Qty. to Invoice");
             TempSalesLine.SetRange("Has Letter Line Relation");
         end;
@@ -109,7 +109,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
 
         GetCurrency(PurchHeader."Currency Code");
         TempPurchHeader := PurchHeader;
-        TempPurchHeader.Insert;
+        TempPurchHeader.Insert();
 
         TempPurchHeader.GetPostingLineImage(TempPurchLine, QtyType::General, false);
         case QtyType of
@@ -120,12 +120,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         end;
 
         TempPurchLine.SetRange("Prepmt. Line Amount", 0);
-        TempPurchLine.DeleteAll;
+        TempPurchLine.DeleteAll();
         TempPurchLine.SetRange("Prepmt. Line Amount");
         if QtyType = QtyType::Invoicing then begin
             TempPurchLine.SetRange("Qty. to Invoice", 0);
             TempPurchLine.SetRange("Has Letter Line Relation", false);
-            TempPurchLine.DeleteAll;
+            TempPurchLine.DeleteAll();
             TempPurchLine.SetRange("Qty. to Invoice");
             TempPurchLine.SetRange("Has Letter Line Relation");
         end;
@@ -151,7 +151,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             repeat
                 TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
                 TempSalesAdvanceLetterHeader."Semifinished Linked Amount" := 0;
-                TempSalesAdvanceLetterHeader.Insert;
+                TempSalesAdvanceLetterHeader.Insert();
                 TempSalesAdvanceLetterHeader.TestField(Closed, false);
                 LetterNo := LetterNo + 1;
                 SalesAdvanceLetterLine.SetRange("Letter No.", SalesAdvanceLetterHeader."No.");
@@ -163,14 +163,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     repeat
                         TempSalesAdvanceLetterLine := SalesAdvanceLetterLine;
                         TempSalesAdvanceLetterLine."Semifinished Linked Amount" := 0;
-                        TempSalesAdvanceLetterLine.Insert;
+                        TempSalesAdvanceLetterLine.Insert();
                         LetterLinesNo := LetterLinesNo + 1;
                     until SalesAdvanceLetterLine.Next = 0;
             until SalesAdvanceLetterHeader.Next = 0;
 
         // Linked Letters
-        SalesAdvanceLetterHeader.Reset;
-        SalesAdvanceLetterLine.Reset;
+        SalesAdvanceLetterHeader.Reset();
+        SalesAdvanceLetterLine.Reset();
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
         AdvanceLetterLineRelation.SetRange("Document Type", TempSalesHeader."Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", TempSalesHeader."No.");
@@ -183,7 +183,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     if not TempSalesAdvanceLetterHeader.Get(AdvanceLetterLineRelation."Letter No.") then begin
                         SalesAdvanceLetterHeader.Get(AdvanceLetterLineRelation."Letter No.");
                         TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
-                        TempSalesAdvanceLetterHeader.Insert;
+                        TempSalesAdvanceLetterHeader.Insert();
                         LetterNo := LetterNo + 1;
                     end;
                     if not TempSalesAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.",
@@ -191,7 +191,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     then begin
                         SalesAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
                         TempSalesAdvanceLetterLine := SalesAdvanceLetterLine;
-                        TempSalesAdvanceLetterLine.Insert;
+                        TempSalesAdvanceLetterLine.Insert();
                         LetterLinesNo := LetterLinesNo + 1;
                     end;
                 end;
@@ -218,7 +218,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             repeat
                 TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
                 TempPurchAdvanceLetterHeader."Semifinished Linked Amount" := 0;
-                TempPurchAdvanceLetterHeader.Insert;
+                TempPurchAdvanceLetterHeader.Insert();
                 TempPurchAdvanceLetterHeader.TestField(Closed, false);
                 LetterNo := LetterNo + 1;
                 PurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
@@ -230,14 +230,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     repeat
                         TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
                         TempPurchAdvanceLetterLine."Semifinished Linked Amount" := 0;
-                        TempPurchAdvanceLetterLine.Insert;
+                        TempPurchAdvanceLetterLine.Insert();
                         LetterLinesNo := LetterLinesNo + 1;
                     until PurchAdvanceLetterLine.Next = 0;
             until PurchAdvanceLetterHeader.Next = 0;
 
         // Linked Letters
-        PurchAdvanceLetterHeader.Reset;
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterHeader.Reset();
+        PurchAdvanceLetterLine.Reset();
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Purchase);
         AdvanceLetterLineRelation.SetRange("Document Type", TempPurchHeader."Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", TempPurchHeader."No.");
@@ -250,7 +250,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     if not TempPurchAdvanceLetterHeader.Get(AdvanceLetterLineRelation."Letter No.") then begin
                         PurchAdvanceLetterHeader.Get(AdvanceLetterLineRelation."Letter No.");
                         TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
-                        TempPurchAdvanceLetterHeader.Insert;
+                        TempPurchAdvanceLetterHeader.Insert();
                         LetterNo := LetterNo + 1;
                     end;
                     if not TempPurchAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.",
@@ -258,7 +258,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     then begin
                         PurchAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
                         TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
-                        TempPurchAdvanceLetterLine.Insert;
+                        TempPurchAdvanceLetterLine.Insert();
                         LetterLinesNo := LetterLinesNo + 1;
                     end;
                 end;
@@ -278,8 +278,8 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         if AdvanceLetterLineRelation.FindSet then
             repeat
                 TempAdvanceLetterLineRelation := AdvanceLetterLineRelation;
-                TempAdvanceLetterLineRelation.Insert;
-                TempAdvLetterLineRelBuf.Init;
+                TempAdvanceLetterLineRelation.Insert();
+                TempAdvLetterLineRelBuf.Init();
                 TempAdvLetterLineRelBuf."Doc Line No." := AdvanceLetterLineRelation."Document Line No.";
                 TempAdvLetterLineRelBuf."Letter No." := AdvanceLetterLineRelation."Letter No.";
                 TempAdvLetterLineRelBuf."Letter Line No." := AdvanceLetterLineRelation."Letter Line No.";
@@ -298,7 +298,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     FillLetterFields(TempAdvLetterLineRelBuf);
                     if TempAdvLetterLineRelBuf."Doc. Line Amount" < LinkedAmountTmp then
                         AdvanceLetterLineRelation.Amount -= TempAdvLetterLineRelBuf."Doc. Line Amount" - LinkedAmountTmp;
-                    TempAdvLetterLineRelBuf.Insert;
+                    TempAdvLetterLineRelBuf.Insert();
                     LinkedAmount += AdvanceLetterLineRelation.Amount - AdvanceLetterLineRelation."Deducted Amount";
                 end;
             until AdvanceLetterLineRelation.Next = 0;
@@ -399,7 +399,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         InvAmount: Decimal;
         DocLineAmount: Decimal;
     begin
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         if Type = Type::Sale then begin
             if TempSalesLine.FindSet then
                 repeat
@@ -435,14 +435,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         DocLineNo := DocLineNo + 1;
                         DocPrepmtAmount += DocLineAmount;
                         if DocLineAmount > Amount2 then begin
-                            TempAdvLetterLineRelBuf.Init;
+                            TempAdvLetterLineRelBuf.Init();
                             TempAdvLetterLineRelBuf."Doc Line No." := TempSalesLine."Line No.";
                             TempAdvLetterLineRelBuf."Letter No." := '';
                             TempAdvLetterLineRelBuf."Letter Line No." := 0;
                             TempAdvLetterLineRelBuf.Amount := DocLineAmount - Amount2;
                             TempAdvLetterLineRelBuf."Document Type" := DocType;
                             FillDocFields(TempAdvLetterLineRelBuf);
-                            TempAdvLetterLineRelBuf.Insert;
+                            TempAdvLetterLineRelBuf.Insert();
                             NotLinkedLines := NotLinkedLines + 1;
                             NotLinkedAmount += TempAdvLetterLineRelBuf.Amount;
                         end;
@@ -483,52 +483,52 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         DocLineNo := DocLineNo + 1;
                         DocPrepmtAmount += DocLineAmount;
                         if DocLineAmount > InvAmount then begin
-                            TempAdvLetterLineRelBuf.Init;
+                            TempAdvLetterLineRelBuf.Init();
                             TempAdvLetterLineRelBuf."Doc Line No." := TempPurchLine."Line No.";
                             TempAdvLetterLineRelBuf."Letter No." := '';
                             TempAdvLetterLineRelBuf."Letter Line No." := 0;
                             TempAdvLetterLineRelBuf.Amount := DocLineAmount - InvAmount;
                             TempAdvLetterLineRelBuf."Document Type" := DocType;
                             FillDocFields(TempAdvLetterLineRelBuf);
-                            TempAdvLetterLineRelBuf.Insert;
+                            TempAdvLetterLineRelBuf.Insert();
                             NotLinkedLines := NotLinkedLines + 1;
                             NotLinkedAmount += TempAdvLetterLineRelBuf.Amount;
                         end;
                     end;
                 until TempPurchLine.Next = 0;
         end;
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
     end;
 
     [Scope('OnPrem')]
     procedure GetSalesLetters(var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header"; var SalesAdvanceLetterLine: Record "Sales Advance Letter Line")
     begin
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         if TempSalesAdvanceLetterHeader.FindSet then
             repeat
                 SalesAdvanceLetterHeader := TempSalesAdvanceLetterHeader;
-                SalesAdvanceLetterHeader.Insert;
+                SalesAdvanceLetterHeader.Insert();
             until TempSalesAdvanceLetterHeader.Next = 0;
         if TempSalesAdvanceLetterLine.FindSet then
             repeat
                 SalesAdvanceLetterLine := TempSalesAdvanceLetterLine;
-                SalesAdvanceLetterLine.Insert;
+                SalesAdvanceLetterLine.Insert();
             until TempSalesAdvanceLetterLine.Next = 0;
     end;
 
     [Scope('OnPrem')]
     procedure GetPurchLetters(var PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         if TempPurchAdvanceLetterHeader.FindSet then
             repeat
                 PurchAdvanceLetterHeader := TempPurchAdvanceLetterHeader;
-                PurchAdvanceLetterHeader.Insert;
+                PurchAdvanceLetterHeader.Insert();
             until TempPurchAdvanceLetterHeader.Next = 0;
         if TempPurchAdvanceLetterLine.FindSet then
             repeat
                 PurchAdvanceLetterLine := TempPurchAdvanceLetterLine;
-                PurchAdvanceLetterLine.Insert;
+                PurchAdvanceLetterLine.Insert();
             until TempPurchAdvanceLetterLine.Next = 0;
     end;
 
@@ -626,16 +626,16 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     if TempAdvLetterLineRelBuf.Amount = 0 then
                         TempAdvLetterLineRelBuf.Delete
                     else
-                        TempAdvLetterLineRelBuf.Modify;
+                        TempAdvLetterLineRelBuf.Modify();
                     if TempAdvLetterLineRelBuf.Get(AdvLetterLineRefBuf."Doc Line No.", '', 0) then begin
                         TempAdvLetterLineRelBuf.Amount -= Diference;
                         if TempAdvLetterLineRelBuf.Amount = 0 then begin
-                            TempAdvLetterLineRelBuf.Delete;
+                            TempAdvLetterLineRelBuf.Delete();
                             NotLinkedLines := NotLinkedLines - 1;
                         end else
-                            TempAdvLetterLineRelBuf.Modify;
+                            TempAdvLetterLineRelBuf.Modify();
                     end else begin
-                        TempAdvLetterLineRelBuf.Init;
+                        TempAdvLetterLineRelBuf.Init();
                         TempAdvLetterLineRelBuf."Doc Line No." := AdvLetterLineRefBuf."Doc Line No.";
                         TempAdvLetterLineRelBuf."Letter No." := '';
                         TempAdvLetterLineRelBuf."Letter Line No." := 0;
@@ -647,10 +647,10 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         TempAdvLetterLineRelBuf."Doc. Line Description" := AdvLetterLineRefBuf."Doc. Line Description";
                         TempAdvLetterLineRelBuf."Doc. Line Amount" := AdvLetterLineRefBuf."Doc. Line Amount";
                         if Diference <> 0 then begin
-                            TempAdvLetterLineRelBuf.Insert;
+                            TempAdvLetterLineRelBuf.Insert();
                             NotLinkedLines := NotLinkedLines + 1;
                         end;
-                        TempAdvLetterLineRelBuf.Reset;
+                        TempAdvLetterLineRelBuf.Reset();
                     end;
                     NotLinkedAmount -= Diference;
                     LinkedAmount += Diference;
@@ -681,16 +681,16 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     if TempAdvLetterLineRelBuf.Amount = 0 then
                         TempAdvLetterLineRelBuf.Delete
                     else
-                        TempAdvLetterLineRelBuf.Modify;
+                        TempAdvLetterLineRelBuf.Modify();
                     if TempAdvLetterLineRelBuf.Get(AdvLetterLineRefBuf."Doc Line No.", '', 0) then begin
                         TempAdvLetterLineRelBuf.Amount -= Diference;
                         if TempAdvLetterLineRelBuf.Amount = 0 then begin
-                            TempAdvLetterLineRelBuf.Delete;
+                            TempAdvLetterLineRelBuf.Delete();
                             NotLinkedLines := NotLinkedLines - 1;
                         end else
-                            TempAdvLetterLineRelBuf.Modify;
+                            TempAdvLetterLineRelBuf.Modify();
                     end else begin
-                        TempAdvLetterLineRelBuf.Init;
+                        TempAdvLetterLineRelBuf.Init();
                         TempAdvLetterLineRelBuf."Doc Line No." := AdvLetterLineRefBuf."Doc Line No.";
                         TempAdvLetterLineRelBuf."Letter No." := '';
                         TempAdvLetterLineRelBuf."Letter Line No." := 0;
@@ -702,10 +702,10 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         TempAdvLetterLineRelBuf."Doc. Line Description" := AdvLetterLineRefBuf."Doc. Line Description";
                         TempAdvLetterLineRelBuf."Doc. Line Amount" := AdvLetterLineRefBuf."Doc. Line Amount";
                         if Diference <> 0 then begin
-                            TempAdvLetterLineRelBuf.Insert;
+                            TempAdvLetterLineRelBuf.Insert();
                             NotLinkedLines := NotLinkedLines + 1;
                         end;
-                        TempAdvLetterLineRelBuf.Reset;
+                        TempAdvLetterLineRelBuf.Reset();
                     end;
                     NotLinkedAmount -= Diference;
                     LinkedAmount += Diference;
@@ -723,7 +723,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             repeat
                 if TempAdvLetterLineRelBuf.Select <> IsSelect then begin
                     TempAdvLetterLineRelBuf.Select := IsSelect;
-                    TempAdvLetterLineRelBuf.Modify;
+                    TempAdvLetterLineRelBuf.Modify();
                 end;
             until TempAdvLetterLineRelBuf.Next = 0;
         TempAdvLetterLineRelBuf.SetRange("Doc Line No.");
@@ -732,7 +732,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     [Scope('OnPrem')]
     procedure UpdLetterSemiFinishedAmounts(Init: Boolean; LetterDocNo: Code[20])
     begin
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         case Type of
             Type::Sale:
                 begin
@@ -742,12 +742,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         if TempSalesAdvanceLetterHeader.FindSet then
                             repeat
                                 TempSalesAdvanceLetterHeader."Semifinished Linked Amount" := 0;
-                                TempSalesAdvanceLetterHeader.Modify;
+                                TempSalesAdvanceLetterHeader.Modify();
                                 TempSalesAdvanceLetterLine.SetRange("Letter No.", TempSalesAdvanceLetterHeader."No.");
                                 if TempSalesAdvanceLetterLine.FindSet then
                                     repeat
                                         TempSalesAdvanceLetterLine."Semifinished Linked Amount" := 0;
-                                        TempSalesAdvanceLetterLine.Modify;
+                                        TempSalesAdvanceLetterLine.Modify();
                                     until TempSalesAdvanceLetterLine.Next = 0;
                             until TempSalesAdvanceLetterHeader.Next = 0;
                     TempAdvLetterLineRelBuf.SetCurrentKey("Letter No.");
@@ -759,7 +759,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                             if TempAdvLetterLineRelBuf."Letter No." <> TempSalesAdvanceLetterHeader."No." then
                                 TempSalesAdvanceLetterHeader.Get(TempAdvLetterLineRelBuf."Letter No.");
                             TempSalesAdvanceLetterHeader."Semifinished Linked Amount" += TempAdvLetterLineRelBuf.Amount;
-                            TempSalesAdvanceLetterHeader.Modify;
+                            TempSalesAdvanceLetterHeader.Modify();
                             if (TempAdvLetterLineRelBuf."Letter No." <> TempSalesAdvanceLetterLine."Letter No.") or
                                (TempAdvLetterLineRelBuf."Letter Line No." <> TempSalesAdvanceLetterLine."Line No.")
                             then
@@ -767,9 +767,9 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                             TempSalesAdvanceLetterLine."Semifinished Linked Amount" += TempAdvLetterLineRelBuf.Amount;
                             TempSalesAdvanceLetterLine.Modify
                         until TempAdvLetterLineRelBuf.Next = 0;
-                    TempSalesAdvanceLetterHeader.Reset;
-                    TempSalesAdvanceLetterLine.Reset;
-                    TempAdvLetterLineRelBuf.Reset;
+                    TempSalesAdvanceLetterHeader.Reset();
+                    TempSalesAdvanceLetterLine.Reset();
+                    TempAdvLetterLineRelBuf.Reset();
                 end;
             Type::Purchase:
                 begin
@@ -779,12 +779,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         if TempPurchAdvanceLetterHeader.FindSet then
                             repeat
                                 TempPurchAdvanceLetterHeader."Semifinished Linked Amount" := 0;
-                                TempPurchAdvanceLetterHeader.Modify;
+                                TempPurchAdvanceLetterHeader.Modify();
                                 TempPurchAdvanceLetterLine.SetRange("Letter No.", TempPurchAdvanceLetterHeader."No.");
                                 if TempPurchAdvanceLetterLine.FindSet then
                                     repeat
                                         TempPurchAdvanceLetterLine."Semifinished Linked Amount" := 0;
-                                        TempPurchAdvanceLetterLine.Modify;
+                                        TempPurchAdvanceLetterLine.Modify();
                                     until TempPurchAdvanceLetterLine.Next = 0;
                             until TempPurchAdvanceLetterHeader.Next = 0;
                     TempAdvLetterLineRelBuf.SetCurrentKey("Letter No.");
@@ -796,7 +796,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                             if TempAdvLetterLineRelBuf."Letter No." <> TempPurchAdvanceLetterHeader."No." then
                                 TempPurchAdvanceLetterHeader.Get(TempAdvLetterLineRelBuf."Letter No.");
                             TempPurchAdvanceLetterHeader."Semifinished Linked Amount" += TempAdvLetterLineRelBuf.Amount;
-                            TempPurchAdvanceLetterHeader.Modify;
+                            TempPurchAdvanceLetterHeader.Modify();
                             if (TempAdvLetterLineRelBuf."Letter No." <> TempPurchAdvanceLetterLine."Letter No.") or
                                (TempAdvLetterLineRelBuf."Letter Line No." <> TempPurchAdvanceLetterLine."Line No.")
                             then
@@ -804,12 +804,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                             TempPurchAdvanceLetterLine."Semifinished Linked Amount" += TempAdvLetterLineRelBuf.Amount;
                             TempPurchAdvanceLetterLine.Modify
                         until TempAdvLetterLineRelBuf.Next = 0;
-                    TempPurchAdvanceLetterHeader.Reset;
-                    TempPurchAdvanceLetterLine.Reset;
-                    TempAdvLetterLineRelBuf.Reset;
+                    TempPurchAdvanceLetterHeader.Reset();
+                    TempPurchAdvanceLetterLine.Reset();
+                    TempAdvLetterLineRelBuf.Reset();
                 end;
         end;
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -837,14 +837,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                 if (LinkingType = LinkingType::"Invoiced Amount") and (ldeAmount > ldeInvAmount) then
                     ldeAmount := ldeInvAmount;
                 if ldeAmount > 0 then begin
-                    AdvanceLinkBufferEntry.Init;
+                    AdvanceLinkBufferEntry.Init();
                     AdvanceLinkBufferEntry."VAT Bus. Posting Group" := SalesAdvanceLetterLine."VAT Bus. Posting Group";
                     AdvanceLinkBufferEntry."VAT Prod. Posting Group" := SalesAdvanceLetterLine."VAT Prod. Posting Group";
                     AdvanceLinkBufferEntry."VAT %" := SalesAdvanceLetterLine."VAT %";
                     AdvanceLinkBufferEntry."Advance Letter No." := SalesAdvanceLetterLine."Letter No.";
                     AdvanceLinkBufferEntry."Advance Letter Line No." := SalesAdvanceLetterLine."Line No.";
                     AdvanceLinkBufferEntry.Amount := ldeAmount;
-                    AdvanceLinkBufferEntry.Insert;
+                    AdvanceLinkBufferEntry.Insert();
                 end;
             until SalesAdvanceLetterLine.Next = 0;
     end;
@@ -877,18 +877,18 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         if (LinkingType = LinkingType::"Invoiced Amount") and (Amount2 > InvAmount) then
                             Amount2 := InvAmount;
                         if Amount2 > 0 then begin
-                            AdvanceLinkBufferEntry.Init;
+                            AdvanceLinkBufferEntry.Init();
                             AdvanceLinkBufferEntry."VAT Bus. Posting Group" := TempSalesAdvanceLetterLine."VAT Bus. Posting Group";
                             AdvanceLinkBufferEntry."VAT Prod. Posting Group" := TempSalesAdvanceLetterLine."VAT Prod. Posting Group";
                             AdvanceLinkBufferEntry."VAT %" := TempSalesAdvanceLetterLine."VAT %";
                             AdvanceLinkBufferEntry."Advance Letter No." := TempSalesAdvanceLetterLine."Letter No.";
                             AdvanceLinkBufferEntry."Advance Letter Line No." := TempSalesAdvanceLetterLine."Line No.";
                             AdvanceLinkBufferEntry.Amount := Amount2;
-                            AdvanceLinkBufferEntry.Insert;
+                            AdvanceLinkBufferEntry.Insert();
                         end;
                     until TempSalesAdvanceLetterLine.Next = 0;
             until SalesAdvanceLetterHeader.Next = 0;
-        TempSalesAdvanceLetterLine.Reset;
+        TempSalesAdvanceLetterLine.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -916,14 +916,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                 if (LinkingType = LinkingType::"Invoiced Amount") and (Amount2 > InvAmount) then
                     Amount2 := InvAmount;
                 if Amount2 > 0 then begin
-                    AdvanceLinkBufferEntry.Init;
+                    AdvanceLinkBufferEntry.Init();
                     AdvanceLinkBufferEntry."VAT Bus. Posting Group" := PurchAdvanceLetterLine."VAT Bus. Posting Group";
                     AdvanceLinkBufferEntry."VAT Prod. Posting Group" := PurchAdvanceLetterLine."VAT Prod. Posting Group";
                     AdvanceLinkBufferEntry."VAT %" := PurchAdvanceLetterLine."VAT %";
                     AdvanceLinkBufferEntry."Advance Letter No." := PurchAdvanceLetterLine."Letter No.";
                     AdvanceLinkBufferEntry."Advance Letter Line No." := PurchAdvanceLetterLine."Line No.";
                     AdvanceLinkBufferEntry.Amount := Amount2;
-                    AdvanceLinkBufferEntry.Insert;
+                    AdvanceLinkBufferEntry.Insert();
                 end;
             until PurchAdvanceLetterLine.Next = 0;
     end;
@@ -956,18 +956,18 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         if (LinkingType = LinkingType::"Invoiced Amount") and (Amount2 > InvAmount) then
                             Amount2 := InvAmount;
                         if Amount2 > 0 then begin
-                            AdvanceLinkBufferEntry.Init;
+                            AdvanceLinkBufferEntry.Init();
                             AdvanceLinkBufferEntry."VAT Bus. Posting Group" := TempPurchAdvanceLetterLine."VAT Bus. Posting Group";
                             AdvanceLinkBufferEntry."VAT Prod. Posting Group" := TempPurchAdvanceLetterLine."VAT Prod. Posting Group";
                             AdvanceLinkBufferEntry."VAT %" := TempPurchAdvanceLetterLine."VAT %";
                             AdvanceLinkBufferEntry."Advance Letter No." := TempPurchAdvanceLetterLine."Letter No.";
                             AdvanceLinkBufferEntry."Advance Letter Line No." := TempPurchAdvanceLetterLine."Line No.";
                             AdvanceLinkBufferEntry.Amount := Amount2;
-                            AdvanceLinkBufferEntry.Insert;
+                            AdvanceLinkBufferEntry.Insert();
                         end;
                     until TempPurchAdvanceLetterLine.Next = 0;
             until PurchAdvanceLetterHeader.Next = 0;
-        TempPurchAdvanceLetterLine.Reset;
+        TempPurchAdvanceLetterLine.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -977,20 +977,20 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
         TempAdvanceLinkBufferEntryApply: Record "Advance Link Buffer - Entry" temporary;
     begin
         // Fill buffer from doc. lines
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         TempAdvLetterLineRelBuf.SetRange(Select, true);
         if not TempAdvLetterLineRelBuf.FindFirst then
             TempAdvLetterLineRelBuf.SetRange(Select);
         TempAdvLetterLineRelBuf.SetRange("Letter No.", '');
         if TempAdvLetterLineRelBuf.FindSet then
             repeat
-                TempAdvanceLinkBufferEntryDoc.Init;
+                TempAdvanceLinkBufferEntryDoc.Init();
                 TempAdvanceLinkBufferEntryDoc."VAT Bus. Posting Group" := TempAdvLetterLineRelBuf."Doc. Line VAT Bus. Post. Gr.";
                 TempAdvanceLinkBufferEntryDoc."VAT Prod. Posting Group" := TempAdvLetterLineRelBuf."Doc. Line VAT Prod. Post. Gr.";
                 TempAdvanceLinkBufferEntryDoc."VAT %" := TempAdvLetterLineRelBuf."Doc. Line VAT %";
                 TempAdvanceLinkBufferEntryDoc."Document Line No." := TempAdvLetterLineRelBuf."Doc Line No.";
                 TempAdvanceLinkBufferEntryDoc.Amount := TempAdvLetterLineRelBuf.Amount;
-                TempAdvanceLinkBufferEntryDoc.Insert;
+                TempAdvanceLinkBufferEntryDoc.Insert();
             until TempAdvLetterLineRelBuf.Next = 0;
 
         if not AdvanceLinkBufferEntry.FindFirst then
@@ -1048,7 +1048,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     TempAdvLetterLineRelBuf.Amount += TempAdvanceLinkBufferEntryApply.Amount;
                     if LinkingType = LinkingType::"Invoiced Amount" then
                         TempAdvLetterLineRelBuf."Invoiced Amount" += TempAdvanceLinkBufferEntryApply.Amount;
-                    TempAdvLetterLineRelBuf.Modify;
+                    TempAdvLetterLineRelBuf.Modify();
                 end else begin
                     TempAdvLetterLineRelBuf.Get(TempAdvanceLinkBufferEntryApply."Document Line No.", '', 0);
                     TempAdvLetterLineRelBuf."Letter No." := TempAdvanceLinkBufferEntryApply."Advance Letter No.";
@@ -1057,14 +1057,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     TempAdvLetterLineRelBuf.Amount := TempAdvanceLinkBufferEntryApply.Amount;
                     if LinkingType = LinkingType::"Invoiced Amount" then
                         TempAdvLetterLineRelBuf."Invoiced Amount" := TempAdvanceLinkBufferEntryApply.Amount;
-                    TempAdvLetterLineRelBuf.Insert;
+                    TempAdvLetterLineRelBuf.Insert();
                 end;
                 TempAdvLetterLineRelBuf.Get(TempAdvanceLinkBufferEntryApply."Document Line No.", '', 0);
                 if TempAdvLetterLineRelBuf.Amount > TempAdvanceLinkBufferEntryApply.Amount then begin
                     TempAdvLetterLineRelBuf.Amount -= TempAdvanceLinkBufferEntryApply.Amount;
-                    TempAdvLetterLineRelBuf.Modify;
+                    TempAdvLetterLineRelBuf.Modify();
                 end else begin
-                    TempAdvLetterLineRelBuf.Delete;
+                    TempAdvLetterLineRelBuf.Delete();
                     NotLinkedLines := NotLinkedLines - 1;
                 end;
                 NotLinkedAmount -= TempAdvanceLinkBufferEntryApply.Amount;
@@ -1072,7 +1072,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             until TempAdvanceLinkBufferEntryApply.Next = 0;
 
         UpdLetterSemiFinishedAmounts(true, '');
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
     end;
 
     local procedure ApplyAL(var AdvanceLinkBufferEntryApplyFrom: Record "Advance Link Buffer - Entry"; var AdvanceLinkBufferEntryApplyTo: Record "Advance Link Buffer - Entry"; var AdvanceLinkBufferEntryApplyBuf: Record "Advance Link Buffer - Entry")
@@ -1084,42 +1084,42 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             if Amount2 = 0 then
                 exit;
             AdvanceLinkBufferEntryApplyTo.Amount := AdvanceLinkBufferEntryApplyTo.Amount - AdvanceLinkBufferEntryApplyFrom.Amount;
-            AdvanceLinkBufferEntryApplyTo.Modify;
+            AdvanceLinkBufferEntryApplyTo.Modify();
             AdvanceLinkBufferEntryApplyFrom.Amount := 0;
-            AdvanceLinkBufferEntryApplyFrom.Modify;
+            AdvanceLinkBufferEntryApplyFrom.Modify();
             if AdvanceLinkBufferEntryApplyBuf.Get('', '', 0, AdvanceLinkBufferEntryApplyTo."Advance Letter No.",
                  AdvanceLinkBufferEntryApplyTo."Advance Letter Line No.", AdvanceLinkBufferEntryApplyFrom."Document Line No.")
             then begin
                 AdvanceLinkBufferEntryApplyBuf.Amount := AdvanceLinkBufferEntryApplyBuf.Amount + Amount2;
-                AdvanceLinkBufferEntryApplyBuf.Modify;
+                AdvanceLinkBufferEntryApplyBuf.Modify();
             end else begin
-                AdvanceLinkBufferEntryApplyBuf.Init;
+                AdvanceLinkBufferEntryApplyBuf.Init();
                 AdvanceLinkBufferEntryApplyBuf."Advance Letter No." := AdvanceLinkBufferEntryApplyTo."Advance Letter No.";
                 AdvanceLinkBufferEntryApplyBuf."Advance Letter Line No." := AdvanceLinkBufferEntryApplyTo."Advance Letter Line No.";
                 AdvanceLinkBufferEntryApplyBuf."Document Line No." := AdvanceLinkBufferEntryApplyFrom."Document Line No.";
                 AdvanceLinkBufferEntryApplyBuf.Amount := Amount2;
-                AdvanceLinkBufferEntryApplyBuf.Insert;
+                AdvanceLinkBufferEntryApplyBuf.Insert();
             end;
         end else begin
             Amount2 := AdvanceLinkBufferEntryApplyTo.Amount;
             if Amount2 = 0 then
                 exit;
             AdvanceLinkBufferEntryApplyTo.Amount := 0;
-            AdvanceLinkBufferEntryApplyTo.Modify;
+            AdvanceLinkBufferEntryApplyTo.Modify();
             AdvanceLinkBufferEntryApplyFrom.Amount := AdvanceLinkBufferEntryApplyFrom.Amount - Amount2;
-            AdvanceLinkBufferEntryApplyFrom.Modify;
+            AdvanceLinkBufferEntryApplyFrom.Modify();
             if AdvanceLinkBufferEntryApplyBuf.Get('', '', 0, AdvanceLinkBufferEntryApplyTo."Advance Letter No.",
                  AdvanceLinkBufferEntryApplyTo."Advance Letter Line No.", AdvanceLinkBufferEntryApplyFrom."Document Line No.")
             then begin
                 AdvanceLinkBufferEntryApplyBuf.Amount := AdvanceLinkBufferEntryApplyBuf.Amount + Amount2;
-                AdvanceLinkBufferEntryApplyBuf.Modify;
+                AdvanceLinkBufferEntryApplyBuf.Modify();
             end else begin
-                AdvanceLinkBufferEntryApplyBuf.Init;
+                AdvanceLinkBufferEntryApplyBuf.Init();
                 AdvanceLinkBufferEntryApplyBuf."Advance Letter No." := AdvanceLinkBufferEntryApplyTo."Advance Letter No.";
                 AdvanceLinkBufferEntryApplyBuf."Advance Letter Line No." := AdvanceLinkBufferEntryApplyTo."Advance Letter Line No.";
                 AdvanceLinkBufferEntryApplyBuf."Document Line No." := AdvanceLinkBufferEntryApplyFrom."Document Line No.";
                 AdvanceLinkBufferEntryApplyBuf.Amount := Amount2;
-                AdvanceLinkBufferEntryApplyBuf.Insert;
+                AdvanceLinkBufferEntryApplyBuf.Insert();
             end;
         end;
     end;
@@ -1129,22 +1129,22 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     begin
         if AdvLetterLineRelBuf."Letter No." = '' then
             Error(Text006Err);
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         TempAdvLetterLineRelBuf.Get(AdvLetterLineRelBuf."Doc Line No.", AdvLetterLineRelBuf."Letter No.",
           AdvLetterLineRelBuf."Letter Line No.");
-        TempAdvLetterLineRelBuf.Delete;
+        TempAdvLetterLineRelBuf.Delete();
         if TempAdvLetterLineRelBuf.Get(AdvLetterLineRelBuf."Doc Line No.", '', 0) then begin
             TempAdvLetterLineRelBuf.Amount += AdvLetterLineRelBuf.Amount;
-            TempAdvLetterLineRelBuf.Modify;
+            TempAdvLetterLineRelBuf.Modify();
         end else begin
-            TempAdvLetterLineRelBuf.Init;
+            TempAdvLetterLineRelBuf.Init();
             TempAdvLetterLineRelBuf."Doc Line No." := AdvLetterLineRelBuf."Doc Line No.";
             TempAdvLetterLineRelBuf."Letter No." := '';
             TempAdvLetterLineRelBuf."Letter Line No." := 0;
             TempAdvLetterLineRelBuf.Amount := AdvLetterLineRelBuf.Amount;
             TempAdvLetterLineRelBuf."Document Type" := AdvLetterLineRelBuf."Document Type";
             TempAdvLetterLineRelBuf."Doc. Line Description" := AdvLetterLineRelBuf."Doc. Line Description";
-            TempAdvLetterLineRelBuf.Insert;
+            TempAdvLetterLineRelBuf.Insert();
             NotLinkedLines := NotLinkedLines + 1;
         end;
         NotLinkedAmount += AdvLetterLineRelBuf.Amount;
@@ -1158,7 +1158,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
     var
         AdvLetterLineRelBuf: Record "Adv. Letter Line Rel. Buffer";
     begin
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         TempAdvLetterLineRelBuf.SetFilter("Letter No.", '<>''''');
         if TempAdvLetterLineRelBuf.FindSet then begin
             repeat
@@ -1169,7 +1169,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
             until TempAdvLetterLineRelBuf.Next = 0;
             UpdLetterSemiFinishedAmounts(true, '');
         end;
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -1212,12 +1212,12 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     AdvanceLetterLineRelation."Invoiced Amount" <> TempAdvanceLetterLineRelation."Invoiced Amount":
                         Error(Text007Err);
                     else
-                        TempAdvanceLetterLineRelation.Delete;
+                        TempAdvanceLetterLineRelation.Delete();
                 end;
             until AdvanceLetterLineRelation.Next = 0;
         if TempAdvanceLetterLineRelation.FindFirst then
             Error(Text007Err);
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         if AdvanceLetterLineRelation.FindSet then
             repeat
                 if not TempAdvLetterLineRelBuf.Get(AdvanceLetterLineRelation."Document Line No.",
@@ -1237,7 +1237,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                      TempAdvLetterLineRelBuf."Letter Line No.")
                 then begin
                     WriteChanges := true;
-                    AdvanceLetterLineRelation.Init;
+                    AdvanceLetterLineRelation.Init();
                     AdvanceLetterLineRelation.Type := Type;
                     AdvanceLetterLineRelation."Document No." := DocNo;
                     AdvanceLetterLineRelation."Document Line No." := TempAdvLetterLineRelBuf."Doc Line No.";
@@ -1247,14 +1247,14 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     AdvanceLetterLineRelation."Invoiced Amount" := TempAdvLetterLineRelBuf."Invoiced Amount" +
                       AdvanceLetterLineRelation."Deducted Amount";
                     AdvanceLetterLineRelation."Document Type" := DocType;
-                    AdvanceLetterLineRelation.Insert;
+                    AdvanceLetterLineRelation.Insert();
                 end else
                     if 0 <> TempAdvLetterLineRelBuf.Amount then begin
                         WriteChanges := true;
                         AdvanceLetterLineRelation.Amount := TempAdvLetterLineRelBuf.Amount + AdvanceLetterLineRelation."Deducted Amount";
                         AdvanceLetterLineRelation."Invoiced Amount" := TempAdvLetterLineRelBuf."Invoiced Amount" +
                           AdvanceLetterLineRelation."Deducted Amount";
-                        AdvanceLetterLineRelation.Modify;
+                        AdvanceLetterLineRelation.Modify();
                     end;
 
                 case Type of
@@ -1263,7 +1263,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                     Type::Purchase:
                         PurchLine.Get(DocType, DocNo, AdvanceLetterLineRelation."Document Line No.");
                 end;
-                AdvanceLetterLineRelation.Modify;
+                AdvanceLetterLineRelation.Modify();
 
                 if Type = Type::Sale then begin
                     SalesAdvanceLetterLine.Get(TempAdvLetterLineRelBuf."Letter No.", TempAdvLetterLineRelBuf."Letter Line No.");
@@ -1276,7 +1276,7 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         Error(Text009Err, SalesAdvanceLetterLine."Letter No.", SalesAdvanceLetterLine."Line No.");
                     SalesLine.Get(TempSalesHeader."Document Type", DocNo, TempAdvLetterLineRelBuf."Doc Line No.");
                     SalesPostAdvances.UpdateOrderLine(SalesLine, TempSalesHeader."Prices Including VAT", true);
-                    SalesLine.Modify;
+                    SalesLine.Modify();
                 end else begin
                     PurchAdvanceLetterLine.Get(TempAdvLetterLineRelBuf."Letter No.", TempAdvLetterLineRelBuf."Letter Line No.");
                     if LinkingType = LinkingType::Amount then
@@ -1288,10 +1288,10 @@ codeunit 31030 "Prepmt Links Mgt. Adv."
                         Error(Text009Err, PurchAdvanceLetterLine."Letter No.", PurchAdvanceLetterLine."Line No.");
                     PurchLine.Get(TempPurchHeader."Document Type", DocNo, TempAdvLetterLineRelBuf."Doc Line No.");
                     PurchPostAdvances.UpdateOrderLine(PurchLine, TempPurchHeader."Prices Including VAT", true);
-                    PurchLine.Modify;
+                    PurchLine.Modify();
                 end;
             until TempAdvLetterLineRelBuf.Next = 0;
-        TempAdvLetterLineRelBuf.Reset;
+        TempAdvLetterLineRelBuf.Reset();
         if WriteChanges then
             case Type of
                 Type::Sale:

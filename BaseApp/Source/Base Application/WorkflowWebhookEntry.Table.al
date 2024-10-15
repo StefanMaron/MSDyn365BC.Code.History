@@ -99,7 +99,7 @@ table 467 "Workflow Webhook Entry"
         end;
 
         Clear(WorkflowWebhookEntry);
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry.SetRange(Response, WorkflowWebhookEntry.Response::Pending);
 
         if not IsApprovalAdmin then begin
@@ -124,7 +124,7 @@ table 467 "Workflow Webhook Entry"
         Clear(ResponseUserID);
 
         if not IsNullGuid(Argument) then begin
-            WorkflowStepArgument.Init;
+            WorkflowStepArgument.Init();
             if WorkflowStepArgument.Get(Argument) then
                 case WorkflowStepArgument."Response Type" of
                     WorkflowStepArgument."Response Type"::"User ID":

@@ -120,7 +120,7 @@ table 31057 "Posted Credit Header"
     var
         PostedCreditLine: Record "Posted Credit Line";
     begin
-        LockTable;
+        LockTable();
 
         PostedCreditLine.SetRange("Credit No.", "No.");
         PostedCreditLine.DeleteAll(true);

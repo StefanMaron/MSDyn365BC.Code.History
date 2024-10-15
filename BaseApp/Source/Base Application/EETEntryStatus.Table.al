@@ -59,12 +59,19 @@ table 31124 "EET Entry Status"
         ClearErrorMessages;
     end;
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     local procedure ClearErrorMessages()
     var
         ErrorMessage: Record "Error Message";
     begin
         ErrorMessage.SetRange("Context Record ID", RecordId);
-        ErrorMessage.DeleteAll;
+        ErrorMessage.DeleteAll();
     end;
 }
 

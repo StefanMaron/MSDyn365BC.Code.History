@@ -20,9 +20,9 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
-        ItemFilterIncorrectErr: Label 'The value in Item Filter is incorrect.';
-        ResourceFilterIncorrectErr: Label 'The value in Resource Filter is incorrect.';
-        AccountFilterIncorrectErr: Label 'The value in Account Filter is incorrect.';
+        ItemFilterIncorrectError: Label 'The value in Item Filter is incorrect.';
+        ResourceFilterIncorrectError: Label 'The value in Resource Filter is incorrect.';
+        AccountFilterIncorrectError: Label 'The value in Account Filter is incorrect.';
         FieldHideErr: Label 'The field should be hidden.';
         FieldShowErr: Label 'The field should be shown.';
         WrongVATUnrealizeVisibilityErr: Label 'Wrong value of UnrealizedVATVisible';
@@ -46,7 +46,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpItemFilter(Text);
 
         // Verify: Verify Item Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, Item."No.", ItemFilterIncorrectErr);
+        Assert.AreEqual(Text, Item."No.", ItemFilterIncorrectError);
     end;
 
     [Test]
@@ -68,7 +68,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpResourceFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, Resource."No.", ResourceFilterIncorrectErr);
+        Assert.AreEqual(Text, Resource."No.", ResourceFilterIncorrectError);
     end;
 
     [Test]
@@ -90,7 +90,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         VATRateChangeSetup.LookUpGLAccountFilter(Text);
 
         // Verify: Verify Resource Filter field in VAT Rate Change setup.
-        Assert.AreEqual(Text, GLAccount."No.", AccountFilterIncorrectErr);
+        Assert.AreEqual(Text, GLAccount."No.", AccountFilterIncorrectError);
     end;
 
     [Test]
@@ -104,7 +104,7 @@ codeunit 134061 "ERM VAT Tool - UT"
 
         // Setup: Delete the record in VAT Rate Change setup.
         Initialize;
-        VATRateChangeSetup.DeleteAll;
+        VATRateChangeSetup.DeleteAll();
 
         // Exercise: Open VAT Rate change setup page.
         VATRateChangeSetupPage.OpenView;
@@ -763,9 +763,9 @@ codeunit 134061 "ERM VAT Tool - UT"
             exit;
 
         // Create VAT Rate Change setup if not created in the Database.
-        VATRateChangeSetup.Reset;
+        VATRateChangeSetup.Reset();
         if not VATRateChangeSetup.Get then begin
-            VATRateChangeSetup.Init;
+            VATRateChangeSetup.Init();
             VATRateChangeSetup.Insert(true);
         end;
 
@@ -774,7 +774,7 @@ codeunit 134061 "ERM VAT Tool - UT"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option)
@@ -804,7 +804,7 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
-        VATRateChangeLogEntry.Init;
+        VATRateChangeLogEntry.Init();
         VATRateChangeLogEntry.Validate("Entry No.", LibraryRandom.RandInt(1000));
         VATRateChangeLogEntry.Validate("Record ID", RecRef.RecordId);
         VATRateChangeLogEntry.Validate("Table ID", RecRef.Number);
@@ -815,7 +815,7 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         VATRateChangeLogEntry: Record "VAT Rate Change Log Entry";
     begin
-        VATRateChangeLogEntry.DeleteAll;
+        VATRateChangeLogEntry.DeleteAll();
     end;
 
     local procedure ShowActionVATRateChangeLogEntries(TableID: Text[250])
@@ -831,10 +831,10 @@ codeunit 134061 "ERM VAT Tool - UT"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Unrealized VAT" := UnrealizedVAT;
         GeneralLedgerSetup."Prepayment Unrealized VAT" := PrepaymentUnrealizedVAT;
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
     end;
 
     local procedure VerifyShowUnrealizedVATFieldsVATPostingSetupPage()
@@ -919,9 +919,9 @@ codeunit 134061 "ERM VAT Tool - UT"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ItemChargeHandler(var ItemChargeCard: TestPage "Item Charge Card")
+    procedure ItemChargeHandler(var ItemCharge: TestPage "Item Charges")
     begin
-        ItemChargeCard.OK.Invoke; // NAVCZ
+        ItemCharge.OK.Invoke;
     end;
 
     [ModalPageHandler]

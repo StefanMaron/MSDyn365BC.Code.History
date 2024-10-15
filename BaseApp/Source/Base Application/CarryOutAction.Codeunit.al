@@ -24,7 +24,7 @@ codeunit 99000813 "Carry Out Action"
         ReservEntry.SetCurrentKey(
           "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
           "Source Batch Name", "Source Prod. Order Line");
-        ReqLineReserve.FilterReservFor(ReservEntry, Rec);
+        SetReservationFilters(ReservEntry);
         ReservEntry.DeleteAll(true);
 
         if not ("Action Message" = "Action Message"::Cancel) then begin
@@ -180,7 +180,7 @@ codeunit 99000813 "Carry Out Action"
             ReqLine2."Unit Of Measure Code (Demand)" := '';
         end;
         OnCarryOutToReqWkshOnBeforeReqLineInsert(ReqLine2);
-        ReqLine2.Insert;
+        ReqLine2.Insert();
 
         ReqLineReserve.TransferReqLineToReqLine(ReqLine, ReqLine2, 0, true);
         if ReqLine.Reserve then
@@ -197,7 +197,7 @@ codeunit 99000813 "Carry Out Action"
                 if PlanningComp2."Planning Line Origin" = PlanningComp2."Planning Line Origin"::"Order Planning" then
                     PlanningComp2."Planning Line Origin" := PlanningComp2."Planning Line Origin"::" ";
                 PlanningComp2."Dimension Set ID" := ReqLine2."Dimension Set ID";
-                PlanningComp2.Insert;
+                PlanningComp2.Insert();
                 OnCarryOutToReqWkshOnAfterPlanningCompInsert(PlanningComp2, PlanningComp);
             until PlanningComp.Next = 0;
 
@@ -210,7 +210,7 @@ codeunit 99000813 "Carry Out Action"
                 PlanningRoutingLine2."Worksheet Template Name" := ReqWkshTempName;
                 PlanningRoutingLine2."Worksheet Batch Name" := ReqJournalName;
                 OnCarryOutToReqWkshOnAfterPlanningRoutingLineInsert(PlanningRoutingLine2, PlanningRoutingLine);
-                PlanningRoutingLine2.Insert;
+                PlanningRoutingLine2.Insert();
             until PlanningRoutingLine.Next = 0;
 
         ProdOrderCapNeed.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
@@ -221,8 +221,8 @@ codeunit 99000813 "Carry Out Action"
                 ProdOrderCapNeed2 := ProdOrderCapNeed;
                 ProdOrderCapNeed2."Worksheet Template Name" := ReqWkshTempName;
                 ProdOrderCapNeed2."Worksheet Batch Name" := ReqJournalName;
-                ProdOrderCapNeed.Delete;
-                ProdOrderCapNeed2.Insert;
+                ProdOrderCapNeed.Delete();
+                ProdOrderCapNeed2.Insert();
             until ProdOrderCapNeed.Next = 0;
 
         OnAfterCarryOutToReqWksh(ReqLine2, ReqLine);
@@ -233,7 +233,7 @@ codeunit 99000813 "Carry Out Action"
         if TempTransHeaderToPrint.FindSet then
             repeat
                 TransferHeader := TempTransHeaderToPrint;
-                TransferHeader.Insert;
+                TransferHeader.Insert();
             until TempTransHeaderToPrint.Next = 0;
     end;
 
@@ -247,24 +247,23 @@ codeunit 99000813 "Carry Out Action"
     begin
         with ReqLine do begin
             TestField("Ref. Order Type", "Ref. Order Type"::"Prod. Order");
-            ProdOrderLine.LockTable;
+            ProdOrderLine.LockTable();
             if ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.") then begin
                 ProdOrderCapNeed.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
                 ProdOrderCapNeed.SetRange("Worksheet Template Name", "Worksheet Template Name");
                 ProdOrderCapNeed.SetRange("Worksheet Batch Name", "Journal Batch Name");
                 ProdOrderCapNeed.SetRange("Worksheet Line No.", "Line No.");
-                ProdOrderCapNeed.DeleteAll;
+                ProdOrderCapNeed.DeleteAll();
                 ProdOrderLine.BlockDynamicTracking(true);
                 ProdOrderLine.Validate(Quantity, Quantity);
                 OnProdOrderChgAndResheduleOnAfterValidateQuantity(ProdOrderLine, ReqLine);
                 ProdOrderLine."Ending Time" := "Ending Time";
+                ProdOrderLine."Due Date" := "Due Date";
                 ProdOrderLine.Validate("Planning Flexibility", "Planning Flexibility");
                 ProdOrderLine.Validate("Ending Date", "Ending Date");
-                ProdOrderLine."Due Date" := "Due Date";
-                ProdOrderLine.Modify();
                 ReqLineReserve.TransferPlanningLineToPOLine(ReqLine, ProdOrderLine, 0, true);
                 ReqLineReserve.UpdateDerivedTracking(ReqLine);
-                ReservMgt.SetProdOrderLine(ProdOrderLine);
+                ReservMgt.SetReservSource(ProdOrderLine);
                 ReservMgt.DeleteReservEntries(false, ProdOrderLine."Remaining Qty. (Base)");
                 ReservMgt.ClearSurplus;
                 ReservMgt.AutoTrack(ProdOrderLine."Remaining Qty. (Base)");
@@ -278,7 +277,7 @@ codeunit 99000813 "Carry Out Action"
                         then begin
                             ReservePlanningComponent.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComp, 0, true);
                             ReservePlanningComponent.UpdateDerivedTracking(PlanningComponent);
-                            ReservMgt.SetProdOrderComponent(ProdOrderComp);
+                            ReservMgt.SetReservSource(ProdOrderComp);
                             ReservMgt.DeleteReservEntries(false, ProdOrderComp."Remaining Qty. (Base)");
                             ReservMgt.ClearSurplus;
                             ReservMgt.AutoTrack(ProdOrderComp."Remaining Qty. (Base)");
@@ -296,7 +295,7 @@ codeunit 99000813 "Carry Out Action"
                         ProdOrder."Ending Date" := "Ending Date";
                         ProdOrder."Due Date" := "Due Date";
                         OnProdOrderChgAndResheduleOnBeforeProdOrderModify(ProdOrder, ProdOrderLine, ReqLine);
-                        ProdOrder.Modify;
+                        ProdOrder.Modify();
                         FinalizeOrderHeader(ProdOrder);
                     end;
                 OnAfterProdOrderChgAndReshedule(ReqLine, ProdOrderLine);
@@ -324,7 +323,7 @@ codeunit 99000813 "Carry Out Action"
             PurchLine.Modify(true);
             ReqLineReserve.TransferReqLineToPurchLine(ReqLine, PurchLine, 0, true);
             ReqLineReserve.UpdateDerivedTracking(ReqLine);
-            ReservMgt.SetPurchLine(PurchLine);
+            ReservMgt.SetReservSource(PurchLine);
             ReservMgt.DeleteReservEntries(false, PurchLine."Outstanding Qty. (Base)");
             ReservMgt.ClearSurplus;
             ReservMgt.AutoTrack(PurchLine."Outstanding Qty. (Base)");
@@ -353,11 +352,11 @@ codeunit 99000813 "Carry Out Action"
             TransLine.Modify(true);
             ReqLineReserve.TransferReqLineToTransLine(ReqLine, TransLine, 0, true);
             ReqLineReserve.UpdateDerivedTracking(ReqLine);
-            ReservMgt.SetTransferLine(TransLine, 0);
+            ReservMgt.SetReservSource(TransLine, 0);
             ReservMgt.DeleteReservEntries(false, TransLine."Outstanding Qty. (Base)");
             ReservMgt.ClearSurplus;
             ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
-            ReservMgt.SetTransferLine(TransLine, 1);
+            ReservMgt.SetReservSource(TransLine, 1);
             ReservMgt.DeleteReservEntries(false, TransLine."Outstanding Qty. (Base)");
             ReservMgt.ClearSurplus;
             ReservMgt.AutoTrack(TransLine."Outstanding Qty. (Base)");
@@ -374,7 +373,7 @@ codeunit 99000813 "Carry Out Action"
     begin
         with ReqLine do begin
             TestField("Ref. Order Type", "Ref. Order Type"::Assembly);
-            AsmHeader.LockTable;
+            AsmHeader.LockTable();
             if AsmHeader.Get(AsmHeader."Document Type"::Order, "Ref. Order No.") then begin
                 AsmHeader.SetWarningsOff;
                 AsmHeader.Validate(Quantity, Quantity);
@@ -384,7 +383,7 @@ codeunit 99000813 "Carry Out Action"
                 AsmHeader.Modify(true);
                 ReqLineReserve.TransferPlanningLineToAsmHdr(ReqLine, AsmHeader, 0, true);
                 ReqLineReserve.UpdateDerivedTracking(ReqLine);
-                ReservMgt.SetAssemblyHeader(AsmHeader);
+                ReservMgt.SetReservSource(AsmHeader);
                 ReservMgt.DeleteReservEntries(false, AsmHeader."Remaining Quantity (Base)");
                 ReservMgt.ClearSurplus;
                 ReservMgt.AutoTrack(AsmHeader."Remaining Quantity (Base)");
@@ -397,7 +396,7 @@ codeunit 99000813 "Carry Out Action"
                         if AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", PlanningComponent."Line No.") then begin
                             ReservePlanningComponent.TransferPlanningCompToAsmLine(PlanningComponent, AsmLine, 0, true);
                             ReservePlanningComponent.UpdateDerivedTracking(PlanningComponent);
-                            ReservMgt.SetAssemblyLine(AsmLine);
+                            ReservMgt.SetReservSource(AsmLine);
                             ReservMgt.DeleteReservEntries(false, AsmLine."Remaining Quantity (Base)");
                             ReservMgt.ClearSurplus;
                             ReservMgt.AutoTrack(AsmLine."Remaining Quantity (Base)");
@@ -528,7 +527,7 @@ codeunit 99000813 "Carry Out Action"
         HeaderExist: Boolean;
     begin
         Item.Get(ReqLine."No.");
-        MfgSetup.Get;
+        MfgSetup.Get();
         if FindTempProdOrder(ReqLine) then
             HeaderExist := ProdOrder.Get(TempProductionOrder.Status, TempProductionOrder."No.");
 
@@ -543,7 +542,7 @@ codeunit 99000813 "Carry Out Action"
                     MfgSetup.TestField("Firm Planned Order Nos.");
             end;
 
-            ProdOrder.Init;
+            ProdOrder.Init();
             if ProdOrderChoice = ProdOrderChoice::"Firm Planned & Print" then
                 ProdOrder.Status := ProdOrder.Status::"Firm Planned"
             else
@@ -577,7 +576,7 @@ codeunit 99000813 "Carry Out Action"
             ProdOrder."Dimension Set ID" := ReqLine."Dimension Set ID";
             ProdOrder.UpdateDatetime;
             OnInsertProdOrderWithReqLine(ProdOrder, ReqLine);
-            ProdOrder.Modify;
+            ProdOrder.Modify();
             InsertTempProdOrder(ReqLine, ProdOrder);
         end;
         InsertProdOrderLine(ReqLine, ProdOrder, Item);
@@ -594,13 +593,13 @@ codeunit 99000813 "Carry Out Action"
     begin
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrder."No.");
         ProdOrderLine.SetRange(Status, ProdOrder.Status);
-        ProdOrderLine.LockTable;
+        ProdOrderLine.LockTable();
         if ProdOrderLine.FindLast then
             NextLineNo := ProdOrderLine."Line No." + 10000
         else
             NextLineNo := 10000;
 
-        ProdOrderLine.Init;
+        ProdOrderLine.Init();
         ProdOrderLine.BlockDynamicTracking(true);
         ProdOrderLine.Status := ProdOrder.Status;
         ProdOrderLine."Prod. Order No." := ProdOrder."No.";
@@ -641,21 +640,21 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderLine."Shortcut Dimension 2 Code" := ReqLine."Shortcut Dimension 2 Code";
         ProdOrderLine."Dimension Set ID" := ReqLine."Dimension Set ID";
         OnInsertProdOrderLineWithReqLine(ProdOrderLine, ReqLine);
-        ProdOrderLine.Insert;
+        ProdOrderLine.Insert();
         CalculateProdOrder.CalculateProdOrderDates(ProdOrderLine, false);
 
         ReqLineReserve.TransferPlanningLineToPOLine(ReqLine, ProdOrderLine, ReqLine."Net Quantity (Base)", false);
         if ReqLine.Reserve and not (ProdOrderLine.Status = ProdOrderLine.Status::Planned) then
             ReserveBindingOrderToProd(ProdOrderLine, ReqLine);
 
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
         if TransferRouting(ReqLine, ProdOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.") then begin
             RefreshProdOrderLine := false;
             OnInsertProdOrderLineOnAfterTransferRouting(ProdOrderLine, RefreshProdOrderLine);
             if RefreshProdOrderLine then
                 ProdOrderLine.Get(ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.");
             CalcProdOrder.SetProdOrderLineBinCodeFromPlanningRtngLines(ProdOrderLine, ReqLine);
-            ProdOrderLine.Modify;
+            ProdOrderLine.Modify();
         end;
         TransferBOM(ReqLine, ProdOrder, ProdOrderLine."Line No.");
         TransferCapNeed(ReqLine, ProdOrder, ProdOrderLine."Routing No.", ProdOrderLine."Routing Reference No.");
@@ -675,7 +674,7 @@ codeunit 99000813 "Carry Out Action"
         Item: Record Item;
     begin
         Item.Get(ReqLine."No.");
-        AsmHeader.Init;
+        AsmHeader.Init();
         AsmHeader."Document Type" := AsmHeader."Document Type"::Order;
         AsmHeader.Insert(true);
         AsmHeader.SetWarningsOff;
@@ -707,7 +706,7 @@ codeunit 99000813 "Carry Out Action"
         ReqLineReserve.TransferPlanningLineToAsmHdr(ReqLine, AsmHeader, ReqLine."Net Quantity (Base)", false);
         if ReqLine.Reserve then
             ReserveBindingOrderToAsm(AsmHeader, ReqLine);
-        AsmHeader.Modify;
+        AsmHeader.Modify();
 
         TransferAsmPlanningComp(ReqLine, AsmHeader);
 
@@ -721,12 +720,12 @@ codeunit 99000813 "Carry Out Action"
         OnAfterInsertAsmHeader(ReqLine, AsmHeader);
 
         PrintAsmOrder(AsmHeader);
-        TempDocumentEntry.Init;
+        TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Assembly Header";
         TempDocumentEntry."Document Type" := AsmHeader."Document Type"::Order;
         TempDocumentEntry."Document No." := AsmHeader."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
-        TempDocumentEntry.Insert;
+        TempDocumentEntry.Insert();
     end;
 
     procedure TransferAsmPlanningComp(ReqLine: Record "Requisition Line"; AsmHeader: Record "Assembly Header")
@@ -739,7 +738,7 @@ codeunit 99000813 "Carry Out Action"
         PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
         if PlanningComponent.Find('-') then
             repeat
-                AsmLine.Init;
+                AsmLine.Init();
                 AsmLine."Document Type" := AsmHeader."Document Type";
                 AsmLine."Document No." := AsmHeader."No.";
                 AsmLine."Line No." := PlanningComponent."Line No.";
@@ -776,11 +775,11 @@ codeunit 99000813 "Carry Out Action"
 
                 OnAfterTransferAsmPlanningComp(PlanningComponent, AsmLine);
 
-                AsmLine.Insert;
+                AsmLine.Insert();
 
                 ReservePlanningComponent.TransferPlanningCompToAsmLine(PlanningComponent, AsmLine, 0, true);
-                AsmLine.AutoReserve;
-                ReservMgt.SetAssemblyLine(AsmLine);
+                AsmLine.AutoReserve();
+                ReservMgt.SetReservSource(AsmLine);
                 ReservMgt.AutoTrack(AsmLine."Remaining Quantity (Base)");
             until PlanningComponent.Next = 0;
     end;
@@ -789,11 +788,11 @@ codeunit 99000813 "Carry Out Action"
     var
         InvtSetup: Record "Inventory Setup";
     begin
-        InvtSetup.Get;
+        InvtSetup.Get();
         InvtSetup.TestField("Transfer Order Nos.");
 
         with ReqLine do begin
-            TransHeader.Init;
+            TransHeader.Init();
             TransHeader."No." := '';
             TransHeader."Posting Date" := WorkDate;
             TransHeader.Insert(true);
@@ -805,17 +804,17 @@ codeunit 99000813 "Carry Out Action"
             TransHeader."Shortcut Dimension 2 Code" := "Shortcut Dimension 2 Code";
             TransHeader."Dimension Set ID" := "Dimension Set ID";
             OnBeforeTransHeaderInsert(TransHeader, ReqLine);
-            TransHeader.Modify;
-            TempDocumentEntry.Init;
+            TransHeader.Modify();
+            TempDocumentEntry.Init();
             TempDocumentEntry."Table ID" := DATABASE::"Transfer Header";
             TempDocumentEntry."Document No." := TransHeader."No.";
             TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
-            TempDocumentEntry.Insert;
+            TempDocumentEntry.Insert();
         end;
 
         if PrintOrder then begin
             TempTransHeaderToPrint."No." := TransHeader."No.";
-            TempTransHeaderToPrint.Insert;
+            TempTransHeaderToPrint.Insert();
         end;
     end;
 
@@ -835,7 +834,7 @@ codeunit 99000813 "Carry Out Action"
         else
             NextLineNo := 10000;
 
-        TransLine.Init;
+        TransLine.Init();
         TransLine.BlockDynamicTracking(true);
         TransLine."Document No." := TransHeader."No.";
         TransLine."Line No." := NextLineNo;
@@ -854,7 +853,7 @@ codeunit 99000813 "Carry Out Action"
         TransLine."Shipment Date" := ReqLine."Transfer Shipment Date";
         TransLine.Validate("Planning Flexibility", ReqLine."Planning Flexibility");
         OnInsertTransLineWithReqLine(TransLine, ReqLine);
-        TransLine.Insert;
+        TransLine.Insert();
         OnAfterTransLineInsert(TransLine, ReqLine);
 
         ReqLineReserve.TransferReqLineToTransLine(ReqLine, TransLine, ReqLine."Quantity (Base)", false);
@@ -871,7 +870,7 @@ codeunit 99000813 "Carry Out Action"
                 PrintTransferOrder(TempTransHeaderToPrint);
             until TempTransHeaderToPrint.Next = 0;
 
-            TempTransHeaderToPrint.DeleteAll;
+            TempTransHeaderToPrint.DeleteAll();
         end;
     end;
 
@@ -897,9 +896,9 @@ codeunit 99000813 "Carry Out Action"
     begin
         if PrintOrder and (PurchHeader."Buy-from Vendor No." <> '') then begin
             PurchHeader2 := PurchHeader;
-            PurchSetup.Get;
+            PurchSetup.Get();
             if PurchSetup."Calc. Inv. Discount" then begin
-                PurchLine.Reset;
+                PurchLine.Reset();
                 PurchLine.SetRange("Document Type", PurchHeader."Document Type");
                 PurchLine.SetRange("Document No.", PurchHeader."No.");
                 PurchLine.FindFirst;
@@ -955,7 +954,7 @@ codeunit 99000813 "Carry Out Action"
         PlanningRtngLine.SetRange("Worksheet Line No.", ReqLine."Line No.");
         if PlanningRtngLine.Find('-') then
             repeat
-                ProdOrderRtngLine.Init;
+                ProdOrderRtngLine.Init();
                 ProdOrderRtngLine.Status := ProdOrder.Status;
                 ProdOrderRtngLine."Prod. Order No." := ProdOrder."No.";
                 ProdOrderRtngLine."Routing No." := RoutingNo;
@@ -989,7 +988,7 @@ codeunit 99000813 "Carry Out Action"
 
                 ProdOrderRtngLine.UpdateDatetime;
                 OnAfterTransferPlanningRtngLine(PlanningRtngLine, ProdOrderRtngLine);
-                ProdOrderRtngLine.Insert;
+                ProdOrderRtngLine.Insert();
                 OnAfterProdOrderRtngLineInsert(ProdOrderRtngLine, PlanningRtngLine, ProdOrder, ReqLine);
                 CalcProdOrder.TransferTaskInfo(ProdOrderRtngLine, ReqLine."Routing Version Code");
             until PlanningRtngLine.Next = 0;
@@ -1007,20 +1006,20 @@ codeunit 99000813 "Carry Out Action"
         PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
         if PlanningComponent.Find('-') then
             repeat
-                ProdOrderComp2.Init;
+                ProdOrderComp2.Init();
                 ProdOrderComp2.Status := ProdOrder.Status;
                 ProdOrderComp2."Prod. Order No." := ProdOrder."No.";
                 ProdOrderComp2."Prod. Order Line No." := ProdOrderLineNo;
                 ProdOrderComp2.CopyFromPlanningComp(PlanningComponent);
                 ProdOrderComp2.UpdateDatetime;
                 OnAfterTransferPlanningComp(PlanningComponent, ProdOrderComp2);
-                ProdOrderComp2.Insert;
+                ProdOrderComp2.Insert();
                 CopyProdBOMComments(ProdOrderComp2);
                 ReservePlanningComponent.TransferPlanningCompToPOComp(PlanningComponent, ProdOrderComp2, 0, true);
                 if ProdOrderComp2.Status in [ProdOrderComp2.Status::"Firm Planned", ProdOrderComp2.Status::Released] then
-                    ProdOrderComp2.AutoReserve;
+                    ProdOrderComp2.AutoReserve();
 
-                ReservMgt.SetProdOrderComponent(ProdOrderComp2);
+                ReservMgt.SetReservSource(ProdOrderComp2);
                 ReservMgt.AutoTrack(ProdOrderComp2."Remaining Qty. (Base)");
             until PlanningComponent.Next = 0;
     end;
@@ -1036,7 +1035,7 @@ codeunit 99000813 "Carry Out Action"
         ProdOrderCapNeed.SetRange("Worksheet Line No.", ReqLine."Line No.");
         if ProdOrderCapNeed.Find('-') then
             repeat
-                NewProdOrderCapNeed.Init;
+                NewProdOrderCapNeed.Init();
                 NewProdOrderCapNeed := ProdOrderCapNeed;
                 NewProdOrderCapNeed."Requested Only" := false;
                 NewProdOrderCapNeed.Status := ProdOrder.Status;
@@ -1047,7 +1046,7 @@ codeunit 99000813 "Carry Out Action"
                 NewProdOrderCapNeed."Worksheet Batch Name" := '';
                 NewProdOrderCapNeed."Worksheet Line No." := 0;
                 NewProdOrderCapNeed.UpdateDatetime;
-                NewProdOrderCapNeed.Insert;
+                NewProdOrderCapNeed.Insert();
             until ProdOrderCapNeed.Next = 0;
     end;
 
@@ -1062,7 +1061,7 @@ codeunit 99000813 "Carry Out Action"
         if ProdOrderComp.Find('-') then
             repeat
                 ProdOrderComp."Supplied-by Line No." := ProdOrderLine."Line No.";
-                ProdOrderComp.Modify;
+                ProdOrderComp.Modify();
             until ProdOrderComp.Next = 0;
     end;
 
@@ -1076,17 +1075,17 @@ codeunit 99000813 "Carry Out Action"
         if TempProductionOrder.Get(NewProdOrder.Status, NewProdOrder."No.") then
             exit;
 
-        TempDocumentEntry.Init;
+        TempDocumentEntry.Init();
         TempDocumentEntry."Table ID" := DATABASE::"Production Order";
         TempDocumentEntry."Document Type" := NewProdOrder.Status;
         TempDocumentEntry."Document No." := NewProdOrder."No.";
         TempDocumentEntry."Entry No." := TempDocumentEntry.Count + 1;
-        TempDocumentEntry.Insert;
+        TempDocumentEntry.Insert();
 
         TempProductionOrder := NewProdOrder;
         if RequisitionLine."Ref. Order Status" = RequisitionLine."Ref. Order Status"::Planned then begin
             TempProductionOrder."Planned Order No." := RequisitionLine."Ref. Order No.";
-            TempProductionOrder.Insert;
+            TempProductionOrder.Insert();
         end;
     end;
 
@@ -1143,7 +1142,7 @@ codeunit 99000813 "Carry Out Action"
                     SalesLineReserve.BindToProdOrder(SalesLine, ProdOrderLine, ReservQty, ReservQtyBase);
                     if SalesLine.Reserve = SalesLine.Reserve::Never then begin
                         SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                     end;
                 end;
             DATABASE::"Assembly Line":
@@ -1152,11 +1151,11 @@ codeunit 99000813 "Carry Out Action"
                     AsmLineReserve.BindToProdOrder(AsmLine, ProdOrderLine, ReservQty, ReservQtyBase);
                     if AsmLine.Reserve = AsmLine.Reserve::Never then begin
                         AsmLine.Reserve := AsmLine.Reserve::Optional;
-                        AsmLine.Modify;
+                        AsmLine.Modify();
                     end;
                 end;
         end;
-        ProdOrderLine.Modify;
+        ProdOrderLine.Modify();
     end;
 
     procedure ReserveBindingOrderToTrans(var TransLine: Record "Transfer Line"; var ReqLine: Record "Requisition Line")
@@ -1192,7 +1191,7 @@ codeunit 99000813 "Carry Out Action"
                     SalesLineReserve.BindToTransfer(SalesLine, TransLine, ReservQty, ReservQtyBase);
                     if SalesLine.Reserve = SalesLine.Reserve::Never then begin
                         SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                     end;
                 end;
             DATABASE::"Assembly Line":
@@ -1201,11 +1200,11 @@ codeunit 99000813 "Carry Out Action"
                     AsmLineReserve.BindToTransfer(AsmLine, TransLine, ReservQty, ReservQtyBase);
                     if AsmLine.Reserve = AsmLine.Reserve::Never then begin
                         AsmLine.Reserve := AsmLine.Reserve::Optional;
-                        AsmLine.Modify;
+                        AsmLine.Modify();
                     end;
                 end;
         end;
-        TransLine.Modify;
+        TransLine.Modify();
     end;
 
     procedure ReserveBindingOrderToAsm(var AsmHeader: Record "Assembly Header"; var ReqLine: Record "Requisition Line")
@@ -1243,7 +1242,7 @@ codeunit 99000813 "Carry Out Action"
                     SalesLineReserve.BindToAssembly(SalesLine, AsmHeader, ReservQty, ReservQtyBase);
                     if SalesLine.Reserve = SalesLine.Reserve::Never then begin
                         SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                     end;
                 end;
             DATABASE::"Assembly Line":
@@ -1252,11 +1251,11 @@ codeunit 99000813 "Carry Out Action"
                     AsmLineReserve.BindToAssembly(AsmLine, AsmHeader, ReservQty, ReservQtyBase);
                     if AsmLine.Reserve = AsmLine.Reserve::Never then begin
                         AsmLine.Reserve := AsmLine.Reserve::Optional;
-                        AsmLine.Modify;
+                        AsmLine.Modify();
                     end;
                 end;
         end;
-        AsmHeader.Modify;
+        AsmHeader.Modify();
     end;
 
     procedure ReserveBindingOrderToReqline(var DemandReqLine: Record "Requisition Line"; var SupplyReqLine: Record "Requisition Line")
@@ -1282,7 +1281,7 @@ codeunit 99000813 "Carry Out Action"
                     SalesLine.Get(SupplyReqLine."Demand Subtype", SupplyReqLine."Demand Order No.", SupplyReqLine."Demand Line No.");
                     if (SalesLine.Reserve = SalesLine.Reserve::Never) and not SalesLine."Drop Shipment" then begin
                         SalesLine.Reserve := SalesLine.Reserve::Optional;
-                        SalesLine.Modify;
+                        SalesLine.Modify();
                     end;
                     SalesLineReserve.BindToRequisition(
                       SalesLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
@@ -1318,8 +1317,8 @@ codeunit 99000813 "Carry Out Action"
         if ProductionBOMCommentLine.FindSet then
             repeat
                 ProdOrderCompCmtLine.CopyFromProdBOMComponent(ProductionBOMCommentLine, ProdOrderComponent);
-                if not ProdOrderCompCmtLine.Insert then
-                    ProdOrderCompCmtLine.Modify;
+                if not ProdOrderCompCmtLine.Insert() then
+                    ProdOrderCompCmtLine.Modify();
             until ProductionBOMCommentLine.Next = 0;
     end;
 

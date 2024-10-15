@@ -183,7 +183,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
         if AccSchedCellValue.FindFirst then
             repeat
                 TempAccSchedCellValue.TransferFields(AccSchedCellValue);
-                if TempAccSchedCellValue.Insert then;
+                if TempAccSchedCellValue.Insert() then;
             until AccSchedCellValue.Next = 0;
 
         EvaluateExpression(true, AccSchedLine.Totaling, AccSchedLine, SourceColumnLayout);
@@ -205,7 +205,7 @@ page 31093 "Acc. Sched. Formula Drill-Down"
         OperatorNo: Integer;
         AccSchedLineID: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         Expression := DelChr(Expression, '<>', '');
         if StrLen(Expression) > 0 then begin

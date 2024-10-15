@@ -25,7 +25,7 @@ codeunit 11720 "Exp. Launcher SEPA"
 
         GenJnlLn.FindFirst;
 
-        Commit;
+        Commit();
         if not CODEUNIT.Run(CODEUNIT::"SEPA CT-Export File", GenJnlLn) then begin
             PAGE.Run(PAGE::"Payment Journal", GenJnlLn);
             Error(GetLastErrorText);

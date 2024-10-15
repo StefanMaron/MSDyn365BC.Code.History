@@ -801,7 +801,7 @@ page 5964 "Service Quote"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Service Statistics", Rec);
                     end;
                 }

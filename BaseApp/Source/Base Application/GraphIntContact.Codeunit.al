@@ -596,19 +596,19 @@ codeunit 5461 "Graph Int. - Contact"
         if ContactBusinessRelation.FindFirst then
             if Vendor.Get(ContactBusinessRelation."No.") then begin
                 Vendor.Blocked := Vendor.Blocked::All;
-                Vendor.Modify;
+                Vendor.Modify();
             end;
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::"Bank Account");
         if ContactBusinessRelation.FindFirst then
             if BankAccount.Get(ContactBusinessRelation."No.") then begin
                 BankAccount.Blocked := true;
-                BankAccount.Modify;
+                BankAccount.Modify();
             end;
 
-        ContactBusinessRelation.Reset;
+        ContactBusinessRelation.Reset();
         ContactBusinessRelation.SetRange("Contact No.", DeletedContact."No.");
-        ContactBusinessRelation.DeleteAll;
+        ContactBusinessRelation.DeleteAll();
     end;
 
     local procedure SetIntegrationIdFieldOnGraph(var Contact: Record Contact; var GraphContact: Record "Graph Contact")
@@ -673,7 +673,7 @@ codeunit 5461 "Graph Int. - Contact"
                 if not GraphContact.GetXrmId(XrmId) then
                     Error(CannotGetGraphXrmIdErr, GraphIntegrationRecord."Graph ID");
                 GraphIntegrationRecord.XRMId := XrmId;
-                GraphIntegrationRecord.Modify;
+                GraphIntegrationRecord.Modify();
             end;
         until GraphIntegrationRecord.Next = 0;
     end;

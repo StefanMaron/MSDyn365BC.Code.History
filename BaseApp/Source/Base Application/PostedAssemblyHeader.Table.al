@@ -227,7 +227,7 @@ table 910 "Posted Assembly Header"
         AssemblyCommentLine.SetCurrentKey("Document Type", "Document No.");
         AssemblyCommentLine.SetRange("Document Type", AssemblyCommentLine."Document Type"::"Posted Assembly");
         AssemblyCommentLine.SetRange("Document No.", "No.");
-        AssemblyCommentLine.DeleteAll;
+        AssemblyCommentLine.DeleteAll();
     end;
 
     var
@@ -313,7 +313,7 @@ table 910 "Posted Assembly Header"
         PostedAssemblyLine: Record "Posted Assembly Line";
         DirectLineCost: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         PostedAssemblyLine.SetRange("Document No.", "No.");
         if PostedAssemblyLine.FindSet then

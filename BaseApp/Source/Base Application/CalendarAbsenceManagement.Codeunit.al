@@ -30,10 +30,10 @@ codeunit 99000759 "Calendar Absence Management"
                     Finished := false;
                     CalendarEntry2 := CalendarEntry;
                     CalendarEntry3 := CalendarEntry;
-                    CalendarEntry.Delete;
+                    CalendarEntry.Delete();
                     if CalendarEntry."Starting Date-Time" < "Starting Date-Time" then begin
                         CalendarEntry2.Validate("Ending Date-Time", "Starting Date-Time");
-                        CalendarEntry2.Insert;
+                        CalendarEntry2.Insert();
                     end else
                         "Starting Date-Time" := CalendarEntry."Starting Date-Time";
 
@@ -51,16 +51,16 @@ codeunit 99000759 "Calendar Absence Management"
                     if CalendarEntry."Ending Date-Time" < "Ending Date-Time" then begin
                         CalendarEntry2.Validate("Ending Date-Time", CalendarEntry."Ending Date-Time");
                         CalendarEntry2.Validate("Starting Date-Time", "Starting Date-Time");
-                        CalendarEntry2.Insert;
+                        CalendarEntry2.Insert();
                         CalendarEntry := CalendarEntry2;
                         "Starting Date-Time" := CalendarEntry."Ending Date-Time";
                     end else begin
                         CalendarEntry2.Validate("Ending Date-Time", "Ending Date-Time");
                         CalendarEntry2.Validate("Starting Date-Time", "Starting Date-Time");
-                        CalendarEntry2.Insert;
+                        CalendarEntry2.Insert();
                         if CalendarEntry3."Ending Date-Time" > "Ending Date-Time" then begin
                             CalendarEntry3.Validate("Starting Date-Time", "Ending Date-Time");
-                            CalendarEntry3.Insert;
+                            CalendarEntry3.Insert();
                             CalendarEntry := CalendarEntry3;
                         end;
                         Finished := true;
@@ -73,7 +73,7 @@ codeunit 99000759 "Calendar Absence Management"
         CalAbsentEntry.Updated := not Remove;
 
         if not Remove then
-            CalAbsentEntry.Modify;
+            CalAbsentEntry.Modify();
 
         GatherEntries(CalendarEntry3);
 
@@ -114,10 +114,10 @@ codeunit 99000759 "Calendar Absence Management"
                    ("Work Shift Code" = CalendarEntry2."Work Shift Code") and
                    ("Ending Date-Time" = CalendarEntry2."Starting Date-Time")
                 then begin
-                    CalendarEntry2.Delete;
+                    CalendarEntry2.Delete();
                     Delete;
                     CalendarEntry2.Validate("Starting Date-Time", "Starting Date-Time");
-                    CalendarEntry2.Insert;
+                    CalendarEntry2.Insert();
                 end;
                 CalendarEntry := CalendarEntry2;
             until CalendarEntry2.Next = 0;

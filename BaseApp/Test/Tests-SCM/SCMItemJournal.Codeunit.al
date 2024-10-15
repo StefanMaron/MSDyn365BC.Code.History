@@ -78,7 +78,7 @@ codeunit 137033 "SCM Item Journal"
 
         // WHEN we decrease the quantity so the item is available (0 items ordered)
         NotificationLifecycleMgt.GetTmpNotificationContext(TempNotificationContext);
-        NbNotifs := TempNotificationContext.Count;
+        NbNotifs := TempNotificationContext.Count();
         ItemJournalLines.Quantity.Value(Format(0));
 
         // THEN the item availability notification is recalled
@@ -511,7 +511,7 @@ codeunit 137033 "SCM Item Journal"
         // [GIVEN] Item Journal Line with Bin = "B" and "Entry Type" = "Negative Adjmt."
         CreateItemJournalLineWithEntryType(ItemJournalLine, ItemJournalLine."Entry Type"::"Negative Adjmt.", Location.Code, Bin.Code);
         ItemJournalLine.Quantity := -ItemJournalLine.Quantity;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         // [WHEN] Post Item Jounal Line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -563,7 +563,7 @@ codeunit 137033 "SCM Item Journal"
         // [GIVEN] Item Journal Line with Bin = "B" and "Entry Type" = "Assembly Consumption"
         CreateItemJournalLineWithEntryType(ItemJournalLine, ItemJournalLine."Entry Type"::"Assembly Consumption", Location.Code, Bin.Code);
         ItemJournalLine.Quantity := -ItemJournalLine.Quantity;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         // [WHEN] Post Item Jounal Line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -615,7 +615,7 @@ codeunit 137033 "SCM Item Journal"
         // [GIVEN] Item Journal Line with Bin = "B" and "Entry Type" = "Positive Adjmt."
         CreateItemJournalLineWithEntryType(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Location.Code, Bin.Code);
         ItemJournalLine.Quantity := -ItemJournalLine.Quantity;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         // [WHEN] Post Item Jounal Line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -669,7 +669,7 @@ codeunit 137033 "SCM Item Journal"
         // [GIVEN] Item Journal Line with Bin = "B" and "Entry Type" = "Assembly Output"
         CreateItemJournalLineWithEntryType(ItemJournalLine, ItemJournalLine."Entry Type"::"Assembly Output", Location.Code, Bin.Code);
         ItemJournalLine.Quantity := -ItemJournalLine.Quantity;
-        ItemJournalLine.Modify;
+        ItemJournalLine.Modify();
 
         // [WHEN] Post Item Jounal Line
         asserterror LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -1418,7 +1418,7 @@ codeunit 137033 "SCM Item Journal"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Item Journal");
     end;
 
@@ -1443,7 +1443,7 @@ codeunit 137033 "SCM Item Journal"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldStockoutWarning := SalesReceivablesSetup."Stockout Warning";
         SalesReceivablesSetup.Validate("Stockout Warning", StockoutWarning);
         SalesReceivablesSetup.Modify(true);
@@ -1476,7 +1476,7 @@ codeunit 137033 "SCM Item Journal"
             Clear(Item);
             CreateItem(Item);
             TempItem := Item;
-            TempItem.Insert;
+            TempItem.Insert();
         end;
     end;
 
@@ -1616,7 +1616,7 @@ codeunit 137033 "SCM Item Journal"
         ItemJournalLine.FindSet;
         repeat
             TempItemJournalLine := ItemJournalLine;
-            TempItemJournalLine.Insert;
+            TempItemJournalLine.Insert();
         until ItemJournalLine.Next = 0;
     end;
 
@@ -1724,7 +1724,7 @@ codeunit 137033 "SCM Item Journal"
     begin
         LibraryInventory.CreateItem(Item);
         TempItem := Item;
-        TempItem.Insert;
+        TempItem.Insert();
     end;
 
     local procedure UpdateItemCost(var Item: Record Item)

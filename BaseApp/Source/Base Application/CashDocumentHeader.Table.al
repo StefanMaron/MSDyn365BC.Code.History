@@ -577,7 +577,7 @@ table 11730 "Cash Document Header"
 
         CashDocPost.DeleteCashDocHeader(Rec);
 
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
         CashDocLine.DeleteAll(true);
@@ -751,7 +751,7 @@ table 11730 "Cash Document Header"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -815,7 +815,7 @@ table 11730 "Cash Document Header"
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
         if SkipLineNo <> 0 then
@@ -827,7 +827,7 @@ table 11730 "Cash Document Header"
             if not ConfirmMgt.GetResponse(UpdateLinesDimQst, false) then
                 exit;
 
-        CashDocLine.LockTable;
+        CashDocLine.LockTable();
         if CashDocLine.FindSet then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(CashDocLine."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -835,7 +835,7 @@ table 11730 "Cash Document Header"
                     CashDocLine."Dimension Set ID" := NewDimSetID;
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       CashDocLine."Dimension Set ID", CashDocLine."Shortcut Dimension 1 Code", CashDocLine."Shortcut Dimension 2 Code");
-                    CashDocLine.Modify;
+                    CashDocLine.Modify();
                 end;
             until CashDocLine.Next = 0;
     end;
@@ -848,10 +848,10 @@ table 11730 "Cash Document Header"
                 Error('');
 
         if CashDocLinesExist then begin
-            CashDocLine.LockTable;
+            CashDocLine.LockTable();
             Modify;
 
-            CashDocLine.Reset;
+            CashDocLine.Reset();
             CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
             CashDocLine.SetRange("Cash Document No.", "No.");
             if CashDocLine.FindSet(true) then
@@ -886,7 +886,7 @@ table 11730 "Cash Document Header"
         BankAccount2.TestField("Debit Rounding Account");
         BankAccount2.TestField("Credit Rounding Account");
 
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
         if CashDocLine.IsEmpty then
@@ -894,7 +894,7 @@ table 11730 "Cash Document Header"
 
         CashDocLine.CalcSums("Amount Including VAT");
 
-        RoundingMethod.Reset;
+        RoundingMethod.Reset();
         RoundingMethod.SetRange(Code, BankAccount2."Rounding Method Code");
         RoundingMethod.SetFilter("Minimum Amount", '..%1', Abs(CashDocLine."Amount Including VAT"));
         RoundingMethod.FindLast;
@@ -911,7 +911,7 @@ table 11730 "Cash Document Header"
         RoundedAmount :=
           Round(CashDocLine."Amount Including VAT", RoundingMethod.Precision, Direction) - CashDocLine."Amount Including VAT";
 
-        CashDocLine2.Reset;
+        CashDocLine2.Reset();
         CashDocLine2.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine2.SetRange("Cash Document No.", "No.");
         if CashDocLine2.FindLast then
@@ -922,7 +922,7 @@ table 11730 "Cash Document Header"
           BankAccount2."Debit Rounding Account", BankAccount2."Credit Rounding Account");
         CashDocLine2.SetRange("System-Created Entry", true);
         if not CashDocLine2.FindFirst then
-            CashDocLine2.Init;
+            CashDocLine2.Init();
 
         if (RoundedAmount <> 0) and (CashDocLine2.Amount <> RoundedAmount) then begin
             LastLineNo += 10000;
@@ -934,7 +934,7 @@ table 11730 "Cash Document Header"
             if not CashDocLine2.IsEmpty then
                 CashDocLine2.DeleteAll(true);
 
-            CashDocLine2.Init;
+            CashDocLine2.Init();
             CashDocLine2."Cash Desk No." := "Cash Desk No.";
             CashDocLine2."Cash Document No." := "No.";
             CashDocLine2."Line No." := LastLineNo;
@@ -991,7 +991,7 @@ table 11730 "Cash Document Header"
     [Scope('OnPrem')]
     procedure CashDocLinesExist(): Boolean
     begin
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
         exit(not CashDocLine.IsEmpty);

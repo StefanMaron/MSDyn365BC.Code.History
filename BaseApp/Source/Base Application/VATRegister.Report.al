@@ -140,7 +140,7 @@ report 13 "VAT Register"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
             end;
         }
     }

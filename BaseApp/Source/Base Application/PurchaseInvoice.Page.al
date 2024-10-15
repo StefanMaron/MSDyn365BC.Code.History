@@ -976,7 +976,7 @@ page 51 "Purchase Invoice"
                     begin
                         CalcInvDiscForHeader;
                         PurchPostAdvances.SetAmtToDedOnPurchDoc(Rec, true); // NAVCZ
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
                     end;
@@ -1743,8 +1743,6 @@ page 51 "Purchase Invoice"
         OfficeMgt: Codeunit "Office Management";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
-        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
         NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         HasIncomingDocument: Boolean;
         DocNoVisible: Boolean;
@@ -1768,6 +1766,10 @@ page 51 "Purchase Invoice"
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;
         IsShipToCountyVisible: Boolean;
+
+    protected var
+        ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
+        PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
 
     local procedure ActivateFields()
     begin
@@ -1818,7 +1820,7 @@ page 51 "Purchase Invoice"
             NavigateAfterPost::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
-                    PurchaseHeader.Init;
+                    PurchaseHeader.Init();
                     PurchaseHeader.Validate("Document Type", PurchaseHeader."Document Type"::Invoice);
                     OnPostDocumentOnBeforePurchaseHeaderInsert(PurchaseHeader);
                     PurchaseHeader.Insert(true);
@@ -1895,7 +1897,7 @@ page 51 "Purchase Invoice"
         PurchPostAdvances.Letter(Rec, AdvLetterNo, PurchAPTempl.Code);
 
         if AdvLetter.Get(AdvLetterNo) then begin
-            Commit;
+            Commit();
             if AdvLetter."Template Code" <> '' then
                 AdvLetter.SetRange("Template Code", AdvLetter."Template Code");
             PAGE.Run(PAGE::"Purchase Advance Letter", AdvLetter);
@@ -1917,7 +1919,7 @@ page 51 "Purchase Invoice"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         VendorInvoiceNoMandatory := PurchasesPayablesSetup."Ext. Doc. No. Mandatory"
     end;
 

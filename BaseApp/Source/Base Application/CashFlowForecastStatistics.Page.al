@@ -34,7 +34,7 @@ page 868 "Cash Flow Forecast Statistics"
                         DrillDownEntriesFromSource("Source Type Filter"::Receivables);
                     end;
                 }
-                field(SalesOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Sales Order"))
+                field(SalesOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Sales Orders"))
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sales Orders';
@@ -42,7 +42,7 @@ page 868 "Cash Flow Forecast Statistics"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntriesFromSource("Source Type Filter"::"Sales Order");
+                        DrillDownEntriesFromSource("Source Type Filter"::"Sales Orders");
                     end;
                 }
                 field(ServiceOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Service Orders"))
@@ -90,7 +90,7 @@ page 868 "Cash Flow Forecast Statistics"
                         DrillDownEntriesFromSource("Source Type Filter"::Payables);
                     end;
                 }
-                field(PurchaseOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Purchase Order"))
+                field(PurchaseOrders; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Purchase Orders"))
                 {
                     ApplicationArea = Suite;
                     Caption = 'Purchase Orders';
@@ -98,7 +98,7 @@ page 868 "Cash Flow Forecast Statistics"
 
                     trigger OnDrillDown()
                     begin
-                        DrillDownEntriesFromSource("Source Type Filter"::"Purchase Order");
+                        DrillDownEntriesFromSource("Source Type Filter"::"Purchase Orders");
                     end;
                 }
                 field(BudgetedFixedAssets; CalcAmountFromSource(CashFlowForecastEntry."Source Type"::"Fixed Assets Budget"))

@@ -293,14 +293,14 @@ table 11706 "Issued Bank Statement Header"
     var
         IssuedBankStmtLine: Record "Issued Bank Statement Line";
     begin
-        IssuedBankStmtLine.Reset;
+        IssuedBankStmtLine.Reset();
         IssuedBankStmtLine.SetRange("Bank Statement No.", "No.");
         exit(not IssuedBankStmtLine.IsEmpty);
     end;
 
     local procedure SetBankAccReconFilter(var BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
-        BankAccRecon.Reset;
+        BankAccRecon.Reset();
         BankAccRecon.SetRange("Statement Type", BankAccRecon."Statement Type"::"Payment Application");
         BankAccRecon.SetRange("Bank Account No.", "Bank Account No.");
         BankAccRecon.SetRange("Statement No.", "No.");
@@ -308,7 +308,7 @@ table 11706 "Issued Bank Statement Header"
 
     local procedure SetBankAccReconLnFilter(var BankAccReconLn: Record "Bank Acc. Reconciliation Line")
     begin
-        BankAccReconLn.Reset;
+        BankAccReconLn.Reset();
         BankAccReconLn.SetRange("Statement Type", BankAccReconLn."Statement Type"::"Payment Application");
         BankAccReconLn.SetRange("Bank Account No.", "Bank Account No.");
         BankAccReconLn.SetRange("Statement No.", "No.");
@@ -316,7 +316,7 @@ table 11706 "Issued Bank Statement Header"
 
     local procedure SetPostedPmtReconHdrFilter(var PostedPmtReconHdr: Record "Posted Payment Recon. Hdr")
     begin
-        PostedPmtReconHdr.Reset;
+        PostedPmtReconHdr.Reset();
         PostedPmtReconHdr.SetRange("Bank Account No.", "Bank Account No.");
         PostedPmtReconHdr.SetRange("Statement No.", "No.");
     end;

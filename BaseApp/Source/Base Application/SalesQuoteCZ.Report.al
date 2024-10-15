@@ -459,8 +459,8 @@ report 31094 "Sales - Quote CZ"
 
     trigger OnInitReport()
     begin
-        "Sales & Receivables Setup".Get;
-        SalesSetup.Get;
+        "Sales & Receivables Setup".Get();
+        SalesSetup.Get();
     end;
 
     trigger OnPreReport()

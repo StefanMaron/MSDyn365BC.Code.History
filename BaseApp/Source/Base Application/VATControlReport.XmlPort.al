@@ -905,8 +905,8 @@ xmlport 31100 "VAT Control Report"
         CompanyOfficials: Record "Company Officials";
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        StatReportingSetup.Get;
-        CompanyInfo.Get;
+        StatReportingSetup.Get();
+        CompanyInfo.Get();
 
         SWVersion := ApplicationSystemConstants.ApplicationVersion;
         SWName := 'Microsoft Dynamics NAV';
@@ -996,16 +996,16 @@ xmlport 31100 "VAT Control Report"
         if TempVATCtrlRptBuf2.FindSet then
             repeat
                 TempVATCtrlRptBuf := TempVATCtrlRptBuf2;
-                TempVATCtrlRptBuf.Insert;
+                TempVATCtrlRptBuf.Insert();
             until TempVATCtrlRptBuf2.Next = 0;
     end;
 
     local procedure CopyBufferToSection(var TempVATCtrlRptBuf2: Record "VAT Control Report Buffer" temporary; SectionCode: Code[20])
     begin
-        TempVATCtrlRptBuf2.Reset;
-        TempVATCtrlRptBuf2.DeleteAll;
+        TempVATCtrlRptBuf2.Reset();
+        TempVATCtrlRptBuf2.DeleteAll();
 
-        TempVATCtrlRptBuf.Reset;
+        TempVATCtrlRptBuf.Reset();
         TempVATCtrlRptBuf.SetRange("VAT Control Rep. Section Code", SectionCode);
         if TempVATCtrlRptBuf.FindSet then
             repeat
@@ -1024,7 +1024,7 @@ xmlport 31100 "VAT Control Report"
                         TempVATCtrlRptBuf2."Total Base" *= -1;
                         TempVATCtrlRptBuf2."Total Amount" *= -1;
                     end;
-                    TempVATCtrlRptBuf2.Insert;
+                    TempVATCtrlRptBuf2.Insert();
                 end;
             until TempVATCtrlRptBuf.Next = 0;
     end;
@@ -1064,7 +1064,7 @@ xmlport 31100 "VAT Control Report"
 
     local procedure CalcTotalAmountsBuffer(var TempVATCtrlRptBuf: Record "VAT Control Report Buffer" temporary)
     begin
-        TempVATCtrlRptBuf.Reset;
+        TempVATCtrlRptBuf.Reset();
         TempVATCtrlRptBuf.SetFilter("Corrections for Bad Receivable", '%1|%2',
             TempVATCtrlRptBuf."Corrections for Bad Receivable"::" ",
             TempVATCtrlRptBuf."Corrections for Bad Receivable"::"Bad Receivable (p.46 resp. 74a)");

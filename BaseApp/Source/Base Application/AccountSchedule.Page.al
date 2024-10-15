@@ -282,7 +282,7 @@ page 104 "Account Schedule"
                     if AccScheduleLine.FindSet then
                         repeat
                             AccScheduleLine.Indent;
-                            AccScheduleLine.Modify;
+                            AccScheduleLine.Modify();
                         until AccScheduleLine.Next = 0;
                     CurrPage.Update(false);
                 end;
@@ -307,7 +307,7 @@ page 104 "Account Schedule"
                     if AccScheduleLine.FindSet then
                         repeat
                             AccScheduleLine.Outdent;
-                            AccScheduleLine.Modify;
+                            AccScheduleLine.Modify();
                         until AccScheduleLine.Next = 0;
                     CurrPage.Update(false);
                 end;

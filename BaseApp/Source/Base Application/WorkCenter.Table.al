@@ -116,42 +116,42 @@ table 99000754 "Work Center"
 
                 // Capacity Calendar
                 EntryCounter := 0;
-                NoOfRecords := CalendarEntry.Count;
+                NoOfRecords := CalendarEntry.Count();
                 if CalendarEntry.Find('-') then
                     repeat
                         EntryCounter := EntryCounter + 1;
                         Window.Update(1, EntryCounter);
                         Window.Update(2, Round(EntryCounter / NoOfRecords * 10000, 1));
                         CalendarEntry."Work Center Group Code" := "Work Center Group Code";
-                        CalendarEntry.Modify;
+                        CalendarEntry.Modify();
                     until CalendarEntry.Next = 0;
 
                 // Capacity Absence
                 EntryCounter := 0;
                 CalAbsentEntry.SetCurrentKey("Work Center No.");
                 CalAbsentEntry.SetRange("Work Center No.", "No.");
-                NoOfRecords := CalAbsentEntry.Count;
+                NoOfRecords := CalAbsentEntry.Count();
                 if CalAbsentEntry.Find('-') then
                     repeat
                         EntryCounter := EntryCounter + 1;
                         Window.Update(3, EntryCounter);
                         Window.Update(4, Round(EntryCounter / NoOfRecords * 10000, 1));
                         CalAbsentEntry."Work Center Group Code" := "Work Center Group Code";
-                        CalAbsentEntry.Modify;
+                        CalAbsentEntry.Modify();
                     until CalAbsentEntry.Next = 0;
 
                 EntryCounter := 0;
 
                 ProdOrderCapNeedEntry.SetCurrentKey("Work Center No.");
                 ProdOrderCapNeedEntry.SetRange("Work Center No.", "No.");
-                NoOfRecords := ProdOrderCapNeedEntry.Count;
+                NoOfRecords := ProdOrderCapNeedEntry.Count();
                 if ProdOrderCapNeedEntry.Find('-') then
                     repeat
                         EntryCounter := EntryCounter + 1;
                         Window.Update(7, EntryCounter);
                         Window.Update(8, Round(EntryCounter / NoOfRecords * 10000, 1));
                         ProdOrderCapNeedEntry."Work Center Group Code" := "Work Center Group Code";
-                        ProdOrderCapNeedEntry.Modify;
+                        ProdOrderCapNeedEntry.Modify();
                     until ProdOrderCapNeedEntry.Next = 0;
 
                 OnValidateWorkCenterGroupCodeBeforeModify(Rec, xRec);
@@ -296,14 +296,14 @@ table 99000754 "Work Center"
                 EntryCounter := 0;
                 CalendarEntry.SetCurrentKey("Work Center No.");
                 CalendarEntry.SetRange("Work Center No.", "No.");
-                NoOfRecords := CalendarEntry.Count;
+                NoOfRecords := CalendarEntry.Count();
                 if CalendarEntry.Find('-') then
                     repeat
                         EntryCounter := EntryCounter + 1;
                         Window.Update(1, EntryCounter);
                         Window.Update(2, Round(EntryCounter / NoOfRecords * 10000, 1));
                         CalendarEntry.Validate("Ending Time");
-                        CalendarEntry.Modify;
+                        CalendarEntry.Modify();
                     until CalendarEntry.Next = 0;
 
                 Window.Close;
@@ -624,7 +624,7 @@ table 99000754 "Work Center"
 
         RoutingLine.CheckCertifiedRouting(RoutingLine.Type::"Work Center", "No.");
 
-        StdCostWksh.Reset;
+        StdCostWksh.Reset();
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Work Center");
         StdCostWksh.SetRange("No.", "No.");
         if not StdCostWksh.IsEmpty then
@@ -633,16 +633,16 @@ table 99000754 "Work Center"
         CalendarEntry.SetCurrentKey("Capacity Type", "No.");
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Work Center");
         CalendarEntry.SetRange("No.", "No.");
-        CalendarEntry.DeleteAll;
+        CalendarEntry.DeleteAll();
 
         CalAbsentEntry.SetCurrentKey("Capacity Type", "No.");
         CalAbsentEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Work Center");
         CalAbsentEntry.SetRange("No.", "No.");
-        CalAbsentEntry.DeleteAll;
+        CalAbsentEntry.DeleteAll();
 
         MfgCommentLine.SetRange("Table Name", MfgCommentLine."Table Name"::"Work Center");
         MfgCommentLine.SetRange("No.", "No.");
-        MfgCommentLine.DeleteAll;
+        MfgCommentLine.DeleteAll();
 
         ProdOrderRtngLine.SetRange("Work Center No.", "No.");
         if not ProdOrderRtngLine.IsEmpty then
@@ -655,7 +655,7 @@ table 99000754 "Work Center"
 
     trigger OnInsert()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
         if "No." = '' then begin
             MfgSetup.TestField("Work Center Nos.");
             NoSeriesMgt.InitSeries(MfgSetup."Work Center Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -714,7 +714,7 @@ table 99000754 "Work Center"
 
         with WorkCenter do begin
             WorkCenter := Rec;
-            MfgSetup.Get;
+            MfgSetup.Get();
             MfgSetup.TestField("Work Center Nos.");
             if NoSeriesMgt.SelectSeries(MfgSetup."Work Center Nos.", OldWorkCenter."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -740,7 +740,7 @@ table 99000754 "Work Center"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 

@@ -196,13 +196,15 @@ codeunit 132600 "Report Layout"
     [Test]
     [HandlerFunctions('RHPriceList')]
     [Scope('OnPrem')]
-    procedure TesttPriceList()
+    procedure TestPriceList()
     var
         LibrarySales: Codeunit "Library - Sales";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
     begin
         Initialize;
+        LibraryPriceCalculation.SetupDefaultHandler(Codeunit::"Price Calculation - V15");
         LibraryVariableStorage.Enqueue(LibrarySales.CreateCustomerNo);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Price List");
     end;
 
@@ -524,18 +526,15 @@ codeunit 132600 "Report Layout"
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryVariableStorage.Clear;
         if isInitialized then
             exit;
 
         // Setup logo to be printed by default
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Logo Position on Documents", SalesSetup."Logo Position on Documents"::Center);
         SalesSetup.Modify(true);
-
-        LibraryERMCountryData.CreateVATData; // NAVCZ
 
         isInitialized := true;
         Commit
@@ -862,7 +861,7 @@ codeunit 132600 "Report Layout"
     var
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
     begin
-        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(CalcDate('<CY+1D>', WorkDate))); // NAVCZ
+        ClosingTrialBalance.StartingDate.SetValue(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate));
         ClosingTrialBalance.AmtsInAddCurr.SetValue(false);
         ClosingTrialBalance.SaveAsPdf(FormatFileName(ClosingTrialBalance.Caption));
     end;

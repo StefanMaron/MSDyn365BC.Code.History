@@ -646,7 +646,7 @@ page 5935 "Service Credit Memo"
                     trigger OnAction()
                     begin
                         CalcInvDiscForHeader;
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Service Statistics", Rec);
                     end;
                 }
@@ -699,11 +699,11 @@ page 5935 "Service Credit Memo"
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Credit Memo", "No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

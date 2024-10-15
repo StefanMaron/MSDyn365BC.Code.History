@@ -46,7 +46,7 @@ codeunit 31080 AccSchedExtensionManagement
     var
         VATEntry: Record "VAT Entry";
     begin
-        VATEntry.Reset;
+        VATEntry.Reset();
         VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
         SetVATLedgEntryFilters(VATEntry);
 
@@ -71,7 +71,7 @@ codeunit 31080 AccSchedExtensionManagement
     var
         ValueEntry: Record "Value Entry";
     begin
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item No.", "Posting Date", "Item Ledger Entry Type", "Entry Type",
           "Variance Type", "Item Charge No.", "Location Code", "Variant Code",
           "Global Dimension 1 Code", "Global Dimension 2 Code");

@@ -387,84 +387,84 @@ codeunit 134826 "UT Contact Table"
     [Scope('OnPrem')]
     procedure TypeHelper_GetHMS_ZeroTime()
     var
-        TypeHelper: Codeunit "Type Helper";
-        TimeSource: Time;
-        Hour: Integer;
-        Minute: Integer;
-        Second: Integer;
+        TypeHelper : Codeunit "Type Helper";
+        TimeSource : Time;
+        Hour : Integer;
+        Minute : Integer;
+        Second : Integer;
     begin
         // [FEATURE] [Time Zone]
         TimeSource := 000000T;
-        TypeHelper.GetHMSFromTime(Hour, Minute, Second, TimeSource);
-
-        Assert.AreEqual(0, Hour, 'Hour');
-        Assert.AreEqual(0, Minute, 'Minute');
-        Assert.AreEqual(0, Second, 'Second');
+        TypeHelper.GetHMSFromTime(Hour,Minute,Second,TimeSource);
+  
+        Assert.AreEqual(0,Hour,'Hour');
+        Assert.AreEqual(0,Minute,'Minute');
+        Assert.AreEqual(0,Second,'Second');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TypeHelper_GetHMS_NonZeroTime()
     var
-        TypeHelper: Codeunit "Type Helper";
-        TimeSource: Time;
-        Hour: Integer;
-        Minute: Integer;
-        Second: Integer;
+        TypeHelper : Codeunit "Type Helper";
+        TimeSource : Time;
+        Hour : Integer;
+        Minute : Integer;
+        Second : Integer;
     begin
         // [FEATURE] [Time Zone]
         TimeSource := 235521T;
-        TypeHelper.GetHMSFromTime(Hour, Minute, Second, TimeSource);
-
-        Assert.AreEqual(23, Hour, 'Hour');
-        Assert.AreEqual(55, Minute, 'Minute');
-        Assert.AreEqual(21, Second, 'Second');
+        TypeHelper.GetHMSFromTime(Hour,Minute,Second,TimeSource);
+  
+        Assert.AreEqual(23,Hour,'Hour');
+        Assert.AreEqual(55,Minute,'Minute');
+        Assert.AreEqual(21,Second,'Second');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure Contact_GetLastDateTimeModified_01()
     var
-        Contact: Record "Contact";
-        ExpectedDateTime: DateTime;
+        Contact : Record "Contact";
+        ExpectedDateTime : DateTime;
     begin
         // [FEATURE] [Time Zone]
-        Assert.AreEqual(0DT, Contact.GetLastDateTimeModified, '');
-
+        Assert.AreEqual(0DT,Contact.GetLastDateTimeModified,'');
+  
         ExpectedDateTime := CurrentDateTime;
         Contact.SetLastDateTimeModified;
-
-        Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified, '');
+  
+        Assert.AreEqual(ExpectedDateTime,Contact.GetLastDateTimeModified,'');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure Contact_GetLastDateTimeModified_02()
     var
-        Contact: Record "Contact";
-        DotNet_DateTimeOffset: Codeunit "DotNet_DateTimeOffset";
-        ExpectedDateTime: DateTime;
-        LocalTimeZoneOffset: Duration;
+        Contact : Record "Contact";
+        DotNet_DateTimeOffset : Codeunit "DotNet_DateTimeOffset";
+        ExpectedDateTime : DateTime;
+        LocalTimeZoneOffset : Duration;
     begin
         // [FEATURE] [Time Zone]
         Contact."Last Date Modified" := DT2Date(CurrentDateTime);
         Contact."Last Time Modified" := 000000T;
-
+  
         LocalTimeZoneOffset := DotNet_DateTimeOffset.GetOffset;
-
-        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified", Contact."Last Time Modified") + LocalTimeZoneOffset;
-        Assert.AreEqual(ExpectedDateTime, Contact.GetLastDateTimeModified, '');
+  
+        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified",Contact."Last Time Modified") + LocalTimeZoneOffset;
+        Assert.AreEqual(ExpectedDateTime,Contact.GetLastDateTimeModified,'');
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure ContactCard_LastDateTimeModified()
     var
-        Contact: Record "Contact";
-        DotNet_DateTimeOffset: Codeunit "DotNet_DateTimeOffset";
-        ContactCard: TestPage "Contact Card";
-        ExpectedDateTime: DateTime;
-        LocalTimeZoneOffset: Duration;
+        Contact : Record "Contact";
+        DotNet_DateTimeOffset : Codeunit "DotNet_DateTimeOffset";
+        ContactCard : TestPage "Contact Card";
+        ExpectedDateTime : DateTime;
+        LocalTimeZoneOffset : Duration;
     begin
         // [FEATURE] [Time Zone] [UI]
         Contact.Init();
@@ -472,12 +472,12 @@ codeunit 134826 "UT Contact Table"
         Contact."Last Date Modified" := DT2Date(CurrentDateTime);
         Contact."Last Time Modified" := 000000T;
         Contact.Insert();
-
+  
         LocalTimeZoneOffset := DotNet_DateTimeOffset.GetOffset;
-        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified", Contact."Last Time Modified") + LocalTimeZoneOffset;
-
+        ExpectedDateTime := CreateDateTime(Contact."Last Date Modified",Contact."Last Time Modified") + LocalTimeZoneOffset;
+  
         ContactCard.OpenView;
-        ContactCard.Filter.SetFilter("No.", Contact."No.");
+        ContactCard.Filter.SetFilter("No.",Contact."No.");
         ContactCard.LastDateTimeModified.AssertEquals(ExpectedDateTime);
     end;
 
@@ -496,7 +496,7 @@ codeunit 134826 "UT Contact Table"
         MockContactWithName(Contact[2], RandomText2);
 
         Assert.AreEqual(Contact[1]."No.", Contact[1].GetContNo(RandomText1), '');
-        Assert.AreEqual(Contact[1]."No.", Contact[1].GetContNo(RandomText2), '');
+        Assert.AreEqual(Contact[2]."No.", Contact[1].GetContNo(RandomText2), '');
     end;
 
     [Test]

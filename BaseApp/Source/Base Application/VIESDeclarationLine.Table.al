@@ -336,7 +336,7 @@ table 31067 "VIES Declaration Line"
                     end;
                     if AddToDrillDown then begin
                         TempVATEntry := VATEntry;
-                        TempVATEntry.Insert;
+                        TempVATEntry.Insert();
                     end;
                 end;
             until VATEntry.Next = 0;

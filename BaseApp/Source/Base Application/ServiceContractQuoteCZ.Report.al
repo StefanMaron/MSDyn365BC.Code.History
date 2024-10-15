@@ -330,7 +330,7 @@ report 31112 "Service Contract Quote CZ"
                     DocFooterText := '';
 
                 if not Customer.Get("Customer No.") then
-                    Customer.Init;
+                    Customer.Init();
 
                 if LogInteraction and not IsReportInPreviewMode then
                     if "Contact No." <> '' then

@@ -18,11 +18,11 @@ codeunit 11719 "Create Bank Acc. Stmt Line"
         if BankAccReconLn.FindSet then
             repeat
                 LineNo += 10000;
-                BankStmtLn.Init;
+                BankStmtLn.Init();
                 BankStmtLn."Bank Statement No." := "Statement No.";
                 BankStmtLn."Line No." := LineNo;
                 BankStmtLn.CopyFromBankAccReconLine(BankAccReconLn);
-                BankStmtLn.Insert;
+                BankStmtLn.Insert();
             until BankAccReconLn.Next = 0;
     end;
 }

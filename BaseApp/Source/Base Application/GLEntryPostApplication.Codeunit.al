@@ -55,7 +55,7 @@ codeunit 11766 "G/L Entry -Post Application"
             if not NotUseDialog then begin
                 PostApplication.SetValues(DocumentNo, PostingDate);
                 PostApplication.LookupMode(true);
-                Commit;
+                Commit();
                 if ACTION::LookupOK = PostApplication.RunModal then begin
                     PostApplication.GetValues(DocumentNo, ApplicationDate);
                     if ApplicationDate < PostingDate then
@@ -132,7 +132,7 @@ codeunit 11766 "G/L Entry -Post Application"
             SetRange("G/L Account No.", ApplyingEntry."G/L Account No.");
             if FindSet(true, false) then begin
                 repeat
-                    DtldGLEntry.Init;
+                    DtldGLEntry.Init();
                     DtldGLEntry."Entry No." := FindLastDtldGLEntryNo + 1;
                     DtldGLEntry."G/L Entry No." := "Entry No.";
                     DtldGLEntry."Applied G/L Entry No." := ApplyingEntry."Entry No.";
@@ -145,7 +145,7 @@ codeunit 11766 "G/L Entry -Post Application"
                         DtldGLEntry."User ID" := UserId
                     else
                         DtldGLEntry."User ID" := "Applies-to ID";
-                    DtldGLEntry.Insert;
+                    DtldGLEntry.Insert();
                     CalcFields("Applied Amount");
                     if "Applied Amount" = Amount then begin
                         "Closed at Date" := ApplicationDate;
@@ -163,7 +163,7 @@ codeunit 11766 "G/L Entry -Post Application"
                         Error(Text11703);
                     end;
             if not NotUseDialog then begin
-                Commit;
+                Commit();
                 Window.Close;
                 Message(Text11707);
             end;
@@ -205,7 +205,7 @@ codeunit 11766 "G/L Entry -Post Application"
             TransactionNo := FindLastTransactionNo + 1;
             if FindSet then
                 repeat
-                    DtldGLEntry3.Init;
+                    DtldGLEntry3.Init();
                     DtldGLEntry3."Entry No." := FindLastDtldGLEntryNo + 1;
                     UnapplidedByEntryNo := DtldGLEntry3."Entry No.";
                     DtldGLEntry3."G/L Entry No." := "G/L Entry No.";
@@ -221,18 +221,18 @@ codeunit 11766 "G/L Entry -Post Application"
                         DtldGLEntry3."User ID" := '***'
                     else
                         DtldGLEntry3."User ID" := UserId;
-                    DtldGLEntry3.Insert;
+                    DtldGLEntry3.Insert();
                     DtldGLEntry3.Get("Entry No.");
                     DtldGLEntry3.Unapplied := true;
                     DtldGLEntry3."Unapplied by Entry No." := UnapplidedByEntryNo;
-                    DtldGLEntry3.Modify;
+                    DtldGLEntry3.Modify();
                     GLEntry.Get("G/L Entry No.");
                     GLEntry."Closed at Date" := 0D;
                     GLEntry.Closed := false;
-                    GLEntry.Modify;
+                    GLEntry.Modify();
                 until Next = 0;
             if not NotUseDialog then begin
-                Commit;
+                Commit();
                 Window.Close;
                 Message(Text11709);
             end;
@@ -250,7 +250,7 @@ codeunit 11766 "G/L Entry -Post Application"
             if Confirm(Text11708) then begin
                 GLEntry."Closed at Date" := 0D;
                 GLEntry.Closed := false;
-                GLEntry.Modify;
+                GLEntry.Modify();
             end;
             exit;
         end;

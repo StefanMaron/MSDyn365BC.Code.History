@@ -97,7 +97,7 @@ xmlport 31072 "Sales Price Import"
                     greSalesPrice."VAT Bus. Posting Gr. (Price)" := "Sales Price"."VAT Bus. Posting Gr. (Price)";
                     greSalesPrice."Ending Date" := "Sales Price"."Ending Date";
                     greSalesPrice."Allow Line Disc." := "Sales Price"."Allow Line Disc.";
-                    greSalesPrice.Modify;
+                    greSalesPrice.Modify();
                 end else begin
                     greSalesPrice."Item No." := "Sales Price"."Item No.";
                     greSalesPrice."Sales Type" := "Sales Price"."Sales Type";
@@ -113,7 +113,7 @@ xmlport 31072 "Sales Price Import"
                     greSalesPrice."VAT Bus. Posting Gr. (Price)" := "Sales Price"."VAT Bus. Posting Gr. (Price)";
                     greSalesPrice."Ending Date" := "Sales Price"."Ending Date";
                     greSalesPrice."Allow Line Disc." := "Sales Price"."Allow Line Disc.";
-                    greSalesPrice.Insert;
+                    greSalesPrice.Insert();
                 end;
             until "Sales Price".Next = 0;
     end;

@@ -353,7 +353,7 @@ table 5911 "Service Mgt. Setup"
             var
                 GLSetup: Record "General Ledger Setup";
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 GLSetup.TestField("Use VAT Date");
             end;
         }

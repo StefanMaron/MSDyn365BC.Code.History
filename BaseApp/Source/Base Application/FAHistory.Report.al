@@ -29,9 +29,6 @@ report 31049 "FA History"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(USERID; UserId)
             {
             }
@@ -102,7 +99,7 @@ report 31049 "FA History"
                 trigger OnPreDataItem()
                 begin
                     if GroupBy <> GroupBy::" " then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
             dataitem(FALoc; "FA Location")
@@ -184,7 +181,7 @@ report 31049 "FA History"
                         trigger OnAfterGetRecord()
                         begin
                             if FirstTime then begin
-                                TempFAHistory.Reset;
+                                TempFAHistory.Reset();
                                 TempFAHistory.CopyFilters(FAHistory);
                                 TempFAHistory.SetRange(Type, TempFAHistory.Type::Location);
                                 if FAHistory.GetFilter("Creation Date") = '' then
@@ -207,16 +204,16 @@ report 31049 "FA History"
 
                             if Disposal then begin
                                 if not CheckCancel then
-                                    CurrReport.Break;
-                                CurrReport.Skip;
+                                    CurrReport.Break();
+                                CurrReport.Skip();
                             end;
                             if "Closed by Entry No." <> 0 then begin
                                 CheckCancel := true;
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             end;
 
                             if "New Value" <> FALoc.Code then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             TestField("FA No.");
                             if FA3.Get("FA No.") then begin
@@ -226,7 +223,7 @@ report 31049 "FA History"
 
                             if FANo <> "FA No." then begin
                                 FANo := "FA No.";
-                                TempFAHistory.Reset;
+                                TempFAHistory.Reset();
                                 TempFAHistory.CopyFilters(FAHistory);
                                 if FAHistory.GetFilter("Creation Date") = '' then
                                     TempFAHistory.SetRange("Creation Date", 0D, EndDate);
@@ -234,12 +231,12 @@ report 31049 "FA History"
                                 if FAHistory.GetFilter("Entry No.") = '' then begin
                                     TempFAHistory.SetRange("Entry No.", "Entry No.");
                                     if not TempFAHistory.FindFirst then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if FAHistory.GetFilter("Entry No.") <> Format("Entry No.") then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                             end else
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
 
                         trigger OnPreDataItem()
@@ -254,11 +251,11 @@ report 31049 "FA History"
 
                     trigger OnAfterGetRecord()
                     begin
-                        TempFAHistory.Reset;
+                        TempFAHistory.Reset();
                         TempFAHistory.SetFilter("FA No.", "No.");
                         TempFAHistory.SetRange(Type, TempFAHistory.Type::Location);
                         if not TempFAHistory.FindFirst then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()
@@ -273,24 +270,24 @@ report 31049 "FA History"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempFAHistory.Reset;
+                    TempFAHistory.Reset();
                     TempFAHistory.SetFilter("New Value", Code);
                     TempFAHistory.SetRange(Type, TempFAHistory.Type::Location);
                     if not TempFAHistory.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if GroupBy <> GroupBy::Location then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if FAHistory.GetFilter("New Value") <> '' then
                         FAHistory.CopyFilter("New Value", Code);
 
                     GroupCount := 0;
 
-                    TempFAHistory.Reset;
+                    TempFAHistory.Reset();
                     TempFAHistory.CopyFilters(FAHistory);
                     TempFAHistory.SetRange(Type, TempFAHistory.Type::Location);
                     if FAHistory.GetFilter("Creation Date") = '' then
@@ -381,7 +378,7 @@ report 31049 "FA History"
                         trigger OnAfterGetRecord()
                         begin
                             if FirstTime then begin
-                                TempFAHistory.Reset;
+                                TempFAHistory.Reset();
                                 TempFAHistory.CopyFilters(FAHistory);
                                 TempFAHistory.SetRange(Type, TempFAHistory.Type::"Responsible Employee");
                                 if FAHistory.GetFilter("Creation Date") = '' then
@@ -404,16 +401,16 @@ report 31049 "FA History"
 
                             if Disposal then begin
                                 if not CheckCancel then
-                                    CurrReport.Break;
-                                CurrReport.Skip;
+                                    CurrReport.Break();
+                                CurrReport.Skip();
                             end;
                             if "Closed by Entry No." <> 0 then begin
                                 CheckCancel := true;
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             end;
 
                             if "New Value" <> Employee."No." then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             TestField("FA No.");
                             if FA3.Get("FA No.") then begin
@@ -423,7 +420,7 @@ report 31049 "FA History"
 
                             if FANo <> "FA No." then begin
                                 FANo := "FA No.";
-                                TempFAHistory.Reset;
+                                TempFAHistory.Reset();
                                 TempFAHistory.CopyFilters(FAHistory);
                                 if FAHistory.GetFilter("Creation Date") = '' then
                                     TempFAHistory.SetRange("Creation Date", 0D, EndDate);
@@ -431,12 +428,12 @@ report 31049 "FA History"
                                 if FAHistory.GetFilter("Entry No.") = '' then begin
                                     TempFAHistory.SetRange("Entry No.", "Entry No.");
                                     if not TempFAHistory.FindFirst then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                                 end else
                                     if FAHistory.GetFilter("Entry No.") <> Format("Entry No.") then
-                                        CurrReport.Break;
+                                        CurrReport.Break();
                             end else
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if "Old Value" <> '' then begin
                                 TempEmployee.Get("Old Value");
@@ -458,11 +455,11 @@ report 31049 "FA History"
 
                     trigger OnAfterGetRecord()
                     begin
-                        TempFAHistory.Reset;
+                        TempFAHistory.Reset();
                         TempFAHistory.SetFilter("FA No.", "No.");
                         TempFAHistory.SetRange(Type, TempFAHistory.Type::"Responsible Employee");
                         if not TempFAHistory.FindFirst then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     trigger OnPreDataItem()
@@ -477,24 +474,24 @@ report 31049 "FA History"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempFAHistory.Reset;
+                    TempFAHistory.Reset();
                     TempFAHistory.SetFilter("New Value", "No.");
                     TempFAHistory.SetRange(Type, TempFAHistory.Type::"Responsible Employee");
                     if not TempFAHistory.FindFirst then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if GroupBy <> GroupBy::"Responsible Employee" then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if FAHistory.GetFilter("New Value") <> '' then
                         FAHistory.CopyFilter("New Value", "No.");
 
                     GroupCount := 0;
 
-                    TempFAHistory.Reset;
+                    TempFAHistory.Reset();
                     TempFAHistory.CopyFilters(FAHistory);
                     TempFAHistory.SetRange(Type, TempFAHistory.Type::"Responsible Employee");
                     if FAHistory.GetFilter("Creation Date") = '' then
@@ -645,7 +642,7 @@ report 31049 "FA History"
     var
         TempFAHistory2: Record "FA History Entry";
     begin
-        TempFAHistory2.Reset;
+        TempFAHistory2.Reset();
         TempFAHistory2.CopyFilters(TempFAHistory);
         OK := false;
         if TempFAHistory2.FindSet then

@@ -53,12 +53,10 @@ table 372 "Payment Buffer"
             Caption = 'Amount';
             DataClassification = SystemMetadata;
         }
-        field(9; "Vendor Ledg. Entry Doc. Type"; Option)
+        field(9; "Vendor Ledg. Entry Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Vendor Ledg. Entry Doc. Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(10; "Vendor Ledg. Entry Doc. No."; Code[20])
         {

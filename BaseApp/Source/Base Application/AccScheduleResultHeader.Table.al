@@ -80,19 +80,19 @@ table 31086 "Acc. Schedule Result Header"
     begin
         AccScheduleResultValue.SetRange("Result Code", "Result Code");
         if not AccScheduleResultValue.IsEmpty then
-            AccScheduleResultValue.DeleteAll;
+            AccScheduleResultValue.DeleteAll();
 
         AccScheduleResultHistory.SetRange("Result Code", "Result Code");
         if not AccScheduleResultHistory.IsEmpty then
-            AccScheduleResultHistory.DeleteAll;
+            AccScheduleResultHistory.DeleteAll();
 
         AccScheduleResultLine.SetRange("Result Code", "Result Code");
         if not AccScheduleResultLine.IsEmpty then
-            AccScheduleResultLine.DeleteAll;
+            AccScheduleResultLine.DeleteAll();
 
         AccScheduleResultColumn.SetRange("Result Code", "Result Code");
         if not AccScheduleResultColumn.IsEmpty then
-            AccScheduleResultColumn.DeleteAll;
+            AccScheduleResultColumn.DeleteAll();
     end;
 
     var

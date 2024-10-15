@@ -18,7 +18,7 @@ codeunit 11732 "Cash Document-Release + Print"
     begin
         CODEUNIT.Run(CODEUNIT::"Cash Document-Release", CashDocumentHeader);
         GetReport(CashDocumentHeader);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

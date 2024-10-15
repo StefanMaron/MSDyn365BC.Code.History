@@ -14,9 +14,6 @@ report 31045 "FA Phys. Inventory List"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0___day_2___month_2___year4___; Format(Today))
             {
             }
@@ -238,13 +235,13 @@ report 31045 "FA Phys. Inventory List"
                 trigger OnAfterGetRecord()
                 begin
                     if not FADeprBook.Get("No.", DeprBookCode) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     FADeprBook.SetRange("FA Posting Date Filter", 0D, DocumentDate);
                     FADeprBook.CalcFields("Acquisition Cost", Depreciation, "Book Value");
                     if (FADeprBook."Disposal Date" > 0D) and (FADeprBook."Disposal Date" < DocumentDate) then
                         FADeprBook."Book Value" := 0;
                     if (FADeprBook."Book Value" = 0) and (not PrintZeroBookValue) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     Totals[1] := FADeprBook."Acquisition Cost";
                     Totals[2] := FADeprBook.Depreciation;
@@ -350,7 +347,7 @@ report 31045 "FA Phys. Inventory List"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[1] := CompanyOfficials.FullName;
                         end;
@@ -363,7 +360,7 @@ report 31045 "FA Phys. Inventory List"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[2] := CompanyOfficials.FullName;
                         end;
@@ -376,7 +373,7 @@ report 31045 "FA Phys. Inventory List"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[3] := CompanyOfficials.FullName;
                         end;
@@ -391,7 +388,7 @@ report 31045 "FA Phys. Inventory List"
 
         trigger OnOpenPage()
         begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
     }

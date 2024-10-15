@@ -60,7 +60,6 @@ page 5795 "Registered Put-away"
                 {
                     ApplicationArea = Warehouse;
                     Editable = false;
-                    OptionCaption = ' ,Item,Document,Shelf or Bin,Due Date,,Bin Ranking,Action Type';
                     ToolTip = 'Specifies the method by which the lines were sorted on the warehouse header, such as by item, or bin code.';
                 }
                 field("No. Printed"; "No. Printed")
@@ -105,7 +104,7 @@ page 5795 "Registered Put-away"
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'List';
-                    Image = OpportunitiesList;                    
+                    Image = OpportunitiesList;
                     ToolTip = 'View all warehouse documents of this type that exist.';
 
                     trigger OnAction()

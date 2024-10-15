@@ -108,7 +108,7 @@ codeunit 31020 "Purchase-Post Advances"
             end;
             if IsEmpty then
                 Error(Text006Err);
-            PurchSetup.Get;
+            PurchSetup.Get();
             if PurchSetup."Ext. Doc. No. Mandatory" then
                 if FindFirst and (Next <> 0) then
                     Error(Text012Err);
@@ -156,13 +156,13 @@ codeunit 31020 "Purchase-Post Advances"
                 end;
                 Modify;
                 if not SystemRun and not PreviewMode then
-                    Commit;
+                    Commit();
             end;
             AdvanceLetterNo := "Advance Letter No.";
 
-            PurchSetup.Get;
+            PurchSetup.Get();
             // Create header
-            PurchAdvanceLetterHeader.Init;
+            PurchAdvanceLetterHeader.Init();
             PurchAdvanceLetterHeader.TransferFields(PurchHeader2);
             PurchAdvanceLetterHeader."No." := "Advance Letter No.";
             PurchAdvanceLetterHeader."Order No." := "No.";
@@ -184,10 +184,10 @@ codeunit 31020 "Purchase-Post Advances"
 
             PurchAdvanceLetterHeader."Amounts Including VAT" := "Prices Including VAT";
 
-            PurchAdvanceLetterHeader.Insert;
+            PurchAdvanceLetterHeader.Insert();
 
             // Create Lines
-            TempPrepmtInvLineBuf.DeleteAll;
+            TempPrepmtInvLineBuf.DeleteAll();
 
             CreateAdvanceInvLineBuf(PurchHeader, TempPrepmtInvLineBuf, TempAdvanceLetterLineRelation);
 
@@ -198,7 +198,7 @@ codeunit 31020 "Purchase-Post Advances"
                 else
                     LineNo := PrevLineNo + 10000;
 
-                PurchAdvanceLetterLine.Init;
+                PurchAdvanceLetterLine.Init();
                 PurchAdvanceLetterLine."Letter No." := "Advance Letter No.";
                 PurchAdvanceLetterLine."Line No." := LineNo;
                 PurchAdvanceLetterLine."Pay-to Vendor No." := "Pay-to Vendor No.";
@@ -268,10 +268,10 @@ codeunit 31020 "Purchase-Post Advances"
                         if PurchInvHeaderBuf.FindSet then
                             repeat
                                 TempPurchAdvanceLetterHeaderLoc."No." := PurchInvHeaderBuf."Letter No.";
-                                if TempPurchAdvanceLetterHeaderLoc.Insert then;
+                                if TempPurchAdvanceLetterHeaderLoc.Insert() then;
                             until PurchInvHeaderBuf.Next = 0;
                         CheckLetter(TempPurchAdvanceLetterHeaderLoc, DocumentType);
-                        TempPurchAdvanceLetterHeaderLoc.DeleteAll;
+                        TempPurchAdvanceLetterHeaderLoc.DeleteAll();
                         if PurchInvHeaderBuf.FindSet then
                             repeat
                                 CurrPurchInvHeader := PurchInvHeaderBuf;
@@ -334,15 +334,15 @@ codeunit 31020 "Purchase-Post Advances"
                     PurchAdvanceLetterLine."Amount Linked To Journal Line" := 0;
                     PurchAdvanceLetterLine."Applies-to ID" := '';
                     PurchAdvanceLetterLine."Link Code" := '';
-                    PurchAdvanceLetterLine.Modify;
+                    PurchAdvanceLetterLine.Modify();
 
                     if not TempPurchAdvanceLetterHeader.Get(PurchAdvanceLetterLine."Letter No.") then begin
                         TempPurchAdvanceLetterHeader."No." := PurchAdvanceLetterLine."Letter No.";
-                        TempPurchAdvanceLetterHeader.Insert;
+                        TempPurchAdvanceLetterHeader.Insert();
                     end;
 
                     NextLinkEntryNo := NextLinkEntryNo + 1;
-                    TempAdvanceLink.Init;
+                    TempAdvanceLink.Init();
                     TempAdvanceLink."Entry No." := NextLinkEntryNo;
                     TempAdvanceLink."Entry Type" := TempAdvanceLink."Entry Type"::"Link To Letter";
                     TempAdvanceLink."CV Ledger Entry No." := VendLedgEntry."Entry No.";
@@ -358,7 +358,7 @@ codeunit 31020 "Purchase-Post Advances"
                     TempAdvanceLink."Document No." := PurchAdvanceLetterLine."Letter No.";
                     TempAdvanceLink."Line No." := PurchAdvanceLetterLine."Line No.";
                     TempAdvanceLink.Type := TempAdvanceLink.Type::Purchase;
-                    TempAdvanceLink.Insert;
+                    TempAdvanceLink.Insert();
                 end;
             until PurchAdvanceLetterLine.Next = 0;
         end;
@@ -384,7 +384,7 @@ codeunit 31020 "Purchase-Post Advances"
                         PurchAdvanceLetterHeader."Posting Date" := PostingDate;
                     if PurchAdvanceLetterHeader."VAT Date" = 0D then
                         PurchAdvanceLetterHeader."VAT Date" := PurchAdvanceLetterHeader."Posting Date";
-                    PurchAdvanceLetterHeader.Modify;
+                    PurchAdvanceLetterHeader.Modify();
                     case PurchAdvanceLetterHeader."Post Advance VAT Option" of
                         PurchAdvanceLetterHeader."Post Advance VAT Option"::Always:
                             PostLetter(PurchAdvanceLetterHeader, DocumentType::Invoice);
@@ -403,11 +403,8 @@ codeunit 31020 "Purchase-Post Advances"
         with AdvanceLink do begin
             CheckAmountToLink(GenJnlLine);
 
-            LockTable;
-            if FindLast then
-                NextEntryNo := "Entry No." + 1
-            else
-                NextEntryNo := 1;
+            LockTable();
+            NextEntryNo := GetLastEntryNo() + 1;
 
             Init;
             "Entry No." := NextEntryNo;
@@ -461,10 +458,10 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 if AdvanceLinkBuf2."Entry Type" = AdvanceLinkBuf2."Entry Type"::Payment then begin
                     TempAdvanceLinkBuf3 := AdvanceLinkBuf2;
-                    TempAdvanceLinkBuf3.Insert;
+                    TempAdvanceLinkBuf3.Insert();
                 end else begin
                     TempAdvanceLinkBuf := AdvanceLinkBuf2;
-                    TempAdvanceLinkBuf.Insert;
+                    TempAdvanceLinkBuf.Insert();
                 end;
             until AdvanceLinkBuf2.Next = 0;
 
@@ -482,12 +479,12 @@ codeunit 31020 "Purchase-Post Advances"
                             else
                                 AmountToLink := -TempAdvanceLinkBuf3."Amount To Link";
                             TempAdvanceLinkBuf3."Amount To Link" := TempAdvanceLinkBuf3."Amount To Link" + AmountToLink;
-                            TempAdvanceLinkBuf3.Modify;
+                            TempAdvanceLinkBuf3.Modify();
                             TempAdvanceLinkBuf."Amount To Link" := TempAdvanceLinkBuf."Amount To Link" - AmountToLink;
-                            TempAdvanceLinkBuf.Modify;
+                            TempAdvanceLinkBuf.Modify();
 
                             NextLinkEntryNo := NextLinkEntryNo + 1;
-                            TempAdvanceLink.Init;
+                            TempAdvanceLink.Init();
                             TempAdvanceLink."Entry No." := NextLinkEntryNo;
                             TempAdvanceLink."Entry Type" := TempAdvanceLink."Entry Type"::"Link To Letter";
                             TempAdvanceLink.Type := TempAdvanceLink.Type::Purchase;
@@ -503,7 +500,7 @@ codeunit 31020 "Purchase-Post Advances"
                             TempAdvanceLink."Remaining Amount to Deduct" := TempAdvanceLink.Amount;
                             TempAdvanceLink."Document No." := TempAdvanceLinkBuf."Document No.";
                             TempAdvanceLink."Line No." := TempAdvanceLinkBuf."Entry No.";
-                            TempAdvanceLink.Insert;
+                            TempAdvanceLink.Insert();
 
                         until TempAdvanceLinkBuf.Next = 0;
                 until TempAdvanceLinkBuf3.Next = 0;
@@ -521,7 +518,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        AdvanceLink2.LockTable;
+        AdvanceLink2.LockTable();
         if AdvanceLink2.FindLast then
             NextLinkEntryNo := AdvanceLink2."Entry No." + 1
         else
@@ -531,7 +528,7 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 AdvanceLink2.TransferFields(AdvanceLink);
                 AdvanceLink2."Entry No." := NextLinkEntryNo;
-                AdvanceLink2.Insert;
+                AdvanceLink2.Insert();
                 if AdvanceLink2."Entry Type" = AdvanceLink2."Entry Type"::"Link To Letter" then begin
                     PurchAdvanceLetterLine.Get(AdvanceLink2."Document No.", AdvanceLink2."Line No.");
                     PurchAdvanceLetterLine."Amount To Link" := PurchAdvanceLetterLine."Amount To Link" + AdvanceLink2.Amount;
@@ -548,7 +545,7 @@ codeunit 31020 "Purchase-Post Advances"
                 end;
                 TempVendLedgEntry."Entry No." := AdvanceLink2."CV Ledger Entry No.";
                 if not TempVendLedgEntry.Find then
-                    TempVendLedgEntry.Insert;
+                    TempVendLedgEntry.Insert();
                 NextLinkEntryNo := NextLinkEntryNo + 1;
             until AdvanceLink.Next = 0;
         UpdateVendLedgEntries(TempVendLedgEntry);
@@ -561,7 +558,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
         if AdvanceLink.IsEmpty then begin
-            AdvanceLink.Reset;
+            AdvanceLink.Reset();
             AdvanceLink.SetCurrentKey("Document No.", "Line No.", "Entry Type");
             AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
             AdvanceLink.SetRange("Document No.", LetterNo);
@@ -586,14 +583,14 @@ codeunit 31020 "Purchase-Post Advances"
                 PurchAdvanceLetterLine.SuspendStatusCheck(true);
                 PurchAdvanceLetterLine.Modify(true);
                 UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
-                AdvanceLink.Delete;
+                AdvanceLink.Delete();
                 TempVendLedgEntry."Entry No." := AdvanceLink."CV Ledger Entry No.";
                 if not TempVendLedgEntry.Find then
-                    TempVendLedgEntry.Insert;
+                    TempVendLedgEntry.Insert();
             until AdvanceLink.Next = 0;
 
         if LetterNo <> '' then begin
-            PurchAdvanceLetterLine.Reset;
+            PurchAdvanceLetterLine.Reset();
             PurchAdvanceLetterLine.SetRange("Letter No.", LetterNo);
             PurchAdvanceLetterLine.ModifyAll("VAT Difference Inv.", 0);
             PurchAdvanceLetterLine.ModifyAll("VAT Difference Inv. (LCY)", 0);
@@ -637,11 +634,11 @@ codeunit 31020 "Purchase-Post Advances"
                         PurchAdvanceLetterLine.SuspendStatusCheck(true);
                         PurchAdvanceLetterLine.Modify(true);
                         UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
-                        AdvanceLink.Delete;
+                        AdvanceLink.Delete();
                     end;
                 until AdvanceLink.Next = 0;
                 TempVendLedgEntry."Entry No." := EntryNo;
-                TempVendLedgEntry.Insert;
+                TempVendLedgEntry.Insert();
                 UpdateVendLedgEntries(TempVendLedgEntry);
             end;
         end;
@@ -656,7 +653,7 @@ codeunit 31020 "Purchase-Post Advances"
                 VendLedgEntry.Get(VendLedgEntry2."Entry No.");
                 VendLedgEntry.CalcFields("Remaining Amount to Link");
                 VendLedgEntry."Open For Advance Letter" := VendLedgEntry."Remaining Amount to Link" <> 0;
-                VendLedgEntry.Modify;
+                VendLedgEntry.Modify();
             until VendLedgEntry2.Next = 0;
     end;
 
@@ -665,7 +662,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
         OK: Boolean;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         OK := false;
         if PurchAdvanceLetterHeader2.FindSet then
             repeat
@@ -718,7 +715,7 @@ codeunit 31020 "Purchase-Post Advances"
                     PurchAdvanceLetterLine.Modify(true);
                     UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
                     AdvanceLink."Transfer Date" := WorkDate;
-                    AdvanceLink.Modify;
+                    AdvanceLink.Modify();
                 end;
             until AdvanceLink.Next = 0;
 
@@ -759,7 +756,7 @@ codeunit 31020 "Purchase-Post Advances"
                     PurchAdvanceLetterLine.Modify(true);
                     UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
                     AdvanceLink."Transfer Date" := 0D;
-                    AdvanceLink.Modify;
+                    AdvanceLink.Modify();
                 end;
             until AdvanceLink.Next = 0;
 
@@ -792,7 +789,7 @@ codeunit 31020 "Purchase-Post Advances"
 
         PurchAdvanceLetterHeader := PurchAdvanceLetterHeader2;
         PurchAdvanceLetterHeader.OnCheckPurchaseAdvanceLetterPostRestrictions;
-        PurchSetup.Get;
+        PurchSetup.Get();
         PostLetter_PreTest(PurchAdvanceLetterHeader, DocumentType);
 
         with PurchHeader do begin
@@ -810,7 +807,7 @@ codeunit 31020 "Purchase-Post Advances"
 
             "Prepayment Type" := "Prepayment Type"::Advance;
 
-            GLSetup.Get;
+            GLSetup.Get();
 
             // Get Doc. No. and save
             case DocumentType of
@@ -846,7 +843,7 @@ codeunit 31020 "Purchase-Post Advances"
               Text002Msg);
             Window.Update(1, StrSubstNo('%1 %2', SelectStr(1 + DocumentType, Text003Txt), GenJnlLineDocNo));
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SrcCode := SourceCodeSetup.Purchases;
 
             PostingDescription :=
@@ -870,7 +867,7 @@ codeunit 31020 "Purchase-Post Advances"
 
                         PurchInvHeader.Get(CurrPurchInvHeader."No.");
                         PurchInvHeader."Reversed By Cr. Memo No." := PurchCrMemoHdr."No.";
-                        PurchInvHeader.Modify;
+                        PurchInvHeader.Modify();
 
                         PurchAdvanceLetterEntry.SetCurrentKey("Document No.", "Posting Date");
                         PurchAdvanceLetterEntry.SetRange("Document No.", PurchInvHeader."No.");
@@ -884,7 +881,7 @@ codeunit 31020 "Purchase-Post Advances"
 
             // Create Lines
             LineCount := 0;
-            TempPrepmtInvLineBuf.DeleteAll;
+            TempPrepmtInvLineBuf.DeleteAll();
 
             case DocumentType of
                 DocumentType::Invoice:
@@ -942,7 +939,7 @@ codeunit 31020 "Purchase-Post Advances"
                         TempPurchAdvanceLetterEntry."VAT Amount" := -PurchAdvanceLetterEntry."VAT Amount";
                     end;
                     TempPurchAdvanceLetterEntry.Cancelled := (DocumentType = DocumentType::"Credit Memo");
-                    TempPurchAdvanceLetterEntry.Modify;
+                    TempPurchAdvanceLetterEntry.Modify();
                 until TempPrepmtInvLineBuf.Next = 0;
             SaveDeductionEntries;
         end;
@@ -978,7 +975,7 @@ codeunit 31020 "Purchase-Post Advances"
     begin
         ApprovalsMgmt.PrePostApprovalCheckPurchaseAdvanceLetter(PurchAdvanceLetterHeader);
         PurchAdvanceLetterHeader.TestField("Posting Date");
-        GLSetup.Get;
+        GLSetup.Get();
 
         if GLSetup."Use VAT Date" then begin
             PurchAdvanceLetterHeader.TestField("VAT Date");
@@ -1140,7 +1137,7 @@ codeunit 31020 "Purchase-Post Advances"
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        PurchAdvanceLetterEntry.Reset;
+        PurchAdvanceLetterEntry.Reset();
         PurchAdvanceLetterEntry.SetCurrentKey("Letter No.", "Letter Line No.", "Entry Type", "Posting Date");
         PurchAdvanceLetterEntry.SetRange("Letter No.", PurchAdvanceLetterHeaderNo);
         PurchAdvanceLetterEntry.SetRange("Letter Line No.", PrepaymentInvLineBuffer."Line No.");
@@ -1149,10 +1146,10 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterEntry.SetRange("Document No.", PurchInvHeaderNo);
         PurchAdvanceLetterEntry.FindFirst;
         PurchInvLine.Get(PurchAdvanceLetterEntry."Document No.", PurchAdvanceLetterEntry."Purchase Line No.");
-        PurchCrMemoLine.Init;
+        PurchCrMemoLine.Init();
         PurchCrMemoLine.TransferFields(PurchInvLine);
         PurchCrMemoLine."Document No." := PurchCrMemoHdr."No.";
-        PurchCrMemoLine.Insert;
+        PurchCrMemoLine.Insert();
     end;
 
     local procedure PostLetter_PostToGL(var GenJournalLine: Record "Gen. Journal Line"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry"; DocumentType: Option Invoice,"Credit Memo"; GenJnlLineDocNo: Code[20]; GenJnlLineDocType: Integer; PostingDescription: Text[50]; SrcCode: Code[10]; PostingDate: Date; VATDate: Date)
@@ -1306,7 +1303,7 @@ codeunit 31020 "Purchase-Post Advances"
 
         UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
 
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader."No." := GenJnlLineDocNo;
         PurchInvHeader."Posting Date" := PostingDate;
         PurchInvHeader."Currency Code" := VendorLedgerEntry."Currency Code";
@@ -1326,11 +1323,11 @@ codeunit 31020 "Purchase-Post Advances"
         GenJnlPostLine := GenJnlPostLine2;
         PurchHeader := PurchHeader2;
         SetCurrencyPrecision(PurchHeader."Currency Code");
-        GLSetup.Get;
-        PurchSetup.Get;
-        TempVendLedgEntry.DeleteAll;
+        GLSetup.Get();
+        PurchSetup.Get();
+        TempVendLedgEntry.DeleteAll();
 
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetFilter("Qty. to Invoice", '<>0');
@@ -1350,14 +1347,14 @@ codeunit 31020 "Purchase-Post Advances"
                         until PurchLine.Next = 0;
 
                     with PurchHeader do begin
-                        PurchLine.Reset;
+                        PurchLine.Reset();
                         PurchLine.SetRange("Document Type", "Document Type");
                         PurchLine.SetRange("Document No.", "No.");
                         PurchLine.SetFilter("Prepmt. Line Amount", '<>0');
                         if PurchLine.FindSet(true) then
                             repeat
                                 UpdateOrderLine(PurchLine, "Prices Including VAT", false);
-                                PurchLine.Modify;
+                                PurchLine.Modify();
                             until PurchLine.Next = 0;
                     end;
                 end;
@@ -1422,17 +1419,17 @@ codeunit 31020 "Purchase-Post Advances"
                     if not TempPurchAdvanceLetterHeader2.Get(PurchAdvanceLetterLine."Letter No.") then begin
                         PurchAdvanceLetterHeader.Get(PurchAdvanceLetterLine."Letter No.");
                         TempPurchAdvanceLetterHeader2 := PurchAdvanceLetterHeader;
-                        TempPurchAdvanceLetterHeader2.Insert;
+                        TempPurchAdvanceLetterHeader2.Insert();
                     end;
 
                     TempPurchAdvanceLetterHeader2.TestField("Perform. Country/Region Code", PurchInvHeader."Perform. Country/Region Code");
                     TempPurchAdvanceLetterHeader2.TestField("VAT Country/Region Code", PurchInvHeader."VAT Country/Region Code");
 
                     AdvanceLetterLineRelation."Deducted Amount" := AdvanceLetterLineRelation."Deducted Amount" + AmountToDeduct;
-                    AdvanceLetterLineRelation.Modify;
+                    AdvanceLetterLineRelation.Modify();
 
-                    TempVendLedgEntryGre.Reset;
-                    TempVendLedgEntryGre.DeleteAll;
+                    TempVendLedgEntryGre.Reset();
+                    TempVendLedgEntryGre.DeleteAll();
                     Clear(TempVendLedgEntryGre);
                     CalcLinkedPmtAmountToApply(PurchAdvanceLetterLine, AmountToDeduct, VendLedgEntry, TempVendLedgEntryGre);
 
@@ -1449,12 +1446,12 @@ codeunit 31020 "Purchase-Post Advances"
                     TotVATAmtToDeductLCY := 0;
                     EntryPos := 0;
 
-                    EntryCount := TempVendLedgEntryGre.Count;
+                    EntryCount := TempVendLedgEntryGre.Count();
 
                     for i := 1 to 2 do begin
                         if TempVendLedgEntryGre.FindSet then
                             repeat
-                                AdvanceLink.Reset;
+                                AdvanceLink.Reset();
                                 AdvanceLink.SetCurrentKey("CV Ledger Entry No.", "Entry Type", "Document No.", "Line No.");
                                 AdvanceLink.SetRange("CV Ledger Entry No.", TempVendLedgEntryGre."Entry No.");
                                 AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
@@ -1471,7 +1468,7 @@ codeunit 31020 "Purchase-Post Advances"
                                     EntryPos := EntryPos + 1;
                                     VATAmount := 0;
 
-                                    AdvanceLink2.Reset;
+                                    AdvanceLink2.Reset();
                                     AdvanceLink2.SetCurrentKey("CV Ledger Entry No.", "Entry Type", "Document No.", "Line No.");
                                     AdvanceLink2.SetRange("CV Ledger Entry No.", TempVendLedgEntryGre."Entry No.");
                                     AdvanceLink2.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
@@ -1663,7 +1660,7 @@ codeunit 31020 "Purchase-Post Advances"
 
         // Post VAT Correction
         PrepareInvJnlLine(GenJournalLine, PurchAdvanceLetterLine, PurchInvHeader);
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         GenJournalLine."Source Code" := SourceCodeSetup."Purchase Entry Application";
         GenJournalLine."Document No." := DocumentNo;
         SetPostingGroups(GenJournalLine, PurchAdvanceLetterLine, false);
@@ -1686,12 +1683,12 @@ codeunit 31020 "Purchase-Post Advances"
             TempPurchAdvanceLetterEntry."Entry No." := PurchAdvanceLetterEntryNo;
             TempPurchAdvanceLetterEntry."Entry Type" := TempPurchAdvanceLetterEntry."Entry Type"::"VAT Deduction";
             TempPurchAdvanceLetterEntry.Amount := 0;
-            TempPurchAdvanceLetterEntry.Insert;
+            TempPurchAdvanceLetterEntry.Insert();
             FillVATFieldsOfDeductionEntry(PurchAdvanceLetterLine."VAT %");
             TempPurchAdvanceLetterEntry."VAT Identifier" := PurchAdvanceLetterLine."VAT Identifier";
             TempPurchAdvanceLetterEntry."VAT Base Amount" := BaseToDeduct;
             TempPurchAdvanceLetterEntry."VAT Amount" := VATAmtToDeduct;
-            TempPurchAdvanceLetterEntry.Modify;
+            TempPurchAdvanceLetterEntry.Modify();
         end;
 
         // VAT Offset Account
@@ -1748,7 +1745,7 @@ codeunit 31020 "Purchase-Post Advances"
             TempPurchAdvanceLetterEntry."VAT Amount" := 0;
             TempPurchAdvanceLetterEntry."VAT Base Amount (LCY)" := BaseToDeductLCYDif;
             TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := VATAmountLCYDif;
-            TempPurchAdvanceLetterEntry.Insert;
+            TempPurchAdvanceLetterEntry.Insert();
         end;
         if (PurchAdvanceLetterLine."VAT Calculation Type" =
             PurchAdvanceLetterLine."VAT Calculation Type"::"Reverse Charge VAT") and
@@ -1762,7 +1759,7 @@ codeunit 31020 "Purchase-Post Advances"
             TempPurchAdvanceLetterEntry."VAT Amount" := 0;
             TempPurchAdvanceLetterEntry."VAT Base Amount (LCY)" := BaseToDeductLCYDif;
             TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := 0;
-            TempPurchAdvanceLetterEntry.Insert;
+            TempPurchAdvanceLetterEntry.Insert();
         end;
     end;
 
@@ -1782,7 +1779,7 @@ codeunit 31020 "Purchase-Post Advances"
         end;
 
         NextLineNo := NextLineNo + 10000;
-        PurchInvLine.Init;
+        PurchInvLine.Init();
         PurchInvLine."Line No." := NextLineNo;
         PurchInvLine."Prepayment Line" := true;
         PurchInvLine."Buy-from Vendor No." := PurchInvHeader."Buy-from Vendor No.";
@@ -1810,7 +1807,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchInvLine."Letter No." := PurchAdvanceLetterLine."Letter No.";
         PurchInvLine."VAT Doc. Letter No." := VATDocLetterNo;
 
-        PurchInvLine.Insert;
+        PurchInvLine.Insert();
 
         FillDeductionLineNo(PurchInvLine."Line No.");
     end;
@@ -1821,12 +1818,12 @@ codeunit 31020 "Purchase-Post Advances"
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         NextLineNo := NextLineNo + 10000;
-        PurchInvLine.Init;
+        PurchInvLine.Init();
         PurchInvLine."Document No." := DocumentNo;
         PurchInvLine."Line No." := NextLineNo;
         PurchInvLine."Prepayment Line" := true;
         PurchInvLine.Description := StrSubstNo(Text009Txt, PurchAdvanceLetterLine."Letter No.");
-        PurchInvLine.Insert;
+        PurchInvLine.Insert();
 
         PurchInvHeader.SetRange("Letter No.", PurchAdvanceLetterLine."Letter No.");
         PurchInvHeader.SetRange("Reversed By Cr. Memo No.", '');
@@ -1835,12 +1832,12 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 NextLineNo := NextLineNo + 10000;
 
-                PurchInvLine.Init;
+                PurchInvLine.Init();
                 PurchInvLine."Line No." := NextLineNo;
                 PurchInvLine."Prepayment Line" := true;
                 PurchInvLine.Description :=
                   CopyStr(StrSubstNo(Text010Txt, PurchInvHeader."No."), 1, MaxStrLen(PurchInvLine.Description));
-                PurchInvLine.Insert;
+                PurchInvLine.Insert();
             until PurchInvHeader.Next = 0;
     end;
 
@@ -1854,7 +1851,7 @@ codeunit 31020 "Purchase-Post Advances"
 
     local procedure PrepareInvJnlLine(var GenJnlLine: Record "Gen. Journal Line"; PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; PurchInvHeader: Record "Purch. Inv. Header")
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Advance Letter No." := PurchAdvanceLetterLine."Letter No.";
         GenJnlLine."Advance Letter Line No." := PurchAdvanceLetterLine."Line No.";
         GenJnlLine.Prepayment := true;
@@ -1935,11 +1932,11 @@ codeunit 31020 "Purchase-Post Advances"
         InvoiceAmount := VendLedgEntry3."Remaining Amount";
 
         // Post Advance Refund
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Prepayment := true;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
         PreparePmtJnlLine(GenJnlLine, PurchInvHeader);
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         GenJnlLine."Source Code" := SourceCodeSetup."Purchase Entry Application";
         if VendLedgEntry.FindSet then
             repeat
@@ -1956,7 +1953,7 @@ codeunit 31020 "Purchase-Post Advances"
                     VendLedgEntry2.FieldError("Amount to Apply",
                       StrSubstNo(Text036Err, VendLedgEntry2.FieldCaption("Remaining Amount")));
 
-                VendLedgEntry2.Modify;
+                VendLedgEntry2.Modify();
                 GenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code");
                 if VendLedgEntry."Currency Code" <> '' then begin
                     VendLedgEntry2.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
@@ -1977,7 +1974,7 @@ codeunit 31020 "Purchase-Post Advances"
             until (VendLedgEntry.Next = 0) or (InvoiceAmount = 0);
 
         // Post Payment
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Prepayment := false;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
         PreparePmtJnlLine(GenJnlLine, PurchInvHeader);
@@ -2013,12 +2010,12 @@ codeunit 31020 "Purchase-Post Advances"
                     if VendLedgEntry.Get(VendLedgEntry2."Entry No.") then begin
                         VendLedgEntry."Amount to Apply" := VendLedgEntry."Amount to Apply" + AdvanceLink.Amount;
                         VendLedgEntry."Currency Code" := AdvanceLink."Currency Code";
-                        VendLedgEntry.Modify;
+                        VendLedgEntry.Modify();
                     end else begin
                         VendLedgEntry := VendLedgEntry2;
                         VendLedgEntry."Amount to Apply" := AdvanceLink.Amount;
                         VendLedgEntry."Currency Code" := AdvanceLink."Currency Code";
-                        VendLedgEntry.Insert;
+                        VendLedgEntry.Insert();
                     end;
             until AdvanceLink.Next = 0;
     end;
@@ -2054,28 +2051,28 @@ codeunit 31020 "Purchase-Post Advances"
                     end;
                     TotalAmountToApply := TotalAmountToApply - AmountToApply;
                     AdvanceLink."Remaining Amount to Deduct" := AdvanceLink."Remaining Amount to Deduct" + AmountToApply;
-                    AdvanceLink.Modify;
+                    AdvanceLink.Modify();
 
                     if AmountToApply <> 0 then begin
                         if VendLedgEntry.Get(VendLedgEntry2."Entry No.") then begin
                             VendLedgEntry."Amount to Apply" := VendLedgEntry."Amount to Apply" - AmountToApply;
-                            VendLedgEntry.Modify;
+                            VendLedgEntry.Modify();
                         end else begin
                             VendLedgEntry2."Applies-to ID" := AppPrefTxt + Format(VendLedgEntry2."Entry No.");
-                            VendLedgEntry2.Modify;
+                            VendLedgEntry2.Modify();
                             VendLedgEntry := VendLedgEntry2;
                             VendLedgEntry."Amount to Apply" := -AmountToApply;
                             VendLedgEntry."Currency Code" := AdvanceLink."Currency Code";
-                            VendLedgEntry.Insert;
+                            VendLedgEntry.Insert();
                         end;
                         if VendLedgEntry3.Get(VendLedgEntry2."Entry No.") then begin
                             VendLedgEntry3."Amount to Apply" := VendLedgEntry3."Amount to Apply" - AmountToApply;
-                            VendLedgEntry3.Modify;
+                            VendLedgEntry3.Modify();
                         end else begin
                             VendLedgEntry3 := VendLedgEntry2;
                             VendLedgEntry3."Amount to Apply" := -AmountToApply;
                             VendLedgEntry3."Currency Code" := AdvanceLink."Currency Code";
-                            VendLedgEntry3.Insert;
+                            VendLedgEntry3.Insert();
                         end;
                     end;
                 end;
@@ -2168,7 +2165,7 @@ codeunit 31020 "Purchase-Post Advances"
         TotalBase := TotalBase + TempPurchAdvanceLetterEntry."VAT Base Amount";
         TotalAmountLCY := TotalAmountLCY + TempPurchAdvanceLetterEntry."VAT Amount (LCY)";
         TotalBaseLCY := TotalBaseLCY + TempPurchAdvanceLetterEntry."VAT Base Amount (LCY)";
-        TempPurchAdvanceLetterEntry.Reset;
+        TempPurchAdvanceLetterEntry.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -2183,7 +2180,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterLine.SetRange("Pay-to Vendor No.", VendNoGco);
         for Status := 0 to 4 do begin
             PurchAdvanceLetterLine.SetRange(Status, Status);
-            QtyOfDocs[Status + 1] := PurchAdvanceLetterLine.Count;
+            QtyOfDocs[Status + 1] := PurchAdvanceLetterLine.Count();
         end;
     end;
 
@@ -2207,9 +2204,9 @@ codeunit 31020 "Purchase-Post Advances"
                      AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.")
                 then begin
                     PurchAdvanceLetterLine.Get(AdvanceLetterLineRelation."Letter No.", AdvanceLetterLineRelation."Letter Line No.");
-                    TempPurchAdvanceLetterLine.Init;
+                    TempPurchAdvanceLetterLine.Init();
                     TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
-                    TempPurchAdvanceLetterLine.Insert;
+                    TempPurchAdvanceLetterLine.Insert();
                 end;
             until AdvanceLetterLineRelation.Next = 0;
 
@@ -2251,14 +2248,14 @@ codeunit 31020 "Purchase-Post Advances"
     begin
         if BufEntryNo = 0 then
             exit;
-        AdvanceLetterLineRelation2.Reset;
+        AdvanceLetterLineRelation2.Reset();
         AdvanceLetterLineRelation2.SetRange("Letter Line No.", BufEntryNo);
         if AdvanceLetterLineRelation2.FindSet then
             repeat
                 AdvanceLetterLineRelation := AdvanceLetterLineRelation2;
                 AdvanceLetterLineRelation."Letter No." := PurchAdvanceLetterLine."Letter No.";
                 AdvanceLetterLineRelation."Letter Line No." := PurchAdvanceLetterLine."Line No.";
-                AdvanceLetterLineRelation.Insert;
+                AdvanceLetterLineRelation.Insert();
             until AdvanceLetterLineRelation2.Next = 0;
     end;
 
@@ -2311,7 +2308,7 @@ codeunit 31020 "Purchase-Post Advances"
                             AdvanceLetterLineRelation."Invoiced Amount" := AdvanceLetterLineRelation."Invoiced Amount" + AmtDif;
                             AmtDif := 0;
                         end;
-                        AdvanceLetterLineRelation.Modify;
+                        AdvanceLetterLineRelation.Modify();
                         if not TempPurchLine.Get(AdvanceLetterLineRelation."Document Type",
                              AdvanceLetterLineRelation."Document No.",
                              AdvanceLetterLineRelation."Document Line No.")
@@ -2319,7 +2316,7 @@ codeunit 31020 "Purchase-Post Advances"
                             TempPurchLine."Document Type" := AdvanceLetterLineRelation."Document Type";
                             TempPurchLine."Document No." := AdvanceLetterLineRelation."Document No.";
                             TempPurchLine."Line No." := AdvanceLetterLineRelation."Document Line No.";
-                            TempPurchLine.Insert;
+                            TempPurchLine.Insert();
                         end;
                     end;
                 until (AdvanceLetterLineRelation.Next = 0) or (AmtDif = 0);
@@ -2338,7 +2335,7 @@ codeunit 31020 "Purchase-Post Advances"
                                 AdvanceLetterLineRelation."Invoiced Amount" := AdvanceLetterLineRelation."Invoiced Amount" + AmtDif;
                                 AmtDif := 0;
                             end;
-                            AdvanceLetterLineRelation.Modify;
+                            AdvanceLetterLineRelation.Modify();
                             if not TempPurchLine.Get(AdvanceLetterLineRelation."Document Type",
                                  AdvanceLetterLineRelation."Document No.",
                                  AdvanceLetterLineRelation."Document Line No.")
@@ -2346,7 +2343,7 @@ codeunit 31020 "Purchase-Post Advances"
                                 TempPurchLine."Document Type" := AdvanceLetterLineRelation."Document Type";
                                 TempPurchLine."Document No." := AdvanceLetterLineRelation."Document No.";
                                 TempPurchLine."Line No." := AdvanceLetterLineRelation."Document Line No.";
-                                TempPurchLine.Insert;
+                                TempPurchLine.Insert();
                             end;
                         end;
                     until (AdvanceLetterLineRelation.Next(-1) = 0) or (AmtDif = 0);
@@ -2361,7 +2358,7 @@ codeunit 31020 "Purchase-Post Advances"
                 PurchHeader.Get(TempPurchLine."Document Type", TempPurchLine."Document No.");
                 PurchLine.Get(TempPurchLine."Document Type", TempPurchLine."Document No.", TempPurchLine."Line No.");
                 UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
-                PurchLine.Modify;
+                PurchLine.Modify();
             until TempPurchLine.Next = 0;
     end;
 
@@ -2405,9 +2402,9 @@ codeunit 31020 "Purchase-Post Advances"
     [Scope('OnPrem')]
     procedure InsertTempApplnAdvanceLink(DtldEntryBufEntryNo: Integer)
     begin
-        TempAdvanceLink.Init;
+        TempAdvanceLink.Init();
         TempAdvanceLink."Entry No." := DtldEntryBufEntryNo;
-        TempAdvanceLink.Insert;
+        TempAdvanceLink.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -2431,7 +2428,7 @@ codeunit 31020 "Purchase-Post Advances"
                 "Amount (LCY)" := DtldCVLedgEntryBuf."Amount (LCY)";
                 "Currency Code" := DtldCVLedgEntryBuf."Currency Code";
                 Insert;
-                TempAdvanceLink.Delete;
+                TempAdvanceLink.Delete();
             end;
     end;
 
@@ -2451,7 +2448,7 @@ codeunit 31020 "Purchase-Post Advances"
                 TempPurchLineBuff."Document Type" := AdvanceLetterLineRelation."Document Type";
                 TempPurchLineBuff."Document No." := AdvanceLetterLineRelation."Document No.";
                 TempPurchLineBuff."Line No." := AdvanceLetterLineRelation."Document Line No.";
-                if TempPurchLineBuff.Insert then;
+                if TempPurchLineBuff.Insert() then;
             until AdvanceLetterLineRelation.Next = 0;
         end;
         if TempPurchLineBuff.Find('-') then begin
@@ -2464,7 +2461,7 @@ codeunit 31020 "Purchase-Post Advances"
                         then
                             PurchHeader.Get(PurchLine."Document Type", PurchLine."Document No.");
                         UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
-                        PurchLine.Modify;
+                        PurchLine.Modify();
                     end;
             until TempPurchLineBuff.Next = 0;
         end;
@@ -2475,14 +2472,14 @@ codeunit 31020 "Purchase-Post Advances"
     var
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
     begin
-        TempPurchAdvanceLetterHeader.Reset;
+        TempPurchAdvanceLetterHeader.Reset();
         if TempPurchAdvanceLetterHeader.Find('-') then begin
             repeat
                 TempPurchAdvanceLetterHeader2 := TempPurchAdvanceLetterHeader;
                 PurchAdvanceLetterHeader.Get(TempPurchAdvanceLetterHeader2."No.");
                 TempPurchAdvanceLetterHeader2."Template Code" := PurchAdvanceLetterHeader."Template Code";
                 TempPurchAdvanceLetterHeader2."Post Advance VAT Option" := PurchAdvanceLetterHeader."Post Advance VAT Option";
-                if TempPurchAdvanceLetterHeader2.Insert then;
+                if TempPurchAdvanceLetterHeader2.Insert() then;
             until TempPurchAdvanceLetterHeader.Next = 0;
         end;
     end;
@@ -2490,12 +2487,12 @@ codeunit 31020 "Purchase-Post Advances"
     [Scope('OnPrem')]
     procedure SetLetterHeader(var TempPurchAdvanceLetterHeader2: Record "Purch. Advance Letter Header" temporary)
     begin
-        TempPurchAdvanceLetterHeader.Reset;
-        TempPurchAdvanceLetterHeader.DeleteAll;
+        TempPurchAdvanceLetterHeader.Reset();
+        TempPurchAdvanceLetterHeader.DeleteAll();
         if TempPurchAdvanceLetterHeader2.Find('-') then begin
             repeat
                 TempPurchAdvanceLetterHeader := TempPurchAdvanceLetterHeader2;
-                TempPurchAdvanceLetterHeader.Insert;
+                TempPurchAdvanceLetterHeader.Insert();
             until TempPurchAdvanceLetterHeader2.Next = 0;
         end;
     end;
@@ -2559,7 +2556,7 @@ codeunit 31020 "Purchase-Post Advances"
         BaseToDeductLCYDif: Decimal;
         VATAmountLCYDif: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Use VAT Date" then begin
             if VATDate = 0D then
                 Error(Text037Err);
@@ -2577,7 +2574,7 @@ codeunit 31020 "Purchase-Post Advances"
         PostVATCrMemoHeader(PurchCrMemoHdr, PurchAdvanceLetterHeader, DocumentNo, PostingDate, VATDate);
 
         // Create Lines
-        TempPrepmtInvLineBuf.DeleteAll;
+        TempPrepmtInvLineBuf.DeleteAll();
         BuildCreditMemoLineBuf(PurchAdvanceLetterHeader, TempPrepmtInvLineBuf);
         if TempPrepmtInvLineBuf.FindSet then begin
             repeat
@@ -2631,7 +2628,7 @@ codeunit 31020 "Purchase-Post Advances"
                 UpdInvAmountToLineRelations(PurchAdvanceLetterLine);
 
                 PurchInvHeader.TransferFields(PurchCrMemoHdr);
-                VendLedgEntry.Init;
+                VendLedgEntry.Init();
                 VendLedgEntry."Vendor No." := PurchAdvanceLetterHeader."Pay-to Vendor No.";
                 CreateAdvanceEntry(PurchAdvanceLetterHeader, PurchAdvanceLetterLine, PurchInvHeader, 0, VendLedgEntry, 0);
                 FillVATFieldsOfDeductionEntry(TempPrepmtInvLineBuf."VAT %");
@@ -2641,7 +2638,7 @@ codeunit 31020 "Purchase-Post Advances"
                 TempPurchAdvanceLetterEntry."Document Type" := GenJnlLine."Document Type";
                 TempPurchAdvanceLetterEntry."VAT Base Amount" := -TempPrepmtInvLineBuf."VAT Base Amount";
                 TempPurchAdvanceLetterEntry."VAT Amount" := -TempPrepmtInvLineBuf."VAT Amount";
-                TempPurchAdvanceLetterEntry.Modify;
+                TempPurchAdvanceLetterEntry.Modify();
 
                 // Gain/Loss
                 if VATAmountLCYDif <> 0 then begin
@@ -2684,7 +2681,7 @@ codeunit 31020 "Purchase-Post Advances"
                     TempPurchAdvanceLetterEntry."VAT Amount" := 0;
                     TempPurchAdvanceLetterEntry."VAT Base Amount (LCY)" := BaseToDeductLCYDif;
                     TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := VATAmountLCYDif;
-                    TempPurchAdvanceLetterEntry.Insert;
+                    TempPurchAdvanceLetterEntry.Insert();
                 end;
             until TempPrepmtInvLineBuf.Next = 0;
             SaveDeductionEntries;
@@ -2699,17 +2696,17 @@ codeunit 31020 "Purchase-Post Advances"
         SourceCodeSetup: Record "Source Code Setup";
         SrcCode: Code[10];
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.TransferFields(PurchAdvanceLetterHeader);
         CopyPayToSellFromAdvLetter(PurchaseHeader, PurchAdvanceLetterHeader);
 
         PurchaseHeader."VAT Date" := VATDate;
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SrcCode := SourceCodeSetup.Purchases;
 
         // Create posted header
-        PurchCrMemoHdr.Init;
+        PurchCrMemoHdr.Init();
         PurchCrMemoHdr.TransferFields(PurchaseHeader);
         PurchCrMemoHdr."Posting Date" := PostingDate;
         PurchCrMemoHdr."VAT Date" := VATDate;
@@ -2727,7 +2724,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchCrMemoHdr."Prepayment Credit Memo" := true;
         PurchCrMemoHdr."Vendor Cr. Memo No." := PurchAdvanceLetterHeader."External Document No.";
         PurchCrMemoHdr."Letter No." := PurchAdvanceLetterHeader."No.";
-        PurchCrMemoHdr.Insert;
+        PurchCrMemoHdr.Insert();
     end;
 
     local procedure PostVATCrMemoLine(var PurchCrMemoLine: Record "Purch. Cr. Memo Line"; PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -2969,7 +2966,7 @@ codeunit 31020 "Purchase-Post Advances"
         TotalAmountToRefund: Decimal;
         AmtToRefund: Decimal;
     begin
-        VendLedgEntry.LockTable;
+        VendLedgEntry.LockTable();
         PurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
         PurchAdvanceLetterLine.SetFilter("Amount To Refund", '>0');
         if PurchAdvanceLetterLine.FindSet then begin
@@ -2998,18 +2995,18 @@ codeunit 31020 "Purchase-Post Advances"
                                 AmtToRefund := AmtToRefund - AmtToApply;
                                 if TempVendLedgEntry2.Get(VendLedgEntry."Entry No.") then begin
                                     TempVendLedgEntry2."Amount to Apply" := TempVendLedgEntry2."Amount to Apply" - AmtToApply;
-                                    TempVendLedgEntry2.Modify;
+                                    TempVendLedgEntry2.Modify();
                                 end else begin
                                     VendLedgEntry."Applies-to ID" := AppPrefTxt + Format(VendLedgEntry."Entry No.");
-                                    VendLedgEntry.Modify;
+                                    VendLedgEntry.Modify();
                                     TempVendLedgEntry2 := VendLedgEntry;
                                     TempVendLedgEntry2."Amount to Apply" := -AmtToApply;
                                     TempVendLedgEntry2."Currency Code" := PurchAdvanceLetterHeader."Currency Code";
-                                    TempVendLedgEntry2.Insert;
+                                    TempVendLedgEntry2.Insert();
                                 end;
                             end;
                             AdvanceLink."Remaining Amount to Deduct" := 0;
-                            AdvanceLink.Modify;
+                            AdvanceLink.Modify();
                         end;
                     until AdvanceLink.Next = 0;
 
@@ -3039,11 +3036,11 @@ codeunit 31020 "Purchase-Post Advances"
         PrepaidAmount: Decimal;
         PrepaidAmountLCY: Decimal;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SrcCode := SourceCodeSetup.Purchases;
 
         // Post Advance Refund
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Prepayment := true;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
         GenJnlLine."Financial Void" := true;
@@ -3069,7 +3066,7 @@ codeunit 31020 "Purchase-Post Advances"
                 TempVendorLedgerEntry.TestField("Currency Code", PurchAdvanceLetterHeader."Currency Code");
                 VendorLedgerEntry.Get(TempVendorLedgerEntry."Entry No.");
                 VendorLedgerEntry."Amount to Apply" := -TempVendorLedgerEntry."Amount to Apply";
-                VendorLedgerEntry.Modify;
+                VendorLedgerEntry.Modify();
                 GenJnlLine.Validate("Currency Code", TempVendorLedgerEntry."Currency Code");
                 if TempVendorLedgerEntry."Currency Code" <> '' then begin
                     VendorLedgerEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
@@ -3095,7 +3092,7 @@ codeunit 31020 "Purchase-Post Advances"
 
             until TempVendorLedgerEntry.Next = 0;
 
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Prepayment := false;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
         GenJnlLine."Financial Void" := true;
@@ -3158,7 +3155,7 @@ codeunit 31020 "Purchase-Post Advances"
                 PurchAdvanceLetterLine."Amount To Refund" := 0;
                 PurchAdvanceLetterLine."VAT Base To Refund" := 0;
                 PurchAdvanceLetterLine."VAT Amount To Refund" := 0;
-                PurchAdvanceLetterLine.Modify;
+                PurchAdvanceLetterLine.Modify();
             until PurchAdvanceLetterLine.Next = 0;
     end;
 
@@ -3170,7 +3167,7 @@ codeunit 31020 "Purchase-Post Advances"
     begin
         // Amount To Refund Checking
         CheckAmountToRefund(PurchAdvanceLetterHeader);
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Ext. Doc. No. Mandatory" then begin
             PurchAdvanceLetterHeader.TestField("External Document No.");
             if not CheckExternalDocumentNumber(PurchAdvanceLetterHeader, 1) then
@@ -3187,7 +3184,7 @@ codeunit 31020 "Purchase-Post Advances"
                 PurchAdvPaymentTemplate.TestField("Advance Credit Memo Nos.");
                 DocumentNo := NoSeriesMgt.GetNextNo(PurchAdvPaymentTemplate."Advance Credit Memo Nos.", PostingDate, true);
             end else begin
-                PurchSetup.Get;
+                PurchSetup.Get();
                 PurchSetup.TestField("Advance Credit Memo Nos.");
                 DocumentNo := NoSeriesMgt.GetNextNo(PurchSetup."Advance Credit Memo Nos.", PostingDate, true);
             end;
@@ -3199,7 +3196,7 @@ codeunit 31020 "Purchase-Post Advances"
                 PrintCreditMemo(DocumentNo);
         end else
             CreateBlankCrMemo(PurchAdvanceLetterHeader, DocumentNo, PostingDate, VATDate);
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
         PurchAdvanceLetterLine.SetFilter("Amount To Deduct", '<>%1', 0);
         if PurchAdvanceLetterLine.FindSet(false, false) then
@@ -3253,7 +3250,7 @@ codeunit 31020 "Purchase-Post Advances"
                 CalcVATToDeduct(PurchAdvanceLetterLine, BaseToDeduct, VATAmtToDeduct, BaseToDeductLCY, VATAmountLCY, 0);
                 PurchAdvanceLetterLine."VAT Base To Refund" := BaseToDeduct;
                 PurchAdvanceLetterLine."VAT Amount To Refund" := VATAmtToDeduct;
-                PurchAdvanceLetterLine.Modify;
+                PurchAdvanceLetterLine.Modify();
             until PurchAdvanceLetterLine.Next = 0;
 
         // Post and Print
@@ -3266,7 +3263,7 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 PurchAdvanceLetterLine."Amount To Link" := 0;
                 PurchAdvanceLetterLine.Status := PurchAdvanceLetterLine.Status::Closed;
-                PurchAdvanceLetterLine.Modify;
+                PurchAdvanceLetterLine.Modify();
             until PurchAdvanceLetterLine.Next = 0;
         PurchAdvanceLetterHeader.UpdateClosing(true);
 
@@ -3313,7 +3310,7 @@ codeunit 31020 "Purchase-Post Advances"
     local procedure CreateAdvanceEntry(PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header"; PurchAdvanceLetterLine: Record "Purch. Advance Letter Line"; PurchInvHeader: Record "Purch. Inv. Header"; PurchLineNo: Integer; VendLedgEntry: Record "Vendor Ledger Entry"; AmtInclVAT: Decimal)
     begin
         PurchAdvanceLetterEntryNo += 1;
-        TempPurchAdvanceLetterEntry.Init;
+        TempPurchAdvanceLetterEntry.Init();
         TempPurchAdvanceLetterEntry."Entry No." := PurchAdvanceLetterEntryNo;
         TempPurchAdvanceLetterEntry."Template Name" := PurchAdvanceLetterHeader."Template Code";
         TempPurchAdvanceLetterEntry."Letter No." := PurchAdvanceLetterHeader."No.";
@@ -3328,7 +3325,7 @@ codeunit 31020 "Purchase-Post Advances"
         TempPurchAdvanceLetterEntry.Amount := AmtInclVAT;
         TempPurchAdvanceLetterEntry."Currency Code" := PurchInvHeader."Currency Code";
         TempPurchAdvanceLetterEntry."User ID" := UserId;
-        TempPurchAdvanceLetterEntry.Insert;
+        TempPurchAdvanceLetterEntry.Insert();
     end;
 
     local procedure FillVATFieldsOfDeductionEntry(VATPct: Decimal)
@@ -3346,7 +3343,7 @@ codeunit 31020 "Purchase-Post Advances"
         TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := VATEntry.Amount;
         TempPurchAdvanceLetterEntry."VAT Entry No." := VATEntry."Entry No.";
         TempPurchAdvanceLetterEntry."VAT Date" := VATEntry."VAT Date";
-        TempPurchAdvanceLetterEntry.Modify;
+        TempPurchAdvanceLetterEntry.Modify();
     end;
 
     local procedure FillDeductionLineNo(DeductionLineNo: Integer)
@@ -3359,7 +3356,7 @@ codeunit 31020 "Purchase-Post Advances"
         TempPurchAdvanceLetterEntry.SetRange("Entry Type");
         repeat
             TempPurchAdvanceLetterEntry."Deduction Line No." := DeductionLineNo;
-            TempPurchAdvanceLetterEntry.Modify;
+            TempPurchAdvanceLetterEntry.Modify();
         until TempPurchAdvanceLetterEntry.Next = 0;
     end;
 
@@ -3368,20 +3365,17 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterEntry: Record "Purch. Advance Letter Entry";
         NextEntryNo: Integer;
     begin
-        TempPurchAdvanceLetterEntry.Reset;
+        TempPurchAdvanceLetterEntry.Reset();
         if TempPurchAdvanceLetterEntry.FindSet then begin
-            PurchAdvanceLetterEntry.LockTable;
-            if PurchAdvanceLetterEntry.FindLast then
-                NextEntryNo := PurchAdvanceLetterEntry."Entry No." + 1
-            else
-                NextEntryNo := 1;
+            PurchAdvanceLetterEntry.LockTable();
+            NextEntryNo := PurchAdvanceLetterEntry.GetLastEntryNo() + 1;
             repeat
                 PurchAdvanceLetterEntry := TempPurchAdvanceLetterEntry;
                 PurchAdvanceLetterEntry."Entry No." := NextEntryNo;
-                PurchAdvanceLetterEntry.Insert;
+                PurchAdvanceLetterEntry.Insert();
                 NextEntryNo += 1;
             until TempPurchAdvanceLetterEntry.Next = 0;
-            TempPurchAdvanceLetterEntry.DeleteAll;
+            TempPurchAdvanceLetterEntry.DeleteAll();
         end;
     end;
 
@@ -3425,12 +3419,12 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterEntry.SetRange("Vendor No.", PurchInvHeader."Pay-to Vendor No.");
         PurchAdvanceLetterEntry.SetRange(Cancelled, false);
         if PurchAdvanceLetterEntry.Find('+') then begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SetCurrencyPrecision(PurchInvHeader."Currency Code");
-            PurchAdvanceLetterEntry2.LockTable;
+            PurchAdvanceLetterEntry2.LockTable();
             PurchAdvanceLetterEntry2.Find('+');
             EntryNo := PurchAdvanceLetterEntry2."Entry No.";
-            AdvanceLink2.LockTable;
+            AdvanceLink2.LockTable();
             AdvanceLink2.FindLast;
             AdvanceLinkEntryNo := AdvanceLink2."Entry No.";
             repeat
@@ -3448,7 +3442,7 @@ codeunit 31020 "Purchase-Post Advances"
                                 PurchAdvanceLetterHeader.Get(PurchAdvanceLetterLine2."Letter No.");
                                 if PurchAdvanceLetterHeader.Closed then begin
                                     PurchAdvanceLetterHeader.Closed := false;
-                                    PurchAdvanceLetterHeader.Modify;
+                                    PurchAdvanceLetterHeader.Modify();
                                 end;
                             end;
                             AdvanceLetterLineRelation.Get(AdvanceType::Purchase, DocType, DocNo,
@@ -3456,11 +3450,11 @@ codeunit 31020 "Purchase-Post Advances"
                               PurchAdvanceLetterEntry."Letter No.",
                               PurchAdvanceLetterEntry."Letter Line No.");
                             AdvanceLetterLineRelation."Deducted Amount" += PurchAdvanceLetterEntry.Amount;
-                            AdvanceLetterLineRelation.Modify;
+                            AdvanceLetterLineRelation.Modify();
                             UnPostInvCorrPurchLine(DocType, DocNo, PurchAdvanceLetterEntry);
                             AdvanceLetterLineRelation.CancelRelation(AdvanceLetterLineRelation, true, true, true);
                             TempPurchAdvanceLetterEntry := PurchAdvanceLetterEntry;
-                            TempPurchAdvanceLetterEntry.Insert;
+                            TempPurchAdvanceLetterEntry.Insert();
                         end;
                     PurchAdvanceLetterEntry."Entry Type"::"VAT Deduction":
                         begin
@@ -3524,7 +3518,7 @@ codeunit 31020 "Purchase-Post Advances"
                 end;
                 PurchAdvanceLetterEntry2 := PurchAdvanceLetterEntry;
                 PurchAdvanceLetterEntry2.Cancelled := true;
-                PurchAdvanceLetterEntry2.Modify;
+                PurchAdvanceLetterEntry2.Modify();
                 EntryNo := EntryNo + 1;
                 PurchAdvanceLetterEntry2."Entry No." := EntryNo;
                 PurchAdvanceLetterEntry2.Amount := -PurchAdvanceLetterEntry2.Amount;
@@ -3539,9 +3533,9 @@ codeunit 31020 "Purchase-Post Advances"
                     PurchAdvanceLetterEntry2."Transaction No." := VATEntry."Transaction No.";
                     PurchAdvanceLetterEntry2."VAT Entry No." := VATEntry."Entry No.";
                 end;
-                PurchAdvanceLetterEntry2.Insert;
+                PurchAdvanceLetterEntry2.Insert();
                 TempPurchAdvanceLetterEntry2 := PurchAdvanceLetterEntry2;
-                TempPurchAdvanceLetterEntry2.Insert;
+                TempPurchAdvanceLetterEntry2.Insert();
             until PurchAdvanceLetterEntry.Next(-1) = 0;
             UnPostInvCorrUpdt(PurchInvHeader, AdvanceLinkEntryNo, SourceCodeSetup, TempPurchAdvanceLetterEntry);
             UnPostInvCorrInvDoc(PurchInvHeader, TempPurchAdvanceLetterEntry2)
@@ -3577,7 +3571,7 @@ codeunit 31020 "Purchase-Post Advances"
                   Round(PurchAdvanceLetterEntry.Amount /
                     (1 + PurchLine."VAT %" / 100),
                     Currency."Amount Rounding Precision");
-            PurchLine.Modify;
+            PurchLine.Modify();
         end;
     end;
 
@@ -3590,7 +3584,7 @@ codeunit 31020 "Purchase-Post Advances"
         SourceCodeSetup: Record "Source Code Setup";
         Succes: Boolean;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         DtldVendLedgEntry.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", VendLedgEntry."Entry No.");
         DtldVendLedgEntry.SetRange("Entry Type", DtldVendLedgEntry."Entry Type"::Application);
@@ -3600,7 +3594,7 @@ codeunit 31020 "Purchase-Post Advances"
         Succes := false;
         repeat
             if DtldVendLedgEntry.FindLast then begin
-                DtldVendLedgEntry2.Reset;
+                DtldVendLedgEntry2.Reset();
                 DtldVendLedgEntry2.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
                 DtldVendLedgEntry2.SetRange("Transaction No.", DtldVendLedgEntry."Transaction No.");
                 DtldVendLedgEntry2.SetRange("Vendor No.", DtldVendLedgEntry."Vendor No.");
@@ -3609,7 +3603,7 @@ codeunit 31020 "Purchase-Post Advances"
                         if (DtldVendLedgEntry2."Entry Type" <> DtldVendLedgEntry2."Entry Type"::"Initial Entry") and
                            not DtldVendLedgEntry2.Unapplied
                         then
-                            DtldVendLedgEntry3.Reset;
+                            DtldVendLedgEntry3.Reset();
                         DtldVendLedgEntry3.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
                         DtldVendLedgEntry3.SetRange("Vendor Ledger Entry No.", DtldVendLedgEntry2."Vendor Ledger Entry No.");
                         DtldVendLedgEntry3.SetRange(Unapplied, false);
@@ -3619,7 +3613,7 @@ codeunit 31020 "Purchase-Post Advances"
                             Error(Text4005246Err, DtldVendLedgEntry3."Vendor Ledger Entry No.");
                     until DtldVendLedgEntry2.Next = 0;
 
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 GenJnlLine."Document No." := DtldVendLedgEntry."Document No.";
                 GenJnlLine."Posting Date" := DtldVendLedgEntry."Posting Date";
                 GenJnlLine."VAT Date" := GenJnlLine."Posting Date";
@@ -3658,7 +3652,7 @@ codeunit 31020 "Purchase-Post Advances"
         VendLedgEntry.FindFirst;
         UnapplyVendLedgEntry(VendLedgEntry, PurchInvHeader."No.");
 
-        AdvanceLink.Reset;
+        AdvanceLink.Reset();
         AdvanceLink.SetCurrentKey("Document No.", "Line No.", "Entry Type");
         AdvanceLink.SetRange("Document No.", PurchInvHeader."No.");
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::Application);
@@ -3670,9 +3664,9 @@ codeunit 31020 "Purchase-Post Advances"
         VendLedgEntry.SetRange(Open, true);
         VendLedgEntry.FindFirst;
         VendLedgEntry."Amount to Apply" := -AdvanceLink.Amount;
-        VendLedgEntry.Modify;
+        VendLedgEntry.Modify();
 
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Prepayment := false;
         GenJnlLine."Document Type" := GenJnlLine."Document Type"::Refund;
         PreparePmtJnlLine(GenJnlLine, PurchInvHeader);
@@ -3688,19 +3682,19 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 if TempVendLedgEntry.Get(AdvanceLink."CV Ledger Entry No.") then begin
                     TempVendLedgEntry."Amount to Apply" := TempVendLedgEntry."Amount to Apply" + AdvanceLink.Amount;
-                    TempVendLedgEntry.Modify;
+                    TempVendLedgEntry.Modify();
                 end else begin
                     VendLedgEntry.Get(AdvanceLink."CV Ledger Entry No.");
                     VendLedgEntry.TestField(Reversed, false);
                     TempVendLedgEntry := VendLedgEntry;
                     TempVendLedgEntry."Amount to Apply" := AdvanceLink.Amount;
-                    TempVendLedgEntry.Insert;
+                    TempVendLedgEntry.Insert();
                 end;
             until AdvanceLink.Next = 0;
 
         TempVendLedgEntry.SetFilter("Amount to Apply", '<>0');
         if TempVendLedgEntry.FindSet then begin
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine.Prepayment := true;
             GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
             PreparePmtJnlLine(GenJnlLine, PurchInvHeader);
@@ -3714,7 +3708,7 @@ codeunit 31020 "Purchase-Post Advances"
                 VendLedgEntry.SetRange(Open, true);
                 VendLedgEntry.FindFirst;
                 VendLedgEntry."Amount to Apply" := TempVendLedgEntry."Amount to Apply";
-                VendLedgEntry.Modify;
+                VendLedgEntry.Modify();
 
                 GenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code");
                 if VendLedgEntry."Currency Code" <> '' then begin
@@ -3734,7 +3728,7 @@ codeunit 31020 "Purchase-Post Advances"
         // Correct Remaining Amount
         if TempPurchAdvanceLetterEntry.FindSet then
             repeat
-                AdvanceLink.Reset;
+                AdvanceLink.Reset();
                 AdvanceLink.SetCurrentKey("Document No.", "Line No.", "Entry Type");
                 AdvanceLink.SetRange("Document No.", TempPurchAdvanceLetterEntry."Letter No.");
                 AdvanceLink.SetRange("Line No.", TempPurchAdvanceLetterEntry."Letter Line No.");
@@ -3746,7 +3740,7 @@ codeunit 31020 "Purchase-Post Advances"
                           TempPurchAdvanceLetterEntry.Amount;
                         if Abs(AdvanceLink."Remaining Amount to Deduct") > Abs(AdvanceLink.Amount) then
                             AdvanceLink.FieldError("Remaining Amount to Deduct");
-                        AdvanceLink.Modify;
+                        AdvanceLink.Modify();
                     until (AdvanceLink.Next = 0) or (TempPurchAdvanceLetterEntry.Amount = 0);
             until TempPurchAdvanceLetterEntry.Next = 0;
     end;
@@ -3765,7 +3759,7 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 PurchInvLine2 := PurchInvLine;
                 PurchInvLine2."Prepayment Cancelled" := true;
-                PurchInvLine2.Modify;
+                PurchInvLine2.Modify();
                 if PurchInvLine.Quantity <> 0 then begin
                     PurchInvLine2."Line No." := PurchInvLine2."Line No." + 1;
                     PurchInvLine2.Quantity := -PurchInvLine2.Quantity;
@@ -3773,13 +3767,13 @@ codeunit 31020 "Purchase-Post Advances"
                     PurchInvLine2."Amount Including VAT" := -PurchInvLine2."Amount Including VAT";
                     PurchInvLine2."VAT Base Amount" := -PurchInvLine2."VAT Base Amount";
                     PurchInvLine2."Line Amount" := -PurchInvLine2."Line Amount";
-                    PurchInvLine2.Insert;
+                    PurchInvLine2.Insert();
                     TempPurchAdvanceLetterEntry2.SetRange("Deduction Line No.", PurchInvLine."Line No.");
                     if TempPurchAdvanceLetterEntry2.FindSet then begin
                         repeat
                             PurchAdvanceLetterEntry.Get(TempPurchAdvanceLetterEntry2."Entry No.");
                             PurchAdvanceLetterEntry."Deduction Line No." := PurchInvLine2."Line No.";
-                            PurchAdvanceLetterEntry.Modify;
+                            PurchAdvanceLetterEntry.Modify();
                         until TempPurchAdvanceLetterEntry2.Next = 0;
                     end;
                 end;
@@ -3793,7 +3787,7 @@ codeunit 31020 "Purchase-Post Advances"
         AddCurrency: Record Currency;
         CurrencyFactor: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" = '' then
             exit;
 
@@ -3816,8 +3810,8 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        PrepmtInvLineBuf.Reset;
-        PrepmtInvLineBuf.DeleteAll;
+        PrepmtInvLineBuf.Reset();
+        PrepmtInvLineBuf.DeleteAll();
         Clear(PrepmtInvLineBuf);
         PurchAdvanceLetterLine.SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
         if PurchAdvanceLetterLine.FindSet then
@@ -3909,7 +3903,7 @@ codeunit 31020 "Purchase-Post Advances"
             SetFilter(Type, '<>%1', Type::" ");
             SetFilter("Prepmt. Line Amount", '<>0');
 
-            LockTable;
+            LockTable();
             if Find('-') then
                 repeat
                     PrepmtAmtToInvTotal := PrepmtAmtToInvTotal + ("Prepmt. Line Amount" - "Prepmt. Amt. Inv.");
@@ -3934,8 +3928,8 @@ codeunit 31020 "Purchase-Post Advances"
                                  PrepmtAmt >= 0)
                             then begin
                                 TempVATAmountLineRemainder := VATAmountLine;
-                                TempVATAmountLineRemainder.Init;
-                                TempVATAmountLineRemainder.Insert;
+                                TempVATAmountLineRemainder.Init();
+                                TempVATAmountLineRemainder.Insert();
                             end;
 
                             if PurchHeader."Prices Including VAT" then begin
@@ -3997,7 +3991,7 @@ codeunit 31020 "Purchase-Post Advances"
                               NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                             TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                             TempVATAmountLineRemainder."VAT Difference" := VATDifference - "Prepayment VAT Difference";
-                            TempVATAmountLineRemainder.Modify;
+                            TempVATAmountLineRemainder.Modify();
                         end;
                     end;
                 until Next = 0;
@@ -4020,7 +4014,7 @@ codeunit 31020 "Purchase-Post Advances"
         else
             Currency.Get(PurchHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with PurchLine do begin
             SetRange("Document Type", PurchHeader."Document Type");
@@ -4041,7 +4035,7 @@ codeunit 31020 "Purchase-Post Advances"
                              "VAT Calculation Type", "Tax Group Code",
                              false, NewAmount >= 0)
                         then begin
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -4049,10 +4043,10 @@ codeunit 31020 "Purchase-Post Advances"
                             VATAmountLine.Modified := true;
                             VATAmountLine.Positive := NewAmount >= 0;
                             VATAmountLine."Includes Prepayment" := true;
-                            VATAmountLine.Insert;
+                            VATAmountLine.Insert();
                         end;
                         VATAmountLine."Line Amount" := VATAmountLine."Line Amount" + NewAmount;
-                        VATAmountLine.Modify;
+                        VATAmountLine.Modify();
                     end;
                 until Next = 0;
         end;
@@ -4065,13 +4059,13 @@ codeunit 31020 "Purchase-Post Advances"
                        (PrevVatAmountLine."Tax Group Code" <> "Tax Group Code") or
                        (PrevVatAmountLine."Use Tax" <> "Use Tax")
                     then
-                        PrevVatAmountLine.Init;
+                        PrevVatAmountLine.Init();
                     if PurchHeader."Prices Including VAT" then
                         case "VAT Calculation Type" of
                             "VAT Calculation Type"::"Normal VAT",
                             "VAT Calculation Type"::"Reverse Charge VAT":
                                 begin
-                                    GLSetup.Get;
+                                    GLSetup.Get();
                                     GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
 
                                     if GLSetup."Round VAT Coeff." then begin
@@ -4186,7 +4180,7 @@ codeunit 31020 "Purchase-Post Advances"
         BufEntryNo: Integer;
     begin
         with PurchHeader do begin
-            TempAdvanceLetterLineRelation.DeleteAll;
+            TempAdvanceLetterLineRelation.DeleteAll();
             BufEntryNo := 0;
 
             PurchLine2.SetRange("Document Type", "Document Type");
@@ -4200,7 +4194,7 @@ codeunit 31020 "Purchase-Post Advances"
                     TempPurchLine."Prepmt. Amt. Incl. VAT" := 0;
                     TempPurchLine."Prepmt. VAT Base Amt." := 0;
                     RecalcPrepm(TempPurchLine, "Prices Including VAT");
-                    TempPurchLine.Insert;
+                    TempPurchLine.Insert();
                 until PurchLine2.Next = 0;
             end;
 
@@ -4226,7 +4220,7 @@ codeunit 31020 "Purchase-Post Advances"
                         GLAcc.Get(VATPostingSetup."Purch. Advance VAT Account");
 
                         Clear(TempPrepmtInvLineBuf);
-                        TempPrepmtInvLineBuf.Init;
+                        TempPrepmtInvLineBuf.Init();
                         TempPrepmtInvLineBuf."G/L Account No." := GLAcc."No.";
                         TempPrepmtInvLineBuf."Dimension Set ID" := TempPurchLine."Dimension Set ID";
                         TempPrepmtInvLineBuf."Gen. Bus. Posting Group" := TempPurchLine."Gen. Bus. Posting Group";
@@ -4252,7 +4246,7 @@ codeunit 31020 "Purchase-Post Advances"
 
                         PrepmtInvLineBuf := TempPrepmtInvLineBuf;
                         if not PrepmtInvLineBuf.Find then begin
-                            PrepmtInvLineBuf.Insert;
+                            PrepmtInvLineBuf.Insert();
                             BufEntryNo := BufEntryNo + 1;
                             PrepmtInvLineBuf."Entry No." := BufEntryNo;
                         end;
@@ -4265,9 +4259,9 @@ codeunit 31020 "Purchase-Post Advances"
                         PrepmtInvLineBuf."Amount (ACY)" += TempPurchLine."Prepayment Amount";
                         PrepmtInvLineBuf."VAT Base Amount (ACY)" += TempPurchLine."Prepayment Amount";
                         PrepmtInvLineBuf."VAT Amount (ACY)" += (TempPurchLine."Prepmt. Amt. Incl. VAT" - TempPurchLine."Prepayment Amount");
-                        PrepmtInvLineBuf.Modify;
+                        PrepmtInvLineBuf.Modify();
 
-                        TempAdvanceLetterLineRelation.Init;
+                        TempAdvanceLetterLineRelation.Init();
                         TempAdvanceLetterLineRelation.Type := TempAdvanceLetterLineRelation.Type::Purchase;
                         TempAdvanceLetterLineRelation."Document Type" := TempPurchLine."Document Type";
                         TempAdvanceLetterLineRelation."Document No." := TempPurchLine."Document No.";
@@ -4275,7 +4269,7 @@ codeunit 31020 "Purchase-Post Advances"
                         TempAdvanceLetterLineRelation."Letter Line No." := PrepmtInvLineBuf."Entry No.";
                         TempAdvanceLetterLineRelation.Amount := TempPurchLine."Prepmt. Amt. Incl. VAT";
                         TempAdvanceLetterLineRelation."Primary Link" := true;
-                        TempAdvanceLetterLineRelation.Insert;
+                        TempAdvanceLetterLineRelation.Insert();
                     end;
                 until TempPurchLine.Next = 0;
         end;
@@ -4402,14 +4396,14 @@ codeunit 31020 "Purchase-Post Advances"
                                         DocRemainderAmt -= AdvanceLetterRemainderAmt;
                                     end;
                                 end;
-                                AdvanceLetterLineRelation.Modify;
+                                AdvanceLetterLineRelation.Modify();
                             end
                         else
                             AdvanceLetterLineRelation."Amount To Deduct" := 0;
-                        AdvanceLetterLineRelation.Modify;
+                        AdvanceLetterLineRelation.Modify();
                         if not TempPurchAdvanceLetterHeader.Get(AdvanceLetterLineRelation."Letter No.") then begin
                             TempPurchAdvanceLetterHeader."No." := AdvanceLetterLineRelation."Letter No.";
-                            TempPurchAdvanceLetterHeader.Insert;
+                            TempPurchAdvanceLetterHeader.Insert();
                         end;
                     until AdvanceLetterLineRelation.Next = 0;
                 if AmtToDeductLoc > AdjustmentToleranceAmt then
@@ -4441,7 +4435,7 @@ codeunit 31020 "Purchase-Post Advances"
                                     AdvanceLetterLineRelation.Amount += InvAmtCorrection;
                                     AdvanceLetterLineRelation."Invoiced Amount" += InvAmtCorrection;
                                     AdvanceLetterLineRelation."Amount To Deduct" += InvAmtCorrection;
-                                    AdvanceLetterLineRelation.Modify;
+                                    AdvanceLetterLineRelation.Modify();
                                     DocRemainderAmt -= InvAmtCorrection
                                 end;
                             end;
@@ -4462,7 +4456,7 @@ codeunit 31020 "Purchase-Post Advances"
         AmtToDeductLoc: Decimal;
     begin
         if not TempPurchAdvanceLetterHeader.IsEmpty and AdjustRelations then begin
-            AdvanceLetterLineRelation.Reset;
+            AdvanceLetterLineRelation.Reset();
             AdjustmentToleranceAmt := Currency."Amount Rounding Precision";
             PurchLine.SetRange("Prepmt Amt to Deduct");
             PurchLine.SetRange("Adjust Prepmt. Relation", true);
@@ -4495,7 +4489,7 @@ codeunit 31020 "Purchase-Post Advances"
                                         then
                                             AmtToDeductLoc :=
                                               PurchAdvanceLetterLine."Amount Invoiced" - PurchAdvanceLetterLine."Document Linked Inv. Amount";
-                                        AdvanceLetterLineRelation.Init;
+                                        AdvanceLetterLineRelation.Init();
                                         AdvanceLetterLineRelation.Type := AdvanceType::Purchase;
                                         AdvanceLetterLineRelation."Document Type" := PurchLine."Document Type";
                                         AdvanceLetterLineRelation."Document No." := PurchLine."Document No.";
@@ -4505,9 +4499,9 @@ codeunit 31020 "Purchase-Post Advances"
                                         AdvanceLetterLineRelation.Amount := AmtToDeductLoc;
                                         AdvanceLetterLineRelation."Invoiced Amount" := AmtToDeductLoc;
                                         AdvanceLetterLineRelation."Amount To Deduct" := AmtToDeductLoc;
-                                        AdvanceLetterLineRelation.Insert;
+                                        AdvanceLetterLineRelation.Insert();
                                         UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
-                                        PurchLine.Modify;
+                                        PurchLine.Modify();
                                     end;
                                 until PurchAdvanceLetterLine.Next = 0;
                         until TempPurchAdvanceLetterHeader.Next = 0;
@@ -4539,7 +4533,7 @@ codeunit 31020 "Purchase-Post Advances"
                                     if TempPurchLine."Amount Including VAT" > PurchLine."Adv.Letter Link.Amt. to Deduct" then begin
                                         if TempPurchLine."Amount Including VAT" - PurchLine."Adv.Letter Link.Amt. to Deduct" < AmtToDeductLoc then
                                             AmtToDeductLoc := TempPurchLine."Amount Including VAT" - PurchLine."Adv.Letter Link.Amt. to Deduct";
-                                        AdvanceLetterLineRelation.Init;
+                                        AdvanceLetterLineRelation.Init();
                                         AdvanceLetterLineRelation.Type := AdvanceType::Purchase;
                                         AdvanceLetterLineRelation."Document Type" := PurchLine."Document Type";
                                         AdvanceLetterLineRelation."Document No." := PurchLine."Document No.";
@@ -4549,9 +4543,9 @@ codeunit 31020 "Purchase-Post Advances"
                                         AdvanceLetterLineRelation.Amount := AmtToDeductLoc;
                                         AdvanceLetterLineRelation."Invoiced Amount" := AmtToDeductLoc;
                                         AdvanceLetterLineRelation."Amount To Deduct" := AmtToDeductLoc;
-                                        AdvanceLetterLineRelation.Insert;
+                                        AdvanceLetterLineRelation.Insert();
                                         UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
-                                        PurchLine.Modify;
+                                        PurchLine.Modify();
                                     end;
                                 until PurchLine.Next = 0;
                         end
@@ -4568,9 +4562,9 @@ codeunit 31020 "Purchase-Post Advances"
         AdvanceLetterRemainderAmt: Decimal;
         ReduceAmt: Decimal;
     begin
-        AdvanceLetterLineRelation.Reset;
-        TempPurchLine.Reset;
-        TempPurchLine.DeleteAll;
+        AdvanceLetterLineRelation.Reset();
+        TempPurchLine.Reset();
+        TempPurchLine.DeleteAll();
         PurchHeader.GetPostingLineImage(TempPurchLine, QtyType::Invoicing, false);
         PurchHeader.CalcFields("Adv.Letter Link.Amt. to Deduct");
         if TempPurchLine.FindSet then
@@ -4607,7 +4601,7 @@ codeunit 31020 "Purchase-Post Advances"
                                     AdvanceLetterRemainderAmt := AdvanceLetterRemainderAmt - AdvanceLetterLineRelation."Amount To Deduct";
                                     AdvanceLetterLineRelation."Amount To Deduct" := 0;
                                 end;
-                                AdvanceLetterLineRelation.Modify;
+                                AdvanceLetterLineRelation.Modify();
                                 UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
                             end;
                         until (AdvanceLetterLineRelation.Next = 0) or (ReduceAmt = 0);
@@ -4633,7 +4627,7 @@ codeunit 31020 "Purchase-Post Advances"
                                         AdvanceLetterRemainderAmt := AdvanceLetterRemainderAmt - AdvanceLetterLineRelation."Amount To Deduct";
                                         AdvanceLetterLineRelation."Amount To Deduct" := 0;
                                     end;
-                                    AdvanceLetterLineRelation.Modify;
+                                    AdvanceLetterLineRelation.Modify();
                                     UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
                                 end;
                             until (AdvanceLetterLineRelation.Next = 0) or (AdvanceLetterRemainderAmt = 0);
@@ -4665,12 +4659,12 @@ codeunit 31020 "Purchase-Post Advances"
         BaseToDeductLCYDif: Decimal;
         VATAmountLCYDif: Decimal;
     begin
-        VATAmountLine.Reset;
-        VATAmountLine.DeleteAll;
+        VATAmountLine.Reset();
+        VATAmountLine.DeleteAll();
         Clear(VATAmountLine);
-        GLSetup.Get;
+        GLSetup.Get();
 
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
         PurchLine.SetFilter("Qty. to Invoice", '<>0');
@@ -4687,8 +4681,8 @@ codeunit 31020 "Purchase-Post Advances"
                         CreateBufLink(TempAdvanceLink, PurchAdvanceLetterLine);
                         AmountToDeduct := AdvanceLetterLineRelation."Amount To Deduct";
 
-                        TempVendLedgEntryGre.Reset;
-                        TempVendLedgEntryGre.DeleteAll;
+                        TempVendLedgEntryGre.Reset();
+                        TempVendLedgEntryGre.DeleteAll();
                         Clear(TempVendLedgEntryGre);
 
                         CalcLinkedPmtAmountToApplyTmp(
@@ -4700,12 +4694,12 @@ codeunit 31020 "Purchase-Post Advances"
                         TotVATAmtToDeductLCY := 0;
                         EntryPos := 0;
 
-                        EntryCount := TempVendLedgEntryGre.Count;
+                        EntryCount := TempVendLedgEntryGre.Count();
 
                         for i := 1 to 2 do begin
                             if TempVendLedgEntryGre.FindSet then
                                 repeat
-                                    TempAdvanceLink.Reset;
+                                    TempAdvanceLink.Reset();
                                     TempAdvanceLink.SetCurrentKey("CV Ledger Entry No.", "Entry Type", "Document No.", "Line No.");
                                     TempAdvanceLink.SetRange("CV Ledger Entry No.", TempVendLedgEntryGre."Entry No.");
                                     TempAdvanceLink.SetRange("Entry Type", TempAdvanceLink."Entry Type"::"Link To Letter");
@@ -4836,14 +4830,14 @@ codeunit 31020 "Purchase-Post Advances"
             TempPurchAdvanceLetterEntry."Letter No." := PurchAdvanceLetterLine."Letter No.";
             TempPurchAdvanceLetterEntry."Letter Line No." := PurchAdvanceLetterLine."Line No.";
             TempPurchAdvanceLetterEntry.Amount := 0;
-            TempPurchAdvanceLetterEntry.Insert;
+            TempPurchAdvanceLetterEntry.Insert();
 
             TempPurchAdvanceLetterEntry."VAT Identifier" := PurchAdvanceLetterLine."VAT Identifier";
             TempPurchAdvanceLetterEntry."VAT Base Amount" := BaseToDeduct;
             TempPurchAdvanceLetterEntry."VAT Amount" := VATAmtToDeduct;
             TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := VATAmountLCY;
             TempPurchAdvanceLetterEntry."VAT Base Amount (LCY)" := BaseToDeductLCY;
-            TempPurchAdvanceLetterEntry.Modify;
+            TempPurchAdvanceLetterEntry.Modify();
 
             if VATAmountLCYDif <> 0 then begin
                 PurchAdvanceLetterEntryNo += 1;
@@ -4854,7 +4848,7 @@ codeunit 31020 "Purchase-Post Advances"
                 TempPurchAdvanceLetterEntry."VAT Amount" := 0;
                 TempPurchAdvanceLetterEntry."VAT Base Amount (LCY)" := BaseToDeductLCYDif;
                 TempPurchAdvanceLetterEntry."VAT Amount (LCY)" := VATAmountLCYDif;
-                TempPurchAdvanceLetterEntry.Insert;
+                TempPurchAdvanceLetterEntry.Insert();
             end;
 
             with PurchAdvanceLetterLine do
@@ -4863,7 +4857,7 @@ codeunit 31020 "Purchase-Post Advances"
                      "VAT Calculation Type", "Tax Group Code",
                      false, false)
                 then begin
-                    TempVATAmountLine.Init;
+                    TempVATAmountLine.Init();
                     TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                     TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                     TempVATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -4871,7 +4865,7 @@ codeunit 31020 "Purchase-Post Advances"
                     TempVATAmountLine.Modified := true;
                     TempVATAmountLine."Includes Prepayment" := true;
                     TempVATAmountLine.Positive := false;
-                    TempVATAmountLine.Insert;
+                    TempVATAmountLine.Insert();
                 end;
 
             // correct Reverse Charge VAT
@@ -4897,15 +4891,15 @@ codeunit 31020 "Purchase-Post Advances"
             TempVATAmountLine."Ext. VAT Amount (LCY)" := TempVATAmountLine."VAT Amount (LCY)";
             TempVATAmountLine."Ext.Amount Including VAT (LCY)" := TempVATAmountLine."Amount Including VAT (LCY)";
             TempVATAmountLine."Ext. Calc. VAT Amount (LCY)" := TempVATAmountLine."Calculated VAT Amount (LCY)";
-            TempVATAmountLine.Modify;
+            TempVATAmountLine.Modify();
         end;
     end;
 
     [Scope('OnPrem')]
     procedure DeleteTempApplnAdvanceLink()
     begin
-        TempAdvanceLink.Reset;
-        TempAdvanceLink.DeleteAll;
+        TempAdvanceLink.Reset();
+        TempAdvanceLink.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -4913,7 +4907,7 @@ codeunit 31020 "Purchase-Post Advances"
     var
         AdvanceLink: Record "Advance Link";
     begin
-        AdvanceLink.Reset;
+        AdvanceLink.Reset();
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
         AdvanceLink.SetRange("Document No.", PurchAdvanceLetterLine."Letter No.");
         AdvanceLink.SetRange("Line No.", PurchAdvanceLetterLine."Line No.");
@@ -4922,7 +4916,7 @@ codeunit 31020 "Purchase-Post Advances"
             repeat
                 if not TempAdvanceLink.Get(AdvanceLink."Entry No.") then begin
                     TempAdvanceLink := AdvanceLink;
-                    TempAdvanceLink.Insert;
+                    TempAdvanceLink.Insert();
                 end;
             until AdvanceLink.Next = 0;
         end;
@@ -4939,7 +4933,7 @@ codeunit 31020 "Purchase-Post Advances"
         SumAmountToApply := SumAmountToApply + TotalAmountToApply;
 
         SetCurrencyPrecision(PurchAdvanceLetterLine."Currency Code");
-        AdvanceLink.Reset;
+        AdvanceLink.Reset();
         AdvanceLink.SetCurrentKey("Entry Type", "Document No.", "Line No.", "Posting Date");
         AdvanceLink.SetRange("Entry Type", AdvanceLink."Entry Type"::"Link To Letter");
         AdvanceLink.SetRange("Document No.", PurchAdvanceLetterLine."Letter No.");
@@ -4958,32 +4952,32 @@ codeunit 31020 "Purchase-Post Advances"
                     end;
                     TotalAmountToApply := TotalAmountToApply - AmountToApply;
                     AdvanceLink."Remaining Amount to Deduct" := AdvanceLink."Remaining Amount to Deduct" + AmountToApply;
-                    AdvanceLink.Modify;
+                    AdvanceLink.Modify();
 
                     if AmountToApply <> 0 then begin
                         if VendLedgEntry.Get(VendLedgEntry2."Entry No.") then begin
                             VendLedgEntry."Amount to Apply" := VendLedgEntry."Amount to Apply" - AmountToApply;
-                            VendLedgEntry.Modify;
+                            VendLedgEntry.Modify();
                         end else begin
                             VendLedgEntry := VendLedgEntry2;
                             VendLedgEntry."Amount to Apply" := -AmountToApply;
                             VendLedgEntry."Currency Code" := AdvanceLink."Currency Code";
-                            VendLedgEntry.Insert;
+                            VendLedgEntry.Insert();
                         end;
                         if VendLedgEntryLink.Get(VendLedgEntry2."Entry No.") then begin
                             VendLedgEntryLink."Amount to Apply" := VendLedgEntryLink."Amount to Apply" - AmountToApply;
-                            VendLedgEntryLink.Modify;
+                            VendLedgEntryLink.Modify();
                         end else begin
                             VendLedgEntryLink := VendLedgEntry2;
                             VendLedgEntryLink."Amount to Apply" := -AmountToApply;
                             VendLedgEntryLink."Currency Code" := AdvanceLink."Currency Code";
-                            VendLedgEntryLink.Insert;
+                            VendLedgEntryLink.Insert();
                         end;
                     end;
                 end;
             until (AdvanceLink.Next = 0) or (TotalAmountToApply = 0);
 
-        AdvanceLink.Reset;
+        AdvanceLink.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -5008,22 +5002,22 @@ codeunit 31020 "Purchase-Post Advances"
         PurchHeader.TestField("Currency Code", '');
         SetAmtToDedOnPurchDoc(PurchHeader, true);
         SetCurrencyPrecision(PurchHeader."Currency Code");
-        TempVATAmountLine.Reset;
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.Reset();
+        TempVATAmountLine.DeleteAll();
 
         PurchHeader.GetPostingLineImage(TempPurchLineOrigin, QtyType::Invoicing, false);
         PurchHeader.GetPostingLineImage(TempPurchLine, QtyType::Invoicing, false);
         PurchLineCorr.CalcVATAmountLines(1, PurchHeader, TempPurchLine, TempVATAmountLine);
         PurchPostAdvances.CalcVATCorrection(PurchHeader, TempAdvanceVATAmtLine);
 
-        TempVATAmountLineDiff.Reset;
-        TempVATAmountLineDiff.DeleteAll;
+        TempVATAmountLineDiff.Reset();
+        TempVATAmountLineDiff.DeleteAll();
 
         SumVATAmountLines(TempVATAmountLine, TempSumVATAmountLine);
         if TempSumVATAmountLine.FindSet then
             repeat
                 TempVATAmountLineOrigSum := TempSumVATAmountLine;
-                TempVATAmountLineOrigSum.Insert;
+                TempVATAmountLineOrigSum.Insert();
             until TempSumVATAmountLine.Next = 0;
         TempSumVATAmountLine.SetFilter("Amount Including VAT (LCY)", '<>0');
         TempSumVATAmountLine.SetRange("VAT Difference (LCY)", 0);
@@ -5044,7 +5038,7 @@ codeunit 31020 "Purchase-Post Advances"
                             Currency."Amount Rounding Precision") + TempAdvanceVATAmtLine."VAT Base";
                     TempVATAmountLineDiff."VAT Amount" := -TempVATAmountLineDiff."VAT Base";
                     TempVATAmountLineDiff."Amount Including VAT" := 0;
-                    TempVATAmountLineDiff.Insert;
+                    TempVATAmountLineDiff.Insert();
                 end;
             until TempSumVATAmountLine.Next = 0;
 
@@ -5075,11 +5069,11 @@ codeunit 31020 "Purchase-Post Advances"
                             PurchLineCorr.Validate(Quantity, PurchLineCorr.Quantity + Abs(TempVATAmountLineDiff."VAT Base"));
                             PurchLineCorr.Modify(true);
                         end else begin
-                            PurchLineCorr.Reset;
+                            PurchLineCorr.Reset();
                             PurchLineCorr.SetRange("Document Type", PurchHeader."Document Type");
                             PurchLineCorr.SetRange("Document No.", PurchHeader."No.");
                             PurchLineCorr.FindLast;
-                            PurchLineCorr.Init;
+                            PurchLineCorr.Init();
                             PurchLineCorr.SuspendStatusCheck(true);
                             PurchLineCorr."Line No." += 10000;
                             PurchLineCorr.Validate(Type, PurchLineCorr.Type::"G/L Account");
@@ -5097,30 +5091,30 @@ codeunit 31020 "Purchase-Post Advances"
                         end;
                     until TempVATAmountLineDiff.Next = 0;
 
-                    TempPurchLine.Reset;
-                    TempPurchLine.DeleteAll;
+                    TempPurchLine.Reset();
+                    TempPurchLine.DeleteAll();
 
-                    TempVATAmountLine.Reset;
-                    TempVATAmountLine.DeleteAll;
-                    TempSumVATAmountLine.Reset;
-                    TempSumVATAmountLine.DeleteAll;
+                    TempVATAmountLine.Reset();
+                    TempVATAmountLine.DeleteAll();
+                    TempSumVATAmountLine.Reset();
+                    TempSumVATAmountLine.DeleteAll();
 
                     PurchHeader.GetPostingLineImage(TempPurchLine, QtyType::Invoicing, false);
                     PurchLineCorr.CalcVATAmountLines(1, PurchHeader, TempPurchLine, TempVATAmountLine);
                     SumVATAmountLines(TempVATAmountLine, TempSumVATAmountLine);
                 end;
 
-            TempVATAmountLineDiff.Reset;
-            TempVATAmountLineDiff.DeleteAll;
+            TempVATAmountLineDiff.Reset();
+            TempVATAmountLineDiff.DeleteAll();
             Clear(TempVATAmountLineDiff);
 
             CorrectVATbyDeductedVAT_CorrLine(
               TempSumVATAmountLine, TempVATAmountLineOrigSum, TempVATAmountLine, TempVATAmountLineDiff, TempAdvanceVATAmtLine);
 
-            TempVATAmountLine.Reset;
+            TempVATAmountLine.Reset();
 
             Clear(PurchLineCorr);
-            PurchLineCorr.Reset;
+            PurchLineCorr.Reset();
             PurchLineCorr.UpdateVATOnLines(1, PurchHeader, PurchLineCorr, TempVATAmountLine);
             AdjustRelationOnCorrectedLines(PurchHeader, TempPurchLineOrigin);
             SetAmtToDedOnPurchDoc(PurchHeader, true);
@@ -5148,7 +5142,7 @@ codeunit 31020 "Purchase-Post Advances"
                             -TempAdvanceVATAmtLine."Amount Including VAT" / TempVATAmountLineOrigSum."Amount Including VAT",
                             Currency."Amount Rounding Precision") + TempAdvanceVATAmtLine."VAT Amount";
                     TempVATAmountLineDiff."Amount Including VAT" := 0;
-                    TempVATAmountLineDiff.Insert;
+                    TempVATAmountLineDiff.Insert();
                 end;
             until TempSumVATAmountLine.Next = 0;
 
@@ -5171,7 +5165,7 @@ codeunit 31020 "Purchase-Post Advances"
                     end;
                     TempVATAmountLine."Modified (LCY)" := true;
                     TempVATAmountLine.Modified := true;
-                    TempVATAmountLine.Modify;
+                    TempVATAmountLine.Modify();
                     TempVATAmountLine.ModifyAll("Modified (LCY)", true);
                     TempVATAmountLine.ModifyAll(Modified, true);
                 until TempVATAmountLineDiff.Next = 0;
@@ -5188,7 +5182,7 @@ codeunit 31020 "Purchase-Post Advances"
         if TempVATAmountLine.FindSet then
             repeat
                 TempVATAmountLineNeg := TempVATAmountLine;
-                TempVATAmountLineNeg.Insert;
+                TempVATAmountLineNeg.Insert();
             until TempVATAmountLine.Next = 0;
         TempVATAmountLine.SetRange(Positive);
         if TempVATAmountLine.FindSet then
@@ -5211,7 +5205,7 @@ codeunit 31020 "Purchase-Post Advances"
                     end;
                 end;
                 if TempVATAmountLineSum."Amount Including VAT" > 0 then
-                    TempVATAmountLineSum.Insert;
+                    TempVATAmountLineSum.Insert();
             until TempVATAmountLine.Next = 0;
     end;
 
@@ -5254,7 +5248,7 @@ codeunit 31020 "Purchase-Post Advances"
                                         then begin
                                             AdvanceLetterLineRelation.Amount -= RemainingAmtLoc;
                                             AdvanceLetterLineRelation."Invoiced Amount" -= RemainingAmtLoc;
-                                            AdvanceLetterLineRelation.Modify;
+                                            AdvanceLetterLineRelation.Modify();
                                             RemainingAmtLoc := 0;
                                         end else begin
                                             RemainingAmtLoc -=
@@ -5263,14 +5257,14 @@ codeunit 31020 "Purchase-Post Advances"
                                               AdvanceLetterLineRelation."Invoiced Amount" - AdvanceLetterLineRelation."Deducted Amount";
                                             AdvanceLetterLineRelation."Invoiced Amount" -=
                                               AdvanceLetterLineRelation."Invoiced Amount" - AdvanceLetterLineRelation."Deducted Amount";
-                                            AdvanceLetterLineRelation.Modify;
+                                            AdvanceLetterLineRelation.Modify();
                                         end;
                                         PurchLine.Get(TempPurchLine."Document Type", TempPurchLine."Document No.", TempPurchLine."Line No.");
                                         UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
-                                        PurchLine.Modify;
+                                        PurchLine.Modify();
                                         TempPurchAdvanceLetterLine."Letter No." := AdvanceLetterLineRelation."Letter No.";
                                         TempPurchAdvanceLetterLine."Line No." := AdvanceLetterLineRelation."Letter Line No.";
-                                        TempPurchAdvanceLetterLine.Insert;
+                                        TempPurchAdvanceLetterLine.Insert();
                                     end;
                                 until (AdvanceLetterLineRelation.Next = 0) or (RemainingAmtLoc <= 0);
                                 DecrementAmt := DecrementAmt - RemainingAmtLoc;
@@ -5300,9 +5294,9 @@ codeunit 31020 "Purchase-Post Advances"
                                                             AdvanceLetterLineRelation."Invoiced Amount" += DecrementAmt;
                                                             if AdvanceLetterLineRelation."Invoiced Amount" > AdvanceLetterLineRelation.Amount then
                                                                 AdvanceLetterLineRelation.Amount := AdvanceLetterLineRelation."Invoiced Amount";
-                                                            AdvanceLetterLineRelation.Modify;
+                                                            AdvanceLetterLineRelation.Modify();
                                                         end else begin
-                                                            AdvanceLetterLineRelation.Init;
+                                                            AdvanceLetterLineRelation.Init();
                                                             AdvanceLetterLineRelation.Type := AdvanceLetterLineRelation.Type::Purchase;
                                                             AdvanceLetterLineRelation."Document Type" := TempPurchLine2."Document Type";
                                                             AdvanceLetterLineRelation."Document No." := TempPurchLine2."Document No.";
@@ -5311,14 +5305,14 @@ codeunit 31020 "Purchase-Post Advances"
                                                             AdvanceLetterLineRelation."Letter Line No." := TempPurchAdvanceLetterLine."Line No.";
                                                             AdvanceLetterLineRelation.Amount := DecrementAmt;
                                                             AdvanceLetterLineRelation."Invoiced Amount" := DecrementAmt;
-                                                            AdvanceLetterLineRelation.Insert;
+                                                            AdvanceLetterLineRelation.Insert();
                                                             DecrementAmt := 0;
                                                         end;
                                                         PurchLine.Get(TempPurchLine2."Document Type",
                                                           TempPurchLine2."Document No.",
                                                           TempPurchLine2."Line No.");
                                                         UpdateOrderLine(PurchLine, PurchHeader."Prices Including VAT", true);
-                                                        PurchLine.Modify;
+                                                        PurchLine.Modify();
                                                     end;
                                                 until (TempPurchAdvanceLetterLine.Next = 0) or (DecrementAmt = 0);
                                     end;
@@ -5326,8 +5320,8 @@ codeunit 31020 "Purchase-Post Advances"
                             end;
                         end;
                     end;
-                TempPurchAdvanceLetterLine.Reset;
-                TempPurchAdvanceLetterLine.DeleteAll;
+                TempPurchAdvanceLetterLine.Reset();
+                TempPurchAdvanceLetterLine.DeleteAll();
             until TempPurchLine.Next = 0;
     end;
 
@@ -5339,8 +5333,8 @@ codeunit 31020 "Purchase-Post Advances"
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
         PurchInvLine: Record "Purch. Inv. Line";
     begin
-        PrepmtInvLineBuf.Reset;
-        PrepmtInvLineBuf.DeleteAll;
+        PrepmtInvLineBuf.Reset();
+        PrepmtInvLineBuf.DeleteAll();
         Clear(PrepmtInvLineBuf);
 
         PurchInvHeader.Get(CurrPurchInvHeader."No.");
@@ -5354,7 +5348,7 @@ codeunit 31020 "Purchase-Post Advances"
 
         if PurchAdvanceLetterEntry.FindSet(false, false) then begin
             repeat
-                PrepmtInvLineBuf.Init;
+                PrepmtInvLineBuf.Init();
                 PurchAdvanceLetterLine.Get(PurchAdvanceLetterEntry."Letter No.", PurchAdvanceLetterEntry."Letter Line No.");
 
                 if PurchInvLine.Get(PurchAdvanceLetterEntry."Document No.", PurchAdvanceLetterEntry."Purchase Line No.") then;
@@ -5401,7 +5395,7 @@ codeunit 31020 "Purchase-Post Advances"
         VendPostingGroup: Record "Vendor Posting Group";
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Invoice Rounding" then
             if Vend.Get(PurchHeader."Pay-to Vendor No.") then
                 VendPostingGroup.Get(Vend."Vendor Posting Group");
@@ -5416,13 +5410,13 @@ codeunit 31020 "Purchase-Post Advances"
         PurchaseAdvPaymentTemplate: Record "Purchase Adv. Payment Template";
         IsPostAutVAT: Boolean;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if TempAdvanceLink.Find('-') then begin
             repeat
                 if TempAdvanceLink."Entry Type" = TempAdvanceLink."Entry Type"::"Link To Letter" then begin
                     PurchAdvanceLetterHeader.Get(TempAdvanceLink."Document No.");
                     TempPurchAdvanceLetterHeader := PurchAdvanceLetterHeader;
-                    if TempPurchAdvanceLetterHeader.Insert then;
+                    if TempPurchAdvanceLetterHeader.Insert() then;
                 end;
             until TempAdvanceLink.Next = 0;
         end;
@@ -5439,7 +5433,7 @@ codeunit 31020 "Purchase-Post Advances"
                 then
                     IsPostAutVAT := true;
                 if not IsPostAutVAT then
-                    TempPurchAdvanceLetterHeader.Delete;
+                    TempPurchAdvanceLetterHeader.Delete();
             until TempPurchAdvanceLetterHeader.Next = 0;
         end;
         if not TempPurchAdvanceLetterHeader.IsEmpty then begin
@@ -5454,7 +5448,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.TransferFields(PurchAdvanceLetterHeader);
         CopyPayToSellFromAdvLetter(PurchaseHeader, PurchAdvanceLetterHeader);
         PurchaseHeader."VAT Date" := VATDate;
@@ -5497,7 +5491,7 @@ codeunit 31020 "Purchase-Post Advances"
             DocumentNo :=
               NoSeriesMgt.GetNextNo(PurchaseAdvPaymentTemplate."Advance Credit Memo Nos.", PostingDate, true);
         end else begin
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Advance Credit Memo Nos.");
             DocumentNo :=
               NoSeriesMgt.GetNextNo(PurchSetup."Advance Credit Memo Nos.", PostingDate, true);
@@ -5514,7 +5508,7 @@ codeunit 31020 "Purchase-Post Advances"
             DocumentNo :=
               NoSeriesMgt.GetNextNo(PurchaseAdvPaymentTemplate."Advance Invoice Nos.", PostingDate, true);
         end else begin
-            PurchSetup.Get;
+            PurchSetup.Get();
             PurchSetup.TestField("Advance Invoice Nos.");
             DocumentNo :=
               NoSeriesMgt.GetNextNo(PurchSetup."Advance Invoice Nos.", PostingDate, true);
@@ -5557,7 +5551,7 @@ codeunit 31020 "Purchase-Post Advances"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("External Document No.");
         case DocumentType of
             DocumentType::Invoice:
@@ -5574,7 +5568,7 @@ codeunit 31020 "Purchase-Post Advances"
         case DocumentType of
             DocumentType::Invoice:
                 begin
-                    PurchInvHeader.Reset;
+                    PurchInvHeader.Reset();
                     PurchInvHeader.SetCurrentKey("Vendor Invoice No.");
                     PurchInvHeader.SetRange("Vendor Invoice No.", PurchAdvanceLetterHeader."External Document No.");
                     PurchInvHeader.SetRange("Pay-to Vendor No.", PurchAdvanceLetterHeader."Pay-to Vendor No.");
@@ -5583,7 +5577,7 @@ codeunit 31020 "Purchase-Post Advances"
                 end;
             DocumentType::"Credit Memo":
                 begin
-                    PurchCrMemoHdr.Reset;
+                    PurchCrMemoHdr.Reset();
                     PurchCrMemoHdr.SetCurrentKey("Vendor Cr. Memo No.");
                     PurchCrMemoHdr.SetRange("Vendor Cr. Memo No.", PurchAdvanceLetterHeader."External Document No.");
                     PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchAdvanceLetterHeader."Pay-to Vendor No.");

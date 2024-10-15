@@ -56,13 +56,13 @@ codeunit 11717 "Imp. Launcher Bank Statement"
         BankAccRecon: Record "Bank Acc. Reconciliation";
         BankAccReconLn: Record "Bank Acc. Reconciliation Line";
     begin
-        BankAccRecon.Init;
+        BankAccRecon.Init();
         BankAccRecon."Statement Type" := BankAccRecon."Statement Type"::"Payment Application";
         BankAccRecon."Bank Account No." := BankStmtHdr."Bank Account No.";
         BankAccRecon."Statement No." := BankStmtHdr."No.";
-        BankAccRecon.Insert;
+        BankAccRecon.Insert();
 
-        Commit;
+        Commit();
         if not ImportBankStatement(BankAccRecon) then begin
             BankAccReconLn.SetRange("Statement Type", BankAccRecon."Statement Type");
             BankAccReconLn.SetRange("Bank Account No.", BankAccRecon."Bank Account No.");

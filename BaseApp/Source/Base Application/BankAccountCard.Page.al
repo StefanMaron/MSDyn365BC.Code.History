@@ -1,4 +1,4 @@
-﻿page 370 "Bank Account Card"
+page 370 "Bank Account Card"
 {
     Caption = 'Bank Account Card';
     PageType = Card;
@@ -833,7 +833,7 @@
                             "Search Name" := Rec."Search Name";
                             "Currency Code" := Rec."Currency Code";
                             Insert(true);
-                            Commit;
+                            Commit();
                         end;
 
                         PAGE.Run(PAGE::"Cash Desk Card", BankAcc);

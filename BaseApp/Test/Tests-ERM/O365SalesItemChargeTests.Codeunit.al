@@ -34,7 +34,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
 
         LibraryApplicationArea.EnableItemChargeSetup;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := true;
         SalesReceivablesSetup.Modify(true);
 
@@ -167,7 +167,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Disable "shipment on invoice" in the Sales & Receivables Setup
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Shipment on Invoice" := false;
         SalesReceivablesSetup.Modify(true);
 
@@ -255,7 +255,6 @@ codeunit 135301 "O365 Sales Item Charge Tests"
 
         SalesHeader."Currency Code" := Currency.Code;
         SalesHeader."Currency Factor" := Currency."Currency Factor";
-        SalesHeader."VAT Currency Factor" := SalesHeader."Currency Factor"; // NAVCZ
         SalesHeader.Modify(true);
     end;
 

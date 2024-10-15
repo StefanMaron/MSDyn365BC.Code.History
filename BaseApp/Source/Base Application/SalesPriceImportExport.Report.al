@@ -14,7 +14,7 @@ report 31072 "Sales Price Import/Export"
 
             trigger OnPreDataItem()
             begin
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }
@@ -216,7 +216,7 @@ report 31072 "Sales Price Import/Export"
                 Error(ExcelBuffEmptyErr);
 
             for i := 2 to NoOfRows do begin
-                TempSalesPrice.Init;
+                TempSalesPrice.Init();
                 TempSalesPrice."Item No." := '';
                 TempSalesPrice."Sales Type" := TempSalesPrice."Sales Type"::Customer;
                 TempSalesPrice."Sales Code" := '';
@@ -289,7 +289,7 @@ report 31072 "Sales Price Import/Export"
                                 else
                                     Error(ConversionErr);
                         end;
-                TempSalesPrice.Insert;
+                TempSalesPrice.Insert();
             end;
         end;
 
@@ -506,7 +506,7 @@ report 31072 "Sales Price Import/Export"
                         SalesPrice."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
                         SalesPrice."Ending Date" := "Ending Date";
                         SalesPrice."Allow Line Disc." := "Allow Line Disc.";
-                        SalesPrice.Modify;
+                        SalesPrice.Modify();
                     end else begin
                         SalesPrice."Item No." := "Item No.";
                         SalesPrice."Sales Type" := "Sales Type";
@@ -522,7 +522,7 @@ report 31072 "Sales Price Import/Export"
                         SalesPrice."VAT Bus. Posting Gr. (Price)" := "VAT Bus. Posting Gr. (Price)";
                         SalesPrice."Ending Date" := "Ending Date";
                         SalesPrice."Allow Line Disc." := "Allow Line Disc.";
-                        SalesPrice.Insert;
+                        SalesPrice.Insert();
                     end;
                 until Next = 0;
         end;

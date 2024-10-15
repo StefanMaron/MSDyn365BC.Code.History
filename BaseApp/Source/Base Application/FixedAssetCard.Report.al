@@ -401,7 +401,7 @@ report 31048 "Fixed Asset Card"
                     trigger OnPreDataItem()
                     begin
                         if not ShowEntries then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilter("FA Posting Date", "FA Depreciation Book".GetFilter("FA Posting Date Filter"));
                     end;
@@ -419,9 +419,9 @@ report 31048 "Fixed Asset Card"
 
                     ReceiptDate := 0D;
 
-                    FASetup.Get;
+                    FASetup.Get();
                     if FASetup."FA Acquisition As Custom 2" then begin
-                        FALedgerEntry.Reset;
+                        FALedgerEntry.Reset();
                         FALedgerEntry.SetCurrentKey(
                           "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
                         FALedgerEntry.SetRange("FA No.", "FA No.");
@@ -436,7 +436,7 @@ report 31048 "Fixed Asset Card"
                                 ReceiptDate := FALedgerEntry."FA Posting Date";
                         end;
                     end else begin
-                        FALedgerEntry.Reset;
+                        FALedgerEntry.Reset();
                         FALedgerEntry.SetCurrentKey(
                           "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
                         FALedgerEntry.SetRange("FA No.", "FA No.");
@@ -452,16 +452,16 @@ report 31048 "Fixed Asset Card"
             trigger OnAfterGetRecord()
             begin
                 if not Location.Get("Location Code") then
-                    Location.Init;
+                    Location.Init();
                 if not FALocation.Get("FA Location Code") then
-                    FALocation.Init;
+                    FALocation.Init();
                 if not Employee.Get("Responsible Employee") then
-                    Employee.Init;
+                    Employee.Init();
             end;
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
             end;
         }

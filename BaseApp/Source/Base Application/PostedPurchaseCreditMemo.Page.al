@@ -737,6 +737,22 @@ page 140 "Posted Purchase Credit Memo"
                     PurchCrMemoHeader.PrintRecords(true);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                begin
+                    PurchCrMemoHeader := Rec;
+                    CurrPage.SetSelectionFilter(PurchCrMemoHeader);
+                    PrintToDocumentAttachment(PurchCrMemoHeader);
+                end;
+            }
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;

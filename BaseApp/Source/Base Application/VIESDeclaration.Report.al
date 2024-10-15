@@ -238,7 +238,7 @@ report 31060 "VIES Declaration"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var

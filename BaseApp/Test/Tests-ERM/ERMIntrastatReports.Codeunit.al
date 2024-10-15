@@ -90,10 +90,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
-        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchaseLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, PurchaseLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Checklist.
-        VerifyValuesOnIntrastatChecklist(GetTariffNo(PurchaseLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatChecklist(GetTariffNo(PurchaseLine."No."), Quantity);
     end;
 
     [Test]
@@ -159,10 +159,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Checklist.
-        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatChecklist(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, SalesLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Checklist.
-        VerifyValuesOnIntrastatChecklist(GetTariffNo(SalesLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatChecklist(GetTariffNo(SalesLine."No."), Quantity);
     end;
 
     [Test]
@@ -254,10 +254,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoPurchaseDocuments(PurchaseLine, PurchaseLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
-        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, PurchaseLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, PurchaseLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Form.
-        VerifyValuesOnIntrastatForm(GetTariffNo(PurchaseLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatForm(GetTariffNo(PurchaseLine."No."), Quantity);
     end;
 
     [Test]
@@ -298,10 +298,10 @@ codeunit 134063 "ERM Intrastat Reports"
         PostTwoSalesDocuments(SalesLine, SalesLine."Document Type"::"Credit Memo", Quantity);
 
         // Exercise: Generate Intrastat Form.
-        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment, SalesLine."No.", GetTransactionType); // NAVCZ
+        RunIntrastatForm(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt, SalesLine."No.", GetTransactionType);
 
         // Verify: Verify values on Intrastat Form.
-        VerifyValuesOnIntrastatForm(GetTariffNo(SalesLine."No."), -Quantity); // NAVCZ
+        VerifyValuesOnIntrastatForm(GetTariffNo(SalesLine."No."), Quantity);
     end;
 
     [Test]
@@ -405,7 +405,7 @@ codeunit 134063 "ERM Intrastat Reports"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Intrastat Reports");
         LibraryVariableStorage.Clear;
-        IntrastatSetup.DeleteAll;
+        IntrastatSetup.DeleteAll();
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Intrastat Reports");
@@ -415,7 +415,7 @@ codeunit 134063 "ERM Intrastat Reports"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.CreateTransportMethodTableData;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Intrastat Reports");
     end;
 
@@ -430,7 +430,6 @@ codeunit 134063 "ERM Intrastat Reports"
         ItemJournalLine.Validate("Transaction Type", TransactionType);
         ItemJournalLine.Validate("Transport Method", TransportMethod);
         ItemJournalLine.Validate("Country/Region Code", CountryRegionCode);
-        ItemJournalLine.Validate("Intrastat Transaction", true); // NAVCZ
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
@@ -627,7 +626,7 @@ codeunit 134063 "ERM Intrastat Reports"
     begin
         RunGetItemEntries(IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate), false);
 
-        Commit;
+        Commit();
         Clear(IntrastatChecklist);
         IntrastatJnlLine.SetRange("Item No.", ItemNo);
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
@@ -646,7 +645,7 @@ codeunit 134063 "ERM Intrastat Reports"
         IntrastatJnlLine.SetRange("Transaction Type", TransactionType);
         IntrastatJnlLine.SetRange(Type, Type);
 
-        Commit;
+        Commit();
         Clear(IntrastatForm);
         IntrastatForm.SetTableView(IntrastatJnlLine);
         IntrastatForm.Run;
@@ -687,7 +686,7 @@ codeunit 134063 "ERM Intrastat Reports"
         CompanyInformation: Record "Company Information";
         CompanyInformationName: Variant;
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetLastRow;
         CompanyInformationName := CompanyInformation.Name;
@@ -727,7 +726,7 @@ codeunit 134063 "ERM Intrastat Reports"
         CompanyInformation: Record "Company Information";
         CountryRegion: Record "Country/Region";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CountryRegion.Get(CompanyInformation."Country/Region Code");
         if CountryRegion."Intrastat Code" = '' then begin
             CountryRegion."Intrastat Code" := CountryRegion.Code;

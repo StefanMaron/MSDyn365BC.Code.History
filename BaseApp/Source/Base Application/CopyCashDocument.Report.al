@@ -137,7 +137,7 @@ report 11744 "Copy Cash Document"
             FromCashDocHeader.Init
         else
             if FromCashDocHeader."No." = '' then begin
-                FromCashDocHeader.Init;
+                FromCashDocHeader.Init();
                 case DocType of
                     DocType::"Cash Document":
                         FromCashDocHeader.Get(CashDeskNo, DocNo);

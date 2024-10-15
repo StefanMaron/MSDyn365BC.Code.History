@@ -58,7 +58,7 @@ codeunit 11765 "Service Tax Corr. Doc Mgt."
         SourceServiceInvHeader: Record "Service Invoice Header";
         SourceServiceCrMemoHeader: Record "Service Cr.Memo Header";
     begin
-        ServiceCrMemoHeader.Init;
+        ServiceCrMemoHeader.Init();
         case SourceCVLedgEntryBuf."Document Type" of
             SourceCVLedgEntryBuf."Document Type"::Invoice:
                 if SourceServiceInvHeader.Get(SourceCVLedgEntryBuf."Document No.") then begin
@@ -90,14 +90,14 @@ codeunit 11765 "Service Tax Corr. Doc Mgt."
     var
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
     begin
-        TempServiceCrMemoLine.Reset;
+        TempServiceCrMemoLine.Reset();
         if TempServiceCrMemoLine.FindSet then
             repeat
                 ServiceCrMemoLine := TempServiceCrMemoLine;
                 ServiceCrMemoLine."Document No." := DocumentNo;
-                ServiceCrMemoLine.Insert;
+                ServiceCrMemoLine.Insert();
             until TempServiceCrMemoLine.Next = 0;
-        TempServiceCrMemoLine.DeleteAll;
+        TempServiceCrMemoLine.DeleteAll();
     end;
 
     local procedure InsertInvHeader(var ServiceInvHeader: Record "Service Invoice Header"; PostingDate: Date)
@@ -118,7 +118,7 @@ codeunit 11765 "Service Tax Corr. Doc Mgt."
         ServiceSetup: Record "Service Mgt. Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        ServiceSetup.Get;
+        ServiceSetup.Get();
         exit(NoSeriesMgt.GetNextNo(ServiceSetup."Posted Serv. Credit Memo Nos.", PostingDate, true));
     end;
 
@@ -250,7 +250,7 @@ codeunit 11765 "Service Tax Corr. Doc Mgt."
                 repeat
                     ServiceInvLine.TransferFields(ServiceCrMemoLine);
                     ServiceInvLine."Document No." := ServiceInvHeader."No.";
-                    ServiceInvLine.Insert;
+                    ServiceInvLine.Insert();
                 until ServiceCrMemoLine.Next = 0;
         until ServiceCrMemoHeader.Next(-1) = 0;
 
@@ -327,7 +327,7 @@ codeunit 11765 "Service Tax Corr. Doc Mgt."
     var
         ServiceMgtSetup: Record "Service Mgt. Setup";
     begin
-        ServiceMgtSetup.Get;
+        ServiceMgtSetup.Get();
         ServiceMgtSetup.TestField("Reason Code For Payment Disc.");
         exit(ServiceMgtSetup."Reason Code For Payment Disc.");
     end;

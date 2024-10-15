@@ -100,7 +100,7 @@ table 288 "Vendor Bank Account"
                 CompanyInfo: Record "Company Information";
             begin
                 // NAVCZ
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if ("Country/Region Code" = '') or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
                     CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
                 // NAVCZ
@@ -253,7 +253,7 @@ table 288 "Vendor Bank Account"
             Error(BankAccDeleteErr);
         if Vendor.Get("Vendor No.") and (Vendor."Preferred Bank Account Code" = Code) then begin
             Vendor."Preferred Bank Account Code" := '';
-            Vendor.Modify;
+            Vendor.Modify();
         end;
     end;
 
@@ -284,7 +284,7 @@ table 288 "Vendor Bank Account"
         CompInfo: Record "Company Information";
     begin
         // NAVCZ
-        CompInfo.Get;
+        CompInfo.Get();
         exit(("Country/Region Code" <> '') and ("Country/Region Code" <> CompInfo."Country/Region Code"));
     end;
 

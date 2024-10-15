@@ -138,7 +138,7 @@ report 31075 "Quantity Shipped Check"
                 trigger OnAfterGetRecord()
                 begin
                     if Quantity = "Quantity Invoiced" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -251,7 +251,7 @@ report 31075 "Quantity Shipped Check"
                 trigger OnAfterGetRecord()
                 begin
                     if Quantity = "Quantity Invoiced" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 

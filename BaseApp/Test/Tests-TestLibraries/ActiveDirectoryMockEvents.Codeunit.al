@@ -8,7 +8,7 @@ codeunit 131033 "Active Directory Mock Events"
 
     var
         IsEnabled: Boolean;
-        TestEmailTxt: Label 'test@microsoft.com', Comment = 'Locked';
+        TestEmailTxt: Label 'test@microsoft.com', Locked = true;
 
     procedure Enabled(): Boolean
     begin

@@ -100,8 +100,8 @@ report 595 "Adjust Exchange Rates"
                                   false, ''); // NAVCZ
                                 InsertExchRateAdjmtReg(3, "Bank Account"."Bank Acc. Posting Group", "Bank Account"."Currency Code");
                                 TotalBankAccountsAdjusted += 1;
-                                AdjExchRateBuffer.Reset;
-                                AdjExchRateBuffer.DeleteAll;
+                                AdjExchRateBuffer.Reset();
+                                AdjExchRateBuffer.DeleteAll();
                                 TotalAdjBase := 0;
                                 TotalAdjBaseLCY := 0;
                                 TotalAdjAmount := 0;
@@ -111,14 +111,14 @@ report 595 "Adjust Exchange Rates"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempEntryNoAmountBuf.DeleteAll;
+                    TempEntryNoAmountBuf.DeleteAll();
                     BankAccNo := BankAccNo + 1;
                     Window.Update(1, Round(BankAccNo / BankAccNoTotal * 10000, 1));
 
-                    TempDimSetEntry.Reset;
-                    TempDimSetEntry.DeleteAll;
-                    TempDimBuf.Reset;
-                    TempDimBuf.DeleteAll;
+                    TempDimSetEntry.Reset();
+                    TempDimSetEntry.DeleteAll();
+                    TempDimBuf.Reset();
+                    TempDimBuf.DeleteAll();
 
                     CalcFields("Balance at Date", "Balance at Date (LCY)");
                     AdjBase := "Balance at Date";
@@ -169,20 +169,20 @@ report 595 "Adjust Exchange Rates"
                             end;
                             // NAVCZ
                         end;
-                        TempDimBuf2.Init;
+                        TempDimBuf2.Init();
                         TempDimBuf2."Table ID" := TempEntryNoAmountBuf."Entry No.";
                         TempDimBuf2."Entry No." := GetDimCombID(TempDimBuf);
-                        TempDimBuf2.Insert;
+                        TempDimBuf2.Insert();
                         TotalAdjBase := TotalAdjBase + AdjBase;
                         TotalAdjBaseLCY := TotalAdjBaseLCY + AdjBaseLCY;
                         TotalAdjAmount := TotalAdjAmount + AdjAmount;
                         Window.Update(4, TotalAdjAmount);
 
                         if (TempEntryNoAmountBuf.Amount <> 0) and (not TestMode) then begin // NAVCZ
-                            TempDimSetEntry.Reset;
-                            TempDimSetEntry.DeleteAll;
-                            TempDimBuf.Reset;
-                            TempDimBuf.DeleteAll;
+                            TempDimSetEntry.Reset();
+                            TempDimSetEntry.DeleteAll();
+                            TempDimBuf.Reset();
+                            TempDimBuf.DeleteAll();
                             TempDimBuf2.SetRange("Table ID", TempEntryNoAmountBuf."Entry No.");
                             if TempDimBuf2.FindFirst then
                                 DimBufMgt.GetDimensions(TempDimBuf2."Entry No.", TempDimBuf);
@@ -200,19 +200,19 @@ report 595 "Adjust Exchange Rates"
                             end;
                         end;
                     end;
-                    TempDimBuf2.DeleteAll;
+                    TempDimBuf2.DeleteAll();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     // NAVCZ
                     if not AdjBank then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     TableType := 1;
                     // NAVCZ
 
                     SetRange("Date Filter", StartDate, EndDate);
-                    TempDimBuf2.DeleteAll;
+                    TempDimBuf2.DeleteAll();
                 end;
             }
 
@@ -226,7 +226,7 @@ report 595 "Adjust Exchange Rates"
                   CurrExchRate.ExchangeRateAdjmt(PostingDate, Code);
 
                 Currency2 := Currency;
-                Currency2.Insert;
+                Currency2.Insert();
             end;
 
             trigger OnPostDataItem()
@@ -239,7 +239,7 @@ report 595 "Adjust Exchange Rates"
             begin
                 CheckPostingDate;
                 if not (AdjCust or AdjVend or AdjBank) then // NAVCZ
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(
                   Text006 +
@@ -248,14 +248,14 @@ report 595 "Adjust Exchange Rates"
                   Text009 +
                   Text010);
 
-                CustNoTotal := Customer.Count;
-                VendNoTotal := Vendor.Count;
+                CustNoTotal := Customer.Count();
+                VendNoTotal := Vendor.Count();
                 CopyFilter(Code, "Bank Account"."Currency Code");
                 FilterGroup(2);
                 "Bank Account".SetFilter("Currency Code", '<>%1', '');
                 FilterGroup(0);
-                BankAccNoTotal := "Bank Account".Count;
-                "Bank Account".Reset;
+                BankAccNoTotal := "Bank Account".Count();
+                "Bank Account".Reset();
             end;
         }
         dataitem(Customer; Customer)
@@ -336,14 +336,14 @@ report 595 "Adjust Exchange Rates"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempDtldCustLedgEntrySums.DeleteAll;
+                    TempDtldCustLedgEntrySums.DeleteAll();
 
                     if FirstEntry then begin
                         TempCustLedgerEntry.Find('-');
                         FirstEntry := false
                     end else
                         if TempCustLedgerEntry.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     CustLedgerEntry.Get(TempCustLedgerEntry."Entry No.");
                     AdjustCustomerLedgerEntry(CustLedgerEntry, PostingDate);
 
@@ -369,7 +369,7 @@ report 595 "Adjust Exchange Rates"
                 trigger OnPreDataItem()
                 begin
                     if not TempCustLedgerEntry.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     FirstEntry := true;
                 end;
             }
@@ -379,14 +379,14 @@ report 595 "Adjust Exchange Rates"
                 CustNo := CustNo + 1;
                 Window.Update(2, Round(CustNo / CustNoTotal * 10000, 1));
 
-                TempCustLedgerEntry.DeleteAll;
+                TempCustLedgerEntry.DeleteAll();
 
                 Currency.CopyFilter(Code, CustLedgerEntry."Currency Code");
                 CustLedgerEntry.FilterGroup(2);
                 CustLedgerEntry.SetFilter("Currency Code", '<>%1', '');
                 CustLedgerEntry.FilterGroup(0);
 
-                DtldCustLedgEntry.Reset;
+                DtldCustLedgEntry.Reset();
                 DtldCustLedgEntry.SetCurrentKey("Customer No.", "Posting Date", "Entry Type");
                 DtldCustLedgEntry.SetRange("Customer No.", "No.");
                 DtldCustLedgEntry.SetRange("Posting Date", CalcDate('<+1D>', EndDate), DMY2Date(31, 12, 9999));
@@ -398,7 +398,7 @@ report 595 "Adjust Exchange Rates"
                                (CustLedgerEntry."Posting Date" <= EndDate)
                             then begin
                                 TempCustLedgerEntry."Entry No." := CustLedgerEntry."Entry No.";
-                                if TempCustLedgerEntry.Insert then;
+                                if TempCustLedgerEntry.Insert() then;
                             end;
                     until DtldCustLedgEntry.Next = 0;
 
@@ -409,9 +409,9 @@ report 595 "Adjust Exchange Rates"
                 if CustLedgerEntry.Find('-') then
                     repeat
                         TempCustLedgerEntry."Entry No." := CustLedgerEntry."Entry No.";
-                        if TempCustLedgerEntry.Insert then;
+                        if TempCustLedgerEntry.Insert() then;
                     until CustLedgerEntry.Next = 0;
-                CustLedgerEntry.Reset;
+                CustLedgerEntry.Reset();
             end;
 
             trigger OnPostDataItem()
@@ -424,10 +424,10 @@ report 595 "Adjust Exchange Rates"
             trigger OnPreDataItem()
             begin
                 if not AdjCust then // NAVCZ
-                    CurrReport.Break;
+                    CurrReport.Break();
 
-                DtldCustLedgEntry.LockTable;
-                CustLedgerEntry.LockTable;
+                DtldCustLedgEntry.LockTable();
+                CustLedgerEntry.LockTable();
 
                 CustNo := 0;
 
@@ -437,7 +437,7 @@ report 595 "Adjust Exchange Rates"
                     NewEntryNo := 1;
 
                 Clear(DimMgt);
-                TempEntryNoAmountBuf.DeleteAll;
+                TempEntryNoAmountBuf.DeleteAll();
                 TableType := 2;  // NAVCZ
             end;
         }
@@ -520,14 +520,14 @@ report 595 "Adjust Exchange Rates"
 
                 trigger OnAfterGetRecord()
                 begin
-                    TempDtldVendLedgEntrySums.DeleteAll;
+                    TempDtldVendLedgEntrySums.DeleteAll();
 
                     if FirstEntry then begin
                         TempVendorLedgerEntry.Find('-');
                         FirstEntry := false
                     end else
                         if TempVendorLedgerEntry.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     VendorLedgerEntry.Get(TempVendorLedgerEntry."Entry No.");
                     AdjustVendorLedgerEntry(VendorLedgerEntry, PostingDate);
 
@@ -553,7 +553,7 @@ report 595 "Adjust Exchange Rates"
                 trigger OnPreDataItem()
                 begin
                     if not TempVendorLedgerEntry.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     FirstEntry := true;
                 end;
             }
@@ -563,14 +563,14 @@ report 595 "Adjust Exchange Rates"
                 VendNo := VendNo + 1;
                 Window.Update(3, Round(VendNo / VendNoTotal * 10000, 1));
 
-                TempVendorLedgerEntry.DeleteAll;
+                TempVendorLedgerEntry.DeleteAll();
 
                 Currency.CopyFilter(Code, VendorLedgerEntry."Currency Code");
                 VendorLedgerEntry.FilterGroup(2);
                 VendorLedgerEntry.SetFilter("Currency Code", '<>%1', '');
                 VendorLedgerEntry.FilterGroup(0);
 
-                DtldVendLedgEntry.Reset;
+                DtldVendLedgEntry.Reset();
                 DtldVendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date", "Entry Type");
                 DtldVendLedgEntry.SetRange("Vendor No.", "No.");
                 DtldVendLedgEntry.SetRange("Posting Date", CalcDate('<+1D>', EndDate), DMY2Date(31, 12, 9999));
@@ -582,7 +582,7 @@ report 595 "Adjust Exchange Rates"
                                (VendorLedgerEntry."Posting Date" <= EndDate)
                             then begin
                                 TempVendorLedgerEntry."Entry No." := VendorLedgerEntry."Entry No.";
-                                if TempVendorLedgerEntry.Insert then;
+                                if TempVendorLedgerEntry.Insert() then;
                             end;
                     until DtldVendLedgEntry.Next = 0;
 
@@ -593,9 +593,9 @@ report 595 "Adjust Exchange Rates"
                 if VendorLedgerEntry.Find('-') then
                     repeat
                         TempVendorLedgerEntry."Entry No." := VendorLedgerEntry."Entry No.";
-                        if TempVendorLedgerEntry.Insert then;
+                        if TempVendorLedgerEntry.Insert() then;
                     until VendorLedgerEntry.Next = 0;
-                VendorLedgerEntry.Reset;
+                VendorLedgerEntry.Reset();
             end;
 
             trigger OnPostDataItem()
@@ -608,10 +608,10 @@ report 595 "Adjust Exchange Rates"
             trigger OnPreDataItem()
             begin
                 if not AdjVend then // NAVCZ
-                    CurrReport.Break;
+                    CurrReport.Break();
 
-                DtldVendLedgEntry.LockTable;
-                VendorLedgerEntry.LockTable;
+                DtldVendLedgEntry.LockTable();
+                VendorLedgerEntry.LockTable();
 
                 VendNo := 0;
                 if DtldVendLedgEntry.Find('+') then
@@ -620,7 +620,7 @@ report 595 "Adjust Exchange Rates"
                     NewEntryNo := 1;
 
                 Clear(DimMgt);
-                TempEntryNoAmountBuf.DeleteAll;
+                TempEntryNoAmountBuf.DeleteAll();
                 TableType := 3; // NAVCZ
             end;
         }
@@ -705,19 +705,19 @@ report 595 "Adjust Exchange Rates"
             begin
                 // NAVCZ
                 if TestMode then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 // NAVCZ
 
                 if not AdjGLAcc or
                    (GLSetup."VAT Exchange Rate Adjustment" = GLSetup."VAT Exchange Rate Adjustment"::"No Adjustment")
                 then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(
                   Text012 +
                   Text013);
 
-                VATEntryNoTotal := VATEntry.Count;
+                VATEntryNoTotal := VATEntry.Count();
                 if not
                    VATEntry.SetCurrentKey(
                      Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
@@ -737,10 +737,10 @@ report 595 "Adjust Exchange Rates"
                 GLAccNo := GLAccNo + 1;
                 Window.Update(1, Round(GLAccNo / GLAccNoTotal * 10000, 1));
                 if "Exchange Rate Adjustment" = "Exchange Rate Adjustment"::"No Adjustment" then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
-                TempDimSetEntry.Reset;
-                TempDimSetEntry.DeleteAll;
+                TempDimSetEntry.Reset();
+                TempDimSetEntry.DeleteAll();
                 CalcFields("Net Change", "Additional-Currency Net Change");
                 case "Exchange Rate Adjustment" of
                     "Exchange Rate Adjustment"::"Adjust Amount":
@@ -832,11 +832,11 @@ report 595 "Adjust Exchange Rates"
             begin
                 // NAVCZ
                 if TestMode then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 // NAVCZ
 
                 if not AdjGLAcc then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 Window.Open(
                   Text014 +
@@ -1056,12 +1056,12 @@ report 595 "Adjust Exchange Rates"
             if not Confirm(Text001 + Text004, false) then
                 Error(Text005);
 
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
 
         if ExchRateAdjReg.FindLast then
-            ExchRateAdjReg.Init;
+            ExchRateAdjReg.Init();
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         if AdjGLAcc then begin
             GLSetup.TestField("Additional Reporting Currency");
@@ -1328,7 +1328,7 @@ report 595 "Adjust Exchange Rates"
 
     local procedure AdjExchRateBufferUpdate(CurrencyCode2: Code[10]; PostingGroup2: Code[20]; AdjBase2: Decimal; AdjBaseLCY2: Decimal; AdjAmount2: Decimal; GainsAmount2: Decimal; LossesAmount2: Decimal; DimEntryNo: Integer; Postingdate2: Date; ICCode: Code[20]; Advance: Boolean; InitialGLAccNo: Code[20]): Integer
     begin
-        AdjExchRateBuffer.Init;
+        AdjExchRateBuffer.Init();
 
         OK := AdjExchRateBuffer.Get(CurrencyCode2, PostingGroup2, DimEntryNo, Postingdate2, ICCode, Advance, InitialGLAccNo); // NAVCZ
 
@@ -1350,9 +1350,9 @@ report 595 "Adjust Exchange Rates"
             AdjExchRateBuffer.Advance := Advance;
             AdjExchRateBuffer."Initial G/L Account No." := InitialGLAccNo;
             // NAVCZ
-            AdjExchRateBuffer.Insert;
+            AdjExchRateBuffer.Insert();
         end else
-            AdjExchRateBuffer.Modify;
+            AdjExchRateBuffer.Modify();
 
         exit(AdjExchRateBuffer.Index);
     end;
@@ -1411,11 +1411,13 @@ report 595 "Adjust Exchange Rates"
     var
         GLEntry: Record "G/L Entry";
         TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary;
+        LastEntryNo: Integer;
+        LastTransactionNo: Integer;
     begin
         if AdjExchRateBuffer.Find('-') then begin
             // Summarize per currency and dimension combination
             repeat
-                AdjExchRateBuffer2.Init;
+                AdjExchRateBuffer2.Init();
                 OK :=
                   AdjExchRateBuffer2.Get(
                     AdjExchRateBuffer."Currency Code",
@@ -1439,9 +1441,9 @@ report 595 "Adjust Exchange Rates"
                     AdjExchRateBuffer2."Posting Date" := AdjExchRateBuffer."Posting Date";
                     AdjExchRateBuffer2."IC Partner Code" := AdjExchRateBuffer."IC Partner Code";
                     AdjExchRateBuffer2."Initial G/L Account No." := AdjExchRateBuffer."Initial G/L Account No."; // NAVCZ
-                    AdjExchRateBuffer2.Insert;
+                    AdjExchRateBuffer2.Insert();
                 end else
-                    AdjExchRateBuffer2.Modify;
+                    AdjExchRateBuffer2.Modify();
             until AdjExchRateBuffer.Next = 0;
 
             // Post per posting group and per currency
@@ -1453,15 +1455,15 @@ report 595 "Adjust Exchange Rates"
                         SetRange("Posting Date", AdjExchRateBuffer2."Posting Date");
                         SetRange("IC Partner Code", AdjExchRateBuffer2."IC Partner Code");
                         SetRange("Initial G/L Account No.", AdjExchRateBuffer2."Initial G/L Account No."); // NAVCZ
-                        TempDimBuf.Reset;
-                        TempDimBuf.DeleteAll;
-                        TempDimSetEntry.Reset;
-                        TempDimSetEntry.DeleteAll;
+                        TempDimBuf.Reset();
+                        TempDimBuf.DeleteAll();
+                        TempDimSetEntry.Reset();
+                        TempDimSetEntry.DeleteAll();
                         Find('-');
                         DimBufMgt.GetDimensions("Dimension Entry No.", TempDimBuf);
                         DimMgt.CopyDimBufToDimSetEntry(TempDimBuf, TempDimSetEntry);
                         repeat
-                            TempDtldCVLedgEntryBuf.Init;
+                            TempDtldCVLedgEntryBuf.Init();
                             TempDtldCVLedgEntryBuf."Entry No." := Index;
                             if AdjAmount <> 0 then
                                 case AdjustAccType of
@@ -1478,7 +1480,7 @@ report 595 "Adjust Exchange Rates"
                                                 "Initial G/L Account No.", AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
                                                 AdjExchRateBuffer2."Posting Date", "IC Partner Code");
                                             // NAVCZ
-                                            if TempDtldCVLedgEntryBuf.Insert then;
+                                            if TempDtldCVLedgEntryBuf.Insert() then;
                                             InsertExchRateAdjmtReg(1, "Posting Group", "Currency Code");
                                             TotalCustomersAdjusted += 1;
                                         end;
@@ -1495,7 +1497,7 @@ report 595 "Adjust Exchange Rates"
                                                 "Initial G/L Account No.", AdjAmount, AdjBase, "Currency Code", TempDimSetEntry,
                                                 AdjExchRateBuffer2."Posting Date", "IC Partner Code");
                                             // NAVCZ
-                                            if TempDtldCVLedgEntryBuf.Insert then;
+                                            if TempDtldCVLedgEntryBuf.Insert() then;
                                             InsertExchRateAdjmtReg(2, "Posting Group", "Currency Code");
                                             TotalVendorsAdjusted += 1;
                                         end;
@@ -1521,7 +1523,7 @@ report 595 "Adjust Exchange Rates"
                     end;
                 until AdjExchRateBuffer2.Next = 0;
 
-            GLEntry.FindLast;
+            GLEntry.GetLastEntry(LastEntryNo, LastTransactionNo);
             case AdjustAccType of
                 1: // Customer
                     if TempDtldCustLedgEntry.Find('-') then
@@ -1529,7 +1531,7 @@ report 595 "Adjust Exchange Rates"
                             if TempDtldCVLedgEntryBuf.Get(TempDtldCustLedgEntry."Transaction No.") then
                                 TempDtldCustLedgEntry."Transaction No." := TempDtldCVLedgEntryBuf."Transaction No."
                             else
-                                TempDtldCustLedgEntry."Transaction No." := GLEntry."Transaction No.";
+                                TempDtldCustLedgEntry."Transaction No." := LastTransactionNo;
                             DtldCustLedgEntry := TempDtldCustLedgEntry;
                             if not TestMode then  // NAVCZ
                                 DtldCustLedgEntry.Insert(true);
@@ -1540,21 +1542,21 @@ report 595 "Adjust Exchange Rates"
                             if TempDtldCVLedgEntryBuf.Get(TempDtldVendLedgEntry."Transaction No.") then
                                 TempDtldVendLedgEntry."Transaction No." := TempDtldCVLedgEntryBuf."Transaction No."
                             else
-                                TempDtldVendLedgEntry."Transaction No." := GLEntry."Transaction No.";
+                                TempDtldVendLedgEntry."Transaction No." := LastTransactionNo;
                             DtldVendLedgEntry := TempDtldVendLedgEntry;
                             if not TestMode then  // NAVCZ
                                 DtldVendLedgEntry.Insert(true);
                         until TempDtldVendLedgEntry.Next = 0;
             end;
 
-            AdjExchRateBuffer.Reset;
-            AdjExchRateBuffer.DeleteAll;
-            AdjExchRateBuffer2.Reset;
-            AdjExchRateBuffer2.DeleteAll;
-            TempDtldCustLedgEntry.Reset;
-            TempDtldCustLedgEntry.DeleteAll;
-            TempDtldVendLedgEntry.Reset;
-            TempDtldVendLedgEntry.DeleteAll;
+            AdjExchRateBuffer.Reset();
+            AdjExchRateBuffer.DeleteAll();
+            AdjExchRateBuffer2.Reset();
+            AdjExchRateBuffer2.DeleteAll();
+            TempDtldCustLedgEntry.Reset();
+            TempDtldCustLedgEntry.DeleteAll();
+            TempDtldVendLedgEntry.Reset();
+            TempDtldVendLedgEntry.DeleteAll();
         end;
     end;
 
@@ -1717,7 +1719,7 @@ report 595 "Adjust Exchange Rates"
 
     local procedure PostGLAccAdjmt(GLAccNo: Code[20]; ExchRateAdjmt: Integer; Amount: Decimal; NetChange: Decimal; AddCurrNetChange: Decimal)
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         case ExchRateAdjmt of
             "G/L Account"."Exchange Rate Adjustment"::"Adjust Amount":
                 begin
@@ -1840,7 +1842,7 @@ report 595 "Adjust Exchange Rates"
                 DimBuf."Entry No." := 0;
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
-                DimBuf.Insert;
+                DimBuf.Insert();
             until DimSetEntry.Next = 0;
     end;
 
@@ -1941,10 +1943,10 @@ report 595 "Adjust Exchange Rates"
             Adjust := false;
             UpdateBuffer := true; // NAVCZ
 
-            TempDimSetEntry.Reset;
-            TempDimSetEntry.DeleteAll;
-            TempDimBuf.Reset;
-            TempDimBuf.DeleteAll;
+            TempDimSetEntry.Reset();
+            TempDimSetEntry.DeleteAll();
+            TempDimBuf.Reset();
+            TempDimBuf.DeleteAll();
             DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
             CopyDimSetEntryToDimBuf(DimSetEntry, TempDimBuf);
             DimEntryNo := GetDimCombID(TempDimBuf);
@@ -1963,7 +1965,7 @@ report 595 "Adjust Exchange Rates"
             "Remaining Amt. (LCY)" := "Remaining Amt. (LCY)" + TempDtldCustLedgEntrySums."Amount (LCY)";
             "Debit Amount (LCY)" := "Debit Amount (LCY)" + TempDtldCustLedgEntrySums."Amount (LCY)";
             "Credit Amount (LCY)" := "Credit Amount (LCY)" + TempDtldCustLedgEntrySums."Amount (LCY)";
-            TempDtldCustLedgEntrySums.Reset;
+            TempDtldCustLedgEntrySums.Reset();
 
             // Modify Currency factor on Customer Ledger Entry
             if "Adjusted Currency Factor" <> Currency2."Currency Factor" then begin
@@ -2042,7 +2044,7 @@ report 595 "Adjust Exchange Rates"
                     // NAVCZ
                     AdjExchRateBuffer."Document Type" := "Document Type";
                     AdjExchRateBuffer."Document No." := "Document No.";
-                    AdjExchRateBuffer.Modify;
+                    AdjExchRateBuffer.Modify();
                     // NAVCZ
                 end; // NAVCZ
             end;
@@ -2067,8 +2069,8 @@ report 595 "Adjust Exchange Rates"
             Adjust := false;
             UpdateBuffer := true; // NAVCZ
 
-            TempDimBuf.Reset;
-            TempDimBuf.DeleteAll;
+            TempDimBuf.Reset();
+            TempDimBuf.DeleteAll();
             DimSetEntry.SetRange("Dimension Set ID", "Dimension Set ID");
             CopyDimSetEntryToDimBuf(DimSetEntry, TempDimBuf);
             DimEntryNo := GetDimCombID(TempDimBuf);
@@ -2087,7 +2089,7 @@ report 595 "Adjust Exchange Rates"
             "Remaining Amt. (LCY)" := "Remaining Amt. (LCY)" + TempDtldVendLedgEntrySums."Amount (LCY)";
             "Debit Amount (LCY)" := "Debit Amount (LCY)" + TempDtldVendLedgEntrySums."Amount (LCY)";
             "Credit Amount (LCY)" := "Credit Amount (LCY)" + TempDtldVendLedgEntrySums."Amount (LCY)";
-            TempDtldVendLedgEntrySums.Reset;
+            TempDtldVendLedgEntrySums.Reset();
 
             // Modify Currency factor on Vendor Ledger Entry
             if "Adjusted Currency Factor" <> Currency2."Currency Factor" then begin
@@ -2166,7 +2168,7 @@ report 595 "Adjust Exchange Rates"
                     // NAVCZ
                     AdjExchRateBuffer."Document Type" := "Document Type";
                     AdjExchRateBuffer."Document No." := "Document No.";
-                    AdjExchRateBuffer.Modify;
+                    AdjExchRateBuffer.Modify();
                     // NAVCZ
                 end; // NAVCZ
             end;
@@ -2245,24 +2247,18 @@ report 595 "Adjust Exchange Rates"
     begin
         Customer.Get(CustLedgerEntryToAdjust."Customer No.");
         AddCurrency(CustLedgerEntryToAdjust."Currency Code", CustLedgerEntryToAdjust."Adjusted Currency Factor");
-        DtldCustLedgEntry.LockTable;
-        CustLedgerEntry.LockTable;
-        if DtldCustLedgEntry.FindLast then
-            NewEntryNo := DtldCustLedgEntry."Entry No." + 1
-        else
-            NewEntryNo := 1;
+        DtldCustLedgEntry.LockTable();
+        CustLedgerEntry.LockTable();
+        NewEntryNo := DtldCustLedgEntry.GetLastEntryNo() + 1;
     end;
 
     local procedure SetVendLedgEntry(VendLedgerEntryToAdjust: Record "Vendor Ledger Entry")
     begin
         Vendor.Get(VendLedgerEntryToAdjust."Vendor No.");
         AddCurrency(VendLedgerEntryToAdjust."Currency Code", VendLedgerEntryToAdjust."Adjusted Currency Factor");
-        DtldVendLedgEntry.LockTable;
-        VendorLedgerEntry.LockTable;
-        if DtldVendLedgEntry.FindLast then
-            NewEntryNo := DtldVendLedgEntry."Entry No." + 1
-        else
-            NewEntryNo := 1;
+        DtldVendLedgEntry.LockTable();
+        VendorLedgerEntry.LockTable();
+        NewEntryNo := DtldVendLedgEntry.GetLastEntryNo() + 1;
     end;
 
     local procedure ShouldAdjustEntry(PostingDate: Date; CurCode: Code[10]; RemainingAmount: Decimal; RemainingAmtLCY: Decimal; AdjCurFactor: Decimal): Boolean
@@ -2275,10 +2271,10 @@ report 595 "Adjust Exchange Rates"
         InitializeRequest(GenJournalLine."Posting Date", GenJournalLine."Posting Date", TextCZ002, GenJournalLine."Posting Date");
         PostingDocNo := GenJournalLine."Document No.";
         HideUI := true;
-        GLSetup.Get;
-        SourceCodeSetup.Get;
+        GLSetup.Get();
+        SourceCodeSetup.Get();
         if ExchRateAdjReg.FindLast then
-            ExchRateAdjReg.Init;
+            ExchRateAdjReg.Init();
     end;
 
     local procedure AddCurrency(CurrencyCode: Code[10]; CurrencyFactor: Decimal)
@@ -2287,19 +2283,19 @@ report 595 "Adjust Exchange Rates"
     begin
         if Currency2.get(CurrencyCode) then begin
             Currency2."Currency Factor" := CurrencyFactor;
-            Currency2.modify;
+            Currency2.Modify();
         end else begin
             CurrencyToAdd.Get(CurrencyCode);
             Currency2 := CurrencyToAdd;
             Currency2."Currency Factor" := CurrencyFactor;
-            Currency2.Insert;
+            Currency2.Insert();
         end;
     end;
 
     local procedure InitDtldCustLedgEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
         with CustLedgEntry do begin
-            DtldCustLedgEntry.Init;
+            DtldCustLedgEntry.Init();
             DtldCustLedgEntry."Cust. Ledger Entry No." := "Entry No.";
             DtldCustLedgEntry.Amount := 0;
             DtldCustLedgEntry."Customer No." := "Customer No.";
@@ -2320,7 +2316,7 @@ report 595 "Adjust Exchange Rates"
     local procedure InitDtldVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry")
     begin
         with VendLedgEntry do begin
-            DtldVendLedgEntry.Init;
+            DtldVendLedgEntry.Init();
             DtldVendLedgEntry."Vendor Ledger Entry No." := "Entry No.";
             DtldVendLedgEntry.Amount := 0;
             DtldVendLedgEntry."Vendor No." := "Vendor No.";
@@ -2381,7 +2377,7 @@ report 595 "Adjust Exchange Rates"
 
                 AdjExchRateBuffer."Document Type" := "Document Type";
                 AdjExchRateBuffer."Document No." := "Document No.";
-                AdjExchRateBuffer.Modify;
+                AdjExchRateBuffer.Modify();
 
                 DtldCustLedgEntry."Transaction No." := AdjExchRateBufIndex;
                 ModifyTempDtldCustomerLedgerEntry;
@@ -2447,7 +2443,7 @@ report 595 "Adjust Exchange Rates"
 
                 AdjExchRateBuffer."Document Type" := "Document Type";
                 AdjExchRateBuffer."Document No." := "Document No.";
-                AdjExchRateBuffer.Modify;
+                AdjExchRateBuffer.Modify();
 
                 DtldVendLedgEntry."Transaction No." := AdjExchRateBufIndex;
                 ModifyTempDtldVendorLedgerEntry;
@@ -2492,30 +2488,30 @@ report 595 "Adjust Exchange Rates"
 
     local procedure InsertTempDtldCustomerLedgerEntry()
     begin
-        TempDtldCustLedgEntry.Insert;
+        TempDtldCustLedgEntry.Insert();
         TempDtldCustLedgEntrySums := TempDtldCustLedgEntry;
-        TempDtldCustLedgEntrySums.Insert;
+        TempDtldCustLedgEntrySums.Insert();
     end;
 
     local procedure InsertTempDtldVendorLedgerEntry()
     begin
-        TempDtldVendLedgEntry.Insert;
+        TempDtldVendLedgEntry.Insert();
         TempDtldVendLedgEntrySums := TempDtldVendLedgEntry;
-        TempDtldVendLedgEntrySums.Insert;
+        TempDtldVendLedgEntrySums.Insert();
     end;
 
     local procedure ModifyTempDtldCustomerLedgerEntry()
     begin
-        TempDtldCustLedgEntry.Modify;
+        TempDtldCustLedgEntry.Modify();
         TempDtldCustLedgEntrySums := TempDtldCustLedgEntry;
-        TempDtldCustLedgEntrySums.Modify;
+        TempDtldCustLedgEntrySums.Modify();
     end;
 
     local procedure ModifyTempDtldVendorLedgerEntry()
     begin
-        TempDtldVendLedgEntry.Modify;
+        TempDtldVendLedgEntry.Modify();
         TempDtldVendLedgEntrySums := TempDtldVendLedgEntry;
-        TempDtldVendLedgEntrySums.Modify;
+        TempDtldVendLedgEntrySums.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -2538,12 +2534,12 @@ report 595 "Adjust Exchange Rates"
         DtldCustLedgEntry4: Record "Detailed Cust. Ledg. Entry";
     begin
         // NAVCZ
-        TmpDtldCustLedgEntry2.Reset;
-        TmpDtldCustLedgEntry2.DeleteAll;
+        TmpDtldCustLedgEntry2.Reset();
+        TmpDtldCustLedgEntry2.DeleteAll();
         DtldCustLedgEntry4.Copy(DtldCustLedgEntry3);
         if DtldCustLedgEntry4.Find('-') then
             repeat
-                DtldCustLedgEntry2.Reset;
+                DtldCustLedgEntry2.Reset();
                 DtldCustLedgEntry2.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
                 DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", DtldCustLedgEntry4."Applied Cust. Ledger Entry No.");
                 DtldCustLedgEntry2.SetRange(
@@ -2553,9 +2549,9 @@ report 595 "Adjust Exchange Rates"
                 if DtldCustLedgEntry2.Find('-') then
                     repeat
                         if DtldCustLedgEntry2."Cust. Ledger Entry No." <> DtldCustLedgEntry4."Cust. Ledger Entry No." then begin
-                            TmpDtldCustLedgEntry2.Init;
+                            TmpDtldCustLedgEntry2.Init();
                             TmpDtldCustLedgEntry2.TransferFields(DtldCustLedgEntry2);
-                            if TmpDtldCustLedgEntry2.Insert then;
+                            if TmpDtldCustLedgEntry2.Insert() then;
                         end;
                     until DtldCustLedgEntry2.Next = 0;
             until DtldCustLedgEntry4.Next = 0;
@@ -2568,7 +2564,7 @@ report 595 "Adjust Exchange Rates"
         if not SummarizeEntries then
             RealGainLossAmt := 0;
 
-        DtldCustLedgEntry2.Reset;
+        DtldCustLedgEntry2.Reset();
         DtldCustLedgEntry2.SetCurrentKey("Cust. Ledger Entry No.", "Entry Type", "Posting Date");
         DtldCustLedgEntry2.SetRange("Cust. Ledger Entry No.", CustLedgEntryNo);
         DtldCustLedgEntry2.SetRange("Posting Date", EntryPostingDate);
@@ -2590,12 +2586,12 @@ report 595 "Adjust Exchange Rates"
         DtldVendLedgEntry4: Record "Detailed Vendor Ledg. Entry";
     begin
         // NAVCZ
-        TmpDtldVendLedgEntry2.Reset;
-        TmpDtldVendLedgEntry2.DeleteAll;
+        TmpDtldVendLedgEntry2.Reset();
+        TmpDtldVendLedgEntry2.DeleteAll();
         DtldVendLedgEntry4.Copy(DtldVendLedgEntry3);
         if DtldVendLedgEntry4.Find('-') then
             repeat
-                DtldVendLedgEntry2.Reset;
+                DtldVendLedgEntry2.Reset();
                 DtldVendLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
                 DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", DtldVendLedgEntry4."Applied Vend. Ledger Entry No.");
                 DtldVendLedgEntry2.SetRange(
@@ -2605,9 +2601,9 @@ report 595 "Adjust Exchange Rates"
                 if DtldVendLedgEntry2.Find('-') then
                     repeat
                         if DtldVendLedgEntry2."Vendor Ledger Entry No." <> DtldVendLedgEntry4."Vendor Ledger Entry No." then begin
-                            TmpDtldVendLedgEntry2.Init;
+                            TmpDtldVendLedgEntry2.Init();
                             TmpDtldVendLedgEntry2.TransferFields(DtldVendLedgEntry2);
-                            if TmpDtldVendLedgEntry2.Insert then;
+                            if TmpDtldVendLedgEntry2.Insert() then;
                         end;
                     until DtldVendLedgEntry2.Next = 0;
             until DtldVendLedgEntry4.Next = 0;
@@ -2620,7 +2616,7 @@ report 595 "Adjust Exchange Rates"
         if not SummarizeEntries then
             RealGainLossAmt := 0;
 
-        DtldVendLedgEntry2.Reset;
+        DtldVendLedgEntry2.Reset();
         DtldVendLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
         DtldVendLedgEntry2.SetRange("Vendor Ledger Entry No.", VendLedgEntryNo);
         DtldVendLedgEntry2.SetRange("Posting Date", EntryPostingDate);

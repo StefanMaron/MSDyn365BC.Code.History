@@ -16,7 +16,7 @@ table 31050 "Credit Header"
                 NoSeriesMgt: Codeunit NoSeriesManagement;
             begin
                 if "No." <> xRec."No." then begin
-                    CreditsSetup.Get;
+                    CreditsSetup.Get();
                     NoSeriesMgt.TestManual(CreditsSetup."Credit Nos.");
                     "No. Series" := '';
                 end;
@@ -268,7 +268,7 @@ table 31050 "Credit Header"
         CreditsSetup: Record "Credits Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        CreditsSetup.Get;
+        CreditsSetup.Get();
         if "No." = '' then begin
             CreditsSetup.TestField("Credit Nos.");
             NoSeriesMgt.InitSeries(CreditsSetup."Credit Nos.", xRec."No. Series", 0D, "No.", "No. Series");
@@ -296,10 +296,10 @@ table 31050 "Credit Header"
     begin
         with CreditHeader do begin
             Copy(Rec);
-            CreditsSetup.Get;
+            CreditsSetup.Get();
             CreditsSetup.TestField("Credit Nos.");
             if NoSeriesMgt.SelectSeries(CreditsSetup."Credit Nos.", OldCreditHeader."No. Series", "No. Series") then begin
-                CreditsSetup.Get;
+                CreditsSetup.Get();
                 CreditsSetup.TestField("Credit Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := CreditHeader;

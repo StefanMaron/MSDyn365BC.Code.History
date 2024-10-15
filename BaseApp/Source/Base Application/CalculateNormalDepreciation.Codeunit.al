@@ -92,7 +92,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         DateFromProjection := DateFromProjection2;
         DaysInPeriod := DaysInPeriod2;
 
-        FALedgEntry.LockTable;
+        FALedgEntry.LockTable();
         with DeprBook do
             if DaysInPeriod > 0 then
                 if "Periodic Depr. Date Calc." <> "Periodic Depr. Date Calc."::"Last Entry" then begin
@@ -887,7 +887,7 @@ codeunit 5611 "Calculate Normal Depreciation"
         if TempFALeEntry.FindSet then
             repeat
                 Year.Number := Date2DMY(TempFALeEntry."FA Posting Date", 3);
-                if Year.Insert then;
+                if Year.Insert() then;
             until TempFALeEntry.Next = 0;
         exit(FiscalYearCount(LastAppr, UntilDate, FALeEntry.GetFilter("FA No.")) - Year.Count); // NAVCZ
     end;
@@ -978,13 +978,13 @@ codeunit 5611 "Calculate Normal Depreciation"
     [Scope('OnPrem')]
     procedure TransferProjectedValues(var FALedgEntry2: Record "FA Ledger Entry")
     begin
-        TempFALedgEntry3.Reset;
-        TempFALedgEntry3.DeleteAll;
+        TempFALedgEntry3.Reset();
+        TempFALedgEntry3.DeleteAll();
         if FALedgEntry2.Find('-') then
             repeat
-                TempFALedgEntry3.Init;
+                TempFALedgEntry3.Init();
                 TempFALedgEntry3.TransferFields(FALedgEntry2);
-                TempFALedgEntry3.Insert;
+                TempFALedgEntry3.Insert();
             until FALedgEntry2.Next = 0;
     end;
 
@@ -992,7 +992,7 @@ codeunit 5611 "Calculate Normal Depreciation"
     procedure CalculateProjectedValues(StartDate: Date; EndDate: Date)
     begin
         NoOfProjectedDays := 0;
-        TempFALedgEntry3.Reset;
+        TempFALedgEntry3.Reset();
         if StartDate <> 0D then
             TempFALedgEntry3.SetRange("FA Posting Date", StartDate, EndDate)
         else

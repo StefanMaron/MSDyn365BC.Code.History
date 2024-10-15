@@ -21,7 +21,7 @@ codeunit 31051 "Credit - Post (Yes/No)"
             Error('');
 
         CODEUNIT.Run(CODEUNIT::"Credit - Post", CreditHeader);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

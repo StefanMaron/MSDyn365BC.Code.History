@@ -112,7 +112,7 @@ report 751 "Save as Standard Item Journal"
         StdItemJnlLine: Record "Standard Item Journal Line";
         NextLineNo: Integer;
     begin
-        StdItemJnl.Init;
+        StdItemJnl.Init();
         StdItemJnl."Journal Template Name" := ItemJnlBatch."Journal Template Name";
         StdItemJnl.Code := Code;
         StdItemJnl.Description := Description;
@@ -121,8 +121,8 @@ report 751 "Save as Standard Item Journal"
             if not Confirm(Text001, false, StdItemJnl.Code) then
                 exit;
 
-        StdItemJnlLine.LockTable;
-        StdItemJnl.LockTable;
+        StdItemJnlLine.LockTable();
+        StdItemJnl.LockTable();
 
         if StdItemJnlExists then begin
             StdItemJnl.Modify(true);
@@ -137,7 +137,7 @@ report 751 "Save as Standard Item Journal"
             repeat
                 StdItemJnlLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + 10000;
-                StdItemJnlLine.Init;
+                StdItemJnlLine.Init();
                 StdItemJnlLine."Journal Template Name" := StdItemJnl."Journal Template Name";
                 StdItemJnlLine."Standard Journal Code" := StdItemJnl.Code;
                 StdItemJnlLine.TransferFields(ItemJnlLine, false);

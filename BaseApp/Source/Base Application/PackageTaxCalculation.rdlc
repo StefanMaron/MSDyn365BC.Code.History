@@ -4353,9 +4353,6 @@ End Function
         <Field Name="TODAY">
           <DataField>TODAY</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
@@ -4500,9 +4497,6 @@ End Function
         <Field Name="Total_Number">
           <DataField>Total_Number</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control1470057">
-          <DataField>CurrReport_PAGENO_Control1470057</DataField>
-        </Field>
         <Field Name="TODAY_Control1470058">
           <DataField>TODAY_Control1470058</DataField>
         </Field>
@@ -4598,9 +4592,6 @@ End Function
         </Field>
         <Field Name="GetCustName_ItemLedgerEntry__Source_No___Caption_Control1470095">
           <DataField>GetCustName_ItemLedgerEntry__Source_No___Caption_Control1470095</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1470057Caption">
-          <DataField>CurrReport_PAGENO_Control1470057Caption</DataField>
         </Field>
         <Field Name="ItemLedgerEntry_GETFILTER__Posting_Date___Control1470061Caption">
           <DataField>ItemLedgerEntry_GETFILTER__Posting_Date___Control1470061Caption</DataField>

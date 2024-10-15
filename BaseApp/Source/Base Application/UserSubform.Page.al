@@ -1,4 +1,4 @@
-﻿page 9801 "User Subform"
+page 9801 "User Subform"
 {
     Caption = 'User Permission Sets';
     DelayedInsert = true;

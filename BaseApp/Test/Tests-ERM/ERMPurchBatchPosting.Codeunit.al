@@ -591,7 +591,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
 
         // [THEN] "Batch Processing Parameter" table empty after cleaning B[2]
         BatchProcessingParameter.SetRange("Batch ID", BatchID[2]);
-        BatchProcessingParameter.DeleteAll;
+        BatchProcessingParameter.DeleteAll();
 
         Assert.TableIsEmpty(DATABASE::"Batch Processing Parameter");
     end;
@@ -796,8 +796,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        UpdateGeneralLedgerSetup; // NAVCZ
-        Commit;
+        Commit();
         isInitialized := true;
 
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -818,7 +817,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
     var
         VendInvDisc: Record "Vendor Invoice Disc.";
     begin
-        VendInvDisc.Init;
+        VendInvDisc.Init();
         VendInvDisc.Validate(Code, VendorNo);
         VendInvDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         VendInvDisc.Insert(true);
@@ -849,17 +848,17 @@ codeunit 134337 "ERM Purch. Batch Posting"
         BatchProcessingParameter: Record "Batch Processing Parameter";
         BatchProcessingSessionMap: Record "Batch Processing Session Map";
     begin
-        BatchProcessingParameter.Init;
+        BatchProcessingParameter.Init();
         BatchProcessingParameter."Batch ID" := BatchID;
         BatchProcessingParameter."Parameter Id" := ParameterId;
         BatchProcessingParameter."Parameter Value" := Format(ParameterValue);
-        BatchProcessingParameter.Insert;
+        BatchProcessingParameter.Insert();
 
         BatchProcessingSessionMap."Record ID" := PurchaseHeader.RecordId;
         BatchProcessingSessionMap."Batch ID" := BatchProcessingParameter."Batch ID";
         BatchProcessingSessionMap."User ID" := UserSecurityId;
         BatchProcessingSessionMap."Session ID" := BachSessionID;
-        BatchProcessingSessionMap.Insert;
+        BatchProcessingSessionMap.Insert();
     end;
 
     local procedure RunBatchPostPurchase(DocumentType: Option; DocumentNoFilter: Text; PostingDate: Date; CalcInvDisc: Boolean)
@@ -870,7 +869,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
         LibraryVariableStorage.Enqueue(DocumentNoFilter);
         LibraryVariableStorage.Enqueue(PostingDate);
 
-        Commit;
+        Commit();
         case DocumentType of
             PurchaseHeader."Document Type"::Invoice:
                 REPORT.RunModal(REPORT::"Batch Post Purchase Invoices", true, true, PurchaseHeader);
@@ -896,7 +895,7 @@ codeunit 134337 "ERM Purch. Batch Posting"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Calc. Inv. Discount", CalcInvDisc);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -905,10 +904,10 @@ codeunit 134337 "ERM Purch. Batch Posting"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Posted Invoice Nos.", PurchasesPayablesSetup."Invoice Nos.");
         PurchasesPayablesSetup."Receipt on Invoice" := false;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure CreateInvoiceReportSelection()
@@ -923,16 +922,6 @@ codeunit 134337 "ERM Purch. Batch Posting"
         ReportSelections.Usage := ReportSelections.Usage::"P.Invoice";
         ReportSelections."Report ID" := REPORT::"Purchase - Invoice";
         If ReportSelections.Insert() Then;
-    end;
-
-    local procedure UpdateGeneralLedgerSetup()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get;
-        GLSetup."Use VAT Date" := true;
-        GLSetup.Modify;
     end;
 
     local procedure VerifyPostedPurchaseInvoice(PreAssignedNo: Code[20]; PostingDate: Date; InvDisc: Boolean)

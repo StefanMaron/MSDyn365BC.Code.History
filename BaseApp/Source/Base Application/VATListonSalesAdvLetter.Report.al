@@ -136,7 +136,7 @@ report 31011 "VAT List on Sales Adv. Letter"
                         else
                             TempVATAmountLineAdvPmt.Next;
 
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := TempVATAmountLineAdvPmt."VAT Identifier";
                         TempVATAmountLine."VAT %" := TempVATAmountLineAdvPmt."VAT %";
                         TempVATAmountLine."VAT Calculation Type" := TempVATAmountLineAdvPmt."VAT Calculation Type";
@@ -157,8 +157,8 @@ report 31011 "VAT List on Sales Adv. Letter"
                     lreVATEntry: Record "VAT Entry";
                     lreVATPostSetup: Record "VAT Posting Setup";
                 begin
-                    TempVATAmountLineAdvPmt.Reset;
-                    TempVATAmountLineAdvPmt.DeleteAll;
+                    TempVATAmountLineAdvPmt.Reset();
+                    TempVATAmountLineAdvPmt.DeleteAll();
                     Clear(TempVATAmountLineAdvPmt);
 
                     with lreVATEntry do begin
@@ -170,10 +170,10 @@ report 31011 "VAT List on Sales Adv. Letter"
 
                         if FindSet(false, false) then begin
                             repeat
-                                TempVATAmountLineAdvPmt.Init;
+                                TempVATAmountLineAdvPmt.Init();
                                 TempVATAmountLineAdvPmt."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
                                 if not lreVATPostSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                                    lreVATPostSetup.Init;
+                                    lreVATPostSetup.Init();
                                 TempVATAmountLineAdvPmt."VAT Identifier" := lreVATPostSetup."VAT Identifier";
                                 TempVATAmountLineAdvPmt."VAT %" := lreVATPostSetup."VAT %";
                                 TempVATAmountLineAdvPmt."VAT Base (LCY)" := "Advance Base" + CalcVATBaseExchRateCorrect(lreVATEntry);
@@ -186,17 +186,17 @@ report 31011 "VAT List on Sales Adv. Letter"
                     if SkipZero then begin
                         TempVATAmountLineAdvPmt.SetRange("VAT Base (LCY)", 0);
                         TempVATAmountLineAdvPmt.SetRange("VAT Amount (LCY)", 0);
-                        TempVATAmountLineAdvPmt.DeleteAll;
-                        TempVATAmountLineAdvPmt.Reset;
+                        TempVATAmountLineAdvPmt.DeleteAll();
+                        TempVATAmountLineAdvPmt.Reset();
                     end;
                     if TempVATAmountLineAdvPmt.IsEmpty then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 trigger OnPreDataItem()
                 begin
-                    TempVATAmountLine.Reset;
-                    TempVATAmountLine.DeleteAll;
+                    TempVATAmountLine.Reset();
+                    TempVATAmountLine.DeleteAll();
                     Clear(TempVATAmountLine);
                 end;
             }

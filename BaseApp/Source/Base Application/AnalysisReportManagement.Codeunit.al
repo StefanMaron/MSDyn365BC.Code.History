@@ -81,12 +81,12 @@ codeunit 7110 "Analysis Report Management"
         if not AnalysisLineTemplate.Get(CurrentAnalysisArea, CurrentAnalysisLineTempl) then begin
             AnalysisLineTemplate.SetRange("Analysis Area", CurrentAnalysisArea);
             if not AnalysisLineTemplate.FindFirst then begin
-                AnalysisLineTemplate.Init;
+                AnalysisLineTemplate.Init();
                 AnalysisLineTemplate."Analysis Area" := CurrentAnalysisArea;
                 AnalysisLineTemplate.Name := Text001;
                 AnalysisLineTemplate.Description := Text002;
                 AnalysisLineTemplate.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentAnalysisLineTempl := AnalysisLineTemplate.Name;
         end;
@@ -112,7 +112,7 @@ codeunit 7110 "Analysis Report Management"
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
     begin
-        Commit;
+        Commit();
         AnalysisLineTemplate."Analysis Area" := AnalysisLine.GetRangeMax("Analysis Area");
         AnalysisLineTemplate.Name := AnalysisLine.GetRangeMax("Analysis Line Template Name");
         AnalysisLineTemplate.FilterGroup := 2;
@@ -134,7 +134,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisLinesForSale: Page "Sales Analysis Lines";
         AnalysisLinesForPurchase: Page "Purchase Analysis Lines";
     begin
-        Commit;
+        Commit();
         AnalysisLine.Copy(AnalysisLine2);
         case AnalysisLine.GetRangeMax("Analysis Area") of
             AnalysisLine."Analysis Area"::Sales:
@@ -161,7 +161,7 @@ codeunit 7110 "Analysis Report Management"
         AnalysisColumn: Record "Analysis Column";
         AnalysisColumns: Page "Analysis Columns";
     begin
-        Commit;
+        Commit();
         AnalysisColumn.FilterGroup := 2;
         AnalysisColumn.SetRange(
           "Analysis Area", AnalysisLine.GetRangeMax("Analysis Area"));
@@ -195,12 +195,12 @@ codeunit 7110 "Analysis Report Management"
         if not AnalysisColumnTemplate.Get(CurrentAnalysisArea, CurrentColumnName) then begin
             AnalysisColumnTemplate.SetRange("Analysis Area", CurrentAnalysisArea);
             if not AnalysisColumnTemplate.FindFirst then begin
-                AnalysisColumnTemplate.Init;
+                AnalysisColumnTemplate.Init();
                 AnalysisColumnTemplate."Analysis Area" := CurrentAnalysisArea;
                 AnalysisColumnTemplate.Name := Text001;
                 AnalysisColumnTemplate.Description := Text003;
                 AnalysisColumnTemplate.Insert(true);
-                Commit;
+                Commit();
             end;
             CurrentColumnName := AnalysisColumnTemplate.Name;
         end;
@@ -226,15 +226,15 @@ codeunit 7110 "Analysis Report Management"
     var
         AnalysisColumn: Record "Analysis Column";
     begin
-        TempAnalysisColumn.Reset;
-        TempAnalysisColumn.DeleteAll;
+        TempAnalysisColumn.Reset();
+        TempAnalysisColumn.DeleteAll();
         AnalysisColumn.SetRange(
           "Analysis Area", AnalysisLine.GetRangeMax("Analysis Area"));
         AnalysisColumn.SetRange("Analysis Column Template", ColumnName);
         if AnalysisColumn.FindSet then begin
             repeat
                 TempAnalysisColumn := AnalysisColumn;
-                TempAnalysisColumn.Insert;
+                TempAnalysisColumn.Insert();
             until AnalysisColumn.Next = 0;
             TempAnalysisColumn.FindFirst;
         end;
@@ -357,8 +357,8 @@ codeunit 7110 "Analysis Report Management"
            (OldAnalysisLineTemplate <> AnalysisLine."Analysis Line Template Name") or
            (OldAnalysisLineTemplate <> AnalysisColumn."Analysis Column Template")
         then begin
-            AnalysisFieldValue.Reset;
-            AnalysisFieldValue.DeleteAll;
+            AnalysisFieldValue.Reset();
+            AnalysisFieldValue.DeleteAll();
             OldAnalysisLineFilters := AnalysisLine.GetFilters;
             OldAnalysisColumnFilters := AnalysisColumn.GetFilters;
             OldAnalysisLineTemplate := AnalysisLine."Analysis Line Template Name";
@@ -433,7 +433,7 @@ codeunit 7110 "Analysis Report Management"
                 AnalysisFieldValue."Period Error" := PeriodError;
                 AnalysisFieldValue."Formula Error" := FormulaError;
                 AnalysisFieldValue."Cyclic Error" := CyclicError;
-                if AnalysisFieldValue.Insert then;
+                if AnalysisFieldValue.Insert() then;
             end;
         end;
         exit(Result);
@@ -869,8 +869,8 @@ codeunit 7110 "Analysis Report Management"
         if AnalysisLineTemplate."Item Analysis View Code" <> '' then
             ItemAnalysisView.Get(AnalysisLineTemplate."Analysis Area", AnalysisLineTemplate."Item Analysis View Code")
         else begin
-            GLSetup.Get;
-            ItemAnalysisView.Init;
+            GLSetup.Get();
+            ItemAnalysisView.Init();
             ItemAnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
             ItemAnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
         end;
@@ -1003,12 +1003,22 @@ codeunit 7110 "Analysis Report Management"
     local procedure CalcUnitPrice(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
     var
         Item: Record Item;
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        SalesLine: Record "Sales Line";
+        TempPriceListLine: Record "Price List Line" temporary;
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculation: interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        if Item.Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen(Item."No."))) then
-            exit(
-              SalesPriceCalcMgt.FindAnalysisReportPrice(
-                Item."No.", ItemStatisticsBuf.GetRangeMin("Date Filter")));
+        if Item.Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen(Item."No."))) then begin
+            SalesLine.Type := SalesLine.Type::Item;
+            SalesLine."No." := Item."No.";
+            SalesLine."Posting Date" := ItemStatisticsBuf.GetRangeMin("Date Filter");
+            SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
+            PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+            PriceCalculation.FindPrice(TempPriceListLine, false);
+            exit(TempPriceListLine."Unit Price");
+        end
     end;
 
     local procedure CalcStdCost(var ItemStatisticsBuf: Record "Item Statistics Buffer"): Decimal
@@ -1189,15 +1199,21 @@ codeunit 7110 "Analysis Report Management"
     local procedure DrillDownUnitPrice(var ItemStatisticsBuf: Record "Item Statistics Buffer")
     var
         Item: Record Item;
-        SalesPrice: Record "Sales Price" temporary;
-        SalesPriceCalcMgt: Codeunit "Sales Price Calc. Mgt.";
+        SalesLine: Record "Sales Line";
+        TempPriceListLine: Record "Price List Line" temporary;
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
         if Item.Get(CopyStr(ItemStatisticsBuf.GetFilter("Item Filter"), 1, MaxStrLen(Item."No."))) then begin
-            SalesPriceCalcMgt.FindAnalysisReportPrice(
-              Item."No.", ItemStatisticsBuf.GetRangeMin("Date Filter"));
-            SalesPriceCalcMgt.CopySalesPrice(SalesPrice);
-            if SalesPrice.Find('-') then
-                PAGE.RunModal(PAGE::"Get Sales Price", SalesPrice)
+            SalesLine.Type := SalesLine.Type::Item;
+            SalesLine."No." := Item."No.";
+            SalesLine."Posting Date" := ItemStatisticsBuf.GetRangeMin("Date Filter");
+            SalesLinePrice.SetLine(PriceType::Sale, SalesLine);
+            PriceCalculationMgt.GetHandler(SalesLinePrice, PriceCalculation);
+            if PriceCalculation.FindPrice(TempPriceListLine, false) then
+                PriceCalculation.ShowPrices(TempPriceListLine)
             else begin
                 ItemStatisticsBuf.CopyFilter("Item Filter", Item."No.");
                 PAGE.RunModal(PAGE::"Item Card", Item, Item."Unit Price");
@@ -1529,7 +1545,7 @@ codeunit 7110 "Analysis Report Management"
                       GroupDimCode);
             end;
         end else begin
-            GLSetup.Get;
+            GLSetup.Get();
             case GroupDimCode of
                 '':
                     exit;
@@ -1562,7 +1578,7 @@ codeunit 7110 "Analysis Report Management"
     begin
         if SalesSetupRead then
             exit;
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetupRead := true;
     end;
 
@@ -1570,7 +1586,7 @@ codeunit 7110 "Analysis Report Management"
     begin
         if InventorySetupRead then
             exit;
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetupRead := true;
     end;
 

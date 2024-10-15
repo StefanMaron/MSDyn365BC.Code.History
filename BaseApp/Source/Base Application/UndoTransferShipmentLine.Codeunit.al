@@ -80,12 +80,12 @@ codeunit 31070 "Undo Transfer Shipment Line"
 
             FindSet(false, false);
             repeat
-                TempGlobalItemLedgEntry.Reset;
+                TempGlobalItemLedgEntry.Reset();
                 if not TempGlobalItemLedgEntry.IsEmpty then
-                    TempGlobalItemLedgEntry.DeleteAll;
-                TempGlobalItemEntryRelation.Reset;
+                    TempGlobalItemLedgEntry.DeleteAll();
+                TempGlobalItemEntryRelation.Reset();
                 if not TempGlobalItemEntryRelation.IsEmpty then
-                    TempGlobalItemEntryRelation.DeleteAll;
+                    TempGlobalItemEntryRelation.DeleteAll();
 
                 if not HideDialog then
                     Window.Open(UndoQtyPostingMsg);
@@ -120,7 +120,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
 
             until Next = 0;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <>
                InvtSetup."Automatic Cost Adjustment"::Never
             then begin
@@ -161,10 +161,10 @@ codeunit 31070 "Undo Transfer Shipment Line"
         TempItemLedgEntry: Record "Item Ledger Entry" temporary;
     begin
         with TransShptLineGlob do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             TransShptHeader.Get("Document No.");
 
-            ItemJnlLine.Init;
+            ItemJnlLine.Init();
 
             ItemJnlLine."Posting Date" := TransShptHeader."Posting Date";
             ItemJnlLine."Document Date" := TransShptHeader."Posting Date";
@@ -246,15 +246,15 @@ codeunit 31070 "Undo Transfer Shipment Line"
             end else
                 LineSpacing := 10000;
 
-            NewTransShptLine.Reset;
-            NewTransShptLine.Init;
+            NewTransShptLine.Reset();
+            NewTransShptLine.Init();
             NewTransShptLine.Copy(OldTransShptLine);
             NewTransShptLine."Line No." := "Line No." + LineSpacing;
             NewTransShptLine."Item Shpt. Entry No." := ItemShptEntryNo;
             NewTransShptLine.Quantity := -Quantity;
             NewTransShptLine."Quantity (Base)" := -"Quantity (Base)";
             NewTransShptLine.Correction := true;
-            NewTransShptLine.Insert;
+            NewTransShptLine.Insert();
 
             InsertItemEntryRelation(TempGlobalItemEntryRelation, NewTransShptLine);
         end;
@@ -278,7 +278,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
                 ItemEntryRelation.TransferFieldsTransShptLine(NewTransShptLine);
-                ItemEntryRelation.Insert;
+                ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next = 0;
         end;
     end;
@@ -305,7 +305,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
         WMSMgt: Codeunit "WMS Management";
     begin
         with ItemJnlLine do begin
-            WhseEntry.Reset;
+            WhseEntry.Reset();
             WhseEntry.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
             WhseEntry.SetRange("Source Type", SourceType);
             WhseEntry.SetRange("Source Subtype", SourceSubType);
@@ -315,7 +315,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
             WhseEntry.SetRange("Item No.", "Item No.");
             if WhseEntry.Find('+') then
                 repeat
-                    TempWhseJnlLine.Init;
+                    TempWhseJnlLine.Init();
                     if WhseEntry."Entry Type" = WhseEntry."Entry Type"::"Positive Adjmt." then
                         "Entry Type" := "Entry Type"::"Negative Adjmt."
                     else
@@ -348,7 +348,7 @@ codeunit 31070 "Undo Transfer Shipment Line"
                         TempWhseJnlLine."To Zone Code" := TempWhseJnlLine."Zone Code";
                         TempWhseJnlLine."To Bin Code" := TempWhseJnlLine."Bin Code";
                     end;
-                    TempWhseJnlLine.Insert;
+                    TempWhseJnlLine.Insert();
                     NextLineNo := TempWhseJnlLine."Line No." + 10000;
                 until WhseEntry.Next(-1) = 0;
         end;

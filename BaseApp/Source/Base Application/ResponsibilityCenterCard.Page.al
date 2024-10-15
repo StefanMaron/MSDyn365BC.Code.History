@@ -1,4 +1,4 @@
-﻿page 5714 "Responsibility Center Card"
+page 5714 "Responsibility Center Card"
 {
     Caption = 'Responsibility Center Card';
     PageType = Card;

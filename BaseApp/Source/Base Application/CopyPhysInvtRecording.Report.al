@@ -45,7 +45,7 @@ report 5883 "Copy Phys. Invt. Recording"
         PhysInvtRecordHeader.Get(PhysInvtRecordLine."Order No.", PhysInvtRecordLine."Recording No.");
         PhysInvtRecordHeader.TestField(Status, PhysInvtRecordHeader.Status::Open);
 
-        ToPhysInvtRecordLine.Reset;
+        ToPhysInvtRecordLine.Reset();
         ToPhysInvtRecordLine.SetRange("Order No.", PhysInvtRecordLine."Order No.");
         ToPhysInvtRecordLine.SetRange("Recording No.", PhysInvtRecordLine."Recording No.");
         ToPhysInvtRecordLine := PhysInvtRecordLine;
@@ -63,7 +63,7 @@ report 5883 "Copy Phys. Invt. Recording"
                 ToPhysInvtRecordLine."Serial No." := '';
             ToPhysInvtRecordLine."Line No." :=
               PhysInvtRecordLine."Line No." + I * LineSpacing;
-            ToPhysInvtRecordLine.Insert;
+            ToPhysInvtRecordLine.Insert();
         end;
     end;
 

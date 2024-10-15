@@ -117,7 +117,7 @@ table 1252 "Bank Pmt. Appl. Rule"
         if not IsTemporary then
             Error(LoadRulesOnlyOnTempRecordsErr);
 
-        DeleteAll;
+        DeleteAll();
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", BankPmtApplRuleCode); // NAVCZ
         if BankPmtApplRule.FindSet then
             repeat
@@ -587,7 +587,7 @@ table 1252 "Bank Pmt. Appl. Rule"
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        BankPmtApplRule.Init;
+        BankPmtApplRule.Init();
         BankPmtApplRule."Bank Pmt. Appl. Rule Code" := "Bank Pmt. Appl. Rule Code"; // NAVCZ
         BankPmtApplRule."Match Confidence" := MatchConfidence;
         BankPmtApplRule.Priority := RulePriority;

@@ -33,7 +33,7 @@ report 493 "Carry Out Action Msg. - Req."
                         trigger OnLookup(var Text: Text): Boolean
                         begin
                             // NAVCZ
-                            PurchaseSetup.Get;
+                            PurchaseSetup.Get();
                             PurchaseSetup.TestField("Order Nos.");
                             if NoSeriesMgt.SelectSeries(PurchaseSetup."Order Nos.", '', PurchOrderHeader."No. Series") then
                                 NoSeriesMgt.TestSeries(PurchaseSetup."Order Nos.", PurchOrderHeader."No. Series");
@@ -43,7 +43,7 @@ report 493 "Carry Out Action Msg. - Req."
                         trigger OnValidate()
                         begin
                             // NAVCZ
-                            PurchaseSetup.Get;
+                            PurchaseSetup.Get();
                             PurchaseSetup.TestField("Order Nos.");
                             if PurchOrderHeader."No. Series" <> '' then
                                 NoSeriesMgt.TestSeries(PurchaseSetup."Order Nos.", PurchOrderHeader."No. Series");

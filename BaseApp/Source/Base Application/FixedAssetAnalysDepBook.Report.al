@@ -203,9 +203,9 @@ report 31043 "Fixed Asset - Analys. Dep.Book"
             trigger OnAfterGetRecord()
             begin
                 if (not FADeprBook.Get("No.", DeprBookCode)) and (not FADeprBook2.Get("No.", DeprBookCode2)) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 if SkipRecord then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 if GroupTotals = GroupTotals::"FA Posting Group" then
                     if "FA Posting Group" <> FADeprBook."FA Posting Group" then
@@ -836,7 +836,7 @@ report 31043 "Fixed Asset - Analys. Dep.Book"
     local procedure GetFASetup()
     begin
         if DeprBookCode = '' then begin
-            FASetup.Get;
+            FASetup.Get();
             DeprBookCode := FASetup."Default Depr. Book";
         end;
         FAPostingType.CreateTypes;

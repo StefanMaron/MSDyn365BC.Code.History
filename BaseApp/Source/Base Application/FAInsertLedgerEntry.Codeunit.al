@@ -48,9 +48,8 @@ codeunit 5600 "FA Insert Ledger Entry"
     procedure InsertFA(var FALedgEntry3: Record "FA Ledger Entry")
     begin
         if NextEntryNo = 0 then begin
-            FALedgEntry.LockTable;
-            if FALedgEntry.FindLast then
-                NextEntryNo := FALedgEntry."Entry No.";
+            FALedgEntry.LockTable();
+            NextEntryNo := FALedgEntry.GetLastEntryNo();
             InitRegister(
               0, FALedgEntry3."G/L Entry No.", FALedgEntry3."Source Code",
               FALedgEntry3."Journal Batch Name");
@@ -111,8 +110,8 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FALedgEntry2."Transaction No." := 0;
                 FALedgEntry."Transaction No." := 0;
             end;
-            FALedgEntry2.Modify;
-            FALedgEntry.Modify;
+            FALedgEntry2.Modify();
+            FALedgEntry.Modify();
             FALedgEntry."FA No." := FALedgEntry3."FA No.";
         end;
 
@@ -128,9 +127,8 @@ codeunit 5600 "FA Insert Ledger Entry"
     procedure InsertMaintenance(var MaintenanceLedgEntry2: Record "Maintenance Ledger Entry")
     begin
         if NextMaintenanceEntryNo = 0 then begin
-            MaintenanceLedgEntry.LockTable;
-            if MaintenanceLedgEntry.FindLast then
-                NextMaintenanceEntryNo := MaintenanceLedgEntry."Entry No.";
+            MaintenanceLedgEntry.LockTable();
+            NextMaintenanceEntryNo := MaintenanceLedgEntry.GetLastEntryNo();
             InitRegister(
               1, MaintenanceLedgEntry2."G/L Entry No.", MaintenanceLedgEntry2."Source Code",
               MaintenanceLedgEntry2."Journal Batch Name");
@@ -180,7 +178,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 FADeprBook."Last Maintenance Date" := "FA Posting Date"
             else
                 FADeprBook."Last Maintenance Date" := 0D;
-            FADeprBook.Modify;
+            FADeprBook.Modify();
         end;
     end;
 
@@ -317,13 +315,11 @@ codeunit 5600 "FA Insert Ledger Entry"
         if (CalledFrom = CalledFrom::Maintenance) and (NextEntryNo <> 0) then
             exit;
         with FAReg do begin
-            LockTable;
-            if FindLast then begin
-                if (GLRegisterNo <> 0) and (GLRegisterNo = "G/L Register No.") then
-                    exit;
-                "No." += 1;
-            end else
-                "No." := 1;
+            LockTable();
+            if FindLast() and (GLRegisterNo <> 0) and (GLRegisterNo = GetLastGLRegisterNo()) then
+                exit;
+            "No." := GetLastEntryNo() + 1;
+
             Init;
             if GLEntryNo = 0 then
                 "Journal Type" := "Journal Type"::"Fixed Asset";
@@ -424,17 +420,16 @@ codeunit 5600 "FA Insert Ledger Entry"
                 if not DimMgt.CheckDimValuePosting(TableID, AccNo, FALedgEntry3."Dimension Set ID") then
                     Error(DimMgt.GetDimValuePostingErr);
                 if NextEntryNo = 0 then begin
-                    FALedgEntry.LockTable;
-                    if FALedgEntry.FindLast then
-                        NextEntryNo := FALedgEntry."Entry No.";
-                    SourceCodeSetup.Get;
+                    FALedgEntry.LockTable();
+                    NextEntryNo := FALedgEntry.GetLastEntryNo();
+                    SourceCodeSetup.Get();
                     InitRegister(0, 1, SourceCodeSetup.Reversal, '');
                     RegisterInserted := true;
                 end;
                 NextEntryNo := NextEntryNo + 1;
                 NewFAEntryNo := NextEntryNo;
                 TmpFALedgEntry := FALedgEntry3;
-                TmpFALedgEntry.Insert;
+                TmpFALedgEntry.Insert();
                 SetFAReversalMark(FALedgEntry3, NextEntryNo);
                 FALedgEntry3."Entry No." := NextEntryNo;
                 FALedgEntry3."G/L Entry No." := NewGLEntryNo;
@@ -459,10 +454,9 @@ codeunit 5600 "FA Insert Ledger Entry"
         end;
         if FAEntryType = FAEntryType::Maintenance then begin
             if NextMaintenanceEntryNo = 0 then begin
-                MaintenanceLedgEntry.LockTable;
-                if MaintenanceLedgEntry.FindLast then
-                    NextMaintenanceEntryNo := MaintenanceLedgEntry."Entry No.";
-                SourceCodeSetup.Get;
+                MaintenanceLedgEntry.LockTable();
+                NextMaintenanceEntryNo := MaintenanceLedgEntry.GetLastEntryNo();
+                SourceCodeSetup.Get();
                 InitRegister(1, 1, SourceCodeSetup.Reversal, '');
                 RegisterInserted := true;
             end;
@@ -480,7 +474,7 @@ codeunit 5600 "FA Insert Ledger Entry"
                 Error(DimMgt.GetDimValuePostingErr);
 
             TmpMaintenanceLedgEntry := MaintenanceLedgEntry3;
-            TmpMaintenanceLedgEntry.Insert;
+            TmpMaintenanceLedgEntry.Insert();
             SetMaintReversalMark(MaintenanceLedgEntry3, NextMaintenanceEntryNo);
             MaintenanceLedgEntry3."Entry No." := NextMaintenanceEntryNo;
             MaintenanceLedgEntry3."G/L Entry No." := NewGLEntryNo;
@@ -497,7 +491,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             MaintenanceLedgEntry3."No. Series" := '';
             MaintenanceLedgEntry3."Journal Batch Name" := '';
             MaintenanceLedgEntry3."FA No./Budgeted FA No." := '';
-            MaintenanceLedgEntry3.Insert;
+            MaintenanceLedgEntry3.Insert();
             InsertRegister(1, NextMaintenanceEntryNo);
         end;
     end;
@@ -532,7 +526,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             Error(Text004, MaintenanceLedgEntry.TableCaption, GLEntry.TableCaption);
         if RegisterInserted then begin
             FAReg."G/L Register No." := GLReg."No.";
-            FAReg.Modify;
+            FAReg.Modify();
         end;
     end;
 
@@ -549,13 +543,13 @@ codeunit 5600 "FA Insert Ledger Entry"
             CloseReversal := true;
             FALedgEntry2."Reversed by Entry No." := 0;
             FALedgEntry2.Reversed := false;
-            FALedgEntry2.Modify;
+            FALedgEntry2.Modify();
         end;
         FALedgEntry."Reversed by Entry No." := NextEntryNo;
         if CloseReversal then
             FALedgEntry."Reversed Entry No." := NextEntryNo;
         FALedgEntry.Reversed := true;
-        FALedgEntry.Modify;
+        FALedgEntry.Modify();
         FALedgEntry."Reversed by Entry No." := 0;
         FALedgEntry."Reversed Entry No." := FALedgEntry."Entry No.";
         if CloseReversal then
@@ -577,13 +571,13 @@ codeunit 5600 "FA Insert Ledger Entry"
             CloseReversal := true;
             MaintenanceLedgEntry2."Reversed by Entry No." := 0;
             MaintenanceLedgEntry2.Reversed := false;
-            MaintenanceLedgEntry2.Modify;
+            MaintenanceLedgEntry2.Modify();
         end;
         MaintenanceLedgEntry."Reversed by Entry No." := NextEntryNo;
         if CloseReversal then
             MaintenanceLedgEntry."Reversed Entry No." := NextEntryNo;
         MaintenanceLedgEntry.Reversed := true;
-        MaintenanceLedgEntry.Modify;
+        MaintenanceLedgEntry.Modify();
         MaintenanceLedgEntry."Reversed by Entry No." := 0;
         MaintenanceLedgEntry."Reversed Entry No." := MaintenanceLedgEntry."Entry No.";
         if CloseReversal then
@@ -603,8 +597,7 @@ codeunit 5600 "FA Insert Ledger Entry"
     begin
         LastEntryNo := 0;
         if FindLastEntry then
-            if FALedgEntry.FindLast then
-                LastEntryNo := FALedgEntry."Entry No.";
+            LastEntryNo := FALedgEntry.GetLastEntryNo();
     end;
 
     [Scope('OnPrem')]

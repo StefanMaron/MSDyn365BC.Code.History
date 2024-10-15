@@ -15,7 +15,7 @@ codeunit 11731 "Cash Document-Release"
 
         CheckCashDocument(Rec);
 
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
         CashDocLine.FindSet;
@@ -37,7 +37,7 @@ codeunit 11731 "Cash Document-Release"
         CashDocHeader."Released ID" := UserId;
         CashDocHeader.CalcFields("Amount Including VAT");
         CashDocHeader."Released Amount" := CashDocHeader."Amount Including VAT";
-        CashDocHeader.Modify;
+        CashDocHeader.Modify();
         Rec := CashDocHeader;
 
         OnAfterReleaseCashDoc(Rec);
@@ -238,7 +238,7 @@ codeunit 11731 "Cash Document-Release"
         CashDocLine: Record "Cash Document Line";
     begin
         with CashDocHeader do begin
-            CashDocLine.Reset;
+            CashDocLine.Reset();
             CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
             CashDocLine.SetRange("Cash Document No.", "No.");
             CashDocLine.SetFilter("Account No.", '<>%1', '');
@@ -264,7 +264,7 @@ codeunit 11731 "Cash Document-Release"
         PostedCashDocHeader: Record "Posted Cash Document Header";
         CashPaymentTotal: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Cash Payment Limit (LCY)" = 0 then
             exit;
 
@@ -304,7 +304,7 @@ codeunit 11731 "Cash Document-Release"
         with CashDocLine2 do
             if ("On Hold" <> '') and ("Applies-To Doc. Type" > 0) and ("Applies-To Doc. No." <> '') then begin
                 if "Account Type" = "Account Type"::Customer then begin
-                    CustLedgEntry.Reset;
+                    CustLedgEntry.Reset();
                     CustLedgEntry.SetCurrentKey("Customer No.");
                     CustLedgEntry.SetRange("Customer No.");
                     CustLedgEntry.SetRange("Document Type", "Applies-To Doc. Type");
@@ -313,7 +313,7 @@ codeunit 11731 "Cash Document-Release"
                     CustLedgEntry.ModifyAll("On Hold", "On Hold");
                 end;
                 if "Account Type" = "Account Type"::Vendor then begin
-                    VendLedgEntry.Reset;
+                    VendLedgEntry.Reset();
                     VendLedgEntry.SetCurrentKey("Vendor No.");
                     VendLedgEntry.SetRange("Vendor No.");
                     VendLedgEntry.SetRange("Document Type", "Applies-To Doc. Type");

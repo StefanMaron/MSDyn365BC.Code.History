@@ -88,13 +88,13 @@ xmlport 11765 "Unc. Payer List - Response"
         EntryNo: Integer;
     begin
         // buffer process
-        TempUncertaintyPayerEntry.Reset;
+        TempUncertaintyPayerEntry.Reset();
         if TempUncertaintyPayerEntry.FindSet then begin
             if not UncertaintyPayerEntry.FindLast then
                 Clear(UncertaintyPayerEntry);
             EntryNo := UncertaintyPayerEntry."Entry No.";
             repeat
-                UncertaintyPayerEntry.Reset;
+                UncertaintyPayerEntry.Reset();
                 UncertaintyPayerEntry.SetCurrentKey("VAT Registration No.");
                 UncertaintyPayerEntry.SetRange("VAT Registration No.", TempUncertaintyPayerEntry."VAT Registration No.");
                 UncertaintyPayerEntry.SetRange("Entry Type", UncertaintyPayerEntry."Entry Type"::Payer);
@@ -106,7 +106,7 @@ xmlport 11765 "Unc. Payer List - Response"
                 then
                     UncertaintyPayerEntry."Entry No." := 0;  // new entry
 
-                UncertaintyPayerEntry.Init;
+                UncertaintyPayerEntry.Init();
                 UncertaintyPayerEntry."Check Date" := TempUncertaintyPayerEntry."Check Date";
                 UncertaintyPayerEntry."Public Date" := TempUncertaintyPayerEntry."Public Date";
                 UncertaintyPayerEntry."Uncertainty Payer" := TempUncertaintyPayerEntry."Uncertainty Payer";
@@ -119,7 +119,7 @@ xmlport 11765 "Unc. Payer List - Response"
                 else begin
                     EntryNo += 1;
                     UncertaintyPayerEntry."Entry No." := EntryNo;
-                    UncertaintyPayerEntry.Insert;
+                    UncertaintyPayerEntry.Insert();
                     TotalInsertedEntries += 1;
                 end;
             until TempUncertaintyPayerEntry.Next = 0;
@@ -137,7 +137,7 @@ xmlport 11765 "Unc. Payer List - Response"
     local procedure InsertStatusToBuffer()
     begin
         if dic <> '' then begin
-            TempUncertaintyPayerEntry.Init;
+            TempUncertaintyPayerEntry.Init();
             TempUncertaintyPayerEntry."Entry No." += 1;
             TempUncertaintyPayerEntry."Check Date" := TextISOToDate(odpovedGenerovana);
             TempUncertaintyPayerEntry."Public Date" := TextISOToDate(datumZverejneniNespolehlivosti);
@@ -145,7 +145,7 @@ xmlport 11765 "Unc. Payer List - Response"
             TempUncertaintyPayerEntry."Entry Type" := TempUncertaintyPayerEntry."Entry Type"::Payer;
             TempUncertaintyPayerEntry."VAT Registration No." := UncPayerMgt.GetLongVATRegNo(dic);
             TempUncertaintyPayerEntry."Tax Office Number" := cisloFu;
-            TempUncertaintyPayerEntry.Insert;
+            TempUncertaintyPayerEntry.Insert();
         end;
     end;
 

@@ -1,4 +1,4 @@
-﻿page 6652 "Posted Return Shipments"
+page 6652 "Posted Return Shipments"
 {
     ApplicationArea = PurchReturnOrder;
     Caption = 'Posted Purchase Return Shipments';

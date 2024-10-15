@@ -162,7 +162,7 @@ report 11770 "Accounting Sheets"
                 begin
                     if UserSetup."User ID" <> "User ID" then
                         if not UserSetup.Get("User ID") then
-                            UserSetup.Init;
+                            UserSetup.Init();
 
                     BufferGLEntry(GLEntry1);
                 end;
@@ -225,14 +225,14 @@ report 11770 "Accounting Sheets"
 
                 trigger OnPreDataItem()
                 begin
-                    TempGLEntry.Reset;
+                    TempGLEntry.Reset();
                     SetRange(Number, 1, TempGLEntry.Count);
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                TempGLEntry.DeleteAll;
+                TempGLEntry.DeleteAll();
 
                 FCYRate := 0;
                 if ("Currency Code" <> '') and ("Currency Factor" <> 0) then
@@ -242,7 +242,7 @@ report 11770 "Accounting Sheets"
             trigger OnPreDataItem()
             begin
                 if not "Sales Invoice Header".HasFilter then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Sales Cr.Memo Header"; "Sales Cr.Memo Header")
@@ -302,7 +302,7 @@ report 11770 "Accounting Sheets"
                 begin
                     if UserSetup."User ID" <> "User ID" then
                         if not UserSetup.Get("User ID") then
-                            UserSetup.Init;
+                            UserSetup.Init();
 
                     BufferGLEntry(GLEntry2);
                 end;
@@ -365,14 +365,14 @@ report 11770 "Accounting Sheets"
 
                 trigger OnPreDataItem()
                 begin
-                    TempGLEntry.Reset;
+                    TempGLEntry.Reset();
                     SetRange(Number, 1, TempGLEntry.Count);
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                TempGLEntry.DeleteAll;
+                TempGLEntry.DeleteAll();
 
                 FCYRate := 0;
                 if ("Currency Code" <> '') and ("Currency Factor" <> 0) then
@@ -382,7 +382,7 @@ report 11770 "Accounting Sheets"
             trigger OnPreDataItem()
             begin
                 if not "Sales Cr.Memo Header".HasFilter then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Purch. Inv. Header"; "Purch. Inv. Header")
@@ -445,7 +445,7 @@ report 11770 "Accounting Sheets"
                 begin
                     if UserSetup."User ID" <> "User ID" then
                         if not UserSetup.Get("User ID") then
-                            UserSetup.Init;
+                            UserSetup.Init();
 
                     BufferGLEntry(GLEntry3);
                 end;
@@ -508,14 +508,14 @@ report 11770 "Accounting Sheets"
 
                 trigger OnPreDataItem()
                 begin
-                    TempGLEntry.Reset;
+                    TempGLEntry.Reset();
                     SetRange(Number, 1, TempGLEntry.Count);
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                TempGLEntry.DeleteAll;
+                TempGLEntry.DeleteAll();
 
                 FCYRate := 0;
                 if ("Currency Code" <> '') and ("Currency Factor" <> 0) then
@@ -525,7 +525,7 @@ report 11770 "Accounting Sheets"
             trigger OnPreDataItem()
             begin
                 if not "Purch. Inv. Header".HasFilter then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Purch. Cr. Memo Hdr."; "Purch. Cr. Memo Hdr.")
@@ -588,7 +588,7 @@ report 11770 "Accounting Sheets"
                 begin
                     if UserSetup."User ID" <> "User ID" then
                         if not UserSetup.Get("User ID") then
-                            UserSetup.Init;
+                            UserSetup.Init();
 
                     BufferGLEntry(GLEntry4);
                 end;
@@ -651,14 +651,14 @@ report 11770 "Accounting Sheets"
 
                 trigger OnPreDataItem()
                 begin
-                    TempGLEntry.Reset;
+                    TempGLEntry.Reset();
                     SetRange(Number, 1, TempGLEntry.Count);
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                TempGLEntry.DeleteAll;
+                TempGLEntry.DeleteAll();
 
                 FCYRate := 0;
                 if ("Currency Code" <> '') and ("Currency Factor" <> 0) then
@@ -668,7 +668,7 @@ report 11770 "Accounting Sheets"
             trigger OnPreDataItem()
             begin
                 if not "Purch. Cr. Memo Hdr.".HasFilter then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem(GeneralDoc; "G/L Entry")
@@ -703,7 +703,7 @@ report 11770 "Accounting Sheets"
                 begin
                     if UserSetup."User ID" <> "User ID" then
                         if not UserSetup.Get("User ID") then
-                            UserSetup.Init;
+                            UserSetup.Init();
 
                     BufferGLEntry(GLEntry5);
                 end;
@@ -763,7 +763,7 @@ report 11770 "Accounting Sheets"
 
                 trigger OnPreDataItem()
                 begin
-                    TempGLEntry.Reset;
+                    TempGLEntry.Reset();
                     SetRange(Number, 1, TempGLEntry.Count);
                 end;
             }
@@ -772,15 +772,15 @@ report 11770 "Accounting Sheets"
             begin
                 if LastDocNo <> "Document No." then begin
                     LastDocNo := "Document No.";
-                    TempGLEntry.DeleteAll;
+                    TempGLEntry.DeleteAll();
                 end else
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
             begin
                 if not HasFilter then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 LastDocNo := '';
             end;
         }
@@ -823,9 +823,9 @@ report 11770 "Accounting Sheets"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
-        GLEntry.Reset;
+        GLEntry.Reset();
         if GLEntry.FindLast then
             LastGLEntry := GLEntry."Entry No.";
 
@@ -904,11 +904,11 @@ report 11770 "Accounting Sheets"
             if TempGLEntry.FindFirst and Suma then begin
                 TempGLEntry."Debit Amount" += "Debit Amount";
                 TempGLEntry."Credit Amount" += "Credit Amount";
-                TempGLEntry.Modify;
+                TempGLEntry.Modify();
             end else begin
-                TempGLEntry.Init;
+                TempGLEntry.Init();
                 TempGLEntry.TransferFields(GLEntry);
-                TempGLEntry.Insert;
+                TempGLEntry.Insert();
             end;
         end;
     end;

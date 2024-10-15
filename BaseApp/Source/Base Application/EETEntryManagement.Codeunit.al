@@ -123,7 +123,7 @@ codeunit 31121 "EET Entry Management"
             exit;
 
         SetFilterCashDocumentLine(CashDocHeader, CashDocLine);
-        NoOfLines := CashDocLine.Count;
+        NoOfLines := CashDocLine.Count();
 
         // All lines must be of EET
         CashDocLine.SetRange("EET Transaction", true);
@@ -292,7 +292,7 @@ codeunit 31121 "EET Entry Management"
         if EETEntry."Applied Document No." <> '' then
             EETEntry.Description := StrSubstNo(EntryDescriptionTxt, EETEntry."Applied Document Type", EETEntry."Applied Document No.");
 
-        EETEntry.Insert;
+        EETEntry.Insert();
 
         SetEntryStatus(EETEntry, EETEntry."EET Status"::Created, '');
 
@@ -405,7 +405,7 @@ codeunit 31121 "EET Entry Management"
     begin
         if CashDeskNo = '' then
             exit(false);
-        EETCashReg.Reset;
+        EETCashReg.Reset();
         EETCashReg.SetCurrentKey("Register Type", "Register No.");
         EETCashReg.SetRange("Register Type", EETCashReg."Register Type"::"Cash Desk");
         EETCashReg.SetRange("Register No.", CashDeskNo);
@@ -420,7 +420,7 @@ codeunit 31121 "EET Entry Management"
 
     local procedure SetFilterCashDocumentLine(CashDocHeader: Record "Cash Document Header"; var CashDocLine: Record "Cash Document Line")
     begin
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", CashDocHeader."Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", CashDocHeader."No.");
         CashDocLine.SetRange("System-Created Entry", false);
@@ -456,7 +456,7 @@ codeunit 31121 "EET Entry Management"
         EETEntry.TestField("Entry No.");
         EETEntry."EET Status" := NewStatus;
         EETEntry."EET Status Last Changed" := CurrentDateTime;
-        EETEntry.Modify;
+        EETEntry.Modify();
         LogEntryStatus(EETEntry, NewDescription);
     end;
 
@@ -467,19 +467,16 @@ codeunit 31121 "EET Entry Management"
         NextEntryNo: Integer;
     begin
         EETEntry.TestField("Entry No.");
-        EETEntryStatus.LockTable;
-        if EETEntryStatus.FindLast then
-            NextEntryNo := EETEntryStatus."Entry No." + 1
-        else
-            NextEntryNo := 1;
+        EETEntryStatus.LockTable();
+        NextEntryNo := EETEntryStatus.GetLastEntryNo() + 1;
 
-        EETEntryStatus.Init;
+        EETEntryStatus.Init();
         EETEntryStatus."Entry No." := NextEntryNo;
         EETEntryStatus."EET Entry No." := EETEntry."Entry No.";
         EETEntryStatus.Status := EETEntry."EET Status";
         EETEntryStatus."Change Datetime" := EETEntry."EET Status Last Changed";
         EETEntryStatus.Description := CopyStr(Description, 1, MaxStrLen(EETEntryStatus.Description));
-        EETEntryStatus.Insert;
+        EETEntryStatus.Insert();
 
         if TempErrorMessage.ErrorMessageCount(TempErrorMessage."Message Type"::Warning) > 0 then
             if TempErrorMessage.FindSet then
@@ -496,13 +493,10 @@ codeunit 31121 "EET Entry Management"
     var
         NextEntryNo: Integer;
     begin
-        EETEntry.Reset;
-        EETEntry.LockTable;
-        if EETEntry.FindLast then
-            NextEntryNo := EETEntry."Entry No." + 1
-        else
-            NextEntryNo := 1;
-        EETEntry.Init;
+        EETEntry.Reset();
+        EETEntry.LockTable();
+        NextEntryNo := EETEntry.GetLastEntryNo() + 1;
+        EETEntry.Init();
         EETEntry."Entry No." := NextEntryNo;
         EETEntry."User ID" := UserId;
         EETEntry."Creation Datetime" := CurrentDateTime;
@@ -511,7 +505,7 @@ codeunit 31121 "EET Entry Management"
     local procedure GetSetup()
     begin
         if not HasGotSetup then
-            EETServiceSetup.Get;
+            EETServiceSetup.Get();
         HasGotSetup := true;
     end;
 
@@ -597,7 +591,7 @@ codeunit 31121 "EET Entry Management"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         with EETEntry do
             exit(
               StrSubstNo('%1|%2|%3|%4|%5|%6',
@@ -712,7 +706,7 @@ codeunit 31121 "EET Entry Management"
             exit;
 
         PostedCashDocHdr."EET Entry No." := CreateEntryForCashDocument(CashDocHdr, PostedCashDocHdr);
-        PostedCashDocHdr.Modify;
+        PostedCashDocHdr.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 11735, 'OnAfterFinalizePosting', '', false, false)]
@@ -793,7 +787,7 @@ codeunit 31121 "EET Entry Management"
           );
 
         EETEntryOrig."Canceled By Entry No." := NewEETEntry."Entry No.";
-        EETEntryOrig.Modify;
+        EETEntryOrig.Modify();
 
         SetEntryStatus(
           EETEntryOrig,
@@ -819,10 +813,10 @@ codeunit 31121 "EET Entry Management"
         EETEntry.CopySourceInfoFromEntry(EETEntrySource, InitializeSerialNo);
         EETEntry.CopyAmountsFromEntry(EETEntrySource);
         EETEntry."Simple Registration" := SimpleRegistration;
-        EETEntry.Insert;
+        EETEntry.Insert();
 
         GenerateControlCodes(EETEntry);
-        EETEntry.Modify;
+        EETEntry.Modify();
 
         if SetStatusToSendPending then
             SetEntryStatus(EETEntry, EETEntry."EET Status"::"Send Pending", '');

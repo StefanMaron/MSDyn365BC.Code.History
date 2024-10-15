@@ -27,7 +27,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         ReversalErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Realized Gain/Loss entry.';
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustAdjustExchRateForHigher()
     var
@@ -40,7 +40,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CustAdjustExchRateForLower()
     var
@@ -53,7 +53,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure BankAdjustExchRateForHigher()
     begin
@@ -63,7 +63,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure BankAdjustExchRateForLower()
     begin
@@ -73,7 +73,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure UnrealizedGainCreditMemoCust()
     var
@@ -146,7 +146,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAdjmtWithNegativeAmount()
     var
@@ -176,7 +176,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAdjmtWithPositiveAmount()
     var
@@ -206,7 +206,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure GLEntryAdjustExchRateForGainOrLoss()
     var
@@ -258,7 +258,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceAndPaymentWithDiffExchangeRates()
     var
@@ -332,7 +332,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyCustomerEntriesPageHandler,PostApplicationPageHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ApplyCustomerEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateAfterApplyingCustomerEntries()
     begin
@@ -389,7 +389,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceAndPaymentWithDiffExchangeRates()
     var
@@ -465,7 +465,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler,PostApplicationPageHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateAfterApplyingVendorEntries()
     begin
@@ -778,51 +778,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
-    [Scope('OnPrem')]
-    procedure GenJnlLineDescriptionNoTrunc()
-    var
-        GenJournalLine: Record "Gen. Journal Line";
-        GLEntry: Record "G/L Entry";
-        CurrencyCode: Code[10];
-        AdjExchDocNo: Code[20];
-        Description: Text[50];
-        ExpectedDescription: Text[50];
-        DescLen: Integer;
-    begin
-        // [SCENARIO 221966] Posting Description with long Currency Code and Amount is not truncated on run "Adjust Exchange Rates" report
-        Initialize;
-
-        // [GIVEN] Currency Code "XXX" with length 3+
-        CurrencyCode := CreateCurrency;
-        Assert.IsTrue(StrLen(CurrencyCode) > 2, 'The length of currency code must be greater than 2');
-
-        // [GIVEN] Posted Gen. Journal Line with Currency Code "XXX" and Amount "YYY"
-        CreateGenAndModifyExchRate(
-          GenJournalLine, GenJournalLine."Account Type"::"Bank Account", CreateBankAccount(CurrencyCode),
-          GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2), LibraryRandom.RandInt(50));
-        AdjExchDocNo := LibraryUtility.GenerateGUID;
-
-        // [GIVEN] Posting Description template string "D" = "RANDDESC %1 %2"
-        DescLen := MaxStrLen(GLEntry.Description) - StrLen(StrSubstNo(' %1 %2', GenJournalLine."Currency Code", GenJournalLine.Amount));
-        Description := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(DescLen, 0) + ' %1 %2', 1);
-
-        ExpectedDescription := StrSubstNo(Description, GenJournalLine."Currency Code", GenJournalLine.Amount);
-
-        // [WHEN] "Adjust Exchange Rates" report run with "D" as Description
-        LibraryERM.RunAdjustExchangeRates(CurrencyCode, 0D, WorkDate, Description, WorkDate, AdjExchDocNo, false);
-
-        // [THEN] Description in G/L entries is equal to "RANDDESC XXX YYY"
-        GLEntry.SetRange("Document No.", AdjExchDocNo);
-        GLEntry.SetRange("Posting Date", WorkDate);
-        GLEntry.FindSet;
-        GLEntry.TestField(Description, PadStr(ExpectedDescription, MaxStrLen(GLEntry.Description)));
-        GLEntry.Next;
-        GLEntry.TestField(Description, ExpectedDescription);
-    end;
-
-    [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceGainsLosses()
     var
@@ -860,7 +816,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure AdjustExchRateForCustomerTwiceLossesGains()
     var
@@ -912,7 +868,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateLocalPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure AdjustExchRateForBank(ExchRateAmt: Decimal)
@@ -1100,7 +1056,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
         Currency.Modify(true);
@@ -1390,11 +1346,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     begin
         Currency.SetRange(Code, Code);
         AdjustExchangeRates.SetTableView(Currency);
-        // NAVCZ
-        AdjustExchangeRates.InitializeRequest2CZ(
-          0D, EndDate, 'Test', EndDate, Code,
-          true, true, true, false, false, true); // Using Currency Code for Document No. parameter.
-        // NAVCZ
+        AdjustExchangeRates.InitializeRequest2(0D, EndDate, 'Test', EndDate, Code, true, false); // Using Currency Code for Document No. parameter.
         AdjustExchangeRates.UseRequestPage(false);
         AdjustExchangeRates.Run;
     end;
@@ -1576,14 +1528,6 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

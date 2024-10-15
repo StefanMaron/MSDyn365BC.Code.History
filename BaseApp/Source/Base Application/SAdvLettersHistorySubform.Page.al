@@ -127,7 +127,7 @@ page 31009 "S.Adv. Letters History Subform"
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
     begin
-        SalesAdvanceLetterLine.Reset;
+        SalesAdvanceLetterLine.Reset();
         SalesAdvanceLetterLine.CopyFilters(Rec);
         SalesAdvanceLetterLine.SetRange("Letter No.", "Letter No.");
         if SalesAdvanceLetterLine.FindFirst then

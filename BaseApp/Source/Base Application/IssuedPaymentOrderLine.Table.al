@@ -70,12 +70,10 @@ table 11711 "Issued Payment Order Line"
             AutoFormatType = 1;
             Caption = 'Amount (LCY)';
         }
-        field(13; "Applies-to Doc. Type"; Option)
+        field(13; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(14; "Applies-to Doc. No."; Code[20])
         {
@@ -227,10 +225,10 @@ table 11711 "Issued Payment Order Line"
             Error('');
 
         IssuedPaymentOrderLine := Rec;
-        IssuedPaymentOrderLine.LockTable;
+        IssuedPaymentOrderLine.LockTable();
         IssuedPaymentOrderLine.Find;
         IssuedPaymentOrderLine.Status := IssuedPaymentOrderLine.Status::Cancel;
-        IssuedPaymentOrderLine.Modify;
+        IssuedPaymentOrderLine.Modify();
     end;
 
     [Scope('OnPrem')]

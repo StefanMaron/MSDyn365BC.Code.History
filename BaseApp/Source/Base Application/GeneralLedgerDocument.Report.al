@@ -16,13 +16,13 @@ report 11763 "General Ledger Document"
             trigger OnAfterGetRecord()
             begin
                 GLReg := "G/L Register";
-                CurrReport.Break;
+                CurrReport.Break();
             end;
 
             trigger OnPreDataItem()
             begin
                 if "G/L Register".GetFilters = '' then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("G/L Entry"; "G/L Entry")
@@ -160,10 +160,10 @@ report 11763 "General Ledger Document"
                 begin
                     if Number = 1 then begin
                         if not DimSetEntry.Find('-') then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end else
                         if not Continue then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     Clear(DimText);
                     Continue := false;
@@ -186,9 +186,9 @@ report 11763 "General Ledger Document"
                 trigger OnPreDataItem()
                 begin
                     if not ShowDim then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
-                    DimSetEntry.Reset;
+                    DimSetEntry.Reset();
                     DimSetEntry.SetRange("Dimension Set ID", "G/L Entry"."Dimension Set ID");
                 end;
             }
@@ -232,7 +232,7 @@ report 11763 "General Ledger Document"
 
     trigger OnPreReport()
     begin
-        CoInfo.Get;
+        CoInfo.Get();
         FormatAddr.Company(CompanyAddr, CoInfo);
     end;
 

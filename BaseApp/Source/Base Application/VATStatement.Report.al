@@ -146,7 +146,7 @@ report 12 "VAT Statement"
             var
                 RegistrationCountryRegion: Record "Registration Country/Region";
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 // NAVCZ
                 if PerfCountryCodeFilter <> '' then
                     if RegistrationCountryRegion.Get(RegistrationCountryRegion."Account Type"::"Company Information", '', PerfCountryCodeFilter) then
@@ -424,7 +424,7 @@ report 12 "VAT Statement"
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     if VATEntry.SetCurrentKey(
                          Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
                          "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade", "EU 3-Party Intermediate Role",
@@ -498,7 +498,7 @@ report 12 "VAT Statement"
                     else
                         VATEntry.SetRange("Perform. Country/Region Code", '');
 
-                    VATEntry2.Reset;
+                    VATEntry2.Reset();
                     VATEntry2.CopyFilters(VATEntry);
                     Amount := 0;
                     // NAVCZ

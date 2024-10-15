@@ -44,7 +44,7 @@ codeunit 11715 "Exp. Launcher Payment Order"
         OutStr: OutStream;
     begin
         TempBlob.CreateOutStream(OutStr);
-        IssuedPmtOrdLn.Init;
+        IssuedPmtOrdLn.Init();
         IssuedPmtOrdLn.SetRange("Payment Order No.", IssuedPmtOrdHdr."No.");
         XMLPORT.Export(BankExportImportSetup."Processing XMLport ID", OutStr, IssuedPmtOrdLn);
         FileMgt.BLOBExport(TempBlob, StrSubstNo('*.%1', BankExportImportSetup."Default File Type"), true);
@@ -64,7 +64,7 @@ codeunit 11715 "Exp. Launcher Payment Order"
         GenJnlLn.SetRange("Journal Batch Name", BankAcc."Payment Jnl. Batch Name");
         GenJnlLn.SetRange("Document No.", IssuedPmtOrdHdr."No.");
 
-        Commit;
+        Commit();
         if not CODEUNIT.Run(CODEUNIT::"Exp. Launcher Gen. Jnl.", GenJnlLn) then
             PAGE.RunModal(PAGE::"Payment Journal", GenJnlLn);
     end;

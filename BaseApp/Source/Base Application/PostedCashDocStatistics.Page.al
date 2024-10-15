@@ -202,7 +202,7 @@ page 11739 "Posted Cash Doc. Statistics"
     var
         TotalPostedCashDocLine: Record "Posted Cash Document Line";
     begin
-        TotalPostedCashDocLine.Reset;
+        TotalPostedCashDocLine.Reset();
         TotalPostedCashDocLine.SetCurrentKey("Cash Desk No.", "Cash Document No.", "External Document No.");
         TotalPostedCashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         TotalPostedCashDocLine.SetRange("Cash Document No.", "Cash Document No.");
@@ -233,7 +233,7 @@ page 11739 "Posted Cash Doc. Statistics"
         else
             Currency.Get(PostedCashDocHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
+        VATAmountLine.DeleteAll();
 
         with PostedCashDocLine do begin
             SetRange("Cash Desk No.", Rec."Cash Desk No.");
@@ -249,14 +249,14 @@ page 11739 "Posted Cash Doc. Statistics"
                         "VAT %" := 0;
 
                     if not VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", '', false, Amount >= 0) then begin
-                        VATAmountLine.Init;
+                        VATAmountLine.Init();
                         VATAmountLine."VAT Identifier" := "VAT Identifier";
                         VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         VATAmountLine.Positive := Amount >= 0;
                         VATAmountLine."Currency Code" := "Currency Code";
                         VATAmountLine."VAT %" := "VAT %";
                         VATAmountLine.Modified := true;
-                        VATAmountLine.Insert;
+                        VATAmountLine.Insert();
                     end;
 
                     VATAmountLine."VAT Base (Non Deductible)" += "VAT Base (Non Deductible)";
@@ -270,7 +270,7 @@ page 11739 "Posted Cash Doc. Statistics"
                     VATAmountLine."VAT Base (LCY)" += "VAT Base Amount (LCY)";
                     VATAmountLine."VAT Amount (LCY)" += "Amount Including VAT (LCY)" - "VAT Base Amount (LCY)";
                     VATAmountLine."VAT Difference (LCY)" += "VAT Difference (LCY)";
-                    VATAmountLine.Modify;
+                    VATAmountLine.Modify();
                 until Next = 0;
             SetRange("Account Type");
         end;

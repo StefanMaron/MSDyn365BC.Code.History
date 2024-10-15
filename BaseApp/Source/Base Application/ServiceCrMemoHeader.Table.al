@@ -195,11 +195,9 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'No. Printed';
             Editable = false;
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -353,11 +351,9 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -943,10 +939,11 @@ table 5994 "Service Cr.Memo Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     [Scope('OnPrem')]
@@ -1041,7 +1038,7 @@ table 5994 "Service Cr.Memo Header"
     procedure FindCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry"): Boolean
     begin
         // NAVCZ
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Document No.");
         CustLedgEntry.SetRange("Document No.", "No.");
         CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::"Credit Memo");
@@ -1059,7 +1056,7 @@ table 5994 "Service Cr.Memo Header"
         GenJnLCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Use VAT Date" then begin
             TestField("VAT Date");
             if GenJnLCheckLine.VATDateNotAllowed("VAT Date") then

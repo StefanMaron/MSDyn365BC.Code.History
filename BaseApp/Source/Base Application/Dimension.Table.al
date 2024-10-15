@@ -130,52 +130,52 @@ table 348 Dimension
         DimVal.DeleteAll(true);
 
         DimComb.SetRange("Dimension 1 Code", Code);
-        DimComb.DeleteAll;
+        DimComb.DeleteAll();
 
-        DimComb.Reset;
+        DimComb.Reset();
         DimComb.SetRange("Dimension 2 Code", Code);
-        DimComb.DeleteAll;
+        DimComb.DeleteAll();
 
         SelectedDim.SetRange("Dimension Code", Code);
-        SelectedDim.DeleteAll;
+        SelectedDim.DeleteAll();
 
         AnalysisSelectedDim.SetRange("Dimension Code", Code);
-        AnalysisSelectedDim.DeleteAll;
+        AnalysisSelectedDim.DeleteAll();
 
         DimTrans.SetRange(Code, Code);
-        DimTrans.DeleteAll;
+        DimTrans.DeleteAll();
 
-        GLSetup.Get;
+        GLSetup.Get();
         case Code of
             GLSetup."Shortcut Dimension 3 Code":
                 begin
                     GLSetup."Shortcut Dimension 3 Code" := '';
-                    GLSetup.Modify;
+                    GLSetup.Modify();
                 end;
             GLSetup."Shortcut Dimension 4 Code":
                 begin
                     GLSetup."Shortcut Dimension 4 Code" := '';
-                    GLSetup.Modify;
+                    GLSetup.Modify();
                 end;
             GLSetup."Shortcut Dimension 5 Code":
                 begin
                     GLSetup."Shortcut Dimension 5 Code" := '';
-                    GLSetup.Modify;
+                    GLSetup.Modify();
                 end;
             GLSetup."Shortcut Dimension 6 Code":
                 begin
                     GLSetup."Shortcut Dimension 6 Code" := '';
-                    GLSetup.Modify;
+                    GLSetup.Modify();
                 end;
             GLSetup."Shortcut Dimension 7 Code":
                 begin
                     GLSetup."Shortcut Dimension 7 Code" := '';
-                    GLSetup.Modify;
+                    GLSetup.Modify();
                 end;
             GLSetup."Shortcut Dimension 8 Code":
                 begin
                     GLSetup."Shortcut Dimension 8 Code" := '';
-                    GLSetup.Modify;
+                    GLSetup.Modify();
                 end;
         end;
     end;
@@ -276,7 +276,7 @@ table 348 Dimension
         UsedAsItemAnalysisViewDim := false;
 
         if CheckAllDim or CheckGlobalDim or CheckShortcutDim or CheckBudgetDim or CheckItemBudgetDim then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if (DimTypeChecked <> DimTypeChecked::Global1) and
                (DimChecked = GLSetup."Global Dimension 1 Code")
             then
@@ -472,7 +472,7 @@ table 348 Dimension
             InsertDimTrans(LanguageID);
             if DimTrans.Name <> NewMLName then begin
                 DimTrans.Name := NewMLName;
-                DimTrans.Modify;
+                DimTrans.Modify();
             end;
         end;
     end;
@@ -488,7 +488,7 @@ table 348 Dimension
             InsertDimTrans(LanguageID);
             if DimTrans."Code Caption" <> NewMLCodeCaption then begin
                 DimTrans."Code Caption" := NewMLCodeCaption;
-                DimTrans.Modify;
+                DimTrans.Modify();
             end;
         end;
     end;
@@ -504,7 +504,7 @@ table 348 Dimension
             InsertDimTrans(LanguageID);
             if DimTrans."Filter Caption" <> NewMLFilterCaption then begin
                 DimTrans."Filter Caption" := NewMLFilterCaption;
-                DimTrans.Modify;
+                DimTrans.Modify();
             end;
         end;
     end;
@@ -524,7 +524,7 @@ table 348 Dimension
     begin
         if (DimTrans.Code <> Code) or (DimTrans."Language ID" <> LanguageID) then
             if not DimTrans.Get(Code, LanguageID) then begin
-                DimTrans.Init;
+                DimTrans.Init();
                 DimTrans.Code := Code;
                 DimTrans."Language ID" := LanguageID;
                 DimTrans.Name := Name;
@@ -536,10 +536,10 @@ table 348 Dimension
     local procedure InsertDimTrans(LanguageID: Integer)
     begin
         if not DimTrans.Get(Code, LanguageID) then begin
-            DimTrans.Init;
+            DimTrans.Init();
             DimTrans.Code := Code;
             DimTrans."Language ID" := LanguageID;
-            DimTrans.Insert;
+            DimTrans.Insert();
         end;
     end;
 

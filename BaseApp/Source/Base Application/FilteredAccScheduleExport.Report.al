@@ -124,7 +124,7 @@ report 31081 "Filtered Acc. Schedule Export"
                 AccSchedName.Get(ExportAccSched."Account Schedule Name");
                 if AccSchedName."Analysis View Name" <> '' then
                     AnalysisView.Get(AccSchedName."Analysis View Name");
-                GLSetup.Get;
+                GLSetup.Get();
 
                 AccSchedLine.SetRange("Schedule Name", ExportAccSched."Account Schedule Name");
                 AccSchedLine.SetFilter("Date Filter", '%1..%2', StartDate, EndDate);
@@ -133,7 +133,7 @@ report 31081 "Filtered Acc. Schedule Export"
 
                 Window.Open(AnalysisTxt);
                 Window.Update(1, 0);
-                TotalRecNo := AccSchedFilterLine.Count;
+                TotalRecNo := AccSchedFilterLine.Count();
             end;
         }
     }
@@ -254,7 +254,7 @@ report 31081 "Filtered Acc. Schedule Export"
     [Scope('OnPrem')]
     procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -262,7 +262,7 @@ report 31081 "Filtered Acc. Schedule Export"
         TempExcelBuffer.Bold := Bold;
         TempExcelBuffer.Italic := Italic;
         TempExcelBuffer.Underline := UnderLine;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     [Scope('OnPrem')]

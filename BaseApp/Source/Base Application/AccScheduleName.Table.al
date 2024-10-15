@@ -58,7 +58,7 @@ table 84 "Acc. Schedule Name"
         // NAVCZ
 
         AccSchedLine.SetRange("Schedule Name", Name);
-        AccSchedLine.DeleteAll;
+        AccSchedLine.DeleteAll();
     end;
 
     var

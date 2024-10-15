@@ -43,7 +43,7 @@ report 31080 "Account Schedule Export File"
                 if "Analysis View Name" <> '' then
                     AnalysisView.Get("Analysis View Name")
                 else begin
-                    AnalysisView.Init;
+                    AnalysisView.Init();
                     AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                     AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
                 end;
@@ -70,7 +70,7 @@ report 31080 "Account Schedule Export File"
             begin
                 SetRange(Name, AccSchedName);
 
-                StmtFileMapping.Reset;
+                StmtFileMapping.Reset();
                 StmtFileMapping.SetRange("Schedule Name", AccSchedName);
                 StmtFileMapping.SetRange("Schedule Column Layout Name", ColumnLayoutName);
                 if StmtFileMapping.IsEmpty then
@@ -280,7 +280,7 @@ report 31080 "Account Schedule Export File"
 
         trigger OnOpenPage()
         begin
-            GLSetup.Get;
+            GLSetup.Get();
             if AccSchedNameHidden <> '' then
                 AccSchedName := AccSchedNameHidden;
 
@@ -312,8 +312,8 @@ report 31080 "Account Schedule Export File"
 
     trigger OnPreReport()
     begin
-        GLSetup.Get;
-        TempExcelBuffer.DeleteAll;
+        GLSetup.Get();
+        TempExcelBuffer.DeleteAll();
 
         if ExcelTemplateCode <> '' then begin
             ExcelTemplate.Get(ExcelTemplateCode);
@@ -429,7 +429,7 @@ report 31080 "Account Schedule Export File"
                             end;
                     end;
 
-                    StmtFileMapping.Reset;
+                    StmtFileMapping.Reset();
                     StmtFileMapping.SetRange("Schedule Name", "Acc. Schedule Line"."Schedule Name");
                     StmtFileMapping.SetRange("Schedule Line No.", "Acc. Schedule Line"."Line No.");
                     StmtFileMapping.SetRange("Schedule Column Layout Name", "Column Layout Name");
@@ -457,31 +457,31 @@ report 31080 "Account Schedule Export File"
         case Split of
             Split::" ":
                 begin
-                    TempExcelBuffer.Init;
+                    TempExcelBuffer.Init();
                     TempExcelBuffer.Validate("Row No.", Line);
                     TempExcelBuffer.Validate("Column No.", Column);
                     TempExcelBuffer."Cell Value as Text" := Value;
-                    if not TempExcelBuffer.Insert then
-                        TempExcelBuffer.Modify;
+                    if not TempExcelBuffer.Insert() then
+                        TempExcelBuffer.Modify();
                 end;
             Split::Right:
                 for i := 1 to StrLen(Value) do begin
-                    TempExcelBuffer.Init;
+                    TempExcelBuffer.Init();
                     TempExcelBuffer.Validate("Row No.", Line);
                     TempExcelBuffer.Validate("Column No.", Column + locOffset);
                     TempExcelBuffer."Cell Value as Text" := CopyStr(Value, i, 1);
-                    if not TempExcelBuffer.Insert then
-                        TempExcelBuffer.Modify;
+                    if not TempExcelBuffer.Insert() then
+                        TempExcelBuffer.Modify();
                     locOffset := locOffset + Offset;
                 end;
             Split::Left:
                 for i := StrLen(Value) downto 1 do begin
-                    TempExcelBuffer.Init;
+                    TempExcelBuffer.Init();
                     TempExcelBuffer.Validate("Row No.", Line);
                     TempExcelBuffer.Validate("Column No.", Column - locOffset);
                     TempExcelBuffer."Cell Value as Text" := CopyStr(Value, i, 1);
-                    if not TempExcelBuffer.Insert then
-                        TempExcelBuffer.Modify;
+                    if not TempExcelBuffer.Insert() then
+                        TempExcelBuffer.Modify();
                     locOffset := locOffset + Offset;
                 end;
         end;

@@ -13,7 +13,7 @@ report 31065 "Intrastat Declaration Export"
             begin
                 TestField("Statistics Period");
 
-                IntrastatJnlLine.Reset;
+                IntrastatJnlLine.Reset();
                 IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 IntrastatJnlLine.SetRange("Journal Batch Name", Name);
                 if IntrastatJnlLine.FindSet then
@@ -48,9 +48,9 @@ report 31065 "Intrastat Declaration Export"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
-                CompanyInfo.Get;
-                StatReportingSetup.Get;
+                GLSetup.Get();
+                CompanyInfo.Get();
+                StatReportingSetup.Get();
                 Country.Get(CompanyInfo."Country/Region Code");
                 case StatReportingSetup."Intrastat Rounding Type" of
                     StatReportingSetup."Intrastat Rounding Type"::Nearest:

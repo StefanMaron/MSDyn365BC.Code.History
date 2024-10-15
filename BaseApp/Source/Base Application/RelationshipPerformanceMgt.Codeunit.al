@@ -14,7 +14,7 @@ codeunit 783 "Relationship Performance Mgt."
         Opportunity: Record Opportunity;
         I: Integer;
     begin
-        TempOpportunity.DeleteAll;
+        TempOpportunity.DeleteAll();
         Opportunity.SetAutoCalcFields("Estimated Value (LCY)");
         Opportunity.SetRange(Closed, false);
         Opportunity.SetCurrentKey("Estimated Value (LCY)");
@@ -23,7 +23,7 @@ codeunit 783 "Relationship Performance Mgt."
             repeat
                 I += 1;
                 TempOpportunity := Opportunity;
-                TempOpportunity.Insert;
+                TempOpportunity.Insert();
             until (Opportunity.Next = 0) or (I = 5);
     end;
 
@@ -83,12 +83,12 @@ codeunit 783 "Relationship Performance Mgt."
         TempSegmentLine: Record "Segment Line" temporary;
         InteractionLogEntry: Record "Interaction Log Entry";
     begin
-        TempSegmentLine.Init;
-        TempSegmentLine.Insert;
+        TempSegmentLine.Init();
+        TempSegmentLine.Insert();
         XmlToRecords(
           CreateOpportunityNotification.GetData(GetSegmentLineNotificationDataItemID), TempSegmentLine, InteractionLogEntry);
         InteractionLogEntry."Opportunity No." := TempSegmentLine.CreateOpportunity;
-        InteractionLogEntry.Modify;
+        InteractionLogEntry.Modify();
     end;
 
     local procedure RecordsToXml(SegmentLine: Record "Segment Line"; InteractionLogEntry: Record "Interaction Log Entry"): Text
@@ -138,7 +138,7 @@ codeunit 783 "Relationship Performance Mgt."
         SetFieldFromXml(RecRef, SegmentLine.FieldNo("Salesperson Code"), XmlRootNode);
         SetFieldFromXml(RecRef, SegmentLine.FieldNo("Contact No."), XmlRootNode);
         SetFieldFromXml(RecRef, SegmentLine.FieldNo("Contact Company No."), XmlRootNode);
-        RecRef.Modify;
+        RecRef.Modify();
         RecRef.SetTable(SegmentLine);
         RecRef.Close;
 

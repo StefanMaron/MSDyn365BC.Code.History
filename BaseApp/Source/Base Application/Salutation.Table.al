@@ -33,7 +33,7 @@ table 5068 Salutation
         SalutationFormula: Record "Salutation Formula";
     begin
         SalutationFormula.SetRange("Salutation Code", Code);
-        SalutationFormula.DeleteAll;
+        SalutationFormula.DeleteAll();
     end;
 }
 

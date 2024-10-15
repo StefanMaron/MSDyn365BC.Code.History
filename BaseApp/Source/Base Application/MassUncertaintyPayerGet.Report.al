@@ -30,7 +30,7 @@ report 11761 "Mass Uncertainty Payer Get"
             trigger OnPreDataItem()
             begin
                 if UpdateOnlyUncertaintyPayers then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }
@@ -66,7 +66,7 @@ report 11761 "Mass Uncertainty Payer Get"
 
     trigger OnPreReport()
     begin
-        ElectronicallyGovernSetup.Get;
+        ElectronicallyGovernSetup.Get();
         ElectronicallyGovernSetup.TestField(UncertaintyPayerWebService);
 
         if UpdateOnlyUncertaintyPayers then

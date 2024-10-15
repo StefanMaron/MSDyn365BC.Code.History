@@ -23,7 +23,6 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     procedure VerifyStatusNotCompletedWhenNotFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         SetupEmailLogging: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
@@ -34,7 +33,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLogging.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -44,7 +43,6 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     procedure VerifyStatusNotCompletedWhenExitRightAway()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         SetupEmailLogging: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
@@ -56,7 +54,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLogging.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -66,7 +64,6 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     procedure VerifyWizardNotExitedWhenConfirmIsNo()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         SetupEmailLogging: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
@@ -78,7 +75,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLogging.Close;
 
         // [THEN] Status of assisted setup remains Not Completed
-        Assert.IsFalse(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsFalse(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -105,7 +102,6 @@ codeunit 139311 "Setup Email Log Wizard Tests"
     procedure VerifyStatusCompletedWhenFinished()
     var
         AssistedSetup: Codeunit "Assisted Setup";
-        BaseAppID: Codeunit "BaseApp ID";
         SetupEmailLogging: TestPage "Setup Email Logging";
     begin
         // [GIVEN] A newly setup company
@@ -116,7 +112,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         SetupEmailLogging.ActionFinish.Invoke;
 
         // [THEN] Status of the setup step is set to Completed
-        Assert.IsTrue(AssistedSetup.IsComplete(BaseAppID.Get(), PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
+        Assert.IsTrue(AssistedSetup.IsComplete(PAGE::"Setup Email Logging"), SetupShouldNotBeCompletedErr);
     end;
 
     [Test]
@@ -132,7 +128,7 @@ codeunit 139311 "Setup Email Log Wizard Tests"
         Initialize;
 
         // [GIVEN] All fields on Email Logging Setup tab of Marketing Setup are filled
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         MarketingSetup."Queue Folder Path" :=
           PadStr(LibraryUtility.GenerateRandomText(10), MaxStrLen(MarketingSetup."Queue Folder Path"));
         MarketingSetup."Queue Folder UID".CreateOutStream(OutStream);
@@ -149,8 +145,8 @@ codeunit 139311 "Setup Email Log Wizard Tests"
           PadStr(LibraryUtility.GenerateRandomAlphabeticText(5, 1), MaxStrLen(MarketingSetup."Autodiscovery E-Mail Address"));
         MarketingSetup."Email Batch Size" := LibraryRandom.RandInt(10);
         MarketingSetup.SetExchangeAccountPassword(LibraryUtility.GenerateRandomText(10));
-        MarketingSetup.Modify;
-        MarketingSetup.Get;
+        MarketingSetup.Modify();
+        MarketingSetup.Get();
 
         // [WHEN] Setup Email Logging is run
         SetupEmailLogging.ClearEmailLoggingSetup(MarketingSetup);

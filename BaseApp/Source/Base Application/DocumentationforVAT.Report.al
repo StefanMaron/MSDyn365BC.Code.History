@@ -265,7 +265,7 @@ report 11764 "Documentation for VAT"
                             VATEntryLocal: Record "VAT Entry";
                         begin
                             if not PrintVATEntries then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             if PrintCountrySubTotal = 1 then
                                 Clear(CountrySubTotalAmt);
@@ -386,7 +386,7 @@ report 11764 "Documentation for VAT"
 
                 trigger OnAfterGetRecord()
                 begin
-                    VATEntry.Reset;
+                    VATEntry.Reset();
                     VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
                       "Gen. Bus. Posting Group", "Gen. Prod. Posting Group", "EU 3-Party Trade");
 
@@ -458,7 +458,7 @@ report 11764 "Documentation for VAT"
                     end;
 
                     if VATType = VATEntry.Type::Settlement then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
 
                 trigger OnPreDataItem()
@@ -470,7 +470,7 @@ report 11764 "Documentation for VAT"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 Clear(VATBaseTotal);
                 Clear(VATAmountTotal);
                 Clear(VATBaseSaleTotal);

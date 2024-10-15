@@ -205,6 +205,13 @@ table 31123 "EET Entry"
         SimpleSalesRegimeTxt: Label 'Simplified Record Of Sale';
         SendToServiceQst: Label 'Do you want to send %1 %2 to EET service?', Comment = '%1 = Table Caption;%2 = Entry No.';
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     [Scope('OnPrem')]
     procedure ShowStatusLog()
     var
@@ -244,7 +251,7 @@ table 31123 "EET Entry"
         if EETBusinessPremises."Certificate Code" <> '' then
             exit(EETBusinessPremises."Certificate Code");
 
-        EETServiceSetup.Get;
+        EETServiceSetup.Get();
         EETServiceSetup.TestField("Certificate Code");
         exit(EETServiceSetup."Certificate Code");
     end;
@@ -314,7 +321,7 @@ table 31123 "EET Entry"
     var
         EETServiceSetup: Record "EET Service Setup";
     begin
-        EETServiceSetup.Get;
+        EETServiceSetup.Get();
         case EETServiceSetup."Sales Regime" of
             EETServiceSetup."Sales Regime"::Regular:
                 exit(RegSalesRegimeTxt);

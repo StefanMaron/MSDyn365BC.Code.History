@@ -3679,9 +3679,6 @@ End Function</Code>
         <Field Name="WORKDATE__">
           <DataField>WORKDATE__</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="Vendor_Name">
           <DataField>Vendor_Name</DataField>
         </Field>
@@ -3940,9 +3937,6 @@ End Function</Code>
         <Field Name="WORKDATE___Control1470018">
           <DataField>WORKDATE___Control1470018</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO_Control1470022">
-          <DataField>CurrReport_PAGENO_Control1470022</DataField>
-        </Field>
         <Field Name="Vendor_Name_Control1470033">
           <DataField>Vendor_Name_Control1470033</DataField>
         </Field>
@@ -3951,9 +3945,6 @@ End Function</Code>
         </Field>
         <Field Name="STRSUBSTNO_Text013_GetCurrCode_CurrencyBuf_Code__">
           <DataField>STRSUBSTNO_Text013_GetCurrCode_CurrencyBuf_Code__</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO_Control1470022Caption">
-          <DataField>CurrReport_PAGENO_Control1470022Caption</DataField>
         </Field>
         <Field Name="andCaption_Control1470004">
           <DataField>andCaption_Control1470004</DataField>

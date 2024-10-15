@@ -23,9 +23,6 @@ report 31074 "Phys. Invt. Counting Document"
             column(FORMAT_WORKDATE_0_4_; Format(WorkDate, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(HeaderText2_Date; HeaderText2 + Format(DocumentDate))
             {
             }
@@ -54,9 +51,6 @@ report 31074 "Phys. Invt. Counting Document"
             {
             }
             column(CompanyInfo_Name_Control1470044; CompanyInfo.Name)
-            {
-            }
-            column(CurrReport_PAGENO___1; CurrReport.PageNo - 1)
             {
             }
             column(HeaderText1___DocumentNo_Control1470047; HeaderText1 + DocumentNo)
@@ -107,9 +101,6 @@ report 31074 "Phys. Invt. Counting Document"
             column(PageTotals_1_; PageTotals[1])
             {
                 DecimalPlaces = 0 : 5;
-            }
-            column(CurrReport_PAGENO___1_Control1470058; CurrReport.PageNo + 1)
-            {
             }
             column(Totals_1_; Totals[1])
             {
@@ -274,7 +265,7 @@ report 31074 "Phys. Invt. Counting Document"
                     if not Location.Get("Location Code") then
                         Clear(Location);
 
-                ItemLedgEntry.Reset;
+                ItemLedgEntry.Reset();
                 ItemLedgEntry.SetCurrentKey("Item No.");
                 ItemLedgEntry.SetRange("Document No.", "Document No.");
                 ItemLedgEntry.SetRange("Posting Date", "Posting Date");
@@ -347,7 +338,7 @@ report 31074 "Phys. Invt. Counting Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[1] := CompanyOfficials.FullName;
                         end;
@@ -360,7 +351,7 @@ report 31074 "Phys. Invt. Counting Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[2] := CompanyOfficials.FullName;
                         end;
@@ -373,7 +364,7 @@ report 31074 "Phys. Invt. Counting Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[3] := CompanyOfficials.FullName;
                         end;
@@ -386,7 +377,7 @@ report 31074 "Phys. Invt. Counting Document"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[4] := CompanyOfficials.FullName;
                         end;
@@ -406,7 +397,7 @@ report 31074 "Phys. Invt. Counting Document"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         if PhysInvLedgEntry.GetRangeMin("Document No.") <> PhysInvLedgEntry.GetRangeMax("Document No.") then
             Error(Text26501, PhysInvLedgEntry.FieldCaption("Document No."));

@@ -320,7 +320,7 @@ table 273 "Bank Acc. Reconciliation"
 
         // NAVCZ
         if BankOrIssuedBankStatemntHeaderExists() and (not "Created From Iss. Bank Stat.") then
-            Error(BankOrIssBankStatHeaderExistsErr, "Bank Account No.");
+            Error(BankOrIssBankStatHeaderExistsErr, TableCaption(), "Bank Account No.");
         // NAVCZ
 
         BankAcc.Modify();
@@ -347,7 +347,7 @@ table 273 "Bank Acc. Reconciliation"
         PostHighConfidentLinesQst: Label 'All imported bank statement lines were applied with high confidence level.\Do you want to post the payment applications?';
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
         NoTransactionsImportedMsg: Label 'No bank transactions were imported.';
-        BankOrIssBankStatHeaderExistsErr: Label 'Cannot create Payment Reconciliation Journal because exist Bank Statement Header or Issued Bank Statement Header for Bank Account No. value: %1.', Comment = '%1=number of bank account';
+        BankOrIssBankStatHeaderExistsErr: Label 'Cannot create %1 because exist Bank Statement Header or Issued Bank Statement Header for Bank Account No. value: %2.', Comment = '%1=table caption;%2=number of bank account';
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -356,7 +356,7 @@ table 273 "Bank Acc. Reconciliation"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
@@ -401,7 +401,7 @@ table 273 "Bank Acc. Reconciliation"
         ProcessBankAccRecLines: Codeunit "Process Bank Acc. Rec Lines";
     begin
         if BankAccountCouldBeUsedForImport then begin
-            DataExch.Init;
+            DataExch.Init();
             ProcessBankAccRecLines.ImportBankStatement(Rec, DataExch);
         end;
     end;
@@ -449,7 +449,7 @@ table 273 "Bank Acc. Reconciliation"
         if NewParentDimSetID = OldParentDimSetID then
             exit;
 
-        BankAccReconciliationLine.LockTable;
+        BankAccReconciliationLine.LockTable();
         if BankAccReconciliationLine.LinesExist(Rec) then begin
             if not Confirm(YouChangedDimQst) then
                 exit;
@@ -463,7 +463,7 @@ table 273 "Bank Acc. Reconciliation"
                       BankAccReconciliationLine."Dimension Set ID",
                       BankAccReconciliationLine."Shortcut Dimension 1 Code",
                       BankAccReconciliationLine."Shortcut Dimension 2 Code");
-                    BankAccReconciliationLine.Modify;
+                    BankAccReconciliationLine.Modify();
                 end;
             until BankAccReconciliationLine.Next = 0;
         end;
@@ -498,7 +498,7 @@ table 273 "Bank Acc. Reconciliation"
         if not DataExch.ImportFileContent(DataExchDef) then
             exit;
 
-        BankAccount.LockTable;
+        BankAccount.LockTable();
         LastStatementNo := BankAccount."Last Statement No.";
         CreateNewBankPaymentAppBatch(BankAccount."No.", BankAccReconciliation);
 
@@ -514,17 +514,17 @@ table 273 "Bank Acc. Reconciliation"
             exit;
         end;
 
-        Commit;
+        Commit();
         ProcessStatement(BankAccReconciliation);
     end;
 
     local procedure DeleteBankAccReconciliation(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccount: Record "Bank Account"; LastStatementNo: Code[20])
     begin
-        BankAccReconciliation.Delete;
+        BankAccReconciliation.Delete();
         BankAccount.Get(BankAccount."No.");
         BankAccount."Last Statement No." := LastStatementNo;
-        BankAccount.Modify;
-        Commit;
+        BankAccount.Modify();
+        Commit();
     end;
 
     procedure ImportStatement(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; DataExch: Record "Data Exch."): Boolean
@@ -547,7 +547,7 @@ table 273 "Bank Acc. Reconciliation"
 
     procedure CreateNewBankPaymentAppBatch(BankAccountNo: Code[20]; var BankAccReconciliation: Record "Bank Acc. Reconciliation")
     begin
-        BankAccReconciliation.Init;
+        BankAccReconciliation.Init();
         BankAccReconciliation."Statement Type" := BankAccReconciliation."Statement Type"::"Payment Application";
         BankAccReconciliation.Validate("Bank Account No.", BankAccountNo);
         BankAccReconciliation.Insert(true);
@@ -577,9 +577,9 @@ table 273 "Bank Acc. Reconciliation"
             BankAccount.GetLinkedBankAccounts(TempLinkedBankAccount);
             CopyBankAccountsToTemp(TempBankAccount, TempLinkedBankAccount);
 
-            NoOfAccounts := TempBankAccount.Count;
+            NoOfAccounts := TempBankAccount.Count();
         end else
-            NoOfAccounts := BankAccount.Count;
+            NoOfAccounts := BankAccount.Count();
 
         case NoOfAccounts of
             0:
@@ -656,7 +656,7 @@ table 273 "Bank Acc. Reconciliation"
     begin
         if BankAccount."Last Payment Statement No." = '' then begin
             BankAccount."Last Payment Statement No." := '0';
-            BankAccount.Modify;
+            BankAccount.Modify();
         end;
     end;
 
@@ -664,7 +664,7 @@ table 273 "Bank Acc. Reconciliation"
     begin
         if BankAccount."Last Statement No." = '' then begin
             BankAccount."Last Statement No." := '0';
-            BankAccount.Modify;
+            BankAccount.Modify();
         end;
     end;
 
@@ -737,22 +737,22 @@ table 273 "Bank Acc. Reconciliation"
         if FromBankAccount.FindSet then
             repeat
                 TempBankAccount := FromBankAccount;
-                if TempBankAccount.Insert then;
+                if TempBankAccount.Insert() then;
             until FromBankAccount.Next = 0;
     end;
 
     local procedure BankOrIssuedBankStatemntHeaderExists(): Boolean
     var
-        BankStatementHeader: Record "Bank Statement Header";
-        IssuedBankStatementHeader: Record "Issued Bank Statement Header";
+      BankStatementHeader: Record "Bank Statement Header";
+      IssuedBankStatementHeader: Record "Issued Bank Statement Header";
     begin
-        // NAVCZ
-        BankStatementHeader.SetRange("Bank Account No.", "Bank Account No.");
-        if not BankStatementHeader.IsEmpty() then
-            exit(true);
-        IssuedBankStatementHeader.SetRange("Bank Account No.", "Bank Account No.");
-        if not IssuedBankStatementHeader.IsEmpty() then
-            exit(true);
+      // NAVCZ
+      BankStatementHeader.SetRange("Bank Account No.","Bank Account No.");
+      if not BankStatementHeader.IsEmpty() then
+        exit(true);
+      IssuedBankStatementHeader.SetRange("Bank Account No.","Bank Account No.");
+      if not IssuedBankStatementHeader.IsEmpty() then
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]

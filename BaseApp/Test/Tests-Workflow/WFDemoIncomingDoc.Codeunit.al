@@ -33,15 +33,15 @@ codeunit 134178 "WF Demo Incoming Doc"
     begin
         // [SCENARIO] Recreate the workflow demo data
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowEvent.DeleteAll;
-        WorkflowResponse.DeleteAll;
+        WorkflowEvent.DeleteAll();
+        WorkflowResponse.DeleteAll();
 
         // Exercise.
         WorkflowSetup.InitWorkflow;
 
         // Verify
-        Assert.AreEqual(33, Workflow.Count, StrSubstNo(RecordNotFoundErr, Workflow.TableCaption)); // NAVCZ
-        Assert.AreEqual(552, WorkflowStep.Count, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption)); // NAVCZ
+        Assert.AreEqual(28, Workflow.Count, StrSubstNo(RecordNotFoundErr, Workflow.TableCaption));
+        Assert.AreEqual(451, WorkflowStep.Count, StrSubstNo(RecordNotFoundErr, WorkflowStep.TableCaption));
 
         WorkflowStep.SetFilter(Argument, '<>%1', Guid);
         Assert.AreEqual(WorkflowStep.Count, WorkflowStepArgument.Count, 'There should not be more arguments than steps.');
@@ -124,9 +124,9 @@ codeunit 134178 "WF Demo Incoming Doc"
         WorkflowStepInstanceArchive: Record "Workflow Step Instance Archive";
         UserSetup: Record "User Setup";
     begin
-        WorkflowStepInstanceArchive.DeleteAll;
-        NotificationEntry.DeleteAll;
-        NotificationSetup.DeleteAll;
+        WorkflowStepInstanceArchive.DeleteAll();
+        NotificationEntry.DeleteAll();
+        NotificationSetup.DeleteAll();
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryWorkflow.DeleteAllExistingWorkflows;
         WorkflowSetup.InitWorkflow;

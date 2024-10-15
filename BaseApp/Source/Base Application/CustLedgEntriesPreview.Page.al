@@ -1,4 +1,4 @@
-﻿page 126 "Cust. Ledg. Entries Preview"
+page 126 "Cust. Ledg. Entries Preview"
 {
     Caption = 'Cust. Ledg. Entries Preview';
     DataCaptionFields = "Customer No.";
@@ -451,7 +451,7 @@
         if TempDetailedCustLedgEntry2.Find('-') then
             repeat
                 TempDetailedCustLedgEntry := TempDetailedCustLedgEntry2;
-                TempDetailedCustLedgEntry.Insert;
+                TempDetailedCustLedgEntry.Insert();
             until TempDetailedCustLedgEntry2.Next = 0;
     end;
 

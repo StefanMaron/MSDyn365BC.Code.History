@@ -18,9 +18,6 @@ report 11787 "Vendor - Bal. Reconciliation"
             column(WORKDATE__; Format(WorkDate))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(Vendor_Name; Name)
             {
             }
@@ -300,9 +297,6 @@ report 11787 "Vendor - Bal. Reconciliation"
                 column(WORKDATE___Control1470018; Format(WorkDate))
                 {
                 }
-                column(CurrReport_PAGENO_Control1470022; CurrReport.PageNo)
-                {
-                }
                 column(Vendor_Name_Control1470033; Vendor.Name)
                 {
                 }
@@ -310,9 +304,6 @@ report 11787 "Vendor - Bal. Reconciliation"
                 {
                 }
                 column(STRSUBSTNO_Text013_GetCurrCode_CurrencyBuf_Code__; StrSubstNo(Text013, GetCurrCode(CurrencyBuf.Code)))
-                {
-                }
-                column(CurrReport_PAGENO_Control1470022Caption; CurrReport_PAGENO_Control1470022CaptionLbl)
                 {
                 }
                 column(andCaption_Control1470004; andCaption_Control1470004Lbl)
@@ -415,7 +406,7 @@ report 11787 "Vendor - Bal. Reconciliation"
                     trigger OnPreDataItem()
                     begin
                         if not PrintAmountsInCurrency or LCYEntriesOnly then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -432,7 +423,7 @@ report 11787 "Vendor - Bal. Reconciliation"
                         if PrintAmountsInCurrency then
                             CVLedgEntry.SetFilter("Currency Code", '%1', CurrencyBuf.Code);
                         if (TotalAmount = 0) and CVLedgEntry.IsEmpty then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end else
                         TotalAmount := TotalAmountLCY;
                 end;
@@ -440,7 +431,7 @@ report 11787 "Vendor - Bal. Reconciliation"
                 trigger OnPreDataItem()
                 begin
                     if (TotalAmountLCY = 0) and CVLedgEntry.IsEmpty or (not PrintDetails) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, CurrencyBuf.Count);
                 end;
@@ -460,9 +451,9 @@ report 11787 "Vendor - Bal. Reconciliation"
 
                 trigger OnPreDataItem()
                 begin
-                    CVLedgEntry.Reset;
+                    CVLedgEntry.Reset();
                     if (TotalAmountLCY = 0) and CVLedgEntry.IsEmpty or (not PrintDetails) then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -470,14 +461,13 @@ report 11787 "Vendor - Bal. Reconciliation"
             begin
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
-                CurrReport.PageNo := 1;
                 if not CurrReport.Preview then begin
-                    LockTable;
+                    LockTable();
                     Find;
                     "Last Statement No." += 1;
                     "Last Statement Date" := Today;
                     Modify;
-                    Commit;
+                    Commit();
                 end else
                     "Last Statement No." += 1;
 
@@ -489,7 +479,7 @@ report 11787 "Vendor - Bal. Reconciliation"
                 TotalAmountLCY := CVMgt.CalcCVDebt(CustomerNo, "No.", '', ReconcileDate, true);
 
                 if PrintOnlyNotZero and (TotalAmountLCY = 0) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CalcDebitCredit(TotalAmountLCY);
 
@@ -574,8 +564,8 @@ report 11787 "Vendor - Bal. Reconciliation"
         if ReconcileDate = 0D then
             Error(EmptyReconcileDateErr);
 
-        GLSetup.Get;
-        CompanyInfo.Get;
+        GLSetup.Get();
+        CompanyInfo.Get();
         LongReconcileDate := Format(ReconcileDate);
         if ChiefAccountant.Get(CompanyInfo."Accounting Manager No.") then;
     end;
@@ -638,7 +628,6 @@ report 11787 "Vendor - Bal. Reconciliation"
         Name_Caption_Control1470129Lbl: Label '(Name)';
         Signature_CaptionLbl: Label '(Signature)';
         Signature_Caption_Control1470134Lbl: Label '(Signature, Stamp)';
-        CurrReport_PAGENO_Control1470022CaptionLbl: Label 'Page';
         andCaption_Control1470004Lbl: Label 'and';
         AmountCaptionLbl: Label 'Amount';
         Currency_CodeCaptionLbl: Label 'Currency Code';
@@ -661,7 +650,7 @@ report 11787 "Vendor - Bal. Reconciliation"
         AppendixHeaderText: Label 'Appendix to the reconciliation of payables on %1 between';
         ResponsibleEmployeeLbl: Label 'Responsible Employee: %1';
         Remaining_AmtLCY: Label 'Remaining Amt. (%1)';
-        DateFormatTxt: Label '<Day>.<Month>.<Year4>', Comment = '<Day>.<Month>.<Year4>';
+        DateFormatTxt: Label '<Day>.<Month>.<Year4>', Locked = true;
 
     [Scope('OnPrem')]
     procedure CalcDebitCredit(TotalAmt: Decimal)

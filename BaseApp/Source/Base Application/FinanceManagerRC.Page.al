@@ -861,6 +861,9 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Payment Application Rules';
                         RunObject = page "Payment Application Rules";
                         Visible = false;
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'This action will be removed from this page';
+                        ObsoleteTag = '16.0';
                     }
                     action("Cash Flow Setup")
                     {

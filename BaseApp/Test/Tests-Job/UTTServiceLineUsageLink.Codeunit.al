@@ -32,22 +32,22 @@ codeunit 136360 "UT T Service Line Usage Link"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryJob.CreateJob(Job);
         Job.Validate("Apply Usage Link", true);
-        Job.Modify;
+        Job.Modify();
         LibraryJob.CreateJobTask(Job, JobTask);
         LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", LibraryInventory.CreateItem(Item));
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(1000));
-        JobPlanningLine.Modify;
+        JobPlanningLine.Modify();
 
         LibrarySales.CreateCustomer(Customer);
 
-        ServiceHeader.Init;
+        ServiceHeader.Init();
         ServiceHeader.SetHideValidationDialog(true);
         ServiceHeader.Validate("Document Type", ServiceHeader."Document Type"::Order);
         ServiceHeader.Validate("Customer No.", Customer."No.");
         ServiceHeader.Insert(true);
 
-        ServiceLine.Init;
+        ServiceLine.Init();
         ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
         ServiceLine.Validate("Document No.", ServiceHeader."No.");
         case JobPlanningLine.Type of

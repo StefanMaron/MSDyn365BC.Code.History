@@ -369,7 +369,7 @@ page 11716 "Payment Order"
 
                     trigger OnAction()
                     begin
-                        Issue(CODEUNIT::"Issue Payment Order (Yes/No)");
+                        IssueDocument(CODEUNIT::"Issue Payment Order (Yes/No)");
                     end;
                 }
                 action(IssueAndPrint)
@@ -382,7 +382,7 @@ page 11716 "Payment Order"
 
                     trigger OnAction()
                     begin
-                        Issue(CODEUNIT::"Issue Payment Order + Print");
+                        IssueDocument(CODEUNIT::"Issue Payment Order + Print");
                     end;
                 }
                 action(Reopen)
@@ -483,7 +483,7 @@ page 11716 "Payment Order"
         OpenApprovalEntriesExist: Boolean;
         OpenIssuedPayOrdQst: Label 'The payment order has been issued and moved to the Issued Payment Orders window.\\Do you want to open the issued payment orders?';
 
-    local procedure Issue(IssuingCodeunitID: Integer)
+    local procedure IssueDocument(IssuingCodeunitID: Integer)
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
     begin

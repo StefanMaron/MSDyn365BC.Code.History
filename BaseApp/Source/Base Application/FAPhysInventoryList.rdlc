@@ -4156,9 +4156,6 @@ End Function
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="FORMAT_TODAY_0___day_2___month_2___year4___">
           <DataField>FORMAT_TODAY_0___day_2___month_2___year4___</DataField>
         </Field>

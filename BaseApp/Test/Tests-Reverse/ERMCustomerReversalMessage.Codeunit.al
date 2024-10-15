@@ -216,7 +216,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         // Setup: Create Customer, Make document line and Post from General Journal and set "Privacy Blocked" := TRUE;
         TransactionNo := CommonReversalSetup(Customer, DocumentType, BlockedType, Amount);
         Customer.Validate("Privacy Blocked", true);
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise: Reverse Invoice entries for Blocked Customer.
         ReversalEntry.SetHideDialog(true);
@@ -318,7 +318,7 @@ codeunit 134127 "ERM Customer Reversal Message"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('ConfirmHandler,StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure CurrencyAdjustEntryFrmLedger()
     var
@@ -365,7 +365,7 @@ codeunit 134127 "ERM Customer Reversal Message"
           GenJournalLine."Account No.", GenJournalLine.Amount);
 
         // Run Date Compress Batch job and Verify Reversal Error.
-        asserterror DateCompressAndReverse(GenJournalLine."Account No.", GenJournalLine."Bal. Account No."); // NAVCZ
+        DateCompressAndReverse(GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
     end;
 
     [Test]
@@ -429,7 +429,7 @@ codeunit 134127 "ERM Customer Reversal Message"
         LibraryERMCountryData.UpdateLocalData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Customer Reversal Message");
     end;
 
@@ -641,14 +641,6 @@ codeunit 134127 "ERM Customer Reversal Message"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

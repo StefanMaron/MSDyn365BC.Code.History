@@ -84,6 +84,8 @@ report 1004 "Close Inventory Period - Test"
                                 ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::Output);
                             "Order Type"::Assembly:
                                 ValueEntry.SetRange("Item Ledger Entry Type", ValueEntry."Item Ledger Entry Type"::"Assembly Output");
+                            else
+                                OnCaseOrderTypeElse(ValueEntry);
                         end;
                         ValueEntry.SetRange("Valuation Date", 0D, "Inventory Period"."Ending Date");
 
@@ -212,10 +214,10 @@ report 1004 "Close Inventory Period - Test"
 
                     trigger OnPostDataItem()
                     begin
-                        TempItemErrorBuffer.Reset;
-                        TempItemErrorBuffer.DeleteAll;
-                        TempItemErrorBufferBookmark.Reset;
-                        TempItemErrorBufferBookmark.DeleteAll;
+                        TempItemErrorBuffer.Reset();
+                        TempItemErrorBuffer.DeleteAll();
+                        TempItemErrorBufferBookmark.Reset();
+                        TempItemErrorBufferBookmark.DeleteAll();
                     end;
 
                     trigger OnPreDataItem()
@@ -279,14 +281,14 @@ report 1004 "Close Inventory Period - Test"
         TempItemErrorBuffer."Error Text" := ErrorText;
         TempItemErrorBuffer."Source Table" := SourceTableNo;
         TempItemErrorBuffer."Source No." := ItemNo;
-        TempItemErrorBuffer.Insert;
+        TempItemErrorBuffer.Insert();
 
         if Recordbookmark <> '' then begin
             TempItemErrorBufferBookmark."Error No." := TempItemErrorBuffer."Error No.";
             TempItemErrorBufferBookmark."Error Text" := Recordbookmark;
             TempItemErrorBufferBookmark."Source No." := HyperlinkSourceRecNo;
             TempItemErrorBufferBookmark."Source Ref. No." := HyperlinkPageID;
-            TempItemErrorBufferBookmark.Insert;
+            TempItemErrorBufferBookmark.Insert();
         end;
 
         if ItemNo <> '' then begin
@@ -342,6 +344,11 @@ report 1004 "Close Inventory Period - Test"
         // Generates a URL such as dynamicsnav://hostname:port/instance/company/runpage?page=pageId&bookmark=recordId&mode=View.
         exit(GetUrl(ClientTypeManagement.GetCurrentClientType, CompanyName, OBJECTTYPE::Page, PageID) +
           StrSubstNo('&amp;bookmark=%1&mode=View', Bookmark));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCaseOrderTypeElse(var ValueEntry: Record "Value Entry");
+    begin
     end;
 }
 

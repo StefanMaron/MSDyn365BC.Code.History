@@ -52,7 +52,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
     begin
         OnBeforeRunCheck(GenJnlLine);
 
-        GLSetup.Get;
+        GLSetup.Get();
         with GenJnlLine do begin
             if EmptyLine then
                 exit;
@@ -67,7 +67,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
             ValidateSalesPersonPurchaserCode(GenJnlLine);
 
             // NAVCZ
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."Use VAT Date" then begin
                 VATDateNeeded := false;
                 if "Gen. Posting Type" > 0 then
@@ -654,7 +654,7 @@ codeunit 11 "Gen. Jnl.-Check Line"
                     SetupRecordID := UserSetup.RecordId;
                 end;
             if (VATAllowPostingFrom = 0D) and (VATAllowPostingTo = 0D) then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 VATAllowPostingFrom := GLSetup."Allow VAT Posting From";
                 VATAllowPostingTo := GLSetup."Allow VAT Posting To";
                 SetupRecordID := GLSetup.RecordId;

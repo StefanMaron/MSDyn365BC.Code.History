@@ -78,6 +78,15 @@ page 1279 "Service Connections"
         SetStyle;
     end;
 
+    trigger OnInit()
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        CDSIntegrationMgt: Codeunit "CDS Integration Mgt.";
+    begin
+        CRMIntegrationManagement.RegisterAssistedSetup();
+        CDSIntegrationMgt.RegisterAssistedSetup();
+    end;
+
     trigger OnOpenPage()
     begin
         ReloadServiceConnections;
@@ -95,16 +104,14 @@ page 1279 "Service Connections"
         RecordRef: RecordRef;
         DummyRecordID: RecordID;
         CurrentRecordId: RecordID;
-        Info: ModuleInfo;
     begin
         if not SetupActive then
             exit;
-        NavApp.GetCurrentModuleInfo(Info);
         if ((Status = Status::Error) or (Status = Status::Disabled)) and
            ("Assisted Setup Page ID" > 0) and
-           (AssistedSetup.ExistsAndIsNotComplete(Info.Id(), "Assisted Setup Page ID"))
+           (AssistedSetup.ExistsAndIsNotComplete("Assisted Setup Page ID"))
         then
-            AssistedSetup.Run(Info.Id(), "Assisted Setup Page ID")
+            AssistedSetup.Run("Assisted Setup Page ID")
         else begin
             CurrentRecordId := "Record ID";
             if CurrentRecordId = DummyRecordID then
@@ -142,7 +149,7 @@ page 1279 "Service Connections"
 
     local procedure ReloadServiceConnections()
     begin
-        DeleteAll;
+        DeleteAll();
         OnRegisterServiceConnection(Rec);
     end;
 }

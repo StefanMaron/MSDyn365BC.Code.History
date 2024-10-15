@@ -25,6 +25,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         NumberofLineErr: Label 'Number of Line must be same.';
         QuantityErr: Label 'Quantity must be same.';
         QtyToReceiveErr: Label 'Qty. to Receive must be equal.';
@@ -98,6 +99,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create Credit Memo using Copy Document of Sales Order.
         // 1. Setup.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         CreateItemWithReserveAlways(Item);
         CustomerNo := LibrarySales.CreateCustomerNo;
@@ -132,6 +134,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify Unit price in Sales line when Sales price with same UOM.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         QtyOfUOMPerUOM2 := 2 + LibraryRandom.RandInt(3);   // Value greater than 2 is important for Test.
         CreateItemWithMultipleUOM(ChildItem, UnitOfMeasure, UnitOfMeasure2, QtyOfUOMPerUOM2);
@@ -150,6 +153,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify Unit price in Sales line when Sales price with different UOM.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         QtyOfUOMPerUOM2 := 2 + LibraryRandom.RandInt(3);  // Value greater than 2 is important for Test.
         CreateItemWithMultipleUOM(ChildItem, UnitOfMeasure, UnitOfMeasure2, QtyOfUOMPerUOM2);
@@ -168,6 +172,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         // Verify Unit price in Sales line when Sales price with Blank UOM.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         QtyOfUOMPerUOM2 := 2 + LibraryRandom.RandInt(3);  // Value greater than 2 is important for Test.
         CreateItemWithMultipleUOM(ChildItem, UnitOfMeasure, UnitOfMeasure2, QtyOfUOMPerUOM2);
@@ -208,6 +213,7 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesPrice.Validate("Unit Price", UnitSalesPrice);
         SalesPrice.Modify(true);
 
+        CopyAllSalesPriceToPriceListLine();
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", CustomerNo);
 
         // 2. Exercise:
@@ -215,6 +221,30 @@ codeunit 137062 "SCM Sales & Receivables"
 
         // 3. Verify: Verfiy Unit Price in Sales line.
         VerifySalesUnitPrice(Item."No.", QtyOfUOMPerUOM, UnitPriceOnItemCard, UnitSalesPrice, UnitOfMeasure2.Code, UnitOfMeasure.Code);
+    end;
+
+    local procedure CopyAllSalesPriceToPriceListLine()
+    var
+        SalesPrice: Record "Sales Price";
+        SalesLineDiscount: Record "Sales Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.DeleteAll();
+
+        CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(SalesLineDiscount, PriceListLine);
+    end;
+
+    local procedure CopyAllPurchPriceToPriceListLine()
+    var
+        PurchPrice: Record "Purchase Price";
+        PurchLineDiscount: Record "Purchase Line Discount";
+        PriceListLine: Record "Price List Line";
+    begin
+        PriceListLine.DeleteAll();
+
+        CopyFromToPriceListLine.CopyFrom(PurchPrice, PriceListLine);
+        CopyFromToPriceListLine.CopyFrom(PurchLineDiscount, PriceListLine);
     end;
 
     [Test]
@@ -303,6 +333,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryCosting.CreatePurchasePrice(PurchasePrice, VendorNo, Item."No.", WorkDate, '', ItemVariant.Code, PurchPriceUnitOfMeasure, 0);
         PurchasePrice.Validate("Direct Unit Cost", UnitPurchasePrice);
         PurchasePrice.Modify(true);
+        CopyAllPurchPriceToPriceListLine();
         CreatePurchOrder(PurchaseHeader, PurchaseLine, ParentItem."No.", VendorNo);
 
         // 2. Exercise:
@@ -340,7 +371,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryInventory.CreateItem(Item);
 
         // Same Dimensions in both Item Budget Entry Lines.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionCode := GeneralLedgerSetup."Global Dimension 1 Code";
         DimensionCode2 := GeneralLedgerSetup."Global Dimension 2 Code";
         LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
@@ -368,7 +399,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Enqueue(DeletesEntriesMsg);  // Enqueue Value for Confirm Handler.
         LibraryVariableStorage.Enqueue(UpdateAnalysisViewsQst);  // Enqueue Value for Confirm Handler.
         LibraryInventory.DateComprItemBudgetEntries(
-          ItemBudgetEntry, 0, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate), PeriodLength::Quarter, LibraryUtility.GenerateGUID); // NAVCZ
+          ItemBudgetEntry, 0, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate), PeriodLength::Month, LibraryUtility.GenerateGUID);
 
         // 3. Verify: verify compressed Item Budget Entries and date compresed Item Budget Entries.
         VerifyDimension(ItemBudgetEntry, 1, DimensionValue.Code, DimensionValue2.Code);  // Value is important for Test.
@@ -403,7 +434,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryInventory.CreateItem(Item);
 
         // Different Dimensions in both Item Budget Entry lines.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DimensionCode := GeneralLedgerSetup."Global Dimension 1 Code";
         DimensionCode2 := GeneralLedgerSetup."Global Dimension 2 Code";
         LibraryDimension.FindDimensionValue(DimensionValue, DimensionCode);
@@ -457,6 +488,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create a Sales Order with one line of BOM and verify Sales line.
         // 1. Setup: Create Child and Parent Item.
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         LineDate := CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate);
         LibraryInventory.CreateItem(Item);
@@ -551,7 +583,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create Sales Credit Memo with copy Document and verify Discount.
         // 1. Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldUnitPrice := LibraryRandom.RandDec(100, 2);
         OldLineDiscountPercent := LibraryRandom.RandInt(20);
         LibraryInventory.CreateItem(Item);
@@ -582,7 +614,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // Create Purchase Credit Memo with copy Document and verify Discount.
         // 1. Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldUnitPrice := LibraryRandom.RandDec(100, 2);
         OldLineDiscountPercent := LibraryRandom.RandInt(20);
         LibraryInventory.CreateItem(Item);
@@ -884,6 +916,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // [FEATURE] [Production BOM] [Extended Text]
         // [SCENARIO 377475] Parent Item's Auto Extended Text remains after Explode BOM on Sales Line
         Initialize;
+        LibrarySales.SetStockoutWarning(false);
 
         // [GIVEN] Item "A" with "Description" = "A_Desc", "Automatic Ext. Texts" = TRUE, Extended Text = "A_ExtText"
         // [GIVEN] Item "B" with "Description" = "B_Desc", "Automatic Ext. Texts" = TRUE, Extended Text = "B_ExtText"
@@ -913,7 +946,6 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Sales & Receivables");
-        LibrarySales.SetStockoutWarning(false);
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
         if Initialized then
@@ -928,7 +960,7 @@ codeunit 137062 "SCM Sales & Receivables"
         NoSeriesSetup;
         CreateLocationSetup;
         ItemJournalSetup;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -941,7 +973,7 @@ codeunit 137062 "SCM Sales & Receivables"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Validate("Credit Memo Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -950,7 +982,7 @@ codeunit 137062 "SCM Sales & Receivables"
         SalesReceivablesSetup.Validate("Return Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -961,13 +993,13 @@ codeunit 137062 "SCM Sales & Receivables"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -977,7 +1009,7 @@ codeunit 137062 "SCM Sales & Receivables"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Exact Cost Reversing Mandatory", ExactCostReversingMandatory);
         SalesReceivablesSetup.Modify(true);
     end;
@@ -1039,7 +1071,7 @@ codeunit 137062 "SCM Sales & Receivables"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // Enable option 'Exact Cost Reversal'
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         UpdateSalesReceivablesSetup(true);
 
         // Create a Credit Memo and copy document from old Posted Invoice.
@@ -1420,7 +1452,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
-        ActualCount := PurchaseLine.Count;
+        ActualCount := PurchaseLine.Count();
         Assert.AreEqual(ExpectedCount, ActualCount, ' Wrong number of sales lines ' + Format(ActualCount));
 
         PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
@@ -1438,7 +1470,7 @@ codeunit 137062 "SCM Sales & Receivables"
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
-        ActualCount := SalesLine.Count;
+        ActualCount := SalesLine.Count();
         Assert.AreEqual(ExpectedCount, ActualCount, ' Wrong number of sales lines ' + Format(ActualCount));
 
         SalesLine.SetRange(Type, SalesLine.Type::Item);

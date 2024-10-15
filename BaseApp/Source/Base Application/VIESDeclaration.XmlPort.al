@@ -299,7 +299,7 @@ xmlport 31060 "VIES Declaration"
     procedure SetHeader(NewVIESHeader: Record "VIES Declaration Header")
     begin
         Header := NewVIESHeader;
-        Header.Insert;
+        Header.Insert();
     end;
 
     [Scope('OnPrem')]

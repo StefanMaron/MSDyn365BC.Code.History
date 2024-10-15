@@ -81,7 +81,7 @@ codeunit 130404 "CAL Test Project Mgt."
                 GetAttribute(GetElementName(CALTestSuite.FieldName(Description)), DocumentElement), 1,
                 MaxStrLen(CALTestSuite.Description));
             if not CALTestSuite.Get(CALTestSuite.Name) then
-                CALTestSuite.Insert;
+                CALTestSuite.Insert();
 
             TestNodes := DocumentElement.ChildNodes;
             for NodeCount := 0 to (TestNodes.Count - 1) do begin

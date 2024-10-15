@@ -463,7 +463,7 @@ report 31091 "Purchase - Quote CZ"
 
     trigger OnInitReport()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
     end;
 
     trigger OnPreReport()

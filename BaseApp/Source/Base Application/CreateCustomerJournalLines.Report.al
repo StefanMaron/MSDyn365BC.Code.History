@@ -16,7 +16,7 @@ report 8611 "Create Customer Journal Lines"
             var
                 StdGenJournalLine: Record "Standard General Journal Line";
             begin
-                GenJnlLine.Init;
+                GenJnlLine.Init();
                 if GetStandardJournalLine then begin
                     Initialize(StdGenJournal, GenJnlBatch.Name);
 
@@ -122,7 +122,6 @@ report 8611 "Create Customer Journal Lines"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document Type';
-                        OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
                         ToolTip = 'Specifies the type of document that is processed by the report or batch job.';
                     }
                     field(DocumentNo; DocumentNo)
@@ -311,7 +310,7 @@ report 8611 "Create Customer Journal Lines"
         ShowBalance: Boolean;
         ShowTotalBalance: Boolean;
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Line No." := 0;
         GenJnlManagement.CalcBalance(GenJnlLine, LastGenJnlLine, Balance, TotalBalance, ShowBalance, ShowTotalBalance);
         GenJnlLine.SetUpNewLine(LastGenJnlLine, Balance, true);

@@ -165,7 +165,7 @@ page 2141 "O365 Sales Quote"
                         DummyCountryCode: Code[10];
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                             Find;
@@ -360,7 +360,7 @@ page 2141 "O365 Sales Quote"
                 trigger OnAction()
                 begin
                     ForceExit := true;
-                    Commit;
+                    Commit();
                     if not O365SendResendInvoice.SendInvoiceFromQuote(Rec, false) then
                         ForceExit := false;
                 end;
@@ -404,7 +404,7 @@ page 2141 "O365 Sales Quote"
                     DocumentPath: Text[250];
                 begin
                     SetRecFilter;
-                    LockTable;
+                    LockTable();
                     Find;
                     ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Quote", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
@@ -447,7 +447,7 @@ page 2141 "O365 Sales Quote"
                     ForceExit := true;
 
                     if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then
-                        CustInvoiceDisc.Delete;
+                        CustInvoiceDisc.Delete();
                     Delete(true);
                 end;
             }
@@ -471,7 +471,7 @@ page 2141 "O365 Sales Quote"
         UpdateNoOfAttachmentsLabel(O365SalesAttachmentMgt.GetNoOfAttachments(Rec));
         SetDefaultPaymentServices;
         if "Currency Code" = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             CurrencySymbol := GLSetup.GetCurrencySymbol;
         end else begin
             if Currency.Get("Currency Code") then;
@@ -498,7 +498,7 @@ page 2141 "O365 Sales Quote"
         ForceExit := true;
 
         if CustInvoiceDisc.Get("Invoice Disc. Code", "Currency Code", 0) then
-            CustInvoiceDisc.Delete;
+            CustInvoiceDisc.Delete();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean

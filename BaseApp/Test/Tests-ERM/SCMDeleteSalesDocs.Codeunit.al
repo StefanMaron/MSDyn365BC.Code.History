@@ -37,11 +37,11 @@ codeunit 137208 "SCM Delete Sales Docs"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Bank Account No." := 'A';
-        CompanyInformation.Modify;
+        CompanyInformation.Modify();
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Delete Sales Docs");
     end;
 
@@ -196,7 +196,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment CZ")
+    procedure SalesShipReportHandler(var SalesShipment: Report "Sales - Shipment")
     begin
         SalesShipment.SetTableView(SalesShipmentHeader);
         SalesShipment.SaveAsPdf(FilePath);
@@ -204,7 +204,7 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Reciept CZ")
+    procedure RetRcptReportHandler(var SalesReturnReceipt: Report "Sales - Return Receipt")
     begin
         SalesReturnReceipt.SetTableView(ReturnReceiptHeader);
         SalesReturnReceipt.SaveAsPdf(FilePath);
@@ -212,18 +212,18 @@ codeunit 137208 "SCM Delete Sales Docs"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure SalesInvReportHandler(var SalesInvoice: Report "Sales - Invoice CZ")
+    procedure SalesInvReportHandler(var StandardSalesInvoice: Report "Standard Sales - Invoice")
     begin
-        SalesInvoice.SetTableView(SalesInvoiceHeader);
-        SalesInvoice.SaveAsPdf(FilePath);
+        StandardSalesInvoice.SetTableView(SalesInvoiceHeader);
+        StandardSalesInvoice.SaveAsPdf(FilePath);
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure CrMemoReportHandler(var SalesCreditMemo: Report "Sales - Credit Memo CZ")
+    procedure CrMemoReportHandler(var StandardSalesCreditMemo: Report "Standard Sales - Credit Memo")
     begin
-        SalesCreditMemo.SetTableView(SalesCrMemoHeader);
-        SalesCreditMemo.SaveAsPdf(FilePath);
+        StandardSalesCreditMemo.SetTableView(SalesCrMemoHeader);
+        StandardSalesCreditMemo.SaveAsPdf(FilePath);
     end;
 }
 

@@ -55,7 +55,7 @@ table 130416 "Semi-Manual Execution Log"
         "Step description 3" := CopyStr(Message, 501, 250);
         "Step description 4" := CopyStr(Message, 751, 250);
         Insert;
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

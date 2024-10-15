@@ -377,7 +377,7 @@ page 5666 "FA Depreciation Books Subform"
     local procedure GetACYCode(): Code[10]
     begin
         if not AddCurrCodeIsFound then
-            GLSetup.Get;
+            GLSetup.Get();
         exit(GLSetup."Additional Reporting Currency");
     end;
 
@@ -389,7 +389,7 @@ page 5666 "FA Depreciation Books Subform"
 
     local procedure ShowFAErrorLedgEntries()
     begin
-        FALedgEntry.Reset;
+        FALedgEntry.Reset();
         FALedgEntry.SetCurrentKey("Canceled from FA No.");
         FALedgEntry.SetRange("Canceled from FA No.", "FA No.");
         FALedgEntry.SetRange("Depreciation Book Code", "Depreciation Book Code");

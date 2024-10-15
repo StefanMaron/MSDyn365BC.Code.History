@@ -1,4 +1,4 @@
-﻿codeunit 134769 "Test User Tasks"
+codeunit 134769 "Test User Tasks"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -108,23 +108,23 @@
         // [SCENARIO] Test the User Task purge.
 
         // [GIVEN] Several Task records with different creators.
-        UserTask.DeleteAll;
-        UserTask.Init;
+        UserTask.DeleteAll();
+        UserTask.Init();
         UserTask."Created By" := User1."User Security ID";
         UserTask."Assigned To" := User2."User Security ID";
-        UserTask.Insert;
+        UserTask.Insert();
 
         Clear(UserTask);
-        UserTask.Init;
+        UserTask.Init();
         UserTask."Created By" := User2."User Security ID";
         UserTask."Assigned To" := User1."User Security ID";
-        UserTask.Insert;
+        UserTask.Insert();
 
         // [WHEN] The task purge is asked to delete tasks for User1
         // [THEN] Those records are deleted, tasks created by User2 remain.
 
         Assert.AreEqual(2, UserTask.Count, 'Unexpected record count prior to purge');
-        Commit;
+        Commit();
 
         REPORT.Run(REPORT::"User Task Utility");
 
@@ -142,12 +142,75 @@
     begin
         // FEATURE] [UT]
         // [SCENARIO 253612] Task Description field in User Task table must be set accordingly to its encoding
-        UserTask.Init;
+        UserTask.Init();
         UserTask.SetDescription('Vytvorení úcetního období pro rok 2018');
-        UserTask.Insert;
+        UserTask.Insert();
 
         UserTask2.Get(UserTask.ID);
         Assert.AreEqual('Vytvorení úcetního období pro rok 2018', UserTask2.GetDescription, 'Unexpected value in the Task Description');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    procedure TestRenameUser()
+    var
+        User: Record User;
+        FieldRec: Record "Field";
+        Company: Record Company;
+        TableInformation: Record "Table Information";
+        TempTablesAlreadyInserted: Record Integer temporary;
+        RecRef: RecordRef;
+        FldRef: FieldRef;
+        UserMgt: Codeunit "User Management";
+    begin
+        // [GIVEN] Create data for tables with fields having relation with User table
+        Company.FindFirst();
+        FieldRec.SetFilter(ObsoleteState, '<>%1', FieldRec.ObsoleteState::Removed);
+        FieldRec.SetRange(RelationTableNo, DATABASE::User);
+        FieldRec.SetRange(RelationFieldNo, User.FieldNo("User Name"));
+        FieldRec.SetFilter(Type, '%1|%2', FieldRec.Type::Code, FieldRec.Type::Text);
+        if FieldRec.FindSet() then
+            repeat
+                TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
+                TableInformation.SetRange("Table No.", FieldRec.TableNo);
+                if TableInformation.FindFirst then begin
+                    RecRef.Open(FieldRec.TableNo, false, Company.Name);
+                    if TempTablesAlreadyInserted.Get(FieldRec.TableNo) then begin
+                        RecRef.FindFirst();
+                        FldRef := RecRef.Field(FieldRec."No.");
+                        FldRef.Value('OLD');
+                        RecRef.Modify();
+                    end else begin
+                        RecRef.DeleteAll();
+                        RecRef.Init();
+                        FldRef := RecRef.Field(FieldRec."No.");
+                        FldRef.Value('OLD');
+                        RecRef.Insert();
+                        TempTablesAlreadyInserted.Init();
+                        TempTablesAlreadyInserted.Number := FieldRec.TableNo;
+                        TempTablesAlreadyInserted.Insert();
+                    end;
+                    RecRef.Close();
+                end;
+            until FieldRec.Next() = 0;
+
+        // [WHEN] RenameUser is invoked
+        UserMgt.RenameUser('OLD', 'NEW');
+
+        // [THEN] The data in the table fields has been updated
+        if FieldRec.FindSet() then
+            repeat
+                TableInformation.SetFilter("Company Name", '%1|%2', '', Company.Name);
+                TableInformation.SetRange("Table No.", FieldRec.TableNo);
+                if TableInformation.FindFirst then begin
+                    RecRef.Open(FieldRec.TableNo, false, Company.Name);
+                    FldRef := RecRef.Field(FieldRec."No.");
+                    FldRef.SetRange('NEW');
+                    Assert.AreEqual(1, RecRef.Count(), StrSubstNo('Records with new username should exist in %1.', TableInformation."Table Name"));
+                    RecRef.Close();
+                end;
+            until FieldRec.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -156,7 +219,7 @@
         UserTask: Record "User Task";
         LibraryPermissions: Codeunit "Library - Permissions";
     begin
-        UserTask.DeleteAll;
+        UserTask.DeleteAll();
 
         LibraryPermissions.CreateUser(User1, '', false);
         LibraryPermissions.CreateUser(User2, '', false);
@@ -243,7 +306,7 @@
     [Scope('OnPrem')]
     procedure CreateUserTaskGroup(var UserTaskGroup: Record "User Task Group")
     begin
-        UserTaskGroup.Init;
+        UserTaskGroup.Init();
         UserTaskGroup.Code := 'Group 1';
         UserTaskGroup.Description := 'Description';
         UserTaskGroup.Insert(true);
@@ -254,7 +317,7 @@
     begin
         if UserTaskGroupMember.Get(GroupCode, UserSecID) then
             exit;
-        UserTaskGroupMember.Init;
+        UserTaskGroupMember.Init();
         UserTaskGroupMember."User Task Group Code" := GroupCode;
         UserTaskGroupMember."User Security ID" := UserSecID;
         UserTaskGroupMember.Insert(true);

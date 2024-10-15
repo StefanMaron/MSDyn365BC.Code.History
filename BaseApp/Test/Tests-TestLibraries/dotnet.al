@@ -7,7 +7,7 @@ dotnet
 {
     assembly("Microsoft.Dynamics.Nav.PermissionTestHelper")
     {
-        Version = '15.0.0.0';
+        Version = '16.0.0.0';
         Culture = 'neutral';
         PublicKeyToken = '31bf3856ad364e35';
 
@@ -15,7 +15,7 @@ dotnet
         {
         }
     }
-
+	
     assembly(mscorlib)
     {
 
@@ -28,10 +28,6 @@ dotnet
         }
 
         type("System.Reflection.BindingFlags"; "System.Reflection.BindingFlags")
-        {
-        }
-
-        type("System.Security.Cryptography.AsymmetricAlgorithm"; "AsymmetricAlgorithm")
         {
         }
 

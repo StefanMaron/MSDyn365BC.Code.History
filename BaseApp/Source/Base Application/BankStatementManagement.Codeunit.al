@@ -12,16 +12,10 @@ codeunit 11705 "Bank Statement Management"
         GLSetup: Record "General Ledger Setup";
         UserSetupLine: Record "User Setup Line";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeBankStatementSelection(BankStmtHdr, StatSelected, IsHandled);
-        if IsHandled then
-            exit;
-
         StatSelected := true;
 
-        BankAcc.Reset;
+        BankAcc.Reset();
 
         case BankAcc.Count of
             0:
@@ -33,7 +27,7 @@ codeunit 11705 "Bank Statement Management"
         end;
 
         if StatSelected then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Bank Stmt", BankAcc."No.");
             BankStmtHdr.FilterGroup := 2;
@@ -49,16 +43,10 @@ codeunit 11705 "Bank Statement Management"
         GLSetup: Record "General Ledger Setup";
         UserSetupLine: Record "User Setup Line";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
-        IsHandled: Boolean;
     begin
-        IsHandled := false;
-        OnBeforeIssuedBankStatementSelection(IssuedBankStmtHdr, StatSelected, IsHandled);
-        if IsHandled then
-            exit;
-
         StatSelected := true;
 
-        BankAcc.Reset;
+        BankAcc.Reset();
 
         case BankAcc.Count of
             0:
@@ -70,23 +58,13 @@ codeunit 11705 "Bank Statement Management"
         end;
 
         if StatSelected then begin
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserSetupAdvMgt.CheckBankAccountNo(UserSetupLine.Type::"Bank Stmt", BankAcc."No.");
             IssuedBankStmtHdr.FilterGroup := 2;
             IssuedBankStmtHdr.SetRange("Bank Account No.", BankAcc."No.");
             IssuedBankStmtHdr.FilterGroup := 0;
         end;
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeBankStatementSelection(var BankStmtHdr: Record "Bank Statement Header"; var StatSelected: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeIssuedBankStatementSelection(var IssuedBankStmtHdr: Record "Issued Bank Statement Header"; var StatSelected: Boolean; var IsHandled: Boolean)
-    begin
     end;
 }
 

@@ -24,7 +24,6 @@ codeunit 130800 "Library - Extension Perm."
         InsertCeridianPayrollPermissions;
         InsertDynamicsGPDataMigrationPermissions;
         InsertQuickBooksSynchronizationPermissions;
-        InsertQuickBooksDesktopSynchronizationPermissions;
         InsertUKPostcodeGetAddressIOPermissions;
         InsertXeroPermissions;
         InsertImageAnalysisPermissions;
@@ -40,7 +39,7 @@ codeunit 130800 "Library - Extension Perm."
         InsertIntelligentCloudPermissions;
         InsertNAV2018IntelligentCloudPermissions;
 
-        Commit;
+        Commit();
     end;
 
     local procedure InsertAccountantPortalPermissions()
@@ -161,11 +160,6 @@ codeunit 130800 "Library - Extension Perm."
         InsertExtensionObjectDefaultPermissions(5382, 1, 1, 1, 1);
         InsertExtensionObjectDefaultPermissions(5383, 1, 1, 1, 1);
         InsertExtensionObjectDefaultPermissions(5384, 1, 1, 1, 1);
-    end;
-
-    local procedure InsertQuickBooksDesktopSynchronizationPermissions()
-    begin
-        InsertExtensionObjectDefaultPermissions(5395, 1, 1, 1, 1);
     end;
 
     local procedure InsertUKPostcodeGetAddressIOPermissions()
@@ -358,7 +352,7 @@ codeunit 130800 "Library - Extension Perm."
         if Permission.Get(RoleID, Permission."Object Type"::"Table Data", ObjectID) then
             exit;
 
-        Permission.Init;
+        Permission.Init();
         Permission.Validate("Role ID", RoleID);
         Permission.Validate("Object Type", Permission."Object Type"::"Table Data");
         Permission.Validate("Object ID", ObjectID);
@@ -374,7 +368,7 @@ codeunit 130800 "Library - Extension Perm."
             Permission."Delete Permission" := Permission."Delete Permission"::" ";
         end;
         Permission."Execute Permission" := Permission."Execute Permission"::" ";
-        if Permission.Insert then; // In case of duplicates when combining permission sets
+        if Permission.Insert() then; // In case of duplicates when combining permission sets
     end;
 
     procedure D365BusFull(): Code[20]

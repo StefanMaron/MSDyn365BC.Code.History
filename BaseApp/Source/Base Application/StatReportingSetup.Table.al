@@ -167,14 +167,14 @@ table 31065 "Stat. Reporting Setup"
 
             trigger OnValidate()
             begin
-                ItemCharge.Reset;
+                ItemCharge.Reset();
                 ItemCharge.SetRange("Incl. in Intrastat Amount", true);
                 if ItemCharge.FindFirst then
                     Error(Text26500Err,
                       FieldCaption("No Item Charges in Intrastat"),
                       ItemCharge.TableCaption, ItemCharge.FieldCaption("Incl. in Intrastat Amount"));
 
-                ItemCharge.Reset;
+                ItemCharge.Reset();
                 ItemCharge.SetRange("Incl. in Intrastat Stat. Value", true);
                 if ItemCharge.FindFirst then
                     Error(Text26500Err,

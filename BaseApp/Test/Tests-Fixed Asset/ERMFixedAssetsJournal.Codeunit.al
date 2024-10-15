@@ -44,10 +44,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
         ExtDocNoTok: Label 'ExtDocNo';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         AcquisitionOptions: Option "G/L Account",Vendor,"Bank Account";
         isInitialized: Boolean;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetNotification()
     var
@@ -68,9 +70,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Teardown
         SetDefaultDepreciationBook(DefaultDepreciationBookCode);
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostBankAccount()
     begin
@@ -79,6 +84,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostGLAccount()
     begin
@@ -87,6 +93,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetUsingAcquisitionWizardAutoPostVendorAccount()
     begin
@@ -95,6 +102,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [TransactionModel(TransactionModel::AutoCommit)]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetGenJournalLinesCreation()
@@ -119,12 +127,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // Exercise
         CreateGenJournalLineForGenJournalLinesCreation(TempGenJournalLine, VendorNo, FixedAsset."No.");
         // COMMIT is enforced because the Finish action is invoking a codeunit and uses the return value.
-        Commit;
+        Commit();
 
         TempGenJournalLine.CreateFAAcquisitionLines(GenJournalLine2);
 
         // Verify
-        GenJournalLine2.Init;
+        GenJournalLine2.Init();
         GenJournalLine2.SetRange("Journal Batch Name", FixedAssetAcquisitionWizard.GetAutogenJournalBatch);
         GenJournalLine2.SetRange("Journal Template Name", FixedAssetAcquisitionWizard.SelectFATemplate);
         Assert.RecordCount(GenJournalLine2, 2);
@@ -134,9 +142,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Teardown
         SetDefaultDepreciationBook(DefaultDepreciationBookCode);
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure AcquireFixedAssetGenJournalLinesAlreadyExist()
     var
@@ -160,7 +171,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // Exercise
         CreateGenJournalLineForGenJournalLinesCreation(TempGenJournalLine, Vendor."No.", FixedAsset."No.");
         // COMMIT is enforced because the Finish action is invoking a codeunit and uses the return value.
-        Commit;
+        Commit();
         TempGenJournalLine.CreateFAAcquisitionLines(GenJournalLine2);
 
         // Verify
@@ -174,7 +185,9 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // Teardown
         SetDefaultDepreciationBook(DefaultDepreciationBookCode);
         GenJournalLine2.SetRange("Journal Batch Name", GenJournalLine2."Journal Batch Name");
-        GenJournalLine2.DeleteAll;
+        GenJournalLine2.DeleteAll();
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     [Test]
@@ -273,7 +286,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CreateJournalSetupDepreciation(DepreciationBook);
         CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", FixedAsset."FA Posting Group", DepreciationBook.Code);
 
-        FixedAssetCount := FixedAsset.Count;
+        FixedAssetCount := FixedAsset.Count();
         NoOfFixedAssetCopied := LibraryRandom.RandInt(10);  // Using Random Generator to Copy the Number of Fixed Asset.
 
         // 2.Exercise: Run the Copy Fixed Assets.
@@ -732,7 +745,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // 1. Setup:
         Initialize;
-        FASetup.Get;
+        FASetup.Get();
         OldInsuranceDeprBookValue := FASetup."Insurance Depr. Book";
 
         // 2. Exercise: Update Insurance Depreciation Book.
@@ -1787,7 +1800,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // 1. Setup: Get Next Fixed Asset No from No Series.
         Initialize;
         LibraryUtility.UpdateSetupNoSeriesCode(DATABASE::"FA Setup", FASetup.FieldNo("Fixed Asset Nos."));
-        FASetup.Get;
+        FASetup.Get();
         NextFANo := NoSeriesManagement.GetNextNo(FASetup."Fixed Asset Nos.", WorkDate, false);
 
         // 2. Exercise: Create new Fixed Asset.
@@ -1912,7 +1925,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
           FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code",
           FAJournalLine."Document Type"::" ", FAJournalLine."FA Posting Type"::"Acquisition Cost");
 
-        Commit; // Commit is required for Posting
+        Commit(); // Commit is required for Posting
         FAJournalLineAmount := FAJournalLine.Amount;
         FAJournalBatch.Get(FAJournalLine."Journal Template Name", FAJournalLine."Journal Batch Name");
 
@@ -1952,7 +1965,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CreateRecurringFAJournalLine(
           FAJournalLine, FixedAsset."No.", FADepreciationBook."Depreciation Book Code", FAJournalBatch);
 
-        Commit; // Commit is required for Posting
+        Commit(); // Commit is required for Posting
         FAJournalLineAmount := FAJournalLine.Amount;
 
         // 2.Exercise: Post Recurring FA Journal Line through Recurring FA Journal Batch.
@@ -2207,7 +2220,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         // Exercise: Execute TemplateSelectionFromBatch function of FAJnlManagement.
         LibraryLowerPermissions.SetO365FASetup;
         LibraryLowerPermissions.AddO365FAEdit;
-        Commit;       // commit is required here;
+        Commit();       // commit is required here;
         LibraryVariableStorage.Enqueue(FAJournalBatch.Name);
         FAJnlManagement.TemplateSelectionFromBatch(FAJournalBatch);
 
@@ -2245,6 +2258,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure RunAcquireWizardForBankAccountWhenAcquisitionAllocationExists()
     var
@@ -2269,9 +2283,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // [THEN] 3 GL Entry with total amount 0.0 created after run Fixed Asset Acquire wizard
         VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure RunAcquireWizardForVendorWhenAcquisitionAllocationExists()
     var
@@ -2296,9 +2313,12 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // [THEN] 3 GL Entry with total amount 0.0 created after run Fixed Asset Acquire wizard
         VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     [Test]
+    [HandlerFunctions('AcquireFANotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure RunAcquireWizardForGLAccountWhenAcquisitionAllocationExists()
     var
@@ -2323,6 +2343,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // [THEN] 3 GL Entry with total amount 0.0 created after run Fixed Asset Acquire wizard
         VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAsset."No.");
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     [Test]
@@ -2348,7 +2370,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CreateFAWithFADepreciationBook(FADepreciationBook, DepreciationBook.Code);
 
         // [GIVEN] "Gen. Journal Line" with "Bal. Account Type" = "Fixed Asset"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Fixed Asset";
 
         // [WHEN] Validate "Bal. Account No." with "FA" on Gen. Journal Line
@@ -2381,7 +2403,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CreateFAWithFADeprBook(FADepreciationBook, DepreciationBook.Code);
 
         // [GIVEN] "Gen. Journal Line" with "Bal. Account Type" = "Fixed Asset" and "Depreciation Book Code" = ""
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Fixed Asset";
 
         // [WHEN] Validate "Bal. Account No." with "FA" on Gen. Journal Line
@@ -2414,7 +2436,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         CreateFAWithFADeprBook(FADepreciationBook, DepreciationBook.Code);
 
         // [GIVEN] "Gen. Journal Line" with "Bal. Account Type" = "Fixed Asset" and "Depreciation Book Code" = "FADB"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Bal. Account Type" := GenJournalLine."Bal. Account Type"::"Fixed Asset";
         GenJournalLine."Depreciation Book Code" := DepreciationBook.Code;
 
@@ -2615,10 +2637,10 @@ codeunit 134450 "ERM Fixed Assets Journal"
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
-        UpdateFASetup; // NAVCZ
+
         LibrarySetupStorage.Save(DATABASE::"FA Setup");
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Fixed Assets Journal");
     end;
 
@@ -2655,7 +2677,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     local procedure CopyFAJournalLine(var FAJournalLineOld: Record "FA Journal Line"; var FAJournalLine: Record "FA Journal Line")
     begin
         FAJournalLineOld := FAJournalLine;
-        FAJournalLineOld.Insert;
+        FAJournalLineOld.Insert();
     end;
 
     local procedure CreateAndPostAcqusitionLine(FADepreciationBook: Record "FA Depreciation Book"; var Amount: Decimal)
@@ -2723,7 +2745,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         else
             FixedAsset."Main Asset/Component" := FixedAsset."Main Asset/Component"::Component;
 
-        FixedAsset.Modify;
+        FixedAsset.Modify();
 
         if DepreciationBook.Code = '' then
             CreateJournalSetupDepreciation(DepreciationBook);
@@ -2747,13 +2769,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalSetup: Record "FA Journal Setup";
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        // NAVCZ
-        DepreciationBook.Validate("Disposal Calculation Method", DepreciationBook."Disposal Calculation Method"::Gross);
-        DepreciationBook.Modify(true);
-        // NAVCZ
         LibraryFixedAsset.CreateFAJournalSetup(FAJournalSetup, DepreciationBook.Code, '');
         UpdateFAJournalSetup(FAJournalSetup);
-        UpdateFAPostingTypeSetup(DepreciationBook.Code); // NAVCZ
     end;
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -2786,7 +2803,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        FAJournalTemplate.Init;
+        FAJournalTemplate.Init();
         FAJournalTemplate.Validate(Name, GenJournalTemplate.Name);
         FAJournalTemplate.Validate("Page ID");
         FAJournalTemplate.Insert(true);
@@ -2980,59 +2997,59 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
     local procedure CreateFAJournalBatchWithNoSeries(var FAJournalBatch: Record "FA Journal Batch"; NoSeries: Code[20]; PostingNoSeries: Code[20])
     begin
-        FAJournalBatch.Init;
+        FAJournalBatch.Init();
         FAJournalBatch."Journal Template Name" := LibraryUtility.GenerateGUID;
         FAJournalBatch.Name := LibraryUtility.GenerateGUID;
         FAJournalBatch."No. Series" := NoSeries;
         FAJournalBatch."Posting No. Series" := PostingNoSeries;
-        FAJournalBatch.Insert;
+        FAJournalBatch.Insert();
     end;
 
     local procedure CreateFAJournalLineForFAJournalBatch(var FAJournalLine: Record "FA Journal Line"; FAJournalBatch: Record "FA Journal Batch")
     begin
-        FAJournalLine.Init;
+        FAJournalLine.Init();
         FAJournalLine."Journal Template Name" := FAJournalBatch."Journal Template Name";
         FAJournalLine."Journal Batch Name" := FAJournalBatch.Name;
         FAJournalLine."Line No." := LibraryUtility.GetNewRecNo(FAJournalLine, FAJournalLine.FieldNo("Line No."));
-        FAJournalLine.Insert;
+        FAJournalLine.Insert();
     end;
 
     local procedure CreateGenJournalBatchWithNoSeries(var GenJournalBatch: Record "Gen. Journal Batch"; NoSeries: Code[20]; PostingNoSeries: Code[20])
     begin
-        GenJournalBatch.Init;
+        GenJournalBatch.Init();
         GenJournalBatch."Journal Template Name" := LibraryUtility.GenerateGUID;
         GenJournalBatch.Name := LibraryUtility.GenerateGUID;
         GenJournalBatch."No. Series" := NoSeries;
         GenJournalBatch."Posting No. Series" := PostingNoSeries;
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
     end;
 
     local procedure CreateGenJournalLineForGenJournalBatch(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch")
     begin
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Line No." := LibraryUtility.GetNewRecNo(GenJournalLine, GenJournalLine.FieldNo("Line No."));
-        GenJournalLine.Insert;
+        GenJournalLine.Insert();
     end;
 
     local procedure CreateInsuranceJournalBatchWithNoSeries(var InsuranceJournalBatch: Record "Insurance Journal Batch"; NoSeries: Code[20]; PostingNoSeries: Code[20])
     begin
-        InsuranceJournalBatch.Init;
+        InsuranceJournalBatch.Init();
         InsuranceJournalBatch."Journal Template Name" := LibraryUtility.GenerateGUID;
         InsuranceJournalBatch.Name := LibraryUtility.GenerateGUID;
         InsuranceJournalBatch."No. Series" := NoSeries;
         InsuranceJournalBatch."Posting No. Series" := PostingNoSeries;
-        InsuranceJournalBatch.Insert;
+        InsuranceJournalBatch.Insert();
     end;
 
     local procedure CreateInsuranceJournalLineForInsuranceJournalBatch(var InsuranceJournalLine: Record "Insurance Journal Line"; InsuranceJournalBatch: Record "Insurance Journal Batch")
     begin
-        InsuranceJournalLine.Init;
+        InsuranceJournalLine.Init();
         InsuranceJournalLine."Journal Template Name" := InsuranceJournalBatch."Journal Template Name";
         InsuranceJournalLine."Journal Batch Name" := InsuranceJournalBatch.Name;
         InsuranceJournalLine."Line No." := LibraryUtility.GetNewRecNo(InsuranceJournalLine, InsuranceJournalLine.FieldNo("Line No."));
-        InsuranceJournalLine.Insert;
+        InsuranceJournalLine.Insert();
     end;
 
     local procedure CreateFixedAssetWithAllocationAndJournalSetup(var FADepreciationBook: Record "FA Depreciation Book")
@@ -3071,7 +3088,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalTemplate: Record "FA Journal Template";
     begin
         FAJournalTemplate.SetRange("Page ID", PageID);
-        FAJournalTemplate.DeleteAll;
+        FAJournalTemplate.DeleteAll();
     end;
 
     local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; FAPostingType: Option)
@@ -3237,7 +3254,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FixedAssetAcquisitionWizard.NextPage.Invoke;
         FixedAssetAcquisitionWizard.OpenFAGLJournal.SetValue(false);
 
-        Commit;
+        // COMMIT is enforced because the Finish action is invoking a codeunit and uses the return value.
+        Commit();
 
         FixedAssetAcquisitionWizard.Finish.Invoke;
     end;
@@ -3253,7 +3271,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
     local procedure SaveValuesOnTempFixedAsset(var FixedAssetOld: Record "Fixed Asset"; FixedAsset: Record "Fixed Asset")
     begin
-        FixedAssetOld.Init;
+        FixedAssetOld.Init();
         FixedAssetOld := FixedAsset;
         FixedAssetOld.Insert(true);
     end;
@@ -3347,7 +3365,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalBatch.Get(FAJournalSetup."FA Jnl. Template Name", FAJournalSetup."FA Jnl. Batch Name");
         FAJournalBatch."Posting No. Series" :=
           LibraryUtility.GenerateRandomCode20(FAJournalBatch.FieldNo("Posting No. Series"), DATABASE::"FA Journal Batch");
-        FAJournalBatch.Modify;
+        FAJournalBatch.Modify();
     end;
 
     local procedure UpdatePartOfDuplicationList(var DepreciationBook: Record "Depreciation Book"; PartOfDuplicationList: Boolean)
@@ -3380,7 +3398,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
 
         // Using the Random function for Date.
         FASetup.Validate("Allow FA Posting From", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
@@ -3515,7 +3533,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FALedgerEntry.SetRange("FA No.", FAJournalLine."FA No.");
         FALedgerEntry.FindLast;
         FALedgerEntry.TestField("Document Type", FAJournalLine."Document Type");
-        FALedgerEntry.TestField("FA Posting Type", FAJournalLine."FA Posting Type");
+        FALedgerEntry.TestField("FA Posting Type", FAJournalLine."FA Posting Type".AsInteger());
         FALedgerEntry.TestField(Amount, FAJournalLine.Amount);
     end;
 
@@ -3568,7 +3586,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLineAmount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindFALedgerEntry(FALedgerEntry, AccountNo, FALedgerEntry."FA Posting Type"::"Acquisition Cost");
         GenJournalLine.SetRange("Account No.", AccountNo);
         GenJournalLine.FindFirst;
@@ -3687,6 +3705,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FAJournalTemplate.TestField(Description, FAJnlTemplateDescription);
         Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, FAJournalTemplate.TableCaption));
     end;
+
     local procedure VerifyFirstFAJournalTemplateCreation(RecurringJnl: Boolean; FAJnlTemplateName: Text[250]; FAJnlTemplateDescription: Text[250])
     var
         FAJournalLine: Record "FA Journal Line";
@@ -3698,8 +3717,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         Initialize;
 
         // Exercise: Execute TemplateSelection function of FAJnlManagement.
-        FAJournalTemplate.DeleteAll;
-        FAJournalLine.DeleteAll;
+        FAJournalTemplate.DeleteAll();
+        FAJournalLine.DeleteAll();
         FAJnlManagement.TemplateSelection(FAJournalTemplate."Page ID", RecurringJnl, FAJournalLine, JnlSelected);
 
         // Verify: Verify that if no FA Journal Template is present in setup then a default setup will be created
@@ -3708,14 +3727,14 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Tear down.
         FAJournalTemplate.Get(FAJnlTemplateName);
-        FAJournalTemplate.Delete;
+        FAJournalTemplate.Delete();
     end;
 
     local procedure GetDefaultDepreciationBook() DepreciationBookCode: Code[10]
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         DepreciationBookCode := FASetup."Default Depr. Book";
     end;
 
@@ -3723,7 +3742,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup.Validate("Default Depr. Book", DepreciationBookCode);
         FASetup.Modify(true);
     end;
@@ -3753,19 +3772,19 @@ codeunit 134450 "ERM Fixed Assets Journal"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         AllowPostingMainAsset := FASetup."Allow Posting to Main Assets";
         FASetup."Allow Posting to Main Assets" := true;
-        FASetup.Modify;
+        FASetup.Modify();
     end;
 
     local procedure ResetSetup(AllowPostingMainAsset: Boolean)
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
         FASetup."Allow Posting to Main Assets" := AllowPostingMainAsset;
-        FASetup.Modify;
+        FASetup.Modify();
     end;
 
     local procedure CreateFAAcquisitionSetupForWizard(var FixedAsset: Record "Fixed Asset")
@@ -3799,6 +3818,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FADepreciationBook.FindFirst;
         FAPostingGroup.Get(FADepreciationBook."FA Posting Group");
     end;
+
+    [HandlerFunctions('AcquireFANotificationHandler')]
     local procedure AcquireFixedAssetUsingAcquisitionWizardAutoPost(BalAccountType: Option; BalAccountNo: Code[20])
     var
         FixedAsset: Record "Fixed Asset";
@@ -3818,6 +3839,8 @@ codeunit 134450 "ERM Fixed Assets Journal"
 
         // Teardown
         SetDefaultDepreciationBook(DefaultDepreciationBookCode);
+
+        LibraryNotificationMgt.RecallNotificationsForRecord(FixedAsset);
     end;
 
     local procedure VerifyGLEntryForFAAcquisitionWizardAutoPost(FixedAssetNo: Code[20])
@@ -3853,25 +3876,6 @@ codeunit 134450 "ERM Fixed Assets Journal"
         exit(GLAccount."No.");
     end;
 
-    local procedure UpdateFAPostingTypeSetup(DepreciationBookCode: Code[10])
-    var
-        FAPostingTypeSetup: Record "FA Posting Type Setup";
-    begin
-        // NAVCZ
-        FAPostingTypeSetup.SetRange("Depreciation Book Code", DepreciationBookCode);
-        FAPostingTypeSetup.ModifyAll("Include in Gain/Loss Calc.", true);
-    end;
-
-    local procedure UpdateFASetup()
-    var
-        FASetup: Record "FA Setup";
-    begin
-        // NAVCZ
-        FASetup.Get;
-        FASetup."FA Acquisition As Custom 2" := false;
-        FASetup.Modify;
-    end;
-
     local procedure FindCustomer(var Customer: Record Customer)
     begin
         // Filter Customer so that errors are not generated due to mandatory fields.
@@ -3899,7 +3903,7 @@ codeunit 134450 "ERM Fixed Assets Journal"
         FixedAssetAcquisitionWizard: Codeunit "Fixed Asset Acquisition Wizard";
         LibraryRandom: Codeunit "Library - Random";
     begin
-        TempGenJournalLine.Reset;
+        TempGenJournalLine.Reset();
         TempGenJournalLine.SetRange("Account No.", AccountNo);
         TempGenJournalLine.Amount := LibraryRandom.RandDec(1000, 2);
         TempGenJournalLine."Posting Date" := WorkDate;
@@ -3950,6 +3954,20 @@ codeunit 134450 "ERM Fixed Assets Journal"
     begin
         Assert.ExpectedMessage(CompletionStatsGenJnlQst, Question);
         Reply := false;
+    end;
+
+    [SendNotificationHandler]
+    [Scope('OnPrem')]
+    procedure AcquireFANotificationHandler(var AcquireFANotification: Notification): Boolean
+    begin
+        exit(true);
+    end;
+
+    [RecallNotificationHandler]
+    [Scope('OnPrem')]
+    procedure RecallNotificationHandler(var AcquireFANotification: Notification): Boolean
+    begin
+        exit(true);
     end;
 
     [MessageHandler]

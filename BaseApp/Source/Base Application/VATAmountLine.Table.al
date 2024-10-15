@@ -87,12 +87,10 @@ table 290 "VAT Amount Line"
                 // NAVCZ
             end;
         }
-        field(9; "VAT Calculation Type"; Option)
+        field(9; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(10; "Tax Group Code"; Code[20])
         {
@@ -333,7 +331,7 @@ table 290 "VAT Amount Line"
         // NAVCZ
         if not NewAllowVATDifference then
             TestField("VAT Difference (LCY)", 0);
-        GLSetup.Get;
+        GLSetup.Get();
         if Abs("VAT Difference (LCY)") > GLSetup."Max. VAT Difference Allowed" then
             Error(
               Text005, FieldCaption("VAT Difference (LCY)"),
@@ -354,7 +352,13 @@ table 290 "VAT Amount Line"
     procedure InsertLine(): Boolean
     var
         VATAmountLine: Record "VAT Amount Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnInsertLine(Rec, IsHandled);
+        if IsHandled then
+            exit(true);
+
         if not (("VAT Base" <> 0) or ("Amount Including VAT" <> 0)) then
             exit(false);
 
@@ -691,7 +695,7 @@ table 290 "VAT Amount Line"
         Direction: Text[30];
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("Amount Rounding Precision");
         case GLSetup."VAT Rounding Type" of
             GLSetup."VAT Rounding Type"::Nearest:
@@ -765,7 +769,7 @@ table 290 "VAT Amount Line"
         RoundingDirection: Text[1];
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
         // NAVCZ
         if FindSet then
@@ -775,7 +779,7 @@ table 290 "VAT Amount Line"
                    (PrevVATAmountLine."Tax Group Code" <> "Tax Group Code") or
                    (PrevVATAmountLine."Use Tax" <> "Use Tax")
                 then
-                    PrevVATAmountLine.Init;
+                    PrevVATAmountLine.Init();
                 if PricesIncludingVAT then
                     case "VAT Calculation Type" of
                         "VAT Calculation Type"::"Normal VAT",
@@ -906,7 +910,7 @@ table 290 "VAT Amount Line"
         GLSetup: Record "General Ledger Setup";
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         if FindSet then
             repeat
                 if AllowVATDifference and ("VAT Base" <> 0) then
@@ -1165,6 +1169,11 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertLineOnBeforeModify(var VATAmountLine: Record "VAT Amount Line"; FromVATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; IsHandled: Boolean)
     begin
     end;
 }

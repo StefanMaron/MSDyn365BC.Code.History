@@ -1636,7 +1636,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
         ValueEntry.SetRange("Source Type", ValueEntry."Source Type"::Vendor);
-        ValueEntry.SETRANGE("Source No. 2", Vendor."No."); // NAVCZ
+        ValueEntry.SetRange("Source No.", Vendor."No.");
         ValueEntry.FindSet;
         repeat
             TotalQty += ValueEntry."Item Ledger Entry Quantity";

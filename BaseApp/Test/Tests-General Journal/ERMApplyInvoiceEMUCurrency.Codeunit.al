@@ -58,7 +58,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyInvoiceEMUCurrAdjExchRate()
     var
@@ -105,7 +105,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CurrencyCode: Code[10]) PostedDocumentNo: Code[20]
@@ -134,7 +134,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Currency: Record Currency;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
         Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
@@ -180,7 +180,7 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldApplnbetweenCurrencies := SalesReceivablesSetup."Appln. between Currencies";
         SalesReceivablesSetup.Validate("Appln. between Currencies", ApplnbetweenCurrencies);
         SalesReceivablesSetup.Modify(true);
@@ -217,14 +217,6 @@ codeunit 134082 "ERM Apply Invoice EMU Currency"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

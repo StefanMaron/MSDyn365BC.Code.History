@@ -32,13 +32,13 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
                 Window.Update(1, 0);
                 AccScheduleResultLine.SetRange("Result Code", AccScheduleResultHeader."Result Code");
                 AccScheduleResultColumn.SetRange("Result Code", AccScheduleResultHeader."Result Code");
-                TotalRecNo := AccScheduleResultLine.Count;
+                TotalRecNo := AccScheduleResultLine.Count();
                 RecNo := 0;
 
-                TempExcelBuffer.DeleteAll;
+                TempExcelBuffer.DeleteAll();
                 Clear(TempExcelBuffer);
 
-                GLSetup.Get;
+                GLSetup.Get();
 
                 RowNo := 1;
                 EnterCell(RowNo, 1, AccScheduleResultHeader.FieldCaption(Description), false, false, true);
@@ -196,7 +196,7 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; Italic: Boolean; UnderLine: Boolean)
     begin
-        TempExcelBuffer.Init;
+        TempExcelBuffer.Init();
         TempExcelBuffer.Validate("Row No.", RowNo);
         TempExcelBuffer.Validate("Column No.", ColumnNo);
         TempExcelBuffer."Cell Value as Text" := CellValue;
@@ -204,7 +204,7 @@ report 31083 "Exp. Acc. Sched. Res. to Excel"
         TempExcelBuffer.Bold := Bold;
         TempExcelBuffer.Italic := Italic;
         TempExcelBuffer.Underline := UnderLine;
-        TempExcelBuffer.Insert;
+        TempExcelBuffer.Insert();
     end;
 
     [Scope('OnPrem')]

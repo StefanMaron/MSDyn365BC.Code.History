@@ -134,10 +134,10 @@ codeunit 802 "Online Map Management"
             Error(Text007, Format(TableNo));
         if TableNo = DATABASE::Geolocation then
             exit;
-        OnlineMapSetup.Get;
+        OnlineMapSetup.Get();
         OnlineMapSetup.TestField("Map Parameter Setup Code");
         OnlineMapParameterSetup.Get(OnlineMapSetup."Map Parameter Setup Code");
-        CompanyInfo.Get;
+        CompanyInfo.Get();
 
         if Parameters[5] = '' then
             Parameters[5] := CompanyInfo."Country/Region Code";
@@ -286,8 +286,8 @@ codeunit 802 "Online Map Management"
                 exit;
             OnlineMapAddressSelector.Getdefaults(Distance, Route)
         end else begin
-            OnlineMapSetup.Get;
-            CompanyInfo.Get;
+            OnlineMapSetup.Get();
+            CompanyInfo.Get();
         end;
 
         case Direction of
@@ -360,8 +360,8 @@ codeunit 802 "Online Map Management"
         OnlineMapSetup: Record "Online Map Setup";
         OnlineMapParameterSetup: Record "Online Map Parameter Setup";
     begin
-        OnlineMapSetup.DeleteAll;
-        OnlineMapParameterSetup.DeleteAll;
+        OnlineMapSetup.DeleteAll();
+        OnlineMapParameterSetup.DeleteAll();
         InsertParam(
           'BING',
           Text015,
@@ -372,14 +372,14 @@ codeunit 802 "Online Map Management"
           'http://go.microsoft.com/fwlink/?LinkId=519372');
         OnlineMapSetup."Map Parameter Setup Code" := 'BING';
         OnlineMapSetup."Distance In" := OnlineMapSetup."Distance In"::Kilometers; // NAVCZ
-        OnlineMapSetup.Insert;
+        OnlineMapSetup.Insert();
     end;
 
     local procedure InsertParam("Code": Code[10]; Name: Text[30]; MapURL: Text[250]; DirectionsURL: Text[250]; DirectionsFromGpsURL: Text[250]; URLEncode: Boolean; MilesKilometres: Text[250]; QuickesShortest: Text[250]; Comment: Text[250])
     var
         OnlineMapParameterSetup: Record "Online Map Parameter Setup";
     begin
-        OnlineMapParameterSetup.Init;
+        OnlineMapParameterSetup.Init();
         OnlineMapParameterSetup.Code := Code;
         OnlineMapParameterSetup.Name := Name;
         OnlineMapParameterSetup."Map Service" := MapURL;
@@ -401,8 +401,8 @@ codeunit 802 "Online Map Management"
         if not OnlineMapSetup.Get then begin
             if not OnlineMapSetup.WritePermission then
                 exit;
-            OnlineMapSetup.Init;
-            OnlineMapSetup.Insert;
+            OnlineMapSetup.Init();
+            OnlineMapSetup.Insert();
         end;
         RecRef.GetTable(OnlineMapSetup);
 
@@ -417,7 +417,7 @@ codeunit 802 "Online Map Management"
 
     local procedure GetSetup()
     begin
-        OnlineMapSetup.Get;
+        OnlineMapSetup.Get();
         OnlineMapSetup.TestField("Map Parameter Setup Code");
         OnlineMapParameterSetup.Get(OnlineMapSetup."Map Parameter Setup Code");
     end;

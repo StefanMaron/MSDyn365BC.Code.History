@@ -1172,8 +1172,8 @@ xmlport 11762 "VAT Statement 2011"
         CompanyOfficials: Record "Company Officials";
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        StatReportingSetup.Get;
-        CompanyInfo.Get;
+        StatReportingSetup.Get();
+        CompanyInfo.Get();
 
         SWVersion := ApplicationSystemConstants.ApplicationVersion();
         SWName := 'Microsoft Dynamics NAV';
@@ -1392,9 +1392,8 @@ xmlport 11762 "VAT Statement 2011"
 
     local procedure SkipEmptyValue(Value: Text[1024])
     begin
-        if IsServiceTier then
-            if Value = '' then
-                currXMLport.Skip();
+        if Value = '' then
+            currXMLport.Skip();
     end;
 
     local procedure GetAmtAndSkipIfEmpty(var Value: Text[1024]; XMLTag: Code[20])

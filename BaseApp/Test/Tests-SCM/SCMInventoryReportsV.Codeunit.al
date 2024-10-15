@@ -693,9 +693,9 @@ codeunit 137352 "SCM Inventory Reports - V"
         RunItemSalesReport(SalesLine."Bill-to Customer No.");
 
         // [THEN] Verify Sales Amount and Profit on Item Sales Report.
-        ASSERTERROR VerifySalesReportAfterPostSalesOrder(
-          SalesLine."No.",SalesLine."Bill-to Customer No.",'ValueEntryBuffer__Item_No__',
-          'Customer_Name','ValueEntryBuffer__Sales_Amount__Actual___Control44','Profit_Control46'); // NAVCZ
+        VerifySalesReportAfterPostSalesOrder(
+          SalesLine."No.", SalesLine."Bill-to Customer No.", 'ValueEntryBuffer__Item_No__',
+          'Customer_Name', 'ValueEntryBuffer__Sales_Amount__Actual___Control44', 'Profit_Control46');
     end;
 
     [Test]
@@ -1118,10 +1118,10 @@ codeunit 137352 "SCM Inventory Reports - V"
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.Reset();
         LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Bill-to Customer No.");
-        ASSERTERROR Assert.IsTrue(LibraryReportDataset.GetNextRow,WrongCustomerErr); // NAVCZ
+        Assert.IsTrue(LibraryReportDataset.GetNextRow, WrongCustomerErr);
 
-        LibraryReportDataset.SetRange('Customer__No__',SalesHeader."Sell-to Customer No.");
-        ASSERTERROR Assert.IsFalse(LibraryReportDataset.GetNextRow,WrongCustomerErr); // NAVCZ
+        LibraryReportDataset.SetRange('Customer__No__', SalesHeader."Sell-to Customer No.");
+        Assert.IsFalse(LibraryReportDataset.GetNextRow, WrongCustomerErr);
     end;
 
     [Test]

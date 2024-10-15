@@ -146,16 +146,16 @@
         ProcessedLines: Integer;
         CurrencyCode: Code[10];
     begin
-        TempBankStatementMatchingBuffer.Reset;
-        TempBankStatementMatchingBuffer.DeleteAll;
+        TempBankStatementMatchingBuffer.Reset();
+        TempBankStatementMatchingBuffer.DeleteAll();
 
-        TempBankAccLedgerEntryMatchingBuffer.Reset;
-        TempBankAccLedgerEntryMatchingBuffer.DeleteAll;
-        TempCustomerLedgerEntryMatchingBuffer.Reset;
-        TempCustomerLedgerEntryMatchingBuffer.DeleteAll;
-        TempVendorLedgerEntryMatchingBuffer.Reset;
-        TempVendorLedgerEntryMatchingBuffer.DeleteAll;
-        TempDirectDebitCollectionEntryBuffer.DeleteAll;
+        TempBankAccLedgerEntryMatchingBuffer.Reset();
+        TempBankAccLedgerEntryMatchingBuffer.DeleteAll();
+        TempCustomerLedgerEntryMatchingBuffer.Reset();
+        TempCustomerLedgerEntryMatchingBuffer.DeleteAll();
+        TempVendorLedgerEntryMatchingBuffer.Reset();
+        TempVendorLedgerEntryMatchingBuffer.DeleteAll();
+        TempDirectDebitCollectionEntryBuffer.DeleteAll();
         // NAVCZ
         ClearLedgEntryStoreBuffers;
         BankAccReconciliationLine.FindFirst;
@@ -177,7 +177,7 @@
 
             BankAccount.Get(BankAccReconciliationLine."Bank Account No.");
 
-            TotalNoOfLines := BankAccReconciliationLine.Count;
+            TotalNoOfLines := BankAccReconciliationLine.Count();
             ProcessedLines := 0;
 
             if ApplyEntries then
@@ -188,17 +188,17 @@
             repeat
                 // NAVCZ
                 if BankAccReconciliationLine."Currency Code" <> CurrencyCode then begin
-                    TempCustomerLedgerEntryMatchingBuffer.Reset;
-                    TempCustomerLedgerEntryMatchingBuffer.DeleteAll;
-                    TempVendorLedgerEntryMatchingBuffer.Reset;
-                    TempVendorLedgerEntryMatchingBuffer.DeleteAll;
+                    TempCustomerLedgerEntryMatchingBuffer.Reset();
+                    TempCustomerLedgerEntryMatchingBuffer.DeleteAll();
+                    TempVendorLedgerEntryMatchingBuffer.Reset();
+                    TempVendorLedgerEntryMatchingBuffer.DeleteAll();
                     InitializeCustomerLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempCustomerLedgerEntryMatchingBuffer);
                     InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempVendorLedgerEntryMatchingBuffer);
                 end;
                 CurrencyCode := BankAccReconciliationLine."Currency Code";
 
-                TempGeneralLedgerEntryMatchingBuffer.Reset;
-                TempGeneralLedgerEntryMatchingBuffer.DeleteAll;
+                TempGeneralLedgerEntryMatchingBuffer.Reset();
+                TempGeneralLedgerEntryMatchingBuffer.DeleteAll();
                 InitializeGeneralLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempGeneralLedgerEntryMatchingBuffer);
                 // NAVCZ
 
@@ -238,12 +238,12 @@
         if not ApplyEntries then
             exit;
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
 
-        TempSalesAdvanceLetterMatchingBuffer.Reset;
-        TempSalesAdvanceLetterMatchingBuffer.DeleteAll;
-        TempPurchAdvanceLetterMatchingBuffer.Reset;
-        TempPurchAdvanceLetterMatchingBuffer.DeleteAll;
+        TempSalesAdvanceLetterMatchingBuffer.Reset();
+        TempSalesAdvanceLetterMatchingBuffer.DeleteAll();
+        TempPurchAdvanceLetterMatchingBuffer.Reset();
+        TempPurchAdvanceLetterMatchingBuffer.DeleteAll();
         ClearAdvLetterStoreBuffers;
 
         BankAccount.Get(BankAccReconciliationLine."Bank Account No.");
@@ -253,17 +253,17 @@
             InitializePurchaseAdvanceLettersMatchingBuffer(BankAccReconciliationLine, TempPurchAdvanceLetterMatchingBuffer);
             CurrencyCode := BankAccReconciliationLine."Currency Code";
 
-            TotalNoOfLines := BankAccReconciliationLine.Count;
+            TotalNoOfLines := BankAccReconciliationLine.Count();
             ProcessedLines := 0;
 
             Window.Open(MatchingStmtLinesToAdvanceLettersMsg);
 
             repeat
                 if BankAccReconciliationLine."Currency Code" <> CurrencyCode then begin
-                    TempSalesAdvanceLetterMatchingBuffer.Reset;
-                    TempSalesAdvanceLetterMatchingBuffer.DeleteAll;
-                    TempPurchAdvanceLetterMatchingBuffer.Reset;
-                    TempPurchAdvanceLetterMatchingBuffer.DeleteAll;
+                    TempSalesAdvanceLetterMatchingBuffer.Reset();
+                    TempSalesAdvanceLetterMatchingBuffer.DeleteAll();
+                    TempPurchAdvanceLetterMatchingBuffer.Reset();
+                    TempPurchAdvanceLetterMatchingBuffer.DeleteAll();
 
                     InitializeSalesAdvanceLettersMatchingBuffer(BankAccReconciliationLine, TempSalesAdvanceLetterMatchingBuffer);
                     InitializePurchaseAdvanceLettersMatchingBuffer(BankAccReconciliationLine, TempPurchAdvanceLetterMatchingBuffer);
@@ -335,8 +335,8 @@
 
         TempGenJournalLine.Amount := BankAccReconciliationLine.Difference;
         TempGenJournalLine.Description := BankAccReconciliationLine.Description;
-        if not TempGenJournalLine.Insert then
-            TempGenJournalLine.Modify;
+        if not TempGenJournalLine.Insert() then
+            TempGenJournalLine.Modify();
 
         if PAGE.RunModal(PAGE::"Transfer Difference to Account", TempGenJournalLine) = ACTION::LookupOK then begin
             if TempGenJournalLine."Account No." = '' then
@@ -355,9 +355,9 @@
                 RevertAcceptedPmtToleranceFromAppliedEntries(BankAccReconciliationLine, Abs(Difference));
                 BankAccReconciliationLine.Validate("Statement Amount", BankAccReconciliationLine."Applied Amount"); // NAVCZ
                 BankAccReconciliationLine.Difference := 0;
-                BankAccReconciliationLine.Modify;
+                BankAccReconciliationLine.Modify();
 
-                BankAccReconciliationLine.Init;
+                BankAccReconciliationLine.Init();
                 BankAccReconciliationLine."Statement Line No." := GetAvailableSplitLineNo(BankAccReconciliationLine, ParentLineNo);
                 BankAccReconciliationLine."Parent Line No." := ParentLineNo;
                 BankAccReconciliationLine.Description := TempGenJournalLine.Description;
@@ -370,7 +370,7 @@
                 // NAVCZ
                 BankAccReconciliationLine.Type := BankAccReconciliationLine.Type::Difference;
                 BankAccReconciliationLine."Transaction ID" := TransactionID;
-                BankAccReconciliationLine.Insert;
+                BankAccReconciliationLine.Insert();
             end;
 
             BankAccReconciliation.Get(
@@ -411,7 +411,7 @@
 
         AccountNo := TempCustomerLedgerEntryMatchingBuffer."Account No.";
         BankAccReconciliationLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
-        TempCustomerLedgerEntryMatchingBuffer.Reset;
+        TempCustomerLedgerEntryMatchingBuffer.Reset();
         TempCustomerLedgerEntryMatchingBuffer.SetRange("Account No.", AccountNo);
         NoOfLedgerEntriesWithinTolerance :=
           TempCustomerLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesWithinRange(
@@ -437,7 +437,7 @@
 
         AccountNo := TempVendorLedgerEntryMatchingBuffer."Account No.";
         BankAccReconciliationLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
-        TempVendorLedgerEntryMatchingBuffer.Reset;
+        TempVendorLedgerEntryMatchingBuffer.Reset();
         TempVendorLedgerEntryMatchingBuffer.SetRange("Account No.", AccountNo);
 
         NoOfLedgerEntriesWithinTolerance :=
@@ -469,7 +469,7 @@
 
         AccountNo := TempGeneralLedgerEntryMatchingBuffer."Account No.";
         BankAccReconciliationLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
-        TempGeneralLedgerEntryMatchingBuffer.Reset;
+        TempGeneralLedgerEntryMatchingBuffer.Reset();
         TempGeneralLedgerEntryMatchingBuffer.SetRange("Account No.", AccountNo);
 
         NoOfLedgerEntriesWithinTolerance :=
@@ -497,7 +497,7 @@
 
         AccountNo := TempBankAccLedgerEntryMatchingBuffer."Account No.";
         BankAccReconciliationLine.GetAmountRangeForTolerance(MinAmount, MaxAmount);
-        TempBankAccLedgerEntryMatchingBuffer.Reset;
+        TempBankAccLedgerEntryMatchingBuffer.Reset();
         TempBankAccLedgerEntryMatchingBuffer.SetRange("Account No.", AccountNo);
 
         NoOfLedgerEntriesWithinTolerance :=
@@ -512,7 +512,7 @@
     var
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
-        TempLedgerEntryMatchingBuffer.Reset;
+        TempLedgerEntryMatchingBuffer.Reset();
         if TempLedgerEntryMatchingBuffer.FindFirst then
             repeat
                 FindMatchingEntry(TempLedgerEntryMatchingBuffer, TempBankAccReconciliationLine, AccountType, BankPmtApplRule);
@@ -537,8 +537,9 @@
             OnFindMatchingEntryOnBeforeDocumentMatching(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer, IsHandled);
             if not IsHandled then
                 if AccountType <> TempBankStatementMatchingBuffer."Account Type"::"Bank Account" then
-                    DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-                    TempLedgerEntryMatchingBuffer."Document No.", TempLedgerEntryMatchingBuffer."External Document No.")
+                    DocumentMatching(
+                        BankPmtApplRule, BankAccReconciliationLine,TempLedgerEntryMatchingBuffer."Document No.",
+                        TempLedgerEntryMatchingBuffer."External Document No.",TempLedgerEntryMatchingBuffer."Payment Reference")
                 else
                     DocumentMatchingForBankLedgerEntry(BankPmtApplRule, BankAccReconciliationLine, TempLedgerEntryMatchingBuffer);
 
@@ -587,7 +588,7 @@
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         // NAVCZ
-        TempAdvanceLetterMatchingBuffer.Reset;
+        TempAdvanceLetterMatchingBuffer.Reset();
         TempAdvanceLetterMatchingBuffer.SetAscending("Letter No.", false);
         if TempAdvanceLetterMatchingBuffer.FindSet then
             repeat
@@ -605,7 +606,7 @@
         then begin
             RelatedPartyMatchingForAdvanceLetter(BankPmtApplRule, TempAdvanceLetterMatchingBuffer, BankAccReconciliationLine, AccountType);
             DocumentMatching(BankPmtApplRule, BankAccReconciliationLine,
-              TempAdvanceLetterMatchingBuffer."Letter No.", TempAdvanceLetterMatchingBuffer."External Document No.");
+              TempAdvanceLetterMatchingBuffer."Letter No.", TempAdvanceLetterMatchingBuffer."External Document No.", '');
 
             AmountInclToleranceMatchingForAdvanceLetter(
               BankPmtApplRule, BankAccReconciliationLine, AccountType, TempAdvanceLetterMatchingBuffer."Remaining Amount");
@@ -660,7 +661,7 @@
             exit;
         end;
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
 
         CustLedgerEntry.SetRange(Open, true);
         CustLedgerEntry.SetRange(Prepayment, false); // NAVCZ
@@ -670,7 +671,7 @@
         if BankAccReconciliationLine.IsInLocalCurrency then begin // NAVCZ
             CustLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
             if SalesReceivablesSetup."Appln. between Currencies" = SalesReceivablesSetup."Appln. between Currencies"::None then begin
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 CustLedgerEntry.SetFilter("Currency Code", '=%1|=%2', '', GeneralLedgerSetup.GetCurrencyCode(''));
             end;
         end else begin
@@ -711,7 +712,7 @@
         end;
         // NAVCZ
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         VendorLedgerEntry.SetRange(Open, true);
         VendorLedgerEntry.SetRange(Prepayment, false); // NAVCZ
@@ -721,7 +722,7 @@
         if BankAccReconciliationLine.IsInLocalCurrency then begin // NAVCZ
             VendorLedgerEntry.SetAutoCalcFields("Remaining Amt. (LCY)");
             if PurchasesPayablesSetup."Appln. between Currencies" = PurchasesPayablesSetup."Appln. between Currencies"::None then begin
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 VendorLedgerEntry.SetFilter("Currency Code", '=%1|=%2', '', GeneralLedgerSetup.GetCurrencyCode(''));
             end;
         end else begin
@@ -789,7 +790,7 @@
         if not BankAccReconciliationLine.IsInLocalCurrency then
             SalesAdvanceLetterHeader.SetRange("Currency Code", BankAccReconciliationLine."Currency Code")
         else begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             SalesAdvanceLetterHeader.SetFilter("Currency Code", '=%1|=%2', '', GeneralLedgerSetup.GetCurrencyCode(''));
         end;
 
@@ -829,7 +830,7 @@
         if not BankAccReconciliationLine.IsInLocalCurrency then
             PurchAdvanceLetterHeader.SetRange("Currency Code", BankAccReconciliationLine."Currency Code")
         else begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             PurchAdvanceLetterHeader.SetFilter("Currency Code", '=%1|=%2', '', GeneralLedgerSetup.GetCurrencyCode(''));
         end;
 
@@ -858,7 +859,7 @@
             exit;
 
         BankAccount.Get(BankAccReconciliationLine."Bank Account No.");
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
 
         BankAccLedgerEntry.SetRange(Open, true);
         BankAccLedgerEntry.SetRange("Bank Account No.", BankAccReconciliationLine."Bank Account No.");
@@ -867,7 +868,7 @@
 
         if BankAccount.IsInLocalCurrency then
             if PurchasesPayablesSetup."Appln. between Currencies" = PurchasesPayablesSetup."Appln. between Currencies"::None then begin
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 BankAccLedgerEntry.SetFilter("Currency Code", '=%1|=%2', '', GeneralLedgerSetup.GetCurrencyCode(''));
             end else
                 BankAccLedgerEntry.SetRange("Currency Code", BankAccount."Currency Code");
@@ -885,7 +886,7 @@
         if DirectDebitCollectionEntry.FindSet then begin
             repeat
                 TempDirectDebitCollectionEntryBuffer := DirectDebitCollectionEntry;
-                TempDirectDebitCollectionEntryBuffer.Insert;
+                TempDirectDebitCollectionEntryBuffer.Insert();
             until DirectDebitCollectionEntry.Next = 0;
         end;
     end;
@@ -982,7 +983,7 @@
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetCurrentKey(Quality, "No. of Entries");
         TempBankStatementMatchingBuffer.Ascending(false);
 
@@ -1079,7 +1080,7 @@
              BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
              BankAccReconciliationLine."Statement No.", TempBankStatementMatchingBuffer."Line No.")
         then
-            BankAccReconciliationLine.Init;
+            BankAccReconciliationLine.Init();
         AdvanceLetterLinkCode :=
           StrSubstNo('%1 %2', BankAccReconciliationLine."Statement No.", BankAccReconciliationLine."Statement Line No.");
         AppliedAmount :=
@@ -1105,12 +1106,12 @@
 
             BankAccReconciliationLine."Applied Amount" += AppliedAmount;
             BankAccReconciliationLine.Validate("Applied Amount");
-            BankAccReconciliationLine.Modify;
+            BankAccReconciliationLine.Modify();
 
-            AppliedPaymentEntry.Reset;
+            AppliedPaymentEntry.Reset();
             AppliedPaymentEntry.FilterAppliedPmtEntry(BankAccReconciliationLine);
             if not AppliedPaymentEntry.FindFirst then begin
-                AppliedPaymentEntry.Init;
+                AppliedPaymentEntry.Init();
                 AppliedPaymentEntry.TransferFromBankAccReconLine(BankAccReconciliationLine);
                 AppliedPaymentEntry."Account Type" := BankAccReconciliationLine."Account Type";
                 AppliedPaymentEntry."Account No." := BankAccReconciliationLine."Account No.";
@@ -1119,11 +1120,11 @@
                 AppliedPaymentEntry.Quality := TempBankStatementMatchingBuffer.Quality;
                 AppliedPaymentEntry."Applies-to Entry No." := -1;
                 AppliedPaymentEntry.Validate("Applied Amount", AppliedAmount);
-                AppliedPaymentEntry.Insert;
+                AppliedPaymentEntry.Insert();
             end else begin
                 AppliedPaymentEntry."Applied Amount" += AppliedAmount;
                 AppliedPaymentEntry.Validate("Applied Amount");
-                AppliedPaymentEntry.Modify;
+                AppliedPaymentEntry.Modify();
             end;
         end;
     end;
@@ -1157,7 +1158,7 @@
                                 SalesAdvanceLetterLine."Amount Linked To Journal Line" := RemainingAmount;
                                 SourceAmount -= RemainingAmount;
                             end;
-                            SalesAdvanceLetterLine.Modify;
+                            SalesAdvanceLetterLine.Modify();
                         until (SalesAdvanceLetterLine.Next = 0) or (SourceAmount <= 0);
                 end;
             TempBankStatementMatchingBuffer."Letter Type"::Purchase:
@@ -1178,7 +1179,7 @@
                                 PurchAdvanceLetterLine."Amount Linked To Journal Line" := -RemainingAmount;
                                 SourceAmount -= RemainingAmount;
                             end;
-                            PurchAdvanceLetterLine.Modify;
+                            PurchAdvanceLetterLine.Modify();
                         until (PurchAdvanceLetterLine.Next = 0) or (SourceAmount <= 0);
                 end;
         end;
@@ -1359,11 +1360,16 @@
             BankPmtApplRule."Related Party Matched" := BankPmtApplRule."Related Party Matched"::Partially;
     end;
 
-    local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35])
+    local procedure DocumentMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; DocNo: Code[20]; ExtDocNo: Code[35]; PaymentReference: Code[50])
     var
         SearchText: Text;
     begin
         BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::No;
+
+        if (PaymentReference <> '') and (BankAccReconciliationLine."Payment Reference No." = PaymentReference) then begin
+            BankPmtApplRule."Doc. No./Ext. Doc. No. Matched" := BankPmtApplRule."Doc. No./Ext. Doc. No. Matched"::Yes;
+            exit;
+        end;
 
         SearchText := UpperCase(BankAccReconciliationLine."Transaction Text" + ' ' +
             BankAccReconciliationLine."Additional Transaction Info");
@@ -1469,9 +1475,9 @@
         // NAVCZ
         case AccountType of
             TempBankStatementMatchingBuffer."Account Type"::Customer:
-                AmountInclToleranceMatching(BankPmtApplRule, BankAccReconciliationLine, -1, RemainingAmount);
+                AmountInclToleranceMatching(BankPmtApplRule, BankAccReconciliationLine, SalesAdvLetterDocType, RemainingAmount);
             TempBankStatementMatchingBuffer."Account Type"::Vendor:
-                AmountInclToleranceMatching(BankPmtApplRule, BankAccReconciliationLine, -2, RemainingAmount);
+                AmountInclToleranceMatching(BankPmtApplRule, BankAccReconciliationLine, PurchAdvLetterDocType, RemainingAmount);
         end;
     end;
 
@@ -1502,7 +1508,7 @@
         // NAVCZ
         then begin
             OneToManyTempBankStatementMatchingBuffer.SetFilter("Total Remaining Amount", '>=%1&<=%2', MinAmount, MaxAmount);
-            NoOfEntries += OneToManyTempBankStatementMatchingBuffer.Count;
+            NoOfEntries += OneToManyTempBankStatementMatchingBuffer.Count();
 
             if NoOfEntries > 1 then
                 exit;
@@ -1527,13 +1533,13 @@
                 NoOfEntries +=
                   TempGeneralLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesWithinRange(
                     MinAmount, MaxAmount, BankAccReconciliationLine."Transaction Date", UsePaymentDiscounts);
-            -1: // Sales Advance Letter
+            SalesAdvLetterDocType():
                 NoOfEntries +=
                   TempSalesAdvanceLetterMatchingBuffer.GetNoOfAdvanceLettersWithinRange(MinAmount, MaxAmount);
-            -2: // Purchase Advance Letter
+            PurchAdvLetterDocType():
                 NoOfEntries +=
                   TempPurchAdvanceLetterMatchingBuffer.GetNoOfAdvanceLettersWithinRange(MinAmount, MaxAmount);
-                // NAVCZ
+        // NAVCZ
         end;
 
         if NoOfEntries = 1 then
@@ -1549,7 +1555,7 @@
         if BankAccReconciliationLine."Transaction ID" = '' then
             exit;
 
-        TempDirectDebitCollectionEntryBuffer.Reset;
+        TempDirectDebitCollectionEntryBuffer.Reset();
         TempDirectDebitCollectionEntryBuffer.SetRange("Transaction ID", BankAccReconciliationLine."Transaction ID");
         TempDirectDebitCollectionEntryBuffer.SetFilter(Status, '%1|%2',
           TempDirectDebitCollectionEntryBuffer.Status::"File Created", TempDirectDebitCollectionEntryBuffer.Status::Posted);
@@ -1595,7 +1601,7 @@
                     exit(true);
                 if BankAccountNoWithoutSpecialChars(CustomerBankAccount."Bank Account No.") = ValueFromBankStatement then
                     exit(true);
-                // NAVCZ
+            // NAVCZ
             until CustomerBankAccount.Next = 0;
 
         exit(false);
@@ -1617,7 +1623,7 @@
                     exit(true);
                 if BankAccountNoWithoutSpecialChars(VendorBankAccount."Bank Account No.") = ValueFromBankStatement then
                     exit(true);
-                // NAVCZ
+            // NAVCZ
             until VendorBankAccount.Next = 0;
 
         exit(false);
@@ -1702,15 +1708,16 @@
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type"::"Payment Application");
         BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
-        TotalCount := BankAccReconciliationLine.Count;
+        TotalCount := BankAccReconciliationLine.Count();
 
         BankAccReconciliationLine.SetFilter("Applied Entries", '>0');
-        MatchedCount := BankAccReconciliationLine.Count;
+        MatchedCount := BankAccReconciliationLine.Count();
 
         FinalText := StrSubstNo(MatchSummaryMsg, MatchedCount, TotalCount);
         Message(FinalText);
 
         BankAccReconciliationLine.SetRange("Match Confidence", BankAccReconciliationLine."Match Confidence"::"High - Text-to-Account Mapping");
+        TextMatchCount := BankAccReconciliationLine.Count();
 
         SendTraceTag('0000AIA', BankAccountRecCategoryLbl, Verbosity::Normal,
           StrSubstNo(BankAccountRecTotalAndMatchedLinesLbl, TotalCount, MatchedCount, TextMatchCount), DataClassification::SystemMetadata);
@@ -1742,16 +1749,16 @@
 
                 Score := TempBankPmtApplRule.GetBestMatchScore(BankPmtApplRule);
                 TempBankStatementMatchingBuffer.Quality := Score;
-                TempBankStatementMatchingBuffer.Modify;
+                TempBankStatementMatchingBuffer.Modify();
             until TempBankStatementMatchingBuffer.Next = 0;
         end;
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
     end;
 
     local procedure RemoveInvalidOneToManyMatches()
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("One to Many Match", true);
         TempBankStatementMatchingBuffer.SetFilter("No. of Entries", '=1');
         TempBankStatementMatchingBuffer.DeleteAll(true);
@@ -1765,12 +1772,12 @@
         TempBankStatementMatchingBuffer.DeleteAll(true);
         // NAVCZ
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
     end;
 
     local procedure GetOneToManyMatches()
     begin
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("One to Many Match", true);
         TempBankStatementMatchingBuffer.SetFilter("No. of Entries", '>1');
 
@@ -1815,7 +1822,7 @@
         if TempBankPmtApplRule.FindLast then
             Score := TempBankPmtApplRule.Score;
 
-        TempBankPmtApplRule.Reset;
+        TempBankPmtApplRule.Reset();
         exit(Score);
     end;
 
@@ -1846,7 +1853,7 @@
     procedure GetBankStatementMatchingBuffer(var TempBankStatementMatchingBuffer2: Record "Bank Statement Matching Buffer" temporary)
     begin
         TempBankStatementMatchingBuffer2.Copy(TempBankStatementMatchingBuffer, true);
-        TempBankStatementMatchingBuffer2.Reset;
+        TempBankStatementMatchingBuffer2.Reset();
     end;
 
     local procedure UpdatePaymentMatchDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
@@ -1894,7 +1901,7 @@
         if BankAccReconciliationLine."Match Quality" <= BankPmtApplRule.GetTextMapperScore then
             exit;
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", BankAccReconciliationLine."Statement Line No.");
         TempBankStatementMatchingBuffer.SetRange(Quality, BankPmtApplRule.GetTextMapperScore);
 
@@ -1917,7 +1924,7 @@
         if BankAccReconciliationLine."Match Quality" = BankPmtApplRule.GetTextMapperScore then
             exit;
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Line No.", BankAccReconciliationLine."Statement Line No.");
 
         MinRangeValue := BankPmtApplRule.GetLowestScoreInRange(BankAccReconciliationLine."Match Quality");
@@ -1943,7 +1950,7 @@
         if BankAccReconciliationLine."Match Quality" = BankPmtApplRule.GetTextMapperScore then
             exit;
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
 
         // Get Entry No.
         TempBankStatementMatchingBuffer.SetRange("Line No.", BankAccReconciliationLine."Statement Line No.");
@@ -1954,7 +1961,7 @@
         MinRangeValue := BankPmtApplRule.GetLowestScoreInRange(BankAccReconciliationLine."Match Quality");
         MaxRangeValue := BankPmtApplRule.GetHighestScoreInRange(BankAccReconciliationLine."Match Quality");
 
-        TempBankStatementMatchingBuffer.Reset;
+        TempBankStatementMatchingBuffer.Reset();
         TempBankStatementMatchingBuffer.SetRange("Entry No.", EntryNo);
         TempBankStatementMatchingBuffer.SetRange(Quality, MinRangeValue, MaxRangeValue);
         TempBankStatementMatchingBuffer.SetFilter("Line No.", '<>%1', BankAccReconciliationLine."Statement Line No.");
@@ -2084,7 +2091,7 @@
             else
                 BankAccReconciliationLine.Type := BankAccReconciliationLine.Type::"Bank Account Ledger Entry";
 
-            BankAccReconciliationLine.Modify;
+            BankAccReconciliationLine.Modify();
         end;
     end;
 
@@ -2099,7 +2106,7 @@
         BankAccReconciliationLine.SetRange("Match Confidence", BankAccReconciliationLine."Match Confidence"::None);
         BankAccReconciliationLine.SetFilter("Account No.", '%1', '');
         if BankAccReconciliationLine.FindSet then begin
-            TotalNoOfLines := BankAccReconciliationLine.Count;
+            TotalNoOfLines := BankAccReconciliationLine.Count();
             ProcessedLines := 0;
             Window.Open(MatchingStmtLinesToRelatedPartyMsg);
 
@@ -2247,7 +2254,7 @@
                                 Difference += CustLedgerEntry."Accepted Payment Tolerance";
                                 CustLedgerEntry."Accepted Payment Tolerance" := 0;
                             end;
-                            CustLedgerEntry.Modify;
+                            CustLedgerEntry.Modify();
                         end;
                     end;
                 AppliedPmtEntry."Account Type"::Vendor:
@@ -2261,7 +2268,7 @@
                                 Difference -= VendorLedgerEntry."Accepted Payment Tolerance";
                                 VendorLedgerEntry."Accepted Payment Tolerance" := 0;
                             end;
-                            VendorLedgerEntry.Modify;
+                            VendorLedgerEntry.Modify();
                         end;
                     end;
             end;
@@ -2305,13 +2312,13 @@
     local procedure CopyLedgEntryMatchingBuffer(var LedgerEntryMatchingBufferFrom: Record "Ledger Entry Matching Buffer"; var LedgerEntryMatchingBufferTo: Record "Ledger Entry Matching Buffer")
     begin
         // NAVCZ
-        LedgerEntryMatchingBufferTo.Reset;
-        LedgerEntryMatchingBufferTo.DeleteAll;
+        LedgerEntryMatchingBufferTo.Reset();
+        LedgerEntryMatchingBufferTo.DeleteAll();
         with LedgerEntryMatchingBufferFrom do begin
             if FindSet then
                 repeat
                     LedgerEntryMatchingBufferTo := LedgerEntryMatchingBufferFrom;
-                    LedgerEntryMatchingBufferTo.Insert;
+                    LedgerEntryMatchingBufferTo.Insert();
                 until Next = 0
         end;
     end;
@@ -2319,13 +2326,13 @@
     local procedure CopyAdvLetterMatchingBuffer(var AdvanceLetterMatchingBufferFrom: Record "Advance Letter Matching Buffer"; var AdvanceLetterMatchingBufferTo: Record "Advance Letter Matching Buffer")
     begin
         // NAVCZ
-        AdvanceLetterMatchingBufferTo.Reset;
-        AdvanceLetterMatchingBufferTo.DeleteAll;
+        AdvanceLetterMatchingBufferTo.Reset();
+        AdvanceLetterMatchingBufferTo.DeleteAll();
         with AdvanceLetterMatchingBufferFrom do begin
             if FindSet then
                 repeat
                     AdvanceLetterMatchingBufferTo := AdvanceLetterMatchingBufferFrom;
-                    AdvanceLetterMatchingBufferTo.Insert;
+                    AdvanceLetterMatchingBufferTo.Insert();
                 until Next = 0;
         end;
     end;
@@ -2365,10 +2372,10 @@
         // NAVCZ
         TempCustLedgMatchingBufferInitialized := false;
         TempVendLedgMatchingBufferInitialized := false;
-        TempCustomerLedgerEntryMatchingBufferStore.Reset;
-        TempCustomerLedgerEntryMatchingBufferStore.DeleteAll;
-        TempVendorLedgerEntryMatchingBufferStore.Reset;
-        TempVendorLedgerEntryMatchingBufferStore.DeleteAll;
+        TempCustomerLedgerEntryMatchingBufferStore.Reset();
+        TempCustomerLedgerEntryMatchingBufferStore.DeleteAll();
+        TempVendorLedgerEntryMatchingBufferStore.Reset();
+        TempVendorLedgerEntryMatchingBufferStore.DeleteAll();
     end;
 
     local procedure ClearAdvLetterStoreBuffers()
@@ -2376,10 +2383,20 @@
         // NAVCZ
         TempSalesAdvLedgMatchingBufferInitialized := false;
         TempPurchAdvLedgMatchingBufferInitialized := false;
-        TempSalesAdvanceLetterMatchingBufferStore.Reset;
-        TempSalesAdvanceLetterMatchingBufferStore.DeleteAll;
-        TempPurchAdvanceLetterMatchingBufferStore.Reset;
-        TempPurchAdvanceLetterMatchingBufferStore.DeleteAll;
+        TempSalesAdvanceLetterMatchingBufferStore.Reset();
+        TempSalesAdvanceLetterMatchingBufferStore.DeleteAll();
+        TempPurchAdvanceLetterMatchingBufferStore.Reset();
+        TempPurchAdvanceLetterMatchingBufferStore.DeleteAll();
+    end;
+
+    local procedure SalesAdvLetterDocType(): Integer;
+    begin
+        exit(-1);
+    end;
+
+    local procedure PurchAdvLetterDocType(): Integer;
+    begin
+        exit(-2);
     end;
 
     [IntegrationEvent(false, false)]

@@ -78,7 +78,7 @@ table 260 "Tariff Number"
     begin
         // NAVCZ
         StatisticIndication.SetRange("Tariff No.", "No.");
-        StatisticIndication.DeleteAll;
+        StatisticIndication.DeleteAll();
         // NAVCZ
     end;
 

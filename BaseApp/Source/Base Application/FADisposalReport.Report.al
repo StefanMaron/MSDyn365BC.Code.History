@@ -259,16 +259,16 @@ report 31047 "FA Disposal Report"
             trigger OnAfterGetRecord()
             begin
                 if not Location.Get("Location Code") then
-                    Location.Init;
+                    Location.Init();
                 if not FALocation.Get("FA Location Code") then
-                    FALocation.Init;
+                    FALocation.Init();
                 if not Employee.Get("Responsible Employee") then
-                    Employee.Init;
+                    Employee.Init();
             end;
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
             end;
         }
@@ -324,7 +324,7 @@ report 31047 "FA Disposal Report"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[1] := CompanyOfficials.FullName;
                         end;
@@ -337,7 +337,7 @@ report 31047 "FA Disposal Report"
 
                         trigger OnLookup(var Text: Text): Boolean
                         begin
-                            CompanyOfficials.Reset;
+                            CompanyOfficials.Reset();
                             if PAGE.RunModal(PAGE::"Company Officials", CompanyOfficials) = ACTION::LookupOK then
                                 Member[2] := CompanyOfficials.FullName;
                         end;

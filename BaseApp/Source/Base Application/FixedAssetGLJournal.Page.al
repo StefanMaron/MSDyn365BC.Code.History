@@ -1,4 +1,4 @@
-﻿page 5628 "Fixed Asset G/L Journal"
+page 5628 "Fixed Asset G/L Journal"
 {
     ApplicationArea = FixedAssets;
     AutoSplitKey = true;
@@ -859,7 +859,8 @@
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -903,7 +904,7 @@
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -943,7 +944,7 @@
         BalanceVisible: Boolean;
         [InDataSet]
         TotalBalanceVisible: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;
@@ -973,7 +974,7 @@
     begin
         if not AddCurrCodeIsFound then begin
             AddCurrCodeIsFound := true;
-            GLSetup.Get;
+            GLSetup.Get();
         end;
         exit(GLSetup."Additional Reporting Currency");
     end;

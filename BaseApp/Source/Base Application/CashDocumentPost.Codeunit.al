@@ -40,14 +40,14 @@ codeunit 11735 "Cash Document-Post"
 
             CashDeskMgt.CheckUserRights("Cash Desk No.", 3, IsEETTransaction);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCodeSetup.TestField("Cash Desk");
             if not NoCheckCashDoc then
                 CashDocRelease.CheckCashDocument(Rec);
 
             if RecordLevelLocking then begin
-                CashDocLine.LockTable;
-                GLEntry.LockTable;
+                CashDocLine.LockTable();
+                GLEntry.LockTable();
                 if GLEntry.FindLast then;
             end;
 
@@ -60,12 +60,12 @@ codeunit 11735 "Cash Document-Post"
             GenJnlPostLine.SetPostAdvInvAfterBatch(true);
             Window.Update(1, StrSubstNo('%1 %2 %3', "Cash Desk No.", "Cash Document Type", "No."));
 
-            PostedCashDocHeader.Init;
+            PostedCashDocHeader.Init();
             PostedCashDocHeader.TransferFields(CashDocHeader);
             PostedCashDocHeader."Posted ID" := UserId;
             PostedCashDocHeader."No. Printed" := 0;
             OnBeforePostedCashDocHeaderInsert(PostedCashDocHeader, CashDocHeader);
-            PostedCashDocHeader.Insert;
+            PostedCashDocHeader.Insert();
             OnAfterPostedCashDocHeaderInsert(PostedCashDocHeader, CashDocHeader);
 
             PostHeader;
@@ -157,7 +157,7 @@ codeunit 11735 "Cash Document-Post"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        CashDocLine.Reset;
+        CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", CashDocHeader."Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", CashDocHeader."No.");
         LineCount := 0;
@@ -168,10 +168,10 @@ codeunit 11735 "Cash Document-Post"
                 Window.Update(2, LineCount);
 
                 // Insert posted cash order line
-                PostedCashDocLine.Init;
+                PostedCashDocLine.Init();
                 PostedCashDocLine.TransferFields(CashDocLine);
                 OnBeforePostedCashDocLineInsert(PostedCashDocLine, PostedCashDocHeader, CashDocLine);
-                PostedCashDocLine.Insert;
+                PostedCashDocLine.Insert();
                 OnAfterPostedCashDocLineInsert(PostedCashDocLine, PostedCashDocHeader, CashDocLine);
 
                 // Post cash order lines
@@ -336,7 +336,7 @@ codeunit 11735 "Cash Document-Post"
                 DeleteLinks;
             Delete;
 
-            CashDocLine.Reset;
+            CashDocLine.Reset();
             CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
             CashDocLine.SetRange("Cash Document No.", "No.");
             if CashDocLine.FindFirst then
@@ -344,7 +344,7 @@ codeunit 11735 "Cash Document-Post"
                     if CashDocLine.HasLinks then
                         CashDocLine.DeleteLinks;
                 until CashDocLine.Next = 0;
-            CashDocLine.DeleteAll;
+            CashDocLine.DeleteAll();
         end;
     end;
 
@@ -357,28 +357,28 @@ codeunit 11735 "Cash Document-Post"
         SourceCode: Record "Source Code";
     begin
         // delete Header
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField("Deleted Document");
         SourceCode.Get(SourceCodeSetup."Deleted Document");
 
         // create posted Document
-        PostedCashDocHeader.Init;
+        PostedCashDocHeader.Init();
         PostedCashDocHeader.TransferFields(CashDocHeader);
         PostedCashDocHeader."Canceled Document" := true;
         PostedCashDocHeader."Posting Date" := Today;
         PostedCashDocHeader."Created ID" := UserId;
         PostedCashDocHeader."Payment Purpose" := SourceCode.Description;
-        PostedCashDocHeader.Insert;
+        PostedCashDocHeader.Insert();
 
         // create posted Document line
-        PostedCashDocLine.Init;
+        PostedCashDocLine.Init();
         PostedCashDocLine."Cash Desk No." := PostedCashDocHeader."Cash Desk No.";
         PostedCashDocLine."Cash Document Type" := PostedCashDocHeader."Cash Document Type";
         PostedCashDocLine."Cash Document No." := PostedCashDocHeader."No.";
         PostedCashDocLine."Line No." := 0;
         PostedCashDocLine.Description := SourceCode.Description;
-        if not PostedCashDocLine.Insert then
-            PostedCashDocLine.Modify;
+        if not PostedCashDocLine.Insert() then
+            PostedCashDocLine.Modify();
     end;
 
     [Obsolete('The functionality of Non-deductible VAT will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]

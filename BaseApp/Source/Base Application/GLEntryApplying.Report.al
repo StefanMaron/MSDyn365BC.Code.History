@@ -15,9 +15,6 @@ report 11767 "G/L Entry Applying"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
@@ -84,10 +81,10 @@ report 11767 "G/L Entry Applying"
                     trigger OnAfterGetRecord()
                     begin
                         if (Applying = Applying::Free) and ByAmount then begin
-                            TApplyEntry.Init;
+                            TApplyEntry.Init();
                             TApplyEntry."Entry No." := "Entry No.";
                             TApplyEntry.Amount := Amount - "Applied Amount";
-                            TApplyEntry.Insert;
+                            TApplyEntry.Insert();
                             TotalAmount := TotalAmount + TApplyEntry.Amount;
                         end else begin
                             "Applies-to ID" := OriginalEntry."Document No.";
@@ -100,7 +97,7 @@ report 11767 "G/L Entry Applying"
                             Modify;
                             Apply := true;
                             if TotalAmount = -OriginalAmount then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end;
                     end;
 
@@ -115,23 +112,23 @@ report 11767 "G/L Entry Applying"
                                     lreGLEntry.Get(TApplyEntry."Entry No.");
                                     lreGLEntry."Applies-to ID" := OriginalEntry."Document No.";
                                     lreGLEntry."Amount to Apply" := TApplyEntry.Amount;
-                                    lreGLEntry.Modify;
+                                    lreGLEntry.Modify();
                                 until TApplyEntry.Next = 0;
                                 Apply := true;
                             end;
                         AppliedAmount := 0;
 
-                        TDetailedGLEntry.Reset;
-                        TDetailedGLEntry.DeleteAll;
+                        TDetailedGLEntry.Reset();
+                        TDetailedGLEntry.DeleteAll();
                         Clear(TDetailedGLEntry);
 
                         if Apply then begin
                             OriginalEntry."Applies-to ID" := OriginalEntry."Document No.";
                             OriginalEntry."Amount to Apply" := OriginalEntry.Amount - OriginalEntry."Applied Amount";
-                            OriginalEntry.Modify;
+                            OriginalEntry.Modify();
                             Clear(ApplyGLEntry);
 
-                            DetailedGLEntry.Reset;
+                            DetailedGLEntry.Reset();
                             if DetailedGLEntry.FindLast then
                                 LastEntry := DetailedGLEntry."Entry No.";
 
@@ -139,7 +136,7 @@ report 11767 "G/L Entry Applying"
                             ApplyGLEntry.PostApplyGLEntry(OriginalEntry);
                             Clear(ApplyGLEntry);
 
-                            DetailedGLEntry.Reset;
+                            DetailedGLEntry.Reset();
                             DetailedGLEntry.SetFilter("Entry No.", '>%1', LastEntry);
                             if DetailedGLEntry.FindSet then begin
                                 repeat
@@ -147,7 +144,7 @@ report 11767 "G/L Entry Applying"
                                        (DetailedGLEntry."G/L Entry No." <> OriginalEntry."Entry No.")
                                     then begin
                                         TDetailedGLEntry := DetailedGLEntry;
-                                        TDetailedGLEntry.Insert;
+                                        TDetailedGLEntry.Insert();
                                         AppliedAmount := AppliedAmount + DetailedGLEntry.Amount;
                                     end;
                                 until DetailedGLEntry.Next = 0;
@@ -179,7 +176,7 @@ report 11767 "G/L Entry Applying"
 
                         if Applying = Applying::Unicate then
                             if Count <> 1 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
                 }
                 dataitem("Integer"; "Integer")

@@ -120,7 +120,7 @@ codeunit 134091 "ERM Additional Currency II"
         AmountLCY := Round(LibraryERM.ConvertCurrency(LineAmount, CurrencyCode, '', WorkDate));
 
         // Verify: Verify GL Entry for Additional Currency Amount after Posting Sales Invoice.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         DocumentNo := FindSalesInvoiceHeader(SalesHeader."Sell-to Customer No.");
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
         CustLedgerEntry.CalcFields("Remaining Amt. (LCY)", "Original Amt. (LCY)");
@@ -192,25 +192,25 @@ codeunit 134091 "ERM Additional Currency II"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
         // Verify Additional Currency Amount of Unrealized Loss G/L Entry
         // after Posting Sales Invoice with Payment General Line
         // in case of increasing Exchange Rate and Adjust Exchange Rate
-        asserterror SalesInvoiceWithPaymentGeneralAndModifiedExchRate(true, true); // NAVCZ
+        SalesInvoiceWithPaymentGeneralAndModifiedExchRate(true, true);
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
         // Verify Additional Currency Amount of Unrealized Gain G/L Entry
         // after Posting Sales Invoice with Payment General Line
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
-        asserterror SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true); // NAVCZ
+        SalesInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
 
     local procedure SalesInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
@@ -344,7 +344,7 @@ codeunit 134091 "ERM Additional Currency II"
         VendorPostingGroup.Get(PurchaseHeader."Vendor Posting Group");
         VerifyGLEntry(DocumentNo, VendorPostingGroup."Payables Account", -LineAmount);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
         VendorLedgerEntry.CalcFields("Remaining Amt. (LCY)", "Original Amt. (LCY)");
         Assert.AreNearlyEqual(
@@ -409,25 +409,25 @@ codeunit 134091 "ERM Additional Currency II"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
         // Verify Additional Currency Amount of Unrealized Loss G/L Entry
         // after Posting Purchase Invoice with Payment General Line
         // in case of increasing Exchange Rate and Adjust Exchange Rate
-        asserterror PurchInvoiceWithPaymentGeneralAndModifiedExchRate(true, true); // NAVCZ
+        PurchInvoiceWithPaymentGeneralAndModifiedExchRate(true, true);
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
         // Verify Additional Currency Amount of Unrealized Gain G/L Entry
         // after Posting Purchase Invoice with Payment General Line
         // in case of decreasing Exchange Rate and Adjust Exchange Rate
-        asserterror PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true); // NAVCZ
+        PurchInvoiceWithPaymentGeneralAndModifiedExchRate(false, true);
     end;
 
     local procedure PurchInvoiceWithPaymentGeneralAndModifiedExchRate(IsLossEntry: Boolean; IsAdjustExchRate: Boolean)
@@ -781,7 +781,7 @@ codeunit 134091 "ERM Additional Currency II"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with Currency do begin
-            GeneralLedgerSetup.Get;
+            GeneralLedgerSetup.Get();
             LibraryERM.CreateCurrency(Currency);
             Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
             Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo);
@@ -984,7 +984,7 @@ codeunit 134091 "ERM Additional Currency II"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup."Additional Reporting Currency" := AdditionalReportingCurrency;
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1160,14 +1160,6 @@ codeunit 134091 "ERM Additional Currency II"
     begin
         FindGLEntry(GLEntry, DocumentNo, GLAccountNo);
         GLEntry.TestField("Additional-Currency Amount", 0);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     local procedure VerifyACYOnServiceOrderGLEntry(DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)

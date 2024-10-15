@@ -1,4 +1,4 @@
-﻿page 415 "G/L Account Balance"
+page 415 "G/L Account Balance"
 {
     Caption = 'G/L Account Balance';
     DeleteAllowed = false;

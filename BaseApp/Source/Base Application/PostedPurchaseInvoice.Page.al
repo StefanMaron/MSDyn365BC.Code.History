@@ -804,6 +804,24 @@ page 138 "Posted Purchase Invoice"
                     PurchInvHeader.PrintRecords(true);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category6;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    PurchInvHeader: Record "Purch. Inv. Header";
+                begin
+                    PurchInvHeader := Rec;
+                    PurchInvHeader.SetRecFilter();
+                    PrintToDocumentAttachment(PurchInvHeader);
+                end;
+            }
             group(Correct)
             {
                 Caption = 'Correct';

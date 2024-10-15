@@ -146,7 +146,7 @@ page 31004 "Sales Adv. Letter Statistics"
 
     trigger OnOpenPage()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         AllowVATDifference := false;
         SubformIsEditable := AllowVATDifference;
         CurrPage.Editable := SubformIsEditable;

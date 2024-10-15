@@ -154,7 +154,7 @@ codeunit 1754 "Data Classif. Import/Export"
             TempExcelBuffer.OpenExcelWithName(ExcelFileNameTxt);
     end;
 
-    local procedure CreateExcelSheet(var TempExcelBuffer: Record "Excel Buffer" temporary; var DataSensitivity: Record "Data Sensitivity")
+    local procedure CreateExcelSheet(var TempExcelBuffer: Record "Excel Buffer" temporary; DataSensitivity: Record "Data Sensitivity")
     var
         DataClassificationWorksheet: Page "Data Classification Worksheet";
     begin
@@ -179,10 +179,9 @@ codeunit 1754 "Data Classif. Import/Export"
         AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity.FieldName("Field Caption"));
         AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity.FieldName("Field Type"));
         AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity.FieldName("Data Sensitivity"));
-        AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity.FieldName("Data Classification"));
     end;
 
-    local procedure CreateExcelSheetRows(var TempExcelBuffer: Record "Excel Buffer" temporary; var DataSensitivity: Record "Data Sensitivity")
+    local procedure CreateExcelSheetRows(var TempExcelBuffer: Record "Excel Buffer" temporary; DataSensitivity: Record "Data Sensitivity")
     begin
         if DataSensitivity.FindSet then
             repeat
@@ -198,8 +197,7 @@ codeunit 1754 "Data Classif. Import/Export"
                     AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity."Table Caption");
                     AddTextColumnToExcelSheet(TempExcelBuffer, DataSensitivity."Field Caption");
                     AddDataTypeColumn(TempExcelBuffer, DataSensitivity);
-                    AddDataSensitivityColumn(TempExcelBuffer, DataSensitivity);
-                    AddTextColumnToExcelSheet(TempExcelBuffer, Format(DataSensitivity."Data Classification", 0, '<Text>'));
+                    AddTextColumnToExcelSheet(TempExcelBuffer, Format(DataSensitivity."Data Sensitivity", 0, '<Text>'));
                 end;
             until DataSensitivity.Next = 0;
     end;
@@ -228,14 +226,6 @@ codeunit 1754 "Data Classif. Import/Export"
         FieldTypeText := Format(Field.Type, 0, '<Text>');
 
         TempExcelBuffer.AddColumn(FieldTypeText, false, '', false, false, false, '', TempExcelBuffer."Cell Type"::Text);
-    end;
-
-    local procedure AddDataSensitivityColumn(var TempExcelBuffer: Record "Excel Buffer" temporary; DataSensitivity: Record "Data Sensitivity")
-    var
-        DataPrivacyEntities: Record "Data Privacy Entities";
-    begin
-        DataPrivacyEntities."Default Data Sensitivity" := DataSensitivity."Data Sensitivity";
-        AddTextColumnToExcelSheet(TempExcelBuffer, Format(DataPrivacyEntities."Default Data Sensitivity", 0, '<Text>'));
     end;
 
     [IntegrationEvent(false, false)]

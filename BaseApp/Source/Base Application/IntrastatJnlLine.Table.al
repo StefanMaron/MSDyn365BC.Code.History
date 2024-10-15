@@ -276,7 +276,7 @@ table 263 "Intrastat Jnl. Line"
                 IntrastatJnlLine2: Record "Intrastat Jnl. Line";
             begin
                 Clear(IntrastatJnlLines);
-                IntrastatJnlLine.Reset;
+                IntrastatJnlLine.Reset();
                 IntrastatJnlLine.FilterGroup(2);
                 IntrastatJnlLine.SetFilter("Declaration No.", '<>%1', '');
                 IntrastatJnlLine.FilterGroup(0);
@@ -299,7 +299,7 @@ table 263 "Intrastat Jnl. Line"
                 IntrastatJnlLine2: Record "Intrastat Jnl. Line";
             begin
                 Clear(IntrastatJnlLines);
-                IntrastatJnlLine.Reset;
+                IntrastatJnlLine.Reset();
                 IntrastatJnlLine.FilterGroup(2);
                 if "Prev. Declaration No." <> '' then
                     IntrastatJnlLine.SetRange("Declaration No.", "Prev. Declaration No.")

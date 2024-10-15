@@ -16,11 +16,11 @@ codeunit 31052 "Credit - Post"
         if Status <> Status::Released then
             CODEUNIT.Run(CODEUNIT::"Release Credit Document", Rec);
 
-        CreditsSetup.Get;
+        CreditsSetup.Get();
         CreditsSetup.TestField("Credit Bal. Account No.");
 
-        SourceCodeSetup.Get;
-        GeneralLedgSetup.Get;
+        SourceCodeSetup.Get();
+        GeneralLedgSetup.Get();
 
         CalcFields("Credit Balance (LCY)");
         Balance := "Credit Balance (LCY)";
@@ -28,7 +28,7 @@ codeunit 31052 "Credit - Post"
         CheckRoundingAccounts(Balance);
 
         i := 1;
-        CreditLine.Reset;
+        CreditLine.Reset();
         CreditLine.SetRange("Credit No.", "No.");
         if CreditLine.Find('-') then begin
             Window.Open(
@@ -61,14 +61,14 @@ codeunit 31052 "Credit - Post"
 
                 TempAmount := CreditLine."Amount (LCY)";
                 Clear(CreditLine."Amount (LCY)");
-                CreditLine.Modify;
+                CreditLine.Modify();
 
                 GenJnlLine."Source Code" := SourceCodeSetup.Credit;
                 GenJnlLine."System-Created Entry" := true;
                 GenJnlPostLine.RunWithCheck(GenJnlLine);
 
                 CreditLine."Amount (LCY)" := TempAmount;
-                CreditLine.Modify;
+                CreditLine.Modify();
 
                 CreditManagement.SetAppliesToID(CreditLine, '');
                 i += 1;
@@ -107,7 +107,7 @@ codeunit 31052 "Credit - Post"
             // Create posted credit, delete released credit;
             Clear(PostedCreditHeader);
             PostedCreditHeader.TransferFields(Rec);
-            PostedCreditHeader.Insert;
+            PostedCreditHeader.Insert();
             Clear(CreditLine);
             CreditLine.SetRange("Credit No.", "No.");
             CreditLine.FindSet;
@@ -115,12 +115,12 @@ codeunit 31052 "Credit - Post"
                 Clear(PostedCreditLine);
                 PostedCreditLine.TransferFields(CreditLine);
                 PostedCreditLine."Credit No." := PostedCreditHeader."No.";
-                PostedCreditLine.Insert;
+                PostedCreditLine.Insert();
             until CreditLine.Next = 0;
 
             UpdateIncomingDocument("Incoming Document Entry No.", "Posting Date", PostedCreditHeader."No.");
 
-            CreditLine.DeleteAll;
+            CreditLine.DeleteAll();
             Delete;
             Window.Close;
         end else
@@ -148,7 +148,7 @@ codeunit 31052 "Credit - Post"
 
     local procedure CheckRoundingAccounts(Balance: Decimal)
     begin
-        CreditsSetup.Get;
+        CreditsSetup.Get();
         case true of
             Balance < 0:
                 CreditsSetup.TestField("Credit Rounding Account");

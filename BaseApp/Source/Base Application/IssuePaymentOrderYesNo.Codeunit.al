@@ -23,7 +23,7 @@ codeunit 11707 "Issue Payment Order (Yes/No)"
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Issue Payment Order", PmtOrdHdr);
-        Commit;
+        Commit();
 
         if Selection = 2 then begin
             IssuedPmtOrdHdr.Get(PmtOrdHdr."Last Issuing No.");

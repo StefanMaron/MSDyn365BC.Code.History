@@ -14,7 +14,7 @@ table 11792 "Company Officials"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     NoSeriesMgt.TestManual(GLSetup."Company Officials Nos.");
                     "No. Series" := '';
                 end;
@@ -180,7 +180,7 @@ table 11792 "Company Officials"
     trigger OnInsert()
     begin
         if "No." = '' then begin
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("Company Officials Nos.");
             NoSeriesMgt.InitSeries(GLSetup."Company Officials Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -208,10 +208,10 @@ table 11792 "Company Officials"
     begin
         with OldCompanyOfficials do begin
             CompanyOfficials := Rec;
-            GLSetup.Get;
+            GLSetup.Get();
             GLSetup.TestField("Company Officials Nos.");
             if NoSeriesMgt.SelectSeries(GLSetup."Company Officials Nos.", OldCompanyOfficials."No. Series", "No. Series") then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 GLSetup.TestField("Company Officials Nos.");
                 NoSeriesMgt.SetSeries("No.");
                 Rec := CompanyOfficials;

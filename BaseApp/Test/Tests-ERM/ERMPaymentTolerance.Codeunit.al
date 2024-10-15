@@ -133,7 +133,6 @@ codeunit 134022 "ERM Payment Tolerance"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
         GenJournalLine: Record "Gen. Journal Line";
-        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         TolerancePct: Decimal;
         ToleranceAmount: Decimal;
     begin
@@ -149,7 +148,6 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
         ToleranceAmount :=
           CustomerInvoiceAndPayment(GenJournalLine, Customer."No.", LibraryERM.CreateGLAccountWithSalesSetup, TolerancePct);
-        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
 
         // Exercise: Apply Payment with Invoice.
         ApplyFromGeneralJournal(GenJournalLine."Document Type", GenJournalLine."Account No.");
@@ -624,7 +622,7 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('MessageHandler,ApplyCustomerEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
     procedure ApplySalesCreditMemoWithTwoRefunds()
     var
@@ -668,7 +666,7 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('MessageHandler,ApplyVendorEntryPageHandlerForMultipleDocument,PostApplicationHandler')]
     [Scope('OnPrem')]
     procedure ApplyPurchInvoiceWithTwoPayments()
     var
@@ -1540,7 +1538,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         Initialize;
         // [GIVEN] "Payment Tolerance Warning" = Yes
-        GLSetup.Get;
+        GLSetup.Get();
         TolerancePct := LibraryRandom.RandDec(100, 2);
         SetPmtTolerance(true, false, TolerancePct);
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
@@ -1592,7 +1590,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         Initialize;
         // [GIVEN] "Payment Tolerance Warning" = Yes
-        GLSetup.Get;
+        GLSetup.Get();
         TolerancePct := LibraryRandom.RandDec(100, 2);
         SetPmtTolerance(true, false, TolerancePct);
         LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(false);
@@ -3159,7 +3157,7 @@ codeunit 134022 "ERM Payment Tolerance"
         // Enqueue value for GeneralJournalTemplateListModalPageHandler
         LibraryVariableStorage.Enqueue(GenJournalLine[2]."Journal Template Name");
 
-        Commit;
+        Commit();
 
         // [GIVEN] Cash Receipt Page was open for Payment Gen. Journal Line
         CashReceiptJournal.OpenEdit;
@@ -3195,7 +3193,7 @@ codeunit 134022 "ERM Payment Tolerance"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.RemoveBlankGenJournalTemplate;
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Payment Tolerance");
     end;
@@ -3226,7 +3224,7 @@ codeunit 134022 "ERM Payment Tolerance"
 
         // Delete the generated Journal Batch
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        GenJournalBatch.Delete;
+        GenJournalBatch.Delete();
     end;
 
     local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal)
@@ -3451,7 +3449,7 @@ codeunit 134022 "ERM Payment Tolerance"
     begin
         SelectGenJournalBatch(GenJournalBatch);
         with GenJournalLine do begin
-            DeleteAll;
+            DeleteAll();
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::Invoice,
               AccountType, AccountNo, LineAmount);
@@ -3598,7 +3596,6 @@ codeunit 134022 "ERM Payment Tolerance"
     local procedure CreateGenLineAndApplyEntry(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Option; CurrencyCode: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        LibraryJournals: Codeunit "Library - Journals"; // NAVCZ
         GeneralJournal: TestPage "General Journal";
     begin
         SelectGenJournalBatch(GenJournalBatch);
@@ -3607,7 +3604,6 @@ codeunit 134022 "ERM Payment Tolerance"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);
-        LibraryJournals.SetUserJournalPreference(Page::"General Journal", GenJournalLine."Journal Batch Name"); // NAVCZ
         GeneralJournal.OpenView;
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         GeneralJournal."Apply Entries".Invoke;
@@ -3751,8 +3747,6 @@ codeunit 134022 "ERM Payment Tolerance"
     end;
 
     local procedure CustomerInvoiceAndPayment(var GenJournalLine: Record "Gen. Journal Line"; CustomerNo: Code[20]; GLAccountNo: Code[20]; TolerancePct: Decimal) ToleranceAmount: Decimal
-    var
-        JournalUserPreferences: Record "Journal User Preferences";
     begin
         // Post Invoice and create Payment line with Random Amount.
         CreateModifyGenJournalLine(
@@ -3768,7 +3762,7 @@ codeunit 134022 "ERM Payment Tolerance"
           GenJournalLine, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name",
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
           (GenJournalLine.Amount - ToleranceAmount));
-        Commit;
+        Commit();
     end;
 
     local procedure CreatePaymentTermsWithDiscOnCreditMemo(): Code[10]
@@ -3884,7 +3878,7 @@ codeunit 134022 "ERM Payment Tolerance"
             Validate("Posting Date", PostingDate);
             Modify(true);
         end;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateAndPostGenJnlLineWithPaymentTerms(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccountType: Option; AccountNo: Code[20]; PaymentTermsCode: Code[10]; InvAmount: Decimal)
@@ -4176,7 +4170,7 @@ codeunit 134022 "ERM Payment Tolerance"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Appln. Rounding Precision", NewApplnRoundingPrecision);
         GLSetup.Modify(true);
     end;
@@ -4646,7 +4640,7 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
         ApplyCustomerEntries.Next;
         ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        Commit;
+        Commit();
         ApplyCustomerEntries."Post Application".Invoke;
     end;
 
@@ -4658,7 +4652,7 @@ codeunit 134022 "ERM Payment Tolerance"
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
         ApplyVendorEntries.Next;
         ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        Commit;
+        Commit();
         ApplyVendorEntries.ActionPostApplication.Invoke;
     end;
 
@@ -4776,14 +4770,6 @@ codeunit 134022 "ERM Payment Tolerance"
     procedure MessageHandler(Message: Text[1024])
     begin
         // This is a dummy Handler
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [ModalPageHandler]

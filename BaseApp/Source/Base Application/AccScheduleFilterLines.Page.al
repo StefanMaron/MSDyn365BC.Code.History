@@ -93,7 +93,7 @@ page 31085 "Acc. Schedule Filter Lines"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         if AccSchedName.Get(ExportAccSchedule."Account Schedule Name") then
             if AccSchedName."Analysis View Name" <> '' then

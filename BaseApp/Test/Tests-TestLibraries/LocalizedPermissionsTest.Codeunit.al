@@ -11,7 +11,7 @@ codeunit 132219 "Localized Permissions Test"
     procedure EnablePermissionTests(): Boolean
     begin
         // Defines if permission level should be changed
-        exit(false);
+        exit(true);
     end;
 
     procedure EnableD365Build(): Boolean

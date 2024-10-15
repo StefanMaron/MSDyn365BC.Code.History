@@ -256,14 +256,14 @@ report 31101 "VAT Control Report - Test"
                         CheckMandatoryFields;
 
                         if OnlyErrorLines and (ErrorCounter = 0) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                     end;
 
                     if (("Base 1" + "Amount 1") = 0) and
                        (("Base 2" + "Amount 2") = 0) and
                        (("Base 3" + "Amount 3") = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -281,7 +281,7 @@ report 31101 "VAT Control Report - Test"
                 case ReportPrintType of
                     ReportPrintType::Detail:
                         begin
-                            VATCtrlRptLn.Reset;
+                            VATCtrlRptLn.Reset();
                             VATCtrlRptLn.SetRange("Control Report No.", "No.");
                             // All, Export, Not Export
                             case ReportPrintEntries of
@@ -318,10 +318,10 @@ report 31101 "VAT Control Report - Test"
                                             begin
                                                 // A5 and B3 section summary
                                                 if not VATControlReportBuffer.Get(VATCtrlRptLn."VAT Control Rep. Section Code", 0) then begin
-                                                    VATControlReportBuffer.Init;
+                                                    VATControlReportBuffer.Init();
                                                     VATControlReportBuffer."VAT Control Rep. Section Code" := VATCtrlRptLn."VAT Control Rep. Section Code";
                                                     VATControlReportBuffer."Line No." := 0;
-                                                    VATControlReportBuffer.Insert;
+                                                    VATControlReportBuffer.Insert();
                                                 end;
                                                 case VATCtrlRptLn."VAT Rate" of
                                                     VATCtrlRptLn."VAT Rate"::Base:
@@ -340,12 +340,12 @@ report 31101 "VAT Control Report - Test"
                                                             VATControlReportBuffer."Amount 3" += VATCtrlRptLn.Amount;
                                                         end;
                                                 end;
-                                                VATControlReportBuffer.Modify;
+                                                VATControlReportBuffer.Modify();
                                             end;
                                         else begin
                                                 // other section codes
                                                 CopyLineToBuffer(VATCtrlRptLn, VATControlReportBuffer);
-                                                VATControlReportBuffer.Insert;
+                                                VATControlReportBuffer.Insert();
                                             end;
                                     end;
                                 until VATCtrlRptLn.Next = 0;
@@ -356,7 +356,7 @@ report 31101 "VAT Control Report - Test"
                         VATCtrlRptMgt.CreateBufferForStatistics(VATControlReportHeader, VATControlReportBuffer, false);
                 end;
 
-                VATControlReportBuffer.Reset;
+                VATControlReportBuffer.Reset();
             end;
         }
     }

@@ -11,8 +11,6 @@ codeunit 134268 "Payment Proposal UT 2"
     end;
 
     var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         ZeroVATPostingSetup: Record "VAT Posting Setup";
         LibraryRandom: Codeunit "Library - Random";
         LibraryERM: Codeunit "Library - ERM";
@@ -42,9 +40,9 @@ codeunit 134268 "Payment Proposal UT 2"
         AppliedPaymentEntry.DeleteAll(true);
         CloseExistingEntries;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<0D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         if IsInitialized then
             exit;
@@ -56,7 +54,7 @@ codeunit 134268 "Payment Proposal UT 2"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         LibraryERM.FindZeroVATPostingSetup(ZeroVATPostingSetup, ZeroVATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        Commit;
+        Commit();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Payment Proposal UT 2");
     end;
@@ -1547,7 +1545,6 @@ codeunit 134268 "Payment Proposal UT 2"
         SecondLineAmount := Amount - FirstLineAmount - VendorLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -1590,7 +1587,6 @@ codeunit 134268 "Payment Proposal UT 2"
         SecondLineAmount := Amount - FirstLineAmount - VendorLedgerEntry."Remaining Pmt. Disc. Possible";
 
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -1646,9 +1642,9 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         Initialize;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1678,9 +1674,9 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         Initialize;
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Evaluate(GeneralLedgerSetup."Payment Discount Grace Period", '<+10D>');
-        GeneralLedgerSetup.Modify;
+        GeneralLedgerSetup.Modify();
 
         // Setup
         Amount := LibraryRandom.RandDecInRange(1, 10000, 2);
@@ -1815,7 +1811,7 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         I := 1;
         RecRef.Open(DATABASE::"Payment Application Proposal");
-        PaymentApplicationProposal.Init;
+        PaymentApplicationProposal.Init();
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Bank Account No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Statement No.")));
         AddToArray(FieldRefArray, I, RecRef.Field(PaymentApplicationProposal.FieldNo("Statement Line No.")));
@@ -1846,10 +1842,6 @@ codeunit 134268 "Payment Proposal UT 2"
     begin
         TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
         CODEUNIT.Run(CODEUNIT::"Get Bank Stmt. Line Candidates", TempPaymentApplicationProposal);
-        // NAVCZ
-        TempPaymentApplicationProposal.SetFilter("Account Type", '<>%1',
-          TempPaymentApplicationProposal."Account Type"::"G/L Account");
-        // NAVCZ
         TempPaymentApplicationProposal.FindFirst;
     end;
 
@@ -1859,7 +1851,6 @@ codeunit 134268 "Payment Proposal UT 2"
         BankAccReconciliation: Record "Bank Acc. Reconciliation";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        UpdateBankAccount(BankAccount); // NAVCZ
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccount."No.",
           BankAccReconciliation."Statement Type"::"Payment Application");
 
@@ -1904,7 +1895,7 @@ codeunit 134268 "Payment Proposal UT 2"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         Clear(VendorLedgerEntry);
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
         VendorLedgerEntry.FindFirst;
         VendorLedgerEntry.CalcFields("Remaining Amount");
@@ -1924,7 +1915,7 @@ codeunit 134268 "Payment Proposal UT 2"
     local procedure CreateNewPaymentApplicationLine(var TempPaymentApplicationProposal: Record "Payment Application Proposal" temporary; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AccountType: Option; AccountNo: Code[20])
     begin
         Clear(TempPaymentApplicationProposal);
-        TempPaymentApplicationProposal.Init;
+        TempPaymentApplicationProposal.Init();
         TempPaymentApplicationProposal.TransferFromBankAccReconLine(BankAccReconciliationLine);
         TempPaymentApplicationProposal."Account Type" := AccountType;
         TempPaymentApplicationProposal."Account No." := AccountNo;
@@ -2039,30 +2030,6 @@ codeunit 134268 "Payment Proposal UT 2"
         LibraryVariableStorage.Dequeue(ExpectedMessageVariant);
         ExpectedMessageText := ExpectedMessageVariant;
         Assert.ExpectedMessage(ExpectedMessageText, MessageText);
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    begin
-        // NAVCZ
-        if BankPmtApplRuleCode.Code = '' then
-            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    begin
-        // NAVCZ
-        if TextToAccMappingCode.Code = '' then
-            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
-        exit(TextToAccMappingCode.Code);
-    end;
-
-    local procedure UpdateBankAccount(BankAcc: Record "Bank Account")
-    begin
-        // NAVCZ
-        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
-        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
-        BankAcc.Modify;
     end;
 }
 

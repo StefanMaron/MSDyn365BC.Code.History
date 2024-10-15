@@ -77,7 +77,7 @@ report 11708 "Issued Bank Statement - Test"
                     begin
                         IssueBankStatement.ReturnError(ErrorText, Number);
                         if ErrorText = '' then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 

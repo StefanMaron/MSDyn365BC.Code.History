@@ -288,7 +288,7 @@ report 31086 "Reminder CZ"
                     trigger OnPreDataItem()
                     begin
                         if not ShowNotDueAmounts then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetFilter("Line Type", '%1|%2', "Line Type"::"Not Due", "Line Type"::"On Hold");
                     end;

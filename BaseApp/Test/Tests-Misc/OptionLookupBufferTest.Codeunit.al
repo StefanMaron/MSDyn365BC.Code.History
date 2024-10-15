@@ -59,7 +59,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
 
         // [THEN] Buffer table is filled
-        Assert.RecordCount(TempOptionLookupBuffer, 5);
+        Assert.RecordCount(TempOptionLookupBuffer, 6);
 
         // [THEN] Buffer table has entry for 'Comment'
         TempOptionLookupBuffer.Get(PurchaseLine.FormatType);
@@ -69,6 +69,9 @@ codeunit 134645 "Option Lookup Buffer Test"
 
         // [THEN] Buffer table has entry for 'Inventory'
         TempOptionLookupBuffer.Get(Format(PurchaseLine.Type::Item));
+
+        // [THEN] Buffer table has entry for 'Resource'
+        TempOptionLookupBuffer.Get(Format(PurchaseLine.Type::Resource));
     end;
 
     [Test]
@@ -309,6 +312,41 @@ codeunit 134645 "Option Lookup Buffer Test"
         Assert.IsFalse(SalesInvoice.SalesLines.FilteredTypeField.Editable, 'Subtype field should NOT be editable');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderLineSubtypeAutoComplete()
+    var
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [FEATURE] [Purchase] [Resource]
+        // [SCENARIO 289386] A partial Subtype is entered into the Subtype field triggers autocomplete in purchase order document line
+        Initialize;
+
+        // [GIVEN] Purchase order
+        PurchaseOrder.OpenNew();
+
+        // [WHEN] Setting the Subtype on the purchase line to 're'
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::Resource), 1, 2));
+        // [THEN] The Subtype is set to "Resource"
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::Resource));
+
+        // [WHEN] Setting the Subtype on the purchase line to 'ac'
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::"G/L Account"), 5, 2));
+        // [THEN] The Subtype is set to "G/L Account"
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::"G/L Account"));
+
+        // [WHEN] Setting the Subtype on the purchase line to 'it'
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(Format(PurchaseLine.Type::Item), 1, 2));
+        // [THEN] The Subtype is set to "Item"
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.Type::Item));
+
+        // [WHEN] Setting the Subtype on the purchase line to 'co'
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(CopyStr(PurchaseLine.FormatType(), 1, 2));
+        // [THEN] The Subtype is set to "Comment"
+        PurchaseOrder.PurchLines.FilteredTypeField.AssertEquals(Format(PurchaseLine.FormatType()));
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure OptionLookupListModalHandler(var OptionLookupList: TestPage "Option Lookup List")
@@ -331,7 +369,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Option Lookup Buffer Test");
-        ExperienceTierSetup.DeleteAll;
+        ExperienceTierSetup.DeleteAll();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
         LibraryVariableStorage.Clear;
         LibrarySales.DisableWarningOnCloseUnpostedDoc;

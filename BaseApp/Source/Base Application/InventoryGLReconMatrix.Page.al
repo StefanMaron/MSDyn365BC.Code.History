@@ -490,7 +490,7 @@ page 9297 "Inventory - G/L Recon Matrix"
 
     trigger OnOpenPage()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
 
         InvtReportHeader.SetFilter("Item Filter", ItemFilter);
         InvtReportHeader.SetFilter("Location Filter", LocationFilter);
@@ -520,7 +520,7 @@ page 9297 "Inventory - G/L Recon Matrix"
         LineDimCode: Text[20];
         ColumnDimCode: Text[20];
         DateFilter: Text;
-        Text000: Label '<Sign><Integer Thousand><Decimals,3>';
+        Text000: Label '<Sign><Integer Thousand><Decimals,3>', Locked = true;
         ItemFilter: Text;
         LocationFilter: Text;
         CellAmount: Decimal;
@@ -1085,7 +1085,7 @@ page 9297 "Inventory - G/L Recon Matrix"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 

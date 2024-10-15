@@ -191,7 +191,7 @@ table 31020 "Purch. Advance Letter Header"
             var
                 PurchSetup: Record "Purchases & Payables Setup";
             begin
-                PurchSetup.Get;
+                PurchSetup.Get();
                 if PurchSetup."Default VAT Date" = PurchSetup."Default VAT Date"::"Posting Date" then
                     Validate("VAT Date", "Posting Date");
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"Posting Date" then
@@ -438,7 +438,7 @@ table 31020 "Purch. Advance Letter Header"
             begin
                 Validate("Payment Terms Code");
 
-                PurchSetup.Get;
+                PurchSetup.Get();
                 if PurchSetup."Default VAT Date" = PurchSetup."Default VAT Date"::"Document Date" then
                     Validate("VAT Date", "Document Date");
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"Document Date" then
@@ -654,10 +654,10 @@ table 31020 "Purch. Advance Letter Header"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if not GLSetup."Use VAT Date" then
                     TestField("VAT Date", "Posting Date");
-                PurchSetup.Get;
+                PurchSetup.Get();
                 if PurchSetup."Default Orig. Doc. VAT Date" = PurchSetup."Default Orig. Doc. VAT Date"::"VAT Date" then
                     Validate("Original Document VAT Date", "VAT Date");
             end;
@@ -847,7 +847,7 @@ table 31020 "Purch. Advance Letter Header"
                             NewVATBusPostingGroup := RegistrationCountry."VAT Bus. Posting Group";
 
                     if "Perform. Country/Region Code" <> '' then begin
-                        CompanyInfo.Get;
+                        CompanyInfo.Get();
                         RegistrationCountry.Get(RegistrationCountry."Account Type"::Vendor, '', "Perform. Country/Region Code");
                         if "VAT Country/Region Code" <> '' then begin
                             RegnCountryRoute.Get("Perform. Country/Region Code", "VAT Country/Region Code", NewVATBusPostingGroup);
@@ -927,7 +927,7 @@ table 31020 "Purch. Advance Letter Header"
             end;
         end;
 
-        AdvanceLetterLineRelation.Reset;
+        AdvanceLetterLineRelation.Reset();
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Purchase);
         AdvanceLetterLineRelation.SetRange("Letter No.", "No.");
         if AdvanceLetterLineRelation.FindSet(true, false) then begin
@@ -940,14 +940,14 @@ table 31020 "Purch. Advance Letter Header"
 
         PurchCommentLine.SetRange("Document Type", PurchCommentLine."Document Type"::"Advance Letter");
         PurchCommentLine.SetRange("No.", "No.");
-        PurchCommentLine.DeleteAll;
+        PurchCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeleteApprovalEntryForRecord(Rec);
     end;
 
     trigger OnInsert()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
 
         if "Template Code" <> '' then
             PurchAdvPmtTemplate.Get("Template Code");
@@ -1044,7 +1044,7 @@ table 31020 "Purch. Advance Letter Header"
                     exit(true);
                 end;
             end else begin
-                PurchSetup.Get;
+                PurchSetup.Get();
                 PurchSetup.TestField("Advance Letter Nos.");
                 if NoSeriesMgt.SelectSeries(PurchSetup."Advance Letter Nos.", PurchAdvanceLetterHeaderOld."No. Series", "No. Series") then begin
                     NoSeriesMgt.SetSeries("No.");
@@ -1114,10 +1114,10 @@ table 31020 "Purch. Advance Letter Header"
         if not Confirm(Text010Qst) then
             exit;
 
-        PurchAdvanceLetterLinegre.Reset;
+        PurchAdvanceLetterLinegre.Reset();
         PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
 
-        PurchAdvanceLetterLinegre.LockTable;
+        PurchAdvanceLetterLinegre.LockTable();
         if PurchAdvanceLetterLinegre.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(PurchAdvanceLetterLinegre."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -1127,10 +1127,10 @@ table 31020 "Purch. Advance Letter Header"
                       PurchAdvanceLetterLinegre."Dimension Set ID",
                       PurchAdvanceLetterLinegre."Shortcut Dimension 1 Code",
                       PurchAdvanceLetterLinegre."Shortcut Dimension 2 Code");
-                    PurchAdvanceLetterLinegre.Modify;
+                    PurchAdvanceLetterLinegre.Modify();
                 end;
             until PurchAdvanceLetterLinegre.Next = 0;
-        PurchAdvanceLetterLinegre.Reset;
+        PurchAdvanceLetterLinegre.Reset();
     end;
 
     [Scope('OnPrem')]
@@ -1202,7 +1202,7 @@ table 31020 "Purch. Advance Letter Header"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -1229,7 +1229,7 @@ table 31020 "Purch. Advance Letter Header"
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
         exit(PurchAdvanceLetterLine.FindFirst);
     end;
@@ -1242,7 +1242,7 @@ table 31020 "Purch. Advance Letter Header"
         PurchPostAdvances: Codeunit "Purchase-Post Advances";
         LinkedPrepayments: Page "Linked Prepayments";
     begin
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
         if PurchAdvanceLetterLine.FindSet then
             repeat
@@ -1486,28 +1486,28 @@ table 31020 "Purch. Advance Letter Header"
                   Confirm(
                     Text008Qst, false, ChangedFieldName);
             if Confirmed then begin
-                PurchAdvanceLetterLinegre.LockTable;
+                PurchAdvanceLetterLinegre.LockTable();
                 xRecRef.GetTable(xRec);
                 Modify;
                 RecRef.GetTable(Rec);
 
-                PurchAdvanceLetterLinegre.Reset;
+                PurchAdvanceLetterLinegre.Reset();
                 PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
                 if PurchAdvanceLetterLinegre.FindSet then
                     repeat
                         PurchAdvanceLetterLinegre.TestField(Status, PurchAdvanceLetterLinegre.Status::Open);
 
                         TempPurchAdvanceLetterLine := PurchAdvanceLetterLinegre;
-                        TempPurchAdvanceLetterLine.Insert;
+                        TempPurchAdvanceLetterLine.Insert();
                     until PurchAdvanceLetterLinegre.Next = 0;
 
                 PurchAdvanceLetterLinegre.DeleteAll(true);
-                PurchAdvanceLetterLinegre.Init;
+                PurchAdvanceLetterLinegre.Init();
                 PurchAdvanceLetterLinegre."Line No." := 0;
                 TempPurchAdvanceLetterLine.FindSet;
 
                 repeat
-                    PurchAdvanceLetterLinegre.Init;
+                    PurchAdvanceLetterLinegre.Init();
                     PurchAdvanceLetterLinegre."Line No." := PurchAdvanceLetterLinegre."Line No." + 10000;
                     PurchAdvanceLetterLinegre.Validate("VAT Prod. Posting Group", TempPurchAdvanceLetterLine."VAT Prod. Posting Group");
                     PurchAdvanceLetterLinegre.Validate("Job No.", TempPurchAdvanceLetterLine."Job No.");
@@ -1537,10 +1537,10 @@ table 31020 "Purch. Advance Letter Header"
                     exit;
         end;
 
-        PurchAdvanceLetterLinegre.LockTable;
+        PurchAdvanceLetterLinegre.LockTable();
         Modify;
 
-        PurchAdvanceLetterLinegre.Reset;
+        PurchAdvanceLetterLinegre.Reset();
         PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
         if PurchAdvanceLetterLinegre.FindSet then
             repeat
@@ -1548,7 +1548,7 @@ table 31020 "Purch. Advance Letter Header"
                     FieldCaption("Advance Due Date"):
                         PurchAdvanceLetterLinegre.Validate("Advance Due Date", "Advance Due Date");
                 end;
-                PurchAdvanceLetterLinegre.Modify;
+                PurchAdvanceLetterLinegre.Modify();
             until PurchAdvanceLetterLinegre.Next = 0;
     end;
 
@@ -1557,7 +1557,7 @@ table 31020 "Purch. Advance Letter Header"
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", "No.");
         PurchAdvanceLetterLine.ModifyAll("VAT Difference Inv.", 0);
         PurchAdvanceLetterLine.ModifyAll("VAT Difference Inv. (LCY)", 0);
@@ -1582,7 +1582,7 @@ table 31020 "Purch. Advance Letter Header"
     [Scope('OnPrem')]
     procedure CheckLinesForDueDates()
     begin
-        PurchAdvanceLetterLinegre.Reset;
+        PurchAdvanceLetterLinegre.Reset();
         PurchAdvanceLetterLinegre.SetRange("Letter No.", "No.");
         if PurchAdvanceLetterLinegre.FindSet then
             repeat
@@ -1643,7 +1643,7 @@ table 31020 "Purch. Advance Letter Header"
     var
         Vendor: Record Vendor;
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         if PurchSetup."Ignore Updated Addresses" then
             exit;
 

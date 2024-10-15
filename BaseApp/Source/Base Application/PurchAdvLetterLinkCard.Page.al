@@ -326,7 +326,7 @@ page 31032 "Purch. Adv. Letter Link. Card"
     begin
         PurchHeader.Get(DocType, DocNo);
         TempPurchHeader := PurchHeader;
-        TempPurchHeader.Insert;
+        TempPurchHeader.Insert();
         CurrencyCode := PurchHeader."Currency Code";
     end;
 

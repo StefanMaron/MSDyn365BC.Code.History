@@ -27,7 +27,6 @@ page 11775 "Apply General Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Document Type';
                     Editable = false;
-                    OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,Advance';
                     ToolTip = 'Specifies the original document type which will be applied.';
                 }
                 field("TempApplyingGLEntry.""Document No."""; TempApplyingGLEntry."Document No.")
@@ -339,7 +338,7 @@ page 11775 "Apply General Ledger Entries"
                             if TempApplyingGLEntry."Entry No." <> 0 then begin
                                 GLEntry3.Get(TempApplyingGLEntry."Entry No.");
                                 GLEntry3.CalcFields("Applied Amount");
-                                Commit;
+                                Commit();
                                 GLEntryPostApplication.PostApplyGLEntry(TempApplyingGLEntry);
                                 CurrPage.Update(false);
                                 GLEntry2.Get(TempApplyingGLEntry."Entry No.");
@@ -507,7 +506,7 @@ page 11775 "Apply General Ledger Entries"
 
     local procedure SetAppliesToID()
     begin
-        GLEntry.Reset;
+        GLEntry.Reset();
         GLEntry.Copy(Rec);
         CurrPage.SetSelectionFilter(GLEntry);
         if GLEntry.FindSet(true, false) then
@@ -522,7 +521,7 @@ page 11775 "Apply General Ledger Entries"
     local procedure CalcApplnAmount()
     begin
         ApplyingAmount := 0;
-        GLEntry.Reset;
+        GLEntry.Reset();
         GLEntry.Copy(Rec);
         GLEntry.SetRange("Applies-to ID", GLApplID);
         if GLEntry.FindSet then

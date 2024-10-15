@@ -110,7 +110,7 @@ page 5936 "Service Credit Memo Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        Commit;
+                        Commit();
                         ShowReservationEntries(true);
                         UpdateForm(true);
                     end;
@@ -480,7 +480,7 @@ page 5936 "Service Credit Memo Subform"
         ReserveServLine: Codeunit "Service Line-Reserve";
     begin
         if (Quantity <> 0) and ItemExists("No.") then begin
-            Commit;
+            Commit();
             if not ReserveServLine.DeleteLineConfirm(Rec) then
                 exit(false);
             ReserveServLine.DeleteLine(Rec);

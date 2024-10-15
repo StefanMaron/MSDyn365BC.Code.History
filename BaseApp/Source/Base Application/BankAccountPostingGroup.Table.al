@@ -16,8 +16,13 @@ table 277 "Bank Account Posting Group"
             Caption = 'G/L Bank Account No.';
             ObsoleteReason = 'Moved to G/L Account No.';
             ObsoleteState = Pending;
-            TableRelation = "G/L Account";
             ObsoleteTag = '15.0';
+            TableRelation = "G/L Account";
+
+            trigger OnValidate()
+            begin
+                CheckGLAcc("G/L Bank Account No.");
+            end;
         }
         field(3; "G/L Account No."; Code[20])
         {

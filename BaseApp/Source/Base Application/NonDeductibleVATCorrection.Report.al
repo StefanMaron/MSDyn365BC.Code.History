@@ -26,13 +26,13 @@ report 11765 "Non Deductible VAT Correction"
                 if not TempVATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
                     VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                     TempVATPostingSetup := VATPostingSetup;
-                    TempVATPostingSetup.Insert;
+                    TempVATPostingSetup.Insert();
                     NonDeductibleVATSetup.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                     NonDeductibleVATSetup.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
                     if NonDeductibleVATSetup.FindSet then
                         repeat
                             TempNonDeductibleVATSetup := NonDeductibleVATSetup;
-                            TempNonDeductibleVATSetup.Insert;
+                            TempNonDeductibleVATSetup.Insert();
                         until NonDeductibleVATSetup.Next = 0;
                 end;
 
@@ -59,7 +59,7 @@ report 11765 "Non Deductible VAT Correction"
                     (TempVATEntryCorrBuf."VAT % (Non Deductible)" - VATEntryLast."VAT % (Non Deductible)") / 100);
                 TempVATEntryCorrBuf.Base := TempVATEntryCorrBuf."VAT Amount (Non Deductible)";
                 TempVATEntryCorrBuf.Amount := -TempVATEntryCorrBuf."VAT Amount (Non Deductible)";
-                TempVATEntryCorrBuf.Insert;
+                TempVATEntryCorrBuf.Insert();
             end;
 
             trigger OnPreDataItem()
@@ -77,9 +77,6 @@ report 11765 "Non Deductible VAT Correction"
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
             {
             }
             column(greVATEntry__VAT_Date_; VATEntry."VAT Date")
@@ -179,7 +176,7 @@ report 11765 "Non Deductible VAT Correction"
                     TempVATEntryCorrBuf.FindSet
                 else
                     if TempVATEntryCorrBuf.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 VATEntry.Get(TempVATEntryCorrBuf."Entry No.");
                 VATEntryLast.SetCurrentKey("Primary Entry No.");
@@ -272,7 +269,7 @@ report 11765 "Non Deductible VAT Correction"
     begin
         if (FromVATDate = 0D) or (ToVATDate = 0D) then
             Error(Text003Err);
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.TestField("VAT Coefficient");
     end;
 
@@ -315,7 +312,7 @@ report 11765 "Non Deductible VAT Correction"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         TempVATPostingSetup.Get(TempVATEntryCorrBuf."VAT Bus. Posting Group", TempVATEntryCorrBuf."VAT Prod. Posting Group");
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
         GenJnlLine."Account No." := TempVATPostingSetup."Non Deduct. VAT Corr. Account";
         GenJnlLine."System-Created Entry" := true;

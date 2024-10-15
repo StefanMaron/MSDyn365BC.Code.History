@@ -27,7 +27,7 @@ report 296 "Batch Post Sales Orders"
                 SalesBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
                 SalesBatchPostMgt.RunBatch("Sales Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, ShipReq, InvReq);
 
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }
@@ -108,7 +108,7 @@ report 296 "Batch Post Sales Orders"
                         var
                             SalesReceivablesSetup: Record "Sales & Receivables Setup";
                         begin
-                            SalesReceivablesSetup.Get;
+                            SalesReceivablesSetup.Get();
                             SalesReceivablesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -124,7 +124,7 @@ report 296 "Batch Post Sales Orders"
                             SalesReceivablesSetup: Record "Sales & Receivables Setup";
                         begin
                             if PrintDoc then begin
-                                SalesReceivablesSetup.Get;
+                                SalesReceivablesSetup.Get();
                                 if SalesReceivablesSetup."Post with Job Queue" then
                                     SalesReceivablesSetup.TestField("Post & Print with Job Queue");
                             end;
@@ -142,7 +142,7 @@ report 296 "Batch Post Sales Orders"
         var
             SalesReceivablesSetup: Record "Sales & Receivables Setup";
         begin
-            SalesReceivablesSetup.Get;
+            SalesReceivablesSetup.Get();
             CalcInvDisc := SalesReceivablesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;
             ReplaceDocumentDate := false;
@@ -188,7 +188,7 @@ report 296 "Batch Post Sales Orders"
         GLSetup: Record "General Ledger Setup";
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         UseVATDate := GLSetup."Use VAT Date";
     end;
 

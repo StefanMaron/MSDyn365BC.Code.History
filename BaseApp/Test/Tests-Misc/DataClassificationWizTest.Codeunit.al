@@ -236,19 +236,19 @@ codeunit 135152 "Data Classification Wiz. Tests"
     var
         DataSensitivity: Record "Data Sensitivity";
     begin
-        DataSensitivity.DeleteAll;
+        DataSensitivity.DeleteAll();
 
         DataSensitivity."Company Name" := CompanyName;
         DataSensitivity."Table No" := 13;
         DataSensitivity."Field No" := 1;
         DataSensitivity."Data Sensitivity" := DataSensitivity."Data Sensitivity"::Unclassified;
-        DataSensitivity.Insert;
+        DataSensitivity.Insert();
 
         DataSensitivity."Company Name" := CompanyName;
         DataSensitivity."Table No" := 13;
         DataSensitivity."Field No" := 2;
         DataSensitivity."Data Sensitivity" := DataSensitivity."Data Sensitivity"::Unclassified;
-        DataSensitivity.Insert;
+        DataSensitivity.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -283,7 +283,7 @@ codeunit 135152 "Data Classification Wiz. Tests"
         ExcelBuffer."Row No." := RowNo;
         ExcelBuffer."Column No." := ColumnNo;
         ExcelBuffer."Cell Value as Text" := Value;
-        ExcelBuffer.Insert;
+        ExcelBuffer.Insert();
     end;
 }
 

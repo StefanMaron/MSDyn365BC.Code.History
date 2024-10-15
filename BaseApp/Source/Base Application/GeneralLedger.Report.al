@@ -221,7 +221,7 @@ report 11771 "General Ledger"
                         else
                             SetRange("Starting Date", StartDate, EndDate);
                     end;
-                    AccPer.Reset;
+                    AccPer.Reset();
                     EndPerDebit := StartDebit;
                     EndPerCredit := StartCredit;
                 end;
@@ -361,7 +361,7 @@ report 11771 "General Ledger"
                     Print := false;
 
                 if not Print then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()
@@ -369,8 +369,7 @@ report 11771 "General Ledger"
                 GLEntry: Record "G/L Entry";
             begin
                 PeriodText := Format(StartDate) + '..' + Format(EndDate);
-                if GLEntry.FindLast then
-                    LastEntryNo := GLEntry."Entry No.";
+                LastEntryNo := GLEntry.GetLastEntryNo();
             end;
         }
     }
@@ -467,6 +466,6 @@ report 11771 "General Ledger"
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         AccountFilterCaptionLbl: Label 'Account No.';
         BalanceCaptionLbl: Label 'Balance';
-        DateFormatTxt: Label '<Closing><Day,2>.<Month,2>.<Year4>', Comment = '<Closing><Day,2>.<Month,2>.<Year4>';
+        DateFormatTxt: Label '<Closing><Day,2>.<Month,2>.<Year4>', Locked = true;
 }
 

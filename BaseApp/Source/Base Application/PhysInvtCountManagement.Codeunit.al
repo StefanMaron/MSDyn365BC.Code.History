@@ -78,7 +78,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
 
     local procedure InsertTempPhysCountBuffer(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; ShelfBin: Code[10]; PhysInvtCountCode: Code[10]; Description: Text[100]; CountingPeriodStartDate: Date; CountingPeriodEndDate: Date; LastCountDate: Date; SourceType: Option Item,SKU)
     begin
-        TempPhysInvtItemSelection.Init;
+        TempPhysInvtItemSelection.Init();
         TempPhysInvtItemSelection."Item No." := ItemNo;
         TempPhysInvtItemSelection."Variant Code" := VariantCode;
         TempPhysInvtItemSelection."Location Code" := LocationCode;
@@ -91,7 +91,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         GetPhysInvtCount(PhysInvtCountCode);
         TempPhysInvtItemSelection."Count Frequency per Year" := PhysInvtCount."Count Frequency per Year";
         TempPhysInvtItemSelection.Description := Description;
-        if TempPhysInvtItemSelection.Insert then;
+        if TempPhysInvtItemSelection.Insert() then;
     end;
 
     local procedure CreatePhysInvtItemJnl()
@@ -242,7 +242,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
             LastCountDate := LastDate;
 
         i := Date2DMY(WorkDate, 3);
-        Calendar.Reset;
+        Calendar.Reset();
         Calendar.SetRange("Period Type", Calendar."Period Type"::Year);
         Calendar.SetRange("Period No.", i);
         Calendar.Find('-');
@@ -283,7 +283,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
                     NextCountingEndDate := Periods[i + 1] - 1;
                 end;
             else begin
-                    Calendar.Reset;
+                    Calendar.Reset();
                     Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
                     Calendar.SetRange("Period Start", StartDate, YearEndDate);
                     Calendar.SetRange("Period No.");
@@ -484,7 +484,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         with TempItem do begin
             if FindSet then
                 repeat
-                    Item.Reset;
+                    Item.Reset();
                     Item.Get("No.");
                     UpdateItemPhysInvtCount(Item);
                 until Next = 0;
@@ -493,7 +493,7 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         with TempSKU do begin
             if FindSet then
                 repeat
-                    SKU.Reset;
+                    SKU.Reset();
                     SKU.Get("Location Code", "Item No.", "Variant Code");
                     UpdateSKUPhysInvtCount(SKU);
                 until Next = 0;
@@ -540,8 +540,8 @@ codeunit 7380 "Phys. Invt. Count.-Management"
     begin
         SetHideValidationDialog(true);
 
-        TempItem.DeleteAll;
-        TempSKU.DeleteAll;
+        TempItem.DeleteAll();
+        TempSKU.DeleteAll();
     end;
 
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
@@ -597,13 +597,13 @@ codeunit 7380 "Phys. Invt. Count.-Management"
         OldStartDate: Date;
     begin
         if StartDate > LastDate then begin
-            Calendar.Reset;
+            Calendar.Reset();
             Calendar.SetRange("Period Type", Calendar."Period Type"::Year);
             Calendar.SetRange("Period No.", Date2DMY(LastDate, 3));
             Calendar.FindFirst;
             StartDate := Calendar."Period Start";
         end;
-        Calendar.Reset;
+        Calendar.Reset();
         Calendar.SetRange("Period Type", Calendar."Period Type"::Month);
         Calendar.SetFilter("Period Start", '>=%1', StartDate);
         Calendar.FindFirst;

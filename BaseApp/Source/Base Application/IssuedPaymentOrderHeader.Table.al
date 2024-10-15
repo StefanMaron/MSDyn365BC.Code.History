@@ -310,7 +310,7 @@ table 11710 "Issued Payment Order Header"
         GenJnlBatch.TestField("Allow Payment Export");
         GenJnlBatch.TestField("No. Series", '');
 
-        GenJnlLn.Reset;
+        GenJnlLn.Reset();
         GenJnlLn.FilterGroup(2);
         GenJnlLn.SetRange("Journal Template Name", GenJnlBatch."Journal Template Name");
         GenJnlLn.SetRange("Journal Batch Name", GenJnlBatch.Name);
@@ -326,11 +326,11 @@ table 11710 "Issued Payment Order Header"
                 IssuedPmtOrdLn.TestField(Type);
 
                 LineNo += 10000;
-                GenJnlLn.Init;
+                GenJnlLn.Init();
                 GenJnlLn."Journal Template Name" := GenJnlBatch."Journal Template Name";
                 GenJnlLn."Journal Batch Name" := GenJnlBatch.Name;
                 GenJnlLn."Line No." := LineNo;
-                GenJnlLn.Insert;
+                GenJnlLn.Insert();
 
                 GenJnlLn."Posting Date" := "Document Date";
                 GenJnlLn."Document Date" := "Document Date";
@@ -357,7 +357,7 @@ table 11710 "Issued Payment Order Header"
                 GenJnlLn."Variable Symbol" := IssuedPmtOrdLn."Variable Symbol";
                 GenJnlLn."Constant Symbol" := IssuedPmtOrdLn."Constant Symbol";
                 GenJnlLn."Specific Symbol" := IssuedPmtOrdLn."Specific Symbol";
-                GenJnlLn.Modify;
+                GenJnlLn.Modify();
             until IssuedPmtOrdLn.Next = 0;
         end;
     end;

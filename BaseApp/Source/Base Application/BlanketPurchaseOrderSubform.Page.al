@@ -1,4 +1,4 @@
-﻿page 510 "Blanket Purchase Order Subform"
+page 510 "Blanket Purchase Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -771,7 +771,7 @@
 
     trigger OnInit()
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         Currency.InitRoundingPrecision;
     end;
 
@@ -897,7 +897,7 @@
     local procedure ShowOrders()
     begin
         CurrentPurchLine := Rec;
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
         PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
@@ -908,7 +908,7 @@
     local procedure ShowInvoices()
     begin
         CurrentPurchLine := Rec;
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::Invoice);
         PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
@@ -919,7 +919,7 @@
     local procedure ShowReturnOrders()
     begin
         CurrentPurchLine := Rec;
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Return Order");
         PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
@@ -930,7 +930,7 @@
     local procedure ShowCreditMemos()
     begin
         CurrentPurchLine := Rec;
-        PurchLine.Reset;
+        PurchLine.Reset();
         PurchLine.SetCurrentKey("Document Type", "Blanket Order No.", "Blanket Order Line No.");
         PurchLine.SetRange("Document Type", PurchLine."Document Type"::"Credit Memo");
         PurchLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
@@ -943,7 +943,7 @@
         PurchRcptLine: Record "Purch. Rcpt. Line";
     begin
         CurrentPurchLine := Rec;
-        PurchRcptLine.Reset;
+        PurchRcptLine.Reset();
         PurchRcptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         PurchRcptLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
         PurchRcptLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
@@ -955,7 +955,7 @@
         PurchInvLine: Record "Purch. Inv. Line";
     begin
         CurrentPurchLine := Rec;
-        PurchInvLine.Reset;
+        PurchInvLine.Reset();
         PurchInvLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         PurchInvLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
         PurchInvLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
@@ -967,7 +967,7 @@
         ReturnShptLine: Record "Return Shipment Line";
     begin
         CurrentPurchLine := Rec;
-        ReturnShptLine.Reset;
+        ReturnShptLine.Reset();
         ReturnShptLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         ReturnShptLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
         ReturnShptLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");
@@ -979,7 +979,7 @@
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
         CurrentPurchLine := Rec;
-        PurchCrMemoLine.Reset;
+        PurchCrMemoLine.Reset();
         PurchCrMemoLine.SetCurrentKey("Blanket Order No.", "Blanket Order Line No.");
         PurchCrMemoLine.SetRange("Blanket Order No.", CurrentPurchLine."Document No.");
         PurchCrMemoLine.SetRange("Blanket Order Line No.", CurrentPurchLine."Line No.");

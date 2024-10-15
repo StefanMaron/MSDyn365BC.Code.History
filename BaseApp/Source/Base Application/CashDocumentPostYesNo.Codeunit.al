@@ -20,7 +20,7 @@ codeunit 11733 "Cash Document-Post (Yes/No)"
             Error('');
 
         CODEUNIT.Run(CODEUNIT::"Cash Document-Post", CashDocumentHeader);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

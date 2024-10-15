@@ -128,7 +128,7 @@ report 11781 "Open G/L Entries To Date"
                     PreviousAccountNo := "G/L Entry"."G/L Account No.";
                 end;
                 if Closed and ("Closed at Date" <= BalanceToDate) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
                 AppliedAmount := 0;
                 DebitAmount := 0;
                 CreditAmount := 0;

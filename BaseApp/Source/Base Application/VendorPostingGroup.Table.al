@@ -442,11 +442,11 @@ table 93 "Vendor Posting Group"
         PurchSetup: Record "Purchases & Payables Setup";
         PaymentTerms: Record "Payment Terms";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         PmtToleranceVisible := GLSetup.GetPmtToleranceVisible;
         PmtDiscountVisible := PaymentTerms.UsePaymentDiscount;
 
-        PurchSetup.Get;
+        PurchSetup.Get();
         InvRoundingVisible := PurchSetup."Invoice Rounding";
         ApplnRoundingVisible := PurchSetup."Appln. between Currencies" <> PurchSetup."Appln. between Currencies"::None;
     end;
@@ -475,10 +475,10 @@ table 93 "Vendor Posting Group"
     begin
         // NAVCZ
         SubstVendPostingGroup.SetRange("Parent Vend. Posting Group", Code);
-        SubstVendPostingGroup.DeleteAll;
-        SubstVendPostingGroup.Reset;
+        SubstVendPostingGroup.DeleteAll();
+        SubstVendPostingGroup.Reset();
         SubstVendPostingGroup.SetRange("Vendor Posting Group", Code);
-        SubstVendPostingGroup.DeleteAll;
+        SubstVendPostingGroup.DeleteAll();
     end;
 
     local procedure CheckOpenVendLedgEntries(Prepayment1: Boolean)

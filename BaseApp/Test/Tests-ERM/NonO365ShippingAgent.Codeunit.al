@@ -136,7 +136,7 @@ codeunit 138060 "Non-O365 Shipping Agent"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option)

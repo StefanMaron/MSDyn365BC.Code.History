@@ -306,7 +306,7 @@ table 11735 "Posted Cash Document Header"
     begin
         PostedCashDocumentLine.SetRange("Cash Desk No.", "Cash Desk No.");
         PostedCashDocumentLine.SetRange("Cash Document No.", "No.");
-        PostedCashDocumentLine.DeleteAll;
+        PostedCashDocumentLine.DeleteAll();
     end;
 
     var

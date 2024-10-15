@@ -116,11 +116,11 @@ codeunit 441 "Prepayment Mgt."
 
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
-        SalesLine.SetFilter("Prepmt. Line Amount", '<>%1', 0);
         if SalesLine.FindSet then
             repeat
-                if SalesLine."Prepmt. Amt. Inv." <> SalesLine."Prepmt. Line Amount" then
-                    exit(true);
+                if SalesLine."Prepmt. Line Amount" <> 0 then
+                    if SalesLine."Prepmt. Amt. Inv." <> SalesLine."Prepmt. Line Amount" then
+                        exit(true);
             until SalesLine.Next = 0;
     end;
 
@@ -161,7 +161,7 @@ codeunit 441 "Prepayment Mgt."
             exit;
         // NAVCZ
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         if not SalesSetup."Check Prepmt. when Posting" then
             exit(false);
 
@@ -192,7 +192,7 @@ codeunit 441 "Prepayment Mgt."
             exit;
         // NAVCZ
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         if not PurchasesPayablesSetup."Check Prepmt. when Posting" then
             exit(false);
 

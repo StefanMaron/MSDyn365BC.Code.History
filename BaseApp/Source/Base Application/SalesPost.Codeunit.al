@@ -1,4 +1,4 @@
-﻿codeunit 80 "Sales-Post"
+codeunit 80 "Sales-Post"
 {
     Permissions = TableData "Sales Line" = imd,
                   TableData "Purchase Header" = m,
@@ -440,7 +440,6 @@
         CheckDimensions: Codeunit "Check Dimensions";
         ErrorContextElement: Codeunit "Error Context Element";
         ForwardLinkMgt: Codeunit "Forward Link Mgt.";
-        ReportDistributionManagement: Codeunit "Report Distribution Management";	
         SetupRecID: RecordID;
         ModifyHeader: Boolean;
         RefreshTempLinesNeeded: Boolean;
@@ -523,8 +522,6 @@
             // NAVCZ
 
             CheckAssosOrderLines(SalesHeader);
-
-            ReportDistributionManagement.RunDefaultCheckSalesElectronicDocument(SalesHeader);
 
             OnAfterCheckSalesDoc(SalesHeader, SuppressCommit, WhseShip, WhseReceive);
             ErrorMessageMgt.Finish(RecordId);
@@ -912,7 +909,7 @@
             SaveInvoiceSpecification(TempTrackingSpecification);
     end;
 
-    local procedure PostItemJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; ItemLedgShptEntryNo: Integer; ItemChargeNo: Code[20]; TrackingSpecification: Record "Tracking Specification"; IsATO: Boolean): Integer
+    procedure PostItemJnlLine(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; QtyToBeShipped: Decimal; QtyToBeShippedBase: Decimal; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; ItemLedgShptEntryNo: Integer; ItemChargeNo: Code[20]; TrackingSpecification: Record "Tracking Specification"; IsATO: Boolean): Integer
     var
         ItemJnlLine: Record "Item Journal Line";
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
@@ -1635,6 +1632,11 @@
             end;
             TestSalesLineJob(SalesLine);
 
+            if Type = Type::Item then
+                DummyTrackingSpecification.CheckItemTrackingQuantity(
+                  DATABASE::"Sales Line", "Document Type", "Document No.", "Line No.",
+                  "Qty. to Ship (Base)", "Qty. to Invoice (Base)", SalesHeader.Ship, SalesHeader.Invoice);
+
             case "Document Type" of
                 "Document Type"::Order:
                     TestField("Return Qty. to Receive", 0);
@@ -1836,7 +1838,7 @@
               TempDropShptPostBuffer."Order No.", TempDropShptPostBuffer."Order Line No.");
             PurchOrderLine."Quantity Received" := PurchOrderLine."Quantity Received" + TempDropShptPostBuffer.Quantity;
             PurchOrderLine."Qty. Received (Base)" := PurchOrderLine."Qty. Received (Base)" + TempDropShptPostBuffer."Quantity (Base)";
-            PurchOrderLine.InitOutstanding;
+            PurchOrderLine.InitOutstanding();
             PurchOrderLine.ClearQtyIfBlank;
             PurchOrderLine.InitQtyToReceive;
             OnUpdateAssocOrderOnBeforeModifyPurchLine(PurchOrderLine, TempDropShptPostBuffer);
@@ -2946,7 +2948,7 @@
 
                 if ModifyLine then begin
                     OnUpdateBlanketOrderLineOnBeforeInitOutstanding(BlanketOrderSalesLine, SalesLine, Ship, Receive, Invoice);
-                    BlanketOrderSalesLine.InitOutstanding;
+                    BlanketOrderSalesLine.InitOutstanding();
 
                     IsHandled := false;
                     OnUpdateBlanketOrderLineOnBeforeCheck(BlanketOrderSalesLine, SalesLine, IsHandled);
@@ -3511,6 +3513,7 @@
     var
         ReservationEntry: Record "Reservation Entry";
         ItemTrackingCode: Record "Item Tracking Code";
+        ItemTrackingSetup: Record "Item Tracking Setup";
         ItemJnlLine: Record "Item Journal Line";
         CreateReservEntry: Codeunit "Create Reserv. Entry";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
@@ -3519,10 +3522,6 @@
         SalesLineQtyToHandle: Decimal;
         TrackingQtyToHandle: Decimal;
         Inbound: Boolean;
-        SNRequired: Boolean;
-        LotRequired: Boolean;
-        SNInfoRequired: Boolean;
-        LotInfoRequired: Boolean;
         CheckSalesLine: Boolean;
     begin
         // if a SalesLine is posted with ItemTracking then tracked quantity must be equal to posted quantity
@@ -3553,10 +3552,9 @@
                     if Item."Item Tracking Code" <> '' then begin
                         Inbound := (Quantity * SignFactor) > 0;
                         ItemTrackingCode.Code := Item."Item Tracking Code";
-                        ItemTrackingManagement.GetItemTrackingSettings(ItemTrackingCode,
-                          ItemJnlLine."Entry Type"::Sale, Inbound,
-                          SNRequired, LotRequired, SNInfoRequired, LotInfoRequired);
-                        CheckSalesLine := not SNRequired and not LotRequired;
+                        ItemTrackingManagement.GetItemTrackingSetup(
+                            ItemTrackingCode, ItemJnlLine."Entry Type"::Sale, Inbound, ItemTrackingSetup);
+                        CheckSalesLine := not ItemTrackingSetup.TrackingRequired();
                         if CheckSalesLine then
                             CheckSalesLine := CheckTrackingExists(TempItemSalesLine);
                     end else
@@ -3806,7 +3804,7 @@
             TempTrackingSpecification2.FindSet;
             if -TempTrackingSpecification2."Quantity (Base)" / QtyToBeShippedBase < 0 then
                 Error(ItemTrackingWrongSignErr);
-            if ReservePurchLine.ReservEntryExist(PurchOrderLine) then
+            if PurchOrderLine.ReservEntryExist then
                 repeat
                     ItemJnlLine.CopyTrackingFromSpec(TempTrackingSpecification2);
                     RemainingQuantity :=
@@ -4351,7 +4349,7 @@
         ItemChargeAssgntSales.LockTable();
         PurchOrderLine.LockTable();
         PurchOrderHeader.LockTable();
-        GetGLSetup;
+        GetGLSetup();
         if not GLSetup.OptimGLEntLockForMultiuserEnv then begin
             GLEntry.LockTable();
             if GLEntry.FindLast() then;
@@ -6708,7 +6706,7 @@
 
                     OnPostUpdateOrderLineOnBeforeInitOutstanding(SalesHeader, TempSalesLine);
 
-                    InitOutstanding;
+                    InitOutstanding();
                     CheckATOLink(TempSalesLine);
 
                     SetDefaultQtyBlank := SalesSetup."Default Quantity to Ship" = SalesSetup."Default Quantity to Ship"::Blank;
@@ -6772,7 +6770,7 @@
                           SalesOrderLine."Prepmt. Amt. Inv." - SalesOrderLine."Prepmt Amt Deducted";
                         SalesOrderLine."Prepmt VAT Diff. to Deduct" := 0;
                     end;
-                    SalesOrderLine.InitOutstanding;
+                    SalesOrderLine.InitOutstanding();
                     SalesOrderLine.Modify();
                     if not TempSalesOrderHeader.Get(SalesOrderLine."Document Type", SalesOrderLine."Document No.") then begin
                         TempSalesOrderHeader."Document Type" := SalesOrderLine."Document Type";
@@ -6806,8 +6804,8 @@
                     SalesOrderLine."Qty. Invoiced (Base)" += "Qty. to Invoice (Base)";
                     if Abs(SalesOrderLine."Quantity Invoiced") > Abs(SalesOrderLine."Return Qty. Received") then
                         Error(InvoiceMoreThanReceivedErr, SalesOrderLine."Document No.");
-                    SalesOrderLine.InitQtyToInvoice;
-                    SalesOrderLine.InitOutstanding;
+                    SalesOrderLine.InitQtyToInvoice();
+                    SalesOrderLine.InitOutstanding();
                     SalesOrderLine.Modify();
                 until Next() = 0;
         end;
@@ -6977,7 +6975,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CheckItemChargeForReceive(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -7006,7 +7004,7 @@
         end;
     end;
 
-    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)','15.3')]
+    [Obsolete('The functionality of Item charges enhancements will be removed and this function should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
     local procedure CheckItemChargeForShip(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
@@ -7041,7 +7039,7 @@
         with SalesHeader do begin
             if Ship or Receive then
                 IntrastatTransaction := IsIntrastatTransaction;
-            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems then begin
+            if IntrastatTransaction and ShipOrReceiveInventoriableTypeItems() then begin
                 StatReportingSetup.Get();
                 if StatReportingSetup."Transaction Type Mandatory" then
                     TestField("Transaction Type");

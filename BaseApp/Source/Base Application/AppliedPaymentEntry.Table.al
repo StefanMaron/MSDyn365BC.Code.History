@@ -26,11 +26,9 @@ table 1294 "Applied Payment Entry"
             OptionCaption = 'Bank Reconciliation,Payment Application';
             OptionMembers = "Bank Reconciliation","Payment Application";
         }
-        field(21; "Account Type"; Option)
+        field(21; "Account Type"; Enum "Gen. Journal Account Type")
         {
             Caption = 'Account Type';
-            OptionCaption = 'G/L Account,Customer,Vendor,Bank Account,Fixed Asset,IC Partner';
-            OptionMembers = "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner";
 
             trigger OnValidate()
             begin
@@ -143,6 +141,7 @@ table 1294 "Applied Payment Entry"
         field(29; "Applied Pmt. Discount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
+            AutoFormatType = 1;
             Caption = 'Applied Pmt. Discount';
         }
         field(30; Quality; Integer)
@@ -153,11 +152,9 @@ table 1294 "Applied Payment Entry"
         {
             Caption = 'Posting Date';
         }
-        field(32; "Document Type"; Option)
+        field(32; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(33; "Document No."; Code[20])
         {
@@ -379,7 +376,7 @@ table 1294 "Applied Payment Entry"
 
         BankAccReconLine.Validate("Applied Amount", NewAppliedAmt);
         BankAccReconLine.Validate("Applied Amount (LCY)", NewAppliedAmtLCY); // NAVCZ
-        BankAccReconLine.Modify;
+        BankAccReconLine.Modify();
     end;
 
     local procedure GetSalesAdvanceLetterLine(BankAccReconLine: Record "Bank Acc. Reconciliation Line"; var SalesAdvanceLetterLine: Record "Sales Advance Letter Line"): Boolean
@@ -474,7 +471,7 @@ table 1294 "Applied Payment Entry"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         exit(GLSetup.GetCurrencyCode(''));
     end;
 

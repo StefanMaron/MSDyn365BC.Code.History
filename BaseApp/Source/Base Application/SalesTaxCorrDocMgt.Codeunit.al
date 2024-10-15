@@ -47,7 +47,7 @@ codeunit 11764 "Sales Tax Corr. Doc Mgt."
         SourceSalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SourceSalesInvHeader: Record "Sales Invoice Header";
     begin
-        SalesCrMemoHeader.Init;
+        SalesCrMemoHeader.Init();
         case SourceCVLedgEntryBuf."Document Type" of
             SourceCVLedgEntryBuf."Document Type"::Invoice:
                 if SourceSalesInvHeader.Get(SourceCVLedgEntryBuf."Document No.") then begin
@@ -80,7 +80,7 @@ codeunit 11764 "Sales Tax Corr. Doc Mgt."
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        TempSalesCrMemoLine.Reset;
+        TempSalesCrMemoLine.Reset();
         if TempSalesCrMemoLine.FindSet then
             repeat
                 SalesCrMemoLine := TempSalesCrMemoLine;
@@ -89,9 +89,9 @@ codeunit 11764 "Sales Tax Corr. Doc Mgt."
                 SalesCrMemoLine."Sell-to Customer No." := SalesCrMemoHeader."Sell-to Customer No.";
                 SalesCrMemoLine."Bill-to Customer No." := SalesCrMemoHeader."Bill-to Customer No.";
                 SalesCrMemoLine."Posting Date" := SalesCrMemoHeader."Posting Date";
-                SalesCrMemoLine.Insert;
+                SalesCrMemoLine.Insert();
             until TempSalesCrMemoLine.Next = 0;
-        TempSalesCrMemoLine.DeleteAll;
+        TempSalesCrMemoLine.DeleteAll();
     end;
 
     local procedure InsertInvHeader(var SalesInvHeader: Record "Sales Invoice Header"; PostingDate: Date)
@@ -112,7 +112,7 @@ codeunit 11764 "Sales Tax Corr. Doc Mgt."
         SalesSetup: Record "Sales & Receivables Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.TestField("Pmt.Disc.Tax Corr.Doc. Nos.");
         exit(NoSeriesMgt.GetNextNo(SalesSetup."Pmt.Disc.Tax Corr.Doc. Nos.", PostingDate, true));
     end;
@@ -246,7 +246,7 @@ codeunit 11764 "Sales Tax Corr. Doc Mgt."
                 repeat
                     SalesInvLine.TransferFields(SalesCrMemoLine);
                     SalesInvLine."Document No." := SalesInvHeader."No.";
-                    SalesInvLine.Insert;
+                    SalesInvLine.Insert();
                 until SalesCrMemoLine.Next = 0;
         until SalesCrMemoHeader.Next(-1) = 0;
 
@@ -331,7 +331,7 @@ codeunit 11764 "Sales Tax Corr. Doc Mgt."
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.TestField("Reason Code For Payment Disc.");
         exit(SalesReceivablesSetup."Reason Code For Payment Disc.");
     end;

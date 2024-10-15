@@ -89,9 +89,9 @@ table 255 "VAT Statement Template"
     trigger OnDelete()
     begin
         VATStmtLine.SetRange("Statement Template Name", Name);
-        VATStmtLine.DeleteAll;
+        VATStmtLine.DeleteAll();
         VATStmtName.SetRange("Statement Template Name", Name);
-        VATStmtName.DeleteAll;
+        VATStmtName.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -111,9 +111,9 @@ table 255 "VAT Statement Template"
     begin
         // NAVCZ
         CommentLine.SetRange("VAT Statement Template Name", Name);
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
         Attachment.SetRange("VAT Statement Template Name", Name);
-        Attachment.DeleteAll;
+        Attachment.DeleteAll();
     end;
 }
 

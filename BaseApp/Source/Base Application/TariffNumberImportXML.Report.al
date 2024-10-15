@@ -91,14 +91,14 @@ report 31062 "Tariff Number Import (XML)"
 
                             // Insert to temp record
                             if (lcoTariffNo <> '') and IsInReqPeriod(ldaStartingDate, ldaEndingDate) then begin
-                                greTempTariffNumber.Init;
+                                greTempTariffNumber.Init();
                                 greTempTariffNumber."No." := lcoTariffNo;
                                 if lteDescription <> '' then
                                     greTempTariffNumber.Description := CopyStr(lteDescription, 1, MaxStrLen(greTempTariffNumber.Description));
                                 greTempTariffNumber."Supplem. Unit of Measure Code" := lcoUOMCode;
                                 greTempTariffNumber."Full Name" := lteFullDescription;
                                 greTempTariffNumber."Full Name ENG" := lteFullDescriptionENG;
-                                greTempTariffNumber.Insert;
+                                greTempTariffNumber.Insert();
                             end;
                         end;
 
@@ -121,15 +121,15 @@ report 31062 "Tariff Number Import (XML)"
                         Error(Text005Err);
 
                     // Delete all existing records
-                    lreTariffNumber.Reset;
-                    lreTariffNumber.DeleteAll;
+                    lreTariffNumber.Reset();
+                    lreTariffNumber.DeleteAll();
 
                     // Insert new records
                     Find('-');
                     if lreUOM.FindSet(false, false) then begin
                         repeat
                             lreTUOM := lreUOM;
-                            lreTUOM.Insert;
+                            lreTUOM.Insert();
                         until lreUOM.Next = 0;
                     end;
 
@@ -139,7 +139,7 @@ report 31062 "Tariff Number Import (XML)"
                             gdiWindow.Update(2, Round(linRecNo / linRecCount * 10000, 1));
                         end;
 
-                        lreTariffNumber.Init;
+                        lreTariffNumber.Init();
                         lreTariffNumber."No." := "No.";
                         lreTariffNumber.Description := Description;
                         lreTariffNumber."Full Name" := "Full Name";

@@ -25,7 +25,7 @@ report 497 "Batch Post Purchase Invoices"
                 PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, true);
 
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
     }
@@ -94,7 +94,7 @@ report 497 "Batch Post Purchase Invoices"
                         var
                             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
                         begin
-                            PurchasesPayablesSetup.Get;
+                            PurchasesPayablesSetup.Get();
                             PurchasesPayablesSetup.TestField("Calc. Inv. Discount", false);
                         end;
                     }
@@ -110,7 +110,7 @@ report 497 "Batch Post Purchase Invoices"
                             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
                         begin
                             if PrintDoc then begin
-                                PurchasesPayablesSetup.Get;
+                                PurchasesPayablesSetup.Get();
                                 if PurchasesPayablesSetup."Post with Job Queue" then
                                     PurchasesPayablesSetup.TestField("Post & Print with Job Queue");
                             end;
@@ -128,7 +128,7 @@ report 497 "Batch Post Purchase Invoices"
         var
             PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         begin
-            PurchasesPayablesSetup.Get;
+            PurchasesPayablesSetup.Get();
             CalcInvDisc := PurchasesPayablesSetup."Calc. Inv. Discount";
             PrintDoc := false;
             PrintDocVisible := PurchasesPayablesSetup."Post & Print with Job Queue";
@@ -160,7 +160,7 @@ report 497 "Batch Post Purchase Invoices"
         GLSetup: Record "General Ledger Setup";
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         UseVATDate := GLSetup."Use VAT Date";
     end;
 }

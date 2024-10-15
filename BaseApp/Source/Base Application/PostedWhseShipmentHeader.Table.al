@@ -125,7 +125,7 @@ table 7322 "Posted Whse. Shipment Header"
     var
         IsHandled: Boolean;
     begin
-        WhseSetup.Get;
+        WhseSetup.Get();
         if "No." = '' then begin
             IsHandled := false;
             OnInsertOnBeforeTestWhseShipmentNos(WhseSetup, IsHandled);
@@ -144,7 +144,7 @@ table 7322 "Posted Whse. Shipment Header"
 
     procedure LookupPostedWhseShptHeader(var PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
     begin
-        Commit;
+        Commit();
         if UserId <> '' then begin
             PostedWhseShptHeader.FilterGroup := 2;
             PostedWhseShptHeader.SetRange("Location Code");

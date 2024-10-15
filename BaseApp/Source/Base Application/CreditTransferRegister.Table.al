@@ -77,7 +77,7 @@ table 1205 "Credit Transfer Register"
     procedure CreateNew(NewIdentifier: Code[20]; NewBankAccountNo: Code[20])
     begin
         Reset;
-        LockTable;
+        LockTable();
         if FindLast then;
         Init;
         "No." += 1;
@@ -90,7 +90,7 @@ table 1205 "Credit Transfer Register"
 
     procedure SetStatus(NewStatus: Option)
     begin
-        LockTable;
+        LockTable();
         Find;
         Status := NewStatus;
         Modify;
@@ -108,7 +108,7 @@ table 1205 "Credit Transfer Register"
         if not TempBlob.HasValue then
             Error(PaymentsFileNotFoundErr);
 
-        CreditTransReExportHistory.Init;
+        CreditTransReExportHistory.Init();
         CreditTransReExportHistory."Credit Transfer Register No." := "No.";
         CreditTransReExportHistory.Insert(true);
 
@@ -120,7 +120,7 @@ table 1205 "Credit Transfer Register"
 
     procedure SetFileContent(var DataExch: Record "Data Exch.")
     begin
-        LockTable;
+        LockTable();
         Find;
         DataExch.CalcFields("File Content");
         "Exported File" := DataExch."File Content";

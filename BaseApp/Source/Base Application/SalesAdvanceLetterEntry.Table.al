@@ -33,11 +33,9 @@ table 31002 "Sales Advance Letter Entry"
             OptionCaption = ' ,VAT,VAT Deduction,VAT Rate,,,,,,,Deduction';
             OptionMembers = " ",VAT,"VAT Deduction","VAT Rate",,,,,,,Deduction;
         }
-        field(14; "Document Type"; Option)
+        field(14; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(15; "Document No."; Code[20])
         {
@@ -110,12 +108,10 @@ table 31002 "Sales Advance Letter Entry"
         {
             Caption = 'VAT Identifier';
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(80; "VAT Base Amount (LCY)"; Decimal)
         {
@@ -174,5 +170,12 @@ table 31002 "Sales Advance Letter Entry"
     fieldgroups
     {
     }
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 }
 

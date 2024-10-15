@@ -127,7 +127,7 @@ page 31029 "P.Adv. Letters History Subform"
     var
         PurchAdvanceLetterLine: Record "Purch. Advance Letter Line";
     begin
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.CopyFilters(Rec);
         PurchAdvanceLetterLine.SetRange("Letter No.", "Letter No.");
         if PurchAdvanceLetterLine.FindFirst then

@@ -15,7 +15,7 @@ table 270 "Bank Account"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     NoSeriesMgt.TestManual(GetNoSeriesCode()); // NAVCZ
                     "No. Series" := '';
                 end;
@@ -89,7 +89,7 @@ table 270 "Bank Account"
                 CompanyInfo: Record "Company Information";
             begin
                 // NAVCZ
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 if ("Country/Region Code" = '') or (CompanyInfo."Country/Region Code" = "Country/Region Code") then
                     CompanyInfo.CheckCzBankAccountNo("Bank Account No.");
                 // NAVCZ
@@ -159,7 +159,7 @@ table 270 "Bank Account"
                 if "Currency Code" = xRec."Currency Code" then
                     exit;
 
-                BankAcc.Reset;
+                BankAcc.Reset();
                 BankAcc := Rec;
                 BankAcc.CalcFields(Balance, "Balance (LCY)");
                 BankAcc.TestField(Balance, 0);
@@ -995,7 +995,7 @@ table 270 "Bank Account"
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::"Bank Account");
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         UpdateContFromBank.OnDelete(Rec);
 
@@ -1007,9 +1007,9 @@ table 270 "Bank Account"
             if not CashDocHdr.IsEmpty then
                 Error(CannotDeleteErr, "Account Type", "No.", CashDocHdr.TableCaption);
             CashDeskUser.SetRange("Cash Desk No.", "No.");
-            CashDeskUser.DeleteAll;
+            CashDeskUser.DeleteAll();
             CashDeskEvent.SetRange("Cash Desk No.", "No.");
-            CashDeskEvent.DeleteAll;
+            CashDeskEvent.DeleteAll();
         end;
         // NAVCZ
     end;
@@ -1128,7 +1128,7 @@ table 270 "Bank Account"
             UpdateContFromBank.InsertNewContact(Rec, false);
             ContBusRel.FindFirst;
         end;
-        Commit;
+        Commit();
 
         Cont.FilterGroup(2);
         Cont.SetCurrentKey("Company Name", "Company No.", Type, Name);
@@ -1291,7 +1291,7 @@ table 270 "Bank Account"
     procedure TestNoSeries()
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         case "Account Type" of
             "Account Type"::"Bank Account":
                 GLSetup.TestField("Bank Account Nos.");
@@ -1303,7 +1303,7 @@ table 270 "Bank Account"
     procedure GetNoSeriesCode(): Code[20]
     begin
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         case "Account Type" of
             "Account Type"::"Bank Account":
                 exit(GLSetup."Bank Account Nos.");
@@ -1477,7 +1477,7 @@ table 270 "Bank Account"
         if "Currency Code" = '' then
             exit(true);
 
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit("Currency Code" = GeneralLedgerSetup.GetCurrencyCode(''));
     end;
 
@@ -1604,7 +1604,7 @@ table 270 "Bank Account"
             repeat
                 if not BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
-                    TempUnlinkedBankAccount.Insert;
+                    TempUnlinkedBankAccount.Insert();
                 end;
             until BankAccount.Next = 0;
     end;
@@ -1617,7 +1617,7 @@ table 270 "Bank Account"
             repeat
                 if BankAccount.IsLinkedToBankStatementServiceProvider then begin
                     TempUnlinkedBankAccount := BankAccount;
-                    TempUnlinkedBankAccount.Insert;
+                    TempUnlinkedBankAccount.Insert();
                 end;
             until BankAccount.Next = 0;
     end;
@@ -1676,7 +1676,7 @@ table 270 "Bank Account"
           CopyStr(StrSubstNo(BankStmtScheduledDownloadDescTxt, Name), 1, MaxStrLen(JobQueueEntry.Description));
         JobQueueEntry."Notify On Success" := false;
         JobQueueEntry."No. of Minutes between Runs" := 121;
-        JobQueueEntry.Modify;
+        JobQueueEntry.Modify();
         if Confirm(JobQEntriesCreatedQst) then
             ShowBankStatementDownloadJobQueueEntry;
     end;
@@ -1687,7 +1687,7 @@ table 270 "Bank Account"
     begin
         SetAutomaticImportJobQueueEntryFilters(JobQueueEntry);
         if not JobQueueEntry.IsEmpty then
-            JobQueueEntry.DeleteAll;
+            JobQueueEntry.DeleteAll();
     end;
 
     procedure CreateNewAccount(OnlineBankAccLink: Record "Online Bank Acc. Link")
@@ -1695,7 +1695,7 @@ table 270 "Bank Account"
         GeneralLedgerSetup: Record "General Ledger Setup";
         CurrencyCode: Code[10];
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         Init;
         Validate("Bank Account No.", OnlineBankAccLink."Bank Account No.");
         Validate(Name, OnlineBankAccLink.Name);

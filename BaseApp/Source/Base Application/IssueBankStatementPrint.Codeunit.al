@@ -25,7 +25,7 @@ codeunit 11704 "Issue Bank Statement + Print"
             exit;
 
         CODEUNIT.Run(CODEUNIT::"Issue Bank Statement", BankStmtHdr);
-        Commit;
+        Commit();
         Message(IssuedSuccessfullyMsg);
 
         IssuedBankStmtHdr.Get(BankStmtHdr."Last Issuing No.");

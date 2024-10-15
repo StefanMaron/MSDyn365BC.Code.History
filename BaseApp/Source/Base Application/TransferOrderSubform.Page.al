@@ -1,4 +1,4 @@
-﻿page 5741 "Transfer Order Subform"
+page 5741 "Transfer Order Subform"
 {
     AutoSplitKey = true;
     Caption = 'Lines';
@@ -128,7 +128,7 @@
                         TestField("Item No.");
                         TransShptLine.SetCurrentKey("Transfer Order No.", "Item No.", "Shipment Date");
                         TransShptLine.SetRange("Transfer Order No.", "Document No.");
-                        TransShptLine.SetRange("Item No.", "Item No.");
+                        TransShptLine.SetRange("Line No.", "Line No.");
                         PAGE.RunModal(0, TransShptLine);
                     end;
                 }
@@ -153,7 +153,7 @@
                         TestField("Item No.");
                         TransRcptLine.SetCurrentKey("Transfer Order No.", "Item No.", "Receipt Date");
                         TransRcptLine.SetRange("Transfer Order No.", "Document No.");
-                        TransRcptLine.SetRange("Item No.", "Item No.");
+                        TransRcptLine.SetRange("Line No.", "Line No.");
                         PAGE.RunModal(0, TransRcptLine);
                     end;
                 }
@@ -451,7 +451,7 @@
     var
         ReserveTransferLine: Codeunit "Transfer Line-Reserve";
     begin
-        Commit;
+        Commit();
         if not ReserveTransferLine.DeleteLineConfirm(Rec) then
             exit(false);
         ReserveTransferLine.DeleteLine(Rec);

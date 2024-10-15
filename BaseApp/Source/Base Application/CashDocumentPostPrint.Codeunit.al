@@ -30,7 +30,7 @@ codeunit 11734 "Cash Document-Post + Print"
             CODEUNIT.Run(CODEUNIT::"Cash Document-Post (Yes/No)", CashDocumentHeader);
 
         GetReport(CashDocumentHeader);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

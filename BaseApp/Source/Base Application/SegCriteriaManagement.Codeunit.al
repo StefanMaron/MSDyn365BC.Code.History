@@ -50,14 +50,14 @@ codeunit 5062 SegCriteriaManagement
         if IsHandled then
             exit;
 
-        SegCriteriaLine.LockTable;
+        SegCriteriaLine.LockTable();
         SegCriteriaLine.SetRange("Segment No.", SegmentNo);
         if SegCriteriaLine.FindLast then
             NextLineNo := SegCriteriaLine."Line No." + 1
         else
             NextLineNo := 1;
 
-        SegCriteriaLine.Init;
+        SegCriteriaLine.Init();
         SegCriteriaLine."Segment No." := SegmentNo;
         SegCriteriaLine."Line No." := NextLineNo;
         SegCriteriaLine.Type := SegCriteriaLine.Type::Action;
@@ -77,7 +77,7 @@ codeunit 5062 SegCriteriaManagement
         SegCriteriaLine."Ignore Exclusion" := IgnoreExclusion;
         SegCriteriaLine."Entire Companies" := EntireCompanies;
         OnBeforeInsertCriteriaActionOnBeforeSegCriteriaLineInsert(SegCriteriaLine);
-        SegCriteriaLine.Insert;
+        SegCriteriaLine.Insert();
     end;
 
     procedure InsertCriteriaFilter(SegmentNo: Code[20]; TableNo: Integer; "Filter": Text[250]; View: Text[250])
@@ -100,23 +100,23 @@ codeunit 5062 SegCriteriaManagement
         else
             NextLineNo := 1;
 
-        SegCriteriaLine.Init;
+        SegCriteriaLine.Init();
         SegCriteriaLine."Segment No." := SegmentNo;
         SegCriteriaLine."Line No." := NextLineNo;
         SegCriteriaLine.Type := SegCriteriaLine.Type::Filter;
         SegCriteriaLine."Table No." := TableNo;
         SegCriteriaLine.View := View;
         OnBeforeInsertCriteriaFilterOnBeforeSegCriteriaLineInsert(SegCriteriaLine);
-        SegCriteriaLine.Insert;
+        SegCriteriaLine.Insert();
 
-        SegCriteriaLine.Reset;
+        SegCriteriaLine.Reset();
         SegCriteriaLine.SetCurrentKey("Segment No.", Type);
         SegCriteriaLine.SetRange("Segment No.", SegmentNo);
         SegCriteriaLine.SetRange(Type, SegCriteriaLine.Type::Action);
         SegCriteriaLine.FindLast;
         SegCriteriaLine."No. of Filters" := SegCriteriaLine."No. of Filters" + 1;
         OnBeforeInsertCriteriaFilterOnBeforeSegCriteriaLineModify(SegCriteriaLine);
-        SegCriteriaLine.Modify;
+        SegCriteriaLine.Modify();
     end;
 
     procedure SegCriteriaFilter(TableNo: Integer; View: Text[250]): Text[250]

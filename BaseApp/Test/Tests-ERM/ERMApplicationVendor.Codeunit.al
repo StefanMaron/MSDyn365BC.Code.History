@@ -68,9 +68,9 @@ codeunit 134011 "ERM Application Vendor"
                 VendorInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
                 // The following two combinations do not generate discount ledger entries and will thus fail to close.
                 asserterror VendorInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, VendorAmount, Stepwise);
-                DeltaAssert.Reset;
+                DeltaAssert.Reset();
                 asserterror VendorInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -VendorAmount, Stepwise);
-                DeltaAssert.Reset;
+                DeltaAssert.Reset();
             end;
     end;
 
@@ -218,7 +218,7 @@ codeunit 134011 "ERM Application Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGain()
     var
@@ -242,7 +242,7 @@ codeunit 134011 "ERM Application Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLoss()
     var
@@ -266,7 +266,7 @@ codeunit 134011 "ERM Application Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,StatisticsMessageHandler')]
+    [HandlerFunctions('StatisticsMessageHandler')]
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -721,7 +721,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
         VendorAmount := 1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
@@ -787,7 +787,7 @@ codeunit 134011 "ERM Application Vendor"
         CurrencyExchangeRate.FindFirst;
 
         // Watch for Realized gain/loss dtld. ledger entries
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldLedgerType, 0);
 
         // Generate a document that triggers application dtld. ledger entries.
@@ -822,7 +822,7 @@ codeunit 134011 "ERM Application Vendor"
         Currency.Get(SetExchRateForCurrency(CurrencyAdjustFactor));
 
         // Watch for Realized gain/loss dtld. ledger entries
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldLedgerType, 0);
 
         // Generate a document that triggers application dtld. ledger entries.
@@ -836,7 +836,7 @@ codeunit 134011 "ERM Application Vendor"
 
         VendorApplyUnapply(Desc, Stepwise);
 
-        asserterror LibraryERMVendorWatch.AssertVendor; // NAVCZ
+        LibraryERMVendorWatch.AssertVendor;
     end;
 
     local procedure VendorPmtDiscVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
@@ -852,7 +852,7 @@ codeunit 134011 "ERM Application Vendor"
         CreateVendorWithPaymentTerms(Vendor, GetPaymentTerms('>0'));
 
         // Watch for detailed ledger entry type "Payment Discount Tolerance (VAT Adjustment)" and "Payment Discount Tolerance (VAT Excl.)"
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.DtldEntriesSigned(
           Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount (VAT Adjustment)", 0);
         LibraryERMVendorWatch.DtldEntriesSigned(
@@ -879,7 +879,7 @@ codeunit 134011 "ERM Application Vendor"
         CreateVendorWithPaymentTerms(Vendor, PaymentTerms.Code);
 
         // Watch for detailed ledger entry type "Payment Tolerance (VAT Adjustment)" and "Payment Tolerance (VAT Excl.)"
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.DtldEntriesGreaterThan(
           Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Tolerance (VAT Adjustment)", 0);
         LibraryERMVendorWatch.DtldEntriesGreaterThan(
@@ -909,7 +909,7 @@ codeunit 134011 "ERM Application Vendor"
         CreateVendorWithPaymentTerms(Vendor, PaymentTerms.Code);
 
         // Watch for detailed ledger entry type "Payment Discount Tolerance (VAT Adjustment)" and "Payment Discount Tolerance (VAT Excl.)"
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.DtldEntriesSigned(
           Amount, Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)", 0);
         LibraryERMVendorWatch.DtldEntriesSigned(
@@ -938,7 +938,7 @@ codeunit 134011 "ERM Application Vendor"
         CreateVendorWithPaymentTerms(Vendor, GetPaymentTerms('0'));
 
         // Setup basic application watches
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.EntriesEqual(Vendor."No.", InvType, -Amount);
         LibraryERMVendorWatch.EntriesEqual(Vendor."No.", PmtType, Amount);
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Initial Entry", 0);
@@ -965,7 +965,7 @@ codeunit 134011 "ERM Application Vendor"
         DiscountAmount := GetDiscount(Vendor."Payment Terms Code", Amount);
 
         // Watch for "Payment Discount" detailed ledger entries.
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Payment Discount", DiscountAmount);
 
         // Generate a document that triggers payment discount dtld. ledger entries.
@@ -999,7 +999,7 @@ codeunit 134011 "ERM Application Vendor"
         Vendor.Modify(true);
 
         // Try out vendor watch
-        LibraryERMVendorWatch.Init;
+        LibraryERMVendorWatch.Init();
         LibraryERMVendorWatch.EntriesEqual(Vendor."No.", InvType, -Amount);
         LibraryERMVendorWatch.EntriesEqual(Vendor."No.", PmtType, Amount);
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Initial Entry", 0);
@@ -1019,8 +1019,6 @@ codeunit 134011 "ERM Application Vendor"
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
-        GLAccount: Record "G/L Account";
-        GenJournalLine: Record "Gen. Journal Line";
         Desc: Text[30];
     begin
         // Test with payment discount
@@ -1029,12 +1027,6 @@ codeunit 134011 "ERM Application Vendor"
 
         // Create a currency code with magic exchange rate valid for Amount = 1000
         LibraryERM.CreateCurrency(Currency);
-        // NAVCZ
-        LibraryERM.CreateGLAccount(GLAccount);
-        Currency.Validate("Realized Gains Acc.", GLAccount."No.");
-        Currency.Validate("Realized Losses Acc.", GLAccount."No.");
-        Currency.Modify(true);
-        // NAVCZ
         LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 64.580459);  // Magic exchange rate
         CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", 100);
@@ -1043,17 +1035,8 @@ codeunit 134011 "ERM Application Vendor"
         CurrencyExchangeRate.Modify(true);
 
         // Watch for "Correction of Remaining Amount" detailed ledger entries.
-        LibraryERMVendorWatch.Init;
-        if Stepwise then // NAVCZ
-            LibraryERMVendorWatch.DtldEntriesGreaterThan(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Correction of Remaining Amount", 0)
-        // NAVCZ
-        else begin
-            LibraryERMVendorWatch.DtldEntriesGreaterThan(
-              Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Realized Gain", 0);
-            LibraryERMVendorWatch.DtldEntriesGreaterThan(
-              Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Realized Loss", 0);
-        end;
-        // NAVCZ
+        LibraryERMVendorWatch.Init();
+        LibraryERMVendorWatch.DtldEntriesGreaterThan(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Correction of Remaining Amount", 0);
 
         // Generate a document that triggers "Correction of Remaining Amount" dtld. ledger entries.
         Desc := GenerateDocument(GenJournalBatch, Vendor, PmtType, InvType, Amount, Amount, '<0D>', Currency.Code, Currency.Code);
@@ -1127,7 +1110,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", 1.0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 5.0);
         GeneralLedgerSetup.Modify(true);
@@ -1199,7 +1182,7 @@ codeunit 134011 "ERM Application Vendor"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.DeleteAll;
+        GenJournalLine.DeleteAll();
     end;
 
     local procedure MockVendLedgEntry(var VendLedgerEntry: Record "Vendor Ledger Entry")
@@ -1402,7 +1385,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Reset;
+        PaymentTerms.Reset();
         PaymentTerms.SetFilter("Discount %", DiscountFilter);
         PaymentTerms.FindFirst;
         PaymentTerms."Calc. Pmt. Disc. on Cr. Memos" := true;
@@ -1475,7 +1458,7 @@ codeunit 134011 "ERM Application Vendor"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."Max. Payment Tolerance Amount");
     end;
 
@@ -1554,7 +1537,7 @@ codeunit 134011 "ERM Application Vendor"
         GLEntry: Record "G/L Entry";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         GLEntry.SetRange("Source Code", SourceCodeSetup."Unapplied Purch. Entry Appln.");
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindSet;
@@ -1612,14 +1595,6 @@ codeunit 134011 "ERM Application Vendor"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [ModalPageHandler]

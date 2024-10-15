@@ -253,7 +253,7 @@ table 130 "Incoming Document"
                 GeneralLedgerSetup: Record "General Ledger Setup";
                 Currency: Record Currency;
             begin
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 if (not Currency.Get("Currency Code")) and ("Currency Code" <> '') and ("Currency Code" <> GeneralLedgerSetup."LCY Code") then
                     Error(InvalidCurrencyCodeErr);
             end;
@@ -367,11 +367,11 @@ table 130 "Incoming Document"
 
         IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         if not IncomingDocumentAttachment.IsEmpty then
-            IncomingDocumentAttachment.DeleteAll;
+            IncomingDocumentAttachment.DeleteAll();
 
         ActivityLog.SetRange("Record ID", RecordId);
         if not ActivityLog.IsEmpty then
-            ActivityLog.DeleteAll;
+            ActivityLog.DeleteAll();
 
         ClearErrorMessages;
     end;
@@ -534,7 +534,7 @@ table 130 "Incoming Document"
             Modify;
         end;
 
-        Commit;
+        Commit();
         if not CODEUNIT.Run(CODEUNIT::"Incoming Doc. with Data. Exch.", Rec) then begin
             ErrorMessage.CopyFromTemp(TempErrorMessage);
             SetProcessFailed('');
@@ -610,14 +610,22 @@ table 130 "Incoming Document"
         GenJnlLine: Record "Gen. Journal Line";
         LastGenJnlLine: Record "Gen. Journal Line";
         LineNo: Integer;
+        JournalTemplate: Code[10];
+        JournalBatch: Code[10];
+        IsHandled: Boolean;
     begin
         if "Document Type" <> "Document Type"::Journal then
             TestIfAlreadyExists;
         TestReadyForProcessing;
+        OnBeforeGetJournalTemplateAndBatch(JournalTemplate, JournalBatch, IsHandled);
+        if not IsHandled then begin
         IncomingDocumentsSetup.TestField("General Journal Template Name");
         IncomingDocumentsSetup.TestField("General Journal Batch Name");
-        GenJnlLine.SetRange("Journal Template Name", IncomingDocumentsSetup."General Journal Template Name");
-        GenJnlLine.SetRange("Journal Batch Name", IncomingDocumentsSetup."General Journal Batch Name");
+            JournalTemplate := IncomingDocumentsSetup."General Journal Template Name";
+            JournalBatch := IncomingDocumentsSetup."General Journal Batch Name";
+        end;
+        GenJnlLine.SetRange("Journal Template Name", JournalTemplate);
+        GenJnlLine.SetRange("Journal Batch Name", JournalBatch);
         GenJnlLine.SetRange("Incoming Document Entry No.", "Entry No.");
         if not GenJnlLine.IsEmpty then
             exit; // instead; go to the document
@@ -629,9 +637,9 @@ table 130 "Incoming Document"
         if GenJnlLine.FindLast then;
         LastGenJnlLine := GenJnlLine;
         LineNo := GenJnlLine."Line No." + 10000;
-        GenJnlLine.Init;
-        GenJnlLine."Journal Template Name" := IncomingDocumentsSetup."General Journal Template Name";
-        GenJnlLine."Journal Batch Name" := IncomingDocumentsSetup."General Journal Batch Name";
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := JournalTemplate;
+        GenJnlLine."Journal Batch Name" := JournalBatch;
         GenJnlLine."Line No." := LineNo;
         GenJnlLine.SetUpNewLine(LastGenJnlLine, 0, true);
         GenJnlLine."Incoming Document Entry No." := "Entry No.";
@@ -726,16 +734,16 @@ table 130 "Incoming Document"
             ShowRecord;
             exit;
         end;
-        SalesAdvanceLetterHeader.Reset;
-        SalesAdvanceLetterHeader.Init;
+        SalesAdvanceLetterHeader.Reset();
+        SalesAdvanceLetterHeader.Init();
         SalesAdvanceLetterHeader.Insert(true);
         if GetURL <> '' then
             SalesAdvanceLetterHeader.AddLink(GetURL, Description);
         SalesAdvanceLetterHeader."Incoming Document Entry No." := "Entry No.";
-        SalesAdvanceLetterHeader.Modify;
+        SalesAdvanceLetterHeader.Modify();
         "Document No." := SalesAdvanceLetterHeader."No.";
         Modify(true);
-        Commit;
+        Commit();
         ShowRecord;
     end;
 
@@ -755,16 +763,16 @@ table 130 "Incoming Document"
             ShowRecord;
             exit;
         end;
-        PurchAdvanceLetterHeader.Reset;
-        PurchAdvanceLetterHeader.Init;
+        PurchAdvanceLetterHeader.Reset();
+        PurchAdvanceLetterHeader.Init();
         PurchAdvanceLetterHeader.Insert(true);
         if GetURL <> '' then
             PurchAdvanceLetterHeader.AddLink(GetURL, Description);
         PurchAdvanceLetterHeader."Incoming Document Entry No." := "Entry No.";
-        PurchAdvanceLetterHeader.Modify;
+        PurchAdvanceLetterHeader.Modify();
         "Document No." := PurchAdvanceLetterHeader."No.";
         Modify(true);
-        Commit;
+        Commit();
         ShowRecord;
     end;
 
@@ -784,16 +792,16 @@ table 130 "Incoming Document"
             ShowRecord;
             exit;
         end;
-        CreditHeader.Reset;
-        CreditHeader.Init;
+        CreditHeader.Reset();
+        CreditHeader.Init();
         CreditHeader.Insert(true);
         if GetURL <> '' then
             CreditHeader.AddLink(GetURL, Description);
         CreditHeader."Incoming Document Entry No." := "Entry No.";
-        CreditHeader.Modify;
+        CreditHeader.Modify();
         "Document No." := CreditHeader."No.";
         Modify(true);
-        Commit;
+        Commit();
         ShowRecord;
     end;
 
@@ -851,15 +859,14 @@ table 130 "Incoming Document"
         exit("Entry No.");
     end;
 
-    procedure CreateIncomingDocument(PictureInStream: InStream; FileName: Text)
+    procedure CreateIncomingDocument(PictureInStream: InStream; Description: Text)
     var
         IncomingDocument: Record "Incoming Document";
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
-        FileManagement: Codeunit "File Management";
     begin
         IncomingDocument.CopyFilters(Rec);
-        CreateIncomingDocument(FileManagement.GetFileNameWithoutExtension(FileName), '');
-        AddAttachmentFromStream(IncomingDocumentAttachment, FileName, FileManagement.GetExtension(FileName), PictureInStream);
+        CreateIncomingDocument(Description, '');
+        AddAttachmentFromStream(IncomingDocumentAttachment, Description, '', PictureInStream);
         CopyFilters(IncomingDocument);
     end;
 
@@ -1073,7 +1080,7 @@ table 130 "Incoming Document"
             exit;
 
         IncomingDocument.SetPostedDocFieldsForcePosted(PostingDate, DocNo, true);
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 
     local procedure ClearRelatedRecords()
@@ -1131,8 +1138,8 @@ table 130 "Incoming Document"
             ShowRecord;
             exit;
         end;
-        SalesHeader.Reset;
-        SalesHeader.Init;
+        SalesHeader.Reset();
+        SalesHeader.Init();
         case DocType of
             DocumentType::Invoice:
                 SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
@@ -1145,10 +1152,10 @@ table 130 "Incoming Document"
         if GetURL <> '' then
             SalesHeader.AddLink(GetURL, Description);
         SalesHeader."Incoming Document Entry No." := "Entry No.";
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         "Document No." := SalesHeader."No.";
         Modify(true);
-        Commit;
+        Commit();
         ShowRecord;
     end;
 
@@ -1162,8 +1169,8 @@ table 130 "Incoming Document"
             ShowRecord;
             exit;
         end;
-        PurchHeader.Reset;
-        PurchHeader.Init;
+        PurchHeader.Reset();
+        PurchHeader.Init();
         case DocType of
             DocumentType::Invoice:
                 PurchHeader."Document Type" := PurchHeader."Document Type"::Invoice;
@@ -1175,10 +1182,10 @@ table 130 "Incoming Document"
         if GetURL <> '' then
             PurchHeader.AddLink(GetURL, Description);
         PurchHeader."Incoming Document Entry No." := "Entry No.";
-        PurchHeader.Modify;
+        PurchHeader.Modify();
         "Document No." := PurchHeader."No.";
         Modify(true);
-        Commit;
+        Commit();
         ShowRecord;
     end;
 
@@ -1358,7 +1365,7 @@ table 130 "Incoming Document"
         else
             IncomingDocumentAttachment."Line No." += 10000;
         IncomingDocumentAttachment."Incoming Document Entry No." := "Entry No.";
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.Name :=
           CopyStr(FileManagement.GetFileNameWithoutExtension(OrgFileName), 1, MaxStrLen(IncomingDocumentAttachment.Name));
         IncomingDocumentAttachment.Validate("File Extension", 'xml');
@@ -1381,7 +1388,7 @@ table 130 "Incoming Document"
         else
             IncomingDocumentAttachment."Line No." += 10000;
         IncomingDocumentAttachment."Incoming Document Entry No." := "Entry No.";
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.Name :=
           CopyStr(FileManagement.GetFileNameWithoutExtension(OrgFileName), 1, MaxStrLen(IncomingDocumentAttachment.Name));
         IncomingDocumentAttachment.Validate(
@@ -1515,9 +1522,9 @@ table 130 "Incoming Document"
         ErrorMessage: Record "Error Message";
     begin
         ErrorMessage.SetRange("Context Record ID", RecordId);
-        ErrorMessage.DeleteAll;
+        ErrorMessage.DeleteAll();
         TempErrorMessage.SetRange("Context Record ID", RecordId);
-        TempErrorMessage.DeleteAll;
+        TempErrorMessage.DeleteAll();
     end;
 
     procedure SelectIncomingDocument(EntryNo: Integer; RelatedRecordID: RecordID): Integer
@@ -1539,7 +1546,7 @@ table 130 "Incoming Document"
         if IncomingDocuments.RunModal = ACTION::LookupOK then begin
             IncomingDocuments.GetRecord(IncomingDocument);
             IncomingDocument.Validate("Related Record ID", RelatedRecordID);
-            IncomingDocument.Modify;
+            IncomingDocument.Modify();
             exit(IncomingDocument."Entry No.");
         end;
         exit(EntryNo);
@@ -1596,7 +1603,7 @@ table 130 "Incoming Document"
 
         repeat
             TempErrorMessage := TempErrorMessageRef;
-            TempErrorMessage.Insert;
+            TempErrorMessage.Insert();
         until TempErrorMessageRef.Next = 0;
     end;
 
@@ -2087,8 +2094,8 @@ table 130 "Incoming Document"
         if FilePath = '' then
             exit;
 
-        MainIncomingDocumentAttachment.Delete;
-        Commit;
+        MainIncomingDocumentAttachment.Delete();
+        Commit();
 
         NewIncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
         ImportAttachmentIncDoc.ImportAttachment(NewIncomingDocumentAttachment, FilePath);
@@ -2283,6 +2290,11 @@ table 130 "Incoming Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDataExchangePath(DataExchLineDef: Record "Data Exch. Line Def"; FieldNumber: Integer; var DataExchangePath: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetJournalTemplateAndBatch(var JournalTemplate: Code[10]; var JournalBatch: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

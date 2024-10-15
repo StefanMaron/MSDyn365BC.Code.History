@@ -114,7 +114,7 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
         RecordFlag: Boolean;
     begin
         Clear(Value);
-        AccSchedResultValue.Reset;
+        AccSchedResultValue.Reset();
         AccSchedResultValue.SetRange("Result Code", "Result Code");
         AccSchedResultValue.SetRange("Row No.", "Line No.");
         AccSchedResultValue.SetFilter("Column No.", '%1..', Matrix_ColumnSet[1]);
@@ -175,13 +175,13 @@ page 31094 "Acc. Sch. Res. Subform Matrix"
     begin
         if AccSchedResultValue.Get("Result Code", "Line No.", ColumnNo) then begin
             AccSchedResultValue.Validate(Value, ColumnValue);
-            AccSchedResultValue.Modify;
+            AccSchedResultValue.Modify();
         end else begin
             AccSchedResultValue."Result Code" := "Result Code";
             AccSchedResultValue."Row No." := "Line No.";
             AccSchedResultValue."Column No." := ColumnNo;
             AccSchedResultValue.Validate(Value, ColumnValue);
-            AccSchedResultValue.Insert;
+            AccSchedResultValue.Insert();
         end;
     end;
 

@@ -933,7 +933,7 @@ codeunit 134835 "Test Item Lookup"
         // Exercise and Verify Existing Item
         SalesLine.Validate(Description, Item[2].Description);
 
-        SalesLine.TestField("No.", Item[1]."No.");
+        SalesLine.TestField("No.", Item[2]."No.");
     end;
 
     [Test]
@@ -958,7 +958,7 @@ codeunit 134835 "Test Item Lookup"
 
         PurchaseLine.Validate(Description, Item[2].Description);
 
-        PurchaseLine.TestField("No.", Item[1]."No.");
+        PurchaseLine.TestField("No.", Item[2]."No.");
     end;
 
     [Test]

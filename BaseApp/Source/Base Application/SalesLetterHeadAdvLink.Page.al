@@ -221,11 +221,11 @@ page 31013 "Sales Letter Head. - Adv.Link."
     procedure SetSalesHeader(SalesHeader: Record "Sales Header"; var SalesAdvanceLetterHeader: Record "Sales Advance Letter Header")
     begin
         TempSalesHeader := SalesHeader;
-        TempSalesHeader.Insert;
+        TempSalesHeader.Insert();
         if SalesAdvanceLetterHeader.FindSet then
             repeat
                 TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
-                TempSalesAdvanceLetterHeader.Insert;
+                TempSalesAdvanceLetterHeader.Insert();
             until SalesAdvanceLetterHeader.Next = 0;
         SetFilter("Doc. No. Filter", '<%1|>%1', TempSalesHeader."No.");
     end;
@@ -237,10 +237,10 @@ page 31013 "Sales Letter Head. - Adv.Link."
             repeat
                 if TempSalesAdvanceLetterHeader.Get(SalesAdvanceLetterHeader."No.") then begin
                     TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
-                    TempSalesAdvanceLetterHeader.Modify;
+                    TempSalesAdvanceLetterHeader.Modify();
                 end else begin
                     TempSalesAdvanceLetterHeader := SalesAdvanceLetterHeader;
-                    TempSalesAdvanceLetterHeader.Insert;
+                    TempSalesAdvanceLetterHeader.Insert();
                 end;
             until SalesAdvanceLetterHeader.Next = 0;
     end;
@@ -253,11 +253,11 @@ page 31013 "Sales Letter Head. - Adv.Link."
         if TempSalesAdvanceLetterHeader.FindSet then
             repeat
                 SalesAdvanceLetterHeader := TempSalesAdvanceLetterHeader;
-                SalesAdvanceLetterHeader.Insert;
+                SalesAdvanceLetterHeader.Insert();
             until TempSalesAdvanceLetterHeader.Next = 0
         else begin
             SalesAdvanceLetterHeader := Rec;
-            SalesAdvanceLetterHeader.Insert;
+            SalesAdvanceLetterHeader.Insert();
         end;
     end;
 

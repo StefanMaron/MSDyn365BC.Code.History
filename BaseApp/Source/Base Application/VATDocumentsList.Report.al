@@ -30,10 +30,10 @@ report 11775 "VAT Documents List"
                         TVATDoc.SetRange("VAT Date", lreVATEntry."VAT Date");
                         if not TVATDoc.Find('-') then begin
                             TVATDoc := lreVATEntry;
-                            TVATDoc.Insert;
+                            TVATDoc.Insert();
                         end;
                     until lreVATEntry.Next = 0;
-                CurrReport.Break;
+                CurrReport.Break();
             end;
         }
         dataitem(Loop; "Integer")
@@ -224,11 +224,11 @@ report 11775 "VAT Documents List"
                     end;
 
                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then begin
-                        VATPostingSetup.Init;
+                        VATPostingSetup.Init();
                         VATPostingSetup."VAT Identifier" := NoneTxt;
                     end;
 
-                    TDocVATAmtLine.Init;
+                    TDocVATAmtLine.Init();
                     TDocVATAmtLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
                     TDocVATAmtLine."VAT Calculation Type" := "VAT Calculation Type";
                     TDocVATAmtLine."Tax Group Code" := "Tax Group Code";
@@ -243,7 +243,7 @@ report 11775 "VAT Documents List"
 
                     TDocVATAmtLine.InsertLine;
 
-                    TTotVATAmtLine.Init;
+                    TTotVATAmtLine.Init();
                     TTotVATAmtLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
                     TTotVATAmtLine."VAT Calculation Type" := "VAT Calculation Type";
                     TTotVATAmtLine."Tax Group Code" := "Tax Group Code";
@@ -258,7 +258,7 @@ report 11775 "VAT Documents List"
                     TTotVATAmtLine.InsertLine;
 
                     if PrintUnreal then begin
-                        TUnrealDocVATAmtLine.Init;
+                        TUnrealDocVATAmtLine.Init();
                         TUnrealDocVATAmtLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
                         TUnrealDocVATAmtLine."VAT Calculation Type" := "VAT Calculation Type";
                         TUnrealDocVATAmtLine."Tax Group Code" := "Tax Group Code";
@@ -267,7 +267,7 @@ report 11775 "VAT Documents List"
                         TUnrealDocVATAmtLine."Amount Including VAT" := "Unrealized Amount" + "Unrealized Base";
                         TUnrealDocVATAmtLine.InsertLine;
 
-                        TUnrealTotVATAmtLine.Init;
+                        TUnrealTotVATAmtLine.Init();
                         TUnrealTotVATAmtLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
                         TUnrealTotVATAmtLine."VAT Calculation Type" := "VAT Calculation Type";
                         TUnrealTotVATAmtLine."Tax Group Code" := "Tax Group Code";
@@ -300,13 +300,13 @@ report 11775 "VAT Documents List"
                 trigger OnPreDataItem()
                 begin
                     Clear(TDocVATAmtLine);
-                    TDocVATAmtLine.Reset;
-                    TDocVATAmtLine.DeleteAll;
+                    TDocVATAmtLine.Reset();
+                    TDocVATAmtLine.DeleteAll();
 
                     if PrintUnreal then begin
                         Clear(TUnrealDocVATAmtLine);
-                        TUnrealDocVATAmtLine.Reset;
-                        TUnrealDocVATAmtLine.DeleteAll;
+                        TUnrealDocVATAmtLine.Reset();
+                        TUnrealDocVATAmtLine.DeleteAll();
                     end;
 
                     CopyFilters(VATFilter);
@@ -372,7 +372,7 @@ report 11775 "VAT Documents List"
                     if PrintUnreal then begin
                         TUnrealDocVATAmtLine := TDocVATAmtLine;
                         if not TUnrealDocVATAmtLine.Find then
-                            TUnrealDocVATAmtLine.Init;
+                            TUnrealDocVATAmtLine.Init();
                     end;
                 end;
 
@@ -380,8 +380,8 @@ report 11775 "VAT Documents List"
                 var
                     lreTVATAmountLine: Record "VAT Amount Line" temporary;
                 begin
-                    TDocVATAmtLine.Reset;
-                    TUnrealDocVATAmtLine.Reset;
+                    TDocVATAmtLine.Reset();
+                    TUnrealDocVATAmtLine.Reset();
 
                     if TDocVATAmtLine.FindSet then begin
                         repeat
@@ -392,24 +392,24 @@ report 11775 "VAT Documents List"
                             if lreTVATAmountLine.Find('-') then begin
                                 lreTVATAmountLine."VAT Base" := lreTVATAmountLine."VAT Base" + TDocVATAmtLine."VAT Base";
                                 lreTVATAmountLine."VAT Amount" := lreTVATAmountLine."VAT Amount" + TDocVATAmtLine."VAT Amount";
-                                lreTVATAmountLine.Modify;
+                                lreTVATAmountLine.Modify();
                             end;
                             lreTVATAmountLine := TDocVATAmtLine;
-                            lreTVATAmountLine.Insert;
+                            lreTVATAmountLine.Insert();
                         until TDocVATAmtLine.Next = 0;
 
-                        TDocVATAmtLine.Reset;
-                        TDocVATAmtLine.DeleteAll;
+                        TDocVATAmtLine.Reset();
+                        TDocVATAmtLine.DeleteAll();
 
-                        lreTVATAmountLine.Reset;
+                        lreTVATAmountLine.Reset();
                         if lreTVATAmountLine.FindSet then
                             repeat
                                 TDocVATAmtLine := lreTVATAmountLine;
-                                TDocVATAmtLine.Insert;
+                                TDocVATAmtLine.Insert();
                             until lreTVATAmountLine.Next = 0;
 
-                        lreTVATAmountLine.Reset;
-                        lreTVATAmountLine.DeleteAll;
+                        lreTVATAmountLine.Reset();
+                        lreTVATAmountLine.DeleteAll();
                     end;
 
                     if PrintUnreal then
@@ -422,29 +422,29 @@ report 11775 "VAT Documents List"
                                 if lreTVATAmountLine.Find('-') then begin
                                     lreTVATAmountLine."VAT Base" := lreTVATAmountLine."VAT Base" + TUnrealDocVATAmtLine."VAT Base";
                                     lreTVATAmountLine."VAT Amount" := lreTVATAmountLine."VAT Amount" + TUnrealDocVATAmtLine."VAT Amount";
-                                    lreTVATAmountLine.Modify;
+                                    lreTVATAmountLine.Modify();
                                 end;
                                 lreTVATAmountLine := TUnrealDocVATAmtLine;
-                                lreTVATAmountLine.Insert;
+                                lreTVATAmountLine.Insert();
 
                             until TUnrealDocVATAmtLine.Next = 0;
 
-                            TUnrealDocVATAmtLine.Reset;
-                            TUnrealDocVATAmtLine.DeleteAll;
+                            TUnrealDocVATAmtLine.Reset();
+                            TUnrealDocVATAmtLine.DeleteAll();
 
-                            lreTVATAmountLine.Reset;
+                            lreTVATAmountLine.Reset();
                             if lreTVATAmountLine.Find('-') then
                                 repeat
                                     TUnrealDocVATAmtLine := lreTVATAmountLine;
                                     TUnrealDocVATAmtLine.Insert
                                 until lreTVATAmountLine.Next = 0;
 
-                            lreTVATAmountLine.Reset;
-                            lreTVATAmountLine.DeleteAll;
+                            lreTVATAmountLine.Reset();
+                            lreTVATAmountLine.DeleteAll();
                         end;
 
-                    TDocVATAmtLine.Reset;
-                    TUnrealDocVATAmtLine.Reset;
+                    TDocVATAmtLine.Reset();
+                    TUnrealDocVATAmtLine.Reset();
                     SetRange(Number, 1, TDocVATAmtLine.Count);
                 end;
             }
@@ -453,16 +453,16 @@ report 11775 "VAT Documents List"
             begin
                 if Number = 1 then begin
                     if not TVATDoc.Find('-') then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end else begin
                     if TVATDoc.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                TVATDoc.Reset;
+                TVATDoc.Reset();
                 TVATDoc.SetCurrentKey("Document No.", "Posting Date");
             end;
         }
@@ -522,7 +522,7 @@ report 11775 "VAT Documents List"
                 if PrintUnreal then begin
                     TUnrealTotVATAmtLine := TTotVATAmtLine;
                     if not TUnrealTotVATAmtLine.Find then
-                        TUnrealTotVATAmtLine.Init;
+                        TUnrealTotVATAmtLine.Init();
                 end;
 
                 if TTotVATAmtLine."VAT Calculation Type" = TTotVATAmtLine."VAT Calculation Type"::"Reverse Charge VAT" then begin
@@ -535,8 +535,8 @@ report 11775 "VAT Documents List"
             var
                 lretVATAmountLine: Record "VAT Amount Line" temporary;
             begin
-                TTotVATAmtLine.Reset;
-                TUnrealTotVATAmtLine.Reset;
+                TTotVATAmtLine.Reset();
+                TUnrealTotVATAmtLine.Reset();
 
                 if TTotVATAmtLine.FindSet then begin
                     repeat
@@ -547,24 +547,24 @@ report 11775 "VAT Documents List"
                         if lretVATAmountLine.Find('-') then begin
                             lretVATAmountLine."VAT Base" := lretVATAmountLine."VAT Base" + TTotVATAmtLine."VAT Base";
                             lretVATAmountLine."VAT Amount" := lretVATAmountLine."VAT Amount" + TTotVATAmtLine."VAT Amount";
-                            lretVATAmountLine.Modify;
+                            lretVATAmountLine.Modify();
                         end;
                         lretVATAmountLine := TTotVATAmtLine;
-                        lretVATAmountLine.Insert;
+                        lretVATAmountLine.Insert();
                     until TTotVATAmtLine.Next = 0;
 
-                    TTotVATAmtLine.Reset;
-                    TTotVATAmtLine.DeleteAll;
+                    TTotVATAmtLine.Reset();
+                    TTotVATAmtLine.DeleteAll();
 
-                    lretVATAmountLine.Reset;
+                    lretVATAmountLine.Reset();
                     if lretVATAmountLine.FindSet then
                         repeat
                             TTotVATAmtLine := lretVATAmountLine;
-                            TTotVATAmtLine.Insert;
+                            TTotVATAmtLine.Insert();
                         until lretVATAmountLine.Next = 0;
 
-                    lretVATAmountLine.Reset;
-                    lretVATAmountLine.DeleteAll;
+                    lretVATAmountLine.Reset();
+                    lretVATAmountLine.DeleteAll();
                 end;
 
                 if PrintUnreal then
@@ -577,29 +577,29 @@ report 11775 "VAT Documents List"
                             if lretVATAmountLine.Find('-') then begin
                                 lretVATAmountLine."VAT Base" := lretVATAmountLine."VAT Base" + TUnrealTotVATAmtLine."VAT Base";
                                 lretVATAmountLine."VAT Amount" := lretVATAmountLine."VAT Amount" + TUnrealTotVATAmtLine."VAT Amount";
-                                lretVATAmountLine.Modify;
+                                lretVATAmountLine.Modify();
                             end;
                             lretVATAmountLine := TUnrealTotVATAmtLine;
-                            lretVATAmountLine.Insert;
+                            lretVATAmountLine.Insert();
 
                         until TUnrealTotVATAmtLine.Next = 0;
 
-                        TUnrealTotVATAmtLine.Reset;
-                        TUnrealTotVATAmtLine.DeleteAll;
+                        TUnrealTotVATAmtLine.Reset();
+                        TUnrealTotVATAmtLine.DeleteAll();
 
-                        lretVATAmountLine.Reset;
+                        lretVATAmountLine.Reset();
                         if lretVATAmountLine.Find('-') then
                             repeat
                                 TUnrealTotVATAmtLine := lretVATAmountLine;
                                 TUnrealTotVATAmtLine.Insert
                             until lretVATAmountLine.Next = 0;
 
-                        lretVATAmountLine.Reset;
-                        lretVATAmountLine.DeleteAll;
+                        lretVATAmountLine.Reset();
+                        lretVATAmountLine.DeleteAll();
                     end;
 
-                TTotVATAmtLine.Reset;
-                TUnrealTotVATAmtLine.Reset;
+                TTotVATAmtLine.Reset();
+                TUnrealTotVATAmtLine.Reset();
 
                 SetRange(Number, 1, TTotVATAmtLine.Count);
             end;

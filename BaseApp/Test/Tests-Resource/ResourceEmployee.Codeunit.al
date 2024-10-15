@@ -133,6 +133,7 @@ codeunit 136400 "Resource Employee"
     end;
 
     [Test]
+    [HandlerFunctions('Action62StrMenuHandler,Action62HyperlinkHandler')]
     [Scope('OnPrem')]
     procedure VerifySearchNameOnSaas()
     var
@@ -142,7 +143,7 @@ codeunit 136400 "Resource Employee"
         SearchNameCode: Code[250];
         EmployeeNo: Code[20];
     begin
-        // [SCENARIO] Create an employee, set first name, change the last name and verify the search name.
+        // [SCENARIO] Create an employee, set first name, open the map, change the last name and verify the search name.
         // 1. Setup: Create employee.
         Initialize;
         EmployeeNo := LibraryUtility.GenerateRandomCode(Employee.FieldNo("No."), DATABASE::Employee);
@@ -153,6 +154,7 @@ codeunit 136400 "Resource Employee"
         EmployeeCard."No.".SetValue(EmployeeNo);
         EmployeeCard."First Name".SetValue(
           CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Employee."First Name")), 1, MaxStrLen(Employee."First Name")));
+        EmployeeCard.ShowMap.DrillDown;
         EmployeeCard.OK.Invoke;
 
         // 3. Verify: Check Search Name has correct value in Employee.
@@ -233,7 +235,7 @@ codeunit 136400 "Resource Employee"
 
         // 2. Exercise:Try to create another Employee with No. of existing Employee.
         LibraryLowerPermissions.SetO365HREdit;
-        Employee.Init;
+        Employee.Init();
         Employee.Validate("No.", FirstEmployeeNo);
         asserterror Employee.Insert(true);
 
@@ -276,7 +278,7 @@ codeunit 136400 "Resource Employee"
         // Test Employee No. is incremented by AssistEdit automatically as per the setup.
 
         // 1. Setup: Find Next Employee No.
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
 
         // 2. Exercise: Genrate New Employee No. by click on AssistEdit Button with No. Series Code.
         LibraryLowerPermissions.SetO365HREdit;
@@ -347,7 +349,7 @@ codeunit 136400 "Resource Employee"
         // 1. Setup: Create and open Employee Card
         Initialize;
         LibraryHumanResource.CreateEmployee(Employee);
-        Commit;
+        Commit();
 
         EmployeeCard.OpenEdit;
         EmployeeCard.GotoRecord(Employee);
@@ -375,7 +377,7 @@ codeunit 136400 "Resource Employee"
         // 1. Setup: Create and open Employee Card
         Initialize;
         LibraryHumanResource.CreateEmployee(Employee);
-        Commit;
+        Commit();
 
         EmployeeCard.OpenEdit;
         EmployeeCard.GotoRecord(Employee);
@@ -508,18 +510,18 @@ codeunit 136400 "Resource Employee"
         Initialize;
 
         // [GIVEN] Human Resources Setup - HRS
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         // [GIVEN] "Human Resources Unit of Measure" - X with Qty.Per Unit of Measure = 1
         LibraryTimeSheet.CreateHRUnitOfMeasure(HumanResUnitOfMeasure, 1);
         // [GIVEN] Employee Absense is empty
-        EmployeeAbsence.DeleteAll;
+        EmployeeAbsence.DeleteAll();
 
         // [WHEN] HRS "Base Unit of Measure" validated with X
         HumanResourcesSetup.Validate("Base Unit of Measure", HumanResUnitOfMeasure.Code);
         HumanResourcesSetup.Modify(true);
 
         // [THEN]  HRS "Base Unit of Measure" = X.Code
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Base Unit of Measure", HumanResUnitOfMeasure.Code);
     end;
 
@@ -539,20 +541,20 @@ codeunit 136400 "Resource Employee"
         Initialize;
 
         // [GIVEN] Human Resources Setup - HRS with "Base Unit of Measure" - Y
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         BaseUnitOfMeasure := HumanResourcesSetup."Base Unit of Measure";
         // [GIVEN] "Human Resources Unit of Measure" - X with Qty.Per Unit of Measure <> 1
         QtyPerUnitOfMeasure := LibraryRandom.RandIntInRange(2, 10);
         LibraryTimeSheet.CreateHRUnitOfMeasure(HumanResUnitOfMeasure, QtyPerUnitOfMeasure);
         // [GIVEN] Employee Absense is empty
-        EmployeeAbsence.DeleteAll;
+        EmployeeAbsence.DeleteAll();
 
         // [WHEN] HRS "Base Unit of Measure" validated with X
         asserterror HumanResourcesSetup.Validate("Base Unit of Measure", HumanResUnitOfMeasure.Code);
         Assert.ExpectedError(StrSubstNo(QtyPerUnitOfMeasureErr, '1', Format(QtyPerUnitOfMeasure), HumanResUnitOfMeasure.Code));
 
         // [THEN]  HRS "Base Unit of Measure" = Y
-        HumanResourcesSetup.Get;
+        HumanResourcesSetup.Get();
         HumanResourcesSetup.TestField("Base Unit of Measure", BaseUnitOfMeasure);
     end;
 
@@ -570,7 +572,7 @@ codeunit 136400 "Resource Employee"
         // [GIVEN] an employee linked to a resource
         CreateEmployee(Employee1);
         Employee1.Validate("Resource No.", ResourceNo);
-        Employee1.Modify;
+        Employee1.Modify();
 
         // [GIVEN] a second employee not linked to a resource
         CreateEmployee(Employee2);
@@ -691,7 +693,7 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.CreateEmployee(Employee);
         Resource.Get(CreateResourceNoOfTypePerson);
         Employee."Resource No." := Resource."No.";
-        Employee.Modify;
+        Employee.Modify();
 
         // [GIVEN] Bind subscription to OnAfterCalculateResourceUpdateNeeded to set "UpdateNeeded" = "Yes"
         // [GIVEN] Bind subscription to OnAfterUpdateResource to fill in resource Name field
@@ -729,7 +731,7 @@ codeunit 136400 "Resource Employee"
         LibraryHumanResource.SetupEmployeeNumberSeries;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         Clear(EmployeeNoSeriesCode);  // Clear global variable.
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Resource Employee");
     end;
@@ -777,6 +779,19 @@ codeunit 136400 "Resource Employee"
     procedure SetValue(NewTextValue: Text[100])
     begin
         TextValue := NewTextValue;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure Action62StrMenuHandler(Options: Text[1024]; var Choice: Integer; Instruction: Text[1024])
+    begin
+        Choice := 1;
+    end;
+
+    [HyperlinkHandler]
+    [Scope('OnPrem')]
+    procedure Action62HyperlinkHandler(Message: Text[1024])
+    begin
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 5200, 'OnAfterUpdateResource', '', false, false)]

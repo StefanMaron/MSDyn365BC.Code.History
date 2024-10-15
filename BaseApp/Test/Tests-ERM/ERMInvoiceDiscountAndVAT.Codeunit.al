@@ -336,8 +336,8 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         REPORT.Run(REPORT::"Calculate Depreciation", true, false, FixedAsset);
 
         // Verify: Verify Depreciation Amount.
-        VerifyDepreciationAmount(FixedAsset."No.",
-          -Round(Round(FADepreciationBook."Book Value" / FADepreciationBook."No. of Depreciation Years"), 1, '>')); // NAVCZ
+        VerifyDepreciationAmount(
+          FixedAsset."No.", -1 * Round(FADepreciationBook."Book Value" / (FADepreciationBook."No. of Depreciation Years" * 12), 1));
         LibraryFixedAsset.VerifyLastFARegisterGLRegisterOneToOneRelation; // TFS 376879
     end;
 
@@ -1451,7 +1451,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Invoice Discount And VAT");
     end;
 
@@ -1579,14 +1579,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure CalculateInvoiceDiscountOnSalesInvoice(SalesHeader: Record "Sales Header")
     begin
         SalesHeader.CalcInvDiscForHeader;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader); // InvDiscountAmount will be set in handler
     end;
 
     local procedure CalculateInvoiceDiscountOnPurchaseInvoice(PurchaseHeader: Record "Purchase Header")
     begin
         PurchaseHeader.CalcInvDiscForHeader;
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchaseHeader); // InvDiscountAmount will be set in handler
     end;
 
@@ -2265,16 +2265,16 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure CopySalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Document Type", DocumentType);
         SalesHeader.Insert(true); // Creating empty Document for Copy function.
-        Commit;
+        Commit();
         SalesCopyDocument(SalesHeader, DocumentNo, FromDocType);
     end;
 
     local procedure CopyPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; FromDocType: Option; DocumentNo: Code[20])
     begin
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Document Type", DocumentType);
         PurchaseHeader.Insert(true); // Creating empty Document for Copy function.
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, FromDocType, DocumentNo, true, false);
@@ -2437,8 +2437,6 @@ codeunit 134027 "ERM Invoice Discount And VAT"
             GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", GLAccount."No.");
             GeneralPostingSetup.Modify(true);
         end;
-        GeneralPostingSetup.Validate("Purch. Inv. Disc. Account", LibraryERM.CreateGLAccountNo()); // NAVCZ
-        GeneralPostingSetup.Modify(true); // NAVCZ
     end;
 
     local procedure CreatePurchaseInvoiceHeader(var PurchaseHeader: Record "Purchase Header")
@@ -2644,14 +2642,14 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     local procedure OpenSalesOrderStatistics(SalesHeader: Record "Sales Header"; InvDiscountAmount: Decimal)
     begin
         LibraryVariableStorage.Enqueue(InvDiscountAmount);
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Sales Order Statistics", SalesHeader);
     end;
 
     local procedure OpenPurchOrderStatistics(PurchHeader: Record "Purchase Header"; InvDiscountAmount: Decimal)
     begin
         LibraryVariableStorage.Enqueue(InvDiscountAmount);
-        Commit;
+        Commit();
         PAGE.RunModal(PAGE::"Purchase Order Statistics", PurchHeader);
     end;
 
@@ -2701,9 +2699,7 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"Fixed Asset");
         GenJournalLine.SetRange("Account No.", AccountNo);
         GenJournalLine.FindFirst;
-        DepreciationAmount := Round(DepreciationAmount * GenJournalLine."No. of Depreciation Days" / 360, 1, '>'); // NAVCZ
-        if not (GenJournalLine.Amount in [(DepreciationAmount - 1) .. (DepreciationAmount + 1)]) then // NAVCZ
-            GenJournalLine.TestField(Amount, DepreciationAmount);
+        GenJournalLine.TestField(Amount, DepreciationAmount);
     end;
 
     local procedure VerifyInvDiscAmtAndVATAmt(PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; VATPercent: Decimal; AllowInvDisc: Boolean)

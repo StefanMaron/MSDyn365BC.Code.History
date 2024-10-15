@@ -33,7 +33,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
                 PostPrepmtDocument(PurchHeader, "Document Type"::Invoice);
 
             if Print then begin
-                Commit;
+                Commit();
                 GetReport(PurchHeader, 0);
             end;
 
@@ -66,7 +66,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
             if Print then
                 GetReport(PurchHeader, 1);
 
-            Commit;
+            Commit();
             OnAfterPostPrepmtCrMemoYN(PurchHeader);
 
             PurchHeader2 := PurchHeader;
@@ -83,7 +83,7 @@ codeunit 445 "Purch.-Post Prepmt. (Yes/No)"
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         PurchPostPrepayments.SetDocumentType(PrepmtDocumentType);
-        Commit;
+        Commit();
         if not PurchPostPrepayments.Run(PurchHeader) then
             ErrorMessageHandler.ShowErrors;
     end;

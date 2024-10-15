@@ -20,7 +20,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         TempVATReportLineRelation: Record "VAT Report Line Relation" temporary;
         VATReportLine: Record "VAT Report Line";
     begin
-        TempVATReportLineRelation.Init;
+        TempVATReportLineRelation.Init();
         TempVATReportLineRelation."VAT Report No." := 'Test';
         TempVATReportLineRelation."VAT Report Line No." := 1;
         TempVATReportLineRelation."Table No." := DATABASE::"VAT Entry";
@@ -91,7 +91,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
         VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
-        VATReportLineRelation.DeleteAll;
+        VATReportLineRelation.DeleteAll();
     end;
 }
 

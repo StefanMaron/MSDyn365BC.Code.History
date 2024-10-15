@@ -4,7 +4,7 @@ codeunit 5651 "Insurance Jnl.-Check Line"
 
     trigger OnRun()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         RunCheck(Rec);
     end;
 
@@ -30,7 +30,7 @@ codeunit 5651 "Insurance Jnl.-Check Line"
             TestField("Posting Date");
             TestField("FA No.");
             if CallNo = 0 then begin
-                FASetup.Get;
+                FASetup.Get();
                 FASetup.TestField("Insurance Depr. Book");
             end;
             CallNo := 1;
@@ -53,7 +53,7 @@ codeunit 5651 "Insurance Jnl.-Check Line"
                 else
                     Error(DimMgt.GetDimValuePostingErr);
             // NAVCZ
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserChecksMgt.CheckInsuranceJournalLine(InsuranceJnlLine);
             // NAVCZ

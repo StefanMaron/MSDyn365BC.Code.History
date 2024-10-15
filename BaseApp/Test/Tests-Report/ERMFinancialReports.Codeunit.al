@@ -40,7 +40,6 @@ codeunit 134982 "ERM Financial Reports"
         FilePathTxt: Label 'TestFileName';
         BlankLinesQtyErr: Label 'Wrong blank lines quantity in dataset.';
         CurrentSaveValuesId: Integer;
-        ReverseFALedgerEntryErr: Label 'Function Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.';
 
     [Test]
     [HandlerFunctions('RHDetailTrialBalance')]
@@ -71,7 +70,7 @@ codeunit 134982 "ERM Financial Reports"
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
         GenJournalLine."Posting Date" -= 1; // the day before WORKDATE
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
@@ -308,7 +307,7 @@ codeunit 134982 "ERM Financial Reports"
         BankAccReconciliation2.SetRange("Bank Account No.", GenJournalLine."Bal. Account No.");
         BankAccReconciliation2.SetRange("Statement No.", BankAccReconciliation."Statement No.");
         BankAccReconTest.SetTableView(BankAccReconciliation2);
-        Commit;
+        Commit();
         BankAccReconTest.Run;
 
         // Verify: Verify Statement Amount in Bank Reconciliation Test Report.
@@ -365,7 +364,7 @@ codeunit 134982 "ERM Financial Reports"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler,RHFixedAssetDetails')]
+    [HandlerFunctions('ConfirmHandler,MessageHandler,RHFixedAssetDetails')]
     [Scope('OnPrem')]
     procedure FixedAssetWithReversal()
     var
@@ -376,7 +375,7 @@ codeunit 134982 "ERM Financial Reports"
         // Setup.
         Initialize;
         CreateAndPostFAGenJournalLine(GenJournalLine, GenJournalLine."FA Posting Type"::"Acquisition Cost");
-        asserterror ReverseFALedgerEntry(GenJournalLine."Document No."); // NAVCZ
+        ReverseFALedgerEntry(GenJournalLine."Document No.");
 
         // Exercise: Save Fixed Asset Detail Report.
         FixedAssetDetailReport(GenJournalLine."Account No.", GenJournalLine."Depreciation Book Code", false, true);
@@ -384,10 +383,7 @@ codeunit 134982 "ERM Financial Reports"
         // Verify: Verify Amounts on Fixed Asset Detail Report.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', GenJournalLine.Amount);
-        // NAVCZ
-        LibraryReportDataset.AssertElementWithValueNotExist('FA_Ledger_Entry_Amount', -GenJournalLine.Amount);
-        Assert.ExpectedError(ReverseFALedgerEntryErr);
-        // NAVCZ
+        LibraryReportDataset.AssertElementWithValueExists('FA_Ledger_Entry_Amount', -GenJournalLine.Amount);
     end;
 
     [Test]
@@ -403,7 +399,7 @@ codeunit 134982 "ERM Financial Reports"
         // Setup.
         Initialize;
         Clear(MaintenanceDetails);
-        Commit;
+        Commit();
 
         // Exercise: Save Maintenance Detail Report.
         asserterror MaintenanceDetails.Run;
@@ -461,7 +457,7 @@ codeunit 134982 "ERM Financial Reports"
         MaintenanceDetails.InitializeRequest(GenJournalLine."Depreciation Book Code", false, true);
         FixedAsset.SetRange("No.", GenJournalLine."Account No.");
         MaintenanceDetails.SetTableView(FixedAsset);
-        Commit;
+        Commit();
         MaintenanceDetails.Run;
         GLEntry.SetRange("Document No.", GenJournalLine."Document No.");
         GLEntry.SetRange("Bal. Account Type", GenJournalLine."Bal. Account Type");
@@ -764,7 +760,7 @@ codeunit 134982 "ERM Financial Reports"
         // Exercise. Try to Save Closing Trial Balance Report without any Option.
         Clear(ClosingTrialBalance);
         ClosingTrialBalance.InitializeRequest(0D, false);
-        Commit;
+        Commit();
         asserterror ClosingTrialBalance.Run;
 
         // Verify: Verify Error during Save of Closing Trial Balance Report when No option was selected.
@@ -852,7 +848,7 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount.SetRange("Date Filter", WorkDate);
         GLAccount.FindFirst;
         ReconcileCustAndVendAccs.SetTableView(GLAccount);
-        Commit;
+        Commit();
         ReconcileCustAndVendAccs.Run;
 
         // Verify: Verify Saved Report Data.
@@ -903,7 +899,7 @@ codeunit 134982 "ERM Financial Reports"
         CreateGLAccountWithConsolidateAccount;
 
         // Excercise: Run the Export Consolidate Report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Export Consolidation");
 
         // Verify: Verifying that Export Consolidation report exporting the consolidation file without any error.
@@ -928,7 +924,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // [GIVEN] Posted Income Statement Journal line with global dimensions "D1" and "D2"
         CreateIncomeStatementGenJnlLine(GenJournalLine, Date);
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateSelectedDimension(SelectedDimension, AllObj."Object Type"::Report,
           REPORT::"Close Income Statement", '', GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateSelectedDimension(SelectedDimension, AllObj."Object Type"::Report,
@@ -938,7 +934,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 2 Code");
         DimSetID := LibraryDimension.CreateDimSet(DimSetID, DimensionValue2."Dimension Code", DimensionValue2.Code);
         GenJournalLine."Dimension Set ID" := DimSetID;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] Run Close Income Statement Report with selected Dimensions
@@ -970,7 +966,7 @@ codeunit 134982 "ERM Financial Reports"
         AccountingPeriod.ModifyAll("Date Locked", false);
 
         // [WHEN] RUN REP 94 - "Close Income Statement"
-        GenJournalLine.Init;
+        GenJournalLine.Init();
         asserterror RunCloseIncomeStatementReport(GenJournalLine, 0D, true);
 
         // [THEN] Error message "No closed fiscal year exists." appears
@@ -1038,7 +1034,7 @@ codeunit 134982 "ERM Financial Reports"
         VATEntry.SetFilter("Bill-to/Pay-to No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
         VATEntry.SetFilter("Country/Region Code", Customer[2]."Country/Region Code");
         VATEntry.SetRange("Posting Date", WorkDate);
-        Commit;
+        Commit();
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "C1"|"C2", "Country/Region Code" = "CR2" and Posting Date = 01/02/2018
         RunVATVIESDeclarationDisk(VATEntry, FileName);
@@ -1202,13 +1198,13 @@ codeunit 134982 "ERM Financial Reports"
 
         // [GIVEN] Customer "SellCust" is updated with blank Country/Region Code
         SellToCustomer."Country/Region Code" := '';
-        SellToCustomer.Modify;
+        SellToCustomer.Modify();
 
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToCustomer."No.");
         VATEntry.SetRange("Posting Date", WorkDate);
 
         // [WHEN] Run report "VAT- VIES Declaration Disk" with "Bill-to/Pay-to No." = "BillCust"
-        Commit;
+        Commit();
         asserterror RunVATVIESDeclarationDisk(VATEntry, FileName);
 
         // [THEN] Error raised about Country/Region Code must have a value in "SellCust"
@@ -1241,7 +1237,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateLocalData();
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -1268,7 +1264,7 @@ codeunit 134982 "ERM Financial Reports"
         BankAccount.SetRange("No.", BalanceAccountNo);
         BankAccDetailTrialBal.SetTableView(BankAccount);
         BankAccDetailTrialBal.InitializeRequest(false, ExcludeAccBalanceOnly, PrintReversedEntries);
-        Commit;
+        Commit();
         BankAccDetailTrialBal.Run;
     end;
 
@@ -1284,7 +1280,7 @@ codeunit 134982 "ERM Financial Reports"
         BankAccount.SetRange("Date Filter", CalcDate('<1M>', PostingDate), CalcDate('<2M>', PostingDate));
         BankAccDetailTrialBal.SetTableView(BankAccount);
         BankAccDetailTrialBal.InitializeRequest(false, ExcludeAccBalanceOnly, PrintReversedEntries);
-        Commit;
+        Commit();
         BankAccDetailTrialBal.Run;
     end;
 
@@ -1311,7 +1307,7 @@ codeunit 134982 "ERM Financial Reports"
 
         GLAccount.Get(GenJournalLine."Account No.");
         GLAccount."No. of Blank Lines" := NoOfBlankLines;
-        GLAccount.Modify;
+        GLAccount.Modify();
 
         TrialBalanceReport(GenJournalLine."Account No.");
 
@@ -1518,7 +1514,7 @@ codeunit 134982 "ERM Financial Reports"
         Clear(ChartOfAccounts);
         GLAccount.SetRange("No.", No);
         ChartOfAccounts.SetTableView(GLAccount);
-        Commit;
+        Commit();
         ChartOfAccounts.Run;
     end;
 
@@ -1552,7 +1548,7 @@ codeunit 134982 "ERM Financial Reports"
         Clear(NoSeriesCheck);
         NoSeries.SetRange(Code, SeriesCode);
         NoSeriesCheck.SetTableView(NoSeries);
-        Commit;
+        Commit();
         NoSeriesCheck.Run;
     end;
 
@@ -1586,7 +1582,7 @@ codeunit 134982 "ERM Financial Reports"
         Clear(TrialBalance);
         GLAccount.SetFilter("No.", GLAccountNoFilter);
         TrialBalance.SetTableView(GLAccount);
-        Commit;
+        Commit();
         TrialBalance.Run
     end;
 
@@ -1599,7 +1595,7 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount.SetRange("No.", GLAccountNo);
         GLAccount.SetFilter("Date Filter", '%1..%2', PostingDate, PostingDate);
         TrialBalanceBudget.SetTableView(GLAccount);
-        Commit;
+        Commit();
         TrialBalanceBudget.Run;
     end;
 
@@ -1680,7 +1676,7 @@ codeunit 134982 "ERM Financial Reports"
         FixedAssetDetails.InitializeRequest(DepreciationBookCode, PrintOnlyOnePerPage, IncludeReverseEntries);
         FixedAsset.SetRange("No.", No);
         FixedAssetDetails.SetTableView(FixedAsset);
-        Commit;
+        Commit();
         FixedAssetDetails.Run;
     end;
 
@@ -1763,7 +1759,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryVariableStorage.Enqueue(PrintReverseEnteries);
         LibraryVariableStorage.Enqueue(PrintOnlyCorrections);
         LibraryVariableStorage.Enqueue(DateFilter);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Detail Trial Balance");
     end;
 
@@ -1822,14 +1818,14 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount.SetRange("No.", GenJournalLine."Account No.", GenJournalLine."Bal. Account No.");
         ClosingTrialBalance.SetTableView(GLAccount);
         ClosingTrialBalance.InitializeRequest(GenJournalLine."Posting Date", AmountLCY);
-        Commit;
+        Commit();
         ClosingTrialBalance.Run;
 
         // Verify: Verify Amounts on Detail Trial Balance Report. Customized Formual required to Increase the Date.
         LibraryReportDataset.LoadDataSetFile;
         VerifyColumnValues(GenJournalLine."Account No.", Amount, 'FiscalYearBalance');
         VerifyColumnValues(GenJournalLine."Bal. Account No.", Amount, 'NegFiscalYearBalance');
-        LibraryReportDataset.Reset;
+        LibraryReportDataset.Reset();
         LibraryReportDataset.AssertElementWithValueExists('PeriodText',
           StrSubstNo('Period: %1..%2', GenJournalLine."Posting Date",
             Format(CalcDate('<30D+11M>', GenJournalLine."Posting Date"))));
@@ -1843,7 +1839,7 @@ codeunit 134982 "ERM Financial Reports"
         Clear(NoSeriesReport);
         NoSeries.SetRange(Code, NoSeriesCode);
         NoSeriesReport.SetTableView(NoSeries);
-        Commit;
+        Commit();
         NoSeriesReport.Run;
     end;
 
@@ -1871,7 +1867,7 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount.SetRange("Date Filter", CalcDate('<1M>', PostingDate), CalcDate('<2M>', PostingDate));
         DetailTrialBalance.SetTableView(GLAccount);
         DetailTrialBalance.InitializeRequest(false, ExcludeGLBalanceOnly, PrintClosingEntry, PrintReverseEnteries, PrintOnlyCorrections);
-        Commit;
+        Commit();
         DetailTrialBalance.Run;
     end;
 
@@ -1882,14 +1878,14 @@ codeunit 134982 "ERM Financial Reports"
         CountryRegion.Get(CountryCode);
         CountryRegion."EU Country/Region Code" := CountryRegion.Code;
         CountryRegion."VAT Scheme" := LibraryUtility.GenerateGUID;
-        CountryRegion.Modify;
+        CountryRegion.Modify();
     end;
 
     local procedure UpdateCompanyInfoCountryRegion(CountryCode: Code[10])
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.Validate("Country/Region Code", CountryCode);
         CompanyInformation.Modify(true);
     end;
@@ -1908,7 +1904,7 @@ codeunit 134982 "ERM Financial Reports"
     begin
         Clear(VATVIESDeclarationTaxAuth);
         VATVIESDeclarationTaxAuth.InitializeRequest(IncludeAdditionalCurrAmount, WorkDate, WorkDate, CustomerVATRegistrationNo);
-        Commit;
+        Commit();
         VATVIESDeclarationTaxAuth.Run;
     end;
 

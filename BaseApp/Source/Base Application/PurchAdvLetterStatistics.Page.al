@@ -220,7 +220,7 @@ page 31024 "Purch. Adv. Letter Statistics"
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         AllowVATDifference := PurchSetup."Allow VAT Difference";
         SubformIsEditable := AllowVATDifference;
         CurrPage.Editable := SubformIsEditable;

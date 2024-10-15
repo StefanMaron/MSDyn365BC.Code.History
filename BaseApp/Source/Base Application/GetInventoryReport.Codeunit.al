@@ -8,7 +8,7 @@ codeunit 5845 "Get Inventory Report"
         WindowIsOpen := false;
 
         Reset;
-        DeleteAll;
+        DeleteAll();
         Calculate(Rec);
 
         if WindowIsOpen then
@@ -120,14 +120,14 @@ codeunit 5845 "Get Inventory Report"
         with InvtPostingSetup do begin
             if Find('-') then
                 repeat
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Inventory Account", "Inventory Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account"));
                         InsertGLInvtReportEntry(InventoryReportLine, "Inventory Account", InventoryReportLine.Inventory);
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Inventory Account (Interim)", "Inventory Account (Interim)");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Account (Interim)"));
@@ -135,7 +135,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Inventory Account (Interim)", InventoryReportLine."Inventory (Interim)");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Material Variance Account", "Material Variance Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Material Variance Account"));
@@ -143,7 +143,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Material Variance Account", InventoryReportLine."Material Variance");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Capacity Variance Account", "Capacity Variance Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Capacity Variance Account"));
@@ -151,7 +151,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Capacity Variance Account", InventoryReportLine."Capacity Variance");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Mfg. Overhead Variance Account", "Mfg. Overhead Variance Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Mfg. Overhead Variance Account"));
@@ -159,7 +159,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Mfg. Overhead Variance Account", InventoryReportLine."Mfg. Overhead Variance");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Cap. Overhead Variance Account", "Cap. Overhead Variance Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Cap. Overhead Variance Account"));
@@ -167,7 +167,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Cap. Overhead Variance Account", InventoryReportLine."Capacity Overhead Variance");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Subcontracted Variance Account", "Subcontracted Variance Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Subcontracted Variance Account"));
@@ -175,7 +175,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Subcontracted Variance Account", InventoryReportLine."Subcontracted Variance");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("WIP Account", "WIP Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("WIP Account"));
@@ -183,21 +183,21 @@ codeunit 5845 "Get Inventory Report"
                     end;
 
                     // NAVCZ
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Consumption Account", "Consumption Account");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Consumption Account"));
                         InsertGLInvtReportEntry(InventoryReportLine, "Consumption Account", InventoryReportLine.Consumption);
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Change In Inv.Of WIP Acc.", "Change In Inv.Of WIP Acc.");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Change In Inv.Of WIP Acc."));
                         InsertGLInvtReportEntry(InventoryReportLine, "Change In Inv.Of WIP Acc.", InventoryReportLine."Change In Inv.Of WIP");
                     end;
 
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Change In Inv.Of Product Acc.", "Change In Inv.Of Product Acc.");
                     if not TempInvtPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Change In Inv.Of Product Acc."));
@@ -207,7 +207,7 @@ codeunit 5845 "Get Inventory Report"
                     // NAVCZ
 
                     TempInvtPostingSetup := InvtPostingSetup;
-                    TempInvtPostingSetup.Insert;
+                    TempInvtPostingSetup.Insert();
                 until Next = 0;
         end;
     end;
@@ -220,14 +220,14 @@ codeunit 5845 "Get Inventory Report"
         with GenPostingSetup do begin
             if Find('-') then
                 repeat
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("COGS Account", "COGS Account");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account"));
                         InsertGLInvtReportEntry(InventoryReportLine, "COGS Account", InventoryReportLine.COGS);
                     end;
 
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Inventory Adjmt. Account", "Inventory Adjmt. Account");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Inventory Adjmt. Account"));
@@ -236,7 +236,7 @@ codeunit 5845 "Get Inventory Report"
                     end;
 
                     // NAVCZ
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Invt. Rounding Adj. Account", "Invt. Rounding Adj. Account");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Invt. Rounding Adj. Account"));
@@ -245,7 +245,7 @@ codeunit 5845 "Get Inventory Report"
                     end;
                     // NAVCZ
 
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Invt. Accrual Acc. (Interim)", "Invt. Accrual Acc. (Interim)");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Invt. Accrual Acc. (Interim)"));
@@ -253,7 +253,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Invt. Accrual Acc. (Interim)", InventoryReportLine."Invt. Accrual (Interim)");
                     end;
 
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("COGS Account (Interim)", "COGS Account (Interim)");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("COGS Account (Interim)"));
@@ -261,7 +261,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "COGS Account (Interim)", InventoryReportLine."COGS (Interim)");
                     end;
 
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Direct Cost Applied Account", "Direct Cost Applied Account");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Direct Cost Applied Account"));
@@ -269,7 +269,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Direct Cost Applied Account", InventoryReportLine."Direct Cost Applied");
                     end;
 
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Overhead Applied Account", "Overhead Applied Account");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Overhead Applied Account"));
@@ -277,7 +277,7 @@ codeunit 5845 "Get Inventory Report"
                           InventoryReportLine, "Overhead Applied Account", InventoryReportLine."Overhead Applied");
                     end;
 
-                    TempGenPostingSetup.Reset;
+                    TempGenPostingSetup.Reset();
                     TempGenPostingSetup.SetRange("Purchase Variance Account", "Purchase Variance Account");
                     if not TempGenPostingSetup.FindFirst then begin
                         UpDateWindow(WindowType, WindowNo, FieldCaption("Purchase Variance Account"));
@@ -286,7 +286,7 @@ codeunit 5845 "Get Inventory Report"
                     end;
 
                     TempGenPostingSetup := GenPostingSetup;
-                    TempGenPostingSetup.Insert;
+                    TempGenPostingSetup.Insert();
                 until Next = 0;
         end;
     end;
@@ -332,7 +332,7 @@ codeunit 5845 "Get Inventory Report"
                     if ValueEntryInFilteredSet(ValueEntry, InvtReportHeader, false) then begin
                         if Item."No." <> "Item No." then
                             if not Item.Get("Item No.") then
-                                Item.Init;
+                                Item.Init();
                         SetRange("Entry Type", "Entry Type");
                         SetRange("Item Ledger Entry Type", "Item Ledger Entry Type");
                         SetRange("Location Code", "Location Code");
@@ -1408,7 +1408,7 @@ codeunit 5845 "Get Inventory Report"
                ("Invt. Accrual (Interim)" <> 0) or
                ("COGS (Interim)" <> 0)
             then begin
-                InvtSetup.Get;
+                InvtSetup.Get();
                 "Expected Cost Posting Warning" := not InvtSetup."Expected Cost Posting to G/L";
                 Modify;
                 exit(true);
@@ -1582,7 +1582,7 @@ codeunit 5845 "Get Inventory Report"
         GLEntry: Record "G/L Entry";
     begin
         with InventoryReportLine do begin
-            GLEntry.Reset;
+            GLEntry.Reset();
             GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
             GLEntry.SetRange("G/L Account No.", '');
             GLEntry.SetFilter("Posting Date", InvtReportHeader.GetFilter("Posting Date Filter"));
@@ -1603,7 +1603,7 @@ codeunit 5845 "Get Inventory Report"
         TotalInventory: Decimal;
     begin
         with InventoryReportLine do begin
-            ValueEntry.Reset;
+            ValueEntry.Reset();
             ValueEntry.SetCurrentKey("Item No.");
             if ValueEntry.FindFirst then
                 repeat
@@ -1616,13 +1616,13 @@ codeunit 5845 "Get Inventory Report"
 
             if InvtPostingSetup.Find('-') then
                 repeat
-                    TempInvtPostingSetup.Reset;
+                    TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
                     if not TempInvtPostingSetup.FindFirst then
                         if GLAcc.Get(InvtPostingSetup."Inventory Account") then
                             TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
                     TempInvtPostingSetup := InvtPostingSetup;
-                    TempInvtPostingSetup.Insert;
+                    TempInvtPostingSetup.Insert();
                 until InvtPostingSetup.Next = 0;
             if TotalInventory = 0 then begin
                 "Posting Date Warning" := true;

@@ -2268,9 +2268,6 @@ End Function
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>
         </Field>
-        <Field Name="PageNo">
-          <DataField>PageNo</DataField>
-        </Field>
         <Field Name="USERID">
           <DataField>USERID</DataField>
         </Field>
@@ -2366,9 +2363,6 @@ End Function
         </Field>
         <Field Name="PageCaption">
           <DataField>PageCaption</DataField>
-        </Field>
-        <Field Name="PageNo_Control1470030">
-          <DataField>PageNo_Control1470030</DataField>
         </Field>
         <Field Name="FA_History_Entry__Type_Control1470031">
           <DataField>FA_History_Entry__Type_Control1470031</DataField>

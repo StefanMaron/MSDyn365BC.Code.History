@@ -234,11 +234,11 @@ page 161 "Purchase Statistics"
         FilterGroup(0);
 
         // NAVCZ
-        TempVATAmountLinePrep.Reset;
-        TempVATAmountLinePrep.DeleteAll;
+        TempVATAmountLinePrep.Reset();
+        TempVATAmountLinePrep.DeleteAll();
         Clear(TempVATAmountLinePrep);
-        TempVATAmountLineTot.Reset;
-        TempVATAmountLineTot.DeleteAll;
+        TempVATAmountLineTot.Reset();
+        TempVATAmountLineTot.DeleteAll();
         Clear(TempVATAmountLineTot);
         Clear(TempTotVATAmountLinePrep);
         Clear(TempTotVATAmountLineTot);
@@ -248,8 +248,8 @@ page 161 "Purchase Statistics"
 
         // NAVCZ
         if ("Document Type" = "Document Type"::Invoice) and ("Prepayment Type" = "Prepayment Type"::Advance) then begin
-            TempVATAmountLinePrep.Reset;
-            TempVATAmountLinePrep.DeleteAll;
+            TempVATAmountLinePrep.Reset();
+            TempVATAmountLinePrep.DeleteAll();
             Clear(TempVATAmountLinePrep);
 
             PurchPostAdv.CalcVATCorrection(Rec, TempVATAmountLinePrep);
@@ -266,7 +266,7 @@ page 161 "Purchase Statistics"
 
     trigger OnOpenPage()
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         AllowInvDisc :=
           not (PurchSetup."Calc. Inv. Discount" and VendInvDiscRecExists("Invoice Disc. Code"));
         AllowVATDifference :=
@@ -350,7 +350,7 @@ page 161 "Purchase Statistics"
             if (TotalPurchLineLCY."VAT Calculation Type" = TotalPurchLineLCY."VAT Calculation Type"::"Normal VAT") or
                (TotalPurchLineLCY."VAT Calculation Type" = TotalPurchLineLCY."VAT Calculation Type"::"Reverse Charge VAT")
             then begin
-                GLSetup.Get;
+                GLSetup.Get();
                 Currency.Get("Currency Code");
                 GLSetup.GetRoundingParamentersLCY(Currency, RoundingPrecisionLCY, RoundingDirectionLCY);
 
@@ -533,8 +533,8 @@ page 161 "Purchase Statistics"
     local procedure SumVATLinesAll()
     begin
         // NAVCZ
-        TempVATAmountLineTot.Reset;
-        TempVATAmountLineTot.DeleteAll;
+        TempVATAmountLineTot.Reset();
+        TempVATAmountLineTot.DeleteAll();
         Clear(TempVATAmountLineTot);
 
         SumVATLinesTo(TempVATAmountLine);
@@ -554,7 +554,7 @@ page 161 "Purchase Statistics"
                         TempVATAmountLineTot := VATAmountLine;
                         TempVATAmountLineTot.Positive := true;
                         TempVATAmountLineTot."Line Amount" := 0;
-                        TempVATAmountLineTot.Insert;
+                        TempVATAmountLineTot.Insert();
                     end else begin
                         TempVATAmountLineTot."VAT Base" += "VAT Base";
                         TempVATAmountLineTot."VAT Amount" += "VAT Amount";
@@ -570,7 +570,7 @@ page 161 "Purchase Statistics"
                         TempVATAmountLineTot."VAT Amount (LCY)" += "VAT Amount (LCY)";
                         TempVATAmountLineTot."Amount Including VAT (LCY)" += "Amount Including VAT (LCY)";
                         TempVATAmountLineTot."Calculated VAT Amount (LCY)" += "Calculated VAT Amount (LCY)";
-                        TempVATAmountLineTot.Modify;
+                        TempVATAmountLineTot.Modify();
                     end;
                 until Next = 0;
         end;

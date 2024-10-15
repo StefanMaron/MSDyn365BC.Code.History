@@ -32,7 +32,7 @@ table 221 "Gen. Jnl. Allocation"
             trigger OnValidate()
             begin
                 if "Account No." = '' then begin
-                    GLAcc.Init;
+                    GLAcc.Init();
                     CreateDim(DATABASE::"G/L Account", "Account No.");
                 end else begin
                     GLAcc.Get("Account No.");
@@ -158,12 +158,10 @@ table 221 "Gen. Jnl. Allocation"
                         Validate("VAT Prod. Posting Group", GenProdPostingGrp."Def. VAT Prod. Posting Group");
             end;
         }
-        field(14; "VAT Calculation Type"; Option)
+        field(14; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(15; "VAT Amount"; Decimal)
         {
@@ -290,7 +288,7 @@ table 221 "Gen. Jnl. Allocation"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         GenJnlLine.Get("Journal Template Name", "Journal Batch Name", "Journal Line No.");
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
@@ -345,7 +343,7 @@ table 221 "Gen. Jnl. Allocation"
             UpdateGenJnlLine := true
         else
             if not GenJnlAlloc.IsEmpty then begin
-                GenJnlAlloc.LockTable;
+                GenJnlAlloc.LockTable();
                 UpdateGenJnlLine := true;
             end;
 
@@ -375,7 +373,7 @@ table 221 "Gen. Jnl. Allocation"
                         TotalAmountLCYRnded := TotalAmountLCYRnded + GenJnlAlloc.Amount;
                     end;
                     GenJnlAlloc.UpdateVAT(GenJnlLine);
-                    GenJnlAlloc.Modify;
+                    GenJnlAlloc.Modify();
                 end;
             until GenJnlAlloc.Next = 0;
 
@@ -403,9 +401,9 @@ table 221 "Gen. Jnl. Allocation"
         GenJnlAlloc.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
         GenJnlAlloc.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
         GenJnlAlloc.SetRange("Journal Line No.", GenJnlLine."Line No.");
-        GenJnlAlloc.LockTable;
+        GenJnlAlloc.LockTable();
         if GenJnlAlloc.FindSet then begin
-            GLSetup.Get;
+            GLSetup.Get();
             Currency.Get(GLSetup."Additional Reporting Currency");
             Currency.TestField("Amount Rounding Precision");
             repeat
@@ -440,7 +438,7 @@ table 221 "Gen. Jnl. Allocation"
                         TotalAmountAddCurrRnded :=
                           TotalAmountAddCurrRnded + GenJnlAlloc."Additional-Currency Amount";
                     end;
-                    GenJnlAlloc.Modify;
+                    GenJnlAlloc.Modify();
                 end;
             until GenJnlAlloc.Next = 0;
         end;
@@ -453,7 +451,7 @@ table 221 "Gen. Jnl. Allocation"
             GenJnlLine."Balance (LCY)" := GenJnlLine."Amount (LCY)" + GenJnlLine."Allocated Amt. (LCY)"
         else
             GenJnlLine."Balance (LCY)" := GenJnlLine."Allocated Amt. (LCY)";
-        GenJnlLine.Modify;
+        GenJnlLine.Modify();
     end;
 
     procedure CheckVAT(var GenJnlLine: Record "Gen. Journal Line")

@@ -79,7 +79,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             "Posting Date" := IncomingDocument."Posting Date";
             if IncomingDocument.Description = '' then begin
                 IncomingDocument.Description := CopyStr(Name, 1, MaxStrLen(IncomingDocument.Description));
-                IncomingDocument.Modify;
+                IncomingDocument.Modify();
             end;
 
             Insert(true);
@@ -94,7 +94,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
     var
         IncomingDocument: Record "Incoming Document";
     begin
-        IncomingDocument.Init;
+        IncomingDocument.Init();
 
         FindOrCreateIncomingDocument(IncomingDocumentAttachment, IncomingDocument);
 
@@ -226,14 +226,14 @@ codeunit 134 "Import Attachment - Inc. Doc."
                         SalesHeader.Get(DocType, DocNo);
                         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', SalesHeader.RecordId);
                         SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        SalesHeader.Modify;
+                        SalesHeader.Modify();
                     end;
                 DATABASE::"Purchase Header":
                     begin
                         PurchaseHeader.Get(DocType, DocNo);
                         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', PurchaseHeader.RecordId);
                         PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        PurchaseHeader.Modify;
+                        PurchaseHeader.Modify();
                     end;
                 // NAVCZ
                 DATABASE::"Sales Advance Letter Header":
@@ -241,21 +241,21 @@ codeunit 134 "Import Attachment - Inc. Doc."
                         SalesAdvanceLetterHeader.Get(DocNo);
                         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', SalesAdvanceLetterHeader.RecordId);
                         SalesAdvanceLetterHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        SalesAdvanceLetterHeader.Modify;
+                        SalesAdvanceLetterHeader.Modify();
                     end;
                 DATABASE::"Purch. Advance Letter Header":
                     begin
                         PurchAdvanceLetterHeader.Get(DocNo);
                         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', PurchAdvanceLetterHeader.RecordId);
                         PurchAdvanceLetterHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        PurchAdvanceLetterHeader.Modify;
+                        PurchAdvanceLetterHeader.Modify();
                     end;
                 DATABASE::"Credit Header":
                     begin
                         CreditHeader.Get(DocNo);
                         CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', CreditHeader.RecordId);
                         CreditHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-                        CreditHeader.Modify;
+                        CreditHeader.Modify();
                     end;
                 // NAVCZ
                 else
@@ -285,7 +285,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             GenJournalLine.Get(JnlTemplateName, JnlBatchName, JnlLineNo);
             CreateIncomingDocumentExtended(IncomingDocumentAttachment, IncomingDocument, 0D, '', GenJournalLine.RecordId);
             GenJournalLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            GenJournalLine.Modify;
+            GenJournalLine.Modify();
 
             exit(IncomingDocument."Entry No.");
         end;
@@ -321,7 +321,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
             IncomingDocument."Released Date-Time" := CurrentDateTime;
             IncomingDocument."Released By User ID" := UserSecurityId;
         end;
-        IncomingDocument.Modify;
+        IncomingDocument.Modify();
     end;
 
     local procedure GetDocType(var IncomingDocumentAttachment: Record "Incoming Document Attachment"; var IncomingDocument: Record "Incoming Document"; PostingDate: Date; DocNo: Code[20]; var Posted: Boolean): Integer
@@ -441,7 +441,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
         OutStr: OutStream;
     begin
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment.CopyFilters(IncomingDocumentAttachmentOriginal);
 
         CreateNewAttachment(IncomingDocumentAttachment);
@@ -453,7 +453,7 @@ codeunit 134 "Import Attachment - Inc. Doc."
         CopyStream(OutStr, PictureStream);
 
         IncomingDocumentAttachment.Insert(true);
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]

@@ -146,13 +146,13 @@ xmlport 11764 "Unc. Payer Status - Response"
         EntryNo: Integer;
     begin
         // buffer process
-        TempUncertaintyPayerEntry.Reset;
+        TempUncertaintyPayerEntry.Reset();
         if TempUncertaintyPayerEntry.FindSet then begin
             if not UncertaintyPayerEntry.FindLast then
                 Clear(UncertaintyPayerEntry);
             EntryNo := UncertaintyPayerEntry."Entry No.";
             repeat
-                UncertaintyPayerEntry.Reset;
+                UncertaintyPayerEntry.Reset();
                 UncertaintyPayerEntry.SetCurrentKey("VAT Registration No.");
                 UncertaintyPayerEntry.SetRange("VAT Registration No.", TempUncertaintyPayerEntry."VAT Registration No.");
                 UncertaintyPayerEntry.SetRange("Entry Type", UncertaintyPayerEntry."Entry Type"::Payer);
@@ -164,7 +164,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                 then
                     UncertaintyPayerEntry."Entry No." := 0;  // new entry
 
-                UncertaintyPayerEntry.Init;
+                UncertaintyPayerEntry.Init();
                 UncertaintyPayerEntry."Check Date" := TempUncertaintyPayerEntry."Check Date";
                 UncertaintyPayerEntry."Public Date" := TempUncertaintyPayerEntry."Public Date";
                 UncertaintyPayerEntry."Uncertainty Payer" := TempUncertaintyPayerEntry."Uncertainty Payer";
@@ -177,7 +177,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                 else begin
                     EntryNo += 1;
                     UncertaintyPayerEntry."Entry No." := EntryNo;
-                    UncertaintyPayerEntry.Insert;
+                    UncertaintyPayerEntry.Insert();
                     TotalInsertedEntries += 1;
                 end;
 
@@ -185,7 +185,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                 TempUncertaintyPayerEntry2.SetRange("VAT Registration No.", TempUncertaintyPayerEntry."VAT Registration No.");
                 if TempUncertaintyPayerEntry2.FindSet then
                     repeat
-                        UncertaintyPayerEntry.Reset;
+                        UncertaintyPayerEntry.Reset();
                         UncertaintyPayerEntry.SetCurrentKey("VAT Registration No.");
                         UncertaintyPayerEntry.SetRange("VAT Registration No.", TempUncertaintyPayerEntry2."VAT Registration No.");
                         UncertaintyPayerEntry.SetRange("Entry Type", UncertaintyPayerEntry."Entry Type"::"Bank Account");
@@ -196,7 +196,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                         if UncertaintyPayerEntry."Bank Account No. Type" <> TempUncertaintyPayerEntry2."Bank Account No. Type" then
                             UncertaintyPayerEntry."Entry No." := 0;  // new entry
 
-                        UncertaintyPayerEntry.Init;
+                        UncertaintyPayerEntry.Init();
                         UncertaintyPayerEntry."Check Date" := TempUncertaintyPayerEntry2."Check Date";
                         UncertaintyPayerEntry."Public Date" := TempUncertaintyPayerEntry2."Public Date";
                         UncertaintyPayerEntry."End Public Date" := TempUncertaintyPayerEntry2."End Public Date";
@@ -210,24 +210,24 @@ xmlport 11764 "Unc. Payer Status - Response"
                         else begin
                             EntryNo += 1;
                             UncertaintyPayerEntry."Entry No." := EntryNo;
-                            UncertaintyPayerEntry.Insert;
+                            UncertaintyPayerEntry.Insert();
                             TotalInsertedEntries += 1;
                         end;
                     until TempUncertaintyPayerEntry2.Next = 0;
 
                 if not TempDimBuf.Get(0, 0, TempUncertaintyPayerEntry."VAT Registration No.") then begin
-                    TempDimBuf.Init;
+                    TempDimBuf.Init();
                     TempDimBuf."Table ID" := 0;
                     TempDimBuf."Entry No." := 0;
                     TempDimBuf."Dimension Code" := TempUncertaintyPayerEntry."VAT Registration No.";
-                    TempDimBuf.Insert;
+                    TempDimBuf.Insert();
                 end;
             until TempUncertaintyPayerEntry.Next = 0;
 
             // end public bank account update - this records not in actual xml file!
             if TempDimBuf.FindSet then
                 repeat
-                    UncertaintyPayerEntry.Reset;
+                    UncertaintyPayerEntry.Reset();
                     UncertaintyPayerEntry.SetCurrentKey("VAT Registration No.");
                     UncertaintyPayerEntry.SetRange("VAT Registration No.", TempDimBuf."Dimension Code");
                     UncertaintyPayerEntry.SetRange("Entry Type", UncertaintyPayerEntry."Entry Type"::"Bank Account");
@@ -236,7 +236,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                         repeat
                             if UncertaintyPayerEntry."End Public Date" = 0D then begin
                                 UncertaintyPayerEntry."End Public Date" := TextISOToDate(odpovedGenerovana) - 1;
-                                UncertaintyPayerEntry.Modify;
+                                UncertaintyPayerEntry.Modify();
                             end;
                         until UncertaintyPayerEntry.Next = 0;
                 until TempDimBuf.Next = 0;
@@ -256,7 +256,7 @@ xmlport 11764 "Unc. Payer Status - Response"
     local procedure InsertStatusToBuffer()
     begin
         if dic <> '' then begin
-            TempUncertaintyPayerEntry.Init;
+            TempUncertaintyPayerEntry.Init();
             TempUncertaintyPayerEntry."Entry No." += 1;
             TempUncertaintyPayerEntry."Check Date" := TextISOToDate(odpovedGenerovana);
             TempUncertaintyPayerEntry."Public Date" := TextISOToDate(datumZverejneniNespolehlivosti);
@@ -264,14 +264,14 @@ xmlport 11764 "Unc. Payer Status - Response"
             TempUncertaintyPayerEntry."Entry Type" := TempUncertaintyPayerEntry."Entry Type"::Payer;
             TempUncertaintyPayerEntry."VAT Registration No." := UncPayerMgt.GetLongVATRegNo(dic);
             TempUncertaintyPayerEntry."Tax Office Number" := cisloFu;
-            TempUncertaintyPayerEntry.Insert;
+            TempUncertaintyPayerEntry.Insert();
         end;
     end;
 
     local procedure InsertBankAccountToBuffer()
     begin
         if (dic <> '') and ((cisloStandardBA <> '') or (cisloNoStandardBA <> '')) then begin
-            TempUncertaintyPayerEntry2.Init;
+            TempUncertaintyPayerEntry2.Init();
             TempUncertaintyPayerEntry2."Entry No." += 1;
             TempUncertaintyPayerEntry2."Check Date" := TextISOToDate(odpovedGenerovana);
             TempUncertaintyPayerEntry2."Public Date" := TextISOToDate(datumZverejneni);
@@ -288,7 +288,7 @@ xmlport 11764 "Unc. Payer Status - Response"
                 TempUncertaintyPayerEntry2."Full Bank Account No." := cisloNoStandardBA;
                 TempUncertaintyPayerEntry2."Bank Account No. Type" := TempUncertaintyPayerEntry2."Bank Account No. Type"::"No standard";
             end;
-            TempUncertaintyPayerEntry2.Insert;
+            TempUncertaintyPayerEntry2.Insert();
         end;
     end;
 

@@ -242,9 +242,9 @@ report 31002 "Sales - Advance Credit Memo CZ"
                     trigger OnAfterGetRecord()
                     begin
                         if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                            VATPostingSetup.Init;
+                            VATPostingSetup.Init();
 
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -256,7 +256,7 @@ report 31002 "Sales - Advance Credit Memo CZ"
 
                     trigger OnPreDataItem()
                     begin
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.DeleteAll();
                     end;
                 }
                 dataitem(VATCounter; "Integer")
@@ -326,7 +326,7 @@ report 31002 "Sales - Advance Credit Memo CZ"
                     begin
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VATClause.GetDescription("Sales Cr.Memo Header");
                     end;
 
@@ -421,7 +421,7 @@ report 31002 "Sales - Advance Credit Memo CZ"
 
                 SalesInvoiceHeader.SetRange("Reversed By Cr. Memo No.", "No.");
                 if not SalesInvoiceHeader.FindFirst then
-                    SalesInvoiceHeader.Init;
+                    SalesInvoiceHeader.Init();
             end;
         }
     }

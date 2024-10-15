@@ -663,7 +663,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Create Production Component with Item Tracking and Reservation.
         CreateProdOrderComponentWithITAndReserv(ProductionOrder, Item."No.", Location.Code, TrackingOption::SetLotNo);
-        WarehouseSetup.Get;
+        WarehouseSetup.Get();
         PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMsg, PickNo));  // Enqueue for Message Handler.
 
@@ -1723,7 +1723,7 @@ codeunit 137271 "SCM Reservation IV"
         CreatePurchaseReturnOrderWithReservedLine(PurchaseHeader[2], PurchaseLine[2], Item."No.", Qty + 1);
 
         // [WHEN] Post "RO2" with Ship option.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(ReservationDisruptedWarningMsg);
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], true, false);
 
@@ -2490,7 +2490,7 @@ codeunit 137271 "SCM Reservation IV"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Reservation IV");
     end;
 
@@ -3480,7 +3480,7 @@ codeunit 137271 "SCM Reservation IV"
         TrackingSpecification.SetRange("Item No.", ItemNo);
         TrackingSpecification.FindFirst;
 
-        ReservationEntry.Init;
+        ReservationEntry.Init();
         ReservationEntry.SetRange("Item No.", ItemNo);
         ReservationEntry.SetRange("Source Type", DATABASE::"Sales Line");
         ReservationEntry.SetRange("Lot No.", '');

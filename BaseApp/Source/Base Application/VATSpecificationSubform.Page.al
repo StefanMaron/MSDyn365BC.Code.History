@@ -293,7 +293,7 @@ page 576 "VAT Specification Subform"
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        DeleteAll;
+        DeleteAll();
         if NewVATAmountLine.Find('-') then
             repeat
                 Copy(NewVATAmountLine);
@@ -304,11 +304,11 @@ page 576 "VAT Specification Subform"
 
     procedure GetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        NewVATAmountLine.DeleteAll;
+        NewVATAmountLine.DeleteAll();
         if Find('-') then
             repeat
                 NewVATAmountLine.Copy(Rec);
-                NewVATAmountLine.Insert;
+                NewVATAmountLine.Insert();
             until Next = 0;
     end;
 
@@ -364,7 +364,7 @@ page 576 "VAT Specification Subform"
                 TotalVATDifference := TotalVATDifference + Abs("VAT Difference (LCY)");
             until Next = 0;
         Rec := VATAmountLine2;
-        GLSetup.Get;
+        GLSetup.Get();
         if TotalVATDifference > GLSetup."Max. VAT Difference Allowed" then
             Error(
               Text001, FieldCaption("VAT Difference (LCY)"),

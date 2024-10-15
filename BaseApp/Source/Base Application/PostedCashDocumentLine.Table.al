@@ -114,11 +114,9 @@ table 11736 "Posted Cash Document Line"
             OptionCaption = 'Open,Released';
             OptionMembers = Open,Released;
         }
-        field(14; "Applies-To Doc. Type"; Option)
+        field(14; "Applies-To Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-To Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(15; "Applies-To Doc. No."; Code[20])
         {
@@ -257,12 +255,10 @@ table 11736 "Posted Cash Document Line"
             OptionCaption = ' ,Purchase,Sale';
             OptionMembers = " ",Purchase,Sale;
         }
-        field(70; "VAT Calculation Type"; Option)
+        field(70; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(71; "VAT Bus. Posting Group"; Code[20])
         {

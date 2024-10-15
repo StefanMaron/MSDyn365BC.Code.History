@@ -5,7 +5,7 @@ codeunit 11775 "Account Schedule Handler"
     begin
         AccScheduleLine.Reset();
         AccScheduleLine.SetRange("Schedule Name", AccScheduleLine."Schedule Name");
-        AccScheduleLine.DeleteAll;
+        AccScheduleLine.DeleteAll();
         IsHandled := true;
     end;
 }

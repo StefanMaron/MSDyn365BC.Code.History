@@ -27,11 +27,9 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Posting Date';
         }
-        field(5; "Document Type"; Option)
+        field(5; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(6; "Document No."; Code[20])
         {
@@ -158,11 +156,9 @@ table 379 "Detailed Cust. Ledg. Entry"
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
         }
-        field(35; "Initial Document Type"; Option)
+        field(35; "Initial Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Initial Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(36; "Applied Cust. Ledger Entry No."; Integer)
         {
@@ -273,7 +269,7 @@ table 379 "Detailed Cust. Ledg. Entry"
         }
         key(Key15; "Customer No.", "Initial Entry Due Date")
         {
-            SumIndexFields = "Amount (LCY)";
+            SumIndexFields = Amount, "Amount (LCY)";
         }
     }
 
@@ -287,6 +283,13 @@ table 379 "Detailed Cust. Ledg. Entry"
     trigger OnInsert()
     begin
         SetLedgerEntryAmount;
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     procedure UpdateDebitCredit(Correction: Boolean)
@@ -318,7 +321,7 @@ table 379 "Detailed Cust. Ledg. Entry"
             repeat
                 DtldCustLedgEntry."Transaction No." := 0;
                 DtldCustLedgEntry."Application No." := ApplicationNo;
-                DtldCustLedgEntry.Modify;
+                DtldCustLedgEntry.Modify();
             until DtldCustLedgEntry.Next = 0;
         end;
     end;

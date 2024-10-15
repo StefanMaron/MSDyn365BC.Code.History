@@ -135,7 +135,7 @@ codeunit 31095 "VAT Coefficient Rounded"
     begin
         GetCurrency(CurrencyCode);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
         if not GLSetup."Round VAT Coeff." then
             exit(Round(AmountIncludingVAT / (1 + VATPerc / 100), RoundingPrecision));

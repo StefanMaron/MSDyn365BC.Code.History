@@ -640,12 +640,12 @@ page 5975 "Posted Service Shipment"
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Shipment, "No.");
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order, "Order No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

@@ -122,24 +122,24 @@ report 11742 "Cash Desk Book"
                 BankAccount.SetFilter("Date Filter", '..%1', CalcDate('<-1D>', GetRangeMin("Date Filter")));
                 BalanceToDate := BankAccount.CalcBalance;
 
-                TempCashDocHeader.DeleteAll;
+                TempCashDocHeader.DeleteAll();
                 CopyFilter("Date Filter", CashDocHeader."Posting Date");
                 if CashDocHeader.FindSet then
                     repeat
-                        TempCashDocHeader.Init;
+                        TempCashDocHeader.Init();
                         TempCashDocHeader.TransferFields(CashDocHeader);
                         TempCashDocHeader."Released Amount" := CashDocHeader."Released Amount";
-                        TempCashDocHeader.Insert;
+                        TempCashDocHeader.Insert();
                     until CashDocHeader.Next = 0;
 
                 CopyFilter("Date Filter", PostedCashDocHeader."Posting Date");
                 if PostedCashDocHeader.FindSet then
                     repeat
-                        TempCashDocHeader.Init;
+                        TempCashDocHeader.Init();
                         TempCashDocHeader.TransferFields(PostedCashDocHeader);
                         PostedCashDocHeader.CalcFields("Amount Including VAT");
                         TempCashDocHeader."Released Amount" := PostedCashDocHeader."Amount Including VAT";
-                        TempCashDocHeader.Insert;
+                        TempCashDocHeader.Insert();
                     until PostedCashDocHeader.Next = 0;
             end;
 
@@ -240,9 +240,9 @@ report 11742 "Cash Desk Book"
         if CashDeskNo = '' then
             Error(CashDeskCannotBeEmptyErr);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddrCA, CompanyInfo);
     end;
 

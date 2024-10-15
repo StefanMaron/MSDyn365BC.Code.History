@@ -214,11 +214,11 @@ page 31034 "Purch. Letter Line - Adv.Link."
     procedure SetPurchHeader(PurchHeader: Record "Purchase Header"; var PurchAdvanceLetterLine: Record "Purch. Advance Letter Line")
     begin
         TempPurchHeader := PurchHeader;
-        TempPurchHeader.Insert;
+        TempPurchHeader.Insert();
         if PurchAdvanceLetterLine.FindSet then
             repeat
                 TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
-                TempPurchAdvanceLetterLine.Insert;
+                TempPurchAdvanceLetterLine.Insert();
             until PurchAdvanceLetterLine.Next = 0;
         SetFilter("Doc. No. Filter", '<%1|>%1', TempPurchHeader."No.");
     end;
@@ -230,10 +230,10 @@ page 31034 "Purch. Letter Line - Adv.Link."
             repeat
                 if TempPurchAdvanceLetterLine.Get(PurchAdvanceLetterLine."Letter No.", PurchAdvanceLetterLine."Line No.") then begin
                     TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
-                    TempPurchAdvanceLetterLine.Modify;
+                    TempPurchAdvanceLetterLine.Modify();
                 end else begin
                     TempPurchAdvanceLetterLine := PurchAdvanceLetterLine;
-                    TempPurchAdvanceLetterLine.Insert;
+                    TempPurchAdvanceLetterLine.Insert();
                 end;
             until PurchAdvanceLetterLine.Next = 0;
     end;
@@ -246,11 +246,11 @@ page 31034 "Purch. Letter Line - Adv.Link."
         if TempPurchAdvanceLetterLine.FindSet then
             repeat
                 PurchAdvanceLetterLine := TempPurchAdvanceLetterLine;
-                PurchAdvanceLetterLine.Insert;
+                PurchAdvanceLetterLine.Insert();
             until TempPurchAdvanceLetterLine.Next = 0
         else begin
             PurchAdvanceLetterLine := Rec;
-            PurchAdvanceLetterLine.Insert;
+            PurchAdvanceLetterLine.Insert();
         end;
     end;
 

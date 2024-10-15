@@ -194,7 +194,7 @@ report 11783 "Income Statement"
                     trigger OnPreDataItem()
                     begin
                         if not ShowAccSchedSetup then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         NextPageGroupNo += 1;
                     end;
@@ -206,7 +206,7 @@ report 11783 "Income Statement"
                     trigger OnPreDataItem()
                     begin
                         if not ShowAccSchedSetup then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Acc. Schedule Line"; "Acc. Schedule Line")
@@ -266,7 +266,7 @@ report 11783 "Income Statement"
                         trigger OnAfterGetRecord()
                         begin
                             if TColLayoutTmp.Show = TColLayoutTmp.Show::Never then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                             case Number of
                                 1:
@@ -339,11 +339,11 @@ report 11783 "Income Statement"
                     trigger OnAfterGetRecord()
                     begin
                         if (Show = Show::No) or not ShowLine(Bold, Italic) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         if SkipEmptyLines then
                             if AccSchedManagement.EmptyLine("Acc. Schedule Line", ColumnLayoutName, UseAmtsInAddCurr) then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
 
                         Bold_control := Bold;
                         Italic_control := Italic;
@@ -379,12 +379,11 @@ report 11783 "Income Statement"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.PageNo := 1;
-                GLSetup.Get;
+                GLSetup.Get();
                 if "Analysis View Name" <> '' then
                     AnalysisView.Get("Analysis View Name")
                 else begin
-                    AnalysisView.Init;
+                    AnalysisView.Init();
                     AnalysisView."Dimension 1 Code" := GLSetup."Global Dimension 1 Code";
                     AnalysisView."Dimension 2 Code" := GLSetup."Global Dimension 2 Code";
                 end;
@@ -667,7 +666,7 @@ report 11783 "Income Statement"
             TransferValues;
             UpdateFilters;
 
-            GLSetup.Get;
+            GLSetup.Get();
             if AccSchedName <> '' then
                 ValidateAccSchedName;
         end;
@@ -690,7 +689,7 @@ report 11783 "Income Statement"
         end;
 
         InitAccSched;
-        CompanyInfo.Get;
+        CompanyInfo.Get();
     end;
 
     var
@@ -870,7 +869,7 @@ report 11783 "Income Statement"
 
     local procedure TransferValues()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if AccSchedNameHidden <> '' then
             AccSchedName := AccSchedNameHidden;
         if ColumnLayoutNameHidden <> '' then

@@ -189,11 +189,9 @@ table 311 "Sales & Receivables Setup"
                 PrepaymentMgt.CreateAndStartJobQueueEntrySales("Prepmt. Auto Update Frequency");
             end;
         }
-        field(35; "Default Posting Date"; Option)
+        field(35; "Default Posting Date"; Enum "Default Posting Date")
         {
             Caption = 'Default Posting Date';
-            OptionCaption = 'Work Date,No Date';
-            OptionMembers = "Work Date","No Date";
         }
         field(36; "Default Quantity to Ship"; Option)
         {
@@ -457,6 +455,19 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Exact Cost Reversing Mandatory';
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+            InitValue = "Lowest Price";
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+            end;
+        }
         field(7101; "Customer Group Dimension Code"; Code[20])
         {
             Caption = 'Customer Group Dimension Code';
@@ -469,7 +480,7 @@ table 311 "Sales & Receivables Setup"
         }
         field(7103; "Freight G/L Acc. No."; Code[20])
         {
-            Caption = 'Freight G/L Account No.';
+            Caption = 'Freight G/L Acc. No.';
             TableRelation = "G/L Account";
 
             trigger OnValidate()
@@ -480,22 +491,37 @@ table 311 "Sales & Receivables Setup"
         field(11760; "G/L Entry as Doc. Lines (Acc.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Acc.)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11761; "G/L Entry as Doc. Lines (Item)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Item)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11762; "G/L Entry as Doc. Lines (FA)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (FA)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11763; "G/L Entry as Doc. Lines (Res.)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Res.)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11764; "G/L Entry as Doc. Lines (Char)"; Boolean)
         {
             Caption = 'G/L Entry as Doc. Lines (Char)';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+            ObsoleteTag = '16.0';
         }
         field(11765; "Posting Desc. Code"; Code[10])
         {
@@ -560,7 +586,7 @@ table 311 "Sales & Receivables Setup"
             var
                 GLSetup: Record "General Ledger Setup";
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 GLSetup.TestField("Use VAT Date");
             end;
         }

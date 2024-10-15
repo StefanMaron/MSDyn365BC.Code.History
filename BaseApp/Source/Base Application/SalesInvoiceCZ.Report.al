@@ -408,7 +408,7 @@ report 31096 "Sales - Invoice CZ"
                     begin
                         if "VAT Doc. Letter No." <> '' then
                             if not SalesInvHeader.Get("VAT Doc. Letter No.") then
-                                SalesInvHeader.Init;
+                                SalesInvHeader.Init();
                     end;
                 }
                 dataitem(VATCounter; "Integer")
@@ -469,7 +469,7 @@ report 31096 "Sales - Invoice CZ"
                     begin
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VATClause.GetDescription("Sales Invoice Header");
                     end;
 
@@ -492,13 +492,13 @@ report 31096 "Sales - Invoice CZ"
                                 CurrReport.Break
                         end else
                             if TempLineFeeNoteOnReportHist.Next = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
                     begin
                         if not DisplayAdditionalFeeNote then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, TempLineFeeNoteOnReportHist.Count);
                     end;
                 }
@@ -731,7 +731,7 @@ report 31096 "Sales - Invoice CZ"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Customer: Record Customer;
     begin
-        TempLineFeeNoteOnReportHist.DeleteAll;
+        TempLineFeeNoteOnReportHist.DeleteAll();
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeaderNo);
         if not CustLedgerEntry.FindFirst then
@@ -744,17 +744,17 @@ report 31096 "Sales - Invoice CZ"
         LineFeeNoteOnReportHist.SetRange("Language Code", Customer."Language Code");
         if LineFeeNoteOnReportHist.FindSet then begin
             repeat
-                TempLineFeeNoteOnReportHist.Init;
+                TempLineFeeNoteOnReportHist.Init();
                 TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                TempLineFeeNoteOnReportHist.Insert;
+                TempLineFeeNoteOnReportHist.Insert();
             until LineFeeNoteOnReportHist.Next = 0;
         end else begin
             LineFeeNoteOnReportHist.SetRange("Language Code", Language.GetUserLanguageCode);
             if LineFeeNoteOnReportHist.FindSet then
                 repeat
-                    TempLineFeeNoteOnReportHist.Init;
+                    TempLineFeeNoteOnReportHist.Init();
                     TempLineFeeNoteOnReportHist.Copy(LineFeeNoteOnReportHist);
-                    TempLineFeeNoteOnReportHist.Insert;
+                    TempLineFeeNoteOnReportHist.Insert();
                 until LineFeeNoteOnReportHist.Next = 0;
         end;
     end;

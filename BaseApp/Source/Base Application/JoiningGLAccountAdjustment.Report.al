@@ -40,9 +40,9 @@ report 11774 "Joining G/L Account Adjustment"
                         TBuffer."Posting Date" := "Posting Date";
                     if Descr and (TBuffer.Description = '') and (Description <> '') then
                         TBuffer.Description := Description;
-                    TBuffer.Modify;
+                    TBuffer.Modify();
                 end else begin
-                    TBuffer.Init;
+                    TBuffer.Init();
                     TBuffer."Document No." := lcoDocNo;
                     TBuffer.Amount := "G/L Entry".Amount;
                     TBuffer."Debit Amount" := "Debit Amount";
@@ -51,7 +51,7 @@ report 11774 "Joining G/L Account Adjustment"
                         TBuffer."Posting Date" := "Posting Date";
                     if Descr then
                         TBuffer.Description := Description;
-                    TBuffer.Insert;
+                    TBuffer.Insert();
                 end;
             end;
 
@@ -70,9 +70,6 @@ report 11774 "Joining G/L Account Adjustment"
         {
             DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
             column(USERID; UserId)
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -184,7 +181,7 @@ report 11774 "Joining G/L Account Adjustment"
                 trigger OnPreDataItem()
                 begin
                     if not Detail then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     CopyFilters("G/L Entry");
                     if DocumentType = 0 then begin
@@ -199,10 +196,10 @@ report 11774 "Joining G/L Account Adjustment"
             begin
                 if Number <> 1 then
                     if TBuffer.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                 if TBuffer.Amount = 0 then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
             end;
 
             trigger OnPreDataItem()

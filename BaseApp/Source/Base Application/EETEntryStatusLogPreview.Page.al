@@ -75,7 +75,7 @@ page 31128 "EET Entry Status Log Preview"
     var
         TempErrorMessage2: Record "Error Message" temporary;
     begin
-        TempErrorMessage.Reset;
+        TempErrorMessage.Reset();
         TempErrorMessage.SetRange("Context Record ID", RecordId);
         TempErrorMessage.CopyToTemp(TempErrorMessage2);
         CurrPage.ErrorMessagesPart.PAGE.SetRecords(TempErrorMessage2);

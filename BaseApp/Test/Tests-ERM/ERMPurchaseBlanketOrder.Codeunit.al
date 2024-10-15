@@ -20,6 +20,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryService: Codeunit "Library - Service";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryResource: Codeunit "Library - Resource";
         DocumentTypeRef: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         IsInitialized: Boolean;
         AmountErrorMessage: Label '%1 must be %2 in %3.';
@@ -34,6 +35,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         ContactShouldBeEditableErr: Label 'Contact should be editable when vendorr is selected.';
         PayToAddressFieldsNotEditableErr: Label 'Pay-to address fields should not be editable.';
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
+        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
 
     [Test]
     [Scope('OnPrem')]
@@ -78,7 +80,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // Verify: Verify VAT Amount on Purchase Blanket Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchaseHeader.CalcFields(Amount);
         Assert.AreNearlyEqual(
           PurchaseHeader.Amount * PurchaseLine."VAT %" / 100, VATAmountLine."VAT Amount", GeneralLedgerSetup."Amount Rounding Precision",
@@ -207,7 +209,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
 
         // Verify: Verify Invoice Discount on Created Purchase Order.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         PurchaseLine.SetRange("Blanket Order No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type"::Order);
         PurchaseLine.FindFirst;
@@ -961,7 +963,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
         PurchaseLine[1]."Location Code" := LibraryUtility.GenerateGUID;
-        PurchaseLine[1].Modify;
+        PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank location code.
         MockPurchaseHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Buy-from Vendor No.");
@@ -992,7 +994,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
         PurchaseLine[1]."Variant Code" := LibraryUtility.GenerateGUID;
-        PurchaseLine[1].Modify;
+        PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank variant code.
         MockPurchaseHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Buy-from Vendor No.");
@@ -1023,7 +1025,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         MockPurchaseHeader(PurchaseHeader[1], PurchaseHeader[1]."Document Type"::"Blanket Order", LibraryUtility.GenerateGUID);
         MockPurchaseLine(PurchaseLine[1], PurchaseHeader[1], PurchaseLine[1].Type::Item);
         PurchaseLine[1]."Unit of Measure Code" := LibraryUtility.GenerateGUID;
-        PurchaseLine[1].Modify;
+        PurchaseLine[1].Modify();
 
         // [GIVEN] Purchase order line for drop shipment with blank unit of measure code.
         MockPurchaseHeader(PurchaseHeader[2], PurchaseHeader[2]."Document Type"::Order, PurchaseHeader[1]."Buy-from Vendor No.");
@@ -1125,6 +1127,34 @@ codeunit 134326 "ERM Purchase Blanket Order"
         // [WHEN] GetFullDocTypeTxt is called
         // [THEN] 'Purchase Blanket Order' is returned
         Assert.AreEqual('Purchase Blanket Order', PurchaseHeader.GetFullDocTypeTxt(), 'The expected full document type is incorrect');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderFromBlanketOrderWithBlockedResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        Resource: Record Resource;
+    begin
+        // [FEATURE] [Resource]
+        // [SCENARIO 289386] Create purchase order from blanket order with blocked resource
+        Initialize();
+
+        // [GIVEN] Purchase blanket order with resource
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Blanket Order", LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, LibraryResource.CreateResourceNo(), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Blocked resource
+        Resource.Get(PurchaseLine."No.");
+        Resource.Validate(Blocked, true);
+        Resource.Modify(true);
+
+        // [WHEN] Create purchase order
+        asserterror Codeunit.Run(Codeunit::"Blanket Purch. Order to Order", PurchaseHeader);
+
+        // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
+        Assert.ExpectedError(BlockedResourceErr);
     end;
 
     local procedure Initialize()
@@ -1314,7 +1344,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Default Posting Date", DefaultPostingDate);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -1356,7 +1386,7 @@ codeunit 134326 "ERM Purchase Blanket Order"
         CreatePurchaseBlanketOrder(
           BlanketPurchaseHeader, BlanketPurchaseLine, 1, Vendor."No.", LibraryInventory.CreateItemNo);
         BlanketPurchaseHeader.Validate("Document Date", BlanketPurchaseHeader."Document Date" - 1);
-        BlanketPurchaseHeader.Modify;
+        BlanketPurchaseHeader.Modify();
 
         PurchHeaderNo := LibraryPurchase.BlanketPurchaseOrderMakeOrder(BlanketPurchaseHeader);
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Order, PurchHeaderNo);

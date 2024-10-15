@@ -1,4 +1,4 @@
-﻿page 9301 "Sales Invoice List"
+page 9301 "Sales Invoice List"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Sales Invoices';
@@ -314,7 +314,7 @@
                     begin
                         CalcInvDiscForHeader;
                         SalesPostAdvances.SetAmtToDedOnSalesDoc(Rec, true); // NAVCZ
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Sales Statistics", Rec);
                     end;
                 }

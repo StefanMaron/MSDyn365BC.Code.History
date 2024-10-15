@@ -1,4 +1,4 @@
-﻿page 9308 "Purchase Invoices"
+page 9308 "Purchase Invoices"
 {
     AdditionalSearchTerms = 'vendor invoice';
     ApplicationArea = Basic, Suite;
@@ -299,7 +299,7 @@
                     begin
                         CalcInvDiscForHeader;
                         PurchPostAdvances.SetAmtToDedOnPurchDoc(Rec, true); // NAVCZ
-                        Commit;
+                        Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                     end;
                 }

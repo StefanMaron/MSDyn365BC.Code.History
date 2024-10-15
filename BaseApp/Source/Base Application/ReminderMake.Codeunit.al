@@ -39,10 +39,10 @@ codeunit 392 "Reminder-Make"
                 TestField("Reminder Terms Code");
                 ReminderHeaderReq := ReminderHeader;
                 ReminderLine.SetRange("Reminder No.", "No.");
-                ReminderLine.DeleteAll;
+                ReminderLine.DeleteAll();
                 // NAVCZ
                 DtldReminderLine.SetRange("Reminder No.", "No.");
-                DtldReminderLine.DeleteAll;
+                DtldReminderLine.DeleteAll();
                 // NAVCZ
             end;
 
@@ -58,7 +58,7 @@ codeunit 392 "Reminder-Make"
         if HeaderExists then
             RetVal := MakeReminder(ReminderHeader."Currency Code")
         else begin
-            Currency.DeleteAll;
+            Currency.DeleteAll();
             CustLedgEntry2.CopyFilters(CustLedgEntry);
             CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
             CustLedgEntry.SetRange("Customer No.", Cust."No.");
@@ -69,7 +69,7 @@ codeunit 392 "Reminder-Make"
                 repeat
                     if CustLedgEntry."On Hold" = '' then begin
                         Currency.Code := CustLedgEntry."Currency Code";
-                        if Currency.Insert then;
+                        if Currency.Insert() then;
                     end;
                 until CustLedgEntry.Next = 0;
             CustLedgEntry.CopyFilters(CustLedgEntry2);
@@ -122,19 +122,19 @@ codeunit 392 "Reminder-Make"
             FilterCustLedgEntryReminderLevel(CustLedgEntry, ReminderLevel, CurrencyCode);
             if not ReminderLevel.FindLast then
                 exit(false);
-            CustLedgEntryOnHoldTEMP.DeleteAll;
+            CustLedgEntryOnHoldTEMP.DeleteAll();
 
             FindAndMarkReminderCandidates(CustLedgEntry, ReminderLevel, CustAmount, MakeDoc, MaxReminderLevel, MaxLineLevel);
 
             ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
             ReminderLevel.SetRange("No.", 1, MaxLineLevel);
             if not ReminderLevel.FindLast then
-                ReminderLevel.Init;
+                ReminderLevel.Init();
             if MakeDoc and (CustAmount > 0) and (CustAmountLCY(CurrencyCode, CustAmount) >= ReminderTerms."Minimum Amount (LCY)") then begin
                 if Blocked = Blocked::All then
                     exit(false);
-                ReminderLine.LockTable;
-                ReminderHeader.LockTable;
+                ReminderLine.LockTable();
+                ReminderHeader.LockTable();
                 if not HeaderExists then begin
                     ReminderHeader.SetCurrentKey("Customer No.", "Currency Code");
                     ReminderHeader.SetRange("Customer No.", "No.");
@@ -142,7 +142,7 @@ codeunit 392 "Reminder-Make"
                     OnBeforeReminderHeaderFind(ReminderHeader, ReminderHeaderReq, ReminderTerms, Cust);
                     if ReminderHeader.FindFirst then
                         exit(false);
-                    ReminderHeader.Init;
+                    ReminderHeader.Init();
                     ReminderHeader."No." := '';
                     ReminderHeader."Posting Date" := ReminderHeaderReq."Posting Date";
                     OnBeforeReminderHeaderInsert(ReminderHeader, ReminderHeaderReq, ReminderTerms, Cust);
@@ -177,7 +177,7 @@ codeunit 392 "Reminder-Make"
                                 ReminderLine.Validate("Entry No.", CustLedgEntry."Entry No.");
                                 SetReminderLevel(ReminderHeader, ReminderLine, ReminderLevel."No.");
                                 OnBeforeReminderLineInsert(ReminderLine, ReminderHeader, ReminderLevel, CustLedgEntry);
-                                ReminderLine.Insert;
+                                ReminderLine.Insert();
                                 StartLineInserted := true;
 
                                 AddLineFeeForCustLedgEntry(CustLedgEntry, ReminderLevel, NextLineNo);
@@ -213,7 +213,7 @@ codeunit 392 "Reminder-Make"
                                 ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
                                 ReminderLine.Validate("Entry No.", CustLedgEntry."Entry No.");
                                 ReminderLine."No. of Reminders" := 0;
-                                ReminderLine.Insert;
+                                ReminderLine.Insert();
                                 AmountsNotDueLineInserted := true;
                                 RemoveNotDueLinesInSectionReminderLine(ReminderLine);
                             end;
@@ -232,17 +232,17 @@ codeunit 392 "Reminder-Make"
                             ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
                             ReminderLine.Validate("Entry No.", CustLedgEntryOnHoldTEMP."Entry No.");
                             ReminderLine."No. of Reminders" := 0;
-                            ReminderLine.Insert;
+                            ReminderLine.Insert();
                         until CustLedgEntryOnHoldTEMP.Next = 0;
                     end;
-                ReminderHeader.Modify;
+                ReminderHeader.Modify();
             end;
         end;
 
         RemoveLinesOfNegativeReminder(ReminderHeader);
 
-        ReminderLevel.Reset;
-        CustLedgEntry.Reset;
+        ReminderLevel.Reset();
+        CustLedgEntry.Reset();
 
         OnAfterMakeReminder(ReminderHeader, ReminderLine);
 
@@ -294,7 +294,7 @@ codeunit 392 "Reminder-Make"
                     end else // The customer ledger entry is on hold
                         if IncludeEntriesOnHold then begin
                             CustLedgEntryOnHoldTEMP := CustLedgEntry;
-                            CustLedgEntryOnHoldTEMP.Insert;
+                            CustLedgEntryOnHoldTEMP.Insert();
                         end;
                 until CustLedgEntry.Next = 0;
         until ReminderLevel.Next(-1) = 0;
@@ -305,14 +305,14 @@ codeunit 392 "Reminder-Make"
         ReminderLine: Record "Reminder Line";
     begin
         InitReminderLine(ReminderLine, ReminderNo, LineType, Description, NextLineNo);
-        ReminderLine.Insert;
+        ReminderLine.Insert();
     end;
 
     local procedure InitReminderLine(var ReminderLine: Record "Reminder Line"; ReminderNo: Code[20]; LineType: Integer; Description: Text[100]; var NextLineNo: Integer)
     begin
         NextLineNo := GetLastLineNo(ReminderHeader."No.") + 10000;
 
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine."Reminder No." := ReminderNo;
         ReminderLine."Line No." := NextLineNo;
         ReminderLine."Line Type" := LineType;
@@ -419,8 +419,8 @@ codeunit 392 "Reminder-Make"
         LineFeeAmount: Decimal;
     begin
         TempCustLedgEntry := CustLedgEntry;
-        TempCustLedgEntry.Insert;
-        TempCustLedgEntry.Reset;
+        TempCustLedgEntry.Insert();
+        TempCustLedgEntry.Reset();
         TempCustLedgEntry.CopyFilters(CustLedgEntryLineFeeFilters);
         if not TempCustLedgEntry.FindFirst then
             exit;
@@ -442,7 +442,7 @@ codeunit 392 "Reminder-Make"
         CustPostingGr.Get(ReminderHeader."Customer Posting Group");
 
         NextLineNo := NextLineNo + 100;
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine.Validate("Reminder No.", ReminderHeader."No.");
         ReminderLine.Validate("Line No.", NextLineNo);
         ReminderLine.Validate(Type, ReminderLine.Type::"Line Fee");

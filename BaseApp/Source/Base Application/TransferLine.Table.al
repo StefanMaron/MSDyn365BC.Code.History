@@ -89,7 +89,8 @@ table 5741 "Transfer Line"
                     TestStatusOpen;
                 if Quantity <> 0 then
                     TestField("Item No.");
-                "Quantity (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Quantity (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
                 if ((Quantity * "Quantity Shipped") < 0) or
                    (Abs(Quantity) < Abs("Quantity Shipped"))
                 then
@@ -148,7 +149,8 @@ table 5741 "Transfer Line"
                           "Outstanding Quantity")
                     else
                         Error(Text006);
-                "Qty. to Ship (Base)" := UOMMgt.CalcBaseQty("Qty. to Ship", "Qty. per Unit of Measure");
+                "Qty. to Ship (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Ship", "Qty. per Unit of Measure");
 
                 if ("In-Transit Code" = '') and ("Quantity Shipped" = "Quantity Received") then
                     Validate("Qty. to Receive", "Qty. to Ship");
@@ -181,7 +183,8 @@ table 5741 "Transfer Line"
                               "Qty. in Transit")
                         else
                             Error(Text009);
-                "Qty. to Receive (Base)" := UOMMgt.CalcBaseQty("Qty. to Receive", "Qty. per Unit of Measure");
+                "Qty. to Receive (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
             end;
         }
         field(8; "Quantity Shipped"; Decimal)
@@ -192,7 +195,8 @@ table 5741 "Transfer Line"
 
             trigger OnValidate()
             begin
-                "Qty. Shipped (Base)" := UOMMgt.CalcBaseQty("Quantity Shipped", "Qty. per Unit of Measure");
+                "Qty. Shipped (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Quantity Shipped", "Qty. per Unit of Measure");
                 InitQtyInTransit;
                 InitOutstandingQty;
                 InitQtyToShip;
@@ -207,7 +211,8 @@ table 5741 "Transfer Line"
 
             trigger OnValidate()
             begin
-                "Qty. Received (Base)" := UOMMgt.CalcBaseQty("Quantity Received", "Qty. per Unit of Measure");
+                "Qty. Received (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Quantity Received", "Qty. per Unit of Measure");
                 InitQtyInTransit;
                 InitOutstandingQty;
                 InitQtyToReceive;
@@ -400,7 +405,7 @@ table 5741 "Transfer Line"
                     "Unit of Measure" := ''
                 else begin
                     if not UnitOfMeasure.Get("Unit of Measure Code") then
-                        UnitOfMeasure.Init;
+                        UnitOfMeasure.Init();
                     "Unit of Measure" := UnitOfMeasure.Description;
                 end;
                 GetItem;
@@ -893,11 +898,9 @@ table 5741 "Transfer Line"
             Caption = 'Gen. Bus. Post. Group Receive';
             TableRelation = "Gen. Business Posting Group";
         }
-        field(99000755; "Planning Flexibility"; Option)
+        field(99000755; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None';
-            OptionMembers = Unlimited,"None";
 
             trigger OnValidate()
             begin
@@ -951,7 +954,7 @@ table 5741 "Transfer Line"
         TransLine2: Record "Transfer Line";
     begin
         TestStatusOpen;
-        TransLine2.Reset;
+        TransLine2.Reset();
         TransLine2.SetFilter("Document No.", TransHeader."No.");
         if TransLine2.FindLast then
             "Line No." := TransLine2."Line No." + 10000;
@@ -1141,7 +1144,7 @@ table 5741 "Transfer Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         OnAfterCreateDimTableIDs(Rec, CurrFieldNo, TableID, No);
@@ -1194,7 +1197,7 @@ table 5741 "Transfer Line"
                 ItemCheckAvail.RaiseUpdateInterruptedError;
     end;
 
-    procedure OpenItemTrackingLines(Direction: Option Outbound,Inbound)
+    procedure OpenItemTrackingLines(Direction: Enum "Transfer Direction")
     begin
         TestField("Item No.");
         TestField("Quantity (Base)");
@@ -1202,7 +1205,7 @@ table 5741 "Transfer Line"
         ReserveTransferLine.CallItemTracking(Rec, Direction);
     end;
 
-    local procedure TestStatusOpen()
+    procedure TestStatusOpen()
     begin
         if StatusCheckSuspended then
             exit;
@@ -1231,8 +1234,8 @@ table 5741 "Transfer Line"
         Clear(Reservation);
         OptionNumber := StrMenu(Text011);
         if OptionNumber > 0 then begin
-            Reservation.SetTransLine(Rec, OptionNumber - 1);
-            Reservation.RunModal;
+            Reservation.SetReservSource(Rec, OptionNumber - 1);
+            Reservation.RunModal();
         end;
     end;
 
@@ -1349,6 +1352,87 @@ table 5741 "Transfer Line"
         end;
     end;
 
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal; Direction: Integer)
+    begin
+        case Direction of
+            0: // Outbound
+                begin
+                    CalcFields("Reserved Quantity Outbnd.", "Reserved Qty. Outbnd. (Base)");
+                    RemainingQty := "Outstanding Quantity" - Abs("Reserved Quantity Outbnd.");
+                    RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. Outbnd. (Base)");
+                end;
+            1: // Inbound
+                begin
+                    CalcFields("Reserved Quantity Inbnd.", "Reserved Qty. Inbnd. (Base)");
+                    RemainingQty := "Outstanding Quantity" - Abs("Reserved Quantity Inbnd.");
+                    RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. Inbnd. (Base)");
+                end;
+        end;
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; Direction: Integer): Decimal
+    begin
+        if Direction = 0 then begin // Outbound
+            CalcFields("Reserved Quantity Outbnd.", "Reserved Qty. Outbnd. (Base)");
+            QtyReserved := "Reserved Quantity Outbnd.";
+            QtyReservedBase := "Reserved Qty. Outbnd. (Base)";
+            QtyToReserve := "Outstanding Quantity";
+            QtyToReserveBase := "Outstanding Qty. (Base)";
+        end else begin // Inbound
+            CalcFields("Reserved Quantity Inbnd.", "Reserved Qty. Inbnd. (Base)");
+            QtyReserved := "Reserved Quantity Inbnd.";
+            QtyReservedBase := "Reserved Qty. Inbnd. (Base)";
+            QtyToReserve := "Outstanding Quantity";
+            QtyToReserveBase := "Outstanding Qty. (Base)";
+        end;
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Document No.", "Line No.", "Item No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
+    begin
+        ReservEntry.SetSource(
+            DATABASE::"Transfer Line", Direction, "Document No.", "Line No.", '', "Derived From Line No.");
+        case Direction of
+            0: // Outbound
+                begin
+                    ReservEntry.SetItemData(
+                        "Item No.", Description, "Transfer-from Code", "Variant Code", "Qty. per Unit of Measure");
+                    ReservEntry."Shipment Date" := "Shipment Date";
+                    ReservEntry."Expected Receipt Date" := "Shipment Date";
+                end;
+            1: // Inbound:
+                begin
+                    ReservEntry.SetItemData(
+                        "Item No.", Description, "Transfer-to Code", "Variant Code", "Qty. per Unit of Measure");
+                    ReservEntry."Shipment Date" := "Receipt Date";
+                    ReservEntry."Expected Receipt Date" := "Receipt Date";
+                end;
+        end;
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Transfer Line", Direction, "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter('', "Derived From Line No.");
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry, 0);
+        ReservEntry.SetRange("Source Subtype"); // Ignore direction
+        exit(not ReservEntry.IsEmpty);
+    end;
+
     procedure IsInbound(): Boolean
     begin
         exit("Quantity (Base)" < 0);
@@ -1393,6 +1477,34 @@ table 5741 "Transfer Line"
     begin
         FilterLinesWithItemToPlan(Item, IsReceipt, false);
         exit(not IsEmpty);
+    end;
+
+    procedure FilterInboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey("Transfer-to Code", "Receipt Date", "Item No.", "Variant Code");
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Transfer-to Code", ReservationEntry."Location Code");
+        SetFilter("Receipt Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Outstanding Qty. (Base)", '>0')
+        else
+            SetFilter("Outstanding Qty. (Base)", '<0');
+    end;
+
+    procedure FilterOutboundLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey("Transfer-from Code", "Shipment Date", "Item No.", "Variant Code");
+        SetRange("Item No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Transfer-from Code", ReservationEntry."Location Code");
+        SetFilter("Shipment Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Outstanding Qty. (Base)", '<0')
+        else
+            SetFilter("Outstanding Qty. (Base)", '>0');
     end;
 
     local procedure VerifyItemLineDim()
@@ -1501,7 +1613,7 @@ table 5741 "Transfer Line"
         exit(IEItem.Get(ItemNo));
     end;
 
-    procedure RowID1(Direction: Option Outbound,Inbound): Text[250]
+    procedure RowID1(Direction: Enum "Transfer Direction"): Text[250]
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
@@ -1549,6 +1661,11 @@ table 5741 "Transfer Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTestStatusOpen(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header")
     begin
     end;
@@ -1557,7 +1674,7 @@ table 5741 "Transfer Line"
     local procedure OnAfterUpdateWithWarehouseShipReceive(var TransferLine: Record "Transfer Line"; CurrentFieldNo: Integer)
     begin
     end;
-   
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var TransferLine: Record "Transfer Line"; var xTransferLine: Record "Transfer Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

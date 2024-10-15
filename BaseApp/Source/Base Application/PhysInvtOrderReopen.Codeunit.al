@@ -27,11 +27,11 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
               '#1#################################\\' + ReopeningLinesMsg);
             Window.Update(1, StrSubstNo('%1 %2', TableCaption, "No."));
 
-            LockTable;
-            PhysInvtOrderLine.LockTable;
+            LockTable();
+            PhysInvtOrderLine.LockTable();
 
             LineCount := 0;
-            PhysInvtOrderLine.Reset;
+            PhysInvtOrderLine.Reset();
             PhysInvtOrderLine.SetRange("Document No.", "No.");
             if PhysInvtOrderLine.Find('-') then
                 repeat
@@ -39,11 +39,11 @@ codeunit 5882 "Phys. Invt. Order-Reopen"
                         LineCount := LineCount + 1;
                         Window.Update(2, LineCount);
 
-                        ReservEntry.Reset;
+                        ReservEntry.Reset();
                         ReservEntry.SetSourceFilter(
                           DATABASE::"Phys. Invt. Order Line", 0, PhysInvtOrderLine."Document No.", PhysInvtOrderLine."Line No.", false);
                         ReservEntry.SetSourceFilter('', 0);
-                        ReservEntry.DeleteAll;
+                        ReservEntry.DeleteAll();
 
                         PhysInvtOrderLine."Pos. Qty. (Base)" := 0;
                         PhysInvtOrderLine."Neg. Qty. (Base)" := 0;

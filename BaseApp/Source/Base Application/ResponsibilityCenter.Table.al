@@ -169,7 +169,7 @@ table 5714 "Responsibility Center"
                     IBAN := BankAcc.IBAN;
                     "SWIFT Code" := BankAcc."SWIFT Code";
                 end else begin
-                    CompanyInfo.Get;
+                    CompanyInfo.Get();
                     "Bank Name" := CompanyInfo."Bank Name";
                     "Bank Account No." := CompanyInfo."Bank Account No.";
                     "Bank Branch No." := CompanyInfo."Bank Branch No.";

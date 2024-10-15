@@ -161,6 +161,12 @@ page 5919 "Service Mgt. Setup"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that the reservation confirmation message is not shown on service lines. This is useful to avoid noise when you are processing many lines.';
                 }
+                field("Copy Line Descr. to G/L Entry"; "Copy Line Descr. to G/L Entry")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
+                }
             }
             group("Mandatory Fields")
             {

@@ -117,7 +117,7 @@ codeunit 11769 "Change Dimension Management"
                             IsUpdate := true;
                         if (DimensionValue.Name <> TempValueText) and IsUpdate then begin
                             DimensionValue.Name := CopyStr(TempValueText, 1, MaxStrLen(DimensionValue.Name));
-                            DimensionValue.Modify;
+                            DimensionValue.Modify();
                         end;
                     end;
                 until Next = 0;
@@ -144,10 +144,10 @@ codeunit 11769 "Change Dimension Management"
             repeat
                 if not TempChangeLogSetupTable.Get(DefaultDimension."Table ID") then begin
                     TempChangeLogSetupTable."Table No." := DefaultDimension."Table ID";
-                    TempChangeLogSetupTable.Insert;
+                    TempChangeLogSetupTable.Insert();
                 end;
                 TempDefaultDimension := DefaultDimension;
-                TempDefaultDimension.Insert;
+                TempDefaultDimension.Insert();
             until DefaultDimension.Next = 0;
     end;
 }

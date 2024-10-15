@@ -260,7 +260,7 @@ table 5718 "Nonstock Item"
 
     trigger OnInsert()
     begin
-        NonStockItem.LockTable;
+        NonStockItem.LockTable();
         if "Entry No." = '' then begin
             GetInvtSetup;
             InvtSetup.TestField("Nonstock Item Nos.");
@@ -276,7 +276,7 @@ table 5718 "Nonstock Item"
         MfrLength := StrLen("Manufacturer Code");
         VenLength := StrLen("Vendor Item No.");
 
-        NonStockItemSetup.Get;
+        NonStockItemSetup.Get();
         // NAVCZ
         if NonStockItemSetup."No. From No. Series" then
             exit;
@@ -343,7 +343,7 @@ table 5718 "Nonstock Item"
 
     local procedure CheckVendorItemNo(VendorNo: Code[20]; VendorItemNo: Code[50]): Boolean
     begin
-        NonStockItem.Reset;
+        NonStockItem.Reset();
         NonStockItem.SetCurrentKey("Vendor No.", "Vendor Item No.");
         NonStockItem.SetRange("Vendor No.", VendorNo);
         NonStockItem.SetRange("Vendor Item No.", VendorItemNo);
@@ -353,7 +353,7 @@ table 5718 "Nonstock Item"
     local procedure GetInvtSetup()
     begin
         if not HasInvtSetup then begin
-            InvtSetup.Get;
+            InvtSetup.Get();
             HasInvtSetup := true;
         end;
     end;

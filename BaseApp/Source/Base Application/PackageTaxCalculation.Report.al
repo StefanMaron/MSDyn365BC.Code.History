@@ -38,7 +38,7 @@ report 31070 "Package Tax Calculation"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
 
                 Title := ReportLbl;
                 if PrintDetail then
@@ -73,9 +73,6 @@ report 31070 "Package Tax Calculation"
             {
             }
             column(TODAY; Today)
-            {
-            }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
             {
             }
             column(USERID; UserId)
@@ -189,9 +186,6 @@ report 31070 "Package Tax Calculation"
             dataitem(Detail; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(> 0));
-                column(CurrReport_PAGENO_Control1470057; CurrReport.PageNo)
-                {
-                }
                 column(TODAY_Control1470058; Today)
                 {
                 }
@@ -279,9 +273,6 @@ report 31070 "Package Tax Calculation"
                 column(GetCustName_ItemLedgerEntry__Source_No___Caption_Control1470095; GetCustName_ItemLedgerEntry__Source_No___Caption_Control1470095Lbl)
                 {
                 }
-                column(CurrReport_PAGENO_Control1470057Caption; CurrReport_PAGENO_Control1470057CaptionLbl)
-                {
-                }
                 column(ItemLedgerEntry_GETFILTER__Posting_Date___Control1470061Caption; ItemLedgerEntry_GETFILTER__Posting_Date___Control1470061CaptionLbl)
                 {
                 }
@@ -311,7 +302,7 @@ report 31070 "Package Tax Calculation"
                 begin
                     if Number > 1 then
                         if ReportBuf.Next = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                     ItemLedgerEntry.Get(ReportBuf."Dimension Entry No.");
                     ItemPackMaterial.Get(ItemLedgerEntry."Item No.", ItemLedgerEntry."Unit of Measure Code", PackMaterial.Code);
@@ -331,7 +322,7 @@ report 31070 "Package Tax Calculation"
                     ReportBuf.SetRange("Variant Code", PackMaterial.Code);
                     ReportBuf.SetFilter("Dimension Entry No.", '<>%1', 0);
                     if not ReportBuf.FindSet then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 
@@ -340,7 +331,7 @@ report 31070 "Package Tax Calculation"
                 ReportBuf.Copy(TotalReportBuf);
                 if Number > 1 then
                     if ReportBuf.Next = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 TotalReportBuf.Copy(ReportBuf);
 
                 PackMaterial.Get(ReportBuf."Variant Code");
@@ -358,8 +349,8 @@ report 31070 "Package Tax Calculation"
 
             trigger OnPostDataItem()
             begin
-                ReportBuf.Reset;
-                ReportBuf.DeleteAll;
+                ReportBuf.Reset();
+                ReportBuf.DeleteAll();
             end;
 
             trigger OnPreDataItem()
@@ -367,7 +358,7 @@ report 31070 "Package Tax Calculation"
                 ReportBuf.SetCurrentKey("Location Code", "Variant Code");
                 ReportBuf.SetRange("Dimension Entry No.", 0);
                 if not ReportBuf.FindSet then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 TotalReportBuf.Copy(ReportBuf);
                 Clear(PayAmount);
                 Clear(TaxAmount);
@@ -468,7 +459,6 @@ report 31070 "Package Tax Calculation"
         ItemLedgerEntry__Posting_Date_Caption_Control1470093Lbl: Label 'Posting Date';
         ItemLedgerEntry__Source_No__Caption_Control1470094Lbl: Label 'Customer No.';
         GetCustName_ItemLedgerEntry__Source_No___Caption_Control1470095Lbl: Label 'Customer Name';
-        CurrReport_PAGENO_Control1470057CaptionLbl: Label 'Page No.';
         ItemLedgerEntry_GETFILTER__Posting_Date___Control1470061CaptionLbl: Label 'Period:';
         ItemLedgerEntry__Unit_of_Measure_Code_Caption_Control1470065Lbl: Label 'Unit Of Measure';
         ItemLedgerEntry__Entry_No__Caption_Control1470067Lbl: Label 'Entry No.';
@@ -492,18 +482,18 @@ report 31070 "Package Tax Calculation"
                     InvBuf."Item No." := '';
                     if InvBuf.Find then begin
                         InvBuf.Quantity += Qty;
-                        InvBuf.Modify;
+                        InvBuf.Modify();
                     end else begin
                         InvBuf.Quantity := Qty;
-                        InvBuf.Insert;
+                        InvBuf.Insert();
                     end;
                 end else begin
-                    InvBuf.Init;
+                    InvBuf.Init();
                     InvBuf."Variant Code" := ItemPackMaterial."Package Material Code";
                     InvBuf."Item No." := ItemPackMaterial."Item No.";
                     InvBuf."Dimension Entry No." := EntryNo;
                     InvBuf.Quantity := Qty;
-                    InvBuf.Insert;
+                    InvBuf.Insert();
                 end;
             until ItemPackMaterial.Next = 0;
     end;
@@ -532,10 +522,10 @@ report 31070 "Package Tax Calculation"
                 if InvBuf.FindFirst then begin
                     InvBuf."Dimension Entry No." := 0;
                     InvBuf.Quantity := Qty;
-                    InvBuf.Insert;
+                    InvBuf.Insert();
                 end;
             until PackMaterial.Next = 0;
-        InvBuf.Reset;
+        InvBuf.Reset();
     end;
 
     [Scope('OnPrem')]

@@ -1,4 +1,4 @@
-﻿page 9172 "User Personalization Card"
+page 9172 "User Personalization Card"
 {
     Caption = 'User Personalization Card';
     DataCaptionExpression = "User ID";
@@ -296,7 +296,7 @@
     begin
         UserPersonalization.Get(UserSecurityId);
 
-        CurrentUserSessionSettings.Init;
+        CurrentUserSessionSettings.Init();
         CurrentUserSessionSettings.ProfileId := UserPersonalization."Profile ID";
         CurrentUserSessionSettings.ProfileAppId := UserPersonalization."App ID";
         CurrentUserSessionSettings.ProfileSystemScope := UserPersonalization.Scope = ProfileScope::System;

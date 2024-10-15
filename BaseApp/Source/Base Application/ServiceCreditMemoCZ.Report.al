@@ -435,7 +435,7 @@ report 31089 "Service - Credit Memo CZ"
                     begin
                         TempVATAmountLine.GetLine(Number);
                         if not VATClause.Get(TempVATAmountLine."VAT Clause Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VATClause.GetDescription("Service Cr.Memo Header");
                     end;
 

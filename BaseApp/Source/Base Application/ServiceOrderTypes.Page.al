@@ -1,4 +1,4 @@
-﻿page 5908 "Service Order Types"
+page 5908 "Service Order Types"
 {
     ApplicationArea = Service;
     Caption = 'Service Order Types';

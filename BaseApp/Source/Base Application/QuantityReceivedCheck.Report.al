@@ -144,7 +144,7 @@ report 31076 "Quantity Received Check"
                 trigger OnAfterGetRecord()
                 begin
                     if Quantity = "Quantity Invoiced" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 
@@ -263,7 +263,7 @@ report 31076 "Quantity Received Check"
                 trigger OnAfterGetRecord()
                 begin
                     if Quantity = "Quantity Invoiced" then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
 

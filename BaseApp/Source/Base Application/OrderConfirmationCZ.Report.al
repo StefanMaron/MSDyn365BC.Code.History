@@ -266,7 +266,7 @@ report 31095 "Order Confirmation CZ"
 
                     trigger OnPreDataItem()
                     begin
-                        CurrReport.Break;
+                        CurrReport.Break();
                     end;
                 }
                 dataitem(RoundLoop; "Integer")
@@ -397,7 +397,7 @@ report 31095 "Order Confirmation CZ"
                 FormatDocumentFields("Sales Header");
 
                 Clear(TempSalesLine);
-                TempSalesLine.DeleteAll;
+                TempSalesLine.DeleteAll();
                 SalesPost.GetSalesLines("Sales Header", TempSalesLine, 0);
                 TempSalesLine.CalcVATAmountLines(0, "Sales Header", TempSalesLine, TempVATAmountLine);
                 Amount := TempVATAmountLine.GetTotalVATBase;
@@ -502,7 +502,7 @@ report 31095 "Order Confirmation CZ"
 
     trigger OnInitReport()
     begin
-        "Sales & Receivables Setup".Get;
+        "Sales & Receivables Setup".Get();
     end;
 
     trigger OnPreReport()

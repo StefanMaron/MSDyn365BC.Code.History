@@ -603,7 +603,7 @@ codeunit 1535 "Approvals Mgmt."
     begin
         PopulateApprovalEntryArgument(RecRef, WorkflowStepInstance, ApprovalEntryArgument);
         if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
-            WorkflowStepArgument.Init;
+            WorkflowStepArgument.Init();
 
         CreateApprovalRequestForUser(WorkflowStepArgument, ApprovalEntryArgument);
 
@@ -726,8 +726,8 @@ codeunit 1535 "Approvals Mgmt."
                 end;
         end;
 
-        UserSetup.Reset;
-        MaxCount := UserSetup.Count;
+        UserSetup.Reset();
+        MaxCount := UserSetup.Count();
 
         if not UserSetup.Get(ApproverId) then
             Error(ApproverUserIdNotInSetupErr, ApprovalEntry."Sender ID");
@@ -969,10 +969,11 @@ codeunit 1535 "Approvals Mgmt."
         CreditHeader: Record "Credit Header";
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
     begin
-        ApprovalEntryArgument.Init;
+        ApprovalEntryArgument.Init();
         ApprovalEntryArgument."Table ID" := RecRef.Number;
         ApprovalEntryArgument."Record ID to Approve" := RecRef.RecordId;
         ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::" ";
@@ -984,7 +985,7 @@ codeunit 1535 "Approvals Mgmt."
                 begin
                     RecRef.SetTable(PurchaseHeader);
                     CalcPurchaseDocAmount(PurchaseHeader, ApprovalAmount, ApprovalAmountLCY);
-                    ApprovalEntryArgument."Document Type" := PurchaseHeader."Document Type";
+                    ApprovalEntryArgument."Document Type" := EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type");
                     ApprovalEntryArgument."Document No." := PurchaseHeader."No.";
                     ApprovalEntryArgument."Salespers./Purch. Code" := PurchaseHeader."Purchaser Code";
                     ApprovalEntryArgument.Amount := ApprovalAmount;
@@ -995,7 +996,7 @@ codeunit 1535 "Approvals Mgmt."
                 begin
                     RecRef.SetTable(SalesHeader);
                     CalcSalesDocAmount(SalesHeader, ApprovalAmount, ApprovalAmountLCY);
-                    ApprovalEntryArgument."Document Type" := SalesHeader."Document Type";
+                    ApprovalEntryArgument."Document Type" := EnumAssignmentMgt.GetSalesApprovalDocumentType(SalesHeader."Document Type");
                     ApprovalEntryArgument."Document No." := SalesHeader."No.";
                     ApprovalEntryArgument."Salespers./Purch. Code" := SalesHeader."Salesperson Code";
                     ApprovalEntryArgument.Amount := ApprovalAmount;
@@ -1015,7 +1016,14 @@ codeunit 1535 "Approvals Mgmt."
             DATABASE::"Gen. Journal Line":
                 begin
                     RecRef.SetTable(GenJournalLine);
-                    ApprovalEntryArgument."Document Type" := GenJournalLine."Document Type";
+                    case GenJournalLine."Document Type" of
+                        GenJournalLine."Document Type"::Invoice:
+                            ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::Invoice;
+                        GenJournalLine."Document Type"::"Credit Memo":
+                            ApprovalEntryArgument."Document Type" := ApprovalEntryArgument."Document Type"::"Credit Memo";
+                        else
+                            ApprovalEntryArgument."Document Type" := GenJournalLine."Document Type".AsInteger();
+                    end;
                     ApprovalEntryArgument."Document No." := GenJournalLine."Document No.";
                     ApprovalEntryArgument."Salespers./Purch. Code" := GenJournalLine."Salespers./Purch. Code";
                     ApprovalEntryArgument.Amount := GenJournalLine.Amount;
@@ -1092,7 +1100,7 @@ codeunit 1535 "Approvals Mgmt."
         if not WorkflowStepArgument.Get(WorkflowStepInstance.Argument) then
             exit;
 
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         if (ApprovalEntry."Approver ID" <> UserId) and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
             NotificationEntry.CreateNewEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
@@ -1215,6 +1223,7 @@ codeunit 1535 "Approvals Mgmt."
     procedure IsSufficientApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"): Boolean
     var
         IsSufficient: Boolean;
+        DocType: Integer;
     begin
         case ApprovalEntryArgument."Table ID" of
             DATABASE::"Purchase Header":
@@ -1233,8 +1242,11 @@ codeunit 1535 "Approvals Mgmt."
             DATABASE::"Sales Advance Letter Header":
                 exit(IsSufficientSalesApprover(UserSetup, ApprovalEntryArgument."Amount (LCY)"));
             DATABASE::"Purch. Advance Letter Header":
-                exit(IsSufficientPurchApprover(UserSetup, -1, ApprovalEntryArgument."Amount (LCY)"));
-                // NAVCZ
+                begin
+                    DocType := -1;
+                    exit(IsSufficientPurchApprover(UserSetup, DocType, ApprovalEntryArgument."Amount (LCY)"));
+                end;
+        // NAVCZ
         end;
 
         IsSufficient := true;
@@ -1354,7 +1366,7 @@ codeunit 1535 "Approvals Mgmt."
     var
         ApprovalEntry: Record "Approval Entry";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         exit(WorkflowManagement.WorkflowExists(ApprovalEntry, ApprovalEntry,
             WorkflowEventHandling.RunWorkflowOnSendOverdueNotificationsCode));
     end;
@@ -1631,7 +1643,7 @@ codeunit 1535 "Approvals Mgmt."
             exit(false);
 
         repeat
-            PostedApprovalEntry.Init;
+            PostedApprovalEntry.Init();
             PostedApprovalEntry.TransferFields(ApprovalEntry);
             PostedApprovalEntry."Number of Approved Requests" := ApprovalEntry."Number of Approved Requests";
             PostedApprovalEntry."Number of Rejected Requests" := ApprovalEntry."Number of Rejected Requests";
@@ -1655,7 +1667,7 @@ codeunit 1535 "Approvals Mgmt."
         ApprovalCommentLine.SetRange("Record ID to Approve", ApprovedRecordID);
         if ApprovalCommentLine.FindSet then
             repeat
-                PostedApprovalCommentLine.Init;
+                PostedApprovalCommentLine.Init();
                 PostedApprovalCommentLine.TransferFields(ApprovalCommentLine);
                 PostedApprovalCommentLine."Entry No." := 0;
                 PostedApprovalCommentLine."Table ID" := PostedRecordID.TableNo;
@@ -1682,7 +1694,7 @@ codeunit 1535 "Approvals Mgmt."
         PostedApprovalEntry.SetRange("Table ID", PostedRecordID.TableNo);
         PostedApprovalEntry.SetRange("Posted Record ID", PostedRecordID);
         if not PostedApprovalEntry.IsEmpty then
-            PostedApprovalEntry.DeleteAll;
+            PostedApprovalEntry.DeleteAll();
         DeletePostedApprovalCommentLines(PostedRecordID);
     end;
 
@@ -1693,7 +1705,7 @@ codeunit 1535 "Approvals Mgmt."
         PostedApprovalCommentLine.SetRange("Table ID", PostedRecordID.TableNo);
         PostedApprovalCommentLine.SetRange("Posted Record ID", PostedRecordID);
         if not PostedApprovalCommentLine.IsEmpty then
-            PostedApprovalCommentLine.DeleteAll;
+            PostedApprovalCommentLine.DeleteAll();
     end;
 
     procedure SetStatusToPendingApproval(var Variant: Variant)
@@ -1801,14 +1813,14 @@ codeunit 1535 "Approvals Mgmt."
                 begin
                     RecRef.SetTable(PaymentOrderHeader);
                     PaymentOrderHeader.Validate(Status, PaymentOrderHeader.Status::Approved);
-                    PaymentOrderHeader.Modify;
+                    PaymentOrderHeader.Modify();
                     Variant := PaymentOrderHeader;
                 end;
             DATABASE::"Cash Document Header":
                 begin
                     RecRef.SetTable(CashDocumentHeader);
                     CashDocumentHeader.Validate(Status, CashDocumentHeader.Status::Approved);
-                    CashDocumentHeader.Modify;
+                    CashDocumentHeader.Modify();
                     Variant := CashDocumentHeader;
                 end;
         end;
@@ -2104,36 +2116,34 @@ codeunit 1535 "Approvals Mgmt."
         ToApprovalEntry: Record "Approval Entry";
         FromApprovalCommentLine: Record "Approval Comment Line";
         ToApprovalCommentLine: Record "Approval Comment Line";
-        LastEntryNo: Integer;
+        NextEntryNo: Integer;
     begin
         FromApprovalEntry.SetRange("Table ID", FromRecID.TableNo);
         FromApprovalEntry.SetRange("Record ID to Approve", FromRecID);
         if FromApprovalEntry.FindSet then begin
-            ToApprovalEntry.FindLast;
-            LastEntryNo := ToApprovalEntry."Entry No.";
+            NextEntryNo := ToApprovalEntry.GetLastEntryNo() + 1;
             repeat
                 ToApprovalEntry := FromApprovalEntry;
-                ToApprovalEntry."Entry No." := LastEntryNo + 1;
+                ToApprovalEntry."Entry No." := NextEntryNo;
                 ToApprovalEntry."Document Type" := ToApprovalEntry."Document Type"::Order;
                 ToApprovalEntry."Document No." := ToDocNo;
                 ToApprovalEntry."Record ID to Approve" := ToRecID;
-                LastEntryNo += 1;
-                ToApprovalEntry.Insert;
+                NextEntryNo += 1;
+                ToApprovalEntry.Insert();
             until FromApprovalEntry.Next = 0;
 
             FromApprovalCommentLine.SetRange("Table ID", FromRecID.TableNo);
             FromApprovalCommentLine.SetRange("Record ID to Approve", FromRecID);
             if FromApprovalCommentLine.FindSet then begin
-                ToApprovalCommentLine.FindLast;
-                LastEntryNo := ToApprovalCommentLine."Entry No.";
+                NextEntryNo := ToApprovalCommentLine.GetLastEntryNo() + 1;
                 repeat
                     ToApprovalCommentLine := FromApprovalCommentLine;
-                    ToApprovalCommentLine."Entry No." := LastEntryNo + 1;
+                    ToApprovalCommentLine."Entry No." := NextEntryNo;
                     ToApprovalCommentLine."Document Type" := ToApprovalCommentLine."Document Type"::Order;
                     ToApprovalCommentLine."Document No." := ToDocNo;
                     ToApprovalCommentLine."Record ID to Approve" := ToRecID;
-                    ToApprovalCommentLine.Insert;
-                    LastEntryNo += 1;
+                    ToApprovalCommentLine.Insert();
+                    NextEntryNo += 1;
                 until FromApprovalCommentLine.Next = 0;
             end;
         end;

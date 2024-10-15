@@ -172,7 +172,7 @@ table 31000 "Sales Advance Letter Header"
 
             trigger OnValidate()
             begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 if SalesSetup."Default VAT Date" = SalesSetup."Default VAT Date"::"Posting Date" then
                     Validate("VAT Date", "Posting Date");
             end;
@@ -444,7 +444,7 @@ table 31000 "Sales Advance Letter Header"
             begin
                 Validate("Payment Terms Code");
 
-                SalesSetup.Get;
+                SalesSetup.Get();
                 if SalesSetup."Default VAT Date" = SalesSetup."Default VAT Date"::"Document Date" then
                     Validate("VAT Date", "Document Date");
             end;
@@ -680,7 +680,7 @@ table 31000 "Sales Advance Letter Header"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if not GLSetup."Use VAT Date" then
                     TestField("VAT Date", "Posting Date");
             end;
@@ -842,7 +842,7 @@ table 31000 "Sales Advance Letter Header"
                             NewVATBusPostingGroup := RegistrationCountry."VAT Bus. Posting Group";
 
                     if "Perform. Country/Region Code" <> '' then begin
-                        CompanyInfo.Get;
+                        CompanyInfo.Get();
                         RegistrationCountry.Get(RegistrationCountry."Account Type"::"Company Information", '', "Perform. Country/Region Code");
                         if "VAT Country/Region Code" <> '' then begin
                             RegnCountryRoute.Get("Perform. Country/Region Code", "VAT Country/Region Code", NewVATBusPostingGroup);
@@ -922,7 +922,7 @@ table 31000 "Sales Advance Letter Header"
             end;
         end;
 
-        AdvanceLetterLineRelation.Reset;
+        AdvanceLetterLineRelation.Reset();
         AdvanceLetterLineRelation.SetRange(Type, AdvanceLetterLineRelation.Type::Sale);
         AdvanceLetterLineRelation.SetRange("Letter No.", "No.");
         if AdvanceLetterLineRelation.FindSet(true, false) then begin
@@ -935,14 +935,14 @@ table 31000 "Sales Advance Letter Header"
 
         SalesCommentLine.SetRange("Document Type", SalesCommentLine."Document Type"::"Advance Letter");
         SalesCommentLine.SetRange("No.", "No.");
-        SalesCommentLine.DeleteAll;
+        SalesCommentLine.DeleteAll();
 
         ApprovalsMgmt.DeleteApprovalEntryForRecord(Rec);
     end;
 
     trigger OnInsert()
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if "Template Code" <> '' then
             SalesAdvPmtTemplate.Get("Template Code");
         if "Document Date" = 0D then
@@ -1036,7 +1036,7 @@ table 31000 "Sales Advance Letter Header"
                     exit(true);
                 end;
             end else begin
-                SalesSetup.Get;
+                SalesSetup.Get();
                 SalesSetup.TestField("Advance Letter Nos.");
                 if NoSeriesMgt.SelectSeries(SalesSetup."Advance Letter Nos.", SalesAdvanceLetterHeaderOld."No. Series", "No. Series") then begin
                     NoSeriesMgt.SetSeries("No.");
@@ -1106,9 +1106,9 @@ table 31000 "Sales Advance Letter Header"
         if not Confirm(Text011Qst) then
             exit;
 
-        SalesAdvanceLetterLinegre.Reset;
+        SalesAdvanceLetterLinegre.Reset();
         SalesAdvanceLetterLinegre.SetRange("Letter No.", "No.");
-        SalesAdvanceLetterLinegre.LockTable;
+        SalesAdvanceLetterLinegre.LockTable();
         if SalesAdvanceLetterLinegre.Find('-') then
             repeat
                 NewDimSetID := DimMgt.GetDeltaDimSetID(SalesAdvanceLetterLinegre."Dimension Set ID", NewParentDimSetID, OldParentDimSetID);
@@ -1117,7 +1117,7 @@ table 31000 "Sales Advance Letter Header"
                     DimMgt.UpdateGlobalDimFromDimSetID(
                       SalesAdvanceLetterLinegre."Dimension Set ID", SalesAdvanceLetterLinegre."Shortcut Dimension 1 Code",
                       SalesAdvanceLetterLinegre."Shortcut Dimension 2 Code");
-                    SalesAdvanceLetterLinegre.Modify;
+                    SalesAdvanceLetterLinegre.Modify();
                 end;
             until SalesAdvanceLetterLinegre.Next = 0;
     end;
@@ -1127,7 +1127,7 @@ table 31000 "Sales Advance Letter Header"
     begin
         if "Document Date" = 0D then
             "Document Date" := WorkDate;
-        SalesSetup.Get;
+        SalesSetup.Get();
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate;
         if SalesSetup."Default Posting Date" = SalesSetup."Default Posting Date"::"No Date" then
@@ -1177,7 +1177,7 @@ table 31000 "Sales Advance Letter Header"
         No: array[10] of Code[20];
         OldDimSetID: Integer;
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -1206,7 +1206,7 @@ table 31000 "Sales Advance Letter Header"
     var
         SalesAdvanceLetterLine: Record "Sales Advance Letter Line";
     begin
-        SalesAdvanceLetterLine.Reset;
+        SalesAdvanceLetterLine.Reset();
         SalesAdvanceLetterLine.SetRange("Letter No.", "No.");
         exit(SalesAdvanceLetterLine.FindFirst);
     end;
@@ -1219,7 +1219,7 @@ table 31000 "Sales Advance Letter Header"
         SalesPostAdvances: Codeunit "Sales-Post Advances";
         LinkedPrepayments: Page "Linked Prepayments";
     begin
-        SalesAdvanceLetterLine.Reset;
+        SalesAdvanceLetterLine.Reset();
         SalesAdvanceLetterLine.SetRange("Letter No.", "No.");
         if SalesAdvanceLetterLine.FindSet then
             repeat
@@ -1458,28 +1458,28 @@ table 31000 "Sales Advance Letter Header"
                   Confirm(
                     Text009Qst, false, ChangedFieldName);
             if Confirmed then begin
-                SalesAdvanceLetterLinegre.LockTable;
+                SalesAdvanceLetterLinegre.LockTable();
                 xRecRef.GetTable(xRec);
                 Modify;
                 RecRef.GetTable(Rec);
 
-                SalesAdvanceLetterLinegre.Reset;
+                SalesAdvanceLetterLinegre.Reset();
                 SalesAdvanceLetterLinegre.SetRange("Letter No.", "No.");
                 if SalesAdvanceLetterLinegre.FindSet then
                     repeat
                         SalesAdvanceLetterLinegre.TestField(Status, SalesAdvanceLetterLinegre.Status::Open);
 
                         TempSalesAdvanceLetterLine := SalesAdvanceLetterLinegre;
-                        TempSalesAdvanceLetterLine.Insert;
+                        TempSalesAdvanceLetterLine.Insert();
                     until SalesAdvanceLetterLinegre.Next = 0;
 
                 SalesAdvanceLetterLinegre.DeleteAll(true);
-                SalesAdvanceLetterLinegre.Init;
+                SalesAdvanceLetterLinegre.Init();
                 SalesAdvanceLetterLinegre."Line No." := 0;
                 TempSalesAdvanceLetterLine.FindSet;
 
                 repeat
-                    SalesAdvanceLetterLinegre.Init;
+                    SalesAdvanceLetterLinegre.Init();
                     SalesAdvanceLetterLinegre."Line No." := SalesAdvanceLetterLinegre."Line No." + 10000;
                     SalesAdvanceLetterLinegre.Validate("VAT Prod. Posting Group", TempSalesAdvanceLetterLine."VAT Prod. Posting Group");
                     SalesAdvanceLetterLinegre.Validate("Job No.", TempSalesAdvanceLetterLine."Job No.");
@@ -1507,7 +1507,7 @@ table 31000 "Sales Advance Letter Header"
             IBAN := RespCenter.IBAN;
             "SWIFT Code" := RespCenter."SWIFT Code";
         end else begin
-            CompanyInfo.Get;
+            CompanyInfo.Get();
             "Bank Account Code" := CompanyInfo."Default Bank Account Code";
             "Bank Account No." := CompanyInfo."Bank Account No.";
             "Bank Branch No." := CompanyInfo."Bank Branch No.";
@@ -1582,7 +1582,7 @@ table 31000 "Sales Advance Letter Header"
     var
         Customer: Record Customer;
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         if SalesSetup."Ignore Updated Addresses" then
             exit;
 

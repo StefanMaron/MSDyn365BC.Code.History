@@ -253,7 +253,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         Assert.ExpectedError(StrSubstNo(PurchaseDocDoesNotExistErr, PurchaseHeader."Document Type"::Invoice, PurchInvNo));
 
-        PurchInvHeader.Init;
+        PurchInvHeader.Init();
         PurchInvHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchInvHeader.SetRange("Pre-Assigned No.", PurchInvNo);
         Assert.RecordIsNotEmpty(PurchInvHeader);
@@ -303,7 +303,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         Assert.ExpectedError(StrSubstNo(SalesDocDoesNotExistErr, SalesHeader."Document Type"::Invoice, SalesInvNo));
 
-        SalesInvoiceHeader.Init;
+        SalesInvoiceHeader.Init();
         SalesInvoiceHeader.SetRange("Sell-to Customer No.", CustomerNo);
         SalesInvoiceHeader.SetRange("Pre-Assigned No.", SalesInvNo);
         Assert.RecordIsNotEmpty(SalesInvoiceHeader);
@@ -393,7 +393,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CreatePurchaseInvoice(PurchaseHeader);
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
         ApprovalEntry.Status := ApprovalEntry.Status::Created;
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
           WorkflowResponseHandling.ReleaseDocumentCode);
@@ -462,7 +462,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CreateSalesInvoice(SalesHeader);
         CreateApprovalEntryForSalesDoc(ApprovalEntry, SalesHeader);
         ApprovalEntry.Status := ApprovalEntry.Status::Created;
-        ApprovalEntry.Modify;
+        ApprovalEntry.Modify();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
           WorkflowResponseHandling.ReleaseDocumentCode);
@@ -582,7 +582,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize;
         CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         // Excercise
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
@@ -613,7 +613,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize;
         CreateSalesInvoice(SalesHeader);
         SalesHeader.Status := SalesHeader.Status::Released;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
           WorkflowResponseHandling.OpenDocumentCode);
@@ -646,7 +646,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize;
         CreatePurchaseInvoice(PurchaseHeader);
         PurchaseHeader.Status := PurchaseHeader.Status::Released;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
 
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
@@ -680,7 +680,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize;
         CreateSalesInvoice(SalesHeader);
         SalesHeader.Status := SalesHeader.Status::Released;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         CreateApprovalEntryForSalesDoc(ApprovalEntry, SalesHeader);
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
@@ -2746,11 +2746,11 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup
         Initialize;
-        GenJnlBatch.Init;
+        GenJnlBatch.Init();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ShowMessageWorkflowStepInstance,
           WorkflowResponseHandling.ShowMessageCode);
 
-        WorkflowStepArgument.Init;
+        WorkflowStepArgument.Init();
         WorkflowStepArgument.Type := WorkflowStepArgument.Type::Response;
         WorkflowStepArgument.Validate(Message, ShowMessageTestMsg);
         WorkflowStepArgument.Insert(true);
@@ -2798,10 +2798,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
 
         // Verify.
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord.SetRange("Record ID", Customer.RecordId);
         Assert.RecordCount(RestrictedRecord, 1);
-        Commit;
+        Commit();
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(Customer.RecordId, 0, 1)));
     end;
@@ -2836,7 +2836,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
           Customer."No.", LibraryInventory.CreateItemNo, LibraryRandom.RandDec(1000, 2), '', WorkDate);
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
-        Commit;
+        Commit();
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(Customer.RecordId, 0, 1)));
 
@@ -2847,7 +2847,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
 
         // Verify.
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord.SetRange("Record ID", Customer.RecordId);
         Assert.RecordIsEmpty(RestrictedRecord);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2882,10 +2882,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
 
         // Verify.
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord.SetRange("Record ID", Customer.RecordId);
         Assert.RecordCount(RestrictedRecord, 1);
-        Commit;
+        Commit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(Customer.RecordId, 0, 1)));
     end;
@@ -2920,7 +2920,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           GenJournalLine."Account Type"::Customer, Customer."No.", -LibraryRandom.RandDec(1000, 2));
 
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
-        Commit;
+        Commit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(Customer.RecordId, 0, 1)));
 
@@ -2931,7 +2931,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
 
         // Verify.
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord.SetRange("Record ID", Customer.RecordId);
         Assert.RecordIsEmpty(RestrictedRecord);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -2967,10 +2967,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(GenJournalLine, GenJournalLine, FirstWorkflowStepInstance);
 
         // Verify.
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
         Assert.RecordCount(RestrictedRecord, 1);
-        Commit;
+        Commit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(GenJournalLine.RecordId, 0, 1)));
     end;
@@ -3008,7 +3008,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           -LibraryRandom.RandDec(1000, 2));
 
         WorkflowMgt.ExecuteResponses(GenJournalLine, GenJournalLine, FirstWorkflowStepInstance);
-        Commit;
+        Commit();
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(GenJournalLine.RecordId, 0, 1)));
 
@@ -3019,7 +3019,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(GenJournalLine, GenJournalLine, FirstWorkflowStepInstance);
 
         // Verify.
-        RestrictedRecord.Init;
+        RestrictedRecord.Init();
         RestrictedRecord.SetRange("Record ID", GenJournalLine.RecordId);
         Assert.RecordIsEmpty(RestrictedRecord);
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -3056,10 +3056,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibrarySales.CreateCustomer(Customer2);
 
         Customer."Credit Limit (LCY)" := 200;
-        Customer.Modify;
+        Customer.Modify();
 
         Customer2."Credit Limit (LCY)" := 100;
-        Customer2.Modify;
+        Customer2.Modify();
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(Customer, Customer2, FirstWorkflowStepInstance);
@@ -3068,10 +3068,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Customer2.Get(Customer2."No.");
 
         // Verify.
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange.SetRange("Record ID", Customer.RecordId);
         Assert.RecordIsEmpty(WorkflowRecordChange);
-        WorkflowRecordChangeArchive.Init;
+        WorkflowRecordChangeArchive.Init();
         Assert.RecordIsNotEmpty(WorkflowRecordChangeArchive);
         Assert.AreEqual(Customer."Credit Limit (LCY)", Customer2."Credit Limit (LCY)", 'The value was not reverted');
     end;
@@ -3106,7 +3106,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
 
         // Verify.
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange.SetRange("Record ID", Customer.RecordId);
         Assert.RecordIsEmpty(WorkflowRecordChange);
     end;
@@ -3139,10 +3139,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibrarySales.CreateCustomer(Customer2);
 
         Customer."Credit Limit (LCY)" := 200;
-        Customer.Modify;
+        Customer.Modify();
 
         Customer2."Credit Limit (LCY)" := 100;
-        Customer2.Modify;
+        Customer2.Modify();
 
         // Exercise.
         asserterror WorkflowMgt.ExecuteResponses(Customer, Customer2, FirstWorkflowStepInstance);
@@ -3181,9 +3181,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := LibraryRandom.RandDec(100, 2);
 
         Customer."Credit Limit (LCY)" := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry.Insert(true);
 
@@ -3228,7 +3228,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := LibraryRandom.RandDec(100, 2);
 
         Customer."Credit Limit (LCY)" := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
         CreateWorkflowCustomerRecordChange(Customer, Customer.FieldNo("Credit Limit (LCY)"),
           Format(OldValue, 0, 9), Format(NewValue, 0, 9), ApplyNewValuesWorkflowStepInstance.ID);
@@ -3272,9 +3272,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := LibraryRandom.RandDec(100, 2);
 
         Vendor."Budgeted Amount" := OldValue;
-        Vendor.Modify;
+        Vendor.Modify();
 
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Old Value" := Format(OldValue, 0, 9);
         WorkflowRecordChange."New Value" := Format(NewValue, 0, 9);
         WorkflowRecordChange."Table No." := 23;
@@ -3323,9 +3323,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := LibraryRandom.RandDec(100, 2);
         ChangedValue := LibraryRandom.RandDec(100, 2);
         Customer."Credit Limit (LCY)" := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry.Insert(true);
 
@@ -3333,7 +3333,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
           Format(OldValue, 0, 9), Format(NewValue, 0, 9), ApplyNewValuesWorkflowStepInstance.ID);
 
         Customer."Credit Limit (LCY)" := ChangedValue;
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
@@ -3373,9 +3373,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         OldValue := LibraryRandom.RandDec(100, 2);
         NewValue := LibraryRandom.RandDec(100, 2);
         Customer."Credit Limit (LCY)" := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry.Insert(true);
 
@@ -3419,9 +3419,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := true;
 
         Customer."Combine Shipments" := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry.Insert(true);
 
@@ -3467,9 +3467,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := Customer.Blocked::Ship;
 
         Customer.Blocked := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry.Insert(true);
 
@@ -3515,9 +3515,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         NewValue := Today;
 
         Customer."Last Date Modified" := OldValue;
-        Customer.Modify;
+        Customer.Modify();
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry.Insert(true);
 
@@ -3566,7 +3566,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibrarySales.CreateCustomer(xRecCustomer);
         Customer := xRecCustomer;
         Customer."Combine Shipments" := NewValue;
-        Customer.Modify;
+        Customer.Modify();
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(Customer, xRecCustomer, FirstWorkflowStepInstance);
@@ -3665,10 +3665,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         LibrarySales.CreateCustomer(Customer);
 
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Record ID to Approve" := Customer.RecordId;
         ApprovalEntry."Workflow Step Instance ID" := DiscardNewValuesWorkflowStepInstance.ID;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
 
         CreateWorkflowCustomerRecordChange(Customer, Customer.FieldNo("Credit Limit (LCY)"),
           Format(LibraryRandom.RandDec(100, 2)), Format(LibraryRandom.RandDec(100, 2)), DiscardNewValuesWorkflowStepInstance.ID);
@@ -3677,7 +3677,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
 
         // Verify.
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange.SetRange(Inactive, false);
         Assert.RecordIsEmpty(WorkflowRecordChange);
     end;
@@ -3699,7 +3699,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // [GIVEN] No user setup for current user
         if UserSetup1.Get(UserId) then
-            UserSetup1.Delete;
+            UserSetup1.Delete();
         // [GIVEN] An active workflow step instance for SendForApproval.
         // [GIVEN] A user group setup with 3 users with the same sequence number.
         CreateThreeUserSetupWithFlatWorkflowUserGroup(WorkflowUserGroup, UserSetup1,
@@ -3723,7 +3723,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
@@ -3744,7 +3744,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
         Workflow.Enabled := true;
-        Workflow.Modify;
+        Workflow.Modify();
     end;
 
     local procedure CreateMockSalesApprovalWorkflow()
@@ -3755,7 +3755,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
         LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
         Workflow.Enabled := true;
-        Workflow.Modify;
+        Workflow.Modify();
     end;
 
     local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header") DocumentNo: Code[20]
@@ -3780,23 +3780,27 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     end;
 
     local procedure CreateApprovalEntryForPurchaseDoc(var ApprovalEntry: Record "Approval Entry"; PurchaseHeader: Record "Purchase Header")
+    var
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := DATABASE::"Purchase Header";
-        ApprovalEntry."Document Type" := PurchaseHeader."Document Type";
+        ApprovalEntry."Document Type" := EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type");
         ApprovalEntry."Document No." := PurchaseHeader."No.";
         ApprovalEntry."Record ID to Approve" := PurchaseHeader.RecordId;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     local procedure CreateApprovalEntryForSalesDoc(var ApprovalEntry: Record "Approval Entry"; SalesHeader: Record "Sales Header")
+    var
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
     begin
-        ApprovalEntry.Init;
+        ApprovalEntry.Init();
         ApprovalEntry."Table ID" := DATABASE::"Sales Header";
-        ApprovalEntry."Document Type" := SalesHeader."Document Type";
+        ApprovalEntry."Document Type" := EnumAssignmentMgt.GetSalesApprovalDocumentType(SalesHeader."Document Type");
         ApprovalEntry."Document No." := SalesHeader."No.";
         ApprovalEntry."Record ID to Approve" := SalesHeader.RecordId;
-        ApprovalEntry.Insert;
+        ApprovalEntry.Insert();
     end;
 
     local procedure CreateWorkflowStepInstanceWithTwoResponses(var FirstWorkflowStepInstance: Record "Workflow Step Instance"; var SecondWorkflowStepInstance: Record "Workflow Step Instance"; SecondResponseCode: Code[128])
@@ -3851,14 +3855,14 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowStepInstance."Function Name" := FunctionCode;
         WorkflowStepInstance.Status := Status;
         WorkflowStepInstance."Previous Workflow Step ID" := PreviousStepId;
-        WorkflowStepInstance.Insert;
+        WorkflowStepInstance.Insert();
     end;
 
     local procedure CreateWorkflowCustomerRecordChange(Customer: Record Customer; FieldNo: Integer; OldValue: Text; NewValue: Text; InstanceId: Guid)
     var
         WorkflowRecordChange: Record "Workflow - Record Change";
     begin
-        WorkflowRecordChange.Init;
+        WorkflowRecordChange.Init();
         WorkflowRecordChange."Old Value" := CopyStr(OldValue, 1, MaxStrLen(WorkflowRecordChange."Old Value"));
         WorkflowRecordChange."New Value" := CopyStr(NewValue, 1, MaxStrLen(WorkflowRecordChange."New Value"));
         WorkflowRecordChange."Table No." := DATABASE::Customer;
@@ -4037,13 +4041,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     local procedure UpdatePurchaseDocPurchaserCode(var PurchaseHeader: Record "Purchase Header"; PurchaserCode: Code[20])
     begin
         PurchaseHeader."Purchaser Code" := PurchaserCode;
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure UpdateSalesDocSalespersonCode(var SalesHeader: Record "Sales Header"; SalespersonCode: Code[20])
     begin
         SalesHeader."Salesperson Code" := SalespersonCode;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure AddNotificationArgumentToStep(var WorkflowStepInstance: Record "Workflow Step Instance"; NotifUserID: Code[50])
@@ -4243,16 +4247,16 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
     local procedure CreateWorkflowUserGroup(var WorkflowUserGroup: Record "Workflow User Group")
     begin
-        WorkflowUserGroup.Init;
+        WorkflowUserGroup.Init();
         WorkflowUserGroup.Code :=
           LibraryUtility.GenerateRandomCode(WorkflowUserGroup.FieldNo(Code),
             DATABASE::"Workflow User Group");
-        WorkflowUserGroup.Insert;
+        WorkflowUserGroup.Insert();
     end;
 
     local procedure CreateWorkflowUserGroupMember(var WorkflowUserGroupMember: Record "Workflow User Group Member"; WorkflowUserGroupCode: Code[20]; UserID: Code[50]; FlatGroup: Boolean)
     begin
-        WorkflowUserGroupMember.Init;
+        WorkflowUserGroupMember.Init();
         WorkflowUserGroupMember.Validate("Workflow User Group Code", WorkflowUserGroupCode);
         WorkflowUserGroupMember.Validate("User Name", UserID);
         if FlatGroup then
@@ -4273,7 +4277,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowStepArgument.Validate("Show Confirmation Message", ShowMessage);
         WorkflowStepArgument.Modify(true);
         WorkflowStepInstance.Argument := WorkflowStepArgument.ID;
-        WorkflowStepInstance.Modify;
+        WorkflowStepInstance.Modify();
     end;
 
     [MessageHandler]

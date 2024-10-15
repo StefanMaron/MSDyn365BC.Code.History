@@ -49,16 +49,15 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup; // NAVCZ
 
-        MfgSetup.Get;
+        MfgSetup.Get();
         WorkDate2 := CalcDate(MfgSetup."Default Safety Lead Time", WorkDate); // to avoid Due Date Before Work Date message.
         LibraryCosting.AdjustCostItemEntries('', '');
         LibraryCosting.PostInvtCostToGL(false, WorkDate2, '');
         LibraryAssembly.UpdateAssemblySetup(AssemblySetup, '', AssemblySetup."Copy Component Dimensions from"::"Item/Resource Card",
           LibraryUtility.GetGlobalNoSeriesCode);
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - D3 - Part 2");
     end;
 
@@ -249,7 +248,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
           InventorySetup."Average Cost Period"::Day);
 
         // Exercise: Post Inventory cost to G/L for the selected items.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo);
         PostedAssemblyHeader.FindFirst;
         if PerPostingGroup then
@@ -422,7 +421,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
           InventorySetup."Average Cost Period"::Day);
 
         // Exercise. Post inventory cost to G/L for selected item.
-        PostedAssemblyHeader.Reset;
+        PostedAssemblyHeader.Reset();
         PostedAssemblyHeader.SetRange("Order No.", AssemblyHeaderNo1, AssemblyHeaderNo2);
         PostedAssemblyHeader.FindSet;
         LibraryAssembly.PostInvtCostToGL(false, PostedAssemblyHeader."Item No.", '',
@@ -579,7 +578,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
 
         // Create Assembly BOM structure. Add inventory to allow posting.
         LibraryAssembly.SetupPostingToGL(GenProdPostingGr, AsmInvtPostingGr, CompInvtPostingGr, LocationCode);
-        BlankLocation.Init;
+        BlankLocation.Init();
         LibraryInventory.UpdateInventoryPostingSetup(BlankLocation);
         LibraryAssembly.CreateItemWithSKU(
           Item, ParentCostingMethod, Item."Replenishment System"::Assembly, CreatePer, GenProdPostingGr, AsmInvtPostingGr, LocationCode);
@@ -614,7 +613,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SKUSTDParentAVGCompVariant()
     begin
@@ -622,7 +621,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SKUFIFOParentSTDCompVariant()
     begin
@@ -630,7 +629,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SKUAVGParentFIFOCompVariant()
     begin
@@ -638,7 +637,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SKUSTDParentAVGCompLocVar()
     begin
@@ -646,7 +645,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SKUFIFOParentSTDCompLoc()
     begin
@@ -654,7 +653,7 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,YesConfirmHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure SKUAVGParentFIFOCompLocVar()
     begin
@@ -748,14 +747,6 @@ codeunit 137094 "SCM Kitting - D3 - Part 2"
     procedure StatisticsMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(ValueEntriesWerePostedTxt, Message);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure YesConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        // NAVCZ
-        Reply := true;
     end;
 }
 

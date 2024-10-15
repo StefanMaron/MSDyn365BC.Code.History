@@ -90,18 +90,18 @@ table 308 "No. Series"
         NoSeriesLink: Record "No. Series Link";
     begin
         NoSeriesLine.SetRange("Series Code", Code);
-        NoSeriesLine.DeleteAll;
+        NoSeriesLine.DeleteAll();
 
         NoSeriesRelationship.SetRange(Code, Code);
-        NoSeriesRelationship.DeleteAll;
+        NoSeriesRelationship.DeleteAll();
         NoSeriesRelationship.SetRange(Code);
 
         NoSeriesRelationship.SetRange("Series Code", Code);
-        NoSeriesRelationship.DeleteAll;
+        NoSeriesRelationship.DeleteAll();
         NoSeriesRelationship.SetRange("Series Code");
         // NAVCZ
         NoSeriesLink.SetRange("Initial No. Series", Code);
-        NoSeriesLink.DeleteAll;
+        NoSeriesLink.DeleteAll();
         // NAVCZ
     end;
 
@@ -127,7 +127,7 @@ table 308 "No. Series"
     begin
         FindNoSeriesLineToShow(NoSeriesLine);
         if not NoSeriesLine.Find('-') then
-            NoSeriesLine.Init;
+            NoSeriesLine.Init();
         StartDate := NoSeriesLine."Starting Date";
         StartNo := NoSeriesLine."Starting No.";
         EndNo := NoSeriesLine."Ending No.";
@@ -146,7 +146,7 @@ table 308 "No. Series"
         if NoSeriesLine.FindLast then
             exit;
 
-        NoSeriesLine.Reset;
+        NoSeriesLine.Reset();
         NoSeriesLine.SetRange("Series Code", Code);
     end;
 }

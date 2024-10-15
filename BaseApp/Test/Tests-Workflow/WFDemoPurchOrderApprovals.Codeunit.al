@@ -38,7 +38,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryWorkflow.DisableAllWorkflows;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
         IsInitialized := true;
@@ -143,7 +143,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
         VerifyPurchaseDocumentStatus(PurchHeader, PurchHeader.Status::"Pending Approval");
 
         // Exercise
-        Commit;
+        Commit();
         PurchaseOrder.OpenView;
         PurchaseOrder.GotoRecord(PurchHeader);
         asserterror PurchaseOrder.Release.Invoke;
@@ -449,7 +449,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [WHEN] Purchase Header card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoRecord(PurchHeader);
 
@@ -527,7 +527,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // [WHEN] PurchHeader card is opened.
         CreatePurchDocument(PurchHeader, LibraryRandom.RandIntInRange(5000, 10000));
-        Commit;
+        Commit();
         PurchaseOrderList.OpenEdit;
         PurchaseOrderList.GotoRecord(PurchHeader);
 
@@ -711,7 +711,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::"Pending Approval");
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."Approver ID", CurrentUserSetup."User ID", ApprovalEntry.Status::Approved);
         CheckCommentsForDocumentOnApprovalEntriesPage(ApprovalEntry, 1);
@@ -769,7 +769,7 @@ codeunit 134180 "WF Demo Purch. Order Approvals"
 
         // Verify - Approval requests and their data
         VerifyPurchaseDocumentStatus(PurchaseHeader, PurchaseHeader.Status::Open);
-        ApprovalEntry.Reset;
+        ApprovalEntry.Reset();
         LibraryDocumentApprovals.GetApprovalEntries(ApprovalEntry, PurchaseHeader.RecordId);
         VerifyApprovalEntry(ApprovalEntry, CurrentUserSetup."Approver ID", CurrentUserSetup."User ID", ApprovalEntry.Status::Canceled);
     end;

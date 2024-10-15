@@ -94,7 +94,7 @@ table 11731 "Cash Document Line"
                         end;
                         CashDocHeader.SetSkipLineNoToUpdateLine("Line No.");
                         CashDocHeader.Validate("Partner No.", "Account No.");
-                        CashDocHeader.Modify;
+                        CashDocHeader.Modify();
                         CashDocHeader.SetSkipLineNoToUpdateLine(0);
                         CashDocHeader.Get("Cash Desk No.", "Cash Document No.");
                     end;
@@ -220,11 +220,9 @@ table 11731 "Cash Document Line"
                     PostingGroupManagement.CheckPostingGroupChange("Posting Group", xRec."Posting Group", Rec);
             end;
         }
-        field(14; "Applies-To Doc. Type"; Option)
+        field(14; "Applies-To Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-To Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -423,7 +421,7 @@ table 11731 "Cash Document Line"
             trigger OnValidate()
             begin
                 if Prepayment then begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     GLSetup.TestField("Prepayment Type");
                     "Prepayment Type" := GLSetup."Prepayment Type";
                 end else
@@ -462,7 +460,7 @@ table 11731 "Cash Document Line"
                 CashDeskEvent: Record "Cash Desk Event";
             begin
                 GetDocHeader;
-                CashDeskEvent.Reset;
+                CashDeskEvent.Reset();
                 CashDeskEvent.FilterGroup(2);
                 CashDeskEvent.SetFilter("Cash Document Type", '%1|%2', CashDocHeader."Cash Document Type"::" ", CashDocHeader."Cash Document Type");
                 CashDeskEvent.SetFilter("Cash Desk No.", '%1|%2', '', CashDocHeader."Cash Desk No.");
@@ -616,7 +614,7 @@ table 11731 "Cash Document Line"
 
             trigger OnValidate()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 GetDocHeader;
                 BankAccount.Get("Cash Desk No.");
 
@@ -727,12 +725,10 @@ table 11731 "Cash Document Line"
             OptionCaption = ' ,Purchase,Sale';
             OptionMembers = " ",Purchase,Sale;
         }
-        field(70; "VAT Calculation Type"; Option)
+        field(70; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(71; "VAT Bus. Posting Group"; Code[20])
         {
@@ -948,7 +944,7 @@ table 11731 "Cash Document Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         InitRecord;
         UpdateEETTransaction;
     end;
@@ -1007,7 +1003,7 @@ table 11731 "Cash Document Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -1433,8 +1429,8 @@ table 11731 "Cash Document Line"
         if ("Account Type" <> "Account Type"::"Fixed Asset") or ("Account No." = '') then
             exit;
         if "Depreciation Book Code" = '' then begin
-            FASetup.Get;
-            FADeprBook.Reset;
+            FASetup.Get();
+            FADeprBook.Reset();
             FADeprBook.SetRange("FA No.", "Account No.");
             FADeprBook.SetRange("Default FA Depreciation Book", true);
             if not FADeprBook.FindFirst then begin
@@ -1490,7 +1486,7 @@ table 11731 "Cash Document Line"
         GetDocHeader;
         if CashDocHeader.Status = CashDocHeader.Status::Open then begin
             CashDocHeader.VATRounding;
-            Commit;
+            Commit();
         end;
 
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
@@ -1510,7 +1506,7 @@ table 11731 "Cash Document Line"
             FieldError("Account Type");
 
         GetDocHeader;
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Line No." := "Line No.";
         GenJnlLine."Account No." := "Account No.";
         GenJnlLine."Document Type" := "Document Type";
@@ -1571,7 +1567,7 @@ table 11731 "Cash Document Line"
             (VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT")) and
            VATPostingSetup."Allow Non Deductible VAT"
         then begin
-            NonDeductVATSetup.Reset;
+            NonDeductVATSetup.Reset();
             NonDeductVATSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             NonDeductVATSetup.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
             NonDeductVATSetup.SetRange("From Date", 0D, CashDocHeader."VAT Date");
@@ -1602,7 +1598,7 @@ table 11731 "Cash Document Line"
     [Obsolete('The functionality of VAT Coefficient will be removed and this function should not be used. (Obsolete::Removed in release 01.2021','15.3')]
     local procedure CalcVATCoefficient(): Decimal
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Round VAT Coeff." then
             exit(Round("VAT %" / (100 + "VAT %"), GLSetup."VAT Coeff. Rounding Precision"));
         exit("VAT %" / (100 + "VAT %"));

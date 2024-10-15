@@ -147,7 +147,7 @@ report 11733 "Posted Withdrawal Cash Doc."
 
                     trigger OnAfterGetRecord()
                     begin
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."VAT %" := "VAT %";
@@ -162,7 +162,7 @@ report 11733 "Posted Withdrawal Cash Doc."
 
                     trigger OnPreDataItem()
                     begin
-                        TempVATAmountLine.DeleteAll;
+                        TempVATAmountLine.DeleteAll();
                     end;
                 }
                 dataitem(VATCounter; "Integer")
@@ -205,7 +205,7 @@ report 11733 "Posted Withdrawal Cash Doc."
                     trigger OnPreDataItem()
                     begin
                         if not PrintVATSpecification then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange(Number, 1, TempVATAmountLine.Count);
                     end;
@@ -243,7 +243,7 @@ report 11733 "Posted Withdrawal Cash Doc."
                     trigger OnPreDataItem()
                     begin
                         if not PrintAccountingSheet then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("EET Entry"; "EET Entry")

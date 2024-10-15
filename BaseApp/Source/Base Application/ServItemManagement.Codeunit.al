@@ -49,8 +49,8 @@ codeunit 5920 ServItemManagement
                 "Spare Part Action"::"Component Replaced":
                     begin
                         CheckWholeNumber(ServLine);
-                        NewServItemComponent.LockTable;
-                        NewServItemComponent.Reset;
+                        NewServItemComponent.LockTable();
+                        NewServItemComponent.Reset();
                         NewServItemComponent.SetRange(Active, false);
                         NewServItemComponent.SetRange("Parent Service Item No.", "Service Item No.");
                         if NewServItemComponent.FindLast then
@@ -63,16 +63,16 @@ codeunit 5920 ServItemManagement
                             ServItemComponent."Service Order No." := "Document No.";
                             Clear(ServLogMgt);
                             ServLogMgt.ServItemComponentRemoved(ServItemComponent);
-                            ServItemComponent.Delete;
+                            ServItemComponent.Delete();
                             ServItemComponent2.Active := false;
                             ServItemComponent2."Line No." := ComponentLine + 10000;
                             ServItemComponent2."From Line No." := ServItemComponent."Line No.";
                             ServItemComponent2."Service Order No." := ServHeader."No.";
-                            ServItemComponent2.Insert;
+                            ServItemComponent2.Insert();
                             if ServItemComponent2.Type = ServItemComponent2.Type::"Service Item" then begin
                                 ServItem.Get(ServItemComponent2."No.");
                                 ServItem.Status := ServItem.Status::Defective;
-                                ServItem.Modify;
+                                ServItem.Modify();
                             end;
                         end;
 
@@ -85,7 +85,7 @@ codeunit 5920 ServItemManagement
                                 TrackingLinesExist := false;
                         end;
                         OnBeforeInsertNewServItemComponent(NewServItemComponent, ServLine);
-                        NewServItemComponent.Insert;
+                        NewServItemComponent.Insert();
                         Clear(ServLogMgt);
                         ServLogMgt.ServItemComponentAdded(NewServItemComponent);
 
@@ -104,7 +104,7 @@ codeunit 5920 ServItemManagement
                                     TrackingLinesExist := false;
                             end;
                             OnBeforeInsertNewServItemComponent(NewServItemComponent, ServLine);
-                            NewServItemComponent.Insert;
+                            NewServItemComponent.Insert();
                             Clear(ServLogMgt);
                             ServLogMgt.ServItemComponentAdded(NewServItemComponent);
                         end;
@@ -112,8 +112,8 @@ codeunit 5920 ServItemManagement
                 "Spare Part Action"::"Component Installed":
                     begin
                         CheckWholeNumber(ServLine);
-                        NewServItemComponent.LockTable;
-                        NewServItemComponent.Reset;
+                        NewServItemComponent.LockTable();
+                        NewServItemComponent.Reset();
                         NewServItemComponent.SetRange(Active, true);
                         NewServItemComponent.SetRange("Parent Service Item No.", "Service Item No.");
                         if NewServItemComponent.FindLast then
@@ -134,7 +134,7 @@ codeunit 5920 ServItemManagement
                                     TrackingLinesExist := false;
                             end;
                             OnBeforeInsertNewServItemComponent(NewServItemComponent, ServLine);
-                            NewServItemComponent.Insert;
+                            NewServItemComponent.Insert();
                             Clear(ServLogMgt);
                             ServLogMgt.ServItemComponentAdded(NewServItemComponent);
                         end;
@@ -211,7 +211,7 @@ codeunit 5920 ServItemManagement
         if (SalesLine.Type = SalesLine.Type::Item) and (SalesLine."Qty. to Ship (Base)" > 0) then begin
             Item.Get(SalesLine."No.");
             if not ItemTrackingCode.Get(Item."Item Tracking Code") then
-                ItemTrackingCode.Init;
+                ItemTrackingCode.Init();
             if ServItemGr.Get(Item."Service Item Group") and ServItemGr."Create Service Item" then begin
                 if SalesLine."Qty. to Ship (Base)" <> Round(SalesLine."Qty. to Ship (Base)", 1) then
                     Error(
@@ -229,11 +229,11 @@ codeunit 5920 ServItemManagement
                 TempReservEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
                 TrackingLinesExist := TempReservEntry.FindSet;
 
-                TempServiceItem.DeleteAll;
-                TempServiceItemComp.DeleteAll;
+                TempServiceItem.DeleteAll();
+                TempServiceItemComp.DeleteAll();
 
-                GLSetup.Get;
-                ServMgtSetup.Get;
+                GLSetup.Get();
+                ServMgtSetup.Get();
                 ServMgtSetup.TestField("Service Item Nos.");
                 for x := 1 to SalesLine."Qty. to Ship (Base)" do begin
                     Clear(ServItem);
@@ -245,10 +245,10 @@ codeunit 5920 ServItemManagement
                             ServItemWithSerialNoExist := true;
                     end;
                     if (TempReservEntry."Serial No." = '') or (not ServItemWithSerialNoExist) then begin
-                        ServItem.Init;
+                        ServItem.Init();
                         NoSeriesMgt.InitSeries(
                           ServMgtSetup."Service Item Nos.", ServItem."No. Series", 0D, ServItem."No.", ServItem."No. Series");
-                        ServItem.Insert;
+                        ServItem.Insert();
                     end;
                     ServItem."Sales/Serv. Shpt. Document No." := SalesShipmentLine."Document No.";
                     ServItem."Sales/Serv. Shpt. Line No." := SalesShipmentLine."Line No.";
@@ -304,10 +304,10 @@ codeunit 5920 ServItemManagement
 
                     OnCreateServItemOnSalesLineShpt(ServItem, SalesHeader, SalesLine);
 
-                    ServItem.Modify;
+                    ServItem.Modify();
                     Clear(TempServiceItem);
                     TempServiceItem := ServItem;
-                    if TempServiceItem.Insert then;
+                    if TempServiceItem.Insert() then;
                     ResSkillMgt.AssignServItemResSkills(ServItem);
                     if SalesLine."BOM Item No." <> '' then begin
                         Clear(BOMComp);
@@ -328,7 +328,7 @@ codeunit 5920 ServItemManagement
                                             InsertServItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
                                             Clear(TempServiceItemComp);
                                             TempServiceItemComp := ServItemComponent;
-                                            TempServiceItemComp.Insert;
+                                            TempServiceItemComp.Insert();
                                         end;
                                     until BOMComp2.Next = 0;
                             until BOMComp.Next = 0;
@@ -368,13 +368,13 @@ codeunit 5920 ServItemManagement
                 exit;
 
             Clear(ServItem);
-            ServItem.Init;
-            ServMgtSetup.Get;
+            ServItem.Init();
+            ServMgtSetup.Get();
             ServMgtSetup.TestField("Service Item Nos.");
             NoSeriesMgt.InitSeries(
               ServMgtSetup."Service Item Nos.", ServItem."No. Series", 0D, ServItem."No.",
               ServItem."No. Series");
-            ServItem.Insert;
+            ServItem.Insert();
             ServItem.Validate(Description, Description);
             Clear(ServHeader);
             ServHeader.Get("Document Type", "Document No.");
@@ -409,7 +409,7 @@ codeunit 5920 ServItemManagement
                     ServItem."Service Price Group Code" := "Service Price Group Code";
 
             OnCreateServItemOnServItemLineOnBeforeServItemModify(ServItem, ServHeader, ServItemLine);
-            ServItem.Modify;
+            ServItem.Modify();
             ResSkillMgt.AssignServItemResSkills(ServItem);
             Clear(ServLogMgt);
             ServLogMgt.ServItemAutoCreated(ServItem);
@@ -467,7 +467,7 @@ codeunit 5920 ServItemManagement
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         Clear(TempReservEntry);
 
         ReservEntry.SetRange("Source Subtype", ServHeader."Document Type");
@@ -482,7 +482,7 @@ codeunit 5920 ServItemManagement
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
-                TempReservEntry.Insert;
+                TempReservEntry.Insert();
             until ReservEntry.Next = 0;
     end;
 
@@ -511,17 +511,17 @@ codeunit 5920 ServItemManagement
 
     procedure ReturnServItemComp(var TempServItem: Record "Service Item" temporary; var TempServItemComp: Record "Service Item Component" temporary)
     begin
-        TempServItem.DeleteAll;
+        TempServItem.DeleteAll();
         if TempServiceItem.Find('-') then
             repeat
                 TempServItem := TempServiceItem;
-                TempServItem.Insert;
+                TempServItem.Insert();
             until TempServiceItem.Next = 0;
-        TempServItemComp.DeleteAll;
+        TempServItemComp.DeleteAll();
         if TempServiceItemComp.Find('-') then
             repeat
                 TempServItemComp := TempServiceItemComp;
-                TempServItemComp.Insert;
+                TempServItemComp.Insert();
             until TempServiceItemComp.Next = 0;
     end;
 
@@ -569,7 +569,7 @@ codeunit 5920 ServItemManagement
     var
         ReservEntry: Record "Reservation Entry";
     begin
-        ReservEntry.Reset;
+        ReservEntry.Reset();
         ReservEntry.SetRange("Source Subtype", SalesLine."Document Type");
         ReservEntry.SetRange("Source ID", SalesLine."Document No.");
         ReservEntry.SetRange(Positive, false);
@@ -582,7 +582,7 @@ codeunit 5920 ServItemManagement
         if ReservEntry.FindSet then
             repeat
                 TempReservEntry := ReservEntry;
-                TempReservEntry.Insert;
+                TempReservEntry.Insert();
             until ReservEntry.Next = 0;
     end;
 

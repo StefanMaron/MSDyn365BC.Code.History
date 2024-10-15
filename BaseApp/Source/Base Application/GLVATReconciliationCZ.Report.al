@@ -133,7 +133,7 @@ report 11789 "G/L VAT Reconciliation CZ"
                 trigger OnAfterGetRecord()
                 begin
                     if DifferentOnly and ("Posting Date" = "VAT Date") then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
             }
         }

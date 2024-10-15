@@ -9,12 +9,10 @@ table 31027 "VAT Amount Line Adv. Payment"
             Caption = 'VAT Prod. Posting Group';
             TableRelation = "VAT Product Posting Group";
         }
-        field(9; "VAT Calculation Type"; Option)
+        field(9; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(10; "VAT %"; Decimal)
         {

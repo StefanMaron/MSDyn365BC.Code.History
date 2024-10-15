@@ -80,7 +80,7 @@ codeunit 31053 "Release Credit Document"
     local procedure CheckCreditBalance(CreditHeader: Record "Credit Header")
     begin
         with CreditHeader do begin
-            CreditsSetup.Get;
+            CreditsSetup.Get();
             CalcFields("Credit Balance (LCY)");
             if Abs("Credit Balance (LCY)") > CreditsSetup."Max. Rounding Amount" then
                 Error(MustBeLessOrEqualErr, FieldCaption("Credit Balance (LCY)"), CreditsSetup.FieldCaption("Max. Rounding Amount"));

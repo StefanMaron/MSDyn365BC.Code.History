@@ -27,9 +27,9 @@ table 11785 "Posting Description"
             trigger OnValidate()
             begin
                 if (Code <> '') and (Type <> xRec.Type) then begin
-                    PostDescParameter.Reset;
+                    PostDescParameter.Reset();
                     PostDescParameter.SetRange("Posting Desc. Code", Code);
-                    PostDescParameter.DeleteAll;
+                    PostDescParameter.DeleteAll();
                 end;
             end;
         }
@@ -57,9 +57,9 @@ table 11785 "Posting Description"
 
     trigger OnDelete()
     begin
-        PostDescParameter.Reset;
+        PostDescParameter.Reset();
         PostDescParameter.SetRange("Posting Desc. Code", Code);
-        PostDescParameter.DeleteAll;
+        PostDescParameter.DeleteAll();
     end;
 
     var
@@ -69,7 +69,6 @@ table 11785 "Posting Description"
     [Obsolete('The functionality of posting description will be removed and this function should not be used. (Removed in release 01.2021)','15.3')]
     procedure ParsePostDescString(PostDescription: Record "Posting Description"; RecRef: RecordRef): Text[100]
     var
-        "Field": Record "Field";
         FldRef: FieldRef;
         ParamNo: Integer;
         SubStrPosition: Integer;
@@ -88,16 +87,14 @@ table 11785 "Posting Description"
                (StrPos(ParseLine, SubStr) > 0)
             then begin
                 SubStrPosition := StrPos(ParseLine, SubStr);
-                if PostDescParameter.Type <> PostDescParameter.Type::Constant then begin
+                if PostDescParameter.Type <> PostDescParameter.Type::Constant then
                     FldRef := RecRef.Field(PostDescParameter."Field No.");
-                    Evaluate(Field.Type, Format(FldRef.Type));
-                end;
                 repeat
                     ParseLine := DelStr(ParseLine, SubStrPosition, StrLen(SubStr));
                     case PostDescParameter.Type of
                         PostDescParameter.Type::Value:
                             begin
-                                if Field.Type = Field.Type::Option then
+                                if FldRef.Type = FieldType::Option then
                                     ParamValue := GetSelectedOption(FldRef)
                                 else
                                     ParamValue := CopyStr(Format(FldRef.Value), 1, MaxStrLen(ParamValue));

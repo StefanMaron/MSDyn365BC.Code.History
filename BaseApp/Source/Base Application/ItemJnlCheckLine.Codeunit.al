@@ -54,8 +54,8 @@ codeunit 21 "Item Jnl.-Check Line"
         LotInfoRequired: Boolean;
         IsHandled: Boolean;
     begin
-        GLSetup.Get;
-        InvtSetup.Get;
+        GLSetup.Get();
+        InvtSetup.Get();
 
         with ItemJnlLine do begin
             if EmptyLine then begin
@@ -79,7 +79,7 @@ codeunit 21 "Item Jnl.-Check Line"
             CheckDates(ItemJnlLine);
 
             // NAVCZ
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."User Checks Allowed" and not CalledFromAdjustment then
                 UserChecksMgt.CheckItemJournalLine(ItemJnlLine);
             if "FA No." <> '' then
@@ -198,7 +198,7 @@ codeunit 21 "Item Jnl.-Check Line"
                 case "Entry Type" of
                     "Entry Type"::Consumption:
                         if Quantity < 0 then begin
-                            ManufSetup.Get;
+                            ManufSetup.Get();
                             if ManufSetup."Exact Cost Rev.Manda. (Cons.)" then begin
                                 Item2.Get("Item No.");
                                 TmpItemTrackingCode.Code := Item2."Item Tracking Code";
@@ -351,8 +351,6 @@ codeunit 21 "Item Jnl.-Check Line"
     var
         AssemblyLine: Record "Assembly Line";
         ReservationEntry: Record "Reservation Entry";
-        ItemJnlLineReserve: Codeunit "Item Jnl. Line-Reserve";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         ShowError: Boolean;
         IsHandled: Boolean;
@@ -378,8 +376,8 @@ codeunit 21 "Item Jnl.-Check Line"
             ItemJnlLine."Entry Type"::Output:
                 if WhseOrderHandlingRequired(ItemJnlLine, Location) then begin
                     if (ItemJnlLine.Quantity < 0) and (ItemJnlLine."Applies-to Entry" = 0) then begin
-                        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservationEntry, false);
-                        ItemJnlLineReserve.FilterReservFor(ReservationEntry, ItemJnlLine);
+                        ReservationEntry.InitSortingAndFilters(false);
+                        ItemJnlLine.SetReservationFilters(ReservationEntry);
                         ReservationEntry.ClearTrackingFilter;
                         if ReservationEntry.FindSet then
                             repeat

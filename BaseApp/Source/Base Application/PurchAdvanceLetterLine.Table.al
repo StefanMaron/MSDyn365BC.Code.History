@@ -217,12 +217,10 @@ table 31021 "Purch. Advance Letter Line"
                         Validate("VAT Prod. Posting Group", GenProdPostGr."Def. VAT Prod. Posting Group");
             end;
         }
-        field(77; "VAT Calculation Type"; Option)
+        field(77; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(85; "Tax Area Code"; Code[20])
         {
@@ -358,7 +356,7 @@ table 31021 "Purch. Advance Letter Line"
                 case "VAT Calculation Type" of
                     "VAT Calculation Type"::"Normal VAT":
                         begin
-                            GLSetup.Get;
+                            GLSetup.Get();
                             if GLSetup."Round VAT Coeff." then begin
                                 GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
                                 "VAT Amount To Refund" :=
@@ -555,7 +553,7 @@ table 31021 "Purch. Advance Letter Line"
         PurchCommentLine.SetRange("No.", "Letter No.");
         PurchCommentLine.SetRange("Document Line No.", "Line No.");
         if not PurchCommentLine.IsEmpty then
-            PurchCommentLine.DeleteAll;
+            PurchCommentLine.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -566,7 +564,7 @@ table 31021 "Purch. Advance Letter Line"
         "Currency Code" := PurchAdvanceLetterHeadergre."Currency Code";
         "Pay-to Vendor No." := PurchAdvanceLetterHeadergre."Pay-to Vendor No.";
 
-        LockTable;
+        LockTable();
     end;
 
     trigger OnModify()
@@ -580,7 +578,7 @@ table 31021 "Purch. Advance Letter Line"
         "VAT Correction Inv." := false;
         "VAT Amount Inv." := 0;
 
-        PurchAdvanceLetterLine.Reset;
+        PurchAdvanceLetterLine.Reset();
         PurchAdvanceLetterLine.SetRange("Letter No.", "Letter No.");
         PurchAdvanceLetterLine.SetFilter("Line No.", '<>%1', "Line No.");
         PurchAdvanceLetterLine.ModifyAll("VAT Difference Inv.", 0);
@@ -696,12 +694,12 @@ table 31021 "Purch. Advance Letter Line"
         else
             Currency.Get(PurchAdvanceLetterHeader."Currency Code");
 
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
 
         with PurchAdvanceLetterLine do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount Including VAT", '<>0');
-            LockTable;
+            LockTable();
             if FindSet then
                 repeat
                     VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
@@ -710,9 +708,9 @@ table 31021 "Purch. Advance Letter Line"
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                         then begin
                             TempVATAmountLineRemainder := VATAmountLine;
-                            TempVATAmountLineRemainder.Init;
+                            TempVATAmountLineRemainder.Init();
                             TempVATAmountLineRemainder."VAT Difference" := VATAmountLine."VAT Difference";
-                            TempVATAmountLineRemainder.Insert;
+                            TempVATAmountLineRemainder.Insert();
                         end;
 
                         VATAmount :=
@@ -746,7 +744,7 @@ table 31021 "Purch. Advance Letter Line"
                           NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
                         TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
-                        TempVATAmountLineRemainder.Modify;
+                        TempVATAmountLineRemainder.Modify();
                     end;
                 until Next = 0;
         end;
@@ -765,8 +763,8 @@ table 31021 "Purch. Advance Letter Line"
         else
             Currency.Get(PurchAdvanceLetterHeader."Currency Code");
 
-        VATAmountLine.DeleteAll;
-        PurchAdvanceLetterLine.Init;
+        VATAmountLine.DeleteAll();
+        PurchAdvanceLetterLine.Init();
         TotalVATToInvoice := 0;
         TotalVATInvoiced := 0;
         VATCorrection := false;
@@ -786,7 +784,7 @@ table 31021 "Purch. Advance Letter Line"
                     if not VATAmountLine.Get(
                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                     then begin
-                        VATAmountLine.Init;
+                        VATAmountLine.Init();
                         VATAmountLine."VAT Identifier" := "VAT Identifier";
                         VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -795,7 +793,7 @@ table 31021 "Purch. Advance Letter Line"
                         VATAmountLine.Positive := "Amount Including VAT" >= 0;
                         VATAmountLine."Currency Code" := Currency.Code;
                         VATAmountLine.Quantity := 1;
-                        VATAmountLine.Insert;
+                        VATAmountLine.Insert();
                     end;
                     VATAmountLine."VAT Base" := VATAmountLine."VAT Base" + Amount;
                     VATAmountLine."VAT Amount" := VATAmountLine."VAT Amount" + "VAT Amount";
@@ -805,7 +803,7 @@ table 31021 "Purch. Advance Letter Line"
                     VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + "VAT Difference";
                     VATAmountLine."VAT Difference (LCY)" := VATAmountLine."VAT Difference (LCY)" + "VAT Difference";
                     VATAmountLine."Includes Prepayment" := false;
-                    VATAmountLine.Modify;
+                    VATAmountLine.Modify();
                 until Next = 0;
         end;
 
@@ -817,9 +815,9 @@ table 31021 "Purch. Advance Letter Line"
                        (PrevVatAmountLine."Tax Group Code" <> "Tax Group Code") or
                        (PrevVatAmountLine."Use Tax" <> "Use Tax")
                     then
-                        PrevVatAmountLine.Init;
+                        PrevVatAmountLine.Init();
 
-                    PurchSetup.Get;
+                    PurchSetup.Get();
                     if PurchSetup."Allow VAT Difference" and (Quantity <> 0) then
                         if PurchAdvanceLetterHeader."Currency Code" = '' then
                             if "VAT Calculation Type" <> "VAT Calculation Type"::"Full VAT" then begin
@@ -912,12 +910,12 @@ table 31021 "Purch. Advance Letter Line"
             Currency.InitRoundingPrecision
         else
             Currency.Get(PurchAdvanceLetterHeader."Currency Code");
-        PurchSetup.Get;
-        GLSetup.Get;
+        PurchSetup.Get();
+        GLSetup.Get();
         if GLSetup."Round VAT Coeff." then
             GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
-        VATAmountLine.DeleteAll;
-        PurchAdvanceLetterLine.Init;
+        VATAmountLine.DeleteAll();
+        PurchAdvanceLetterLine.Init();
         TotalVATToInvoice := 0;
         TotalVATInvoiced := 0;
 
@@ -936,7 +934,7 @@ table 31021 "Purch. Advance Letter Line"
                     if not VATAmountLine.Get(
                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                     then begin
-                        VATAmountLine.Init;
+                        VATAmountLine.Init();
                         VATAmountLine."VAT Identifier" := "VAT Identifier";
                         VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -945,7 +943,7 @@ table 31021 "Purch. Advance Letter Line"
                         VATAmountLine.Positive := "Amount Including VAT" >= 0;
                         VATAmountLine."Currency Code" := Currency.Code;
                         VATAmountLine.Quantity := 1;
-                        VATAmountLine.Insert;
+                        VATAmountLine.Insert();
                     end;
                     VATAmountLine."Amount Including VAT" := VATAmountLine."Amount Including VAT" + "Amount Including VAT";
                     VATAmountLine."VAT Difference" := VATAmountLine."VAT Difference" + "VAT Difference Inv.";
@@ -955,7 +953,7 @@ table 31021 "Purch. Advance Letter Line"
                         VATAmountLine."VAT Difference (LCY)" := VATAmountLine."VAT Difference (LCY)" + "VAT Difference Inv. (LCY)";
                     VATAmountLine."Includes Prepayment" := false;
 
-                    VATAmountLine.Modify;
+                    VATAmountLine.Modify();
                 until Next = 0;
         end;
 
@@ -1009,7 +1007,7 @@ table 31021 "Purch. Advance Letter Line"
             if FindSet then
                 repeat
                     if "Amount To Invoice" <> 0 then begin
-                        TempPurchAdvanceLetterLine.Init;
+                        TempPurchAdvanceLetterLine.Init();
                         TempPurchAdvanceLetterLine.SuspendStatusCheck(true);
                         TempPurchAdvanceLetterLine."Letter No." := "Letter No.";
                         TempPurchAdvanceLetterLine."Line No." := "Line No.";
@@ -1032,7 +1030,7 @@ table 31021 "Purch. Advance Letter Line"
                         TempPurchAdvanceLetterLine."VAT Amount" := TempPurchAdvanceLetterLine."VAT Amount" + "VAT Difference Inv.";
                         TempPurchAdvanceLetterLine.Amount :=
                           TempPurchAdvanceLetterLine."Amount Including VAT" - TempPurchAdvanceLetterLine."VAT Amount";
-                        TempPurchAdvanceLetterLine.Insert;
+                        TempPurchAdvanceLetterLine.Insert();
                     end;
                 until Next = 0;
         end;
@@ -1049,7 +1047,7 @@ table 31021 "Purch. Advance Letter Line"
         VATDifference: Decimal;
         VATDifferenceLCY: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         if PurchAdvanceLetterHeader."Currency Code" = '' then
             Currency.InitRoundingPrecision
         else
@@ -1058,7 +1056,7 @@ table 31021 "Purch. Advance Letter Line"
         with PurchAdvanceLetterLine do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter("Amount To Invoice", '<>0');
-            LockTable;
+            LockTable();
             if FindSet then
                 repeat
                     VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
@@ -1067,8 +1065,8 @@ table 31021 "Purch. Advance Letter Line"
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                         then begin
                             TempVATAmountLineRemainder := VATAmountLine;
-                            TempVATAmountLineRemainder.Init;
-                            TempVATAmountLineRemainder.Insert;
+                            TempVATAmountLineRemainder.Init();
+                            TempVATAmountLineRemainder.Insert();
                         end;
 
                         VATAmount :=
@@ -1118,7 +1116,7 @@ table 31021 "Purch. Advance Letter Line"
                         "VAT Correction Inv." := true;
 
                         TempBufVATAmountLine := VATAmountLine;
-                        if TempBufVATAmountLine.Insert then;
+                        if TempBufVATAmountLine.Insert() then;
 
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount -
                           Round(VATAmount, Currency."Amount Rounding Precision");
@@ -1128,7 +1126,7 @@ table 31021 "Purch. Advance Letter Line"
                           Round(VATDifference, Currency."Amount Rounding Precision");
                         TempVATAmountLineRemainder."VAT Difference (LCY)" := VATDifferenceLCY -
                           Round(VATDifferenceLCY, GLSetup."Amount Rounding Precision");
-                        TempVATAmountLineRemainder.Modify;
+                        TempVATAmountLineRemainder.Modify();
                     end else begin
                         "VAT Difference Inv." := 0;
                         "VAT Difference Inv. (LCY)" := 0;
@@ -1165,7 +1163,7 @@ table 31021 "Purch. Advance Letter Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -1231,11 +1229,11 @@ table 31021 "Purch. Advance Letter Line"
         else
             Currency.Get(PurchAdvanceLetterHeader."Currency Code");
 
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Round VAT Coeff." then
             GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
 
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
 
         with PurchAdvanceLetterLine do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
@@ -1245,18 +1243,18 @@ table 31021 "Purch. Advance Letter Line"
                     if not TempVATAmountLine.Get(
                          "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                     then begin
-                        TempVATAmountLine.Init;
+                        TempVATAmountLine.Init();
                         TempVATAmountLine."VAT Identifier" := "VAT Identifier";
                         TempVATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                         TempVATAmountLine."Tax Group Code" := "Tax Group Code";
                         TempVATAmountLine."VAT %" := "VAT %";
                         TempVATAmountLine.Modified := true;
                         TempVATAmountLine.Positive := "Amount Including VAT" >= 0;
-                        TempVATAmountLine.Insert;
+                        TempVATAmountLine.Insert();
                     end;
                     TempVATAmountLine."Amount Including VAT" := TempVATAmountLine."Amount Including VAT" + "Amount Including VAT";
                     TempVATAmountLine."Includes Prepayment" := false;
-                    TempVATAmountLine.Modify;
+                    TempVATAmountLine.Modify();
                 until Next = 0;
         end;
 
@@ -1275,16 +1273,16 @@ table 31021 "Purch. Advance Letter Line"
                         Currency."Amount Rounding Precision", Currency.VATRoundingDirection);
                 TempVATAmountLine."VAT Base" := TempVATAmountLine."Amount Including VAT" - TempVATAmountLine."VAT Amount";
 
-                TempVATAmountLine.Modify;
+                TempVATAmountLine.Modify();
             until TempVATAmountLine.Next = 0;
         end;
 
-        TempVATAmountLineRemainder.DeleteAll;
+        TempVATAmountLineRemainder.DeleteAll();
 
         with PurchAdvanceLetterLine do begin
             SetRange("Letter No.", PurchAdvanceLetterHeader."No.");
             SetFilter(Amount, '<>0');
-            LockTable;
+            LockTable();
             if FindSet then
                 repeat
                     TempVATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0);
@@ -1293,8 +1291,8 @@ table 31021 "Purch. Advance Letter Line"
                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", false, "Amount Including VAT" >= 0)
                         then begin
                             TempVATAmountLineRemainder := TempVATAmountLine;
-                            TempVATAmountLineRemainder.Init;
-                            TempVATAmountLineRemainder.Insert;
+                            TempVATAmountLineRemainder.Init();
+                            TempVATAmountLineRemainder.Insert();
                         end;
 
                         VATAmount :=
@@ -1307,7 +1305,7 @@ table 31021 "Purch. Advance Letter Line"
                         Amount := "Amount Including VAT" - "VAT Amount";
                         Modify;
                         TempVATAmountLineRemainder."VAT Amount" := VATAmount - "VAT Amount";
-                        TempVATAmountLineRemainder.Modify;
+                        TempVATAmountLineRemainder.Modify();
                     end;
                 until Next = 0;
         end;
@@ -1323,7 +1321,7 @@ table 31021 "Purch. Advance Letter Line"
         case "VAT Calculation Type" of
             "VAT Calculation Type"::"Normal VAT":
                 begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if GLSetup."Round VAT Coeff." then begin
                         GLSetup.GetRoundingParamenters(Currency, RoundingPrecision, RoundingDirection);
 

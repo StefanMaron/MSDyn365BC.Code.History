@@ -1085,6 +1085,24 @@ page 6630 "Sales Return Order"
                     DocPrint.PrintSalesHeader(Rec);
                 end;
             }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category10;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesHeader: Record "Sales Header";
+                begin
+                    SalesHeader := Rec;
+                    SalesHeader.SetRecFilter();
+                    DocPrint.PrintSalesHeaderToDocumentAttachment(SalesHeader);
+                end;
+            }
             group(Action7)
             {
                 Caption = 'Release';

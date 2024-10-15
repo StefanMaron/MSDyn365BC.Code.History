@@ -182,7 +182,7 @@ table 31101 "VAT Control Report Line"
 
         VATCtrlRepVATEntryLink.SetRange("Control Report No.", "Control Report No.");
         VATCtrlRepVATEntryLink.SetRange("Line No.", "Line No.");
-        VATCtrlRepVATEntryLink.DeleteAll;
+        VATCtrlRepVATEntryLink.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -222,7 +222,7 @@ table 31101 "VAT Control Report Line"
         VATCtrlRptSections.LookupMode := true;
         if VATCtrlRptSections.RunModal <> ACTION::LookupOK then
             exit;
-        VATCtrlRptSection.Init;
+        VATCtrlRptSection.Init();
         VATCtrlRptSections.GetRecord(VATCtrlRptSection);
         ChangeVATControlRepSectionCode(VATCtrlRptSection.Code);
     end;

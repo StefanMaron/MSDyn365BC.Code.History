@@ -1,4 +1,4 @@
-﻿page 5857 "Get Post.Doc - P.InvLn Subform"
+page 5857 "Get Post.Doc - P.InvLn Subform"
 {
     Caption = 'Lines';
     Editable = false;
@@ -358,7 +358,7 @@
         RemainingQty2: Decimal;
         RevUnitCostLCY2: Decimal;
     begin
-        TempPurchInvLine.Reset;
+        TempPurchInvLine.Reset();
         TempPurchInvLine.CopyFilters(Rec);
         TempPurchInvLine.SetRange("Document No.", "Document No.");
         if not TempPurchInvLine.FindFirst then begin
@@ -373,7 +373,7 @@
                 ShowRec := IsShowRec(PurchInvLine2);
                 if ShowRec then begin
                     TempPurchInvLine := PurchInvLine2;
-                    TempPurchInvLine.Insert;
+                    TempPurchInvLine.Insert();
                 end;
             until (PurchInvLine2.Next = 0) or ShowRec;
             PurchInvHeader := PurchInvHeader2;
@@ -423,8 +423,8 @@
         Visible := NewVisible;
 
         if Visible then begin
-            TempPurchInvLine.Reset;
-            TempPurchInvLine.DeleteAll;
+            TempPurchInvLine.Reset();
+            TempPurchInvLine.DeleteAll();
         end;
     end;
 

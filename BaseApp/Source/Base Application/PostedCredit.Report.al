@@ -174,7 +174,7 @@ report 31057 "Posted Credit"
 
                             if "Remaining Amount" <> 0 then begin
                                 TempPstdLineBuffer := "Posted Credit Line";
-                                TempPstdLineBuffer.Insert;
+                                TempPstdLineBuffer.Insert();
                             end;
 
                             if "Currency Code" = '' then begin
@@ -275,7 +275,7 @@ report 31057 "Posted Credit"
 
                             if "Remaining Amount" <> 0 then begin
                                 TempPstdLineBuffer2 := CreditLine2;
-                                TempPstdLineBuffer2.Insert;
+                                TempPstdLineBuffer2.Insert();
                             end;
 
                             if "Currency Code" = '' then begin
@@ -301,10 +301,10 @@ report 31057 "Posted Credit"
                         begin
                             if Number = 1 then begin
                                 if not TempPstdLineBuffer.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempPstdLineBuffer.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if TempPstdLineBuffer."Credit No." <> '' then
                                 if TempPstdLineBuffer."Currency Code" = '' then begin
@@ -336,10 +336,10 @@ report 31057 "Posted Credit"
                         begin
                             if Number = 1 then begin
                                 if not TempPstdLineBuffer2.FindSet then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
                             end else
                                 if TempPstdLineBuffer2.Next = 0 then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                             if TempPstdLineBuffer2."Credit No." <> '' then
                                 if TempPstdLineBuffer2."Currency Code" = '' then begin
@@ -411,14 +411,12 @@ report 31057 "Posted Credit"
                     if Number > 1 then
                         OutputNo += 1;
 
-                    CurrReport.PageNo := 1;
-
-                    TempPstdLineBuffer.Reset;
-                    TempPstdLineBuffer.DeleteAll;
+                    TempPstdLineBuffer.Reset();
+                    TempPstdLineBuffer.DeleteAll();
                     Clear(TempPstdLineBuffer);
 
-                    TempPstdLineBuffer2.Reset;
-                    TempPstdLineBuffer2.DeleteAll;
+                    TempPstdLineBuffer2.Reset();
+                    TempPstdLineBuffer2.DeleteAll();
                     Clear(TempPstdLineBuffer2);
                 end;
 
@@ -483,8 +481,8 @@ report 31057 "Posted Credit"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
-                GLSetup.Get;
+                CompanyInfo.Get();
+                GLSetup.Get();
 
                 AmtFormatTxt := '<Precision,2:2><Sign><Integer><1000Character, ><Decimals>';
             end;

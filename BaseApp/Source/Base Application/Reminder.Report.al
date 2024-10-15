@@ -200,10 +200,10 @@ report 117 Reminder
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         Continue := false;
@@ -227,7 +227,7 @@ report 117 Reminder
                     trigger OnPreDataItem()
                     begin
                         if not ShowInternalInfo then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
                 dataitem("Issued Reminder Line"; "Issued Reminder Line")
@@ -327,7 +327,7 @@ report 117 Reminder
                     trigger OnAfterGetRecord()
                     begin
                         if not "Detailed Interest Rates Entry" then begin
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -391,7 +391,7 @@ report 117 Reminder
                             until (Next(-1) = 0) or not Continue;
                         end;
 
-                        VATAmountLine.DeleteAll;
+                        VATAmountLine.DeleteAll();
                         SetFilter("Line No.", '<%1', EndLineNo);
                     end;
                 }
@@ -469,7 +469,7 @@ report 117 Reminder
                     trigger OnPreDataItem()
                     begin
                         if VATAmountLine.GetTotalVATAmount = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange(Number, 1, VATAmountLine.Count);
 
@@ -511,7 +511,7 @@ report 117 Reminder
                     begin
                         VATAmountLine.GetLine(Number);
                         if not VATClause.Get(VATAmountLine."VAT Clause Code") then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         VATClause.GetDescription("Issued Reminder Header");
                     end;
 
@@ -560,7 +560,7 @@ report 117 Reminder
                            ("Issued Reminder Header"."Currency Code" = '') or
                            (VATAmountLine.GetTotalVATAmount = 0)
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange(Number, 1, VATAmountLine.Count);
 
@@ -684,7 +684,7 @@ report 117 Reminder
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
             end;
         }
@@ -752,25 +752,25 @@ report 117 Reminder
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        SalesSetup.Get();
 
         case SalesSetup."Logo Position on Documents" of
             SalesSetup."Logo Position on Documents"::"No Logo":
                 ;
             SalesSetup."Logo Position on Documents"::Left:
                 begin
-                    CompanyInfo1.Get;
+                    CompanyInfo1.Get();
                     CompanyInfo1.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Center:
                 begin
-                    CompanyInfo2.Get;
+                    CompanyInfo2.Get();
                     CompanyInfo2.CalcFields(Picture);
                 end;
             SalesSetup."Logo Position on Documents"::Right:
                 begin
-                    CompanyInfo3.Get;
+                    CompanyInfo3.Get();
                     CompanyInfo3.CalcFields(Picture);
                 end;
         end;

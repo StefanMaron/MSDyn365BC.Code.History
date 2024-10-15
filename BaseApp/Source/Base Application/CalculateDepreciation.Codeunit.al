@@ -92,12 +92,12 @@ codeunit 5610 "Calculate Depreciation"
     procedure TransferProjectedValues(var FALedgEntry2: Record "FA Ledger Entry")
     begin
         // NAVCZ
-        TempFALedgEntry.DeleteAll;
+        TempFALedgEntry.DeleteAll();
         if FALedgEntry2.Find('-') then
             repeat
-                TempFALedgEntry.Init;
+                TempFALedgEntry.Init();
                 TempFALedgEntry.TransferFields(FALedgEntry2);
-                TempFALedgEntry.Insert;
+                TempFALedgEntry.Insert();
             until FALedgEntry2.Next = 0;
     end;
 

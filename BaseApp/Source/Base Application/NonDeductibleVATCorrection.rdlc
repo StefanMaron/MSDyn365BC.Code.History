@@ -1489,9 +1489,6 @@ End Function
         <Field Name="FORMAT_TODAY_0_4_">
           <DataField>FORMAT_TODAY_0_4_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="greVATEntry__VAT_Date_">
           <DataField>greVATEntry__VAT_Date_</DataField>
         </Field>

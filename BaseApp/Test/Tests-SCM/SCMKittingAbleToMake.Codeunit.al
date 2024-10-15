@@ -41,9 +41,9 @@ codeunit 137107 "SCM Kitting - Able To Make"
         isInitialized := true;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        MfgSetup.Get;
+        MfgSetup.Get();
         UpdateMfgSetup('<1D>');
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Kitting - Able To Make");
     end;
 
@@ -96,7 +96,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
         VerifyTree(BOMBuffer, Item."No.", ShowTotalAvailability, BottleneckFactor, AbleToMake, 1, DirectAvailFactor, 0);
         VerifyNode(BOMBuffer, Item."No.", 0, AbleToMake * BottleneckFactor, 1, 1);
         BOMBuffer."Location Code" := Location.Code;
-        BOMBuffer.Modify;
+        BOMBuffer.Modify();
     end;
 
     [Test]
@@ -687,10 +687,10 @@ codeunit 137107 "SCM Kitting - Able To Make"
         // [SCENARIO 257036] Description on BOM Buffer entry transferred from a routing, is copied from Description field on the routing line.
         Initialize;
 
-        WorkCenter.Init;
+        WorkCenter.Init();
         WorkCenter."No." := LibraryUtility.GenerateGUID;
         WorkCenter.Name := LibraryUtility.GenerateGUID;
-        WorkCenter.Insert;
+        WorkCenter.Insert();
 
         with RoutingLine do begin
             Init;
@@ -807,7 +807,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         if BOMComponent.FindSet then
             repeat
-                BOMBuffer.Reset;
+                BOMBuffer.Reset();
                 BOMComponent.CalcFields("Assembly BOM");
 
                 if BOMComponent."Assembly BOM" then
@@ -849,7 +849,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
 
         if AssemblyLine.FindSet then
             repeat
-                BOMBuffer.Reset;
+                BOMBuffer.Reset();
                 Item.Get(AssemblyLine."No.");
                 Item.CalcFields("Assembly BOM");
 
@@ -889,7 +889,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     var
         AbleToMake: Decimal;
     begin
-        BOMBuffer.Reset;
+        BOMBuffer.Reset();
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
         BOMBuffer.FindFirst;
@@ -915,7 +915,7 @@ codeunit 137107 "SCM Kitting - Able To Make"
     [Normal]
     local procedure VerifyTopItem(var BOMBuffer: Record "BOM Buffer"; ItemNo: Code[20]; AvailableQty: Decimal; AbleToMake: Decimal; ShowTotalAvailability: Boolean)
     begin
-        BOMBuffer.Reset;
+        BOMBuffer.Reset();
         BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
         BOMBuffer.SetRange("No.", ItemNo);
         BOMBuffer.FindFirst;

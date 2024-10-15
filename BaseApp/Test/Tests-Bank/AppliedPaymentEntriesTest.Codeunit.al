@@ -9,8 +9,6 @@ codeunit 134264 "Applied Payment Entries Test"
     end;
 
     var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
-        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
@@ -727,7 +725,7 @@ codeunit 134264 "Applied Payment Entries Test"
     begin
         FillInCommonBankAccRecLineFields(BankAccReconLine, BankAccRecon, TransactionDate, Amount);
         BankAccReconLine."Transaction Text" := TransactionText;
-        BankAccReconLine.Insert;
+        BankAccReconLine.Insert();
         exit(BankAccReconLine."Statement Line No.");
     end;
 
@@ -746,7 +744,7 @@ codeunit 134264 "Applied Payment Entries Test"
             "Statement No." := BankAccRecon."Statement No.";
             "Statement Line No." += 10000;
             "Transaction Date" := TransactionDate;
-            Validate("Statement Amount", Amount); // NAVCZ
+            "Statement Amount" := Amount;
             Difference := Amount;
             Type := Type::"Bank Account Ledger Entry";
         end;
@@ -768,11 +766,6 @@ codeunit 134264 "Applied Payment Entries Test"
             Init;
             "No." := BankAccNo;
             "Currency Code" := LibraryERM.GetLCYCode;
-            // NAVCZ
-            "Currency Code" := '';
-            "Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
-            "Text-to-Account Mapping Code" := GetAccountMappingCode;
-            // NAVCZ
             Insert;
         end;
 
@@ -1154,22 +1147,6 @@ codeunit 134264 "Applied Payment Entries Test"
         Assert.AreEqual(StmtAmt - ExpectAmt, PaymentApplication.TotalRemainingAmount.AsDEcimal, 'Amount left to apply is incorrect.');
 
         LibraryVariableStorage.Enqueue(ExpectAmt);
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    begin
-        // NAVCZ
-        if BankPmtApplRuleCode.Code = '' then
-            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    begin
-        // NAVCZ
-        if TextToAccMappingCode.Code = '' then
-            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
-        exit(TextToAccMappingCode.Code);
     end;
 }
 

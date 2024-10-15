@@ -46,7 +46,7 @@ report 11797 "Copy User Setup"
 
     trigger OnPreReport()
     begin
-        UserSetup.LockTable;
+        UserSetup.LockTable();
         UserSetup.Get(FromUserId);
         UserSetup.CopyTo(ToUserId);
     end;

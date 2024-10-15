@@ -39,7 +39,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreateGenJournalLine(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
@@ -62,7 +62,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreateGLEntry(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateGLEntryAttachmentsURLWithFilter(Format(GetGLEntryNo(DocumentRecordRef)));
@@ -85,7 +85,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreatePostedSalesInvoice(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
@@ -108,7 +108,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreateDraftSalesInvoice(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
@@ -131,7 +131,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreatePostedPurchaseInvoice(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
@@ -154,7 +154,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreateDraftPurchaseInvoice(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
@@ -177,7 +177,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] 2 Attachments in the Incoming Document Attachment table
         CreateSalesQuote(DocumentRecordRef);
         CreateAttachments(DocumentRecordRef, AttachmentId);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := CreateAttachmentsURLWithFilter(GetDocumentId(DocumentRecordRef));
@@ -200,7 +200,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] Attachment exists in the Incoming Document Attachment table
         CreateGenJournalLine(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -224,7 +224,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] Attachment exists in the Incoming Document Attachment table
         CreateGLEntry(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -248,7 +248,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] Attachment exists in the Incoming Document Attachment table
         CreatePostedSalesInvoice(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -272,7 +272,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] Attachment exists in the Incoming Document Attachment table
         CreateDraftSalesInvoice(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -296,7 +296,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] Attachment exists in the Incoming Document Attachment table
         CreateSalesQuote(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] A GET request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -326,7 +326,7 @@ codeunit 135545 "Attachments E2E Test"
         AttachmentId := CreateAttachment(DocumentRecordRef);
         GenerateRandomBinaryContent(TempBlob);
         ExpectedBase64Content := BlobToBase64String(TempBlob);
-        Commit;
+        Commit();
 
         // [WHEN] A PATCH request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFieldsAndSubpage(
@@ -362,7 +362,7 @@ codeunit 135545 "Attachments E2E Test"
         AttachmentId := CreateAttachment(DocumentRecordRef);
         GenerateRandomBinaryContent(TempBlob);
         ExpectedBase64Content := BlobToBase64String(TempBlob);
-        Commit;
+        Commit();
 
         // [WHEN] A PATCH request is made to the Attachment API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFieldsAndSubpage(
@@ -460,7 +460,7 @@ codeunit 135545 "Attachments E2E Test"
         CreateIncomingDocumentAttachment(IncomingDocument, TempIncomingDocumentAttachment);
         TempBlob.FromRecord(TempIncomingDocumentAttachment, TempIncomingDocumentAttachment.FieldNo(Content));
         AttachmentJSON := GetAttachmentJSON(DocumentId, TempIncomingDocumentAttachment, false);
-        Commit;
+        Commit();
 
         // [WHEN] The user posts the JSON to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Attachments Entity", AttachmentServiceNameTxt);
@@ -504,7 +504,7 @@ codeunit 135545 "Attachments E2E Test"
         CreateIncomingDocumentAttachment(IncomingDocument, TempIncomingDocumentAttachment);
         TempBlob.FromRecord(TempIncomingDocumentAttachment, TempIncomingDocumentAttachment.FieldNo(Content));
         AttachmentJSON := GetGLEntryAttachmentJSON(GLEntryNo, TempIncomingDocumentAttachment, false);
-        Commit;
+        Commit();
 
         // [WHEN] The user posts the JSON to the service.
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"G/L Entry Attachments Entity", GLEntryAttachmentServiceNameTxt);
@@ -621,7 +621,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] An Attachment exists.
         DocumentId := GetDocumentId(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Attachment.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -649,7 +649,7 @@ codeunit 135545 "Attachments E2E Test"
         // [GIVEN] An Attachment exists.
         GLEntryNo := GetGLEntryNo(DocumentRecordRef);
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] The user makes a DELETE request to the endpoint for the Attachment.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -684,7 +684,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [GIVEN] An attacment is linked to the draft invoice.
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] The invoice is posted through the Invoices API.
         TargetURL :=
@@ -724,7 +724,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [GIVEN] An attacment is linked to the draft invoice.
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] The invoice is posted through the Invoices API.
         TargetURL := LibraryGraphMgt.CreateTargetURLWithSubpage(
@@ -769,7 +769,7 @@ codeunit 135545 "Attachments E2E Test"
         IncomingDocumentAttachment.SetRange(Id, AttachmentId);
         IncomingDocumentAttachment.FindFirst;
         OldBase64Content := GetAttachmentBase64Content(IncomingDocumentAttachment);
-        Commit;
+        Commit();
 
         // [WHEN] The user changes the attachment file name by making a PATCH request
         FileName := StrSubstNo('%1.txt', FormatGuid(CreateGuid));
@@ -818,7 +818,7 @@ codeunit 135545 "Attachments E2E Test"
         IncomingDocumentAttachment.FindFirst;
         OldFileName := NameAndExtensionToFileName(IncomingDocumentAttachment.Name, IncomingDocumentAttachment."File Extension");
         TempBlob.FromRecord(IncomingDocumentAttachment, IncomingDocumentAttachment.FieldNo(Content));
-        Commit;
+        Commit();
 
         // [WHEN] The user changes the attachment content by making a PATCH request
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFieldsAndSubpage(
@@ -853,7 +853,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [GIVEN] A linked attachment exists.
         AttachmentId := CreateAttachment(DocumentRecordRef);
-        Commit;
+        Commit();
 
         // [WHEN] The user changes the attachment ID by making a PATCH request
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -886,7 +886,7 @@ codeunit 135545 "Attachments E2E Test"
 
         // [GIVEN] An attachment is linked to the first document.
         AttachmentId := CreateAttachment(DocumentRecordRef[1]);
-        Commit;
+        Commit();
 
         // [WHEN] The user changes the document ID by making a PATCH request
         TargetURL := LibraryGraphMgt.CreateTargetURLWithTwoKeyFields(
@@ -1073,7 +1073,7 @@ codeunit 135545 "Attachments E2E Test"
         if FindIncomingDocument(DocumentRecordRef, IncomingDocument) then
             exit(true);
 
-        IncomingDocument.Init;
+        IncomingDocument.Init();
         IncomingDocument."Related Record ID" := DocumentRecordRef.RecordId;
 
         if DocumentRecordRef.Number = DATABASE::"Sales Invoice Header" then begin
@@ -1093,7 +1093,7 @@ codeunit 135545 "Attachments E2E Test"
             IncomingDocument."Document Type" := IncomingDocument."Document Type"::Journal;
             IncomingDocument.Insert(true);
             GenJournalLine."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            GenJournalLine.Modify;
+            GenJournalLine.Modify();
             DocumentRecordRef.GetTable(GenJournalLine);
             exit(true);
         end;
@@ -1118,7 +1118,7 @@ codeunit 135545 "Attachments E2E Test"
             IncomingDocument.Find;
             SalesHeader.Find;
             SalesHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            SalesHeader.Modify;
+            SalesHeader.Modify();
             DocumentRecordRef.GetTable(SalesHeader);
             exit(true);
         end;
@@ -1144,7 +1144,7 @@ codeunit 135545 "Attachments E2E Test"
             IncomingDocument.Insert(true);
             PurchaseHeader.Find;
             PurchaseHeader."Incoming Document Entry No." := IncomingDocument."Entry No.";
-            PurchaseHeader.Modify;
+            PurchaseHeader.Modify();
             DocumentRecordRef.GetTable(PurchaseHeader);
             exit(true);
         end;
@@ -1175,7 +1175,7 @@ codeunit 135545 "Attachments E2E Test"
         else
             LineNo := LastUsedIncomingDocumentAttachment."Line No." + 10000;
 
-        IncomingDocumentAttachment.Init;
+        IncomingDocumentAttachment.Init();
         IncomingDocumentAttachment."Incoming Document Entry No." := IncomingDocument."Entry No.";
         IncomingDocumentAttachment."Line No." := LineNo;
         IncomingDocumentAttachment.Name :=

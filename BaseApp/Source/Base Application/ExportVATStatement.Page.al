@@ -254,7 +254,7 @@ page 11774 "Export VAT Statement"
         VATStatDate := Today;
         UpdateDateParameters;
         UpdateControls;
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         if CompanyOfficials.Get(StatReportingSetup."VAT Stat. Filled by Empl. No.") then
             FilledByEmployeeNo := CompanyOfficials."No.";
     end;
@@ -351,7 +351,7 @@ page 11774 "Export VAT Statement"
 
         ClearXMLPortVariables();
 
-        VATStatementLine.Reset;
+        VATStatementLine.Reset();
         VATStatementLine.SetRange("Statement Template Name", "Statement Template Name");
         VATStatementLine.SetRange("Statement Name", Name);
         VATStatementLine.SetRange("Date Filter", StartDate, EndDate);

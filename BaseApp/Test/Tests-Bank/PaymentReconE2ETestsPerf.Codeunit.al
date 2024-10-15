@@ -34,9 +34,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
     end;
 
     var
-        BankPmtApplRuleCode: Record "Bank Pmt. Appl. Rule Code";
         GlobalCustLedgEntry: Record "Cust. Ledger Entry";
-        TextToAccMappingCode: Record "Text-to-Account Mapping Code";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -162,10 +160,6 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERM.CreateBankAccount(BankAcc);
         BankAcc."Bank Account No." := 'TEST';
         BankAcc."Bank Statement Import Format" := BankStmtFormat;
-        // NAVCZ
-        BankAcc."Bank Pmt. Appl. Rule Code" := GetBankPmtApplRuleCode;
-        BankAcc."Text-to-Account Mapping Code" := GetAccountMappingCode;
-        // NAVCZ
         BankAcc.Modify(true);
     end;
 
@@ -351,7 +345,7 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         UpdateCustPostingGrp;
-        Commit;
+        Commit();
     end;
 
     [MessageHandler]
@@ -390,22 +384,6 @@ codeunit 134271 "Payment Recon. E2E Tests Perf."
 
             OK.Invoke;
         end;
-    end;
-
-    local procedure GetBankPmtApplRuleCode(): Code[10]
-    begin
-        // NAVCZ
-        if BankPmtApplRuleCode.Code = '' then
-            LibraryERM.CreateBankPmtApplRuleCode(BankPmtApplRuleCode);
-        exit(BankPmtApplRuleCode.Code);
-    end;
-
-    local procedure GetAccountMappingCode(): Code[10]
-    begin
-        // NAVCZ
-        if TextToAccMappingCode.Code = '' then
-            LibraryERM.CreateAccountMappingCode(TextToAccMappingCode);
-        exit(TextToAccMappingCode.Code);
     end;
 }
 

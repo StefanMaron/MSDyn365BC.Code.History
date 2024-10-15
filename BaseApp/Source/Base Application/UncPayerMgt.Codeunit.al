@@ -182,7 +182,7 @@ codeunit 11760 "Unc. Payer Mgt."
         if ElectronicallyGovernSetup.UncertaintyPayerWebService = '' then
             exit(false);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         SetupReaded := true;
         exit(true);
     end;
@@ -340,8 +340,8 @@ codeunit 11760 "Unc. Payer Mgt."
         if not ElectronicallyGovernSetup.Get then begin
             if not ElectronicallyGovernSetup.WritePermission then
                 exit;
-            ElectronicallyGovernSetup.Init;
-            ElectronicallyGovernSetup.Insert;
+            ElectronicallyGovernSetup.Init();
+            ElectronicallyGovernSetup.Insert();
         end;
 
         ServiceConnection.Status := ServiceConnection.Status::Enabled;
@@ -477,7 +477,7 @@ codeunit 11760 "Unc. Payer Mgt."
 
     local procedure SetPaymentOrderLineFilter(PaymentOrderHeader: Record "Payment Order Header"; var PaymentOrderLine: Record "Payment Order Line")
     begin
-        PaymentOrderLine.Reset;
+        PaymentOrderLine.Reset();
         PaymentOrderLine.SetRange("Payment Order No.", PaymentOrderHeader."No.");
         PaymentOrderLine.SetRange(Type, PaymentOrderLine.Type::Vendor);
         PaymentOrderLine.SetRange("Skip Payment", false);

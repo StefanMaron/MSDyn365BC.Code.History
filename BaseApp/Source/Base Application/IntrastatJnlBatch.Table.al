@@ -116,12 +116,12 @@ table 262 "Intrastat Jnl. Batch"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", Name);
-        IntrastatJnlLine.DeleteAll;
+        IntrastatJnlLine.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         IntraJnlTemplate.Get("Journal Template Name");
     end;
 
@@ -149,7 +149,7 @@ table 262 "Intrastat Jnl. Batch"
     begin
         // NAVCZ
         if "Declaration No." <> '' then begin
-            IntrastatJnlBatch.Reset;
+            IntrastatJnlBatch.Reset();
             IntrastatJnlBatch.SetRange("Journal Template Name", "Journal Template Name");
             IntrastatJnlBatch.SetRange("Statistics Period", "Statistics Period");
             IntrastatJnlBatch.SetRange("Declaration No.", "Declaration No.");
@@ -163,7 +163,7 @@ table 262 "Intrastat Jnl. Batch"
     procedure CheckJnlLinesExist(CurrentFieldNo: Integer)
     begin
         // NAVCZ
-        IntrastatJnlLine.Reset;
+        IntrastatJnlLine.Reset();
         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", Name);
         case CurrentFieldNo of
@@ -196,7 +196,7 @@ table 262 "Intrastat Jnl. Batch"
     begin
         // NAVCZ
         if "Declaration No." = '' then begin
-            VATReportingSetup.Get;
+            VATReportingSetup.Get();
             VATReportingSetup.TestField("Intrastat Declaration Nos.");
             "Declaration No." := NoSeriesMgt.GetNextNo(VATReportingSetup."Intrastat Declaration Nos.", 0D, true);
             exit(true);

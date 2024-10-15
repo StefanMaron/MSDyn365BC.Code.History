@@ -159,7 +159,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -205,7 +205,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
         LineNo := 500;
         InvoiceLineJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceLineJSON, 'sequence', LineNo);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt
@@ -261,7 +261,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [GIVEN] a JSON with an invoice line with UoM as complex type
         InvoiceLineJSON[2] := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
         InvoiceLineJSON[2] := LibraryGraphMgt.AddComplexTypetoJSON(InvoiceLineJSON[2], UoMComplexTypeNameTxt, UoMJSON);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSONs to the web service
         TargetURL := LibraryGraphMgt
@@ -319,7 +319,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [THEN] the line should be changed in the table and the response JSON text should contain our changed field
         Assert.AreNotEqual('', ResponseText, 'Response JSON should not be blank');
 
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Line No.", LineNo);
@@ -407,7 +407,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         // [GIVEN] a JSON with a UoM as complex type
         InvoiceLineJSON[2] := LibraryGraphMgt.AddComplexTypetoJSON('', UoMComplexTypeNameTxt, UoMJSON);
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSONs to the web service
         TargetURL := LibraryGraphMgt
@@ -451,7 +451,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         SalesLine.FindFirst();
         LineNo := SalesLine."Line No.";
 
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the first line of that invoice
         TargetURL := LibraryGraphMgt
@@ -463,7 +463,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should no longer exist in the database
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Line No.", LineNo);
@@ -500,7 +500,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         asserterror LibraryGraphMgt.DeleteFromWebService(TargetURL, '', ResponseText);
 
         // [THEN] the line should still exist, since it's not allowed to delete lines in posted invoices
-        SalesInvoiceLine.Reset;
+        SalesInvoiceLine.Reset();
         SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
         SalesInvoiceLine.SetRange("Line No.", LineNo);
         Assert.IsTrue(SalesInvoiceLine.FindFirst, 'The invoice line should still exist');
@@ -539,7 +539,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         InvoiceID := SalesHeader.Id;
         ItemQuantity := LibraryRandom.RandIntInRange(1, 100);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, ItemQuantity);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and when we create an invoice through the client UI
         TargetURL := LibraryGraphMgt
@@ -605,7 +605,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         DiscountPct := LibraryRandom.RandDecInDecimalRange(1, 90, 2);
         LibrarySmallBusiness.SetInvoiceDiscountToCustomer(Customer, DiscountPct, MinAmount, SalesHeader."Currency Code");
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -650,7 +650,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         FindFirstSalesLine(SalesHeader, SalesLine);
         SalesQuantity := SalesLine.Quantity * 2;
 
-        Commit;
+        Commit();
 
         InvoiceLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
 
@@ -703,7 +703,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct2, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -746,7 +746,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         CODEUNIT.Run(CODEUNIT::"Sales - Calc Discount By Type", SalesLine);
         SalesHeader.Find;
         Assert.AreEqual(SalesHeader."Invoice Discount Value", DiscountPct, 'Discount Pct was not assigned');
-        Commit;
+        Commit();
 
         // [WHEN] we DELETE the line
         TargetURL := LibraryGraphMgt
@@ -779,7 +779,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
         InvoiceLineJSON := CreateInvoiceLineJSON(Item.Id, LibraryRandom.RandIntInRange(1, 100));
 
-        Commit;
+        Commit();
 
         // [WHEN] We create a line through API
         TargetURL := LibraryGraphMgt
@@ -816,7 +816,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         SalesQuantity := 0;
         InvoiceLineJSON := LibraryGraphMgt.AddComplexTypetoJSON('{}', 'quantity', Format(SalesQuantity));
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -850,7 +850,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         // [GIVEN] An unposted invoice for customer with invoice discount pct
         Initialize();
         SetupAmountDiscountTest(SalesHeader, DiscountAmount);
-        Commit;
+        Commit();
 
         FindFirstSalesLine(SalesHeader, SalesLine);
 
@@ -885,7 +885,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         Initialize();
         CreateInvoiceWithAllPossibleLineTypes(SalesHeader, ExpectedNumberOfLines);
 
-        Commit;
+        Commit();
 
         // [WHEN] we GET the lines
         TargetURL := LibraryGraphMgt
@@ -922,7 +922,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         Initialize();
         CreateSalesInvoiceWithLines(SalesHeader);
 
-        Commit;
+        Commit();
 
         InvoiceLineJSON := '{"description":"test"}';
 
@@ -966,7 +966,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         InvoiceLineJSON := '{"' + LineTypeFieldNameTxt + '":"Comment","description":"test"}';
 
-        Commit;
+        Commit();
 
         // [WHEN] we just POST a blank line
         TargetURL := LibraryGraphMgt
@@ -1069,7 +1069,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibraryInventory.CreateItem(Item);
 
         InvoiceLineJSON := StrSubstNo('{"itemId":"%1"}', IntegrationManagement.GetIdWithoutBrackets(Item.Id));
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the line
         TargetURL := LibraryGraphMgt
@@ -1145,7 +1145,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        ExpectedNumberOfLines := SalesLine.Count;
+        ExpectedNumberOfLines := SalesLine.Count();
     end;
 
     local procedure CreateSalesInvoiceWithLines(var SalesHeader: Record "Sales Header"): Text
@@ -1157,7 +1157,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
-        Commit;
+        Commit();
         exit(SalesHeader.Id);
     end;
 
@@ -1175,9 +1175,9 @@ codeunit 135511 "Sales Invoice Line E2E Test"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 2);
         PostedSalesInvoiceID := SalesHeader.Id;
         NewNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
-        Commit;
+        Commit();
 
-        SalesInvoiceHeader.Reset;
+        SalesInvoiceHeader.Reset();
         SalesInvoiceHeader.SetFilter("No.", NewNo);
         SalesInvoiceHeader.FindFirst();
 
@@ -1209,7 +1209,7 @@ codeunit 135511 "Sales Invoice Line E2E Test"
 
         SalesInvoice.SalesLines.Last;
         SalesInvoice.SalesLines.Next;
-        SalesInvoice.SalesLines.Type.SetValue(SalesLine.Type::Item);
+        SalesInvoice.SalesLines.FilteredTypeField.SETVALUE(SalesLine.Type::Item);
         SalesInvoice.SalesLines."No.".SetValue(ItemNo);
 
         SalesInvoice.SalesLines.Quantity.SetValue(ItemQuantity);

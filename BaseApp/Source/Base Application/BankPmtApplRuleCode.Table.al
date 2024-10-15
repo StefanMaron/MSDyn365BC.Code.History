@@ -37,7 +37,7 @@ table 11702 "Bank Pmt. Appl. Rule Code"
         BankPmtApplRule: Record "Bank Pmt. Appl. Rule";
     begin
         BankPmtApplRule.SetRange("Bank Pmt. Appl. Rule Code", Code);
-        BankPmtApplRule.DeleteAll;
+        BankPmtApplRule.DeleteAll();
     end;
 }
 

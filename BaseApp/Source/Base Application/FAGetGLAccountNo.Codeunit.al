@@ -14,7 +14,7 @@ codeunit 5602 "FA Get G/L Account No."
         FASetup: Record "FA Setup";
         FAExtPostingGr: Record "FA Extended Posting Group";
     begin
-        FASetup.Get;
+        FASetup.Get();
         with FALedgEntry do begin
             FAPostingGr.Get("FA Posting Group");
             GLAccNo := '';
@@ -117,7 +117,7 @@ codeunit 5602 "FA Get G/L Account No."
         FASetup: Record "FA Setup";
     begin
         // NAVCZ
-        FASetup.Get;
+        FASetup.Get();
         if FASetup."FA Maintenance By Maint. Code" then begin
             FAExtPostingGr.Get(MaintenanceLedgEntry."FA Posting Group", 2, MaintenanceLedgEntry."Maintenance Code");
             FAExtPostingGr.TestField("Maintenance Expense Account");

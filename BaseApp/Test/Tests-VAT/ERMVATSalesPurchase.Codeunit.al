@@ -56,7 +56,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure ErrorVATAmountOnPurchaseOrder()
     var
@@ -100,7 +99,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
-    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure VATDifferenceOnPurchaseOrder()
     var
@@ -445,7 +443,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATDifference: Decimal;
         PostedDocumentNo: Code[20];
         VATAmount: Decimal;
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
     begin
         // Check VAT Amount on GL Entry after taking VAT Difference amount on Purchase Line.
 
@@ -456,10 +453,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CreatePurchDocWithPartQtyToRcpt(PurchaseHeader, PurchaseLine, '', 1, PurchaseHeader."Document Type"::Order);
         PurchaseLine.Validate("VAT Difference", VATDifference);
         PurchaseLine.Modify(true);
-        // NAVCZ
-        PurchaseLine.CalcVATAmountLines(1, PurchaseHeader, PurchaseLine, TempVATAmountLine);
-        VATAmount := TempVATAmountLine."VAT Amount";
-        // NAVCZ
+        VATAmount :=
+          Round(PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost" * PurchaseLine."VAT %" / 100) + VATDifference;
         PostedDocumentNo := NoSeriesManagement.GetNextNo(PurchaseHeader."Posting No. Series", WorkDate, false);
 
         // Exercise: Post Purchase Order with Ship and Invoice.
@@ -478,7 +473,6 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATDifference: Decimal;
         PostedDocumentNo: Code[20];
         VATAmount: Decimal;
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
     begin
         // Check VAT Amount on GL Entry after taking VAT Difference amount on Sales Line.
 
@@ -489,11 +483,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Order);
         SalesLine.Validate("VAT Difference", VATDifference);
         SalesLine.Modify(true);
-        // NAVCZ
-        // VATAmount := ROUND(SalesLine."Qty. to Invoice" * SalesLine."Unit Price" * SalesLine."VAT %" / 100) + VATDifference;
-        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine);
-        VATAmount := TempVATAmountLine."VAT Amount";
-        // NAVCZ
+        VATAmount := Round(SalesLine."Qty. to Invoice" * SalesLine."Unit Price" * SalesLine."VAT %" / 100) + VATDifference;
 
         // Exercise: Post Sales Order with Ship and Invoice.
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -614,15 +604,14 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Initialize;
         ModifyAllowVATDifferenceSales(true);
         CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Invoice); // Take 1 for Single Sales Line.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         SalesLine.Validate("VAT Difference", GeneralLedgerSetup."Max. VAT Difference Allowed");
         SalesLine.Modify(true);
         VATDifference := SalesLine."VAT Difference";
         CalcSalesVATAmountLines(VATAmountLine, SalesHeader, SalesLine);
-        VATDifference := VATAmountLine."VAT Difference"; // NAVCZ
 
         // Exercise: Create Sales Header and Run Copy Sales Document Report and Calculate VAT Amount Line.
-        SalesHeader2.Init;
+        SalesHeader2.Init();
         SalesHeader2.Validate("Document Type", SalesHeader2."Document Type"::Invoice);
         SalesHeader2.Insert(true);
         RunCopySalesDocument(SalesHeader2, SalesHeader."No.", DocumentType::Invoice, true, false);
@@ -654,10 +643,9 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         PurchaseLine.Validate("VAT Difference", VATDifference);
         PurchaseLine.Modify(true);
         CalcPurchaseVATAmountLines(VATAmountLine, PurchaseHeader, PurchaseLine);
-        VATDifference := VATAmountLine."VAT Difference"; // NAVCZ
 
         // Exercise: Create Purchase Header and Run Copy Purchase Document Report and Calculate VAT Amount Line.
-        PurchaseHeader2.Init;
+        PurchaseHeader2.Init();
         PurchaseHeader2.Validate("Document Type", PurchaseHeader2."Document Type"::Invoice);
         PurchaseHeader2.Insert(true);
         RunCopyPurchaseDocument(PurchaseHeader2, PurchaseHeader."No.");
@@ -883,8 +871,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GLAccountNo := CreateSalesLineThroughPage(VATPostingSetup, SalesHeader."No.");
 
         // Verify: Verify VAT Difference on Sales Lines.
-        VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", SalesLine."No.", 0);
-        VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", GLAccountNo, 0); // VAT Difference must be zero in both lines.
+        VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", SalesLine."No.", -MaxVATDifference);
+        VerifyVATDifference(SalesHeader."Document Type", SalesHeader."No.", GLAccountNo, 0); // VAT Difference must be zero because we have not edit the VAT Amount for this line.
     end;
 
     [Test]
@@ -1031,7 +1019,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Setup: Create Sales Invoice.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldInvRoundingPrecision := ModifyInvRoundingInGLSetup(LibraryRandom.RandDec(0, 1));
         ModifyInvRoundingInSalesSetup(true, SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, true); // Prices Including VAT TRUE to make sure that VAT Amount is not added to the line amount.
@@ -1071,7 +1059,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Setup: Create Sales Invoice and create another Sales Invoice using Copy Document Functionality.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         OldInvRoundingPrecision := ModifyInvRoundingInGLSetup(LibraryRandom.RandDec(0, 1));
         ModifyInvRoundingInSalesSetup(true, SalesReceivablesSetup."Credit Warnings"::"Both Warnings");
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, false);
@@ -1162,8 +1150,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Setup: Create Purchase Invoice and create another Purchase Invoice using Copy Document Functionality.
         Initialize;
-        GeneralLedgerSetup.Get;
-        PurchasesPayablesSetup.Get;
+        GeneralLedgerSetup.Get();
+        PurchasesPayablesSetup.Get();
         ModifyInvRoundingInGLSetup(LibraryRandom.RandDec(0, 1));
         ModifyInvRoundingInPurchSetup(true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseLine."Document Type"::Invoice, false);
@@ -1209,8 +1197,8 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         // Setup: Create Sales Invoice and create another Sales Invoice using Copy Document Functionality.
         Initialize;
-        GeneralLedgerSetup.Get;
-        SalesReceivablesSetup.Get;
+        GeneralLedgerSetup.Get();
+        SalesReceivablesSetup.Get();
         ModifyInvRoundingInGLSetup(LibraryRandom.RandDec(0, 1));
         ModifyInvRoundingInSalesSetup(true, SalesReceivablesSetup."Credit Warnings"::"No Warning");
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, false);
@@ -1567,6 +1555,34 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
+    [HandlerFunctions('InvoicingVATAmountSalesOrderStatisticsHandler')]
+    [Scope('OnPrem')]
+    procedure VATAmountOnInvoiceTabSalesOrderPartShipAndInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [Statistics]
+        // [SCENARIO 376292] VAT Amount should be calculated on Sales order statistics /Invoicing fasttab for remaining quantity when post Sales Order partially Ship then Invoice
+        Initialize;
+
+        // [GIVEN] Sales Order with Quantity = 10, Line Amount = 10.000, VAT Amount = 2.500
+        CreateSalesDocWithPartQtyToShip(SalesHeader, SalesLine, 1, SalesHeader."Document Type"::Order);
+
+        // [GIVEN] Partially posted Sales Invoice as Ship with QtyToShip = 1, then posted separately as Invoice with QtyToInvoice = 1
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [WHEN] Open Sales Order Statistics
+        LibraryVariableStorage.Enqueue(
+          SalesLine."Line Amount" * SalesLine."VAT %" / 100 * SalesLine."Qty. to Ship" / SalesLine.Quantity);
+        OpenSalesOrderStatistics(SalesHeader."No.");
+
+        // [THEN] Invoicing tab has VAT Amount for remaining quantity = 2.250 (2.500 * (10 - 1))
+        // verification is done in InvoicingVATAmountSalesOrderStatisticsHandler
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SalesCheckNumbersOfLinesLimitNeg()
     var
@@ -1582,7 +1598,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Initialize;
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
         for i := 1 to 110 do begin
-            SalesLine.Init;
+            SalesLine.Init();
             SalesLine.Validate("Document Type", SalesHeader."Document Type");
             SalesLine.Validate("Document No.", SalesHeader."No.");
             RecRef.GetTable(SalesLine);
@@ -1631,7 +1647,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Initialize;
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
         for i := 1 to 110 do begin
-            PurchaseLine.Init;
+            PurchaseLine.Init();
             PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
             PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
             RecRef.GetTable(PurchaseLine);
@@ -2035,7 +2051,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATPostingSetup[2]."VAT Identifier" := LibraryUtility.GenerateGUID;
         VATPostingSetup[2]."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
         VATPostingSetup[2]."VAT %" := VATPct[2];
-        VATPostingSetup[2].Insert;
+        VATPostingSetup[2].Insert();
 
         InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         InvoiceRoundingGLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
@@ -2113,7 +2129,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATPostingSetup[2]."VAT Identifier" := LibraryUtility.GenerateGUID;
         VATPostingSetup[2]."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
         VATPostingSetup[2]."VAT %" := VATPct[2];
-        VATPostingSetup[2].Insert;
+        VATPostingSetup[2].Insert();
 
         InvoiceRoundingGLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
         InvoiceRoundingGLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
@@ -2173,7 +2189,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -2277,7 +2293,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale),
           LibraryRandom.RandInt(10) * 2); // need to have even Quantity
         SalesLine.Validate("Unit Price", (1 + VATPostingSetup."VAT %" / 100) * LibraryRandom.RandIntInRange(100, 200)); // need to prevent rounding issues
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure CreateSalesLineWithCustomAmounts(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; Quantity: Decimal; UnitPrice: Decimal; DiscountPct: Decimal)
@@ -2290,7 +2306,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
           Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Validate("Line Discount %", DiscountPct);
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure CreateSalesLineWithUnitPriceAndVATProdPstGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; VATProdPstGroupCode: Code[20]; Type: Option; No: Code[20]; Quantity: Decimal)
@@ -2305,7 +2321,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         Item: Record Item;
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Validate("Document Type", SalesHeader."Document Type");
         SalesLine.Validate("Document No.", SalesHeader."No.");
         SalesLine.Validate(Type, SalesLine.Type::Item);
@@ -2408,7 +2424,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         Item: Record Item;
     begin
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Validate("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.Validate("Document No.", PurchaseHeader."No.");
         PurchaseLine.Validate(Type, PurchaseLine.Type::Item);
@@ -2484,7 +2500,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         LibrarySales.CreateCustomerWithVATRegNo(Customer);
         Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; VATPercent: Decimal; VATCalculationType: Option)
@@ -2500,12 +2516,12 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     begin
         LibraryPurchase.CreateVendorWithVATRegNo(Vendor);
         Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-        Vendor.Modify;
+        Vendor.Modify();
     end;
 
     local procedure MockVATAmountLine(var VATAmountLine: Record "VAT Amount Line"; VATIdentifier: Code[20]; LineAmount: Decimal; InvDiscAmount: Decimal; VATBase: Decimal; VATPct: Decimal; VATAmount: Decimal)
     begin
-        VATAmountLine.Init;
+        VATAmountLine.Init();
         VATAmountLine."VAT Identifier" := VATIdentifier;
         VATAmountLine."Line Amount" := LineAmount;
         VATAmountLine."Invoice Discount Amount" := InvDiscAmount;
@@ -2513,7 +2529,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATAmountLine."VAT %" := VATPct;
         VATAmountLine."VAT Amount" := VATAmount;
         VATAmountLine.Positive := VATAmountLine."VAT Amount" > 0;
-        VATAmountLine.Insert;
+        VATAmountLine.Insert();
     end;
 
     local procedure CalcSalesVATAmountLines(var VATAmountLine: Record "VAT Amount Line"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line")
@@ -2542,7 +2558,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Allow VAT Difference", AllowVATDifference);
         PurchasesPayablesSetup.Modify(true);
         exit(SetMaxAllowedVATDifference(AllowVATDifference));
@@ -2552,7 +2568,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Allow VAT Difference", AllowVATDifference);
         SalesReceivablesSetup.Modify(true);
         exit(SetMaxAllowedVATDifference(AllowVATDifference));
@@ -2579,7 +2595,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Invoice Rounding", InvoiceRounding);
         SalesReceivablesSetup.Validate("Credit Warnings", CreditWarnings);
         SalesReceivablesSetup.Modify(true);
@@ -2589,7 +2605,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         OldInvRoundingPrecision := GeneralLedgerSetup."Inv. Rounding Precision (LCY)";
         GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvRoundingPrecisionLCY);
         GeneralLedgerSetup.Modify(true);
@@ -2599,7 +2615,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Invoice Rounding", InvoiceRounding);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -2607,13 +2623,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     local procedure ModifySalesHeaderPricesInclVAT(var SalesHeader: Record "Sales Header"; NewPricesInclVAT: Boolean)
     begin
         SalesHeader.Validate("Prices Including VAT", NewPricesInclVAT);
-        SalesHeader.Modify;
+        SalesHeader.Modify();
     end;
 
     local procedure ModifyPurchaseHeaderPricesInclVAT(var PurchaseHeader: Record "Purchase Header"; NewPricesInclVAT: Boolean)
     begin
         PurchaseHeader.Validate("Prices Including VAT", NewPricesInclVAT);
-        PurchaseHeader.Modify;
+        PurchaseHeader.Modify();
     end;
 
     local procedure OpenSalesOrderStatistics(DocumentNo: Code[20])
@@ -2756,7 +2772,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Bill-to/Sell-to VAT Calc.", BilltoSelltoVATCalc);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2765,7 +2781,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Inv. Rounding Precision (LCY)", InvoiceRounding);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -2817,7 +2833,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         // Exercise: Validate VAT Amount with VAT Difference.
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         VATAmountLine.Validate("VAT Amount", VATAmountLine."VAT Amount" + GeneralLedgerSetup."Max. VAT Difference Allowed");
 
         // Verify: Verify VAT Difference field on VAT Amount Line.
@@ -3090,6 +3106,13 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     procedure VATAmountLineHandler(var VATAmountLines: TestPage "VAT Amount Lines")
     begin
         Assert.IsFalse(VATAmountLines."VAT Amount".Editable, StrSubstNo(VATAmountMsg, VATAmountLines."VAT Amount".Caption));
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure InvoicingVATAmountSalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
+    begin
+        SalesOrderStatistics.VATAmount_Invoicing.AssertEquals(LibraryVariableStorage.DequeueDecimal);
     end;
 }
 

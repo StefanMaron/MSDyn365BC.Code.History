@@ -34,7 +34,7 @@ codeunit 5703 "Catalog Item Management"
         NonStock2."Item No." :=
           GetNewItemNo(
             NonStock2, StrLen(NonStock2."Vendor Item No."), StrLen(NonStock2."Manufacturer Code"));
-        NonStock2.Modify;
+        NonStock2.Modify();
         InsertItemUnitOfMeasure(NonStock2."Unit of Measure", NonStock2."Item No.");
 
         NonStock2.TestField("Vendor No.");
@@ -79,29 +79,29 @@ codeunit 5703 "Catalog Item Management"
         ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Vendor Item No.");
         OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
         if not ItemCrossReference.FindFirst then begin
-            ItemCrossReference.Init;
+            ItemCrossReference.Init();
             ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
             ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
             ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
             ItemCrossReference.Validate("Cross-Reference Type No.", NonStock2."Vendor No.");
             ItemCrossReference.Validate("Cross-Reference No.", NonStock2."Vendor Item No.");
-            ItemCrossReference.Insert;
+            ItemCrossReference.Insert();
             OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
         end;
         if NonStock2."Bar Code" <> '' then begin
-            ItemCrossReference.Reset;
+            ItemCrossReference.Reset();
             ItemCrossReference.SetRange("Item No.", NonStock2."Item No.");
             ItemCrossReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
             ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::"Bar Code");
             ItemCrossReference.SetRange("Cross-Reference No.", NonStock2."Bar Code");
             OnAfterItemCrossReferenceFilter(ItemCrossReference, NonStock2);
             if not ItemCrossReference.FindFirst then begin
-                ItemCrossReference.Init;
+                ItemCrossReference.Init();
                 ItemCrossReference.Validate("Item No.", NonStock2."Item No.");
                 ItemCrossReference.Validate("Unit of Measure", NonStock2."Unit of Measure");
                 ItemCrossReference.Validate("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::"Bar Code");
                 ItemCrossReference.Validate("Cross-Reference No.", NonStock2."Bar Code");
-                ItemCrossReference.Insert;
+                ItemCrossReference.Insert();
                 OnAfterItemCrossReferenceInsert(ItemCrossReference, NonStock2);
             end;
         end;
@@ -113,11 +113,11 @@ codeunit 5703 "Catalog Item Management"
     begin
         ItemVend.SetRange("Item No.", Item."No.");
         ItemVend.SetRange("Vendor No.", Item."Vendor No.");
-        ItemVend.DeleteAll;
+        ItemVend.DeleteAll();
 
         ItemCrossReference.SetRange("Item No.", Item."No.");
         ItemCrossReference.SetRange("Variant Code", Item."Variant Filter");
-        ItemCrossReference.DeleteAll;
+        ItemCrossReference.DeleteAll();
 
         NonStock.SetCurrentKey("Item No.");
         NonStock.SetRange("Item No.", Item."No.");
@@ -145,7 +145,7 @@ codeunit 5703 "Catalog Item Management"
             NonStock, StrLen(NonStock."Vendor Item No."), StrLen(NonStock."Manufacturer Code"));
 
         NonStock."Item No." := SalesLine2."No.";
-        NonStock.Modify;
+        NonStock.Modify();
         InsertItemUnitOfMeasure(NonStock."Unit of Measure", SalesLine2."No.");
 
         NewItem.SetRange("No.", SalesLine2."No.");
@@ -179,7 +179,7 @@ codeunit 5703 "Catalog Item Management"
 
         NewItem.Get(SalesLine2."No.");
         SalesLine2."No." := '';
-        SalesLine2.Modify;
+        SalesLine2.Modify();
 
         DelNonStockItem(NewItem);
     end;
@@ -191,7 +191,7 @@ codeunit 5703 "Catalog Item Management"
 
         NewItem.Get(PurchLine2."No.");
         PurchLine2."No." := '';
-        PurchLine2.Modify;
+        PurchLine2.Modify();
 
         DelNonStockItem(NewItem);
     end;
@@ -203,7 +203,7 @@ codeunit 5703 "Catalog Item Management"
 
         NewItem.Get(ServInvLine2."No.");
         ServInvLine2."No." := '';
-        ServInvLine2.Modify;
+        ServInvLine2.Modify();
 
         DelNonStockItem(NewItem);
     end;
@@ -212,7 +212,7 @@ codeunit 5703 "Catalog Item Management"
     begin
         if NewItem.Get(SalesLineArchive2."No.") then begin
             SalesLineArchive2."No." := '';
-            SalesLineArchive2.Modify;
+            SalesLineArchive2.Modify();
 
             DelNonStockItem(NewItem);
         end;
@@ -230,7 +230,7 @@ codeunit 5703 "Catalog Item Management"
           GetNewItemNo(
             NonStock, StrLen(NonStock."Vendor Item No."), StrLen(NonStock."Manufacturer Code"));
         NonStock."Item No." := ServInvLine2."No.";
-        NonStock.Modify;
+        NonStock.Modify();
         InsertItemUnitOfMeasure(NonStock."Unit of Measure", ServInvLine2."No.");
 
         NewItem.SetRange("No.", ServInvLine2."No.");
@@ -265,7 +265,7 @@ codeunit 5703 "Catalog Item Management"
         Nonstock2."Item No." :=
           GetNewItemNo(
             Nonstock2, StrLen(Nonstock2."Vendor Item No."), StrLen(Nonstock2."Manufacturer Code"));
-        Nonstock2.Modify;
+        Nonstock2.Modify();
         InsertItemUnitOfMeasure(Nonstock2."Unit of Measure", Nonstock2."Item No.");
 
         Nonstock2.TestField("Vendor No.");
@@ -332,7 +332,7 @@ codeunit 5703 "Catalog Item Management"
         if not SalesLineArch.IsEmpty then
             exit;
 
-        ProdBOMLine.Reset;
+        ProdBOMLine.Reset();
         ProdBOMLine.SetCurrentKey(Type, "No.");
         ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
         ProdBOMLine.SetRange("No.", Item."No.");
@@ -350,7 +350,7 @@ codeunit 5703 "Catalog Item Management"
             if NonStock.Find('-') then
                 repeat
                     NonStock."Item No." := '';
-                    NonStock.Modify;
+                    NonStock.Modify();
                 until NonStock.Next = 0;
         end;
     end;
@@ -362,13 +362,13 @@ codeunit 5703 "Catalog Item Management"
     begin
         if not UnitOfMeasure.Get(UnitOfMeasureCode) then begin
             UnitOfMeasure.Code := UnitOfMeasureCode;
-            UnitOfMeasure.Insert;
+            UnitOfMeasure.Insert();
         end;
         if not ItemUnitOfMeasure.Get(ItemNo, UnitOfMeasureCode) then begin
             ItemUnitOfMeasure."Item No." := ItemNo;
             ItemUnitOfMeasure.Code := UnitOfMeasureCode;
             ItemUnitOfMeasure."Qty. per Unit of Measure" := 1;
-            ItemUnitOfMeasure.Insert;
+            ItemUnitOfMeasure.Insert();
         end;
     end;
 
@@ -376,10 +376,10 @@ codeunit 5703 "Catalog Item Management"
     var
         NonstockItemSetupMy: Record "Nonstock Item Setup";
     begin
-        NonstockItemSetupMy.Get;
+        NonstockItemSetupMy.Get();
         // NAVCZ
         if NonstockItemSetupMy."No. From No. Series" then begin
-            NewItem.Init;
+            NewItem.Init();
             if not NewItem.AssistEdit then
                 Error(Text002, NewItemNo);
             NewItemNo := NewItem."No.";
@@ -433,7 +433,7 @@ codeunit 5703 "Catalog Item Management"
         DummyItemTemplate: Record "Item Template";
         ConfigTemplateHeader: Record "Config. Template Header";
     begin
-        Item.Init;
+        Item.Init();
 
         ConfigTemplateHeader.SetRange(Code, NonstockItem."Item Template Code");
         ConfigTemplateHeader.FindFirst;
@@ -464,7 +464,7 @@ codeunit 5703 "Catalog Item Management"
         Item."Manufacturer Code" := NonstockItem."Manufacturer Code";
         Item."Item Category Code" := DummyItemTemplate."Item Category Code";
         Item."Created From Nonstock Item" := true;
-        Item.Insert;
+        Item.Insert();
 
         OnAfterCreateNewItem(Item);
     end;

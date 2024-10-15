@@ -13,7 +13,7 @@ report 31038 "Initialize FA History"
             begin
                 FAHistoryEntry.SetRange("FA No.", "No.");
                 if FAHistoryEntry.FindFirst or (("FA Location Code" = '') and ("Responsible Employee" = '')) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 FAHistoryEntry.InitializeFAHistory("Fixed Asset", PostingDate);
             end;
@@ -25,7 +25,7 @@ report 31038 "Initialize FA History"
 
             trigger OnPreDataItem()
             begin
-                FASetup.Get;
+                FASetup.Get();
             end;
         }
     }

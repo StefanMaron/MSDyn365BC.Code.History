@@ -42,7 +42,7 @@ codeunit 136308 "Job Order Tracking"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Order Tracking");
     end;
 

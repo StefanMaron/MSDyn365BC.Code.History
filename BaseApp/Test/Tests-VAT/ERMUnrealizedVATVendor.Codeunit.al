@@ -72,7 +72,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
 
         // [GIVEN] Set VAT% = 0 in Unrealized VAT Posting Setup
         ZeroVATPostingSetup."VAT %" := 0;
-        ZeroVATPostingSetup.Modify;
+        ZeroVATPostingSetup.Modify();
 
         // [GIVEN] Post Purchase Invoice1. Transaction No = 100.
         CreatePurchaseInvoice(PurchaseHeader, ZeroVATPostingSetup);
@@ -786,7 +786,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,RunAdjExchRateReportHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure FCYInvoiceAppliedWithSameExchRateAfterAdjustment()
     var
@@ -848,7 +848,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         VerifyRealizedVATEntryAmounts(VATEntry, Amount, AmountInclVAT - Amount);
         VerifyUnrealizedVATEntryAmounts(VATEntry, 0, 0, 0, 0);
 
-        // [THEN] Unrealized Losses posted with amount 55 for adjustment and realized amount = -55 after payment is applied
+        // [THEN] Unrealized Losses posted with amount 55 for adjustment and amount = -55 after payment is applied
         VerifyUnrealizedGainLossesGLEntries(CurrencyCode, PaymentNo, AdjustedAmtInclVAT - AmountInclVAT);
     end;
 
@@ -873,7 +873,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1114,7 +1114,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
           LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase), Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
     end;
 
     local procedure CreateAndPostCreditMemo(PostedInvoiceNo: Code[20]; VendorNo: Code[20]): Code[20]
@@ -1286,7 +1286,7 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Item Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         InventorySetup.Modify(true);
     end;
@@ -1546,7 +1546,6 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
         GLEntry.SetRange("G/L Account No.", Currency."Unrealized Losses Acc.");
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, GainLossAmt);
-        GLEntry.SetRange("G/L Account No.", Currency."Realized Gains Acc.");
         GLEntry.SetRange("Document No.", PaymentNo);
         GLEntry.FindFirst;
         GLEntry.TestField(Amount, -GainLossAmt);
@@ -1585,13 +1584,6 @@ codeunit 134026 "ERM Unrealized VAT Vendor"
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
         Reply := true;
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure RunAdjExchRateReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        AdjustExchangeRates.SaveAsXml('');
     end;
 }
 

@@ -239,7 +239,7 @@ report 20 "Calc. and Post VAT Settlement"
                             begin
                                 // NAVCZ
                                 if not PrintVATEntries then
-                                    CurrReport.Break;
+                                    CurrReport.Break();
 
                                 if PrintCountrySubTotal = 1 then
                                     Clear(CountrySubTotalAmt);
@@ -274,7 +274,7 @@ report 20 "Calc. and Post VAT Settlement"
                         trigger OnAfterGetRecord()
                         begin
                             if not PrintVATEntries then
-                                CurrReport.Skip;
+                                CurrReport.Skip();
                             // NAVCZ
                             if (Base = 0) and ("Advance Base" <> 0) then
                                 Base := "Advance Base";
@@ -395,7 +395,10 @@ report 20 "Calc. and Post VAT Settlement"
                                           "VAT Posting Setup"."VAT Prod. Posting Group"),
                                         '>');
                             end;
-                            SetVatPostingSetupToGenJnlLine(GenJnlLine, "VAT Posting Setup");
+                            GenJnlLine."VAT Bus. Posting Group" := "VAT Posting Setup"."VAT Bus. Posting Group";
+                            GenJnlLine."VAT Prod. Posting Group" := "VAT Posting Setup"."VAT Prod. Posting Group";
+                            GenJnlLine."VAT Calculation Type" := "VAT Posting Setup"."VAT Calculation Type";
+                            GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
                             GenJnlLine."Posting Date" := PostingDate;
                             GenJnlLine."VAT Date" := PostingDate; // NAVCZ
                             GenJnlLine."Document Type" := 0;
@@ -422,7 +425,7 @@ report 20 "Calc. and Post VAT Settlement"
                                 // NAVCZ
                                 VATEntry2.Get(NextVATEntryNo);
                                 VATEntry2."VAT Settlement No." := CopyStr(DocNo, 1, MaxStrLen(VATEntry2."VAT Settlement No."));
-                                VATEntry2.Modify;
+                                VATEntry2.Modify();
                                 // NAVCZ
                             end;
                         end;
@@ -430,7 +433,7 @@ report 20 "Calc. and Post VAT Settlement"
 
                     trigger OnAfterGetRecord()
                     begin
-                        VATEntry.Reset;
+                        VATEntry.Reset();
                         VATEntry.SetRange(Type, VATType);
                         VATEntry.SetRange(Closed, false);
                         VATEntry.SetFilter("VAT Date", VATDateFilter); // NAVCZ
@@ -504,7 +507,7 @@ report 20 "Calc. and Post VAT Settlement"
                         end;
 
                         if VATType = VATEntry.Type::Settlement then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
 
                     trigger OnPreDataItem()
@@ -519,7 +522,7 @@ report 20 "Calc. and Post VAT Settlement"
             begin
                 // Post to settlement account
                 if VATAmount <> 0 then begin
-                    GenJnlLine.Init;
+                    GenJnlLine.Init();
                     GenJnlLine."System-Created Entry" := true;
                     GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
 
@@ -549,15 +552,14 @@ report 20 "Calc. and Post VAT Settlement"
 
             trigger OnPreDataItem()
             begin
-                GLEntry.LockTable; // Avoid deadlock with function 12
+                GLEntry.LockTable(); // Avoid deadlock with function 12
                 if GLEntry.FindLast then;
-                VATEntry.LockTable;
-                VATEntry.Reset;
-                if VATEntry.Find('+') then
-                    NextVATEntryNo := VATEntry."Entry No.";
+                VATEntry.LockTable();
+                VATEntry.Reset();
+                NextVATEntryNo := VATEntry.GetLastEntryNo();
 
-                SourceCodeSetup.Get;
-                GLSetup.Get;
+                SourceCodeSetup.Get();
+                GLSetup.Get();
                 VATAmount := 0;
                 VATAmountAddCurr := 0;
 
@@ -680,7 +682,7 @@ report 20 "Calc. and Post VAT Settlement"
         // NAVCZ
         if PostSettlement and VATPeriod.Get(EntrdStartDate) then begin
             VATPeriod.Closed := true;
-            VATPeriod.Modify;
+            VATPeriod.Modify();
         end;
         // NAVCZ
 
@@ -886,7 +888,6 @@ report 20 "Calc. and Post VAT Settlement"
                         PostGenJnlLine(GenJnlLine);
 
                     CreateGenJnlLine(GenJnlLine2, "VAT Posting Setup".GetRevChargeAccount(false));
-		    SetVatPostingSetupToGenJnlLine(GenJnlLine2, "VAT Posting Setup");
                     GenJnlLine2.Amount += VATEntry."VAT Amount (Non Deductible)"; // NAVCZ
                     if PostSettlement then
                         PostGenJnlLine(GenJnlLine2);
@@ -948,14 +949,6 @@ report 20 "Calc. and Post VAT Settlement"
                     VATAmountAddCurr := VATAmountAddCurr + VATEntry."Additional-Currency Amount";
                 end;
         end;
-    end;
-
-    local procedure SetVatPostingSetupToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
-    begin
-        GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
-        GenJnlLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-        GenJnlLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
-        GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
     end;
 
     [IntegrationEvent(false, false)]

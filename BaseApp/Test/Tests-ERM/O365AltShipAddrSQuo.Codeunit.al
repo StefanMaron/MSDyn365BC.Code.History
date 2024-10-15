@@ -268,7 +268,7 @@ codeunit 138071 "O365 Alt. Ship Addr. S. Quo."
         LibraryERMCountryData.CreateVATData;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure CopySalesQuoteSellToAddressFromCustomer(var SalesQuote: TestPage "Sales Quote"; Customer: Record Customer)

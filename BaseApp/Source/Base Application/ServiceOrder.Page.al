@@ -375,6 +375,11 @@ page 5900 "Service Order"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
+                field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct debit collection of payments.';
+                }
                 field("Tax Liable"; "Tax Liable")
                 {
                     ApplicationArea = SalesTax;
@@ -976,9 +981,9 @@ page 5900 "Service Order"
                         ServLine: Record "Service Line";
                         ServLines: Page "Service Lines";
                     begin
-                        SalesSetup.Get;
+                        SalesSetup.Get();
                         if SalesSetup."Calc. Inv. Discount" then begin
-                            ServLine.Reset;
+                            ServLine.Reset();
                             ServLine.SetRange("Document Type", "Document Type");
                             ServLine.SetRange("Document No.", "No.");
                             if ServLine.FindFirst then begin

@@ -30,7 +30,7 @@ codeunit 11702 "Issue Bank Statement"
             Reset;
         end;
 
-        BankStmtLine.LockTable;
+        BankStmtLine.LockTable();
         if BankStmtLine.FindLast then;
 
         BankStmtLine.SetRange("Bank Statement No.", "No.");
@@ -41,7 +41,7 @@ codeunit 11702 "Issue Bank Statement"
         until BankStmtLine.Next = 0;
 
         // insert header;
-        IssuedBankStmtHeader.Init;
+        IssuedBankStmtHeader.Init();
         IssuedBankStmtHeader.TransferFields(Rec);
         BankAccount.TestField("Issued Bank Statement Nos.");
         if BankAccount."Issued Bank Statement Nos." <> "No. Series" then
@@ -53,15 +53,15 @@ codeunit 11702 "Issue Bank Statement"
         IssuedBankStmtHeader."Pre-Assigned No." := "No.";
         IssuedBankStmtHeader."Pre-Assigned User ID" := "User ID";
         IssuedBankStmtHeader."User ID" := UserId;
-        IssuedBankStmtHeader.Insert;
+        IssuedBankStmtHeader.Insert();
 
         // insert lines
         if BankStmtLine.Find('-') then
             repeat
-                IssuedBankStmtLine.Init;
+                IssuedBankStmtLine.Init();
                 IssuedBankStmtLine.TransferFields(BankStmtLine);
                 IssuedBankStmtLine."Bank Statement No." := IssuedBankStmtHeader."No.";
-                IssuedBankStmtLine.Insert;
+                IssuedBankStmtLine.Insert();
             until BankStmtLine.Next = 0;
 
         // delete non issued bank statement;

@@ -16,6 +16,7 @@ codeunit 1297 "Http Web Request Mgt."
         NoCookieForYouErr: Label 'The web request has no cookies.';
         TimeoutErr: Label 'The server timed out waiting for the request.';
 
+    [Obsolete('Security refactoring. Moved into COD 1140 as a local function based on a native HttpClient. Use OAuth20Setup.InvokeRequest().','16.0')]
     [Scope('OnPrem')]
     procedure InvokeJSONRequest(RequestJson: Text; var ResponseJson: Text; var HttpError: Text): Boolean
     begin

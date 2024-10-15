@@ -4,14 +4,18 @@ codeunit 104150 "Upgrade - Local App"
 
     trigger OnRun()
     begin
+    end;
 
+    trigger OnUpgradePerDatabase()
+    begin
+        UpdatePermissions();
     end;
 
     trigger OnUpgradePerCompany()
     begin
         UpdateVATPostingSetup();
         UpdateVATControlReportLine();
-        UpdatePermissions();
+        UpdateSalesReceivablesSetup();
     end;
 
     local procedure UpdateVATPostingSetup()
@@ -80,5 +84,22 @@ codeunit 104150 "Upgrade - Local App"
         end;
 
         UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetUseIsolatedCertificateInsteadOfCertificateCZ());
+    end;
+
+    local procedure UpdateSalesReceivablesSetup()
+    var
+        SalesSetup: Record "Sales & Receivables Setup";
+        LocalUpgradeTagDefinitions: Codeunit "Local Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(LocalUpgradeTagDefinitions.GetObsoleteGeneralLedgerEntryDescriptionFeatureUpgradeTag()) then
+            exit;
+
+        if SalesSetup.Get() then begin
+            SalesSetup."Copy Line Descr. to G/L Entry" := SalesSetup."G/L Entry as Doc. Lines (Acc.)";
+            SalesSetup.Modify();
+        end;
+
+        UpgradeTag.SetUpgradeTag(LocalUpgradeTagDefinitions.GetObsoleteGeneralLedgerEntryDescriptionFeatureUpgradeTag());
     end;
 }

@@ -295,7 +295,7 @@ page 11727 "Bank List"
                     var
                         BankAccount: Record "Bank Account";
                     begin
-                        BankAccount.Init;
+                        BankAccount.Init();
                         BankAccount.LinkStatementProvider(BankAccount);
                     end;
                 }

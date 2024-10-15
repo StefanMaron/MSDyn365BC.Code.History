@@ -15,9 +15,6 @@ report 11780 "All Payments on Hold"
             column(USERID; UserId)
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -135,7 +132,7 @@ report 11780 "All Payments on Hold"
                 trigger OnPreDataItem()
                 begin
                     if VendorTotal = 0 then
-                        CurrReport.Break;
+                        CurrReport.Break();
                 end;
             }
 

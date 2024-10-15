@@ -32,7 +32,7 @@ report 11768 "No. Series Mask Generator"
 
                 NoSeriesLine.SetRange("Starting Date", AccountingDate);
                 if NoSeriesLine.IsEmpty then begin
-                    NoSeriesLine.Init;
+                    NoSeriesLine.Init();
                     NoSeriesLine."Series Code" := Code;
                     NoSeriesLine.Open := true;
                     NoSeriesLine."Line No." := LineNo;
@@ -42,7 +42,7 @@ report 11768 "No. Series Mask Generator"
                     NoSeriesLine."Increment-by No." := IncrementByNo;
                     if WarningNo < 0 then
                         NoSeriesLine."Warning No." := GetWarningNoFromMask(Mask, AccountingDate, WarningNo);
-                    NoSeriesLine.Insert;
+                    NoSeriesLine.Insert();
                     InsertCount += 1;
                 end;
             end;

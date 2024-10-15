@@ -36,7 +36,7 @@ table 11767 "VAT Identifier"
         VATIdentifierTranslate: Record "VAT Identifier Translate";
     begin
         VATIdentifierTranslate.SetRange("VAT Identifier Code", Code);
-        VATIdentifierTranslate.DeleteAll;
+        VATIdentifierTranslate.DeleteAll();
     end;
 }
 

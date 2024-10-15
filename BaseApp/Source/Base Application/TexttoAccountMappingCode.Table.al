@@ -33,7 +33,7 @@ table 11703 "Text-to-Account Mapping Code"
         TexttoAccountMapping: Record "Text-to-Account Mapping";
     begin
         TexttoAccountMapping.SetRange("Text-to-Account Mapping Code", Code);
-        TexttoAccountMapping.DeleteAll;
+        TexttoAccountMapping.DeleteAll();
     end;
 }
 

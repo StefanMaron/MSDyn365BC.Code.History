@@ -168,7 +168,7 @@ table 11794 "Vendor Template"
     [Scope('OnPrem')]
     procedure AssistEdit(): Boolean
     begin
-        PurchSetup.Get;
+        PurchSetup.Get();
         PurchSetup.TestField("Vendor Nos.");
         if NoSeriesMgt.SelectSeries(PurchSetup."Vendor Nos.", "No. Series", "No. Series") then
             exit(true);

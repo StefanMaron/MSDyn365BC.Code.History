@@ -319,7 +319,7 @@ page 5619 "FA Depreciation Books"
     local procedure GetACYCode(): Code[10]
     begin
         if not AddCurrCodeIsFound then
-            GLSetup.Get;
+            GLSetup.Get();
         exit(GLSetup."Additional Reporting Currency");
     end;
 }

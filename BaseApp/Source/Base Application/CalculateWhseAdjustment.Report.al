@@ -20,7 +20,7 @@ report 7315 "Calculate Whse. Adjustment"
                     SNLotNumbersByBin: Query "Lot Numbers by Bin";
                 begin
                     with AdjmtBinQuantityBuffer do begin
-                        Location.Reset;
+                        Location.Reset();
                         Item.CopyFilter("Location Filter", Location.Code);
                         Location.SetRange("Directed Put-away and Pick", true);
                         if Location.FindSet then
@@ -53,13 +53,13 @@ report 7315 "Calculate Whse. Adjustment"
                             until Location.Next = 0;
 
                         Reset;
-                        ReservationEntry.Reset;
+                        ReservationEntry.Reset();
                         ReservationEntry.SetCurrentKey("Source ID");
-                        ItemJnlLine.Reset;
+                        ItemJnlLine.Reset();
                         ItemJnlLine.SetCurrentKey("Item No.");
                         if FindSet then begin
                             repeat
-                                ItemJnlLine.Reset;
+                                ItemJnlLine.Reset();
                                 ItemJnlLine.SetCurrentKey("Item No.");
                                 ItemJnlLine.SetRange("Journal Template Name", ItemJnlLine."Journal Template Name");
                                 ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
@@ -103,20 +103,28 @@ report 7315 "Calculate Whse. Adjustment"
 
                                 SetFilter("Qty. to Handle (Base)", '>0');
                                 CalcSums("Qty. to Handle (Base)");
-                                QtyInUOM := UOMMgt.CalcQtyFromBase(-"Qty. to Handle (Base)", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
+                                QtyInUOM :=
+                                    UOMMgt.CalcQtyFromBase(
+                                        "Item No.", "Variant Code", "Unit of Measure Code", -"Qty. to Handle (Base)",
+                                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
                                 if QtyInUOM <> 0 then
                                     InsertItemJnlLine(AdjmtBinQuantityBuffer, QtyInUOM, -"Qty. to Handle (Base)", "Unit of Measure Code", 1);
 
                                 SetFilter("Qty. to Handle (Base)", '<0');
                                 CalcSums("Qty. to Handle (Base)");
-                                QtyInUOM := UOMMgt.CalcQtyFromBase(-"Qty. to Handle (Base)", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
+                                QtyInUOM :=
+                                    UOMMgt.CalcQtyFromBase("Item No.", "Variant Code", "Unit of Measure Code", -"Qty. to Handle (Base)",
+                                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
                                 if QtyInUOM <> 0 then
                                     InsertItemJnlLine(AdjmtBinQuantityBuffer, QtyInUOM, -"Qty. to Handle (Base)", "Unit of Measure Code", 0);
 
                                 // rounding residue
                                 SetRange("Qty. to Handle (Base)");
                                 CalcSums("Qty. to Handle (Base)");
-                                QtyInUOM := UOMMgt.CalcQtyFromBase(-"Qty. to Handle (Base)", UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
+                                QtyInUOM :=
+                                    UOMMgt.CalcQtyFromBase(
+                                        "Item No.", "Variant Code", "Unit of Measure Code", -"Qty. to Handle (Base)",
+                                        UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code"));
                                 if (QtyInUOM = 0) and ("Qty. to Handle (Base)" > 0) then
                                     InsertItemJnlLine(AdjmtBinQuantityBuffer, -"Qty. to Handle (Base)", -"Qty. to Handle (Base)", "Base Unit of Measure", 1);
 
@@ -126,14 +134,14 @@ report 7315 "Calculate Whse. Adjustment"
                                 SetRange("Unit of Measure Code");
                             until Next = 0;
                         Reset;
-                        DeleteAll;
+                        DeleteAll();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     Clear(Location);
-                    WhseEntry.Reset;
+                    WhseEntry.Reset();
                     WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code");
                     WhseEntry.SetRange("Item No.", Item."No.");
                     Item.CopyFilter("Variant Filter", WhseEntry."Variant Code");
@@ -141,12 +149,12 @@ report 7315 "Calculate Whse. Adjustment"
                     Item.CopyFilter("Serial No. Filter", WhseEntry."Serial No.");
 
                     if WhseEntry.IsEmpty then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     FillProspectReservationEntryBuffer(Item, ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
 
-                    AdjmtBinQuantityBuffer.Reset;
-                    AdjmtBinQuantityBuffer.DeleteAll;
+                    AdjmtBinQuantityBuffer.Reset();
+                    AdjmtBinQuantityBuffer.DeleteAll();
                 end;
             }
 
@@ -178,7 +186,7 @@ report 7315 "Calculate Whse. Adjustment"
                         ItemJnlLine.SetRange("Journal Batch Name", ItemJnlLine."Journal Batch Name");
                         if not ItemJnlLine.Find('-') then
                             NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
-                        ItemJnlLine.Init;
+                        ItemJnlLine.Init();
                     end;
                     if NextDocNo = '' then
                         Error(Text001);
@@ -284,14 +292,14 @@ report 7315 "Calculate Whse. Adjustment"
 
         with ItemJnlLine do begin
             if NextLineNo = 0 then begin
-                LockTable;
+                LockTable();
                 Reset;
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
                 if Find('+') then
                     NextLineNo := "Line No.";
 
-                SourceCodeSetup.Get;
+                SourceCodeSetup.Get();
             end;
             NextLineNo := NextLineNo + 10000;
 
@@ -347,9 +355,9 @@ report 7315 "Calculate Whse. Adjustment"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        TempReservationEntryBuffer.Reset;
-        TempReservationEntryBuffer.DeleteAll;
-        ReservationEntry.Reset;
+        TempReservationEntryBuffer.Reset();
+        TempReservationEntryBuffer.DeleteAll();
+        ReservationEntry.Reset();
         ReservationEntry.SetRange("Source Type", DATABASE::"Item Journal Line");
         ReservationEntry.SetRange("Source ID", JournalTemplateName);
         ReservationEntry.SetRange("Source Batch Name", JournalBatchName);
@@ -360,7 +368,7 @@ report 7315 "Calculate Whse. Adjustment"
         if ReservationEntry.FindSet then
             repeat
                 TempReservationEntryBuffer := ReservationEntry;
-                TempReservationEntryBuffer.Insert;
+                TempReservationEntryBuffer.Insert();
             until ReservationEntry.Next = 0;
     end;
 
@@ -386,7 +394,7 @@ report 7315 "Calculate Whse. Adjustment"
             if not WarehouseEntry.FindFirst then
                 exit;
 
-            TempReservationEntryBuffer.Reset;
+            TempReservationEntryBuffer.Reset();
             WarehouseEntry.CalcSums("Qty. (Base)", Quantity);
             UpdateWarehouseEntryQtyByReservationEntryBuffer(
               WarehouseEntry, WarehouseEntry."Lot No.", WarehouseEntry."Serial No.");

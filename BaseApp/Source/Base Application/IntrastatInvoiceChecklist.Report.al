@@ -16,9 +16,6 @@ report 31061 "Intrastat - Invoice Checklist"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(CurrReport_PAGENO; CurrReport.PageNo)
-            {
-            }
             column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
             {
             }
@@ -158,7 +155,7 @@ report 31061 "Intrastat - Invoice Checklist"
                         greTBuffer.Next;
 
                     if greTBuffer."Debit Amount" + greTBuffer."Credit Amount" = 0 then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                     if "Intrastat Jnl. Line".Type = "Intrastat Jnl. Line".Type::Shipment then begin
                         greTBuffer."Debit Amount" := -greTBuffer."Debit Amount";
                         greTBuffer."Credit Amount" := -greTBuffer."Credit Amount";
@@ -166,14 +163,14 @@ report 31061 "Intrastat - Invoice Checklist"
 
                     if greTBuffer.Description = '' then begin
                         greTBuffer.Description := DocumentType(greTBuffer."Document No.");
-                        greTBuffer.Modify;
+                        greTBuffer.Modify();
                     end;
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     if not greTBuffer.FindSet then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetRange(Number, 1, greTBuffer.Count);
                 end;
@@ -190,7 +187,7 @@ report 31061 "Intrastat - Invoice Checklist"
                 linQuantityEntry: Integer;
                 lboCalculate: Boolean;
             begin
-                greTBuffer.DeleteAll;
+                greTBuffer.DeleteAll();
 
                 lreValueEntry.SetCurrentKey("Item Ledger Entry No.");
                 lreValueEntry.SetRange("Item Ledger Entry No.", "Source Entry No.");
@@ -242,14 +239,14 @@ report 31061 "Intrastat - Invoice Checklist"
                             if greTBuffer.Get(lreValueEntry."Document No.") then begin
                                 greTBuffer."Debit Amount" := greTBuffer."Debit Amount" + ldeTotalAmt;
                                 greTBuffer."Credit Amount" := greTBuffer."Credit Amount" + ldeTotalCostAmt;
-                                greTBuffer.Modify;
+                                greTBuffer.Modify();
                             end else begin
-                                greTBuffer.Init;
+                                greTBuffer.Init();
                                 greTBuffer."Document No." := lreValueEntry."Document No.";
                                 greTBuffer."Debit Amount" := ldeTotalAmt;
                                 greTBuffer."Credit Amount" := ldeTotalCostAmt;
                                 greTBuffer."Posting Date" := lreValueEntry."Posting Date";
-                                greTBuffer.Insert;
+                                greTBuffer.Insert();
                             end;
                     until lreValueEntry.Next = 0;
 
@@ -258,18 +255,18 @@ report 31061 "Intrastat - Invoice Checklist"
                     if greTBuffer.Get(lreValueEntry."Document No.") then begin
                         greTBuffer."Debit Amount" := greTBuffer."Debit Amount" + ldeTotalAmtExpected;
                         greTBuffer."Credit Amount" := greTBuffer."Credit Amount" + ldeTotalCostAmtExpected;
-                        greTBuffer.Modify;
+                        greTBuffer.Modify();
                     end else begin
-                        greTBuffer.Init;
+                        greTBuffer.Init();
                         greTBuffer."Document No." := lreValueEntry."Document No.";
                         greTBuffer."Debit Amount" := ldeTotalAmtExpected;
                         greTBuffer."Credit Amount" := ldeTotalCostAmtExpected;
                         greTBuffer."Posting Date" := lreValueEntry."Posting Date";
-                        greTBuffer.Insert;
+                        greTBuffer.Insert();
                     end;
                 end;
                 if not greItemEntry.Get("Source Entry No.") then
-                    greItemEntry.Init;
+                    greItemEntry.Init();
                 gteDocType := DocumentType(greItemEntry."Document No.");
 
             end;
@@ -281,9 +278,9 @@ report 31061 "Intrastat - Invoice Checklist"
                 linYear: Integer;
                 linMonth: Integer;
             begin
-                greGLSetup.Get;
+                greGLSetup.Get();
                 if not FindFirst then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 greIntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
                 lteYear := CopyStr(greIntrastatJnlBatch."Statistics Period", 1, 2);

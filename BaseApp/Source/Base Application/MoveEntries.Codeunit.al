@@ -46,6 +46,9 @@ codeunit 361 MoveEntries
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ServLedgEntry: Record "Service Ledger Entry";
         WarrantyLedgEntry: Record "Warranty Ledger Entry";
+        ServiceItem: Record "Service Item";
+        ServiceItemComponent: Record "Service Item Component";
+        ServContract: Record "Service Contract Header";
         GLSetup: Record "General Ledger Setup";
         CannotDeleteGLBudgetEntriesErr: Label 'You cannot delete G/L account %1 because it contains budget ledger entries after %2 for G/L budget name %3.', Comment = '%1 - G/L Account No., %2 - Date, %3 - G/L Budget Name. You cannot delete G/L Account 1000 because it has budget ledger entries\ after 25/01/2018 in G/L Budget Name = Budget_2018.';
         Text013: Label 'You cannot delete %1 %2 because prepaid contract entries exist in %3.';
@@ -56,6 +59,7 @@ codeunit 361 MoveEntries
         GLAccDeleteClosedPeriodsQst: Label 'Note that accounting regulations may require that you save accounting data for a certain number of years. Are you sure you want to delete the G/L account?';
         CannotDeleteGLAccountWithEntriesInOpenFiscalYearErr: Label 'You cannot delete G/L account %1 because it has ledger entries in a fiscal year that has not been closed yet.', Comment = '%1 - G/L Account No. You cannot delete G/L Account 1000 because it has ledger entries in a fiscal year that has not been closed yet.';
         CannotDeleteGLAccountWithEntriesAfterDateErr: Label 'You cannot delete G/L account %1 because it has ledger entries posted after %2.', Comment = '%1 - G/L Account No., %2 - Date. You cannot delete G/L Account 1000 because it has ledger entries posted after 01-01-2010.';
+        CannotDeleteBecauseServiceContractErr: Label 'You cannot delete customer %1 because there is at least one not cancelled Service Contract for this customer.', Comment = '%1 - Customer No.';
 
     procedure MoveGLEntries(GLAcc: Record "G/L Account")
     var
@@ -65,14 +69,14 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveGLEntries(GLAcc, NewGLAccNo);
 
-        GLSetup.Get;
+        GLSetup.Get();
 
         CheckGLAccountEntries(GLAcc, GLSetup);
 
         if GLSetup."Check G/L Account Usage" then
             CalcGLAccWhereUsed.DeleteGLNo(GLAcc."No.");
 
-        GLEntry.Reset;
+        GLEntry.Reset();
         GLEntry.SetCurrentKey("G/L Account No.");
         GLEntry.SetRange("G/L Account No.", GLAcc."No.");
         GLEntry.ModifyAll("G/L Account No.", NewGLAccNo);
@@ -87,7 +91,7 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveCustEntries(Cust, NewCustNo);
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -104,7 +108,7 @@ codeunit 361 MoveEntries
               Cust.TableCaption, Cust."No.");
         end;
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         if not CustLedgEntry.SetCurrentKey("Customer No.", Open) then
             CustLedgEntry.SetCurrentKey("Customer No.");
         CustLedgEntry.SetRange("Customer No.", Cust."No.");
@@ -114,7 +118,7 @@ codeunit 361 MoveEntries
               Text001,
               Cust.TableCaption, Cust."No.");
 
-        ReminderEntry.Reset;
+        ReminderEntry.Reset();
         ReminderEntry.SetCurrentKey("Customer No.");
         ReminderEntry.SetRange("Customer No.", Cust."No.");
         ReminderEntry.ModifyAll("Customer No.", NewCustNo);
@@ -122,7 +126,7 @@ codeunit 361 MoveEntries
         CustLedgEntry.SetRange(Open);
         CustLedgEntry.ModifyAll("Customer No.", NewCustNo);
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Customer No.", Cust."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
@@ -142,7 +146,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Customer No.", NewCustNo);
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Bill-to Customer No.", Cust."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
@@ -162,13 +166,30 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("Bill-to Customer No.", NewCustNo);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Customer No.", Cust."No.");
         WarrantyLedgEntry.ModifyAll("Customer No.", NewCustNo);
 
         WarrantyLedgEntry.SetRange("Customer No.");
         WarrantyLedgEntry.SetRange("Bill-to Customer No.", Cust."No.");
         WarrantyLedgEntry.ModifyAll("Bill-to Customer No.", NewCustNo);
+
+        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
+        ServContract.SetRange("Customer No.", Cust."No.");
+        if not ServContract.IsEmpty then
+            Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
+
+        ServContract.SetRange(Status);
+        ServContract.ModifyAll("Customer No.", NewCustNo);
+
+        ServContract.Reset();
+        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
+        ServContract.SetRange("Bill-to Customer No.", Cust."No.");
+        if not ServContract.IsEmpty then
+            Error(CannotDeleteBecauseServiceContractErr, Cust."No.");
+
+        ServContract.SetRange(Status);
+        ServContract.ModifyAll("Bill-to Customer No.", NewCustNo);
 
         OnAfterMoveCustEntries(Cust, CustLedgEntry, ReminderEntry, ServLedgEntry, WarrantyLedgEntry);
     end;
@@ -179,7 +200,7 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveVendEntries(Vend, NewVendNo);
 
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         VendLedgEntry.SetCurrentKey("Vendor No.", "Posting Date");
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -190,7 +211,7 @@ codeunit 361 MoveEntries
               Text000,
               Vend.TableCaption, Vend."No.");
 
-        VendLedgEntry.Reset;
+        VendLedgEntry.Reset();
         if not VendLedgEntry.SetCurrentKey("Vendor No.", Open) then
             VendLedgEntry.SetCurrentKey("Vendor No.");
         VendLedgEntry.SetRange("Vendor No.", Vend."No.");
@@ -203,9 +224,13 @@ codeunit 361 MoveEntries
         VendLedgEntry.SetRange(Open);
         VendLedgEntry.ModifyAll("Vendor No.", NewVendNo);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Vendor No.", Vend."No.");
         WarrantyLedgEntry.ModifyAll("Vendor No.", NewVendNo);
+
+        ServiceItem.SetRange("Vendor No.", Vend."No.");
+        if not ServiceItem.IsEmpty then
+            ServiceItem.ModifyAll("Vendor No.", NewVendNo);
 
         OnAfterMoveVendorEntries(Vend, VendLedgEntry, WarrantyLedgEntry);
     end;
@@ -216,7 +241,7 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveBankAccEntries(BankAcc, NewBankAccNo);
 
-        BankAccLedgEntry.Reset;
+        BankAccLedgEntry.Reset();
         BankAccLedgEntry.SetCurrentKey("Bank Account No.", "Posting Date");
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -227,7 +252,7 @@ codeunit 361 MoveEntries
               Text000,
               BankAcc.TableCaption, BankAcc."No.");
 
-        BankAccLedgEntry.Reset;
+        BankAccLedgEntry.Reset();
         if not BankAccLedgEntry.SetCurrentKey("Bank Account No.", Open) then
             BankAccLedgEntry.SetCurrentKey("Bank Account No.");
         BankAccLedgEntry.SetRange("Bank Account No.", BankAcc."No.");
@@ -253,7 +278,7 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveItemEntries(Item, NewItemNo);
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -270,7 +295,7 @@ codeunit 361 MoveEntries
               Item.TableCaption, Item."No.");
         end;
 
-        ItemLedgEntry.Reset;
+        ItemLedgEntry.Reset();
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         ItemLedgEntry.SetRange("Completely Invoiced", false);
@@ -300,7 +325,7 @@ codeunit 361 MoveEntries
         ItemLedgEntry.SetRange("Applied Entry to Adjust");
 
         if Item."Costing Method" = Item."Costing Method"::Average then begin
-            AvgCostAdjmt.Reset;
+            AvgCostAdjmt.Reset();
             AvgCostAdjmt.SetRange("Item No.", Item."No.");
             AvgCostAdjmt.SetRange("Cost Is Adjusted", false);
             if not AvgCostAdjmt.IsEmpty then
@@ -314,23 +339,23 @@ codeunit 361 MoveEntries
         ItemLedgEntry.SetRange(Open);
         ItemLedgEntry.ModifyAll("Item No.", NewItemNo);
 
-        ValueEntry.Reset;
+        ValueEntry.Reset();
         ValueEntry.SetCurrentKey("Item No.");
         ValueEntry.SetRange("Item No.", Item."No.");
         ValueEntry.ModifyAll("Item No.", NewItemNo);
 
-        AvgCostAdjmt.Reset;
+        AvgCostAdjmt.Reset();
         AvgCostAdjmt.SetRange("Item No.", Item."No.");
-        AvgCostAdjmt.DeleteAll;
+        AvgCostAdjmt.DeleteAll();
 
-        InvtAdjmtEntryOrder.Reset;
+        InvtAdjmtEntryOrder.Reset();
         InvtAdjmtEntryOrder.SetRange("Item No.", Item."No.");
         InvtAdjmtEntryOrder.SetRange("Order Type", InvtAdjmtEntryOrder."Order Type"::Production);
         InvtAdjmtEntryOrder.ModifyAll("Cost is Adjusted", true);
         InvtAdjmtEntryOrder.SetRange("Order Type");
         InvtAdjmtEntryOrder.ModifyAll("Item No.", NewItemNo);
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Item No. (Serviced)", Item."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
@@ -371,7 +396,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewItemNo);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Item No. (Serviced)", Item."No.");
         WarrantyLedgEntry.ModifyAll("Item No. (Serviced)", NewItemNo);
 
@@ -379,6 +404,17 @@ codeunit 361 MoveEntries
         WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::Item);
         WarrantyLedgEntry.SetRange("No.", Item."No.");
         WarrantyLedgEntry.ModifyAll("No.", NewItemNo);
+
+        ServiceItem.Reset();
+        ServiceItem.SetRange("Item No.", Item."No.");
+        if not ServiceItem.IsEmpty then
+            ServiceItem.ModifyAll("Item No.", NewItemNo, true);
+
+        ServiceItemComponent.Reset();
+        ServiceItemComponent.SetRange(Type, ServiceItemComponent.Type::Item);
+        ServiceItemComponent.SetRange("No.", Item."No.");
+        if not ServiceItemComponent.IsEmpty then
+            ServiceItemComponent.ModifyAll("No.", NewItemNo);
 
         OnAfterMoveItemEntries(Item, ItemLedgEntry, ValueEntry, ServLedgEntry, WarrantyLedgEntry, InvtAdjmtEntryOrder);
     end;
@@ -390,8 +426,8 @@ codeunit 361 MoveEntries
         OnBeforeMoveResEntries(Res, NewResNo);
 
         // NAVCZ
-        ResLedgEntry.Reset;
-        GLSetup.Get;
+        ResLedgEntry.Reset();
+        GLSetup.Get();
         if not GLSetup."Delete Card with Entries" then begin
             ResLedgEntry.SetRange("Resource No.", Res."No.");
             if not ResLedgEntry.IsEmpty then
@@ -399,7 +435,7 @@ codeunit 361 MoveEntries
         end;
         // NAVCZ
 
-        ResLedgEntry.Reset;
+        ResLedgEntry.Reset();
         ResLedgEntry.SetCurrentKey("Resource No.", "Posting Date");
         ResLedgEntry.SetRange("Resource No.", Res."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -410,12 +446,12 @@ codeunit 361 MoveEntries
               Text000,
               Res.TableCaption, Res."No.");
 
-        ResLedgEntry.Reset;
+        ResLedgEntry.Reset();
         ResLedgEntry.SetCurrentKey("Resource No.");
         ResLedgEntry.SetRange("Resource No.", Res."No.");
         ResLedgEntry.ModifyAll("Resource No.", NewResNo);
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::Resource);
         ServLedgEntry.SetRange("No.", Res."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -436,7 +472,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewResNo);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::Resource);
         WarrantyLedgEntry.SetRange("No.", Res."No.");
         WarrantyLedgEntry.ModifyAll("No.", NewResNo);
@@ -452,8 +488,8 @@ codeunit 361 MoveEntries
         OnBeforeMoveJobEntries(Job, NewJobNo);
 
         // NAVCZ
-        JobLedgEntry.Reset;
-        GLSetup.Get;
+        JobLedgEntry.Reset();
+        GLSetup.Get();
         if not GLSetup."Delete Card with Entries" then begin
             JobLedgEntry.SetRange("Job No.", Job."No.");
             if not JobLedgEntry.IsEmpty then
@@ -488,7 +524,7 @@ codeunit 361 MoveEntries
                 Error(Text015, Job.TableCaption, Job."No.");
         end;
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Job No.", Job."No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
@@ -518,7 +554,7 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveServiceItemLedgerEntries(ServiceItem, NewServiceItemNo);
 
-        ServLedgEntry.LockTable;
+        ServLedgEntry.LockTable();
 
         ResultDescription := CheckIfServiceItemCanBeDeleted(ServLedgEntry, ServiceItem."No.");
         if ResultDescription <> '' then
@@ -526,7 +562,7 @@ codeunit 361 MoveEntries
 
         ServLedgEntry.ModifyAll("Service Item No. (Serviced)", NewServiceItemNo);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Service Item No. (Serviced)", ServiceItem."No.");
         WarrantyLedgEntry.ModifyAll("Service Item No. (Serviced)", NewServiceItemNo);
 
@@ -540,7 +576,7 @@ codeunit 361 MoveEntries
         OnBeforeMoveServContractLedgerEntries(ServiceContractHeader, NewContractNo);
 
         if ServiceContractHeader.Prepaid then begin
-            ServLedgEntry.Reset;
+            ServLedgEntry.Reset();
             ServLedgEntry.SetCurrentKey(Type, "No.");
             ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Contract");
             ServLedgEntry.SetRange("No.", ServiceContractHeader."Contract No.");
@@ -558,8 +594,8 @@ codeunit 361 MoveEntries
                   ServiceContractHeader.TableCaption, ServiceContractHeader."Contract No.", ServLedgEntry.TableCaption);
         end;
         // NAVCZ
-        ServLedgEntry.Reset;
-        GLSetup.Get;
+        ServLedgEntry.Reset();
+        GLSetup.Get();
         if not GLSetup."Delete Card with Entries" then begin
             ServLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
             if not ServLedgEntry.IsEmpty then
@@ -567,7 +603,7 @@ codeunit 361 MoveEntries
         end;
         // NAVCZ
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
@@ -608,7 +644,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewContractNo);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange("Service Contract No.", ServiceContractHeader."Contract No.");
         WarrantyLedgEntry.ModifyAll("Service Contract No.", NewContractNo);
 
@@ -621,7 +657,7 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveServiceCostLedgerEntries(ServiceCost, NewCostCode);
 
-        ServLedgEntry.Reset;
+        ServLedgEntry.Reset();
         ServLedgEntry.SetRange(Type, ServLedgEntry.Type::"Service Cost");
         ServLedgEntry.SetRange("No.", ServiceCost.Code);
         AccountingPeriod.SetRange(Closed, false);
@@ -642,7 +678,7 @@ codeunit 361 MoveEntries
         ServLedgEntry.SetRange(Open);
         ServLedgEntry.ModifyAll("No.", NewCostCode);
 
-        WarrantyLedgEntry.LockTable;
+        WarrantyLedgEntry.LockTable();
         WarrantyLedgEntry.SetRange(Type, WarrantyLedgEntry.Type::"Service Cost");
         WarrantyLedgEntry.SetRange("No.", ServiceCost.Code);
         WarrantyLedgEntry.ModifyAll("No.", NewCostCode);
@@ -659,14 +695,14 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveCashFlowEntries(CashFlowAccount, NewAccountNo);
 
-        CashFlowAccount.LockTable;
+        CashFlowAccount.LockTable();
 
         if CashFlowAccount."Account Type" = CashFlowAccount."Account Type"::Entry then begin
             CashFlowAccount.CalcFields(Amount);
             CashFlowAccount.TestField(Amount, 0);
         end;
 
-        CFForecastEntry.Reset;
+        CFForecastEntry.Reset();
         CFForecastEntry.SetCurrentKey("Cash Flow Account No.");
         CFForecastEntry.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
         AccountingPeriod.SetRange(Closed, false);
@@ -677,7 +713,7 @@ codeunit 361 MoveEntries
               Text000,
               CashFlowAccount.TableCaption, CashFlowAccount."No.");
 
-        CFSetup.Get;
+        CFSetup.Get();
         if CFSetup."Receivables CF Account No." = CashFlowAccount."No." then
             CFSetup.ModifyAll("Receivables CF Account No.", '');
 
@@ -699,11 +735,11 @@ codeunit 361 MoveEntries
         if CFSetup."Service CF Account No." = CashFlowAccount."No." then
             CFSetup.ModifyAll("Service CF Account No.", '');
 
-        CFWorksheetLine.Reset;
+        CFWorksheetLine.Reset();
         CFWorksheetLine.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
         CFWorksheetLine.ModifyAll("Cash Flow Account No.", '');
 
-        CFForecastEntry.Reset;
+        CFForecastEntry.Reset();
         CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
         CFForecastEntry.SetRange("Cash Flow Account No.", CashFlowAccount."No.");
         CFForecastEntry.ModifyAll("Cash Flow Account No.", '');
@@ -719,14 +755,14 @@ codeunit 361 MoveEntries
     begin
         OnBeforeMoveDocRelatedEntries(TableNo, DocNo);
 
-        ItemLedgEntry2.LockTable;
+        ItemLedgEntry2.LockTable();
         ItemLedgEntry2.SetCurrentKey("Document No.");
         ItemLedgEntry2.SetRange("Document No.", DocNo);
         ItemLedgEntry2.SetRange("Document Type", CostCalcMgt.GetDocType(TableNo));
         ItemLedgEntry2.SetFilter("Document Line No.", '<>0');
         ItemLedgEntry2.ModifyAll("Document Line No.", 0);
 
-        ValueEntry2.LockTable;
+        ValueEntry2.LockTable();
         ValueEntry2.SetCurrentKey("Document No.");
         ValueEntry2.SetRange("Document No.", DocNo);
         ValueEntry2.SetRange("Document Type", CostCalcMgt.GetDocType(TableNo));
@@ -740,10 +776,10 @@ codeunit 361 MoveEntries
     var
         ServiceItem: Record "Service Item";
     begin
-        ServiceLedgerEntry.Reset;
+        ServiceLedgerEntry.Reset();
         ServiceLedgerEntry.SetCurrentKey("Service Item No. (Serviced)");
         ServiceLedgerEntry.SetRange("Service Item No. (Serviced)", ServiceItemNo);
-        GLSetup.Get;
+        GLSetup.Get();
         if not GLSetup."Delete Card with Entries" then begin
             if not ServiceLedgerEntry.IsEmpty then
                 GLSetup.TestField("Delete Card with Entries");
@@ -780,7 +816,7 @@ codeunit 361 MoveEntries
             GLEntry.SetRange("G/L Account No.", GLAccount."No.");
             if not GLEntry.IsEmpty then
                 GeneralLedgerSetup.TestField("Delete Card with Entries");
-            GLEntry.Reset;
+            GLEntry.Reset();
         end;
         // NAVCZ
 
@@ -799,7 +835,7 @@ codeunit 361 MoveEntries
 
         GLEntry.SetFilter("Posting Date", '>=%1', GeneralLedgerSetup."Allow G/L Acc. Deletion Before");
 
-        GLBudgetEntry.LockTable;
+        GLBudgetEntry.LockTable();
         GLBudgetEntry.SetCurrentKey("Budget Name", "G/L Account No.", Date);
         GLBudgetEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLBudgetEntry.SetFilter(Date, '>=%1', GeneralLedgerSetup."Allow G/L Acc. Deletion Before");

@@ -1,4 +1,4 @@
-﻿page 5162 "Sales Quote Archive"
+page 5162 "Sales Quote Archive"
 {
     Caption = 'Sales Quote Archive';
     DeleteAllowed = false;

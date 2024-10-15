@@ -75,7 +75,7 @@ codeunit 11730 CashDeskManagement
         CheckCashDesks;
         CashDeskFilter := GetCashDesksFilter;
 
-        BankAcc.Reset;
+        BankAcc.Reset();
         BankAcc.FilterGroup(2);
         if CashDeskFilter <> '' then
             BankAcc.SetFilter("No.", CashDeskFilter);

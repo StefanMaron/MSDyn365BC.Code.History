@@ -332,7 +332,7 @@ page 31054 "Credit Proposal"
     procedure GetSetup()
     begin
         if not SetupRead then begin
-            CreditsSetup.Get;
+            CreditsSetup.Get();
             SetupRead := true;
         end;
     end;

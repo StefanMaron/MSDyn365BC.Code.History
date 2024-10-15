@@ -25,19 +25,19 @@ report 99001015 "Calculate Subcontracts"
                     ProdOrderLine.SetRange("Routing No.", "Routing No.");
                     ProdOrderLine.SetRange("Routing Reference No.", "Routing Reference No.");
                     if ProdOrderLine.Find('-') then begin
-                        DeleteRepeatedReqLines;
+                        DeleteRepeatedReqLines();
                         repeat
                             BaseQtyToPurch :=
-                              CostCalcMgt.CalcQtyAdjdForRoutingScrap(
-                                CostCalcMgt.CalcQtyAdjdForBOMScrap(
-                                  ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
-                                "Scrap Factor % (Accumulated)", "Fixed Scrap Qty. (Accum.)") -
-                              (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, "Prod. Order Routing Line") +
-                               CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, "Prod. Order Routing Line"));
+                                CostCalcMgt.CalcQtyAdjdForRoutingScrap(
+                                    CostCalcMgt.CalcQtyAdjdForBOMScrap(
+                                        ProdOrderLine."Quantity (Base)", ProdOrderLine."Scrap %"),
+                                        "Scrap Factor % (Accumulated)", "Fixed Scrap Qty. (Accum.)") -
+                                (CostCalcMgt.CalcOutputQtyBaseOnPurchOrder(ProdOrderLine, "Prod. Order Routing Line") +
+                                 CostCalcMgt.CalcActOutputQtyBase(ProdOrderLine, "Prod. Order Routing Line"));
                             QtyToPurch := Round(BaseQtyToPurch / ProdOrderLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
                             if QtyToPurch > 0 then
-                                InsertReqWkshLine;
-                        until ProdOrderLine.Next = 0;
+                                InsertReqWkshLine();
+                        until ProdOrderLine.Next() = 0;
                     end;
                 end;
             }
@@ -45,7 +45,7 @@ report 99001015 "Calculate Subcontracts"
             trigger OnAfterGetRecord()
             begin
                 if "Subcontractor No." = '' then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 Window.Update(1, "No.");
             end;
@@ -54,7 +54,7 @@ report 99001015 "Calculate Subcontracts"
             begin
                 ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
                 ReqLine.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
-                ReqLine.DeleteAll;
+                ReqLine.DeleteAll();
             end;
         }
     }
@@ -77,7 +77,7 @@ report 99001015 "Calculate Subcontracts"
 
     trigger OnInitReport()
     begin
-        MfgSetup.Get;
+        MfgSetup.Get();
     end;
 
     trigger OnPreReport()
@@ -86,10 +86,11 @@ report 99001015 "Calculate Subcontracts"
         ReqWkShName.Get(ReqLine."Worksheet Template Name", ReqLine."Journal Batch Name");
         ReqLine.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         ReqLine.SetRange("Journal Batch Name", ReqLine."Journal Batch Name");
-        ReqLine.LockTable;
+        ReqLine.LockTable();
 
         if ReqLine.FindLast then
-            ReqLine.Init;
+            ReqLine.Init();
+
         Window.Open(Text000 + Text001);
     end;
 
@@ -137,26 +138,24 @@ report 99001015 "Calculate Subcontracts"
             Validate("Variant Code", ProdOrderLine."Variant Code");
             Validate("Unit of Measure Code", ProdOrderLine."Unit of Measure Code");
             Validate(Quantity, QtyToPurch);
-            GetGLSetup;
+            GetGLSetup();
             IsHandled := false;
             OnBeforeValidateUnitCost(ReqLine, "Work Center", IsHandled);
             if not IsHandled then
                 if Quantity <> 0 then begin
                     if "Work Center"."Unit Cost Calculation" = "Work Center"."Unit Cost Calculation"::Units then
                         Validate(
-                          "Direct Unit Cost",
-                          Round(
-                            "Prod. Order Routing Line"."Direct Unit Cost" *
-                            ProdOrderLine."Qty. per Unit of Measure",
-                            GLSetup."Unit-Amount Rounding Precision"))
+                            "Direct Unit Cost",
+                            Round(
+                                "Prod. Order Routing Line"."Direct Unit Cost" * ProdOrderLine."Qty. per Unit of Measure",
+                                GLSetup."Unit-Amount Rounding Precision"))
                     else
                         Validate(
-                          "Direct Unit Cost",
-                          Round(
-                            ("Prod. Order Routing Line"."Expected Operation Cost Amt." -
-                             "Prod. Order Routing Line"."Expected Capacity Ovhd. Cost") /
-                            ProdOrderLine."Total Exp. Oper. Output (Qty.)",
-                            GLSetup."Unit-Amount Rounding Precision"));
+                            "Direct Unit Cost",
+                            Round(
+                                ("Prod. Order Routing Line"."Expected Operation Cost Amt." - "Prod. Order Routing Line"."Expected Capacity Ovhd. Cost") /
+                                ProdOrderLine."Total Exp. Oper. Output (Qty.)",
+                                GLSetup."Unit-Amount Rounding Precision"));
                 end else
                     Validate("Direct Unit Cost", 0);
             "Qty. per Unit of Measure" := 0;
@@ -176,7 +175,7 @@ report 99001015 "Calculate Subcontracts"
             OnAfterTransferProdOrderRoutingLine(ReqLine, "Prod. Order Routing Line");
 
             // If purchase order already exist we will change this if possible
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetCurrentKey("Document Type", Type, "Prod. Order No.", "Prod. Order Line No.", "Routing No.", "Operation No.");
             PurchLine.SetRange("Document Type", PurchLine."Document Type"::Order);
             PurchLine.SetRange(Type, PurchLine.Type::Item);
@@ -186,7 +185,7 @@ report 99001015 "Calculate Subcontracts"
             PurchLine.SetRange("Operation No.", "Prod. Order Routing Line"."Operation No.");
             PurchLine.SetRange("Planning Flexibility", PurchLine."Planning Flexibility"::Unlimited);
             PurchLine.SetRange("Quantity Received", 0);
-            if PurchLine.FindFirst then begin
+            if PurchLine.FindFirst() then begin
                 Validate(Quantity, Quantity + PurchLine."Outstanding Quantity");
                 "Quantity (Base)" := 0;
                 "Replenishment System" := "Replenishment System"::Purchase;
@@ -218,7 +217,7 @@ report 99001015 "Calculate Subcontracts"
     local procedure GetGLSetup()
     begin
         if not GLSetupRead then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupRead := true;
     end;
 

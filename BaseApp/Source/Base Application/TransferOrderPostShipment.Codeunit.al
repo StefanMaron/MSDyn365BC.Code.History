@@ -55,9 +55,9 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 Window.Update(1, StrSubstNo(Text004, "No."));
             end;
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             SourceCode := SourceCodeSetup.Transfer;
-            InvtSetup.Get;
+            InvtSetup.Get();
             InvtSetup.TestField("Posted Transfer Shpt. Nos.");
 
             CheckInvtPostingSetup;
@@ -66,8 +66,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
             LockTables(InvtSetup."Automatic Cost Posting");
 
             // Insert shipment header
-            PostedWhseShptHeader.LockTable;
-            TransShptHeader.LockTable;
+            PostedWhseShptHeader.LockTable();
+            TransShptHeader.LockTable();
             InsertTransShptHeader(TransShptHeader, TransHeader, "Shipping No. Series");
             OnAfterInsertTransShptHeader(TransHeader, TransShptHeader);
 
@@ -84,10 +84,10 @@ codeunit 5704 "TransferOrder-Post Shipment"
             // Insert shipment lines
             LineCount := 0;
             if WhseShip then
-                PostedWhseShptLine.LockTable;
+                PostedWhseShptLine.LockTable();
             if InvtPickPutaway then
-                WhseRqst.LockTable;
-            TransShptLine.LockTable;
+                WhseRqst.LockTable();
+            TransShptLine.LockTable();
             TransLine.SetRange(Quantity);
             TransLine.SetRange("Qty. to Ship");
             if TransLine.Find('-') then
@@ -116,7 +116,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                     InsertTransShptLine(TransShptHeader);
                 until TransLine.Next = 0;
 
-            InvtSetup.Get;
+            InvtSetup.Get();
             if InvtSetup."Automatic Cost Adjustment" <> InvtSetup."Automatic Cost Adjustment"::Never then begin
                 InvtAdjmt.SetProperties(true, InvtSetup."Automatic Cost Posting");
                 InvtAdjmt.MakeMultiLevelAdjmt;
@@ -124,8 +124,8 @@ codeunit 5704 "TransferOrder-Post Shipment"
             end;
 
             if WhseShip then
-                WhseShptLine.LockTable;
-            TransLine.LockTable;
+                WhseShptLine.LockTable();
+            TransLine.LockTable();
 
             OnBeforeCopyTransLines(TransHeader);
 
@@ -140,17 +140,17 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
                     OnBeforeUpdateWithWarehouseShipReceive(TransLine);
                     TransLine.UpdateWithWarehouseShipReceive;
-                    TransLine.Modify;
+                    TransLine.Modify();
                     OnAfterTransLineModify(TransLine);
                 until TransLine.Next = 0;
             end;
 
             if WhseShip then
-                WhseShptLine.LockTable;
-            LockTable;
+                WhseShptLine.LockTable();
+            LockTable();
             if WhseShip then begin
                 WhsePostShpt.PostUpdateWhseDocuments(WhseShptHeader);
-                TempWhseShptHeader.Delete;
+                TempWhseShptHeader.Delete();
             end;
 
             "Last Shipment No." := TransShptHeader."No.";
@@ -160,7 +160,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
             OnRunOnBeforeCommit(TransHeader, TransShptHeader);
             if not (InvtPickPutaway or "Direct Transfer" or SuppressCommit) then begin
-                Commit;
+                Commit();
                 UpdateAnalysisView.UpdateAll(0, true);
                 UpdateItemAnalysisView.UpdateAll(0, true);
             end;
@@ -317,7 +317,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 InvtCommentLine2 := InvtCommentLine;
                 InvtCommentLine2."Document Type" := ToDocumentType;
                 InvtCommentLine2."No." := ToNumber;
-                InvtCommentLine2.Insert;
+                InvtCommentLine2.Insert();
             until InvtCommentLine.Next = 0;
     end;
 
@@ -404,38 +404,34 @@ codeunit 5704 "TransferOrder-Post Shipment"
         TempHandlingSpecification2: Record "Tracking Specification" temporary;
         ItemEntryRelation: Record "Item Entry Relation";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        WhseSNRequired: Boolean;
-        WhseLNRequired: Boolean;
     begin
         if WhsePosting then begin
-            TempWhseSplitSpecification.Reset;
-            TempWhseSplitSpecification.DeleteAll;
+            TempWhseSplitSpecification.Reset();
+            TempWhseSplitSpecification.DeleteAll();
         end;
 
-        TempHandlingSpecification2.Reset;
+        TempHandlingSpecification2.Reset();
         if ItemJnlPostLine.CollectTrackingSpecification(TempHandlingSpecification2) then begin
             TempHandlingSpecification2.SetRange("Buffer Status", 0);
             if TempHandlingSpecification2.Find('-') then begin
                 repeat
                     if WhsePosting or WhseShip or InvtPickPutaway then begin
-                        ItemTrackingMgt.CheckWhseItemTrkgSetup(
-                          TransShptLine."Item No.", WhseSNRequired, WhseLNRequired, false);
-                        if WhseSNRequired or WhseLNRequired then begin
+                        if ItemTrackingMgt.GetWhseItemTrkgSetup(TransShptLine."Item No.") then begin
                             TempWhseSplitSpecification := TempHandlingSpecification2;
                             TempWhseSplitSpecification."Source Type" := DATABASE::"Transfer Line";
                             TempWhseSplitSpecification."Source ID" := TransLine."Document No.";
                             TempWhseSplitSpecification."Source Ref. No." := TransLine."Line No.";
-                            TempWhseSplitSpecification.Insert;
+                            TempWhseSplitSpecification.Insert();
                         end;
                     end;
 
                     ItemEntryRelation.InitFromTrackingSpec(TempHandlingSpecification2);
                     ItemEntryRelation.TransferFieldsTransShptLine(TransShptLine);
-                    ItemEntryRelation.Insert;
+                    ItemEntryRelation.Insert();
                     TempHandlingSpecification := TempHandlingSpecification2;
                     TempHandlingSpecification."Source Prod. Order Line" := TransShptLine."Line No.";
                     TempHandlingSpecification."Buffer Status" := TempHandlingSpecification."Buffer Status"::MODIFY;
-                    TempHandlingSpecification.Insert;
+                    TempHandlingSpecification.Insert();
                 until TempHandlingSpecification2.Next = 0;
                 OnAfterInsertShptEntryRelation(TransLine, WhseShip, 0, SuppressCommit);
                 exit(0);
@@ -450,7 +446,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        TransShptHeader.Init;
+        TransShptHeader.Init();
         TransShptHeader.CopyFromTransferHeader(TransHeader);
         TransShptHeader."No. Series" := NoSeries;
         TransShptHeader."No." := NoSeriesMgt.GetNextNo(NoSeries, TransHeader."Posting Date", true);
@@ -462,7 +458,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         if TransShptHeader."No." = '' then
             TransShptHeader."No." := NoSeriesMgt.GetNextNo(NoSeries, TransHeader."Posting Date", true);
         OnBeforeInsertTransShptHeader(TransShptHeader, TransHeader, SuppressCommit);
-        TransShptHeader.Insert;
+        TransShptHeader.Insert();
         OnAfterInsertTransShptHeader(TransHeader, TransShptHeader);
     end;
 
@@ -470,7 +466,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     var
         TransShptLine: Record "Transfer Shipment Line";
     begin
-        TransShptLine.Init;
+        TransShptLine.Init();
         TransShptLine."Document No." := TransShptHeader."No.";
         TransShptLine.CopyFromTransferLine(TransLine);
         // NAVCZ
@@ -502,7 +498,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase);
         end;
         OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit);
-        TransShptLine.Insert;
+        TransShptLine.Insert();
         OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit);
     end;
 
@@ -510,7 +506,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     var
         DummySpecification: Record "Tracking Specification";
     begin
-        TempHandlingSpecification.Reset;
+        TempHandlingSpecification.Reset();
         TempHandlingSpecification.SetRange("Source Prod. Order Line", ToTransLine."Derived From Line No.");
         if TempHandlingSpecification.Find('-') then begin
             repeat
@@ -518,7 +514,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
                   FromTransLine, ToTransLine, -TempHandlingSpecification."Quantity (Base)", 1, TempHandlingSpecification);
                 TransferQty += TempHandlingSpecification."Quantity (Base)";
             until TempHandlingSpecification.Next = 0;
-            TempHandlingSpecification.DeleteAll;
+            TempHandlingSpecification.DeleteAll();
         end;
 
         if TransferQty > 0 then
@@ -593,7 +589,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     begin
         WhseShptHeader := WhseShptHeader2;
         TempWhseShptHeader := WhseShptHeader;
-        TempWhseShptHeader.Insert;
+        TempWhseShptHeader.Insert();
     end;
 
     local procedure GetShippingAdvice(): Boolean
@@ -647,7 +643,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     local procedure CheckLines(TransHeader: Record "Transfer Header"; var TransLine: Record "Transfer Line")
     begin
         with TransHeader do begin
-            TransLine.Reset;
+            TransLine.Reset();
             TransLine.SetRange("Document No.", "No.");
             TransLine.SetRange("Derived From Line No.", 0);
             TransLine.SetFilter(Quantity, '<>0');
@@ -662,17 +658,17 @@ codeunit 5704 "TransferOrder-Post Shipment"
         GLEntry: Record "G/L Entry";
         NoSeriesLine: Record "No. Series Line";
     begin
-        NoSeriesLine.LockTable;
+        NoSeriesLine.LockTable();
         if NoSeriesLine.FindLast then;
         if AutoCostPosting then begin
-            GLEntry.LockTable;
+            GLEntry.LockTable();
             if GLEntry.FindLast then;
         end;
     end;
 
     local procedure CopyTransLine(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line"; var NextLineNo: Integer; TransferHeader: Record "Transfer Header")
     begin
-        NewTransferLine.Init;
+        NewTransferLine.Init();
         NewTransferLine := TransferLine;
         if TransferHeader."In-Transit Code" <> '' then
             NewTransferLine."Transfer-from Code" := TransferLine."In-Transit Code";
@@ -690,7 +686,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NewTransferLine."Outstanding Quantity" := NewTransferLine.Quantity;
         NewTransferLine."Outstanding Qty. (Base)" := NewTransferLine."Quantity (Base)";
         OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine);
-        NewTransferLine.Insert;
+        NewTransferLine.Insert();
     end;
 
     local procedure ReleaseDocument(var TransferHeader: Record "Transfer Header")
@@ -700,16 +696,16 @@ codeunit 5704 "TransferOrder-Post Shipment"
         if TransferHeader.Status = TransferHeader.Status::Open then begin
             CODEUNIT.Run(CODEUNIT::"Release Transfer Document", TransferHeader);
             TransferHeader.Status := TransferHeader.Status::Open;
-            TransferHeader.Modify;
+            TransferHeader.Modify();
             if not SuppressCommit then
-                Commit;
+                Commit();
             TransferHeader.Status := TransferHeader.Status::Released;
         end;
     end;
 
     local procedure CheckTransHeaderMandatoryFields(TransHeader: Record "Transfer Header")
     begin
-        StatReportingSetup.Get;
+        StatReportingSetup.Get();
         if StatReportingSetup."Transaction Type Mandatory" then
             TransHeader.TestField("Transaction Type");
         if StatReportingSetup."Transaction Spec. Mandatory" then

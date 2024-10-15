@@ -208,7 +208,7 @@ table 11764 "Perf. Country Curr. Exch. Rate"
     local procedure GetStatReportingSetup()
     begin
         if not StatReportingSetupRead then
-            StatReportingSetup.Get;
+            StatReportingSetup.Get();
         StatReportingSetupRead := true;
     end;
 

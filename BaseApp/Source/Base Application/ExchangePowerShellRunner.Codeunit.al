@@ -38,7 +38,7 @@ codeunit 1651 "Exchange PowerShell Runner"
     procedure SetCredentials(UserName: Text[80]; Password: Text[30])
     begin
         if TempOfficeAdminCredentials.IsEmpty then
-            TempOfficeAdminCredentials.Init;
+            TempOfficeAdminCredentials.Init();
 
         TempOfficeAdminCredentials.Email := UserName;
 
@@ -47,7 +47,7 @@ codeunit 1651 "Exchange PowerShell Runner"
 
         TempOfficeAdminCredentials.SavePassword(Password);
 
-        Commit;
+        Commit();
     end;
 
     procedure GetCredentials(var TempUserOfficeAdminCredentials: Record "Office Admin. Credentials" temporary)
@@ -79,20 +79,20 @@ codeunit 1651 "Exchange PowerShell Runner"
     procedure SetEndpoint(Endpoint: Text[250])
     begin
         if TempOfficeAdminCredentials.IsEmpty then
-            TempOfficeAdminCredentials.Init;
+            TempOfficeAdminCredentials.Init();
 
         TempOfficeAdminCredentials.Endpoint := Endpoint;
 
         if not TempOfficeAdminCredentials.Modify(true) then
             TempOfficeAdminCredentials.Insert(true);
-        Commit;
+        Commit();
     end;
 
     [TryFunction]
     procedure PromptForCredentials()
     begin
         if TempOfficeAdminCredentials.IsEmpty then begin
-            TempOfficeAdminCredentials.Init;
+            TempOfficeAdminCredentials.Init();
             TempOfficeAdminCredentials.Insert(true);
             PAGE.RunModal(PAGE::"Office Admin. Credentials", TempOfficeAdminCredentials);
         end;
@@ -153,10 +153,10 @@ codeunit 1651 "Exchange PowerShell Runner"
 
     procedure ResetInitialization()
     begin
-        TempOfficeAdminCredentials.DeleteAll;
+        TempOfficeAdminCredentials.DeleteAll();
         Clear(TempOfficeAdminCredentials);
         PSInitialized := false;
-        Commit;
+        Commit();
     end;
 
     [TryFunction]

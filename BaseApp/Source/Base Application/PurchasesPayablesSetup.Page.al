@@ -58,6 +58,13 @@ page 460 "Purchases & Payables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in purchase documents.';
                 }
+                field("Price Calculation Method"; "Price Calculation Method")
+                {
+                    // Visibility should be turned on by an extension for Price Calculation
+                    Visible = false;
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the price calculation method that will be default for purchase transactions.';
+                }
                 field("Calc. Inv. Discount"; "Calc. Inv. Discount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -153,21 +160,37 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by "Copy Line Descr. to G/L Entry" field. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (Item)"; "G/L Entry as Doc. Lines (Item)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (FA)"; "G/L Entry as Doc. Lines (FA)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("G/L Entry as Doc. Lines (Char)"; "G/L Entry as Doc. Lines (Char)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies copying description on line to the G/L entries.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of general ledger entry description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
+                    ObsoleteTag = '16.0';
                 }
                 field("Allow Document Deletion Before"; "Allow Document Deletion Before")
                 {
@@ -179,6 +202,12 @@ page 460 "Purchases & Payables Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if changes to addresses made on purchase documents are copied to the vendor card. By default, changes are copied to the vendor card.';
+                }
+                field("Copy Line Descr. to G/L Entry"; "Copy Line Descr. to G/L Entry")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies that the description on document lines of type G/L Account will be carried to the resulting general ledger entries.';
                 }
             }
             group("Number Series")

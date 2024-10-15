@@ -36,8 +36,8 @@ codeunit 7314 "Warehouse Availability Mgt."
                 if ReservEntry2.Find('-') then
                     repeat
                         ReservQtyonInvt += ReservEntry2."Quantity (Base)";
-                    until ReservEntry2.Next = 0;
-            until ReservEntry.Next = 0;
+                    until ReservEntry2.Next() = 0;
+            until ReservEntry.Next() = 0;
 
         if HandleResPickAndShipQty then begin
             PickQty := CalcRegisteredAndOutstandingPickQty(ReservEntry, WarehouseActivityLine);
@@ -68,18 +68,14 @@ codeunit 7314 "Warehouse Availability Mgt."
     begin
         // Returns the reserved part of the sum of outstanding quantity on pick lines and
         // quantity on shipment lines picked but not yet shipped for a given item
-        ReservEntry.SetCurrentKey(
-          "Item No.", "Variant Code", "Location Code", "Reservation Status");
+        ReservEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status");
         ReservEntry.SetRange("Item No.", ItemNo);
         ReservEntry.SetRange("Variant Code", VariantCode);
         ReservEntry.SetRange("Location Code", LocationCode);
         ReservEntry.SetRange("Reservation Status", ReservEntry."Reservation Status"::Reservation);
         ReservEntry.SetRange(Positive, false);
-        if TrackingSpecification."Lot No." <> '' then
-            ReservEntry.SetRange("Lot No.", TrackingSpecification."Lot No.");
-        if TrackingSpecification."Serial No." <> '' then
-            ReservEntry.SetRange("Serial No.", TrackingSpecification."Serial No.");
-        if not ReservEntry.FindSet then
+        ReservEntry.SetTrackingFilterFromSpecIfNotBlank(TrackingSpecification);
+        if not ReservEntry.FindSet() then
             exit(0);
 
         with TempReservEntryBuffer do begin
@@ -87,10 +83,10 @@ codeunit 7314 "Warehouse Availability Mgt."
                 TransferFields(ReservEntry);
                 if Find then begin
                     "Quantity (Base)" += ReservEntry."Quantity (Base)";
-                    Modify;
+                    Modify();
                 end else
-                    Insert;
-            until ReservEntry.Next = 0;
+                    Insert();
+            until ReservEntry.Next() = 0;
 
             if FindSet then
                 repeat
@@ -104,7 +100,7 @@ codeunit 7314 "Warehouse Availability Mgt."
                         ResPickShipQty += (QtyPicked + QtyToPick)
                     else
                         ResPickShipQty += -"Quantity (Base)";
-                until Next = 0;
+                until Next() = 0;
 
             exit(ResPickShipQty);
         end;
@@ -305,7 +301,17 @@ codeunit 7314 "Warehouse Availability Mgt."
         exit(WhseEntry."Qty. (Base)");
     end;
 
+    [Obsolete('Replaced by CalcLineReservedQtyOnInvt with WhseItemTrackingSetup parameter.','16.0')]
     procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; LotNo: Code[50]; SerialNo: Code[50]): Decimal
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        WhseItemTrackingSetup."Serial No." := SerialNo;
+        WhseItemTrackingSetup."Lot No." := LotNo;
+        exit(CalcQtyOnBin(LocationCode, BinCode, ItemNo, VariantCode, WhseItemTrackingSetup));
+    end;
+
+    procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         WhseEntry: Record "Warehouse Entry";
     begin
@@ -319,10 +325,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             SetRange("Bin Code", BinCode);
             SetRange("Location Code", LocationCode);
             SetRange("Variant Code", VariantCode);
-            if LotNo <> '' then
-                SetRange("Lot No.", LotNo);
-            if SerialNo <> '' then
-                SetRange("Serial No.", SerialNo);
+            SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
             CalcSums("Qty. (Base)");
             exit("Qty. (Base)");
         end;
@@ -349,9 +352,68 @@ codeunit 7314 "Warehouse Availability Mgt."
                         CalcFields("Quantity (Base)");
                         QtyBlocked += "Quantity (Base)";
                     end else
-                        QtyBlocked += CalcQtyWithBlockedItemTracking;
-                until Next = 0;
+                        QtyBlocked += CalcQtyWithBlockedItemTracking();
+                until Next() = 0;
         end;
+    end;
+
+    procedure CalcQtyOnOutboundBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; ExcludeDedicatedBinContent: Boolean) QtyOnOutboundBins: Decimal
+    var
+        WhseEntry: Record "Warehouse Entry";
+        WhseShptLine: Record "Warehouse Shipment Line";
+        Location: Record Location;
+        CreatePick: Codeunit "Create Pick";
+    begin
+        // Directed put-away and pick
+        Location.Get(LocationCode);
+
+        WhseItemTrackingSetup."Serial No. Required" := true;
+        WhseItemTrackingSetup."Lot No. Required" := true;
+
+        if Location."Directed Put-away and Pick" then begin
+            WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, ExcludeDedicatedBinContent);
+            WhseEntry.SetFilter("Bin Type Code", CreatePick.GetBinTypeFilter(1)); // Shipping area
+            WhseEntry.CalcSums("Qty. (Base)");
+            QtyOnOutboundBins := WhseEntry."Qty. (Base)";
+            if Location."Adjustment Bin Code" <> '' then begin
+                WhseEntry.SetRange("Bin Type Code");
+                WhseEntry.SetRange("Bin Code", Location."Adjustment Bin Code");
+                WhseEntry.CalcSums("Qty. (Base)");
+                QtyOnOutboundBins += WhseEntry."Qty. (Base)";
+            end;
+        end else
+            if Location."Require Pick" then
+                if Location."Bin Mandatory" and WhseItemTrackingSetup.TrackingExists() then begin
+                    WhseEntry.SetCalculationFilters(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, false);
+                    WhseEntry.SetRange("Whse. Document Type", WhseEntry."Whse. Document Type"::Shipment);
+                    WhseEntry.SetRange("Reference Document", WhseEntry."Reference Document"::Pick);
+                    WhseEntry.SetFilter("Qty. (Base)", '>%1', 0);
+                    QtyOnOutboundBins := CalcResidualPickedQty(WhseEntry);
+                end else begin
+                    WhseShptLine.SetRange("Item No.", ItemNo);
+                    WhseShptLine.SetRange("Location Code", LocationCode);
+                    WhseShptLine.SetRange("Variant Code", VariantCode);
+                    WhseShptLine.CalcSums("Qty. Picked (Base)", "Qty. Shipped (Base)");
+                    QtyOnOutboundBins := WhseShptLine."Qty. Picked (Base)" - WhseShptLine."Qty. Shipped (Base)";
+                end;
+    end;
+
+    procedure CalcResidualPickedQty(var WhseEntry: Record "Warehouse Entry") Result: Decimal
+    var
+        WhseEntry2: Record "Warehouse Entry";
+    begin
+        if WhseEntry.FindSet() then
+            repeat
+                WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
+                WhseEntry2.CopyFilters(WhseEntry);
+                WhseEntry2.SetRange("Whse. Document Type");
+                WhseEntry2.SetRange("Reference Document");
+                WhseEntry2.SetRange("Qty. (Base)");
+                WhseEntry2.CalcSums("Qty. (Base)");
+                Result += WhseEntry2."Qty. (Base)";
+                WhseEntry.FindLast();
+                WhseEntry.SetRange("Bin Code");
+            until WhseEntry.Next() = 0;
     end;
 
     local procedure CalcQtyPickedOnProdOrderComponentLine(SourceSubtype: Option; SourceID: Code[20]; SourceProdOrderLineNo: Integer; SourceRefNo: Integer): Decimal
@@ -363,7 +425,7 @@ codeunit 7314 "Warehouse Availability Mgt."
             SetRange("Prod. Order No.", SourceID);
             SetRange("Prod. Order Line No.", SourceProdOrderLineNo);
             SetRange("Line No.", SourceRefNo);
-            if FindFirst then
+            if FindFirst() then
                 exit("Qty. Picked (Base)");
         end;
 

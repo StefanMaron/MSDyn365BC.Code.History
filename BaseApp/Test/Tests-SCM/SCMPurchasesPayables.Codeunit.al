@@ -57,7 +57,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Create Purchase Order with line and verify Date in line.
         // Setup: Update Manufacturing Setup.
         Initialize;
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         Evaluate(DefaultSafetyLeadTime, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
         UpdateManufacturingSetup(DefaultSafetyLeadTime);
 
@@ -363,8 +363,8 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // [GIVEN] Average Cost Period = Day, Automatic Cost Adjustment = Never, Item with Costing Method = Average.
         Initialize;
-        GeneralLedgerSetup.Get;
-        InventorySetup.Get;
+        GeneralLedgerSetup.Get();
+        InventorySetup.Get();
         ModifyInventorySetup(InventorySetup."Automatic Cost Adjustment"::Never, InventorySetup."Average Cost Period"::Day);
         CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Average);
@@ -498,7 +498,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Post Invoice and delete Invoiced Sales Orders.
         // 1. Setup.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         CreateItem(Item);
 
@@ -535,7 +535,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Post Credit Memo and delete Invoiced Sales Return Orders.
         // 1. Setup.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibrarySales.SetStockoutWarning(false);
         CreateItem(Item);
 
@@ -753,7 +753,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         NoSeriesSetup;
         ItemJournalSetup;
-        Commit;
+        Commit();
 
         Initialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Purchases & Payables");
@@ -764,11 +764,11 @@ codeunit 137061 "SCM Purchases & Payables"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesReceivablesSetup.Modify(true);
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;
@@ -776,13 +776,13 @@ codeunit 137061 "SCM Purchases & Payables"
     local procedure ItemJournalSetup()
     begin
         Clear(ItemJournalTemplate);
-        ItemJournalTemplate.Init;
+        ItemJournalTemplate.Init();
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         ItemJournalTemplate.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalTemplate.Modify(true);
 
         Clear(ItemJournalBatch);
-        ItemJournalBatch.Init;
+        ItemJournalBatch.Init();
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
         ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
         ItemJournalBatch.Modify(true);
@@ -792,7 +792,7 @@ codeunit 137061 "SCM Purchases & Payables"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Default Safety Lead Time", DefaultSafetyLeadTime);
         ManufacturingSetup.Modify(true);
     end;
@@ -801,7 +801,7 @@ codeunit 137061 "SCM Purchases & Payables"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Validate("Average Cost Period", AverageCostPeriod);
         InventorySetup.Modify(true);
@@ -850,8 +850,8 @@ codeunit 137061 "SCM Purchases & Payables"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        Commit;
-        RequisitionLine.Init;
+        Commit();
+        RequisitionLine.Init();
         ReqWkshTemplate.SetRange(Type, ReqWkshTemplate.Type::"Req.");
         ReqWkshTemplate.FindFirst;
         RequisitionWkshName.SetRange("Worksheet Template Name", ReqWkshTemplate.Name);
@@ -1159,7 +1159,7 @@ codeunit 137061 "SCM Purchases & Payables"
         ManufacturingSetup: Record "Manufacturing Setup";
         PurchaseLine: Record "Purchase Line";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.FindFirst;
         PurchaseLine.TestField("Expected Receipt Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
@@ -1171,7 +1171,7 @@ codeunit 137061 "SCM Purchases & Payables"
         GeneralLedgerSetup: Record "General Ledger Setup";
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("External Document No.", ExternalDocumentNo);
         ItemLedgerEntry.FindFirst;

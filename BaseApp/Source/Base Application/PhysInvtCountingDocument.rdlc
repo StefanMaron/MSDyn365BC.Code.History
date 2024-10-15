@@ -2567,9 +2567,6 @@ End Function
         <Field Name="FORMAT_WORKDATE_0_4_">
           <DataField>FORMAT_WORKDATE_0_4_</DataField>
         </Field>
-        <Field Name="CurrReport_PAGENO">
-          <DataField>CurrReport_PAGENO</DataField>
-        </Field>
         <Field Name="HeaderText2_Date">
           <DataField>HeaderText2_Date</DataField>
         </Field>
@@ -2599,9 +2596,6 @@ End Function
         </Field>
         <Field Name="CompanyInfo_Name_Control1470044">
           <DataField>CompanyInfo_Name_Control1470044</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO___1">
-          <DataField>CurrReport_PAGENO___1</DataField>
         </Field>
         <Field Name="HeaderText1___DocumentNo_Control1470047">
           <DataField>HeaderText1___DocumentNo_Control1470047</DataField>
@@ -2680,9 +2674,6 @@ End Function
         </Field>
         <Field Name="PageTotals_1_Format">
           <DataField>PageTotals_1_Format</DataField>
-        </Field>
-        <Field Name="CurrReport_PAGENO___1_Control1470058">
-          <DataField>CurrReport_PAGENO___1_Control1470058</DataField>
         </Field>
         <Field Name="Totals_1_">
           <DataField>Totals_1_</DataField>

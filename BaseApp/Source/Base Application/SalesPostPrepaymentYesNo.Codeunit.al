@@ -36,7 +36,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
                 PostPrepmtDocument(SalesHeader, "Document Type"::Invoice);
 
             if Print then begin
-                Commit;
+                Commit();
                 GetReport(SalesHeader, 0);
             end;
 
@@ -72,7 +72,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
             if Print then
                 GetReport(SalesHeader, 1);
 
-            Commit;
+            Commit();
             OnAfterPostPrepmtCrMemoYN(SalesHeader);
 
             SalesHeader2 := SalesHeader;
@@ -89,7 +89,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         SalesPostPrepayments.SetDocumentType(PrepmtDocumentType);
-        Commit;
+        Commit();
         if not SalesPostPrepayments.Run(SalesHeader) then
             ErrorMessageHandler.ShowErrors;
     end;

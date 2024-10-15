@@ -100,9 +100,9 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         with VendLedgEntry do begin
             Window.Open(PostingApplicationMsg);
 
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
 
-            GenJnlLine.Init;
+            GenJnlLine.Init();
             GenJnlLine."Document No." := DocumentNo;
             GenJnlLine."Posting Date" := ApplicationDate;
             GenJnlLine."Document Date" := GenJnlLine."Posting Date";
@@ -144,7 +144,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             Window.Close;
             UpdateAnalysisView.UpdateAll(0, true);
         end;
@@ -154,11 +154,8 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        DtldVendLedgEntry.LockTable;
-        if DtldVendLedgEntry.FindLast then
-            exit(DtldVendLedgEntry."Entry No.");
-
-        exit(0);
+        DtldVendLedgEntry.LockTable();
+        exit(DtldVendLedgEntry.GetLastEntryNo());
     end;
 
     procedure FindLastApplEntry(VendLedgEntryNo: Integer): Integer
@@ -264,9 +261,9 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         MaxPostingDate: Date;
     begin
         MaxPostingDate := 0D;
-        GLEntry.LockTable;
-        DtldVendLedgEntry.LockTable;
-        VendLedgEntry.LockTable;
+        GLEntry.LockTable();
+        DtldVendLedgEntry.LockTable();
+        VendLedgEntry.LockTable();
         VendLedgEntry.Get(DtldVendLedgEntry2."Vendor Ledger Entry No.");
         // NAVCZ;
         VendLedgEntry.TestField(Prepayment, false);
@@ -317,7 +314,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         DateComprReg.CheckMaxDateCompressed(MaxPostingDate, 0);
 
         with DtldVendLedgEntry2 do begin
-            SourceCodeSetup.Get;
+            SourceCodeSetup.Get();
             VendLedgEntry.Get("Vendor Ledger Entry No.");
             GenJnlLine."Document No." := DocNo;
             GenJnlLine."Posting Date" := PostingDate;
@@ -349,7 +346,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             if PreviewMode then
                 GenJnlPostPreview.ThrowError;
 
-            Commit;
+            Commit();
             Window.Close;
         end;
     end;
@@ -372,7 +369,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     begin
         if OldPostingDate = NewPostingDate then
             exit;
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."Additional Reporting Currency" <> '' then
             if CurrExchRate.ExchangeRate(OldPostingDate, GLSetup."Additional Reporting Currency") <>
                CurrExchRate.ExchangeRate(NewPostingDate, GLSetup."Additional Reporting Currency")
@@ -421,7 +418,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         ApplyingVendLedgEntry."Amount to Apply" := ApplyingVendLedgEntry."Amount to Apply" + LinkedNotUsedAmt;
         // NAVCZ
         CODEUNIT.Run(CODEUNIT::"Vend. Entry-Edit", ApplyingVendLedgEntry);
-        Commit;
+        Commit();
 
         VendLedgEntry.SetCurrentKey("Vendor No.", Open, Positive);
         VendLedgEntry.SetRange("Vendor No.", ApplyingVendLedgEntry."Vendor No.");
@@ -444,7 +441,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        TempVendorLedgerEntry.DeleteAll;
+        TempVendorLedgerEntry.DeleteAll();
         with DetailedVendorLedgEntry do begin
             if DetailedVendorLedgEntry2."Transaction No." = 0 then begin
                 SetCurrentKey("Application No.", "Vendor No.", "Entry Type");
@@ -459,7 +456,7 @@ codeunit 227 "VendEntry-Apply Posted Entries"
             if FindSet then
                 repeat
                     TempVendorLedgerEntry."Entry No." := "Vendor Ledger Entry No.";
-                    if TempVendorLedgerEntry.Insert then;
+                    if TempVendorLedgerEntry.Insert() then;
                 until Next = 0;
         end;
     end;

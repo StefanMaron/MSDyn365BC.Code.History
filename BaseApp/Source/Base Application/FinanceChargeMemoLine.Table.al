@@ -99,11 +99,9 @@ table 303 "Finance Charge Memo Line"
             Caption = 'Due Date';
             Editable = false;
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -275,12 +273,10 @@ table 303 "Finance Charge Memo Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(20; "VAT Calculation Type"; Option)
+        field(20; "VAT Calculation Type"; enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(21; "VAT Amount"; Decimal)
         {
@@ -408,12 +404,12 @@ table 303 "Finance Charge Memo Line"
     begin
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         FinChrgMemoLine.SetRange("Attached to Line No.", "Line No.");
-        FinChrgMemoLine.DeleteAll;
+        FinChrgMemoLine.DeleteAll();
         // NAVCZ
-        DtldFinChargeMemoLine.Reset;
+        DtldFinChargeMemoLine.Reset();
         DtldFinChargeMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         DtldFinChargeMemoLine.SetRange("Fin. Charge. Memo Line No.", "Line No.");
-        DtldFinChargeMemoLine.DeleteAll;
+        DtldFinChargeMemoLine.DeleteAll();
         // NAVCZ
     end;
 
@@ -474,8 +470,8 @@ table 303 "Finance Charge Memo Line"
 
         GetFinChrgMemoHeader;
         // NAVCZ
-        GLSetup.Get;
-        SalesSetup.Get;
+        GLSetup.Get();
+        SalesSetup.Get();
         // NAVCZ
         Amount := 0;
         "VAT Amount" := 0;
@@ -542,13 +538,13 @@ table 303 "Finance Charge Memo Line"
                                     InterestStartDate := InterestCalcDate;
                                 // NAVCZ
                                 DtldLineNo := 0;
-                                MultipleInterestCalcLine.DeleteAll;
+                                MultipleInterestCalcLine.DeleteAll();
                                 if InterestStartDate < FinChrgMemoHeader."Document Date" then
                                     FinChrgTerms.SetRatesForCalc(InterestStartDate, FinChrgMemoHeader."Document Date", MultipleInterestCalcLine);
                                 if MultipleInterestCalcLine.Find('-') then begin
                                     repeat
                                         DtldLineNo := DtldLineNo + 1;
-                                        DtldFinChargeMemoLine.Init;
+                                        DtldFinChargeMemoLine.Init();
                                         DtldFinChargeMemoLine."Finance Charge Memo No." := FinChrgMemoHeader."No.";
                                         DtldFinChargeMemoLine."Fin. Charge. Memo Line No." := "Line No.";
                                         DtldFinChargeMemoLine."Detailed Customer Entry No." := DtldCLE."Entry No.";
@@ -569,7 +565,7 @@ table 303 "Finance Charge Memo Line"
                                             DtldFinChargeMemoLine."Interest Amount" := 0;
                                         DtldFinChargeMemoLine."Interest Base Amount" := DtldCLE.Amount;
                                         if DtldFinChargeMemoLine."Interest Amount" <> 0 then
-                                            DtldFinChargeMemoLine.Insert;
+                                            DtldFinChargeMemoLine.Insert();
                                     until MultipleInterestCalcLine.Next = 0;
                                 end;
                                 Amount += DtldCLE.Amount * (FinChrgMemoHeader."Document Date" - InterestStartDate); // NAVCZ
@@ -642,7 +638,7 @@ table 303 "Finance Charge Memo Line"
     begin
         FinChrgMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         FinChrgMemoLine.SetRange("Attached to Line No.", "Line No.");
-        FinChrgMemoLine.DeleteAll;
+        FinChrgMemoLine.DeleteAll();
     end;
 
     local procedure SetCustLedgEntryView()
@@ -757,10 +753,10 @@ table 303 "Finance Charge Memo Line"
     procedure DeleteDtldFinChargeMemoLn()
     begin
         // NAVCZ
-        DtldFinChargeMemoLine.Reset;
+        DtldFinChargeMemoLine.Reset();
         DtldFinChargeMemoLine.SetRange("Finance Charge Memo No.", "Finance Charge Memo No.");
         DtldFinChargeMemoLine.SetRange("Fin. Charge. Memo Line No.", "Line No.");
-        DtldFinChargeMemoLine.DeleteAll;
+        DtldFinChargeMemoLine.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

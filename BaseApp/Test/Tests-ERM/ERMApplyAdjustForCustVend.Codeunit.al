@@ -101,7 +101,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyAdjustExchRateHigherCust()
     var
@@ -114,7 +114,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyAdjustExchRateLowerCust()
     var
@@ -127,7 +127,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplyAdjustExchRateHigherVend()
     var
@@ -140,7 +140,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure ApplydjustExchRateLowerVend()
     var
@@ -183,7 +183,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossDetailedLedgerVend()
     var
@@ -195,7 +195,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainDetailedLedgerVend()
     var
@@ -207,7 +207,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedLossDetailedLedgerCust()
     var
@@ -219,7 +219,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,NothingAdjustedMessageHandler')]
+    [HandlerFunctions('NothingAdjustedMessageHandler')]
     [Scope('OnPrem')]
     procedure RealizedGainDetailedLedgerCust()
     var
@@ -231,7 +231,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossInvoiceDebitCredit()
     var
@@ -263,7 +263,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossPaymentDebitCredit()
     var
@@ -295,7 +295,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainInvoiceDebitCredit()
     var
@@ -327,7 +327,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainPaymentDebitCredit()
     var
@@ -359,7 +359,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossInvoiceDebitCredit()
     var
@@ -391,7 +391,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossPaymentDebitCredit()
     var
@@ -423,7 +423,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainInvoiceDebitCredit()
     var
@@ -455,7 +455,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainPaymentDebitCredit()
     var
@@ -487,7 +487,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossInvoiceDebitCreditCorrection()
     var
@@ -519,7 +519,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedLossPaymentDebitCreditCorrection()
     var
@@ -551,7 +551,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainInvoiceDebitCreditCorrection()
     var
@@ -583,7 +583,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure VendorUnrealizedGainPaymentDebitCreditCorrection()
     var
@@ -615,7 +615,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossInvoiceDebitCreditCorrection()
     var
@@ -647,7 +647,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLossPaymentDebitCreditCorrection()
     var
@@ -679,7 +679,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainInvoiceDebitCreditCorrection()
     var
@@ -711,7 +711,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     end;
 
     [Test]
-    [HandlerFunctions('AdjustExchangeRatesReportHandler,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGainPaymentDebitCreditCorrection()
     var
@@ -753,7 +753,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
@@ -1096,7 +1096,7 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
         GenJournalLine.FindSet;
         repeat
             NewGenJournalLine := GenJournalLine;
-            NewGenJournalLine.Insert;
+            NewGenJournalLine.Insert();
         until GenJournalLine.Next = 0;
     end;
 
@@ -1193,14 +1193,6 @@ codeunit 134085 "ERM Apply Adjust For Cust/Vend"
     procedure NothingAdjustedMessageHandler(Message: Text[1024])
     begin
         Assert.ExpectedMessage(NothingToAdjustTxt, Message);
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        // NAVCZ
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 }
 

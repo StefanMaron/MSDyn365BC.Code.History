@@ -250,7 +250,7 @@ codeunit 5626 "FA General Report"
         Window: Dialog;
     begin
         Window.Open(Text006);
-        FA.LockTable;
+        FA.LockTable();
         FA.Copy(FA2);
         // NAVCZ
         FA.SetCurrentKey("No.");
@@ -261,10 +261,10 @@ codeunit 5626 "FA General Report"
                 if FADeprBook.Get(FA."No.", DeprBookCode) then
                     if FA."FA Posting Group" <> FADeprBook."FA Posting Group" then begin
                         FA."FA Posting Group" := FADeprBook."FA Posting Group";
-                        FA.Modify;
+                        FA.Modify();
                     end;
             until FA.Next = 0;
-        Commit;
+        Commit();
         Window.Close;
     end;
 
@@ -277,7 +277,7 @@ codeunit 5626 "FA General Report"
     begin
         // NAVCZ
         Window.Open(Text006);
-        FA.LockTable;
+        FA.LockTable();
         FA.Copy(FA2);
         FA.SetCurrentKey("No.");
         FA.SetRange("Tax Depreciation Group Code");
@@ -286,10 +286,10 @@ codeunit 5626 "FA General Report"
                 if FADeprBook.Get(FA."No.", DeprBookCode) then
                     if FA."Tax Depreciation Group Code" <> FADeprBook."Depreciation Group Code" then begin
                         FA."Tax Depreciation Group Code" := FADeprBook."Depreciation Group Code";
-                        FA.Modify;
+                        FA.Modify();
                     end;
             until FA.Next = 0;
-        Commit;
+        Commit();
         Window.Close;
         // NAVCZ
     end;
@@ -339,7 +339,7 @@ codeunit 5626 "FA General Report"
                         if lreFAPostGroupBuffer.FindFirst then begin
                             ldeTotAmount := ldeTotAmount + Amount;
                             lreFAPostGroupBuffer.Amount := lreFAPostGroupBuffer.Amount + Amount;
-                            lreFAPostGroupBuffer.Modify;
+                            lreFAPostGroupBuffer.Modify();
                         end;
                     end;
                 until Next = 0;
@@ -347,7 +347,7 @@ codeunit 5626 "FA General Report"
             // CALCSUMS(Amount);
             // EXIT(Amount);
         end;
-        lreFAPostGroupBuffer.Reset;
+        lreFAPostGroupBuffer.Reset();
         // NAVCZ
     end;
 

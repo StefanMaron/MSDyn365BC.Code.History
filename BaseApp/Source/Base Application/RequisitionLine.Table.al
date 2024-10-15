@@ -191,6 +191,7 @@ table 246 "Requisition Line"
                             Validate("Order Address Code", Vend."Default Order Address Code"); // NAVCZ
 
                         Validate("Currency Code", Vend."Currency Code");
+                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                         if Type = Type::Item then
                             UpdateDescription;
                         Validate(Quantity);
@@ -198,9 +199,13 @@ table 246 "Requisition Line"
                         if ValidateFields then
                             Error(Text005, FieldCaption("Vendor No."), "Vendor No.");
                         "Vendor No." := '';
+                        "Price Calculation Method" := Vend.GetPriceCalculationMethod();
                     end
-                else
+                else begin
                     UpdateDescription;
+                    "Price Calculation Method" := Vend.GetPriceCalculationMethod();
+                end;
+                UpdateDescription;
 
                 GetLocationCode;
 
@@ -763,6 +768,8 @@ table 246 "Requisition Line"
                     "Replenishment System"::Transfer:
                         if LookupFromLocation(Location) then
                             Validate("Supply From", Location.Code);
+                    else
+                        OnLookupSupplyFromOnCaseReplenishmentSystemElse(Rec);
                 end;
             end;
 
@@ -773,6 +780,8 @@ table 246 "Requisition Line"
                         Validate("Vendor No.", "Supply From");
                     "Replenishment System"::Transfer:
                         Validate("Transfer-from Code", "Supply From");
+                    else
+                        OnValidateSupplyFromOnCaseReplenishmentSystemElse(Rec);
                 end;
             end;
         }
@@ -848,6 +857,10 @@ table 246 "Requisition Line"
             AccessByPermission = TableData "Transfer Header" = R;
             Caption = 'Transfer Shipment Date';
             Editable = false;
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
         }
         field(7002; "Line Discount %"; Decimal)
         {
@@ -961,11 +974,9 @@ table 246 "Requisition Line"
         {
             Caption = 'MPS Order';
         }
-        field(99000756; "Planning Flexibility"; Option)
+        field(99000756; "Planning Flexibility"; Enum "Reservation Planning Flexibility")
         {
             Caption = 'Planning Flexibility';
-            OptionCaption = 'Unlimited,None';
-            OptionMembers = Unlimited,"None";
 
             trigger OnValidate()
             begin
@@ -1160,7 +1171,7 @@ table 246 "Requisition Line"
 
                 SetActionMessage;
                 if "Ending Time" = 0T then begin
-                    MfgSetup.Get;
+                    MfgSetup.Get();
                     "Ending Time" := MfgSetup."Normal Ending Time";
                 end;
                 UpdateDatetime;
@@ -1244,11 +1255,9 @@ table 246 "Requisition Line"
             Editable = false;
             MinValue = 0;
         }
-        field(99000903; "Replenishment System"; Option)
+        field(99000903; "Replenishment System"; Enum "Replenishment System")
         {
             Caption = 'Replenishment System';
-            OptionCaption = 'Purchase,Prod. Order,Transfer,Assembly, ';
-            OptionMembers = Purchase,"Prod. Order",Transfer,Assembly," ";
 
             trigger OnValidate()
             var
@@ -1282,6 +1291,8 @@ table 246 "Requisition Line"
                         SetReplenishmentSystemFromAssembly;
                     "Replenishment System"::Transfer:
                         SetReplenishmentSystemFromTransfer(StockkeepingUnit);
+                    else
+                        OnValidateReplenishmentSystemCaseElse(Rec);
                 end;
             end;
         }
@@ -1414,11 +1425,9 @@ table 246 "Requisition Line"
             OptionCaption = ' ,Action Message,Planning,Order Planning';
             OptionMembers = " ","Action Message",Planning,"Order Planning";
         }
-        field(99000916; "Action Message"; Option)
+        field(99000916; "Action Message"; Enum "Action Message Type")
         {
             Caption = 'Action Message';
-            OptionCaption = ' ,New,Change Qty.,Reschedule,Resched. & Chg. Qty.,Cancel';
-            OptionMembers = " ",New,"Change Qty.",Reschedule,"Resched. & Chg. Qty.",Cancel;
 
             trigger OnValidate()
             begin
@@ -1545,7 +1554,7 @@ table 246 "Requisition Line"
 
     trigger OnDelete()
     begin
-        ReqLine.Reset;
+        ReqLine.Reset();
         ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.");
         while (ReqLine.Next <> 0) and (ReqLine.Level > Level) do
             ReqLine.Delete(true);
@@ -1604,8 +1613,6 @@ table 246 "Requisition Line"
         Location: Record Location;
         Bin: Record Bin;
         TempPlanningErrorLog: Record "Planning Error Log" temporary;
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
-        ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         ReserveReqLine: Codeunit "Req. Line-Reserve";
         UOMMgt: Codeunit "Unit of Measure Management";
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
@@ -1693,8 +1700,8 @@ table 246 "Requisition Line"
         TestField(Type, Type::Item);
         TestField("No.");
         Clear(ReservationPage);
-        ReservationPage.SetReqLine(Rec);
-        ReservationPage.RunModal;
+        ReservationPage.SetReservSource(Rec);
+        ReservationPage.RunModal();
     end;
 
     procedure ShowReservationEntries(Modal: Boolean)
@@ -1703,8 +1710,8 @@ table 246 "Requisition Line"
     begin
         TestField(Type, Type::Item);
         TestField("No.");
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, true);
-        ReserveReqLine.FilterReservFor(ReservEntry, Rec);
+        ReservEntry.InitSortingAndFilters(true);
+        SetReservationFilters(ReservEntry);
         if Modal then
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
@@ -1759,7 +1766,7 @@ table 246 "Requisition Line"
             exit(IsVendorSelected);
 
         if (Type = Type::Item) and ItemVend.ReadPermission then begin
-            ItemVend.Init;
+            ItemVend.Init();
             ItemVend.SetRange("Item No.", "No.");
             ItemVend.SetRange("Vendor No.", "Vendor No.");
             if "Variant Code" <> '' then
@@ -1852,7 +1859,7 @@ table 246 "Requisition Line"
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         TableID[1] := Type1;
         No[1] := No1;
         TableID[2] := Type2;
@@ -1924,17 +1931,17 @@ table 246 "Requisition Line"
         PlanningRtngLine.SetRange("Worksheet Batch Name", "Journal Batch Name");
         PlanningRtngLine.SetRange("Worksheet Line No.", "Line No.");
         if not PlanningRtngLine.IsEmpty then
-            PlanningRtngLine.DeleteAll;
+            PlanningRtngLine.DeleteAll();
 
-        ProdOrderCapNeed.Reset;
+        ProdOrderCapNeed.Reset();
         ProdOrderCapNeed.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
         ProdOrderCapNeed.SetRange("Worksheet Template Name", "Worksheet Template Name");
         ProdOrderCapNeed.SetRange("Worksheet Batch Name", "Journal Batch Name");
         ProdOrderCapNeed.SetRange("Worksheet Line No.", "Line No.");
         if not ProdOrderCapNeed.IsEmpty then
-            ProdOrderCapNeed.DeleteAll;
+            ProdOrderCapNeed.DeleteAll();
 
-        ProdOrderCapNeed.Reset;
+        ProdOrderCapNeed.Reset();
         ProdOrderCapNeed.SetCurrentKey(Status, "Prod. Order No.", Active);
         ProdOrderCapNeed.SetRange(Status, "Ref. Order Status");
         ProdOrderCapNeed.SetRange("Prod. Order No.", "Ref. Order No.");
@@ -1946,7 +1953,7 @@ table 246 "Requisition Line"
         UntrackedPlanningElement.SetRange("Worksheet Batch Name", "Journal Batch Name");
         UntrackedPlanningElement.SetRange("Worksheet Line No.", "Line No.");
         if not UntrackedPlanningElement.IsEmpty then
-            UntrackedPlanningElement.DeleteAll;
+            UntrackedPlanningElement.DeleteAll();
 
         OnAfterDeleteRelations(Rec);
     end;
@@ -1969,11 +1976,13 @@ table 246 "Requisition Line"
                 ReqLine2.CalcFields("Reserved Qty. (Base)");
                 ReqLine2.TestField("Reserved Qty. (Base)", 0);
                 ReqLine2.DeleteRelations;
-                ReqLine2.Delete;
+                ReqLine2.Delete();
             until ReqLine2.Next = 0;
     end;
 
     procedure SetUpNewLine(LastReqLine: Record "Requisition Line")
+    var
+        Vendor: Record Vendor;
     begin
         ReqWkshTmpl.Get("Worksheet Template Name");
         ReqWkshName.Get("Worksheet Template Name", "Journal Batch Name");
@@ -1985,6 +1994,7 @@ table 246 "Requisition Line"
             "Order Date" := WorkDate;
 
         "Recurring Method" := LastReqLine."Recurring Method";
+        "Price Calculation Method" := Vendor.GetPriceCalculationMethod();
     end;
 
     local procedure CheckEndingDate(ShowWarning: Boolean)
@@ -2139,6 +2149,56 @@ table 246 "Requisition Line"
     begin
         GetActionMsgReport.SetTemplAndWorksheet("Worksheet Template Name", "Journal Batch Name");
         GetActionMsgReport.RunModal;
+    end;
+
+    procedure GetRemainingQty(var RemainingQty: Decimal; var RemainingQtyBase: Decimal)
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        RemainingQty := 0;
+        RemainingQtyBase := "Net Quantity (Base)" - Abs("Reserved Qty. (Base)");
+    end;
+
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    begin
+        CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
+        QtyReserved := "Reserved Quantity";
+        QtyReservedBase := "Reserved Qty. (Base)";
+        QtyToReserve := Quantity;
+        QtyToReserveBase := "Quantity (Base)";
+        exit("Qty. per Unit of Measure");
+    end;
+
+    procedure GetSourceCaption(): Text
+    begin
+        exit(StrSubstNo('%1 %2 %3', "Worksheet Template Name", "Journal Batch Name", "No."));
+    end;
+
+    procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSource(DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Line No.", "Journal Batch Name", 0);
+        ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
+        if Type <> Type::Item then
+            ReservEntry."Item No." := '';
+        ReservEntry."Expected Receipt Date" := "Due Date";
+        ReservEntry."Shipment Date" := "Due Date";
+        ReservEntry."Planning Flexibility" := "Planning Flexibility";
+    end;
+
+    procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
+    begin
+        ReservEntry.SetSourceFilter(DATABASE::"Requisition Line", 0, "Worksheet Template Name", "Line No.", false);
+        ReservEntry.SetSourceFilter("Journal Batch Name", 0);
+
+        OnAfterSetReservationFilters(ReservEntry, Rec);
+    end;
+
+    procedure ReservEntryExist(): Boolean
+    var
+        ReservEntry: Record "Reservation Entry";
+    begin
+        ReservEntry.InitSortingAndFilters(false);
+        SetReservationFilters(ReservEntry);
+        exit(not ReservEntry.IsEmpty);
     end;
 
     procedure SetRefFilter(RefOrderType: Option; RefOrderStatus: Option; RefOrderNo: Code[20]; RefLineNo: Integer)
@@ -2463,6 +2523,11 @@ table 246 "Requisition Line"
 
     procedure GetDirectCost(CalledByFieldNo: Integer)
     var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+        PriceCalculation: Interface "Price Calculation";
+        PriceType: enum "Price Type";
+        Line: Variant;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2472,8 +2537,12 @@ table 246 "Requisition Line"
 
         GetWorkCenter;
         if ("Replenishment System" = "Replenishment System"::Purchase) and not Subcontracting then begin
-            PurchPriceCalcMgt.FindReqLineDisc(Rec);
-            PurchPriceCalcMgt.FindReqLinePrice(Rec, CalledByFieldNo);
+            RequisitionLinePrice.SetLine(PriceType::Purchase, Rec);
+            PriceCalculationMgt.GetHandler(RequisitionLinePrice, PriceCalculation);
+            PriceCalculation.ApplyDiscount();
+            PriceCalculation.ApplyPrice(CalledByFieldNo);
+            PriceCalculation.GetLine(Line);
+            Rec := Line;
         end;
 
         OnAfterGetDirectCost(Rec, CalledByFieldNo);
@@ -2658,7 +2727,7 @@ table 246 "Requisition Line"
               LeadTimeMgt.PlannedEndingDate(
                 "No.", "Location Code", "Variant Code", "Due Date", '', "Ref. Order Type"));
             if ("Replenishment System" = "Replenishment System"::"Prod. Order") and ("Starting Time" = 0T) then begin
-                MfgSetup.Get;
+                MfgSetup.Get();
                 "Starting Time" := MfgSetup."Normal Starting Time";
             end;
         end else begin
@@ -2893,6 +2962,23 @@ table 246 "Requisition Line"
         exit(Find('-'));
     end;
 
+    procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; AvailabilityFilter: Text; Positive: Boolean)
+    begin
+        Reset;
+        SetCurrentKey(
+          Type, "No.", "Variant Code", "Location Code", "Sales Order No.", "Planning Line Origin", "Due Date");
+        SetRange(Type, Type::Item);
+        SetRange("No.", ReservationEntry."Item No.");
+        SetRange("Variant Code", ReservationEntry."Variant Code");
+        SetRange("Location Code", ReservationEntry."Location Code");
+        SetRange("Sales Order No.", '');
+        SetFilter("Due Date", AvailabilityFilter);
+        if Positive then
+            SetFilter("Quantity (Base)", '>0')
+        else
+            SetFilter("Quantity (Base)", '<0');
+    end;
+
     procedure FindCurrForecastName(var ForecastName: Code[10]): Boolean
     var
         UntrackedPlngElement: Record "Untracked Planning Element";
@@ -3098,7 +3184,7 @@ table 246 "Requisition Line"
         if ("Ref. Order No." = '') and (not Subcontracting) then begin // NAVCZ
             "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
             "Ref. Order Status" := "Ref. Order Status"::Planned;
-            MfgSetup.Get;
+            MfgSetup.Get();
             if PlanningResiliency and (MfgSetup."Planned Order Nos." = '') then
                 TempPlanningErrorLog.SetError(
                   StrSubstNo(Text032, MfgSetup.TableCaption, '',
@@ -3251,6 +3337,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterTransferFromProdOrderLine(var ReqLine: Record "Requisition Line"; ProdOrderLine: Record "Prod. Order Line")
     begin
     end;
@@ -3336,6 +3427,16 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnLookupSupplyFromOnCaseReplenishmentSystemElse(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateSupplyFromOnCaseReplenishmentSystemElse(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateDescriptionFromItem(var RequisitionLine: Record "Requisition Line"; Item: Record Item)
     begin
     end;
@@ -3372,6 +3473,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeUnitCost(var RequisitionLine: Record "Requisition Line"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateReplenishmentSystemCaseElse(var RequisitionLine: Record "Requisition Line");
     begin
     end;
 }

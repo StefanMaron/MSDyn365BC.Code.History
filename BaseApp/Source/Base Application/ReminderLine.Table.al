@@ -120,11 +120,9 @@ table 296 "Reminder Line"
             Caption = 'Due Date';
             Editable = false;
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -296,12 +294,10 @@ table 296 "Reminder Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(20; "VAT Calculation Type"; Option)
+        field(20; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(21; "VAT Amount"; Decimal)
         {
@@ -375,11 +371,9 @@ table 296 "Reminder Line"
             Caption = 'VAT Clause Code';
             TableRelation = "VAT Clause";
         }
-        field(27; "Applies-to Document Type"; Option)
+        field(27; "Applies-to Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
 
             trigger OnValidate()
             begin
@@ -532,13 +526,13 @@ table 296 "Reminder Line"
     begin
         ReminderLine.SetRange("Reminder No.", "Reminder No.");
         ReminderLine.SetRange("Attached to Line No.", "Line No.");
-        ReminderLine.DeleteAll;
+        ReminderLine.DeleteAll();
 
         // NAVCZ
-        DtldReminderLine.Reset;
+        DtldReminderLine.Reset();
         DtldReminderLine.SetRange("Reminder No.", "Reminder No.");
         DtldReminderLine.SetRange("Reminder Line No.", "Line No.");
-        DtldReminderLine.DeleteAll;
+        DtldReminderLine.DeleteAll();
         // NAVCZ
     end;
 
@@ -612,7 +606,7 @@ table 296 "Reminder Line"
         else
             ReminderLevel.SetRange("No.", 1, "No. of Reminders");
         if not ReminderLevel.FindLast then
-            ReminderLevel.Init;
+            ReminderLevel.Init();
         if (not ReminderLevel."Calculate Interest") or (ReminderHeader."Fin. Charge Terms Code" = '') then
             exit;
         FinChrgTerms.Get(ReminderHeader."Fin. Charge Terms Code");
@@ -654,12 +648,12 @@ table 296 "Reminder Line"
                                     InterestStartDate := InterestCalcDate;
                                 // NAVCZ
                                 DtldLineNo := 0;
-                                MultipleInterestCalcLine.DeleteAll;
+                                MultipleInterestCalcLine.DeleteAll();
                                 FinChrgTerms.SetRatesForCalc(InterestStartDate, ReminderHeader."Document Date", MultipleInterestCalcLine);
                                 if MultipleInterestCalcLine.Find('-') then begin
                                     repeat
                                         DtldLineNo := DtldLineNo + 1;
-                                        DtldReminderLine.Init;
+                                        DtldReminderLine.Init();
                                         DtldReminderLine."Reminder No." := ReminderHeader."No.";
                                         DtldReminderLine."Reminder Line No." := "Line No.";
                                         DtldReminderLine."Detailed Customer Entry No." := DetailedCustLedgEntry."Entry No.";
@@ -679,7 +673,7 @@ table 296 "Reminder Line"
                                             DtldReminderLine."Interest Amount" := 0;
                                         DtldReminderLine."Interest Base Amount" := DetailedCustLedgEntry.Amount;
                                         if DtldReminderLine."Interest Amount" <> 0 then
-                                            DtldReminderLine.Insert;
+                                            DtldReminderLine.Insert();
                                     until MultipleInterestCalcLine.Next = 0
                                 end;
                                 Amount += DetailedCustLedgEntry.Amount * (ReminderHeader."Document Date" - InterestStartDate); // NAVCZ
@@ -795,7 +789,7 @@ table 296 "Reminder Line"
     begin
         CustLedgerEntry.Get(EntryNo);
         NoOfReminders := 0;
-        ReminderEntry.Reset;
+        ReminderEntry.Reset();
         ReminderEntry.SetCurrentKey("Customer Entry No.");
         ReminderEntry.SetRange("Customer Entry No.", EntryNo);
         ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
@@ -827,7 +821,7 @@ table 296 "Reminder Line"
         else
             ReminderLevel.SetRange("No.", LevelStart, LevelEnd);
         if not ReminderLevel.FindLast then
-            ReminderLevel.Init;
+            ReminderLevel.Init();
     end;
 
     procedure LookupDocNo()
@@ -857,10 +851,10 @@ table 296 "Reminder Line"
     procedure DeleteDtldReminderLine()
     begin
         // NAVCZ
-        DtldReminderLine.Reset;
+        DtldReminderLine.Reset();
         DtldReminderLine.SetRange("Reminder No.", "Reminder No.");
         DtldReminderLine.SetRange("Reminder Line No.", "Line No.");
-        DtldReminderLine.DeleteAll;
+        DtldReminderLine.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

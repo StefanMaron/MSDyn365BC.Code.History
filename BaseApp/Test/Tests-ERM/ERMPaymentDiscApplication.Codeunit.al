@@ -550,7 +550,7 @@ codeunit 134914 "ERM Payment Disc Application"
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -583,7 +583,7 @@ codeunit 134914 "ERM Payment Disc Application"
         NewVATPostingSetup.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         NewVATPostingSetup."VAT Identifier" := VATProductPostingGroup.Code;
         NewVATPostingSetup.Validate("VAT %", VATRate);
-        NewVATPostingSetup.Insert;
+        NewVATPostingSetup.Insert();
     end;
 
     local procedure CreatePaymentTermsDiscount(var PaymentTerms: Record "Payment Terms"; DiscountPct: Decimal)
@@ -1104,7 +1104,7 @@ codeunit 134914 "ERM Payment Disc Application"
     var
         DummyVATEntry: Record "VAT Entry";
     begin
-        DummyVATEntry.Init;
+        DummyVATEntry.Init();
         DummyVATEntry.SetRange("Transaction No.", TransactionNo);
         Assert.RecordCount(DummyVATEntry, ExpectedCount);
     end;

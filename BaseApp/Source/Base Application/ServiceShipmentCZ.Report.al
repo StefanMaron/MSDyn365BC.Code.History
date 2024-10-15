@@ -353,9 +353,9 @@ report 31090 "Service - Shipment CZ"
                         begin
                             TempTrackingSpecBuf.SetRange("Source Ref. No.", "Service Shipment Line"."Line No.");
 
-                            TrackingSpecCount := TempTrackingSpecBuf.Count;
+                            TrackingSpecCount := TempTrackingSpecBuf.Count();
                             if TrackingSpecCount = 0 then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetRange(Number, 1, TrackingSpecCount);
                             TempTrackingSpecBuf.SetCurrentKey("Source ID", "Source Type", "Source Subtype", "Source Batch Name",

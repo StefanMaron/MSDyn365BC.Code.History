@@ -131,7 +131,7 @@ report 11760 "Inventory Account to the date"
                         trigger OnPreDataItem()
                         begin
                             if not ShowApplyEntries then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                             SetFilter("Posting Date", '..%1', ToDate);
                         end;
@@ -141,11 +141,11 @@ report 11760 "Inventory Account to the date"
                     begin
                         CalcFields("Applied Amount");
                         if ((Amount - "Applied Amount") = 0) and (not ShowApplyEntries) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         RemAmount := Amount - "Applied Amount";
                         if (RemAmount = 0) and (not ShowZeroRemainAmt) then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
 
                         Clear(RepCount);
                     end;
@@ -167,7 +167,7 @@ report 11760 "Inventory Account to the date"
             trigger OnAfterGetRecord()
             begin
                 if PrintOnlyOnePerPage then begin
-                    GLEntryPage.Reset;
+                    GLEntryPage.Reset();
                     GLEntryPage.SetRange("G/L Account No.", "No.");
                     if CurrReport.PrintOnlyIfDetail and GLEntryPage.FindFirst then
                         PageGroupNo := PageGroupNo + 1;

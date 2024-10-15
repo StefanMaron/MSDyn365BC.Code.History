@@ -20,7 +20,7 @@ report 11790 "Post or Correct Postponed VAT"
                 ConfirmMsg: Text[250];
             begin
                 if SkipReport then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if VATDate = 0D then
                     Error(Text11805);
@@ -47,7 +47,7 @@ report 11790 "Post or Correct Postponed VAT"
                     else
                         ConfirmMsg := Text26507;
                     if not Confirm(ConfirmMsg, true, VATDate) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 HandlePostponedVAT(VATDate, not CorrectEntries);
@@ -61,7 +61,7 @@ report 11790 "Post or Correct Postponed VAT"
             begin
                 SkipReport := GetFilter("No.") = '';
                 if SkipReport then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
         dataitem("Service Cr.Memo Header"; "Service Cr.Memo Header")
@@ -74,7 +74,7 @@ report 11790 "Post or Correct Postponed VAT"
                 ConfirmMsg: Text[250];
             begin
                 if SkipReport then
-                    CurrReport.Break;
+                    CurrReport.Break();
 
                 if VATDate = 0D then
                     Error(Text11805);
@@ -101,7 +101,7 @@ report 11790 "Post or Correct Postponed VAT"
                     else
                         ConfirmMsg := Text26507;
                     if not Confirm(ConfirmMsg, true, VATDate) then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
                 end;
 
                 HandlePostponedVAT(VATDate, not CorrectEntries);
@@ -115,7 +115,7 @@ report 11790 "Post or Correct Postponed VAT"
             begin
                 SkipReport := GetFilter("No.") = '';
                 if SkipReport then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
         }
     }

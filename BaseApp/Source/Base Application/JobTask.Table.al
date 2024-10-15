@@ -407,7 +407,7 @@ table 1001 "Job Task"
         JobTaskDim.SetRange("Job No.", "Job No.");
         JobTaskDim.SetRange("Job Task No.", "Job Task No.");
         if not JobTaskDim.IsEmpty then
-            JobTaskDim.DeleteAll;
+            JobTaskDim.DeleteAll();
 
         CalcFields("Schedule (Total Cost)", "Usage (Total Cost)");
         Job.UpdateOverBudgetValue("Job No.", true, "Usage (Total Cost)");
@@ -419,7 +419,7 @@ table 1001 "Job Task"
         Job: Record Job;
         Cust: Record Customer;
     begin
-        LockTable;
+        LockTable();
         Job.Get("Job No.");
         if Job.Blocked = Job.Blocked::All then
             Job.TestBlocked;

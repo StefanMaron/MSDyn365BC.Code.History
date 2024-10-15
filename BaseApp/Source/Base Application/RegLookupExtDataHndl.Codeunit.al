@@ -26,7 +26,7 @@ codeunit 11797 "Reg. Lookup Ext. Data Hndl"
 
         InsertLogEntry(ResponseTempBlob);
 
-        Commit;
+        Commit();
     end;
 
     local procedure SendRequest(var ResponseTempBlob: Codeunit "Temp Blob"; ShowErrors: Boolean)

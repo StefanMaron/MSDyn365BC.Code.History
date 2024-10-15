@@ -22,7 +22,7 @@ codeunit 136150 "Service Pages"
         ChangeCurrencyConfirmQst: Label 'If you change %1, the existing service lines will be deleted and the program will create new service lines based on the new information on the header.\Do you want to change the %1?';
 
     [Test]
-    [HandlerFunctions('StrMenuHandler,ServiceShipmentCZReportHandler,ServiceInvoiceCZReportHandler')]
+    [HandlerFunctions('StrMenuHandler,ServiceShipmentReportHandler,ServiceInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceOrderPostAndPrint()
     var
@@ -47,7 +47,7 @@ codeunit 136150 "Service Pages"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceInvoiceCZReportHandler')]
+    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceInvoiceReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceInvoicePostAndPrint()
     var
@@ -73,7 +73,7 @@ codeunit 136150 "Service Pages"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceCreditMemoCZReportHandler')]
+    [HandlerFunctions('ConfirmHandlerWithValidation,ServiceCreditMemoReportHandler')]
     [Scope('OnPrem')]
     procedure ServiceCreditMemoPostAndPrint()
     var
@@ -111,21 +111,21 @@ codeunit 136150 "Service Pages"
         // [FEATURE] [FCY] [Order]
         // [SCENARIO 308004] Confirmation message to recreate service lines must appear when Stan clears "Currency Code" field on Service Order.
         Initialize;
-  
+
         ExchangeRate := LibraryRandom.RandIntInRange(10, 20);
         CurrencyCode :=
           LibraryERM.CreateCurrencyWithExchangeRate(LibraryRandom.RandDate(-10), ExchangeRate, ExchangeRate);
         LibraryService.CreateServiceDocumentWithItemServiceLine(ServiceHeader, ServiceHeader."Document Type"::Order);
-  
+
         ServiceOrder.OpenEdit;
         ServiceOrder.Filter.SetFilter("No.", ServiceHeader."No.");
-  
+
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, CurrencyCode);
         LibraryVariableStorage.AssertEmpty;
-  
+
         SetCurrencyCodeOnOrderAndVerify(ServiceOrder, '');
         LibraryVariableStorage.AssertEmpty;
-  
+
         ServiceOrder.Close;
     end;
 
@@ -137,7 +137,7 @@ codeunit 136150 "Service Pages"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Pages");
 
-        Commit;
+        Commit();
         IsInitialized := true;
 
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
@@ -146,7 +146,7 @@ codeunit 136150 "Service Pages"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Pages");
     end;
 
-    local procedure SetCurrencyCodeOnOrderAndVerify(ServiceOrder: TestPage "Service Order";CurrencyCode: Code[10])
+    local procedure SetCurrencyCodeOnOrderAndVerify(ServiceOrder: TestPage "Service Order"; CurrencyCode: Code[10])
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -164,19 +164,19 @@ codeunit 136150 "Service Pages"
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceShipmentCZReportHandler(var ServiceShipmentCZ: Report "Service - Shipment CZ")
+    procedure ServiceShipmentReportHandler(var ServiceShipment: Report "Service - Shipment")
     begin
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceInvoiceCZReportHandler(var ServiceInvoiceCZ: Report "Service - Invoice CZ")
+    procedure ServiceInvoiceReportHandler(var ServiceInvoice: Report "Service - Invoice")
     begin
     end;
 
     [ReportHandler]
     [Scope('OnPrem')]
-    procedure ServiceCreditMemoCZReportHandler(var ServiceCreditMemoCZ: Report "Service - Credit Memo CZ")
+    procedure ServiceCreditMemoReportHandler(var ServiceCreditMemo: Report "Service - Credit Memo")
     begin
     end;
 

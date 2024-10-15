@@ -28,7 +28,7 @@ codeunit 5708 "Release Transfer Document"
         CheckTransLines(TransLine, Rec);
 
         // NAVCZ
-        GLSetup.Get;
+        GLSetup.Get();
         if GLSetup."User Checks Allowed" then
             repeat
                 case true of

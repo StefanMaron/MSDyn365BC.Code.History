@@ -308,21 +308,21 @@ page 9401 "VAT Amount Lines"
 
     procedure SetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        TempVATAmountLine.DeleteAll;
+        TempVATAmountLine.DeleteAll();
         if NewVATAmountLine.Find('-') then
             repeat
                 TempVATAmountLine.Copy(NewVATAmountLine);
-                TempVATAmountLine.Insert;
+                TempVATAmountLine.Insert();
             until NewVATAmountLine.Next = 0;
     end;
 
     procedure GetTempVATAmountLine(var NewVATAmountLine: Record "VAT Amount Line")
     begin
-        NewVATAmountLine.DeleteAll;
+        NewVATAmountLine.DeleteAll();
         if TempVATAmountLine.Find('-') then
             repeat
                 NewVATAmountLine.Copy(TempVATAmountLine);
-                NewVATAmountLine.Insert;
+                NewVATAmountLine.Insert();
             until TempVATAmountLine.Next = 0;
     end;
 
@@ -377,7 +377,7 @@ page 9401 "VAT Amount Lines"
                 TotalVATDifference := TotalVATDifference + Abs(TempVATAmountLine."VAT Difference (LCY)");
             until TempVATAmountLine.Next = 0;
         TempVATAmountLine := VATAmountLine2;
-        GLSetup.Get;
+        GLSetup.Get();
         if TotalVATDifference > GLSetup."Max. VAT Difference Allowed" then
             Error(
               Text001, FieldCaption("VAT Difference (LCY)"),
@@ -389,7 +389,7 @@ page 9401 "VAT Amount Lines"
     begin
         TempVATAmountLine := Rec;
         TempVATAmountLine.Modified := true;
-        TempVATAmountLine.Modify;
+        TempVATAmountLine.Modify();
         TempVATAmountLine.ModifyAll("Modified (LCY)", ModifyLCY); // NAVCZ
     end;
 

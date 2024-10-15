@@ -630,8 +630,8 @@ xmlport 11761 "VAT Statement"
         CompanyOfficials: Record "Company Officials";
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        StatReportingSetup.Get;
-        CompanyInfo.Get;
+        StatReportingSetup.Get();
+        CompanyInfo.Get();
 
         SWVersion := ApplicationSystemConstants.ApplicationVersion;
         SWName := 'Microsoft Dynamics NAV';

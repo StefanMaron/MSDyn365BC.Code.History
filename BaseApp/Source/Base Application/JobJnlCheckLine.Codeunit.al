@@ -68,7 +68,7 @@ codeunit 1011 "Job Jnl.-Check Line"
                     TestField(Chargeable, true);
 
             // NAVCZ
-            GLSetup.Get;
+            GLSetup.Get();
             if GLSetup."User Checks Allowed" then
                 UserChecksMgt.CheckJobJournalLine(JobJnlLine);
             // NAVCZ

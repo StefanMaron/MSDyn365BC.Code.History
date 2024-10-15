@@ -51,14 +51,14 @@ codeunit 1511 "Notification Lifecycle Mgt."
 
     procedure RecallAllNotifications()
     begin
-        TempNotificationContext.Reset;
+        TempNotificationContext.Reset();
         if TempNotificationContext.FindSet then
             RecallNotifications(TempNotificationContext);
     end;
 
     procedure GetTmpNotificationContext(var TempNotificationContextOut: Record "Notification Context" temporary)
     begin
-        TempNotificationContext.Reset;
+        TempNotificationContext.Reset();
         TempNotificationContextOut.Copy(TempNotificationContext, true);
     end;
 
@@ -106,7 +106,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
 
     procedure GetNotificationsForRecord(RecId: RecordID; var TempNotificationContextOut: Record "Notification Context" temporary; HandleDelayedInsert: Boolean): Boolean
     begin
-        TempNotificationContext.Reset;
+        TempNotificationContext.Reset();
         GetUsableRecordId(RecId, HandleDelayedInsert);
         TempNotificationContext.SetRange("Record ID", RecId);
         TempNotificationContextOut.Copy(TempNotificationContext, true);
@@ -115,7 +115,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
 
     procedure GetNotificationsForRecordWithAdditionalContext(RecId: RecordID; AdditionalContextId: Guid; var TempNotificationContextOut: Record "Notification Context" temporary; HandleDelayedInsert: Boolean): Boolean
     begin
-        TempNotificationContext.Reset;
+        TempNotificationContext.Reset();
         GetUsableRecordId(RecId, HandleDelayedInsert);
         TempNotificationContext.SetRange("Record ID", RecId);
         TempNotificationContext.SetRange("Additional Context ID", AdditionalContextId);
@@ -126,7 +126,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     local procedure CreateNotificationContext(NotificationId: Guid; RecId: RecordID)
     begin
         DeleteAlreadyRegisteredNotificationBeforeInsert(NotificationId);
-        TempNotificationContext.Init;
+        TempNotificationContext.Init();
         TempNotificationContext."Notification ID" := NotificationId;
         if GetUsableRecordId(RecId, true) then
             TempNotificationContext."Record ID" := RecId;
@@ -138,7 +138,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
     local procedure CreateNotificationContextWithAdditionalContext(NotificationId: Guid; RecId: RecordID; AdditionalContextId: Guid)
     begin
         DeleteAlreadyRegisteredNotificationBeforeInsert(NotificationId);
-        TempNotificationContext.Init;
+        TempNotificationContext.Init();
         TempNotificationContext."Notification ID" := NotificationId;
         if GetUsableRecordId(RecId, true) then
             TempNotificationContext."Record ID" := RecId;
@@ -150,7 +150,7 @@ codeunit 1511 "Notification Lifecycle Mgt."
 
     local procedure DeleteAlreadyRegisteredNotificationBeforeInsert(NotificationId: Guid)
     begin
-        TempNotificationContext.Reset;
+        TempNotificationContext.Reset();
         TempNotificationContext.SetRange("Notification ID", NotificationId);
         if TempNotificationContext.FindFirst then begin
             TempNotificationContext.Delete(true);

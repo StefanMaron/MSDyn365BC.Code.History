@@ -125,7 +125,7 @@ table 31026 "Advance Letter Line Relation"
         TestField("Deducted Amount", 0);
         CancelRelation(Rec, true, true, false);
 
-        AdvanceLetterLineRelation.Reset;
+        AdvanceLetterLineRelation.Reset();
         AdvanceLetterLineRelation.SetRange(Type, Type);
         AdvanceLetterLineRelation.SetRange("Document Type", "Document Type");
         AdvanceLetterLineRelation.SetRange("Document No.", "Document No.");
@@ -135,7 +135,7 @@ table 31026 "Advance Letter Line Relation"
                 if not ((AdvanceLetterLineRelation."Letter No." = "Letter No.") and (AdvanceLetterLineRelation."Letter Line No." = "Letter Line No."))
                 then begin
                     AdvanceLetterLineRelation."VAT Doc. VAT Difference" := 0;
-                    AdvanceLetterLineRelation.Modify;
+                    AdvanceLetterLineRelation.Modify();
                 end;
             until AdvanceLetterLineRelation.Next = 0;
     end;
@@ -180,7 +180,7 @@ table 31026 "Advance Letter Line Relation"
                                   Round((AdvanceLetterLineRelation."Invoiced Amount" - AdvanceLetterLineRelation."Deducted Amount") /
                                     (1 + SalesLine."VAT %" / 100), Currency."Amount Rounding Precision");
                             SalesLine.CalcPrepaymentToDeduct;
-                            SalesLine.Modify;
+                            SalesLine.Modify();
                         end;
                     end;
 
@@ -188,7 +188,7 @@ table 31026 "Advance Letter Line Relation"
                         SalesAdvanceLetterHeader.Get("Letter No.");
                         if SalesAdvanceLetterHeader."Order No." <> '' then begin
                             SalesAdvanceLetterHeader."Order No." := '';
-                            SalesAdvanceLetterHeader.Modify;
+                            SalesAdvanceLetterHeader.Modify();
                         end;
                     end;
                 end;
@@ -215,7 +215,7 @@ table 31026 "Advance Letter Line Relation"
                                   Round((AdvanceLetterLineRelation."Invoiced Amount" - AdvanceLetterLineRelation."Deducted Amount") /
                                     (1 + PurchLine."VAT %" / 100), Currency."Amount Rounding Precision");
                             PurchLine.CalcPrepaymentToDeduct;
-                            PurchLine.Modify;
+                            PurchLine.Modify();
                         end;
                     end;
 
@@ -223,7 +223,7 @@ table 31026 "Advance Letter Line Relation"
                         PurchAdvanceLetterHeader.Get("Letter No.");
                         if PurchAdvanceLetterHeader."Order No." <> '' then begin
                             PurchAdvanceLetterHeader."Order No." := '';
-                            PurchAdvanceLetterHeader.Modify;
+                            PurchAdvanceLetterHeader.Modify();
                         end;
                     end;
                 end;
@@ -234,7 +234,7 @@ table 31026 "Advance Letter Line Relation"
         end else begin
             AdvanceLetterLineRelation.Amount := AdvanceLetterLineRelation."Deducted Amount";
             AdvanceLetterLineRelation."Invoiced Amount" := AdvanceLetterLineRelation."Deducted Amount";
-            AdvanceLetterLineRelation.Modify;
+            AdvanceLetterLineRelation.Modify();
         end;
         case AdvanceLetterLineRelation.Type of
             AdvanceLetterLineRelation.Type::Sale:

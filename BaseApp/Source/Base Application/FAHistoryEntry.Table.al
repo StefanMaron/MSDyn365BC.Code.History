@@ -88,12 +88,19 @@ table 31044 "FA History Entry"
     {
     }
 
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
+
     [Scope('OnPrem')]
     procedure InsertEntry(FAHType: Option Location,"Responsible Employee"; FANo: Code[20]; OldValue: Code[20]; NewValue: Code[20]; ClosedByEntryNo: Integer; Disp: Boolean): Integer
     var
         FAHistoryEntry: Record "FA History Entry";
     begin
-        FAHistoryEntry.Init;
+        FAHistoryEntry.Init();
         FAHistoryEntry.Type := FAHType;
         FAHistoryEntry."FA No." := FANo;
         FAHistoryEntry."Old Value" := OldValue;
@@ -103,7 +110,7 @@ table 31044 "FA History Entry"
         FAHistoryEntry."Creation Date" := Today;
         FAHistoryEntry."User ID" := UserId;
         FAHistoryEntry."Creation Time" := Time;
-        FAHistoryEntry.Insert;
+        FAHistoryEntry.Insert();
 
         exit(FAHistoryEntry."Entry No.");
     end;
@@ -129,12 +136,10 @@ table 31044 "FA History Entry"
             FADeprBook.SetRange("FA No.", "No.");
             FADeprBook.SetRange("Depreciation Book Code", FASetup."Default Depr. Book");
 
-            FAHistoryEntry.Reset;
+            FAHistoryEntry.Reset();
             while Counter < 2 do begin
-                if NextEntryNo = 0 then begin
-                    if FAHistoryEntry.FindLast then
-                        NextEntryNo := FAHistoryEntry."Entry No.";
-                end;
+                if NextEntryNo = 0 then
+                    NextEntryNo := FAHistoryEntry.GetLastEntryNo();
                 FAHistoryEntry."FA No." := "No.";
                 FAHistoryEntry."Creation Date" := CreationDate;
                 FAHistoryEntry."User ID" := UserId;
@@ -151,7 +156,7 @@ table 31044 "FA History Entry"
                     FAHistoryEntry.Type := FAHistoryEntry.Type::Location;
                     FAHistoryEntry."Old Value" := '';
                     FAHistoryEntry."New Value" := "FA Location Code";
-                    FAHistoryEntry.Insert;
+                    FAHistoryEntry.Insert();
                 end else
                     if (Counter = 1) and ("Responsible Employee" <> '') then begin
                         NextEntryNo := NextEntryNo + 1;
@@ -159,7 +164,7 @@ table 31044 "FA History Entry"
                         FAHistoryEntry.Type := FAHistoryEntry.Type::"Responsible Employee";
                         FAHistoryEntry."Old Value" := '';
                         FAHistoryEntry."New Value" := "Responsible Employee";
-                        FAHistoryEntry.Insert;
+                        FAHistoryEntry.Insert();
                     end;
                 Counter := Counter + 1;
             end;

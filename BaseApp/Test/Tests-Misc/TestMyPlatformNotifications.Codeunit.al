@@ -23,7 +23,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When My Notifications page is opened, the notification is initialized/added
         // if it doesn't exist
         // [GIVEN] No notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         VerifyNotificationDoesNotExist;
 
         // [WHEN] Opened page "My Settings"
@@ -43,7 +43,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When GetNotificationStatus business event in System Action Triggers is raised
         // for an enabled notification, the enabled status is returned
         // [GIVEN] Enabled notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', true);
         VerifyNotificationExists;
         VerifyNotificationIsEnabled;
@@ -65,7 +65,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When GetNotificationStatus business event in System Action Triggers is raised
         // for a disabled notification, the disabled status is returned
         // [GIVEN] Disabled notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', false);
         VerifyNotificationExists;
         VerifyNotificationIsDisabled;
@@ -87,7 +87,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When GetNotificationStatus business event in System Action Triggers is raised
         // for a notification that is not set up, the notification is set up/initialized with a disabled status and the disabled status is returned
         // [GIVEN] No notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         VerifyNotificationDoesNotExist;
 
         // [WHEN] Raised GetNotificationStatus Event
@@ -108,7 +108,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When SetNotificationStatus business event in System Action Triggers is raised
         // for an enabled notification, the notification is turned off
         // [GIVEN] Enabled notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', true);
         VerifyNotificationExists;
         VerifyNotificationIsEnabled;
@@ -129,7 +129,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When SetNotificationStatus business event in System Action Triggers is raised
         // for a disabled notification, the notification is turned on
         // [GIVEN] Disabled notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         MyNotifications.InsertDefault(WorkDateNotificationIdTxt, '', '', false);
         VerifyNotificationExists;
         VerifyNotificationIsDisabled;
@@ -150,7 +150,7 @@ codeunit 139034 "Test My Platform Notifications"
         // [SCENARIO] When SetNotificationStatus business event in System Action Triggers is raised
         // for a notification that is not set up, the notification is set up/initialized with the specified status
         // [GIVEN] No notification
-        MyNotifications.DeleteAll;
+        MyNotifications.DeleteAll();
         VerifyNotificationDoesNotExist;
 
         // [WHEN] Raised SetNotificationStatus Event with status disabled

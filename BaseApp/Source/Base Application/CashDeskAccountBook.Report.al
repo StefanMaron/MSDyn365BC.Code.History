@@ -159,7 +159,7 @@ report 11741 "Cash Desk Account Book"
                     trigger OnPreDataItem()
                     begin
                         if not ShowEntry then
-                            CurrReport.Break;
+                            CurrReport.Break();
                     end;
                 }
 
@@ -201,7 +201,7 @@ report 11741 "Cash Desk Account Book"
                     BalanceToDate := 0;
 
                     if StartDate <> 0D then begin
-                        BankAccountLedgerEntry.Reset;
+                        BankAccountLedgerEntry.Reset();
                         BankAccountLedgerEntry.SetCurrentKey("Bank Account No.");
                         BankAccountLedgerEntry.SetRange("Bank Account No.", "Bank Account"."No.");
                         if StartDate <> 0D then
@@ -333,10 +333,10 @@ report 11741 "Cash Desk Account Book"
         if CashDeskNo = '' then
             Error(CashDeskCannotBeEmptyErr);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         FormatAddr.Company(CompanyAddrCA, CompanyInfo);
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var

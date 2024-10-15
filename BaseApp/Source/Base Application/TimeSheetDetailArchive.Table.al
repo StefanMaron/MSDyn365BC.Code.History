@@ -70,11 +70,9 @@ table 956 "Time Sheet Detail Archive"
         {
             Caption = 'Assembly Order Line No.';
         }
-        field(20; Status; Option)
+        field(20; Status; Enum "Time Sheet Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Open,Submitted,Rejected,Approved';
-            OptionMembers = Open,Submitted,Rejected,Approved;
         }
         field(23; Posted; Boolean)
         {

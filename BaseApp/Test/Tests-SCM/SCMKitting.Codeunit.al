@@ -418,7 +418,7 @@ codeunit 137101 "SCM Kitting"
         SalesHeader.GetPstdDocLinesToRevere;
         GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
         LibraryERM.SetGeneralPostingSetupSalesAccounts(GeneralPostingSetup);
-        GeneralPostingSetup.Modify;
+        GeneralPostingSetup.Modify();
 
         // Exercise.
         LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as RECEIVE and INVOICE.
@@ -2438,10 +2438,9 @@ codeunit 137101 "SCM Kitting"
         NoSeriesSetup;
         LocationSetup;
         LibraryAssembly.SetupItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        UpdateGeneralLedgerSetup; // NAVCZ
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
@@ -2456,15 +2455,15 @@ codeunit 137101 "SCM Kitting"
         SalesSetup: Record "Sales & Receivables Setup";
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         AssemblySetup.Modify(true);
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
 
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Released Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         ManufacturingSetup.Modify(true);
     end;
@@ -2560,7 +2559,7 @@ codeunit 137101 "SCM Kitting"
     var
         ManufacturingSetup: Record "Manufacturing Setup";
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
     end;
 
@@ -2772,7 +2771,7 @@ codeunit 137101 "SCM Kitting"
     var
         AssemblyHeader: Record "Assembly Header";
     begin
-        AssemblyHeader.Init;
+        AssemblyHeader.Init();
         AssemblyHeader.Validate("Document Type", AssemblyHeader."Document Type"::Order);
         AssemblyHeader.Validate("No.", AssemblyOrderNo);
         AssemblyHeader.Insert(true);
@@ -3141,7 +3140,7 @@ codeunit 137101 "SCM Kitting"
           ItemJournalLine, ItemJournalBatch."Journal Template Name",
           ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Negative Adjmt.", ItemNo, Qty);
         EntryType := ItemJournalLine."Entry Type";
-        Commit; // Commit required before invoke action in UpdateApplToEntryByPage function.
+        Commit(); // Commit required before invoke action in UpdateApplToEntryByPage function.
         UpdateApplToEntryByPage(ItemJournalBatch.Name);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
@@ -3280,7 +3279,7 @@ codeunit 137101 "SCM Kitting"
         NoSeries: Record "No. Series";
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         NoSeries.Get(AssemblySetup."Assembly Order Nos.");
         exit(NoSeriesManagement.GetNextNo(NoSeries.Code, WorkDate, false));
     end;
@@ -3341,7 +3340,7 @@ codeunit 137101 "SCM Kitting"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Location Mandatory", LocationMandatory);
         InventorySetup.Modify(true);
     end;
@@ -3431,7 +3430,7 @@ codeunit 137101 "SCM Kitting"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         UpdateAutomaticCostPostAndAdjmtOnInventorySetup(
           InventorySetup."Automatic Cost Posting", InventorySetup."Automatic Cost Adjustment"::Always);
     end;
@@ -3440,7 +3439,7 @@ codeunit 137101 "SCM Kitting"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Assembly Order Nos.", NewAssemblyOrderNos);
         AssemblySetup.Modify(true);
     end;
@@ -3449,7 +3448,7 @@ codeunit 137101 "SCM Kitting"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
         InventorySetup.Validate("Automatic Cost Adjustment", AutomaticCostAdjustment);
         InventorySetup.Modify(true);
@@ -3465,7 +3464,7 @@ codeunit 137101 "SCM Kitting"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Copy Component Dimensions from", NewCopyComponentDimensionsFrom);
         AssemblySetup.Modify(true);
     end;
@@ -3502,7 +3501,7 @@ codeunit 137101 "SCM Kitting"
     var
         AssemblySetup: Record "Assembly Setup";
     begin
-        AssemblySetup.Get;
+        AssemblySetup.Get();
         AssemblySetup.Validate("Stockout Warning", NewStockOutWarning);
         AssemblySetup.Modify(true);
     end;
@@ -4094,16 +4093,6 @@ codeunit 137101 "SCM Kitting"
         AsmAvailability.AssemblyLineAvail.ScheduledReceipt.AssertEquals(ScheduledReceipt);
         AsmAvailability.AssemblyLineAvail.ExpectedAvailableInventory.AssertEquals(ExpectedInventory);
         AsmAvailability.Yes.Invoke;
-    end;
-
-    local procedure UpdateGeneralLedgerSetup()
-    var
-        GLSetup: Record "General Ledger Setup";
-    begin
-        // NAVCZ
-        GLSetup.Get;
-        GLSetup."Delete Card with Entries" := true;
-        GLSetup.Modify;
     end;
 }
 

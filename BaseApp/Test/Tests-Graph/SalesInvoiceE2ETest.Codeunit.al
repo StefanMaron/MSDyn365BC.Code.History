@@ -51,7 +51,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         // [GIVEN] 2 invoices, one posted and one unposted
         Initialize;
         CreateSalesInvoices(InvoiceID1, InvoiceID2);
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the invoices from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -89,7 +89,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceDate := Today;
 
         InvoiceWithComplexJSON := CreateInvoiceJSONWithAddress(Customer, InvoiceDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -104,7 +104,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
         LibraryGraphDocumentTools.VerifyCustomerBillingAddress(Customer, SalesHeader, ResponseText, false, false);
 
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("No.", InvoiceNumber);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -145,7 +145,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         CurrencyCode := Currency.Code;
         JSONManagement.AddJPropertyToJObject(JObject, 'currencyCode', CurrencyCode);
         InvoiceJSON := JSONManagement.WriteObjectToString;
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -159,7 +159,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
 
         // [THEN] the invoice should exist in the tables
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("No.", InvoiceNumber);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -203,7 +203,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         JSONManagement.AddJPropertyToJObject(JObject, 'email', Email);
 
         InvoiceJSON := JSONManagement.WriteObjectToString;
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -217,7 +217,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibraryGraphMgt.VerifyIDInJson(ResponseText);
 
         // [THEN] the invoice should exist in the tables
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("No.", InvoiceNumber);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -253,7 +253,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         DueDate := CalcDate('<1D>', InvoiceDate);
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceJSON, 'invoiceDate', Format(InvoiceDate, 0, 9));
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceJSON, 'dueDate', Format(DueDate, 0, 9));
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -265,7 +265,7 @@ codeunit 135510 "Sales Invoice E2E Test"
           'Could not find sales invoice number');
 
         // [THEN] the invoice should exist in the tables
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("No.", InvoiceNumber);
         SalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
@@ -329,7 +329,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceID := SalesHeader."No.";
 
         // [GIVEN] the invoice's unique ID
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("No.", InvoiceID);
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.FindFirst;
@@ -347,14 +347,14 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibraryGraphDocumentTools.GetCustomerAddressComplexType(ComplexTypeJSON, Customer, EmptyData, PartiallyEmptyData);
         InvoiceWithComplexJSON := LibraryGraphMgt.AddComplexTypetoJSON(InvoiceJSON, 'billingPostalAddress', ComplexTypeJSON);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(InvoiceIntegrationID, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
 
         // [THEN] the item should have the Unit of Measure as a value in the table
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.SetRange("No.", InvoiceID);
         Assert.IsTrue(SalesHeader.FindFirst, 'The unposted invoice should exist');
@@ -398,12 +398,12 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesHeader."Currency Code" := Currency.Code;
         SalesHeader."Payment Terms Code" := PaymentTerms.Code;
         SalesHeader."Shipment Method Code" := ShipmentMethod.Code;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         InvoiceID := SalesHeader.Id;
-        Commit;
+        Commit();
 
         // [GIVEN] that the extra values are not empty
-        SalesInvoiceEntityAggregate.Reset;
+        SalesInvoiceEntityAggregate.Reset();
         SalesInvoiceEntityAggregate.SetRange(Id, InvoiceID);
         Assert.IsTrue(SalesInvoiceEntityAggregate.FindFirst, 'The unposted invoice should exist');
         Assert.AreNotEqual(BlankGUID, SalesInvoiceEntityAggregate."Currency Id", 'The Id of the currency should not be blank.');
@@ -418,14 +418,14 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceWithBlanksJSON := LibraryGraphMgt.AddPropertytoJSON('', CurrencyIdFieldTxt, BlankGUID);
         InvoiceWithBlanksJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceWithBlanksJSON, PaymentTermsIdFieldTxt, BlankGUID);
         InvoiceWithBlanksJSON := LibraryGraphMgt.AddPropertytoJSON(InvoiceWithBlanksJSON, ShipmentMethodIdFieldTxt, BlankGUID);
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(InvoiceID, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceWithBlanksJSON, ResponseText);
 
         // [THEN] the item should have the extra values blanked
-        SalesInvoiceEntityAggregate.Reset;
+        SalesInvoiceEntityAggregate.Reset();
         SalesInvoiceEntityAggregate.SetRange(Id, InvoiceID);
         Assert.IsTrue(SalesInvoiceEntityAggregate.FindFirst, 'The unposted invoice should exist');
         Assert.AreEqual(BlankGUID, SalesInvoiceEntityAggregate."Currency Id", 'The Id of the currency should be blanked.');
@@ -452,7 +452,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibrarySales.CreateSalesInvoice(SalesHeader);
         NewInvoiceNumber := CopyStr(CreateGuid, 1, MaxStrLen(SalesHeader."No."));
         NewInvoiceNumberJSON := LibraryGraphMgt.AddPropertytoJSON('', NumberFieldTxt, NewInvoiceNumber);
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the new number we should get an error
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -482,7 +482,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         ID1 := SalesInvoiceHeader."Draft Invoice SystemId";
         Assert.AreNotEqual('', ID1, 'ID should not be empty');
 
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, InvoiceID2);
         ID2 := SalesHeader.SystemId;
         Assert.AreNotEqual('', ID2, 'ID should not be empty');
@@ -531,7 +531,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
         // [GIVEN] a json describing our new invoice
         InvoiceWithComplexJSON := CreateInvoiceJSONWithAddress(Customer, InvoiceDate);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service and create another invoice through the test page
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -540,7 +540,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         CreateInvoiceThroughTestPage(SalesInvoice, Customer, InvoiceDate);
 
         // [THEN] the invoice should exist in the table and match the invoice created from the page
-        ApiSalesHeader.Reset;
+        ApiSalesHeader.Reset();
         ApiSalesHeader.SetRange("Sell-to Customer No.", CustomerNo);
         ApiSalesHeader.SetRange("Document Type", ApiSalesHeader."Document Type"::Invoice);
         ApiSalesHeader.SetRange("Document Date", InvoiceDate);
@@ -586,7 +586,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate invoice disc. should be set');
 
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the invoices from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -624,7 +624,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesLine.Modify(true);
         SalesHeader.CalcFields("Recalculate Invoice Disc.");
         Assert.IsTrue(SalesHeader."Recalculate Invoice Disc.", 'Setup error - recalculate invoice disc. should be set');
-        Commit;
+        Commit();
 
         // [WHEN] we GET all the invoices from the web service
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -686,7 +686,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         InvoiceWithComplexJSON := CreateInvoiceJSONWithContactId(GraphIntegrationRecord);
 
         TargetURL := LibraryGraphMgt.CreateTargetURL('', PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
-        Commit;
+        Commit();
 
         // [WHEN] We post an invoice to web service
         LibraryGraphMgt.PostToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
@@ -727,7 +727,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         TargetURL := LibraryGraphMgt.CreateTargetURL(InvoiceID, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
         InvoiceWithComplexJSON := CreateInvoiceJSONWithContactId(SecondGraphIntegrationRecord);
 
-        Commit;
+        Commit();
 
         // [WHEN] We Patch to web service
         LibraryGraphMgt.PatchToWebService(TargetURL, InvoiceWithComplexJSON, ResponseText);
@@ -754,7 +754,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
         // [WHEN] We look through all sales headers.
         // [THEN] The integration record for the sales header should have the same record id.
-        SalesHeader.Reset;
+        SalesHeader.Reset();
         if SalesHeader.Find('-') then begin
             repeat
                 Assert.IsTrue(IntegrationRecord.Get(SalesHeader.Id), 'The SalesHeader id should exist in the integration record table');
@@ -783,7 +783,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         Currency.FindFirst;
         CurrencyCode := Currency.Code;
         InvoiceJSON := LibraryGraphMgt.AddPropertytoJSON('', 'currencyCode', CurrencyCode);
-        Commit;
+        Commit();
 
         // [WHEN] we POST the JSON to the web service
         // [THEN] an error is received
@@ -821,8 +821,8 @@ codeunit 135510 "Sales Invoice E2E Test"
         SalesHeader.Find;
         SalesHeader.CalcFields(Amount);
         InvoiceID := SalesHeader."No.";
-        InvoiceDiscountAmount := SalesHeader.Amount / 2;
-        Commit;
+        InvoiceDiscountAmount := Round(SalesHeader.Amount / 2, LibraryERM.GetCurrencyAmountRoundingPrecision(SalesHeader."Currency Code"), '=');
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         InvoiceJSON := StrSubstNo('{"%1": %2}', DiscountAmountFieldTxt, Format(InvoiceDiscountAmount, 0, 9));
@@ -874,7 +874,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
         SalesCalcDiscountByType.ApplyInvDiscBasedOnAmt(SalesHeader.Amount / 2, SalesHeader);
 
-        Commit;
+        Commit();
 
         // [WHEN] we PATCH the JSON to the web service, with the unique Item ID
         TargetURL := LibraryGraphMgt.CreateTargetURL(SalesHeader.Id, PAGE::"Sales Invoice Entity", InvoiceServiceNameTxt);
@@ -903,7 +903,7 @@ codeunit 135510 "Sales Invoice E2E Test"
         LibrarySales.CreateSalesInvoice(SalesHeader);
         ModifySalesHeaderPostingDate(SalesHeader, WorkDate);
         InvoiceID2 := SalesHeader."No.";
-        Commit;
+        Commit();
     end;
 
     local procedure CreateInvoiceJSONWithAddress(Customer: Record Customer; InvoiceDate: Date): Text
@@ -957,7 +957,7 @@ codeunit 135510 "Sales Invoice E2E Test"
 
     local procedure GetFirstSalesInvoiceLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
-        SalesLine.Reset;
+        SalesLine.Reset();
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindFirst;
