@@ -74,14 +74,7 @@ table 99000850 "Planning Assignment"
             else
                 exit
         else
-            if (NewItem."Safety Stock Quantity" <> OldItem."Safety Stock Quantity") or
-               (NewItem."Safety Lead Time" <> OldItem."Safety Lead Time") or
-               (NewItem."Lead Time Calculation" <> OldItem."Lead Time Calculation") or
-               (NewItem."Reorder Point" <> OldItem."Reorder Point") or
-               (NewItem."Reordering Policy" <> OldItem."Reordering Policy") or
-               (NewItem."Replenishment System" <> OldItem."Replenishment System") or
-               (NewItem."Include Inventory" <> OldItem."Include Inventory")
-            then begin
+            if PlanningParametersChanged(NewItem, OldItem) then begin
                 ManufacturingSetup.Get();
                 InvtSetup.Get();
                 if (ManufacturingSetup."Components at Location" <> '') or
@@ -89,6 +82,19 @@ table 99000850 "Planning Assignment"
                 then
                     AssignOne(NewItem."No.", '', ManufacturingSetup."Components at Location", WorkDate);
             end;
+
+    end;
+
+    local procedure PlanningParametersChanged(NewItem: Record Item; OldItem: Record Item) Result: Boolean
+    begin
+        Result := (NewItem."Safety Stock Quantity" <> OldItem."Safety Stock Quantity") or
+               (NewItem."Safety Lead Time" <> OldItem."Safety Lead Time") or
+               (NewItem."Lead Time Calculation" <> OldItem."Lead Time Calculation") or
+               (NewItem."Reorder Point" <> OldItem."Reorder Point") or
+               (NewItem."Reordering Policy" <> OldItem."Reordering Policy") or
+               (NewItem."Replenishment System" <> OldItem."Replenishment System") or
+               (NewItem."Include Inventory" <> OldItem."Include Inventory");
+        OnAfterPlanningParametersChanged(NewItem, OldItem, Result);
     end;
 
     procedure SKUChange(var NewSKU: Record "Stockkeeping Unit"; var OldSKU: Record "Stockkeeping Unit")
@@ -288,6 +294,11 @@ table 99000850 "Planning Assignment"
         SKU.SetRange("Variant Code", VariantCode);
         SKU.SetRange("Location Code", LocationCode);
         exit(not SKU.IsEmpty);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPlanningParametersChanged(NewItem: Record Item; OldItem: Record Item; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

@@ -60,7 +60,6 @@ codeunit 5751 "Get Source Doc. Inbound"
     procedure GetSingleInboundDoc(var WhseReceiptHeader: Record "Warehouse Receipt Header")
     var
         WhseRqst: Record "Warehouse Request";
-        SourceDocSelection: Page "Source Documents";
         IsHandled: Boolean;
     begin
         OnBeforeGetSingleInboundDoc(WhseReceiptHeader, IsHandled);
@@ -72,20 +71,33 @@ codeunit 5751 "Get Source Doc. Inbound"
 
         SetWarehouseRequestFilters(WhseRqst, WhseReceiptHeader);
 
-        SourceDocSelection.LookupMode(true);
-        SourceDocSelection.SetTableView(WhseRqst);
-        if SourceDocSelection.RunModal <> ACTION::LookupOK then
-            exit;
-        SourceDocSelection.GetResult(WhseRqst);
-
-        GetSourceDocuments.SetOneCreatedReceiptHeader(WhseReceiptHeader);
-        GetSourceDocuments.UseRequestPage(false);
-        GetSourceDocuments.SetTableView(WhseRqst);
-        GetSourceDocuments.RunModal;
+        GetSourceDocForHeader(WhseReceiptHeader, WhseRqst);
 
         UpdateReceiptHeaderStatus(WhseReceiptHeader);
 
         OnAfterGetSingleInboundDoc(WhseReceiptHeader);
+    end;
+
+    local procedure GetSourceDocForHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request")
+    var
+        SourceDocSelection: Page "Source Documents";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetSourceDocForHeader(WarehouseReceiptHeader, WarehouseRequest, IsHandled);
+        if IsHandled then
+            exit;
+
+        SourceDocSelection.LookupMode(true);
+        SourceDocSelection.SetTableView(WarehouseRequest);
+        if SourceDocSelection.RunModal <> ACTION::LookupOK then
+            exit;
+        SourceDocSelection.GetResult(WarehouseRequest);
+
+        GetSourceDocuments.SetOneCreatedReceiptHeader(WarehouseReceiptHeader);
+        GetSourceDocuments.UseRequestPage(false);
+        GetSourceDocuments.SetTableView(WarehouseRequest);
+        GetSourceDocuments.RunModal;
     end;
 
     local procedure SetWarehouseRequestFilters(var WhseRqst: Record "Warehouse Request"; WhseReceiptHeader: Record "Warehouse Receipt Header")
@@ -348,6 +360,11 @@ codeunit 5751 "Get Source Doc. Inbound"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetRequireReceiveRqst(var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSourceDocForHeader(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request"; var IsHandled: Boolean)
     begin
     end;
 

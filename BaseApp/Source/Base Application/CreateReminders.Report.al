@@ -189,7 +189,6 @@ report 188 "Create Reminders"
         Text002: Label 'Making reminders @1@@@@@@@@@@@@@';
         Text003: Label 'It was not possible to create reminders for some of the selected customers.\Do you want to see these customers?';
         CustLedgEntry: Record "Cust. Ledger Entry";
-        ReminderHeaderReq: Record "Reminder Header";
         CustLedgEntryLineFeeOnFilters: Record "Cust. Ledger Entry";
         MakeReminder: Codeunit "Reminder-Make";
         Window: Dialog;
@@ -206,6 +205,7 @@ report 188 "Create Reminders"
         CreateRemindersReportGeneratedTxt: Label 'Create Reminders report generated.', Locked = true;
 
     protected var
+        ReminderHeaderReq: Record "Reminder Header";
         NumberOfReminderLines: Integer;
         StartDateTime: DateTime;
         FinishDateTime: DateTime;

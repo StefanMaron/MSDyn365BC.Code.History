@@ -365,6 +365,7 @@ table 336 "Tracking Specification"
             trigger OnValidate()
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
+                IsHandled: Boolean;
             begin
                 if "Appl.-from Item Entry" = 0 then
                     exit;
@@ -390,8 +391,12 @@ table 336 "Tracking Specification"
                            (("Source Subtype" in [0, 2, 6]) and ("Quantity (Base)" > 0))
                         then
                             FieldError("Quantity (Base)");
-                    else
-                        FieldError("Source Subtype");
+                    else begin
+                            IsHandled := false;
+                            OnValidateApplFromItemEntryOnSourceTypeCaseElse(Rec, IsHandled);
+                            if not IsHandled then
+                                FieldError("Source Subtype");
+                        end;
                 end;
 
                 if not TrackingExists() then
@@ -1763,6 +1768,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateQtyToHandleOnBeforeInitQtyToInvoice(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateApplFromItemEntryOnSourceTypeCaseElse(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 
