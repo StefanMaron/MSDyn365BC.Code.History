@@ -645,12 +645,10 @@ codeunit 99000774 "Calculate Routing Line"
         ProdOrderRoutingLine3: Record "Prod. Order Routing Line";
         ConstrainedCapacity: Record "Capacity Constrained Resource";
         ParentWorkCenter: Record "Capacity Constrained Resource";
-        TempProdOrderRoutingLine: Record "Prod. Order Routing Line" temporary;
+        TempProdOrderRoutingLine, TempProdOrderRoutingLine2 : Record "Prod. Order Routing Line" temporary;
         WorkCenterQueueTime: Record "Work Center";
         RoutingHeader: Record "Routing Header";
-        QueueTime: Dictionary of [Guid, Decimal];
-        SysId: Guid;
-        CountProdOrdRoutingLine: Integer;
+        RoutingVersion: Record "Routing Version";
         Qty, SendAheadLotSize : Decimal;
         ParentIsConstrained: Boolean;
         ResourceIsConstrained: Boolean;
@@ -671,9 +669,15 @@ codeunit 99000774 "Calculate Routing Line"
 
         FirstEntry := true;
 
-        RoutingHeader.SetLoadFields(Type);
-        if RoutingHeader.Get(ProdOrderRoutingLine."Routing No.") then
-            IsParallelRouting := RoutingHeader.Type = RoutingHeader.Type::Parallel;
+        IsParallelRouting := false;
+        RoutingVersion.SetLoadFields(Type);
+        if RoutingVersion.Get(ProdOrderLine."Routing No.", ProdOrderLine."Routing Version Code") then
+            IsParallelRouting := RoutingVersion.Type = RoutingVersion.Type::Parallel
+        else begin
+            RoutingHeader.SetLoadFields(Type);
+            if RoutingHeader.Get(ProdOrderLine."Routing No.") then
+                IsParallelRouting := RoutingHeader.Type = RoutingHeader.Type::Parallel;
+        end;
 
         ShouldCalcNextOperation := (ProdOrderRoutingLine."Next Operation No." <> '') and CalculateEndDate;
         OnCalcRoutingLineBackOnAfterCalcShouldCalcNextOperation(ProdOrderRoutingLine, ShouldCalcNextOperation);
@@ -685,9 +689,7 @@ codeunit 99000774 "Calculate Routing Line"
 
             SetRoutingLineFilters(ProdOrderRoutingLine, ProdOrderRoutingLine2);
             ProdOrderRoutingLine2.SetFilter("Operation No.", ProdOrderRoutingLine."Next Operation No.");
-            if ProdOrderRoutingLine2.Find('-') then begin
-                if IsParallelRouting then
-                    CountProdOrdRoutingLine := ProdOrderRoutingLine2.Count();
+            if ProdOrderRoutingLine2.Find('-') then
                 repeat
                     TotalLotSize := 0;
                     GetSendAheadStartingTime(ProdOrderRoutingLine2, SendAheadLotSize);
@@ -696,43 +698,57 @@ codeunit 99000774 "Calculate Routing Line"
                     SetMinDateTime(ProdEndingDate, ProdEndingTime, ProdStartingDate, ProdStartingTime);
 
                     if IsParallelRouting then
-                        if CountProdOrdRoutingLine > 1 then
-                            if QueueTime.Count() = 0 then begin
-                                WorkCenterQueueTime.Get(ProdOrderRoutingLine2."Work Center No.");
-                                Qty := Round(
-                                        WorkCenterQueueTime."Queue Time" *
-                                        CalendarMgt.TimeFactor(WorkCenterQueueTime."Queue Time Unit of Meas. Code") /
-                                        CalendarMgt.TimeFactor(WorkCenterQueueTime."Unit of Measure Code"),
-                                        WorkCenterQueueTime."Calendar Rounding Precision");
-                                QueueTime.Add(ProdOrderRoutingLine2.SystemId, Qty);
-                            end else begin
-                                WorkCenterQueueTime.Get(ProdOrderRoutingLine2."Work Center No.");
-                                Qty := Round(
-                                        WorkCenterQueueTime."Queue Time" *
-                                        CalendarMgt.TimeFactor(WorkCenterQueueTime."Queue Time Unit of Meas. Code") /
-                                        CalendarMgt.TimeFactor(WorkCenterQueueTime."Unit of Measure Code"),
-                                        WorkCenterQueueTime."Calendar Rounding Precision");
-                                if QueueTime.Get(ProdOrderRoutingLine3.SystemId) < Qty then begin
-                                    QueueTime.Remove(ProdOrderRoutingLine3.SystemId);
-                                    QueueTime.Add(ProdOrderRoutingLine2.SystemId, Qty);
+                        if TempProdOrderRoutingLine2.IsEmpty() then begin
+                            WorkCenterQueueTime.Get(ProdOrderRoutingLine2."Work Center No.");
+                            Qty := Round(
+                                    WorkCenterQueueTime."Queue Time" *
+                                    CalendarMgt.TimeFactor(WorkCenterQueueTime."Queue Time Unit of Meas. Code") /
+                                    CalendarMgt.TimeFactor(WorkCenterQueueTime."Unit of Measure Code"),
+                                    WorkCenterQueueTime."Calendar Rounding Precision");
+
+                            TempProdOrderRoutingLine2.TransferFields(ProdOrderRoutingLine2);
+                            TempProdOrderRoutingLine2."Input Quantity" := Qty;
+                            TempProdOrderRoutingLine2.Insert(false, true);
+                        end else begin
+                            WorkCenterQueueTime.Get(ProdOrderRoutingLine2."Work Center No.");
+                            Qty := Round(
+                                    WorkCenterQueueTime."Queue Time" *
+                                    CalendarMgt.TimeFactor(WorkCenterQueueTime."Queue Time Unit of Meas. Code") /
+                                    CalendarMgt.TimeFactor(WorkCenterQueueTime."Unit of Measure Code"),
+                                    WorkCenterQueueTime."Calendar Rounding Precision");
+                            if TempProdOrderRoutingLine2."Work Center No." <> ProdOrderRoutingLine2."Work Center No." then begin
+                                if TempProdOrderRoutingLine2."Input Quantity" < Qty then begin
+                                    TempProdOrderRoutingLine2.DeleteAll();
+                                    TempProdOrderRoutingLine2.TransferFields(ProdOrderRoutingLine2);
+                                    TempProdOrderRoutingLine2."Input Quantity" := Qty;
+                                    TempProdOrderRoutingLine2.Insert(false, true);
                                 end;
-                            end;
+                            end else
+                                if ProdOrderRoutingLine2."Starting Date-Time" < TempProdOrderRoutingLine2."Starting Date-Time" then begin
+                                    TempProdOrderRoutingLine2.DeleteAll();
+                                    TempProdOrderRoutingLine2.TransferFields(ProdOrderRoutingLine2);
+                                    TempProdOrderRoutingLine2."Input Quantity" := Qty;
+                                    TempProdOrderRoutingLine2.Insert(false, true);
+                                end;
+                        end;
                     ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
                 until ProdOrderRoutingLine2.Next() = 0;
-            end;
 
-            if IsParallelRouting then
-                if CountProdOrdRoutingLine > 1 then begin
-                    QueueTime.Keys().Get(1, SysId);
-                    ProdOrderRoutingLine2.GetBySystemId(SysId);
-                    GetSendAheadStartingTime(ProdOrderRoutingLine2, SendAheadLotSize);
-                    TempProdOrderRoutingLine.GetBySystemId(ProdOrderRoutingLine2.SystemId);
-                    TempProdOrderRoutingLine.Copy(ProdOrderRoutingLine2);
-                    TempProdOrderRoutingLine.Modify();
-                    ProdEndingDate := ProdStartingDate;
-                    ProdEndingTime := ProdStartingTime;
-                    ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
-                end;
+            if IsParallelRouting then begin
+                ProdOrderRoutingLine2.Get(
+                                        TempProdOrderRoutingLine2.Status,
+                                        TempProdOrderRoutingLine2."Prod. Order No.",
+                                        TempProdOrderRoutingLine2."Routing Reference No.",
+                                        TempProdOrderRoutingLine2."Routing No.",
+                                        TempProdOrderRoutingLine2."Operation No.");
+                GetSendAheadStartingTime(ProdOrderRoutingLine2, SendAheadLotSize);
+                TempProdOrderRoutingLine.GetBySystemId(ProdOrderRoutingLine2.SystemId);
+                TempProdOrderRoutingLine.Copy(ProdOrderRoutingLine2);
+                TempProdOrderRoutingLine.Modify();
+                ProdEndingDate := ProdStartingDate;
+                ProdEndingTime := ProdStartingTime;
+                ProdOrderRoutingLine3 := ProdOrderRoutingLine2;
+            end;
 
             OnCalcRoutingLineBackOnBeforeGetQueueTime(ProdOrderRoutingLine, ProdOrderRoutingLine2, ProdOrderRoutingLine3);
 

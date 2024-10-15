@@ -414,6 +414,7 @@
         FieldRef: FieldRef;
         IsTemplate: Boolean;
         SkipEvaluate: Boolean;
+        IsHandled: Boolean;
     begin
         if ConfigPackageField."Primary Key" or ConfigPackageField.AutoIncrement then
             exit;
@@ -431,20 +432,23 @@
             UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
 
             GetCachedConfigPackageField(ConfigPackageData);
-            case true of
-                IsBLOBFieldInternal(TempConfigPackageFieldCache."Processing Order"):
-                    EvaluateBLOBToFieldRef(ConfigPackageData, FieldRef);
-                IsMediaSetFieldInternal(TempConfigPackageFieldCache."Processing Order"):
-                    ImportMediaSetFiles(ConfigPackageData, FieldRef, DoModify);
-                IsMediaFieldInternal(TempConfigPackageFieldCache."Processing Order"):
-                    ImportMediaFiles(ConfigPackageData, FieldRef, DoModify);
-                else begin
-                    SkipEvaluate := false;
-                    OnModifyRecordDataFieldOnBeforeEvaluateTextToFieldRef(ConfigPackageField, ConfigPackageData, ConfigPackageTable, DelayInsert, ApplyMode, FieldRef, SkipEvaluate);
-                    if not SkipEvaluate then
-                        ConfigValidateMgt.EvaluateTextToFieldRef(ConfigPackageData.Value, FieldRef, ConfigPackageField."Validate Field" and ((ApplyMode = ApplyMode::NonKeyFields) or DelayInsert));
+            IsHandled := false;
+            OnModifyRecordDataFieldOnAfterGetCachedConfigPackageField(RecRef, FieldRef, ConfigPackageField, ConfigPackageData, IsHandled);
+            if not IsHandled then
+                case true of
+                    IsBLOBFieldInternal(TempConfigPackageFieldCache."Processing Order"):
+                        EvaluateBLOBToFieldRef(ConfigPackageData, FieldRef);
+                    IsMediaSetFieldInternal(TempConfigPackageFieldCache."Processing Order"):
+                        ImportMediaSetFiles(ConfigPackageData, FieldRef, DoModify);
+                    IsMediaFieldInternal(TempConfigPackageFieldCache."Processing Order"):
+                        ImportMediaFiles(ConfigPackageData, FieldRef, DoModify);
+                    else begin
+                        SkipEvaluate := false;
+                        OnModifyRecordDataFieldOnBeforeEvaluateTextToFieldRef(ConfigPackageField, ConfigPackageData, ConfigPackageTable, DelayInsert, ApplyMode, FieldRef, SkipEvaluate);
+                        if not SkipEvaluate then
+                            ConfigValidateMgt.EvaluateTextToFieldRef(ConfigPackageData.Value, FieldRef, ConfigPackageField."Validate Field" and ((ApplyMode = ApplyMode::NonKeyFields) or DelayInsert));
+                    end;
                 end;
-            end;
         end;
     end;
 
@@ -1060,6 +1064,7 @@
         FieldCount: Integer;
         ExecutionId: Guid;
         Dimensions: Dictionary of [Text, Text];
+        IsHandled: Boolean;
     begin
         FeatureTelemetry.LogUptake('0000E3E', 'Configuration packages', Enum::"Feature Uptake Status"::"Used");
 
@@ -1088,9 +1093,12 @@
             ErrorCount := ConfigPackage."No. of Errors";
         if (TableCount = 0) or (ConfigPackage."No. of Records" = 0) then
             exit;
-        if (ConfigPackage.Code <> MSGPPackageCodeTxt) and (ConfigPackage.Code <> QBPackageCodeTxt) then
-            // Skip this code to hold the error count for duplicate records.
-            CleanPackageErrors(ConfigPackage.Code, ConfigPackageTable.GetFilter("Table ID"));
+        IsHandled := false;
+        OnApplyPackageOnBeforeCleanPackageErrors(ConfigPackage, IsHandled);
+        if not IsHandled then
+            if (ConfigPackage.Code <> MSGPPackageCodeTxt) and (ConfigPackage.Code <> QBPackageCodeTxt) then
+                // Skip this code to hold the error count for duplicate records.
+                CleanPackageErrors(ConfigPackage.Code, ConfigPackageTable.GetFilter("Table ID"));
 
         if SetupProcessingOrderForTables then begin
             SetupProcessingOrder(ConfigPackageTable);
@@ -1184,6 +1192,7 @@
                 ConfigPackageTable.CalcFields("Table Name");
                 ConfigPackageRecord.SetRange("Package Code", ConfigPackageTable."Package Code");
                 ConfigPackageRecord.SetRange("Table ID", ConfigPackageTable."Table ID");
+                OnApplyPackageTablesOnFilterConfigPackageRecord(ConfigPackage, ConfigPackageRecord);
                 if not HideDialog then
                     ConfigProgressBar.Update(ConfigPackageTable."Table Name");
                 if not IsTableErrorsExists(ConfigPackageTable) then// Added to show item duplicate errors
@@ -2619,6 +2628,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnModifyRecordDataFieldsOnBeforeRecRefModify(var RecRef: RecordRef; ConfigPackageTable: Record "Config. Package Table"; var RecordsModifiedCount: Integer; var IsHandled: Boolean; ConfigPackageRecord: Record "Config. Package Record")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyRecordDataFieldOnAfterGetCachedConfigPackageField(var RecordRef: RecordRef; var FieldRef: FieldRef; var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageData: Record "Config. Package Data"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyPackageOnBeforeCleanPackageErrors(var ConfigPackage: Record "Config. Package"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyPackageTablesOnFilterConfigPackageRecord(var ConfigPackage: Record "Config. Package"; var ConfigPackageRecord: Record "Config. Package Record")
     begin
     end;
 }

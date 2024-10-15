@@ -1068,11 +1068,17 @@
     procedure UpdateIncomingDocumentFromPosting(IncomingDocumentNo: Integer; PostingDate: Date; DocNo: Code[20])
     var
         IncomingDocument: Record "Incoming Document";
+        IsHandled: Boolean;
     begin
         if IncomingDocumentNo = 0 then
             exit;
 
         if not IncomingDocument.Get(IncomingDocumentNo) then
+            exit;
+
+        IsHandled := false;
+        OnBeforeUpdateIncomingDocumentFromPosting(IncomingDocumentNo, PostingDate, DocNo, IsHandled);
+        if IsHandled then
             exit;
 
         IncomingDocument.SetPostedDocFieldsForcePosted(PostingDate, DocNo, true);
@@ -1645,7 +1651,13 @@
         DataTypeManagement: Codeunit "Data Type Management";
         RecRef: RecordRef;
         RelatedRecord: Variant;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowRecord(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if GetRecord(RelatedRecord) then begin
             DataTypeManagement.GetRecordRef(RelatedRecord, RecRef);
             PageManagement.PageRun(RecRef);
@@ -1741,6 +1753,7 @@
                     if GenJournalLine.FindFirst() then begin
                         GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
                         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+                        OnFindUnpostedRecordOnAfterFilterGenJournalLine(Rec, GenJournalLine);
                         RelatedRecord := GenJournalLine;
                         exit(true)
                     end;
@@ -2332,17 +2345,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateGenJnlLineOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    local procedure OnCreateGenJnlLineOnBeforeShowRecord(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesDocOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    local procedure OnCreateSalesDocOnBeforeShowRecord(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreatePurchDocOnBeforeShowRecord(IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    local procedure OnCreatePurchDocOnBeforeShowRecord(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2398,6 +2411,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchDocOnAfterModifyPurchaseHeader(var IncomingDocument: Record "Incoming Document"; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateIncomingDocumentFromPosting(IncomingDocumentNo: Integer; PostingDate: Date; DocNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowRecord(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindUnpostedRecordOnAfterFilterGenJournalLine(var IncomingDocument: Record "Incoming Document"; var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

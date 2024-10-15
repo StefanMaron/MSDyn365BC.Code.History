@@ -30,7 +30,7 @@ pageextension 9202 "Advanced Settings Ext." extends "Advanced Settings"
                     InstructionalText = 'Set up and manage use of external services.';
                     ShowCaption = false;
 
-                    field(ServiceConnections; 'Service Connections')
+                    field(ServiceConnections; ServiceConnectionsLbl)
                     {
                         ShowCaption = false;
                         ApplicationArea = All;
@@ -51,7 +51,7 @@ pageextension 9202 "Advanced Settings Ext." extends "Advanced Settings"
                     ShowCaption = false;
                     InstructionalText = 'Manage automation of business processes.';
 
-                    field(Workflows; 'Workflows')
+                    field(Workflows; WorkflowsLbl)
                     {
                         ShowCaption = false;
                         ApplicationArea = All;
@@ -74,6 +74,8 @@ pageextension 9202 "Advanced Settings Ext." extends "Advanced Settings"
         MediaRepositoryStandard: Record "Media Repository";
         MediaResourcesStandard: Record "Media Resources";
         TopBannerVisible: Boolean;
+        ServiceConnectionsLbl: Label 'Service Connections';
+        WorkflowsLbl: Label 'Workflows';
 
     trigger OnOpenPage()
     begin

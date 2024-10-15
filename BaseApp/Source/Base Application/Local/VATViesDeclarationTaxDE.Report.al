@@ -16,17 +16,8 @@ report 11007 "VAT-Vies Declaration Tax - DE"
                 VATRegNo: Text[20];
             begin
                 if "EU Service" then
-                    case VATDateType of
-                        VATDateType::"VAT Reporting Date":
-                            if "VAT Entry"."VAT Reporting Date" < 20100101D then
-                                Error(Text11000, FieldCaption("VAT Reporting Date"), 20100101D);
-                        VATDateType::"Posting Date": 
-                            if "VAT Entry"."Posting Date" < 20100101D then
-                                Error(Text11000, FieldCaption("Posting Date"), 20100101D);
-                        VATDateType::"Document Date": 
-                            if "VAT Entry"."Document Date" < 20100101D then
-                                Error(Text11000, FieldCaption("Document Date"), 20100101D);    
-                    end;
+                    if "VAT Entry"."VAT Reporting Date" < 20100101D then
+                        Error(Text11000, FieldCaption("VAT Reporting Date"), 20100101D);
                 if "VAT Registration No." = '' then begin
                     Cust.Get("VAT Entry"."Bill-to/Pay-to No.");
                     Cust.TestField("VAT Registration No.");
@@ -34,7 +25,8 @@ report 11007 "VAT-Vies Declaration Tax - DE"
                 end else
                     VATRegNo := "VAT Registration No.";
 
-                SetVATDate(TempVATEntry);
+                if (EndDate <> 0D) or (StartDate <> 0D) then
+                    TempVATEntry.SetRange("VAT Reporting Date", StartDate, EndDate);
                 TempVATEntry.SetRange(Type, Type::Sale);
                 TempVATEntry.SetRange("Country/Region Code", "Country/Region Code");
                 TempVATEntry.SetRange("VAT Registration No.", VATRegNo);
@@ -409,12 +401,18 @@ report 11007 "VAT-Vies Declaration Tax - DE"
                     group("Statement Period")
                     {
                         Caption = 'Statement Period';
+#if not CLEAN23
                         field(VATDateTypeField; VATDateType)
                         {
                             ApplicationArea = VAT;
                             Caption = 'Period Date Type';
                             ToolTip = 'Specifies the type of date used for the reporting period.';
+                            Visible = false;
+                            ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '23.0';
                         }
+#endif
                         field(RepPeriod; RepPeriod)
                         {
                             ApplicationArea = Basic, Suite;
@@ -505,16 +503,17 @@ report 11007 "VAT-Vies Declaration Tax - DE"
         The_administrative_offence_can_be_avenged_with_a_fine_up_to_five_thousand_Euro____26_a_UStGCaption = 'The administrative offence can be avenged with a fine up to five thousand Euro (?26 a UStG).';
     }
 
-    trigger OnInitReport()
-    begin
-        VATDateType := VATDateType::"Posting Date";
-    end;
-
     trigger OnPreReport()
     begin
-        if (StartDate = 0D) or (EndDate = 0D) then
-            SetDateFromFilters(); 
-
+        if (StartDate = 0D) or (EndDate = 0D) then begin
+            if "VAT Entry".GetRangeMin("VAT Reporting Date") = 0D then
+                "VAT Entry".FieldError("VAT Reporting Date");
+            if "VAT Entry".GetRangeMax("VAT Reporting Date") = 0D then
+                "VAT Entry".FieldError("VAT Reporting Date");
+            
+            StartDate := "VAT Entry".GetRangeMin("VAT Reporting Date");
+            EndDate := "VAT Entry".GetRangeMax("VAT Reporting Date");
+        end;
         GetYearFromVatEntry();
         "VAT Entry".SetRange(Type, "VAT Entry".Type::Sale);
 
@@ -538,7 +537,9 @@ report 11007 "VAT-Vies Declaration Tax - DE"
         CorrectedNotification: Boolean;
         UseAmtsInAddCurr: Boolean;
         QuarterValue: Text[30];
+#if not CLEAN23
         VATDateType: Enum "VAT Date Type";
+#endif
         Text11000: Label '%1 must not be less than %2 for Services.';
         ChangeToMonthlyReporting: Boolean;
         RevokeMonthlyReporting: Boolean;
@@ -665,58 +666,9 @@ report 11007 "VAT-Vies Declaration Tax - DE"
             exit(2);
     end;
 
-    local procedure SetDateFromFilters()
-    begin
-        case VATDateType of
-                VATDateType::"VAT Reporting Date":
-                    begin
-                        if "VAT Entry".GetRangeMin("VAT Reporting Date") = 0D then
-                            "VAT Entry".FieldError("VAT Reporting Date");
-                        if "VAT Entry".GetRangeMax("VAT Reporting Date") = 0D then
-                            "VAT Entry".FieldError("VAT Reporting Date");
-                        
-                        StartDate := "VAT Entry".GetRangeMin("VAT Reporting Date");
-                        EndDate := "VAT Entry".GetRangeMax("VAT Reporting Date");
-                    end;
-                VATDateType::"Posting Date":
-                    begin
-                        if "VAT Entry".GetRangeMin("Posting Date") = 0D then
-                            "VAT Entry".FieldError("Posting Date");
-                        if "VAT Entry".GetRangeMax("Posting Date") = 0D then
-                            "VAT Entry".FieldError("Posting Date");
-                        
-                        StartDate := "VAT Entry".GetRangeMin("Posting Date");
-                        EndDate := "VAT Entry".GetRangeMax("Posting Date");
-                    end;
-                VATDateType::"Document Date":
-                    begin
-                        if "VAT Entry".GetRangeMin("Document Date") = 0D then
-                            "VAT Entry".FieldError("Document Date");
-                        if "VAT Entry".GetRangeMax("Document Date") = 0D then
-                            "VAT Entry".FieldError("Document Date");
-                        
-                        StartDate := "VAT Entry".GetRangeMin("Document Date");
-                        EndDate := "VAT Entry".GetRangeMax("Document Date");
-                    end;
-        end;
-    end;
-
     local procedure GetYearFromVatEntry()
     begin
         Year := Date2DMY(EndDate, 3);
-    end;
-
-    local procedure SetVATDate(var VATEntry: Record "VAT Entry")
-    begin
-        if (EndDate <> 0D) or (StartDate <> 0D) then
-            case VATDateType of
-                VATDateType::"Document Date":
-                    VATEntry.SetRange("Document Date", StartDate, EndDate);
-                VATDateType::"Posting Date":
-                    VATEntry.SetRange("Posting Date", StartDate, EndDate);
-                VATDateType::"VAT Reporting Date":
-                    VATEntry.SetRange("Posting Date", StartDate, EndDate);
-            end;
     end;
 }
 

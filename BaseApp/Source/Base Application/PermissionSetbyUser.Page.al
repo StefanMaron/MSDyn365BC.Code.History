@@ -254,7 +254,6 @@ page 9816 "Permission Set by User"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy Permission Set';
                 Ellipsis = true;
-                Enabled = CanManageUsersOnTenant;
                 Image = Copy;
                 ToolTip = 'Create a copy of the selected permission set with a name that you specify.';
 
@@ -366,10 +365,8 @@ page 9816 "Permission Set by User"
     end;
 
     trigger OnInit()
-    var
-        UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+        PermissionPagesMgt.DisallowEditingPermissionSetsForNonAdminUsers();
     end;
 
     trigger OnOpenPage()
@@ -389,7 +386,6 @@ page 9816 "Permission Set by User"
         UserSelection: Codeunit "User Selection";
         UserSecurityIDArr: array[10] of Guid;
         AllUsersHavePermission: Boolean;
-        CanManageUsersOnTenant: Boolean;
         NoOfRecords: Integer;
         SelectedCompany: Text[30];
         ShowDomainName: Boolean;

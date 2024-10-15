@@ -24,6 +24,7 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
                 end;
 
                 GLAcc.SetFilter("No.", '%1', CostType."G/L Account Range");
+                OnCostBudgetEntryOnAfterGetRecordOnAfterGLAccSetfilter(CostType, GLAcc);
                 if not GLAcc.FindFirst() then begin
                     NoSkipped := NoSkipped + 1;
                     CurrReport.Skip();
@@ -249,6 +250,11 @@ report 1136 "Copy Cost Acctg. Budget to G/L"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordOnAfterGLBudgetEntryTargetPopulated(var GLBudgetEntryTarget: Record "G/L Budget Entry"; CostBudgetEntry: Record "Cost Budget Entry")
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnCostBudgetEntryOnAfterGetRecordOnAfterGLAccSetfilter(var CostType: Record "Cost Type"; var GLAccount: Record "G/L Account")
     begin
     end;
 }

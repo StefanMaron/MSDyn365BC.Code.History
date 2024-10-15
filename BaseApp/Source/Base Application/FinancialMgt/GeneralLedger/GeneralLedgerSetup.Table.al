@@ -57,8 +57,10 @@
             Caption = 'VAT Date Usage';
 
             trigger OnValidate()
+            var
+                Language: Codeunit Language;
             begin
-                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, StrSubstNo(VATDateFeatureUsageMsg, Format("VAT Reporting Date Usage")));
+                FeatureTelemetry.LogUsage('0000J2U', VATDateFeatureTok, StrSubstNo(VATDateFeatureUsageMsg, Language.ToDefaultLanguage("VAT Reporting Date Usage")));
             end;
         }
         field(28; "Pmt. Disc. Excl. VAT"; Boolean)
@@ -840,8 +842,10 @@
             Caption = 'Control VAT Period';
 
             trigger OnValidate()
+            var
+                Language: Codeunit Language;
             begin
-                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, StrSubstNo(VATPeriodControlUsageMsg, Format("Control VAT Period")));
+                FeatureTelemetry.LogUsage('0000JWC', VATDateFeatureTok, StrSubstNo(VATPeriodControlUsageMsg, Language.ToDefaultLanguage("Control VAT Period")));
             end;
         }
         field(11003; "Currency Code For EURO"; Code[10])

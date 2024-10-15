@@ -59,7 +59,14 @@ table 5965 "Service Contract Header"
             TableRelation = Customer;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCustomerNo(Rec, xRec, SkipBillToContact, SkipContact, IsHandled);
+                if IsHandled then
+                    exit;
+
                 Cust.Get("Customer No.");
                 if "Customer No." <> xRec."Customer No." then begin
                     if ContractLinesExist() then
@@ -179,6 +186,11 @@ table 5965 "Service Contract Header"
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateBillToCustomerNo(Rec, xRec, HideValidationDialog, Confirmed, SkipBillToContact, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckChangeStatus();
                 if xRec."Bill-to Customer No." <> "Bill-to Customer No." then
                     if xRec."Bill-to Customer No." <> '' then begin
@@ -282,7 +294,14 @@ table 5965 "Service Contract Header"
             TableRelation = "Ship-to Address".Code WHERE("Customer No." = FIELD("Customer No."));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateShipToCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Customer No." <> xRec."Customer No.") or
                    ("Ship-to Code" <> xRec."Ship-to Code")
                 then begin
@@ -529,7 +548,14 @@ table 5965 "Service Contract Header"
             Caption = 'Starting Date';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateStartingDate(Rec, ServContractLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CheckChangeStatus();
 
                 if "Last Invoice Date" <> 0D then
@@ -2197,6 +2223,7 @@ table 5965 "Service Contract Header"
                     if ContBusRel.FindByRelation(ContBusRel."Link to Table"::Customer, "Customer No.") then
                         "Contact No." := ContBusRel."Contact No.";
                 "Contact Name" := Cust.Contact;
+                OnUpdateContOnAfterUpdateContFromCust(Rec);
             end;
         end;
 
@@ -2383,7 +2410,6 @@ table 5965 "Service Contract Header"
     local procedure DistributeAmounts()
     var
         OldServContractLine: Record "Service Contract Line";
-        ContractAmountDistribution: Page "Contract Amount Distribution";
         Result: Integer;
     begin
         if not "Allow Unbalanced Amounts" then begin
@@ -2399,10 +2425,7 @@ table 5965 "Service Contract Header"
                     ServContractLine.TestField("Line Value");
                 ServContractLine.SetRange("Line Value");
                 if ServContractLine.Next() <> 0 then begin
-                    Clear(ContractAmountDistribution);
-                    ContractAmountDistribution.SetValues("Annual Amount", "Calcd. Annual Amount");
-                    if ContractAmountDistribution.RunModal() = ACTION::Yes then begin
-                        Result := ContractAmountDistribution.GetResult();
+                    if AskContractAmountDistribution(Result) then begin
                         Currency.InitRoundingPrecision();
                         case Result of
                             0:
@@ -2618,7 +2641,14 @@ table 5965 "Service Contract Header"
     end;
 
     procedure ValidateSalesPersonOnServiceContractHeader(ServiceContractHeader2: Record "Service Contract Header"; IsTransaction: Boolean; IsPostAction: Boolean)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateSalesPersonOnServiceContractHeader(ServiceContractHeader2, IsTransaction, IsPostAction, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServiceContractHeader2."Salesperson Code" <> '' then
             if Salesperson.Get(ServiceContractHeader2."Salesperson Code") then
                 if Salesperson.VerifySalesPersonPurchaserPrivacyBlocked(Salesperson) then begin
@@ -2653,6 +2683,25 @@ table 5965 "Service Contract Header"
         DimMgt.AddDimSource(DefaultDimSource, Database::"Service Order Type", Rec."Service Order Type", FieldNo = Rec.FieldNo("Service Order Type"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
+    end;
+
+    local procedure AskContractAmountDistribution(var Result: Integer) OK: Boolean
+    var
+        ContractAmountDistribution: Page "Contract Amount Distribution";
+        IsHandled: Boolean;
+    begin
+        Result := 0;
+        OK := false;
+        IsHandled := false;
+        OnBeforeAskContractAmountDistribution(Rec, OK, Result, IsHandled);
+        if not IsHandled then begin
+            Clear(ContractAmountDistribution);
+            ContractAmountDistribution.SetValues("Annual Amount", "Calcd. Annual Amount");
+            if ContractAmountDistribution.RunModal() = ACTION::Yes then begin
+                Result := ContractAmountDistribution.GetResult();
+                OK := true;
+            end;
+        end;
     end;
 
 #if not CLEAN20
@@ -2873,12 +2922,47 @@ table 5965 "Service Contract Header"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAskContractAmountDistribution(var ServiceContractHeader: Record "Service Contract Header"; var OK: Boolean; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateBillToCustomerNoOnBeforePrivacyBlockedCheck(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBillToCustomerNoOnBeforeBlockedCheck(var ServiceContractHeader: Record "Service Contract Header"; Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSalesPersonOnServiceContractHeader(var ServiceContractHeader: Record "Service Contract Header"; IsTransaction: Boolean; IsPostAction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateBillToCustomerNo(var ServiceContractHeader: Record "Service Contract Header"; var xServiceContractHeader: Record "Service Contract Header"; HideValidationDialog: Boolean; var Confirmed: Boolean; SkipBillToContact: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCustomerNo(var ServiceContractHeader: Record "Service Contract Header"; var xServiceContractHeader: Record "Service Contract Header"; var SkipBillToContact: Boolean; var SkipContact: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToCode(var ServiceContractHeader: Record "Service Contract Header"; var xServiceContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStartingDate(var ServiceContractHeader: Record "Service Contract Header"; var ServContractLine: Record "Service Contract Line"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateContOnAfterUpdateContFromCust(var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 }

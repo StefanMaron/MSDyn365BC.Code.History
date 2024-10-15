@@ -588,7 +588,8 @@
             if SalesLine.Find('-') then
                 repeat
                     if PrepmtAmount(SalesLine, DocumentType) <> 0 then begin
-                        CheckSalesLineIsNegative(SalesHeader, SalesLine);
+                        if not CheckSystemCreatedInvoiceRoundEntry(SalesLine, SalesHeader."Customer Posting Group") then
+                            CheckSalesLineIsNegative(SalesHeader, SalesLine);
 
                         FillInvLineBuffer(SalesHeader, SalesLine, PrepmtInvLineBuf2);
                         if UpdateLines then
@@ -1235,6 +1236,7 @@
                         "Prepayment VAT Identifier" := "VAT Identifier";
                         "Prepayment Tax Group Code" := "Tax Group Code";
                         "Prepayment VAT %" := "VAT %";
+                        OnGetSalesLinesOnBeforeInsertToSalesLine(ToSalesLine);
                         Insert();
                     end;
             end;
@@ -1780,6 +1782,15 @@
             SalesLine.FieldError("Unit Price", StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
     end;
 
+    local procedure CheckSystemCreatedInvoiceRoundEntry(SalesLine: Record "Sales Line"; CustomerPostingGroup: Code[20]): Boolean
+    begin
+        if (SalesLine.Type = SalesLine.Type::"G/L Account") and
+           (SalesLine."No." = GetInvRoundingAccNo(CustomerPostingGroup)) and
+           (SalesLine."System-Created Entry")
+        then
+            exit(true);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyFilter(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; DocumentType: Option)
     begin
@@ -2080,6 +2091,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePrepmtAmountOnSaleslines(SalesHeader: Record "Sales Header"; NewTotalPrepmtAmount: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSalesLinesOnBeforeInsertToSalesLine(var ToSalesLine: Record "Sales Line")
     begin
     end;
 }

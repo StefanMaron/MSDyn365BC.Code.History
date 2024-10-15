@@ -5,6 +5,7 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
 
     trigger OnRun()
     begin
+        InitVATRegistrationLog(Rec);
         VATRegistrationLog := Rec;
 
         LookupVatRegistrationFromWebService(true);
@@ -169,6 +170,33 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
     begin
         if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, FieldName) then
             Result := FieldRef.Value();
+    end;
+
+    local procedure InitVATRegistrationLog(var NewVATRegistrationLog: Record "VAT Registration Log")
+    begin
+        if NewVATRegistrationLog."Entry No." <> 0 then
+            exit;
+
+        InitForContactVATRegistrationLog(NewVATRegistrationLog);
+    end;
+
+    local procedure InitForContactVATRegistrationLog(var NewVATRegistrationLog: Record "VAT Registration Log")
+    var
+        Contact: Record Contact;
+        AccountNoFilter: Text;
+    begin
+        if Format(NewVATRegistrationLog.GetFilter("Account Type")) <> Format(NewVATRegistrationLog."Account Type"::Contact) then
+            exit;
+
+        AccountNoFilter := NewVATRegistrationLog.GetFilter("Account No.");
+
+        if Contact.Get(AccountNoFilter) then
+            NewVATRegistrationLog.InitVATRegLog(
+                NewVATRegistrationLog,
+                Contact."Country/Region Code",
+                NewVATRegistrationLog."Account Type"::Contact.AsInteger(),
+                Contact."No.",
+                Contact."VAT Registration No.");
     end;
 
     [IntegrationEvent(false, false)]

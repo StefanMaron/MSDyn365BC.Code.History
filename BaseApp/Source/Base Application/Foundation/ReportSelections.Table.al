@@ -1409,24 +1409,27 @@ table 77 "Report Selections"
             with TempAttachReportSelections do begin
                 OfficeAttachmentManager.IncrementCount(Count - 1);
                 repeat
-                    OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage, RecordVariant, DocNo, DocName, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection);
-                    EmailAddress := CopyStr(
-                        GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence),
-                        1, MaxStrLen(EmailAddress));
-                    Clear(TempBlob);
                     IsHandled := false;
-                    OnSendEmailDirectlyOnBeforeSaveReportAsPDFInTempBlob(TempAttachReportSelections, DocumentRecord, ReportUsage, TempBlob, IsHandled);
-                    if not IsHandled then
-                        SaveReportAsPDFInTempBlob(TempBlob, "Report ID", DocumentRecord, "Custom Report Layout Code", ReportUsage);
-                    TempBlob.CreateInStream(AttachmentStream);
+                    OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage, RecordVariant, DocNo, DocName, DefaultEmailAddress, ShowDialog, TempAttachReportSelections, CustomReportSelection, IsHandled);
+                    if not IsHandled then begin
+                        EmailAddress := CopyStr(
+                            GetNextEmailAddressFromCustomReportSelection(CustomReportSelection, DefaultEmailAddress, Usage, Sequence),
+                            1, MaxStrLen(EmailAddress));
+                        Clear(TempBlob);
+                        IsHandled := false;
+                        OnSendEmailDirectlyOnBeforeSaveReportAsPDFInTempBlob(TempAttachReportSelections, DocumentRecord, ReportUsage, TempBlob, IsHandled);
+                        if not IsHandled then
+                            SaveReportAsPDFInTempBlob(TempBlob, "Report ID", DocumentRecord, "Custom Report Layout Code", ReportUsage);
+                        TempBlob.CreateInStream(AttachmentStream);
 
-                    OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob, DocumentMailing);
-                    AllEmailsWereSuccessful :=
-                        AllEmailsWereSuccessful and
-                        DocumentMailing.EmailFile(
-                            AttachmentStream, '', ServerEmailBodyFilePath,
-                            DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(),
-                            SourceTableIDs, SourceIDs, SourceRelationTypes);
+                        OnSendEmailDirectlyOnBeforeEmailWithAttachment(RecordVariant, TempAttachReportSelections, TempBlob, DocumentMailing);
+                        AllEmailsWereSuccessful :=
+                            AllEmailsWereSuccessful and
+                            DocumentMailing.EmailFile(
+                                AttachmentStream, '', ServerEmailBodyFilePath,
+                                DocNo, EmailAddress, DocName, not ShowDialog, ReportUsage.AsInteger(),
+                                SourceTableIDs, SourceIDs, SourceRelationTypes);
+                    end;
                 until Next() = 0;
             end;
         end;
@@ -2215,7 +2218,7 @@ table 77 "Report Selections"
     [IntegrationEvent(false, false)]
     local procedure OnSendEmailDirectlyOnBeforeSendFileLoop(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant;
                                                                              DocNo: Code[20];
-                                                                             DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection")
+                                                                             DocName: Text[150]; var DefaultEmailAddress: Text[250]; ShowDialog: Boolean; var TempAttachReportSelections: Record "Report Selections" temporary; var CustomReportSelection: Record "Custom Report Selection"; var IsHandled: Boolean)
     begin
     end;
 

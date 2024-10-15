@@ -2877,35 +2877,36 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        DisableAggregateTableUpdate: Codeunit "Disable Aggregate Table Update";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        CustLedgerDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryYourReferenceUpdateTag()) then
             exit;
-
-        BindSubscription(DisableAggregateTableUpdate);
-        DisableAggregateTableUpdate.SetDisableAllRecords(true);
 
         SalesInvoiceHeader.SetLoadFields("Your Reference");
         SalesInvoiceHeader.SetFilter("Your Reference", '<>%1', '');
         if SalesInvoiceHeader.FindSet() then
             repeat
-                CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
-                CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
-                CustLedgerEntry.ModifyAll("Your Reference", SalesInvoiceHeader."Your Reference");
+                CustLedgerDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
+                CustLedgerDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Document Type"), '=%1', CustLedgerEntry."Document Type"::Invoice);
+                CustLedgerDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Document No."), '=%1', SalesInvoiceHeader."No.");
+                CustLedgerDataTransfer.AddConstantValue(SalesInvoiceHeader."Your Reference", CustLedgerEntry.FieldNo("Your Reference"));
+                CustLedgerDataTransfer.CopyFields();
+                Clear(CustLedgerDataTransfer);
             until SalesInvoiceHeader.Next() = 0;
 
         SalesCrMemoHeader.SetLoadFields("Your Reference");
         SalesCrMemoHeader.SetFilter("Your Reference", '<>%1', '');
         if SalesCrMemoHeader.FindSet() then
             repeat
-                CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::"Credit Memo");
-                CustLedgerEntry.SetRange("Document No.", SalesCrMemoHeader."No.");
-                CustLedgerEntry.ModifyAll("Your Reference", SalesCrMemoHeader."Your Reference");
+                CustLedgerDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
+                CustLedgerDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Document Type"), '=%1', CustLedgerEntry."Document Type"::"Credit Memo");
+                CustLedgerDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Document No."), '=%1', SalesCrMemoHeader."No.");
+                CustLedgerDataTransfer.AddConstantValue(SalesCrMemoHeader."Your Reference", CustLedgerEntry.FieldNo("Your Reference"));
+                CustLedgerDataTransfer.CopyFields();
+                Clear(CustLedgerDataTransfer);
             until SalesCrMemoHeader.Next() = 0;
-
-        UnbindSubscription(DisableAggregateTableUpdate);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryYourReferenceUpdateTag());
     end;

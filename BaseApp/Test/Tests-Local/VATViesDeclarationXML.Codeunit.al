@@ -190,6 +190,7 @@ codeunit 142077 "VAT - Vies Declaration XML"
             Init();
             "Entry No." := EntryNo + 1;
             "Posting Date" := PostingDate;
+            "VAT Reporting Date" := PostingDate;
             "Document No." := Format("Entry No.");
             "Document Type" := "Document Type"::Invoice;
             Type := Type::Sale;
