@@ -106,7 +106,7 @@ codeunit 10140 "Deposit-Post"
                 GenJnlLine."Source No." := "Bank Account No.";
                 GenJnlLine."Source Currency Code" := "Currency Code";
                 GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
-                OnBeforePostGenJnlLine(GenJnlLine, Rec);
+                OnBeforePostGenJnlLine(GenJnlLine, Rec, GenJnlPostLine);
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine);
 
                 PostedDepositLine.Get("No.", CurrLineNo);
@@ -162,6 +162,7 @@ codeunit 10140 "Deposit-Post"
         GenJnlLine.Reset();
         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
+        OnRunOnBeforeGenJnlLineDeleteAll(Rec, PostedDepositLine, GenJnlLine);
         GenJnlLine.DeleteAll();
         GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         if IncStr("Journal Batch Name") <> '' then begin
@@ -296,8 +297,9 @@ codeunit 10140 "Deposit-Post"
             "Source Currency Amount" := DepositHeader."Total Deposit Amount";
             Validate(Amount);
             "Amount (LCY)" := -TotalAmountLCY;
-            OnBeforePostBalancingEntry(GenJnlLine, DepositHeader);
+            OnBeforePostBalancingEntry(GenJnlLine, DepositHeader, GenJnlPostLine);
             GenJnlPostLine.RunWithCheck(GenJnlLine);
+            OnAfterPostBalancingEntry(GenJnlLine);
         end;
     end;
 
@@ -312,17 +314,22 @@ codeunit 10140 "Deposit-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDepositPost(var DepositHeader: Record "Deposit Header")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; DepositHeader: Record "Deposit Header")
+    local procedure OnBeforePostBalancingEntry(var GenJnlLine: Record "Gen. Journal Line"; DepositHeader: Record "Deposit Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DepositHeader: Record "Deposit Header")
+    local procedure OnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; DepositHeader: Record "Deposit Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
@@ -338,6 +345,11 @@ codeunit 10140 "Deposit-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedDepositLineModify(var PostedDepositLine: Record "Posted Deposit Line"; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGenJnlLineDeleteAll(var DepositHeader: Record "Deposit Header"; var PostedDepositLine: Record "Posted Deposit Line"; var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

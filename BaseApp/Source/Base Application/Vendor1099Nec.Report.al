@@ -22,6 +22,9 @@ report 10117 "Vendor 1099 Nec"
             column(GetAmtNEC01; IRS1099Management.GetAmtByCode(Codes, Amounts, LastLineNo, 'NEC-01', RunTestPrint))
             {
             }
+            column(GetAmtNEC04; IRS1099Management.GetAmtByCode(Codes, Amounts, LastLineNo, 'NEC-04', RunTestPrint))
+            {
+            }
             column(CompanyAddress2; CompanyAddress[2])
             {
             }
@@ -131,7 +134,8 @@ report 10117 "Vendor 1099 Nec"
                 Clear(Codes);
                 Clear(LastLineNo);
                 Codes[1] := 'NEC-01';
-                LastLineNo := 1;
+                Codes[4] := 'NEC-04';
+                LastLineNo := 4;
 
                 // Initialize Company Address. As side effect, will read CompanyInfo record
                 IRS1099Management.FormatCompanyAddress(CompanyAddress, CompanyInfo, RunTestPrint);
@@ -191,7 +195,7 @@ report 10117 "Vendor 1099 Nec"
 
     trigger OnInitReport()
     begin
-        IRS1099Management.ThrowErrorfUpgrade2020Needed();
+        IRS1099Management.ThrowErrorfUpgrade2020FebruaryNeeded();
     end;
 
     var

@@ -221,6 +221,7 @@ page 10016 "Vendor 1099 Statistics"
         with TempAppliedEntry do begin
             SetFilter("Document Type", '%1|%2', "Document Type"::Invoice, "Document Type"::"Credit Memo");
             SetFilter("IRS 1099 Amount", '<>0');
+            OnProcessInvoicesOnAfterTempAppliedEntrySetFilters(TempAppliedEntry, PaymentEntry);
             if Find('-') then
                 repeat
                     Calculate1099Amount("Amount to Apply");
@@ -304,6 +305,11 @@ page 10016 "Vendor 1099 Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateVendor1099OnAfterSetFilters(var PaymentEntry: Record "Vendor Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProcessInvoicesOnAfterTempAppliedEntrySetFilters(var TempAppliedEntry: Record "Vendor Ledger Entry" temporary; var PaymentEntry: Record "Vendor Ledger Entry")
     begin
     end;
 }

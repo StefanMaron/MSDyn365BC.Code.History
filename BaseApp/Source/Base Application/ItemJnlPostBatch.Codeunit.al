@@ -60,6 +60,7 @@ codeunit 23 "Item Jnl.-Post Batch"
         WhseTransaction: Boolean;
         PhysInvtCount: Boolean;
         SuppressCommit: Boolean;
+        WindowIsOpen: Boolean;
 
     local procedure "Code"()
     var
@@ -95,19 +96,7 @@ codeunit 23 "Item Jnl.-Post Batch"
 
             CheckItemAvailability(ItemJnlLine);
 
-            if ItemJnlTemplate.Recurring then
-                Window.Open(
-                  Text001 +
-                  Text002 +
-                  Text003 +
-                  Text004)
-            else
-                Window.Open(
-                  Text001 +
-                  Text002 +
-                  Text005);
-
-            Window.Update(1, "Journal Batch Name");
+            OpenProgressDialog();
 
             CheckLines(ItemJnlLine);
 
@@ -176,7 +165,8 @@ codeunit 23 "Item Jnl.-Post Batch"
 
             OnAfterPostJnlLines(ItemJnlBatch, ItemJnlLine, ItemRegNo, WhseRegNo);
 
-            Window.Close;
+            if WindowIsOpen then
+                Window.Close;
             if not SuppressCommit then
                 Commit();
             Clear(ItemJnlCheckLine);
@@ -193,6 +183,31 @@ codeunit 23 "Item Jnl.-Post Batch"
             Commit();
     end;
 
+    local procedure OpenProgressDialog()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeOpenProgressDialog(ItemJnlLine, Window, WindowIsOpen, IsHandled);
+        if IsHandled then
+            exit;
+
+        if ItemJnlTemplate.Recurring then
+            Window.Open(
+              Text001 +
+              Text002 +
+              Text003 +
+              Text004)
+        else
+            Window.Open(
+              Text001 +
+              Text002 +
+              Text005);
+
+        Window.Update(1, ItemJnlLine."Journal Batch Name");
+        WindowIsOpen := true;
+    end;
+
     local procedure CheckLines(var ItemJnlLine: Record "Item Journal Line")
     begin
         OnBeforeCheckLines(ItemJnlLine);
@@ -202,7 +217,8 @@ codeunit 23 "Item Jnl.-Post Batch"
             StartLineNo := "Line No.";
             repeat
                 LineCount := LineCount + 1;
-                Window.Update(2, LineCount);
+                if WindowIsOpen then
+                    Window.Update(2, LineCount);
                 CheckRecurringLine(ItemJnlLine);
 
                 if (("Value Entry Type" = "Value Entry Type"::"Direct Cost") and ("Item Charge No." = '')) or
@@ -266,8 +282,10 @@ codeunit 23 "Item Jnl.-Post Batch"
                        (("Invoiced Quantity" <> 0) and (Amount <> 0))
                     then begin
                         LineCount := LineCount + 1;
-                        Window.Update(3, LineCount);
-                        Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                        if WindowIsOpen then begin
+                            Window.Update(3, LineCount);
+                            Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+                        end;
                         OriginalQuantity := Quantity;
                         OriginalQuantityBase := "Quantity (Base)";
                         if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
@@ -309,9 +327,12 @@ codeunit 23 "Item Jnl.-Post Batch"
         ItemJnlLine2.CopyFilters(ItemJnlLine);
         ItemJnlLine2.FindSet;
         repeat
+            OnHandleRecurringLineOnBeforeItemJnlLine2Loop(ItemJnlLine, ItemJnlLine2);
             LineCount := LineCount + 1;
-            Window.Update(5, LineCount);
-            Window.Update(6, Round(LineCount / NoOfRecords * 10000, 1));
+            if WindowIsOpen then begin
+                Window.Update(5, LineCount);
+                Window.Update(6, Round(LineCount / NoOfRecords * 10000, 1));
+            end;
             if ItemJnlLine2."Posting Date" <> 0D then
                 ItemJnlLine2.Validate("Posting Date", CalcDate(ItemJnlLine2."Recurring Frequency", ItemJnlLine2."Posting Date"));
             if (ItemJnlLine2."Recurring Method" = ItemJnlLine2."Recurring Method"::Variable) and
@@ -346,6 +367,7 @@ codeunit 23 "Item Jnl.-Post Batch"
             ItemJnlLine2."Entry Type" := OldEntryType;
 
             ItemJnlLine3.Copy(ItemJnlLine);
+            OnHandleNonRecurringLineOnAfterCopyItemJnlLine3(ItemJnlLine, ItemJnlLine3);
             ItemJnlLine3.DeleteAll();
             ItemJnlLine3.Reset();
             ItemJnlLine3.SetRange("Journal Template Name", "Journal Template Name");
@@ -474,8 +496,10 @@ codeunit 23 "Item Jnl.-Post Batch"
         RemQuantity := ItemJnlLine.Quantity;
         if ItemJnlLine.Amount <> 0 then begin
             LineCount := LineCount + 1;
-            Window.Update(3, LineCount);
-            Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+            if WindowIsOpen then begin
+                Window.Update(3, LineCount);
+                Window.Update(4, Round(LineCount / NoOfRecords * 10000, 1));
+            end;
             with ItemLedgEntry4 do begin
                 Item.Get(ItemJnlLine4."Item No.");
                 OnItemJnlPostSumLineOnAfterGetItem(Item, ItemJnlLine4);
@@ -952,6 +976,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenProgressDialog(var ItemJnlLine: Record "Item Journal Line"; var Window: Dialog; var WindowIsOpen: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLines(ItemJnlLine: Record "Item Journal Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; ItemJnlTemplateType: Enum "Item Journal Template Type"; ToTransfer: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1048,6 +1077,11 @@ codeunit 23 "Item Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnHandleRecurringLineOnBeforeItemJnlLine2Loop(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlLine2: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertTempSKU(var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; ItemJournalLine: Record "Item Journal Line");
     begin
     end;
@@ -1064,6 +1098,11 @@ codeunit 23 "Item Jnl.-Post Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleNonRecurringLineOnBeforeSetItemJnlBatchName(ItemJnlTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleNonRecurringLineOnAfterCopyItemJnlLine3(var ItemJournalLine: Record "Item Journal Line"; var ItemJournalLine3: Record "Item Journal Line")
     begin
     end;
 }

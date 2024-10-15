@@ -23,6 +23,7 @@ codeunit 134101 "ERM Prepayment II"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJob: Codeunit "Library - Job";
+        LibraryERMTax: Codeunit "Library - ERM Tax";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         isInitialized: Boolean;
         ValidationErr: Label '%1 must be %2.', Comment = '.';
@@ -1147,6 +1148,35 @@ codeunit 134101 "ERM Prepayment II"
         // [THEN] Error Messages list shows one error: "Tax Group Code must have a value", Context = <blank>
         Assert.ExpectedMessage(MissingTaxGroupCodeErr, ErrorMessagesPage.Description.Value);
         ErrorMessagesPage.Context.AssertEquals('');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchasePrepmtWithEmptyTaxGroupCodeThrowsError()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 380507] Posting prepayment with missing Tax Group code throws an error
+        Initialize();
+
+        // [GIVEN] Purchase Order with prepayment setup and Tax Area Code
+        CreatePurchaseOrderWithPrepaymentVAT(PurchaseHeader, PurchaseLine, LibraryRandom.RandDecInRange(1, 99, 1));
+        PurchaseHeader.Validate("Tax Area Code", LibraryERMTax.CreateTaxArea_US());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Purchase line on the order has Area Code, but Tax Group Code is empty
+        LibraryPurchase.CreatePurchaseLineSimple(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate("Tax Area Code", PurchaseHeader."Tax Area Code");
+        PurchaseLine.Validate("Tax Group Code", '');
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post Prepayment Invoice
+        asserterror LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Error shows up "Tax Group Code must have a value"
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(MissingTaxGroupCodeErr);
     end;
 
     [Test]

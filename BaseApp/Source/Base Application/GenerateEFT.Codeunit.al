@@ -10,13 +10,17 @@ codeunit 10098 "Generate EFT"
         DummyLastEFTExportWorkset: Record "EFT Export Workset";
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
         DataCompression: Codeunit "Data Compression";
+        #if not CLEAN17
         FileManagement: Codeunit "File Management";
+        #endif
         ExportPaymentsACH: Codeunit "Export Payments (ACH)";
         ACHFileCreated: Boolean;
         IATFileCreated: Boolean;
-        SaveFolderMsg: Label 'Select a folder to save reports to.';
         Path: Text;
+        #if not CLEAN17
+        SaveFolderMsg: Label 'Select a folder to save reports to.';
         SelectAFolderMsg: Label 'A folder needs to be selected.';
+        #endif
         NothingToExportErr: Label 'There is nothing to export.';
         ProcessOrderNo: Integer;
         GeneratingFileMsg: Label 'The electronic funds transfer file is now being generated.';
@@ -35,6 +39,7 @@ codeunit 10098 "Generate EFT"
         ACHFileCreated := false;
         IATFileCreated := false;
 
+#if not CLEAN17
         if FileManagement.IsLocalFileSystemAccessible then
             if not IsTestMode then begin
                 FileManagement.SelectFolderDialog(SaveFolderMsg, Path);
@@ -43,6 +48,7 @@ codeunit 10098 "Generate EFT"
                     exit;
                 end;
             end;
+#endif
 
         Window.Open(GeneratingFileMsg);
 
@@ -125,11 +131,13 @@ codeunit 10098 "Generate EFT"
         end;
     end;
 
+#if not CLEAN17
     local procedure IsTestMode() TestMode: Boolean
     begin
         // Check to see if the test mode flag is set (usually via test codeunits by subscribing to OnIsTestMode event)
         OnIsTestMode(TestMode);
     end;
+    #endif
 
     [Scope('OnPrem')]
     procedure SetSavePath(SavePath: Text)
@@ -226,9 +234,12 @@ codeunit 10098 "Generate EFT"
     begin
     end;
 
+#if not CLEAN17
     [IntegrationEvent(false, false)]
+    [Obsolete('Event was no longer being called.', '17.4')]
     local procedure OnIsTestMode(var TestMode: Boolean)
     begin
     end;
+#endif
 }
 

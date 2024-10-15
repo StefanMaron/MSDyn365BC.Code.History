@@ -51,6 +51,7 @@ codeunit 10085 "A/P Magnetic Media Management"
         Codes[3, 13] := 'INT-13';
 
         Codes[4, 1] := 'NEC-01';
+        Codes[4, 4] := 'NEC-04';
     end;
 
     var

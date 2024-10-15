@@ -93,6 +93,7 @@
         VendLedgEntry: Record "Vendor Ledger Entry";
         TempPurchLines: Record "Purchase Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -266,10 +267,17 @@
 
             UpdatePostedPurchaseDocument(DocumentType, GenJnlLineDocNo);
 
+            VendLedgEntry.FindLast();
+            VendLedgEntry.CalcFields(Amount);
+            If PurchHeader."Document Type" = PurchHeader."Document Type"::Order then begin
+                PurchLine.CalcSums("Amount Including VAT");
+                PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
+                    PurchLine."Amount Including VAT", VendLedgEntry.Amount, PurchHeader."Currency Code", PurchSetup."Invoice Rounding");
+            end;
+
             // Balancing account
             if "Bal. Account No." <> '' then begin
                 Window.Update(5, 1);
-                VendLedgEntry.FindLast;
                 PostBalancingEntry(
                   PurchHeader, TotalPrepmtInvLineBuffer, TotalPrepmtInvLineBufferLCY, VendLedgEntry, DocumentType,
                   GenJnlLineDocType, GenJnlLineDocNo, GenJnlLineExtDocNo, SrcCode, PostingNoSeriesCode);
@@ -307,6 +315,7 @@
             TestField("Document Date");
             if GenJnlCheckLine.DateNotAllowed("Posting Date") then
                 FieldError("Posting Date", Text000);
+            CheckTaxGroupCodeOnLines(PurchHeader);
 
             if not CheckOpenPrepaymentLines(PurchHeader, DocumentType) then
                 Error(Text001);
@@ -375,13 +384,25 @@
                 repeat
                     if not Found then
                         Found := PrepmtAmount(PurchLine, DocumentType, PurchHeader."Prepmt. Include Tax") <> 0;
-                    if ("Prepayment VAT Identifier" = '') and ("Prepmt. Amt. Inv." = 0) then begin
+                    if "Prepmt. Amt. Inv." = 0 then begin
                         UpdatePrepmtSetupFields;
-                        Modify;
+                        Modify();
                     end;
                 until Next = 0;
         end;
         exit(Found);
+    end;
+
+    local procedure CheckTaxGroupCodeOnLines(PurchaseHeader: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetFilter("Tax Area Code", '<>%1', '');
+        PurchaseLine.SetRange("Tax Group Code", '');
+        if PurchaseLine.FindFirst() then
+            PurchaseLine.TestField("Tax Group Code");
     end;
 
     local procedure RoundAmounts(PurchHeader: Record "Purchase Header"; var PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer"; var TotalPrepmtInvLineBufLCY: Record "Prepayment Inv. Line Buffer")
@@ -1159,7 +1180,6 @@
 
             Amount := TotalPrepmtInvLineBuffer."Amount Incl. VAT" + VendLedgEntry."Remaining Pmt. Disc. Possible";
             "Source Currency Amount" := Amount;
-            VendLedgEntry.CalcFields(Amount);
             if VendLedgEntry.Amount = 0 then
                 "Amount (LCY)" := TotalPrepmtInvLineBufferLCY."Amount Incl. VAT"
             else

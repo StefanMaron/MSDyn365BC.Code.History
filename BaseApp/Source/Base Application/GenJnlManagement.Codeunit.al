@@ -20,6 +20,7 @@
 
     procedure TemplateSelection(PageID: Integer; PageTemplate: Enum "Gen. Journal Template Type"; RecurringJnl: Boolean; var GenJnlLine: Record "Gen. Journal Line"; var JnlSelected: Boolean)
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlTemplate: Record "Gen. Journal Template";
         GenJnlTemplateType: Option;
     begin
@@ -52,6 +53,7 @@
 
     procedure TemplateSelectionFromBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlTemplate: Record "Gen. Journal Template";
     begin
         OpenFromBatch := true;
@@ -64,6 +66,7 @@
 
     local procedure OpenJournalPageFromBatch(var GenJnlBatch: Record "Gen. Journal Batch"; GenJnlTemplate: Record "Gen. Journal Template")
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
         IsHandled: Boolean;
     begin
@@ -96,7 +99,9 @@
 
     procedure OpenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlTemplate: Record "Gen. Journal Template";
+        [SecurityFiltering(SecurityFilter::Filtered)]
         GenJnlLine: Record "Gen. Journal Line";
         JnlSelected: Boolean;
     begin
@@ -363,6 +368,7 @@
 
     procedure CalcBalance(var GenJnlLine: Record "Gen. Journal Line"; LastGenJnlLine: Record "Gen. Journal Line"; var Balance: Decimal; var TotalBalance: Decimal; var ShowBalance: Boolean; var ShowTotalBalance: Boolean)
     var
+        [SecurityFiltering(SecurityFilter::Filtered)]
         TempGenJnlLine: Record "Gen. Journal Line";
     begin
         TempGenJnlLine.CopyFilters(GenJnlLine);
