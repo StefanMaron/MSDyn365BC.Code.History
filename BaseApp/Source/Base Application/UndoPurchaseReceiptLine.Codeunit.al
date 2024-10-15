@@ -154,7 +154,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPurchRcptLine(PurchRcptLine, IsHandled);
+        OnBeforeCheckPurchRcptLine(PurchRcptLine, IsHandled, TempItemLedgEntry);
         if IsHandled then
             exit;
 
@@ -403,7 +403,13 @@ codeunit 5813 "Undo Purchase Receipt Line"
     procedure UpdateBlanketOrder(PurchRcptLine: Record "Purch. Rcpt. Line")
     var
         BlanketOrderPurchaseLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateBlanketOrder(PurchRcptLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchRcptLine do
             if BlanketOrderPurchaseLine.Get(
                  BlanketOrderPurchaseLine."Document Type"::"Blanket Order", "Blanket Order No.", "Blanket Order Line No.")
@@ -553,7 +559,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPurchRcptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean; var TempItemLedgerEntry: Record "Item Ledger Entry" temporary)
     begin
     end;
 
@@ -594,6 +600,11 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReapplyJobConsumptionFromApplyToEntryList(PurchRcptHeader: Record "Purch. Rcpt. Header"; PurchRcptLine: Record "Purch. Rcpt. Line"; ItemJnlLine: Record "Item Journal Line"; var TempApplyToEntryList: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateBlanketOrder(var PurchRcptLine: Record "Purch. Rcpt. Line"; var IsHandled: Boolean)
     begin
     end;
 

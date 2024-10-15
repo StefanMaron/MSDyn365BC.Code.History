@@ -2781,6 +2781,168 @@ codeunit 134976 "ERM Sales Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler,StandardSalesQuoteRequestPageHandler,StdSalesCrMemoRequestPageHandler,StandardSalesOrderConfRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceCurrDataSalesHeaderCurrency()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCreditMemoHeader: Record "Sales Cr.Memo Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Currency: Record Currency;
+        Customer: Record Customer;
+    begin
+
+        // [SCENARIO 424803] 
+        Initialize();
+
+        // [GIVEN] Currency with Code "Curr" and currency symbol = "$"
+        Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates());
+        Currency.Validate(Symbol, Format(LibraryRandom.RandIntInRange(1, 9)));
+        Currency.Modify();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify();
+        // [GIVEN] Posted Sales Invoice with Currency "Curr"
+        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, Customer."No.");
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Export report "Standard Sales - Invoice" to XML file
+        RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencySymbol', Currency.Symbol);
+
+        // [GIVEN] Posted Sales Credit Memo with Currency "Curr"
+        CreateSalesCreditMemoWithLine(SalesHeader, SalesLine, Customer."No.");
+        SalesCreditMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Export report "Standard Sales - Credit Memo" to XML file
+        RunStandardSalesCreditMemoReport(SalesCreditMemoHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencySymbol', Currency.Symbol);
+
+        // [GIVEN] Posted Sales Quote with Currency "Curr"
+        CreateSalesQuoteWithLine(SalesHeader, SalesLine, Customer."No.");
+
+        // [WHEN] Export report "Standard Sales - Quote" to XML file
+        RunStandardSalesQuoteReport(SalesHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencySymbol', Currency.Symbol);
+
+        // [GIVEN] Sales Order with Currency "Curr"
+        CreateSalesOrder(SalesHeader, SalesLine, Currency.Code, Customer."No.");
+
+        // [WHEN] Export report "Standard Sales - Order Conf." to XML file
+        RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencyCode', Currency.Code);
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists('CurrencySymbol', Currency.Symbol);
+    end;
+
+    [Test]
+    [HandlerFunctions('StandardSalesInvoiceRequestPageHandler,StandardSalesQuoteRequestPageHandler,StdSalesCrMemoRequestPageHandler,StandardSalesOrderConfRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure StandardSalesInvoiceCurrDataGLSetup()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+    begin
+
+        // [SCENARIO 424803] 
+        Initialize();
+
+        // [GIVEN] General Ledger Setup "LCY Code" = "Curr", "Local Currency Symbol" = "$"
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup.Validate("LCY Code", 'Curr');
+        GeneralLedgerSetup.Validate("Local Currency Symbol", '$');
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Posted Sales Invoice with Currency "Curr"
+        CreateSalesInvoiceWithLine(SalesHeader, SalesLine, CreateCustomer());
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Export report "Standard Sales - Invoice" to XML file
+        RunStandardSalesInvoiceReport(SalesInvoiceHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencyCode', GeneralLedgerSetup."LCY Code");
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencySymbol', GeneralLedgerSetup."Local Currency Symbol");
+
+        // [GIVEN] Posted Sales Credit Memo with Currency "Curr"
+        CreateSalesCreditMemoWithLine(SalesHeader, SalesLine, SalesHeader."Sell-to Customer No.");
+        SalesCrMemoHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [WHEN] Export report "Standard Sales - Credit Memo" to XML file
+        RunStandardSalesCreditMemoReport(SalesCrMemoHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencyCode', GeneralLedgerSetup."LCY Code");
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencySymbol', GeneralLedgerSetup."Local Currency Symbol");
+
+        // [GIVEN] Posted Sales Quote with Currency "Curr"
+        CreateSalesQuoteWithLine(SalesHeader, SalesLine, SalesCrMemoHeader."Sell-to Customer No.");
+
+        // [WHEN] Export report "Standard Sales - Quote" to XML file
+        RunStandardSalesQuoteReport(SalesHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencyCode', GeneralLedgerSetup."LCY Code");
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencySymbol', GeneralLedgerSetup."Local Currency Symbol");
+
+        // [GIVEN] Sales Order with Currency "Curr"
+        CreateSalesOrder(SalesHeader, SalesLine, '', SalesCrMemoHeader."Sell-to Customer No.");
+
+        // [WHEN] Export report "Standard Sales - Order Conf." to XML file
+        RunStandardSalesOrderConfirmationReport(SalesHeader."No.");
+        LibraryReportDataset.LoadDataSetFile;
+
+        // [THEN] Value "Curr" is displayed under tag <CurrencyCode> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencyCode', GeneralLedgerSetup."LCY Code");
+
+        // [THEN] Value "$" is displayed under tag <CurrencySymbol> in export XML file
+        LibraryReportDataset.AssertElementTagWithValueExists(
+            'CurrencySymbol', GeneralLedgerSetup."Local Currency Symbol");
+    end;
+
     local procedure Initialize()
     begin
         LibraryApplicationArea.DisableApplicationAreaSetup();
@@ -3730,6 +3892,24 @@ codeunit 134976 "ERM Sales Report"
         Commit();
         SalesInvoiceHeader.SetRange("No.", PostedSalesInvoiceNo);
         REPORT.Run(REPORT::"Standard Sales - Invoice", true, false, SalesInvoiceHeader);
+    end;
+
+    local procedure RunStandardSalesCreditMemoReport(PostedSalesCrMemoNo: Code[20])
+    var
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+    begin
+        Commit();
+        SalesCrMemoHeader.SetRange("No.", PostedSalesCrMemoNo);
+        REPORT.Run(REPORT::"Standard Sales - Credit Memo", true, false, SalesCrMemoHeader);
+    end;
+
+    local procedure RunStandardSalesQuoteReport(SalesQuoteNo: Code[20])
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        Commit();
+        SalesHeader.SetRange("No.", SalesQuoteNo);
+        REPORT.Run(REPORT::"Standard Sales - Quote", true, false, SalesHeader);
     end;
 
     local procedure RunDtldCustTrialBalanceReportWithDateFilter(CustNo: Code[20])

@@ -543,7 +543,7 @@ page 5097 "Create Task"
                 ClearDefaultAttendeeInfo;
                 CurrPage.AttendeeSubform.PAGE.GetAttendee(AttendeeTemp);
                 SetAttendee(AttendeeTemp);
-                SalespersonCodeEnable := false;
+                SalespersonCodeEnable := not "Team To-do";
                 WizardContactNameEnable := true;
             end;
         IsMeeting := (Type = Type::Meeting);
@@ -584,10 +584,16 @@ page 5097 "Create Task"
 
         CheckStatus;
         FinishWizard(false);
+        OnAfterFinishPage(Rec);
     end;
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterEnableFields(var Task: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFinishPage(var Task: Record "To-do")
     begin
     end;
 }

@@ -319,16 +319,7 @@ table 5964 "Service Contract Line"
 
                 TestField(Credited, false);
 
-                if "Credit Memo Date" <> 0D then begin
-                    if "Credit Memo Date" > "Contract Expiration Date" then
-                        Error(
-                          Text008,
-                          FieldCaption("Credit Memo Date"), FieldCaption("Contract Expiration Date"));
-                end;
-
-                if "Credit Memo Date" <> xRec."Credit Memo Date" then
-                    if "Credit Memo Date" = 0D then
-                        Error(Text018, FieldCaption("Credit Memo Date"));
+                CheckCreditMemoDate();
             end;
         }
         field(20; "Contract Expiration Date"; Date)
@@ -873,6 +864,27 @@ table 5964 "Service Contract Line"
         end;
     end;
 
+    local procedure CheckCreditMemoDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckCreditMemoDate(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Credit Memo Date" <> 0D then begin
+            if "Credit Memo Date" > "Contract Expiration Date" then
+                Error(
+                  Text008,
+                  FieldCaption("Credit Memo Date"), FieldCaption("Contract Expiration Date"));
+        end;
+
+        if "Credit Memo Date" <> xRec."Credit Memo Date" then
+            if "Credit Memo Date" = 0D then
+                Error(Text018, FieldCaption("Credit Memo Date"));
+    end;
+
     procedure GetStatusCheckSuspended(): Boolean
     begin
         exit(StatusCheckSuspended);
@@ -1008,6 +1020,8 @@ table 5964 "Service Contract Line"
               "Contract No.", 1, FieldCaption("Service Item No."), 0,
               Format(ServContractLine2."Service Item No."), Format("Service Item No."),
               ServContractLine2."Service Item No.", "Line No.");
+
+        OnAfterLogContractLineChanges(Rec, ServContractLine2);
     end;
 
     [IntegrationEvent(true, false)]
@@ -1017,6 +1031,11 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetServiceItem(ServiceContractLine: Record "Service Contract Line"; var ServiceItem: Record "Service Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLogContractLineChanges(var ServiceContractLine: Record "Service Contract Line"; xServiceContractLine: Record "Service Contract Line")
     begin
     end;
 
@@ -1032,6 +1051,11 @@ table 5964 "Service Contract Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckServContractHeader(ServContractHeader: Record "Service Contract Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckCreditMemoDate(var ServiceContractLine: Record "Service Contract Line"; xServiceContractLine: Record "Service Contract Line"; var IsHandled: Boolean)
     begin
     end;
 

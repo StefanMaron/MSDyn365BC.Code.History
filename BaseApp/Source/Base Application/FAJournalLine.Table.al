@@ -228,8 +228,7 @@ table 5621 "FA Journal Line"
 
             trigger OnValidate()
             begin
-                if "Insurance No." <> '' then
-                    TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
+                CheckInsuranceFAPostingType();
             end;
         }
         field(31; "Budgeted FA No."; Code[20])
@@ -489,7 +488,7 @@ table 5621 "FA Journal Line"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Journal Template Name", "Journal Batch Name", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
 
         OnAfterShowDimensions(Rec);
@@ -519,6 +518,19 @@ table 5621 "FA Journal Line"
     begin
         InitDefaultDimensionSources(DefaultDimSource);
         CreateDim(DefaultDimSource);
+    end;
+
+    local procedure CheckInsuranceFAPostingType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInsuranceFAPostingType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Insurance No." <> '' then
+            TestField("FA Posting Type", "FA Posting Type"::"Acquisition Cost");
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
@@ -599,6 +611,11 @@ table 5621 "FA Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(var FAJournalLine: Record "FA Journal Line"; var xFAJournalLine: Record "FA Journal Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInsuranceFAPostingType(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

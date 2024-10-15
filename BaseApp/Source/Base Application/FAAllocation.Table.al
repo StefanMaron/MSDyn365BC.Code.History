@@ -144,7 +144,7 @@ table 5615 "FA Allocation"
     begin
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet(
-            "Dimension Set ID", StrSubstNo('%1 %2 %3', Code, "Allocation Type", "Line No."),
+            Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', Code, "Allocation Type", "Line No."),
             "Global Dimension 1 Code", "Global Dimension 2 Code");
 
         OnAfterShowDimensions(Rec);

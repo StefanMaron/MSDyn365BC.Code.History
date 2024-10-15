@@ -148,6 +148,8 @@ table 5645 "FA Date Type"
                     end;
             until Next() = 0;
         end;
+
+        OnAfterCreateTypes(Rec);
     end;
 
     local procedure InsertRec(FAEntryNo: Integer; FADateTypeNo: Integer; FADateTypeName: Text[80])
@@ -156,6 +158,11 @@ table 5645 "FA Date Type"
         "FA Date Type No." := FADateTypeNo;
         "FA Date Type Name" := CopyStr(FADateTypeName, 1, MaxStrLen("FA Date Type Name"));
         Insert;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateTypes(var FADateType: Record "FA Date Type")
+    begin
     end;
 }
 

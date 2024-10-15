@@ -307,6 +307,58 @@ codeunit 136132 "Sales Stockout"
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
+    [Test]
+    [HandlerFunctions('SendAvailabilityNotificationHandler,ItemAvailabilityCheckModalPageHandler,RecallNotificationHandler')]
+    procedure VariantCodeIsTransferredFromSalesToPurchaseViaItemAvailCheckPage()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseLine: Record "Purchase Line";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        PurchaseOrder: TestPage "Purchase Order";
+        SalesOrderNo: Code[20];
+    begin
+        // [SCENARIO 426688] Variant Code and Unit of Measure Code are transferred from sales order to purchase order via Item Availability Check page.
+        Initialize();
+        SaleQuantity := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item "I" with vendor, Item Variant "V" and alternate unit of measure "UOM".
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+        LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Sales order for item "I", select item variant = "V", unit of measure code = "UOM", quantity = 0.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 0, '', WorkDate());
+        SalesLine.Validate("Variant Code", ItemVariant.Code);
+        SalesLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Update quantity on the sales line to 10.
+        // [GIVEN] Stockout notification is raised.
+        // [WHEN] Click on "Show Details" and then "Create Purchase Order" on the Item Availability Check page.
+        SalesOrderNo := SalesHeader."No.";
+        PurchaseOrder.Trap();
+        EditSalesOrderQuantity(SalesOrderNo, SaleQuantity);
+        PurchaseOrder.Close();
+
+        // [THEN] Purchase order has been created.
+        // [THEN] Item No. = "I", Variant Code = "V", Unit of Measure Code = "UOM", Quantity = 10 on the new purchase line.
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", Item."No.");
+        PurchaseLine.FindFirst();
+        PurchaseLine.TestField("Variant Code", ItemVariant.Code);
+        PurchaseLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.TestField(Quantity, SaleQuantity);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     [Normal]
     local procedure ClearGlobals()
     begin
@@ -598,6 +650,12 @@ codeunit 136132 "Sales Stockout"
         ItemAvailabilityCheck.AvailabilityCheckDetails.Description.AssertEquals(Item.Description);
         ItemAvailabilityCheck.AvailabilityCheckDetails.CurrentQuantity.AssertEquals(SaleQuantity);
         ItemAvailabilityCheck.InventoryQty.AssertEquals(Item.Inventory);
+    end;
+
+    [ModalPageHandler]
+    procedure ItemAvailabilityCheckModalPageHandler(var ItemAvailabilityCheck: TestPage "Item Availability Check")
+    begin
+        ItemAvailabilityCheck."Purchase Order".Invoke();
     end;
 }
 

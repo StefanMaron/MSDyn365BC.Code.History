@@ -639,6 +639,7 @@ page 554 "Analysis by Dimensions"
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
+        OnBeforeFindRecord(DimOption, DimVal);
         case DimOption of
             DimOption::"G/L Account":
                 begin
@@ -760,6 +761,7 @@ page 554 "Analysis by Dimensions"
         DimVal: Record "Dimension Value";
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
+        OnBeforeNextRecord(DimOption, DimVal);
         case DimOption of
             DimOption::"G/L Account":
                 begin
@@ -1298,6 +1300,16 @@ page 554 "Analysis by Dimensions"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDimCodeToDimOption(DimCode: Text[30]; var AnalysisView: Record "Analysis View"; var Result: Enum "Analysis Dimension Option"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextRecord(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindRecord(DimOption: Enum "Analysis Dimension Option"; var DimensionValue: Record "Dimension Value")
     begin
     end;
 

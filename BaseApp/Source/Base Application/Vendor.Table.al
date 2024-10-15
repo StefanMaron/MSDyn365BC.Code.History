@@ -1623,7 +1623,7 @@
         Text008: Label 'The %1 %2 has been assigned to %3 %4.\The same %1 cannot be entered on more than one %3.';
         Text009: Label 'Reconciling IC transactions may be difficult if you change IC Partner Code because this %1 has ledger entries in a fiscal year that has not yet been closed.\ Do you still want to change the IC Partner Code?';
         Text010: Label 'You cannot change the contents of the %1 field because this %2 has one or more open ledger entries.';
-        Text011: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
+        OnLineMapMustBeFilledMsg: Label 'To get a map with route directions, you must configure service in the Online Map Setup page.';
         SelectVendorErr: Label 'You must select an existing vendor.';
         CreateNewVendTxt: Label 'Create a new vendor card for %1.', Comment = '%1 is the name to be used to create the customer. ';
         VendNotRegisteredTxt: Label 'This vendor is not registered. To continue, choose one of the following options:';
@@ -1849,7 +1849,7 @@
         if OnLineMapSetup.FindFirst() then
             OnlineMapManagement.MakeSelection(DATABASE::Vendor, GetPosition)
         else
-            Message(Text011);
+            Message(OnLineMapMustBeFilledMsg);
     end;
 
     procedure CalcOverDueBalance() OverDueBalance: Decimal

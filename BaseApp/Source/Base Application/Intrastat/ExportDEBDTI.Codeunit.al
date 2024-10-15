@@ -13,6 +13,7 @@ codeunit 10821 "Export DEB DTI"
         Text001: Label 'There is nothing to export.';
         Text002: Label 'must be positive';
         Text003: Label 'must not start with zero';
+        BatchReportedErr: Label 'This batch is already marked as reported. If you want to export an XML file for another obligation level, clear the Reported field in the Intrastat journal batch %1.', Comment = '%1 - Intrastat Jnl. Batch Name';
 
     [Scope('OnPrem')]
     procedure ExportToXML(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ObligationLevel: Integer; FileOutStream: OutStream): Boolean
@@ -22,7 +23,7 @@ codeunit 10821 "Export DEB DTI"
         CompanyInfo.Get();
         CheckMandatoryCompanyInfo;
 
-        CheckJnlLines(IntrastatJnlLine);
+        CheckJnlLines(IntrastatJnlLine, ObligationLevel);
         InsertTempJnlLines(IntrastatJnlLine);
 
         LastDeclarationId := CompanyInfo."Last Intrastat Declaration ID";
@@ -48,7 +49,7 @@ codeunit 10821 "Export DEB DTI"
         CompanyInfo.Modify();
     end;
 
-    local procedure CheckJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure CheckJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ObligationLevel: Integer)
     begin
         if IntrastatJnlLine.IsEmpty() then
             Error(Text001);
@@ -59,7 +60,7 @@ codeunit 10821 "Export DEB DTI"
         IntrastatJnlLine.SetCurrentKey(Type);
         if IntrastatJnlLine.FindSet() then
             repeat
-                ValidateJnlLine(IntrastatJnlLine);
+                ValidateJnlLine(IntrastatJnlLine, ObligationLevel);
             until IntrastatJnlLine.Next() = 0;
     end;
 
@@ -69,10 +70,11 @@ codeunit 10821 "Export DEB DTI"
     begin
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField("Statistics Period");
-        IntrastatJnlBatch.TestField(Reported, false);
+        if IntrastatJnlBatch.Reported then
+            Error(BatchReportedErr, IntrastatJnlBatch.Name);
     end;
 
-    local procedure ValidateJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    local procedure ValidateJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ObligationLevel: Integer)
     var
         IsHandled: Boolean;
     begin
@@ -88,8 +90,9 @@ codeunit 10821 "Export DEB DTI"
         if not IsHandled then begin
             if IntrastatJnlLine."Statistical Value" <= 0 then
                 IntrastatJnlLine.FieldError("Statistical Value", Text002);
-            if IntrastatJnlLine.Quantity <= 0 then
-                IntrastatJnlLine.FieldError(Quantity, Text002);
+            if not IsTransactionSimple(ObligationLevel, IntrastatJnlLine."Transaction Specification") then
+                if IntrastatJnlLine.Quantity <= 0 then
+                    IntrastatJnlLine.FieldError(Quantity, Text002);
         end;
     end;
 
@@ -231,7 +234,7 @@ codeunit 10821 "Export DEB DTI"
             repeat
                 DeclarationId := DeclarationId + 1;
                 AddDeclaration(XMLNode, TempIntrastatJnlBatch, DeclarationId, ObligationLevel);
-                AddItems(XMLNode, TempIntrastatJnlBatch);
+                AddItems(XMLNode, TempIntrastatJnlBatch, ObligationLevel);
                 XMLNode := XMLNode.ParentNode;
             until TempIntrastatJnlBatch.Next() = 0;
     end;
@@ -251,7 +254,7 @@ codeunit 10821 "Export DEB DTI"
         XMLDomMgt.AddNode(XMLNode, 'currencyCode', 'EUR');
     end;
 
-    local procedure AddItems(var XMLNode: DotNet XmlNode; IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    local procedure AddItems(var XMLNode: DotNet XmlNode; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; ObligationLevel: Integer)
     var
         ItemNumberXML: Integer;
         IsHandled: Boolean;
@@ -268,7 +271,10 @@ codeunit 10821 "Export DEB DTI"
         if TempIntrastatJnlLine.FindSet() then
             repeat
                 ItemNumberXML += 1;
-                AddItem(XMLNode, TempIntrastatJnlLine, ItemNumberXML);
+                if IsTransactionSimple(ObligationLevel, TempIntrastatJnlLine."Transaction Specification") then
+                    AddItemSimple(XMLNode, TempIntrastatJnlLine, ItemNumberXML)
+                else
+                    AddItem(XMLNode, TempIntrastatJnlLine, ItemNumberXML);
                 XMLNode := XMLNode.ParentNode;
             until TempIntrastatJnlLine.Next() = 0;
     end;
@@ -322,11 +328,35 @@ codeunit 10821 "Export DEB DTI"
         OnAfterAddNode(XMLNode, XMLDomMgt, CompanyInfo);
     end;
 
+    local procedure AddItemSimple(var XMLNode: DotNet XmlNode; IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNumberXML: Integer)
+    begin
+        XMLDomMgt.AddGroupNode(XMLNode, 'Item');
+        // node's order is important
+        XMLDomMgt.AddNode(XMLNode, 'itemNumber', FormatExtendNumberToXML(ItemNumberXML, 6));
+        XMLDomMgt.AddNode(XMLNode, 'invoicedAmount', FormatToXML(IntrastatJnlLine."Statistical Value"));
+        if IntrastatJnlLine."Partner VAT ID" <> '' then
+            XMLDomMgt.AddNode(XMLNode, 'partnerId', IntrastatJnlLine."Partner VAT ID");
+        XMLDomMgt.AddNode(XMLNode, 'statisticalProcedureCode', IntrastatJnlLine."Transaction Specification");
+
+        OnAfterAddNode(XMLNode, XMLDomMgt, CompanyInfo);
+    end;
+
     local procedure FormatExtendNumberToXML(Value: Integer; Length: Integer): Text
     begin
         exit(
           Format(
             Value, 0, StrSubstNo('<Integer,%1><Filler Character,0>', Length)));
+    end;
+
+    local procedure IsTransactionSimple(ObligationLevel: Integer; TransactionSpecification: Code[10]): Boolean
+    begin
+        if ObligationLevel = 4 then
+            exit(true);
+
+        if (ObligationLevel = 5) and not (TransactionSpecification in ['21', '29']) then
+            exit(true);
+
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

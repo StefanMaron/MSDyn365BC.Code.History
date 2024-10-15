@@ -970,7 +970,7 @@
             part(SalesDocCheckFactbox; "Sales Doc. Check Factbox")
             {
                 ApplicationArea = All;
-                Caption = 'Check Document';
+                Caption = 'Document Check';
                 Visible = SalesDocCheckFactboxVisible;
                 SubPageLink = "No." = FIELD("No."),
                               "Document Type" = FIELD("Document Type");

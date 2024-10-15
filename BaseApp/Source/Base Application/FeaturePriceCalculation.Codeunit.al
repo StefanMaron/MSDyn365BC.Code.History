@@ -127,10 +127,9 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         CRMIntegrationRecord.SetFilter("Table ID", '%1|%2', Database::"Customer Price Group", Database::"Sales Price");
         if not CRMIntegrationRecord.IsEmpty() then
             CRMIntegrationRecord.DeleteAll();
-        if RemoveIntegrationTableMapping(Database::"Customer Price Group", Database::"CRM Pricelevel") or
-            RemoveIntegrationTableMapping(Database::"Sales Price", Database::"CRM ProductPricelevel")
-        then begin
-            CRMIntegrationManagement.IsCRMIntegrationEnabled();
+        if CRMIntegrationManagement.IsCRMIntegrationEnabled() then begin
+            RemoveIntegrationTableMapping(Database::"Customer Price Group", Database::"CRM Pricelevel");
+            RemoveIntegrationTableMapping(Database::"Sales Price", Database::"CRM ProductPricelevel");
             CRMSetupDefaults.ResetExtendedPriceListConfiguration();
             if CRMFullSyncReviewLine.Get('CUSTPRCGRP-PRICE') then
                 CRMFullSyncReviewLine.Delete();
@@ -252,7 +251,7 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         TempDocumentEntry.Insert();
     end;
 
-    local procedure RemoveIntegrationTableMapping(TableId: Integer; IntTableId: Integer) JobExisted: Boolean;
+    local procedure RemoveIntegrationTableMapping(TableId: Integer; IntTableId: Integer)
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         JobQueueEntry: Record "Job Queue Entry";
@@ -263,12 +262,10 @@ Codeunit 7049 "Feature - Price Calculation" implements "Feature Data Update"
         if IntegrationTableMapping.FindSet() then
             repeat
                 JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
-                if not JobQueueEntry.IsEmpty() then begin
-                    JobExisted := true;
+                if not JobQueueEntry.IsEmpty() then
                     JobQueueEntry.DeleteAll(true);
-                end;
                 IntegrationTableMapping.Delete(true);
-            until IntegrationTableMapping.next() = 0;
+            until IntegrationTableMapping.Next() = 0;
     end;
 
     local procedure CreateDefaultPriceLists()
