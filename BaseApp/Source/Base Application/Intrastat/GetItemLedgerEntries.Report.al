@@ -242,6 +242,7 @@
                     IntrastatJnlLine2.SetRange("Country/Region Code", IntrastatJnlLine."Country/Region Code");
                     IntrastatJnlLine2.SetRange("Tariff No.", IntrastatJnlLine."Tariff No.");
                     IntrastatJnlLine2.SetRange("Partner VAT ID", IntrastatJnlLine."Partner VAT ID");
+                    IntrastatJnlLine2.SetRange("Journal Batch Name", IntrastatJnlLine."Journal Batch Name");
                     Quantity := 0;
                     IndirectCost := 0;
                     TotalWeight := 0;
@@ -295,6 +296,8 @@
 
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
         IntrastatJnlBatch.TestField(Reported, false);
+
+        IntrastatJnlLine.DeleteAll();
 
         GetGLSetup();
         if IntrastatJnlBatch."Amounts in Add. Currency" then begin
@@ -581,13 +584,13 @@
                             exit(false);
                     end;
                 else begin
-                        if "Entry Type" = "Entry Type"::Purchase then
-                            if not CountryOfOrigin(CompanyInfo."Ship-to Country/Region Code") then
-                                exit(false);
-                        if "Entry Type" = "Entry Type"::Sale then
-                            if not CountryOfOrigin(CompanyInfo."Country/Region Code") then
-                                exit(false);
-                    end;
+                    if "Entry Type" = "Entry Type"::Purchase then
+                        if not CountryOfOrigin(CompanyInfo."Ship-to Country/Region Code") then
+                            exit(false);
+                    if "Entry Type" = "Entry Type"::Sale then
+                        if not CountryOfOrigin(CompanyInfo."Country/Region Code") then
+                            exit(false);
+                end;
             end;
         exit(true);
     end;
