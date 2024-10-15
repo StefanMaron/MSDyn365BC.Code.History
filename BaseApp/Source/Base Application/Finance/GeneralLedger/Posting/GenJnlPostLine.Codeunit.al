@@ -97,6 +97,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastDocNo: Code[20];
         VATBusPostingGroup: Code[20];
         VATProdPostingGroup: Code[20];
+        GenBusPostingGroup: Code[20];
+        GenProdPostingGroup: Code[20];
         FiscalYearStartDate: Date;
         CurrencyDate: Date;
         LastDate: Date;
@@ -3407,6 +3409,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         repeat
                             VATBusPostingGroup := VATEntry."VAT Bus. Posting Group";
                             VATProdPostingGroup := VATEntry."VAT Prod. Posting Group";
+                            GenBusPostingGroup := VATEntry."Gen. Bus. Posting Group";
+                            GenProdPostingGroup := VATEntry."Gen. Prod. Posting Group";
                             UnRealisedVATAmount := VATEntry."Remaining Unrealized Amount";
                             if UnRealisedVATAmount <> 0 then begin
                                 IsVATEntryFilter := true;
@@ -3937,7 +3941,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                    IsVATEntryFilter and
                    (VATEntry2."Remaining Unrealized Amount" <> 0) and
                    (VATPostingSetup."Unrealized VAT Type" = VATPostingSetup."Unrealized VAT Type"::"Cash Basis") then
-                    VATPart := Round(-UnRealisedVATAmount / VATEntry2."Remaining Unrealized Amount")
+                    VATPart := -UnRealisedVATAmount / VATEntry2."Remaining Unrealized Amount"
                 else
                     VATPart :=
                       VATEntry2.GetUnrealizedVATPart(
@@ -7763,12 +7767,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         VATEntry.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
         VATEntry.SetRange("VAT Prod. Posting Group", VATProdPostingGroup);
+        VATEntry.SetRange("Gen. Bus. Posting Group", GenBusPostingGroup);
+        VATEntry.SetRange("Gen. Prod. Posting Group", GenProdPostingGroup);
     end;
 
     local procedure ClearUnrealizedVATGlobalVariables()
     begin
         Clear(VATBusPostingGroup);
         Clear(VATProdPostingGroup);
+        Clear(GenBusPostingGroup);
+        Clear(GenProdPostingGroup);
         Clear(UnRealisedVATAmount);
     end;
 

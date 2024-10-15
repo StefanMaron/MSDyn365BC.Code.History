@@ -59,7 +59,9 @@ using System.Threading;
 using System.Utilities;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Manufacturing.WorkCenter;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 
 table 38 "Purchase Header"
 {
@@ -265,7 +267,9 @@ table 38 "Purchase Header"
                 "Language Code" := Vend."Language Code";
                 "Format Region" := Vend."Format Region";
                 SetPurchaserCode(Vend."Purchaser Code", "Purchaser Code");
+#if not CLEAN25
                 "IRS 1099 Code" := Vend."IRS 1099 Code";
+#endif
                 Validate("Payment Terms Code");
                 Validate("Prepmt. Payment Terms Code");
                 Validate("Payment Method Code");
@@ -2611,11 +2615,27 @@ table 38 "Purchase Header"
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
             Editable = false;
         }
         field(10042; "Fiscal Invoice Number PAC"; Text[50])
@@ -5824,6 +5844,28 @@ table 38 "Purchase Header"
             BatchConfirm::Update:
                 UpdatePurchLinesByFieldNo(PurchLine.FieldNo("Deferral Code"), false);
         end;
+        Commit();
+    end;
+
+    procedure BatchConfirmUpdatePostingDate(ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceDocDate: Boolean)
+    begin
+        if not ReplacePostingDate then
+            exit;
+        if (PostingDateReq = "Posting Date") then
+            exit;
+        if DeferralHeadersExist() then
+            exit;
+
+        if ReplacePostingDate then begin
+            "Posting Date" := PostingDateReq;
+            Validate("Currency Code");
+        end;
+
+        if ReplacePostingDate and ReplaceDocDate and ("Document Date" <> PostingDateReq) then begin
+            SetReplaceDocumentDate();
+            Validate("Document Date", PostingDateReq);
+        end;
+
         Commit();
     end;
 

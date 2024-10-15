@@ -1,3 +1,4 @@
+#if not CLEAN25
 codeunit 142055 "UT REP Vendor 1099"
 {
     // Validate feature Vendor 1099.
@@ -19,6 +20,9 @@ codeunit 142055 "UT REP Vendor 1099"
                   TableData "Detailed Vendor Ledg. Entry" = imd;
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     trigger OnRun()
     begin
@@ -2352,4 +2356,4 @@ codeunit 142055 "UT REP Vendor 1099"
         Vendor1099MagneticMedia.OK().Invoke();
     end;
 }
-
+#endif

@@ -65,7 +65,9 @@ using System.Automation;
 using System.IO;
 using System.DateTime;
 using System.Environment.Configuration;
+#if not CLEAN25
 using Microsoft.Finance.VAT.Reporting;
+#endif
 using System.Utilities;
 
 table 81 "Gen. Journal Line"
@@ -285,6 +287,7 @@ table 81 "Gen. Journal Line"
                 Vend: Record Vendor;
             begin
                 Validate("Payment Terms Code");
+#if not CLEAN25
                 if ("Document Type" = "Document Type"::" ") or
                    ("Document Type" = "Document Type"::Invoice) or
                    ("Document Type" = "Document Type"::"Credit Memo")
@@ -292,6 +295,7 @@ table 81 "Gen. Journal Line"
                     Validate("IRS 1099 Code")
                 else
                     "IRS 1099 Amount" := 0;
+#endif
                 if "Account No." <> '' then
                     case "Account Type" of
                         "Account Type"::Customer:
@@ -325,11 +329,6 @@ table 81 "Gen. Journal Line"
         field(7; "Document No."; Code[20])
         {
             Caption = 'Document No.';
-
-            trigger OnValidate()
-            begin
-                CheckOpenApprovalEntryExistForCurrentUser();
-            end;
         }
         field(8; Description; Text[100])
         {
@@ -3123,8 +3122,17 @@ table 81 "Gen. Journal Line"
         field(10020; "IRS 1099 Code"; Code[10])
         {
             Caption = 'IRS 1099 Code';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
             TableRelation = "IRS 1099 Form-Box";
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
 
+#if not CLEAN25
             trigger OnValidate()
             begin
                 if "IRS 1099 Code" <> '' then begin
@@ -3135,10 +3143,19 @@ table 81 "Gen. Journal Line"
                 end else
                     "IRS 1099 Amount" := 0;
             end;
+#endif
         }
         field(10021; "IRS 1099 Amount"; Decimal)
         {
             Caption = 'IRS 1099 Amount';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10030; "Foreign Exchange Indicator"; Option)
         {
@@ -3831,7 +3848,7 @@ table 81 "Gen. Journal Line"
                     end;
                     GenJnlLine3.Get("Journal Template Name", "Journal Batch Name", "Line No.");
                     CheckJobQueueStatus(GenJnlLine3);
-                    GenJnlLine3.Validate("Document No.", DocNo);
+                    GenJnlLine3."Document No." := DocNo;
                     GenJnlLine3.Modify();
                     OnRenumberDocNoOnLinesOnAfterModifyGenJnlLine3(DocNo, GenJnlLine3);
                     First := false;
@@ -4328,6 +4345,7 @@ table 81 "Gen. Journal Line"
 
         Validate("VAT %");
         Validate("Bal. VAT %");
+#if not CLEAN25
         if ("Document Type" = "Document Type"::" ") or
            ("Document Type" = "Document Type"::Invoice) or
            ("Document Type" = "Document Type"::"Credit Memo")
@@ -4335,6 +4353,7 @@ table 81 "Gen. Journal Line"
             Validate("IRS 1099 Code")
         else
             "IRS 1099 Amount" := 0;
+#endif
         UpdateLineBalance();
         if "Deferral Code" <> '' then
             Validate("Deferral Code");
@@ -4364,7 +4383,7 @@ table 81 "Gen. Journal Line"
             if (xRec.Amount <> 0) or (xRec."Applies-to Doc. No." <> '') or (xRec."Applies-to ID" <> '') then
                 PaymentToleranceMgt.PmtTolGenJnl(Rec);
         end;
-        if (CurrFieldNo = fieldno(Amount)) and (Amount = 0) and (("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '')) then begin
+        if ((CurrFieldNo = fieldno(Amount)) or (CurrFieldNo = FieldNo("Amount (LCY)"))) and (Amount = 0) and (("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '')) then begin
             if ("Applies-to ID" <> '') then
                 Validate("Applies-to ID", '');
             if ("Applies-to Doc. No." <> '') then
@@ -7127,7 +7146,9 @@ table 81 "Gen. Journal Line"
         if not SetCurrencyCode("Bal. Account Type", "Bal. Account No.") then
             "Currency Code" := Vend."Currency Code";
         ClearPostingGroups();
+#if not CLEAN25
         "IRS 1099 Code" := Vend."IRS 1099 Code";
+#endif
         "Tax Area Code" := Vend."Tax Area Code";
         CheckConfirmDifferentVendorAndPayToVendor(Vend, "Account No.");
         Validate("Payment Terms Code");
@@ -7191,7 +7212,9 @@ table 81 "Gen. Journal Line"
             "Currency Code" := Vend."Currency Code";
         CheckSetCurrencyCodeForBankVendLine(Vend);
         ClearBalancePostingGroups();
+#if not CLEAN25
         "IRS 1099 Code" := Vend."IRS 1099 Code";
+#endif
         CheckConfirmDifferentVendorAndPayToVendor(Vend, "Bal. Account No.");
         Validate("Payment Terms Code");
         CheckPaymentTolerance();
@@ -7243,7 +7266,9 @@ table 81 "Gen. Journal Line"
             "Posting Group" := '';
             "Salespers./Purch. Code" := '';
             "Payment Terms Code" := '';
+#if not CLEAN25
             "IRS 1099 Code" := '';
+#endif
         end;
         if BankAcc."Currency Code" = '' then begin
             if "Bal. Account No." = '' then

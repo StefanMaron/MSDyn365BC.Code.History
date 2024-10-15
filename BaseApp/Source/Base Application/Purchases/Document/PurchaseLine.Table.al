@@ -2616,7 +2616,6 @@ table 39 "Purchase Line"
             TableRelation = if (Type = const(Item), "Document Type" = filter(<> "Credit Memo" & <> "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false), "Purchasing Blocked" = const(false))
             else
             if (Type = const(Item), "Document Type" = filter("Credit Memo" | "Return Order")) "Item Variant".Code where("Item No." = field("No."), Blocked = const(false));
-            ValidateTableRelation = false;
 
             trigger OnValidate()
             var
@@ -2629,14 +2628,11 @@ table 39 "Purchase Line"
                     IsHandled := false;
                     OnValidateVariantCodeBeforeCheckBlocked(Rec, IsHandled);
                     if not IsHandled then begin
-                        ItemVariant.SetLoadFields(Blocked, "Purchasing Blocked");
+                        ItemVariant.SetLoadFields("Purchasing Blocked");
                         ItemVariant.Get(Rec."No.", Rec."Variant Code");
-                        ItemVariant.TestField(Blocked, false);
                         if ItemVariant."Purchasing Blocked" then
                             if IsCreditDocType() then
-                                SendBlockedItemVariantNotification()
-                            else
-                                Error(ItemVariantPurchasingBlockedErr, ItemVariant.Code, ItemVariant."Item No.", ItemVariant.FieldCaption("Purchasing Blocked"));
+                                SendBlockedItemVariantNotification();
                     end;
                 end;
                 TestStatusOpen();
@@ -3758,6 +3754,14 @@ table 39 "Purchase Line"
         field(10022; "IRS 1099 Liable"; Boolean)
         {
             Caption = 'IRS 1099 Liable';
+            ObsoleteReason = 'Moved to IRS Forms App.';
+#if not CLEAN25
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(10025; "GST/HST"; Enum "GST HST Tax Type")
         {
@@ -4081,7 +4085,9 @@ table 39 "Purchase Line"
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
         PurchHeader."No." := '';
+#if not CLEAN25
         "IRS 1099 Liable" := (PurchHeader."IRS 1099 Code" <> '');
+#endif
     end;
 
     trigger OnModify()
@@ -4209,7 +4215,6 @@ table 39 "Purchase Line"
         CommentLbl: Label 'Comment';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
         ItemPurchasingBlockedErr: Label 'You cannot purchase Item %1 because the %2 check box is selected on the Item card.', Comment = '%1 - Item No., %2 - Blocked Field Caption';
-        ItemVariantPurchasingBlockedErr: Label 'You cannot purchase Item Variant %1, Item %2 because the %3 check box is selected on the Item Variant card.', Comment = '%1 - Variant Code, %2 = Item No., %3 - Blocked Field Caption';
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
@@ -4437,7 +4442,9 @@ table 39 "Purchase Line"
         "Prepayment Tax Area Code" := PurchHeader."Tax Area Code";
         "Prepayment Tax Liable" := PurchHeader."Tax Liable";
         "Responsibility Center" := PurchHeader."Responsibility Center";
+#if not CLEAN25
         "IRS 1099 Liable" := (PurchHeader."IRS 1099 Code" <> '');
+#endif
         "Requested Receipt Date" := PurchHeader."Requested Receipt Date";
         "Promised Receipt Date" := PurchHeader."Promised Receipt Date";
         "Inbound Whse. Handling Time" := PurchHeader."Inbound Whse. Handling Time";

@@ -173,21 +173,22 @@ codeunit 3687 "Low-Level Code Calculator"
         Item.SetFilter("Production BOM No.", '<> %1', '');
         TotalItemCount := Item.Count();
 
-        ItemProductionBOMs.SetRange(BOMStatus, Enum::"BOM Status"::Certified);
+        ItemProductionBOMs.SetFilter(BOMStatus, '<>%1', Enum::"BOM Status"::Closed);
         ItemProductionBOMs.Open();
-        while ItemProductionBOMs.Read() do begin
-            Progressed += 1;
-            LowLevelCodeParam.ShowDetails(StrSubstNo(RecordDetailsLbl, Item.TableCaption(), ItemProductionBOMs.No_), Progressed, TotalItemCount);
+        while ItemProductionBOMs.Read() do
+            if CheckItemProductionBOMIsCertified(ItemProductionBOMs) then begin
+                Progressed += 1;
+                LowLevelCodeParam.ShowDetails(StrSubstNo(RecordDetailsLbl, Item.TableCaption(), ItemProductionBOMs.No_), Progressed, TotalItemCount);
 
-            Parent.CreateForItem(ItemProductionBOMs.No_, ItemProductionBOMs.Item_Low_Level_Code, LowLevelCodeParam);
-            Child.CreateForProdBOM(ItemProductionBOMs.Production_BOM_No_, ItemProductionBOMs.BOM_Low_Level_Code, LowLevelCodeParam);
+                Parent.CreateForItem(ItemProductionBOMs.No_, ItemProductionBOMs.Item_Low_Level_Code, LowLevelCodeParam);
+                Child.CreateForProdBOM(ItemProductionBOMs.Production_BOM_No_, ItemProductionBOMs.BOM_Low_Level_Code, LowLevelCodeParam);
 
-            AddChildToParent(BOMStructure, Parent, Child);
+                AddChildToParent(BOMStructure, Parent, Child);
 
-            // ensure that next nodes created are new instances
-            Clear(Parent);
-            Clear(Child);
-        end;
+                // ensure that next nodes created are new instances
+                Clear(Parent);
+                Clear(Child);
+            end;
         ItemProductionBOMs.Close();
     end;
 
@@ -283,6 +284,16 @@ codeunit 3687 "Low-Level Code Calculator"
         BOMStructure.AddRelation(Parent, Child);
         AddKeyToList(Parent.GetKey());
         AddKeyToList(Child.GetKey());
+    end;
+
+    local procedure CheckItemProductionBOMIsCertified(var ItemProductionBOMs: Query "Item Production BOMs"): Boolean
+    var
+        VersionManagement: Codeunit VersionManagement;
+    begin
+        if ItemProductionBOMs.BOMStatus = ItemProductionBOMs.BOMStatus::Certified then
+            exit(true);
+
+        exit(VersionManagement.GetBOMVersion(ItemProductionBOMs.Production_BOM_No_, WorkDate(), true) <> '');
     end;
 
     [IntegrationEvent(false, false)]

@@ -15,8 +15,10 @@ codeunit 113 "Vend. Entry-Edit"
         VendLedgEntry := Rec;
         VendLedgEntry.LockTable();
         VendLedgEntry.Find();
+#if not CLEAN25
         VendLedgEntry."IRS 1099 Code" := Rec."IRS 1099 Code";
         VendLedgEntry."IRS 1099 Amount" := Rec."IRS 1099 Amount";
+#endif
         VendLedgEntry."On Hold" := Rec."On Hold";
 
         if LogFieldChanged(VendLedgEntry, Rec) then

@@ -2518,6 +2518,20 @@ table 5900 "Service Header"
             Caption = 'STE Transaction ID';
             Editable = false;
         }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(27000; "CFDI Purpose"; Code[10])
         {
             Caption = 'CFDI Purpose';
@@ -2532,6 +2546,37 @@ table 5900 "Service Header"
         {
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
+
+            trigger OnValidate()
+            var
+                GeneralLedgerSetup: Record "General Ledger Setup";
+                CFDIExportCode: Record "CFDI Export Code";
+            begin
+                "Foreign Trade" := false;
+                if CFDIExportCode.Get("CFDI Export Code") then
+                    "Foreign Trade" := CFDIExportCode."Foreign Trade";
+                GeneralLedgerSetup.Get();
+                "Exchange Rate USD" := 1 / CurrExchRate.ExchangeRate("Posting Date", GeneralLedgerSetup."USD Currency Code");
+            end;
+        }
+        field(27005; "CFDI Period"; Option)
+        {
+            Caption = 'CFDI Period';
+            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
+            OptionMembers = "Diario","Semanal","Quincenal","Mensual";
+        }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
         }
     }
 
@@ -4609,10 +4654,12 @@ table 5900 "Service Header"
             "CFDI Purpose" := Customer."CFDI Purpose";
             "CFDI Relation" := Customer."CFDI Relation";
             "CFDI Export Code" := Customer."CFDI Export Code";
+            "CFDI Period" := Customer."CFDI Period";
         end else begin
             "CFDI Purpose" := '';
             "CFDI Relation" := '';
             "CFDI Export Code" := '';
+            "CFDI Period" := "CFDI Period"::Diario;
         end;
     end;
 

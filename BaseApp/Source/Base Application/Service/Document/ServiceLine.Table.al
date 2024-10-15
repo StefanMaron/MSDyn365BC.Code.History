@@ -1608,7 +1608,8 @@ table 5902 "Service Line"
 
                 GLSetup.Get();
                 if GLSetup."PAC Environment" <> GLSetup."PAC Environment"::Disabled then
-                    TestField("Unit of Measure Code");
+                    if Type <> Type::"G/L Account" then
+                        TestField("Unit of Measure Code");
 
                 if "Unit of Measure Code" = '' then
                     "Unit of Measure" := ''

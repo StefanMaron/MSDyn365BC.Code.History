@@ -935,6 +935,7 @@ table 5406 "Prod. Order Line"
         IgnoreErrors: Boolean;
         ErrorOccured: Boolean;
         CalledFromComponent: Boolean;
+        CalledFromHeader: Boolean;
 
     procedure DeleteRelations()
     var
@@ -971,8 +972,11 @@ table 5406 "Prod. Order Line"
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
         IsHandled := false;
         OnDeleteRelationsOnBeforeProdOrderCompDeleteAll(ProdOrderComp, Blocked, IsHandled);
-        if not IsHandled then
+        if not IsHandled then begin
+            if CalledFromHeader then
+                ProdOrderComp.SuspendDeletionCheck(true);
             ProdOrderComp.DeleteAll(true);
+        end;
 
         if not CalledFromComponent then begin
             ProdOrderComp.SetRange("Prod. Order Line No.");
@@ -1557,6 +1561,11 @@ table 5406 "Prod. Order Line"
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, CurrFieldNo);
+    end;
+
+    procedure SuspendDeletionCheck(Suspend: Boolean)
+    begin
+        CalledFromHeader := Suspend;
     end;
 
     [IntegrationEvent(false, false)]

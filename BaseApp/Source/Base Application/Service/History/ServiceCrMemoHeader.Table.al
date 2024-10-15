@@ -886,6 +886,20 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'Date/Time First Req. Sent';
             Editable = false;
         }
+        field(10050; "Foreign Trade"; Boolean)
+        {
+            Caption = 'Foreign Trade';
+        }
+        field(10059; "SAT International Trade Term"; Code[10])
+        {
+            Caption = 'SAT International Trade Term';
+            TableRelation = "SAT International Trade Term";
+        }
+        field(10060; "Exchange Rate USD"; Decimal)
+        {
+            Caption = 'Exchange Rate USD';
+            DecimalPlaces = 0 : 6;
+        }
         field(27000; "CFDI Purpose"; Code[10])
         {
             Caption = 'CFDI Purpose';
@@ -911,6 +925,12 @@ table 5994 "Service Cr.Memo Header"
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
         }
+        field(27005; "CFDI Period"; Option)
+        {
+            Caption = 'CFDI Period';
+            OptionCaption = 'Diario,Semanal,Quincenal,Mensual';
+            OptionMembers = "Diario","Semanal","Quincenal","Mensual";
+        }
         field(27007; "CFDI Cancellation ID"; Text[50])
         {
             Caption = 'CFDI Cancellation ID';
@@ -918,6 +938,19 @@ table 5994 "Service Cr.Memo Header"
         field(27008; "Marked as Canceled"; Boolean)
         {
             Caption = 'Marked as Canceled';
+        }
+        field(27009; "SAT Address ID"; Integer)
+        {
+            Caption = 'SAT Address ID';
+            TableRelation = "SAT Address";
+
+            trigger OnLookup()
+            var
+                SATAddress: Record "SAT Address";
+            begin
+                if SATAddress.LookupSATAddress(SATAddress, Rec."Ship-to Country/Region Code", Rec."Bill-to Country/Region Code") then
+                    Rec."SAT Address ID" := SATAddress.Id;
+            end;
         }
     }
 

@@ -231,6 +231,16 @@ page 5900 "Service Order"
                     Importance = Additional;
                     ToolTip = 'Specifies the relation of the CFDI document. ';
                 }
+                field("CFDI Export Code"; Rec."CFDI Export Code")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies a code to indicate if the document is used for exports to other countries.';
+                }
+                field("CFDI Period"; Rec."CFDI Period")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the period to use when reporting for general public customers';
+                }
             }
             part(ServItemLines; "Service Order Subform")
             {
@@ -745,6 +755,31 @@ page 5900 "Service Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
+                }
+            }
+            group(ElectronicDocument)
+            {
+                Caption = 'Electronic Document';
+                field("SAT Address ID"; Rec."SAT Address ID")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the SAT address that the goods or merchandise are moved to.';
+                    BlankZero = true;
+                }
+                field(Control1310005; Rec."Foreign Trade")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies whether the goods or merchandise that are transported enter or leave the national territory.';
+                }
+                field("SAT International Trade Term"; Rec."SAT International Trade Term")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies an international commercial terms code that are used in international sale contracts according to the SAT internatoinal trade terms definition.';
+                }
+                field("Exchange Rate USD"; Rec."Exchange Rate USD")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies the USD to MXN exchange rate that is used to report foreign trade documents to Mexican SAT authorities. This rate must match the rate used by the Mexican National Bank.';
                 }
             }
         }

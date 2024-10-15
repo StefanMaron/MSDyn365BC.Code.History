@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -16,6 +17,9 @@ report 10182 "Vendor 1099 Nec 2022"
     RDLCLayout = './Local/Finance/VAT/Reporting/Vendor1099Nec2022.rdlc';
     ApplicationArea = Basic, Suite;
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteReason = 'Moved to IRS Forms App.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     dataset
     {
@@ -275,3 +279,4 @@ report 10182 "Vendor 1099 Nec 2022"
     end;
 }
 
+#endif
