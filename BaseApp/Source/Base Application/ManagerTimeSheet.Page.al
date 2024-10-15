@@ -195,7 +195,6 @@ page 952 "Manager Time Sheet"
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaption[6];
                     Editable = false;
-                    Visible = false;
                     Width = 6;
                 }
                 field(Field7; CellData[7])
@@ -204,7 +203,6 @@ page 952 "Manager Time Sheet"
                     BlankZero = true;
                     CaptionClass = '3,' + ColumnCaption[7];
                     Editable = false;
-                    Visible = false;
                     Width = 6;
                 }
                 field(Status; Status)

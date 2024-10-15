@@ -300,7 +300,7 @@ permissionset 959 "D365 BUS FULL ACCESS"
 #if not CLEAN20
                   tabledata "Graph Subscription" = RIMD,
                   tabledata "Graph Business Setting" = RIMD,
-#endif                  
+#endif
                   tabledata "Grounds for Termination" = RIMD,
                   tabledata "HR Confidential Comment Line" = RIMD,
                   tabledata "Human Resource Comment Line" = IM,
@@ -335,7 +335,10 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Inventory Profile Track Buffer" = RIM,
                   tabledata "Inventory Report Entry" = RIM,
                   tabledata "Inventory Report Header" = RIM,
+#if not CLEAN20
                   tabledata "Invoice Post. Buffer" = RIMD,
+#endif
+                  tabledata "Invoice Posting Buffer" = RIMD,
                   tabledata "Invoiced Booking Item" = RIMD,
                   tabledata "Invt. Document Header" = RIMD,
                   tabledata "Invt. Document Line" = RIMD,

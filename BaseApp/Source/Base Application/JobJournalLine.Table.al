@@ -912,7 +912,7 @@
                 end else
                     "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
 
-                 CheckItemAvailable;
+                CheckItemAvailable;
             end;
         }
         field(1031; "Remaining Qty. (Base)"; Decimal)
@@ -1777,6 +1777,7 @@
         case Type of
             Type::Item:
                 if ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice() or
                    ("Location Code" <> xRec."Location Code") or
                    ("Variant Code" <> xRec."Variant Code") or
                    (Quantity <> xRec.Quantity) or
@@ -1786,18 +1787,34 @@
                     exit(true);
             Type::Resource:
                 if ("No." <> xRec."No.") or
+                    IsQuantityChangedForPrice() or
                    ("Work Type Code" <> xRec."Work Type Code") or
                    ("Unit of Measure Code" <> xRec."Unit of Measure Code") or
                    (("Posting Date" <> xRec."Posting Date") and ("Currency Code" <> ''))
                 then
                     exit(true);
             Type::"G/L Account":
-                if "No." <> xRec."No." then
+                if ("No." <> xRec."No.") or IsQuantityChangedForPrice() then
                     exit(true);
             else
                 exit(false);
         end;
         exit(false);
+    end;
+
+    local procedure IsQuantityChangedForPrice(): Boolean;
+#if not CLEAN21
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+#endif
+    begin
+        if Quantity = xRec.Quantity then
+            exit(false);
+#if not CLEAN21
+        exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
+#else
+        exit(true);
+#endif
     end;
 
     procedure UpdateTotalCost()

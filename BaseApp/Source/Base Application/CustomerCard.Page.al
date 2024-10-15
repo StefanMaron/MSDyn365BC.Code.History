@@ -172,7 +172,7 @@
                     Caption = 'Profit (LCY)';
                     Editable = false;
                     Importance = Additional;
-                    ToolTip = 'Specifies how much profit you have made from the customer in the current fiscal year.';
+                    ToolTip = 'Specifies the adjusted sales profit you have made from the customer in the current fiscal year.';
                 }
                 field(AdjProfitPct; AdjProfitPct)
                 {

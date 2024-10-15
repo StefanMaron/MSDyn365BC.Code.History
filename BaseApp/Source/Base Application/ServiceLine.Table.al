@@ -162,7 +162,7 @@ table 5902 "Service Line"
                        not ReplaceServItemAction
                     then
                         Validate(Quantity, xRec.Quantity);
-                    UpdateUnitPriceByField(FieldNo("No."), true);
+                    UpdateUnitPriceByField(FieldNo("No."), false);
                     UpdateAmounts();
                 end;
                 UpdateReservation(FieldNo("No."));
