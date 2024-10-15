@@ -240,7 +240,10 @@
     procedure InsertInvLineBuffer(PrepmtInvLineBuf2: Record "Prepayment Inv. Line Buffer")
     begin
         Rec := PrepmtInvLineBuf2;
-        if Find then begin
+        if Get(
+               "G/L Account No.", "Job No.", "Tax Area Code", "Tax Liable", "Tax Group Code",
+               "Invoice Rounding", Adjustment, "Line No.", "Dimension Set ID")
+        then begin
             IncrAmounts(PrepmtInvLineBuf2);
             Modify;
         end else

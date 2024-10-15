@@ -2607,6 +2607,38 @@
                 UpdateReservation(Rec, false);
     end;
 
+    procedure TestNonSpecificItemTracking()
+    var
+        WhseItemTrackingSetup: Record "Item Tracking Setup";
+        ItemTrackingSetup: Record "Item Tracking Setup";
+        NonWhseItemTrackingSetup: Record "Item Tracking Setup";
+        ItemLedgerEntryType: Enum "Item Ledger Entry Type";
+    begin
+        case "Source Document" of
+            "Source Document"::"Sales Order":
+                ItemLedgerEntryType := ItemLedgerEntryType::Sale;
+            "Source Document"::"Purchase Return Order":
+                ItemLedgerEntryType := ItemLedgerEntryType::Purchase;
+            "Source Document"::"Outbound Transfer":
+                ItemLedgerEntryType := ItemLedgerEntryType::Transfer;
+            "Source Document"::"Prod. Consumption":
+                ItemLedgerEntryType := ItemLedgerEntryType::Consumption;
+            "Source Document"::"Assembly Consumption":
+                ItemLedgerEntryType := ItemLedgerEntryType::"Assembly Consumption";
+            else
+                exit;
+        end;
+
+        GetItem();
+        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+        ItemTrackingMgt.GetItemTrackingSetup(ItemTrackingCode, ItemLedgerEntryType, false, ItemTrackingSetup);
+
+        NonWhseItemTrackingSetup.Code := ItemTrackingCode.Code;
+        NonWhseItemTrackingSetup.GetNonWarehouseTrackingRequirements(WhseItemTrackingSetup, ItemTrackingSetup);
+        
+        TestTrackingIfRequired(NonWhseItemTrackingSetup);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin

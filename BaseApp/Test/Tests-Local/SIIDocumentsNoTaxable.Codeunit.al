@@ -228,6 +228,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [THEN] XML file has ImporteTotal node with only normal amount
         // TFS ID 338388: The value for Importe Total is incorrect if you create a invoice with the type  difference and have values which are not taxable
+        // TFS ID 411251: ImporteTotal includes non taxable amount
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:ImporteTotal',
           SIIXMLCreator.FormatNumber(GetVATEntryTotalAmount(VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.")));
@@ -289,6 +290,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [THEN] XML file has ImporteTotal node with only normal amount
         // TFS ID 338388: The value for Importe Total is incorrect if you create a credit memo with the type  difference and have values which are not taxable
+        // TFS ID 411251: ImporteTotal includes non taxable amount
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:ImporteTotal',
           SIIXMLCreator.FormatNumber(GetVATEntryTotalAmount(VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.")));
@@ -436,6 +438,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [THEN] XML file has ImporteTotal node with only normal amount
         // TFS ID 338388: The value for Importe Total is incorrect if you create a invoice with the type  difference and have values which are not taxable
+        // TFS ID 411251: ImporteTotal includes non taxable amount
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:ImporteTotal',
           SIIXMLCreator.FormatNumber(-GetVATEntryTotalAmount(CustLedgerEntry."Document Type", CustLedgerEntry."Document No.")));
@@ -574,6 +577,7 @@ codeunit 147524 "SII Documents No Taxable"
 
         // [THEN] XML file has ImporteTotal node with only normal amount
         // TFS ID 338388: The value for Importe Total is incorrect if you create a credit memo with the type  difference and have values which are not taxable
+        // TFS ID 411251: ImporteTotal includes non taxable amount
         LibrarySII.ValidateElementByName(
           XMLDoc, 'sii:ImporteTotal',
           SIIXMLCreator.FormatNumber(-GetVATEntryTotalAmount(CustLedgerEntry."Document Type", CustLedgerEntry."Document No.")));
@@ -2949,11 +2953,15 @@ codeunit 147524 "SII Documents No Taxable"
     local procedure GetVATEntryTotalAmount(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Decimal
     var
         VATEntry: Record "VAT Entry";
+        NoTaxableEntry: Record "No Taxable Entry";
     begin
         VATEntry.SetRange("Document Type", DocType);
         VATEntry.SetRange("Document No.", DocNo);
         VATEntry.CalcSums(Base, Amount);
-        exit(VATEntry.Base + VATEntry.Amount);
+        NoTaxableEntry.SetRange("Document Type", DocType);
+        NoTaxableEntry.SetRange("Document No.", DocNo);
+        NoTaxableEntry.CalcSums(Base);
+        exit(VATEntry.Base + VATEntry.Amount + NoTaxableEntry.Base);
     end;
 }
 

@@ -416,6 +416,47 @@ codeunit 10756 "SII Management"
     end;
 
     [Scope('OnPrem')]
+    procedure FindNoTaxableEntriesFromLedger(LedgerEntryRecRef: RecordRef; var NoTaxableEntry: Record "No Taxable Entry"): Boolean
+    var
+        SIISetup: Record "SII Setup";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        SIISetup.Get();
+        case LedgerEntryRecRef.Number of
+            DATABASE::"Cust. Ledger Entry":
+                begin
+                    LedgerEntryRecRef.SetTable(CustLedgerEntry);
+                    NoTaxableEntry.FilterNoTaxableEntry(
+                      NoTaxableEntry.Type::Sale, GetCustFromLedgEntryByGLSetup(CustLedgerEntry),
+                      CustLedgerEntry."Document Type", CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", false);
+                    if SIISetup."Do Not Export Negative Lines" then
+                        case CustLedgerEntry."Document Type" of
+                            CustLedgerEntry."Document Type"::Invoice:
+                                NoTaxableEntry.SetFilter("Amount (LCY)", '<=%1', 0);
+                            CustLedgerEntry."Document Type"::"Credit Memo":
+                                NoTaxableEntry.SetFilter("Amount (LCY)", '>=%1', 0);
+                        end;
+                end;
+            DATABASE::"Vendor Ledger Entry":
+                begin
+                    LedgerEntryRecRef.SetTable(VendorLedgerEntry);
+                    NoTaxableEntry.FilterNoTaxableEntry(
+                      NoTaxableEntry.Type::Purchase, GetVendFromLedgEntryByGLSetup(VendorLedgerEntry),
+                      VendorLedgerEntry."Document Type", VendorLedgerEntry."Document No.", VendorLedgerEntry."Posting Date", false);
+                    if SIISetup."Do Not Export Negative Lines" then
+                        case VendorLedgerEntry."Document Type" of
+                            VendorLedgerEntry."Document Type"::Invoice:
+                                NoTaxableEntry.SetFilter("Amount (LCY)", '>=%1', 0);
+                            VendorLedgerEntry."Document Type"::"Credit Memo":
+                                NoTaxableEntry.SetFilter("Amount (LCY)", '<=%1', 0);
+                        end;
+                end;
+        end;
+        exit(NoTaxableEntry.FindSet());
+    end;
+
+    [Scope('OnPrem')]
     procedure FindOriginalLedgerFromDetailedPaymentLedger(PaymentDetailedLedgerEntryRecRef: RecordRef; var SalesDocLedgerEntryRecRefOut: RecordRef)
     var
         DummyDetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";

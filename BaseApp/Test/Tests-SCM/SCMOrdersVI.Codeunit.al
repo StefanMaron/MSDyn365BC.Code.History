@@ -2858,6 +2858,55 @@ codeunit 137163 "SCM Orders VI"
         SalesLine.TestField("Qty. Invoiced (Base)", SalesLine."Quantity (Base)");
     end;
 
+    [Test]
+    [HandlerFunctions('EmptyMessageHandler')]
+    procedure InventoryPutawayCreatedOnlyForPurchaseLinesWithoutJob()
+    var
+        Location: Record Location;
+        JobTask: Record "Job Task";
+        Item: array[2] of Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Purchase] [Order] [Put-away] [Job]
+        // [SCENARIO 408137] Inventory put-away is created only for purchase lines that have no link to Job.
+        Initialize(false);
+
+        // [GIVEN] Location "L" with required put-away.
+        LibraryWarehouse.CreateLocationWMS(Location, false, true, false, false, false);
+
+        // [GIVEN] Job with job task.
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Purchase order at location "L".
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] First purchase line is linked to the job.
+        // [GIVEN] Second purchase line is not.
+        LibraryInventory.CreateItem(Item[1]);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        UpdateJobNoAndJobTaskNoOnPurchaseLine(PurchaseLine, JobTask);
+
+        LibraryInventory.CreateItem(Item[2]);
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item[2]."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Release the purchase order.
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Create inventory put-away.
+        LibraryWarehouse.CreateInvtPutPickPurchaseOrder(PurchaseHeader);
+
+        // [THEN] Put-away contains only the second purchase line (without Job).
+        WarehouseActivityLine.SetRange("Item No.", Item[1]."No.");
+        Assert.RecordIsEmpty(WarehouseActivityLine);
+
+        WarehouseActivityLine.SetRange("Item No.", Item[2]."No.");
+        Assert.RecordIsNotEmpty(WarehouseActivityLine);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Orders VI");

@@ -1661,6 +1661,7 @@
     local procedure CalculateTotalVatAndBaseAmounts(LedgerEntryRecRef: RecordRef; var TotalBaseAmount: Decimal; var TotalNonExemptVATBaseAmount: Decimal; var TotalVATAmount: Decimal)
     var
         VATEntry: Record "VAT Entry";
+        NoTaxableEntry: Record "No Taxable Entry";
     begin
         TotalBaseAmount := 0;
         TotalVATAmount := 0;
@@ -1674,6 +1675,9 @@
                     TotalVATAmount += VATEntry.Amount + VATEntry."Unrealized Amount";
             until VATEntry.Next() = 0;
         end;
+        SIIManagement.FindNoTaxableEntriesFromLedger(LedgerEntryRecRef, NoTaxableEntry);
+        NoTaxableEntry.CalcSums(NoTaxableEntry."Base (LCY)");
+        TotalBaseAmount += NoTaxableEntry."Base (LCY)";
     end;
 
     local procedure GenerateFacturasRectificadasNode(var XMLNode: DotNet XmlNode; DocNo: Code[35]; PostingDate: Date)
