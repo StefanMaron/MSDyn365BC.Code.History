@@ -161,7 +161,7 @@ codeunit 229 "Document-Print"
         if SalesHeader."Document Type" <> SalesHeader."Document Type"::Order then
             exit;
 
-        SalesHeader.SetRange("No.", SalesHeader."No.");
+        SalesHeader.SetRecFilter();
         CalcSalesDisc(SalesHeader);
         OnBeforePrintSalesOrder(SalesHeader, GetSalesOrderUsage(Usage), IsPrinted);
         if IsPrinted then

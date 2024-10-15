@@ -47,7 +47,7 @@ report 88 "VAT- VIES Declaration Disk"
 
                 if GroupTotal then begin
                     WriteGrTotalsToFile(TotalValueofServiceSuppliesTot, TotalValueofItemSuppliesTotal,
-                      EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt);
+                      EU3PartyServiceTradeAmt, EU3PartyItemTradeAmt, "Posting Date");
                     EU3PartyItemTradeTotalAmt += EU3PartyItemTradeAmt;
                     EU3PartyServiceTradeTotalAmt += EU3PartyServiceTradeAmt;
 
@@ -183,7 +183,7 @@ report 88 "VAT- VIES Declaration Disk"
         exit(PadStr('', Length - StrLen(Text), '0') + Text);
     end;
 
-    local procedure WriteGrTotalsToFile(TotalValueofServiceSupplies: Decimal; TotalValueofItemSupplies: Decimal; EU3PartyServiceTradeAmt: Decimal; EU3PartyItemTradeAmt: Decimal)
+    local procedure WriteGrTotalsToFile(TotalValueofServiceSupplies: Decimal; TotalValueofItemSupplies: Decimal; EU3PartyServiceTradeAmt: Decimal; EU3PartyItemTradeAmt: Decimal; PostingDate: Date)
     begin
         if (Round(Abs(TotalValueofItemSupplies), 1, '<') <> 0) or (Round(Abs(TotalValueofServiceSupplies), 1, '<') <> 0) or
            (Round(Abs(EU3PartyItemTradeAmt), 1, '<') <> 0) or (Round(Abs(EU3PartyServiceTradeAmt), 1, '<') <> 0)
@@ -205,7 +205,7 @@ report 88 "VAT- VIES Declaration Disk"
                 NoOfGrTotal := NoOfGrTotal + 1;
 
                 InternalReferenceNo := IncStr(InternalReferenceNo);
-                ModifyVATEntryInternalRefNo("Country/Region Code", "Bill-to/Pay-to No.", InternalReferenceNo);
+                ModifyVATEntryInternalRefNo("Country/Region Code", "Bill-to/Pay-to No.", InternalReferenceNo, PostingDate);
 
                 VATFile.Write(
                   Format(
@@ -249,12 +249,13 @@ report 88 "VAT- VIES Declaration Disk"
         HideFileDialog := NewHideFileDialog;
     end;
 
-    local procedure ModifyVATEntryInternalRefNo(CountryRegionCode: Code[10]; BillToPayToNo: Code[20]; InternalRefNo: Text[30])
+    local procedure ModifyVATEntryInternalRefNo(CountryRegionCode: Code[10]; BillToPayToNo: Code[20]; InternalRefNo: Text[30]; PostingDate: Date)
     var
         VATEntry: Record "VAT Entry";
     begin
         VATEntry.SetRange("Country/Region Code", CountryRegionCode);
         VATEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
+        VATEntry.SetRange("Posting Date", PostingDate);
         VATEntry.ModifyAll("Internal Ref. No.", InternalRefNo);
     end;
 }

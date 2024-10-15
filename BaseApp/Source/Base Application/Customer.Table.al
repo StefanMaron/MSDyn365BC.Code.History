@@ -2180,8 +2180,8 @@ table 18 Customer
             exit(OverDueBalance);
 
         CustLedgEntryRemainAmtQuery.SetRange(Customer_No, "No.");
-        CustLedgEntryRemainAmtQuery.SetRange(IsOpen, true);
-        CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate);
+        CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', Today);
+        CustLedgEntryRemainAmtQuery.SetFilter(Date_Filter, '<%1', Today);
         CustLedgEntryRemainAmtQuery.Open;
 
         if CustLedgEntryRemainAmtQuery.Read then
