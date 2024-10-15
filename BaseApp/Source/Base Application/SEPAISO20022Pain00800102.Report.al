@@ -95,7 +95,11 @@ report 11000013 "SEPA ISO20022 Pain 008.001.02"
         StreamWriter.Close;
 
         ReportChecksum.GenerateChecksum("Payment History", ServerTempFileName, ExportProtocolCode);
+#if not CLEAN17
         FileMgt.DownloadToFile(ServerTempFileName, ExportFileName);
+#else
+        FileMgt.DownloadHandler(ServerTempFileName, '', '', '', ExportFileName);
+#endif
 
         Clear(XMLDomDoc);
         FileMgt.DeleteServerFile(ServerTempFileName);

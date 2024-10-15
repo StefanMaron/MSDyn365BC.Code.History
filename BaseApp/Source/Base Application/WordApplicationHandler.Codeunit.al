@@ -67,12 +67,15 @@ codeunit 5068 WordApplicationHandler
             IsFound := Active;
     end;
 
+#if not CLEAN17
     [EventSubscriber(ObjectType::Codeunit, 5054, 'OnGetWord', '', false, false)]
+    [Obsolete('Procedures that trigger the event are obsolete, as such the event will be removed.', '17.3')]
     local procedure OnGetWordApplicationHandler(var NewWordApplication: DotNet ApplicationClass; var IsFound: Boolean)
     begin
         if Active then
             IsFound := GetWordApplication(NewWordApplication);
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, 5054, 'OnDeactivate', '', false, false)]
     local procedure OnDeactivateHandler(HandlerID: Integer)

@@ -73,9 +73,9 @@
                     Write(PADSTR2(CompanyInfo."VAT Registration No.", 12, '0', 'L'));
                     Write(PADSTR2(Format(LineNo, 0, '<Integer>'), 5, '0', '<'));
                     if CounterpartyInfo and (Type = Type::Shipment) then
-                        Write(PADSTR2("Country/Region of Origin Code", 3, ' ', '<'))
+                        Write(PADSTR2("Country/Region of Origin Code", 3, ' ', '>'))
                     else
-                        Write(PADSTR2('', 3, ' ', '<'));
+                        Write(PADSTR2('', 3, ' ', '>'));
                     case ContainsAlpha(Country."Intrastat Code") of
                         true:
                             Write(PADSTR2(Country."Intrastat Code", 3, ' ', '>'));

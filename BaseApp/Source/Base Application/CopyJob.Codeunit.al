@@ -1,4 +1,4 @@
-codeunit 1006 "Copy Job"
+﻿codeunit 1006 "Copy Job"
 {
 
     trigger OnRun()
@@ -54,6 +54,7 @@ codeunit 1006 "Copy Job"
             (JobTaskRangeFrom = '') and (JobTaskRangeTo <> ''):
                 SourceJobTask.SetFilter("Job Task No.", '..%1', JobTaskRangeTo);
         end;
+        OnCopyJobTasksOnAfterSourceJobTaskSetFilters(SourceJobTask, SourceJob);
 
         if SourceJobTask.FindSet then
             repeat
@@ -366,6 +367,11 @@ codeunit 1006 "Copy Job"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyJobPlanningLinesOnAfterSourceJobPlanningLineSetFilters(var SourceJobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyJobTasksOnAfterSourceJobTaskSetFilters(var SourceJobTask: Record "Job Task"; SourceJob: Record Job)
     begin
     end;
 }

@@ -569,14 +569,52 @@
           PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID");
     end;
 
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure PartnerIDInShipmentIntrastatFileCounterpartyTrueCountryCodeOrigin()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Item: Record Item;
+        Filename: Text;
+        LineContent: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 386323] "Country/Region of Origin" aligned left in exported file
+        Initialize();
+
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
+        IntrastatJnlBatch.Modify(true);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+        UpdatePartnerIDInIntrastatJnlLine(IntrastatJnlLine);
+        Item.Get(IntrastatJnlLine."Item No.");
+        Item.Validate("Country/Region of Origin Code", CreateCountryRegionCode());
+        Item.Modify(true);
+        IntrastatJnlLine.Validate("Country/Region of Origin Code", Item."Country/Region of Origin Code");
+        IntrastatJnlLine.Modify(true);
+
+        Commit();
+        LibraryVariableStorage.Enqueue(true);
+
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        LineContent := LibraryTextFileValidation.ReadLine(Filename, 2);
+        Assert.ExpectedMessage(
+          StrSubstNo('%1 %2', Item."Country/Region of Origin Code", IntrastatJnlLine."Country/Region Code"),
+          LineContent);
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatSetup: Record "Intrastat Setup";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM MISC");
-        LibraryVariableStorage.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
         IntrastatSetup.DeleteAll();
         IntrastatJnlTemplate.DeleteAll(true);
 
@@ -584,9 +622,9 @@
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM MISC");
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        SetIntrastatCodeOnCountryRegion;
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        SetIntrastatCodeOnCountryRegion();
         LibrarySetupStorage.Save(DATABASE::"Company Information");
 
         isInitialized := true;
@@ -702,6 +740,21 @@
           Code, LibraryUtility.GenerateRandomCode(CustomerBankAccount.FieldNo("Customer No."), DATABASE::"Customer Bank Account"));
         CustomerBankAccount.Insert(true);
         exit(CustomerBankAccount.Code);
+    end;
+
+    local procedure CreateCountryRegionCode(): Code[10]
+    var
+        CountryRegion: Record "Country/Region";
+        CountryRegionCode: Code[10];
+    begin
+        CountryRegionCode := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(2, 0), 1, 2);
+        if not CountryRegion.Get(CountryRegionCode) then begin
+            CountryRegion.Init();
+            CountryRegion.Code := CountryRegionCode;
+            CountryRegion.Insert();
+        end;
+
+        exit(CountryRegionCode);
     end;
 
     local procedure CreateForeignVendorNo(): Code[20]
@@ -961,7 +1014,7 @@
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Get(CreateCountryRegionCode());
         CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
         CountryRegion.Modify(true);
         CompanyInformation."VAT Registration No." := UpperCase(LibraryUtility.GenerateRandomText(14));

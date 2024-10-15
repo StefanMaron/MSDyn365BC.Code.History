@@ -219,6 +219,8 @@ codeunit 5348 "CRM Quote to Sales Quote"
     begin
         // If any of the products on the lines are not found in NAV, err
         CRMQuotedetail.SetRange(QuoteId, CRMQuote.QuoteId); // Get all sales quote lines
+        CRMQuotedetail.SetCurrentKey(SequenceNumber);
+        CRMQuotedetail.Ascending(true);
 
         if CRMQuotedetail.FindSet then begin
             repeat
@@ -484,15 +486,16 @@ codeunit 5348 "CRM Quote to Sales Quote"
             end;
 
         // in case of inventory item - write the item name in the main line and create extended lines with the extended description
-        CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription);
+        CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription, SalesLine."Line No.");
 
         // in case of line descriptions with multple lines, add all lines of the line descirption
         while not LineDescriptionInStream.EOS() do begin
             LineDescriptionInStream.ReadText(ExtendedDescription);
-            CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription);
+            CreateExtendedDescriptionQuoteLines(SalesHeader, ExtendedDescription, SalesLine."Line No.");
         end;
     end;
 
+    [Obsolete('Replaced with the overload containing QuoteLineNo', '18.0')]
     procedure CreateExtendedDescriptionQuoteLines(SalesHeader: Record "Sales Header"; FullDescription: Text)
     var
         SalesLine: Record "Sales Line";
@@ -501,6 +504,20 @@ codeunit 5348 "CRM Quote to Sales Quote"
             InitNewSalesLine(SalesHeader, SalesLine);
 
             SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
+            SalesLine.Insert();
+            FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
+        end;
+    end;
+
+    procedure CreateExtendedDescriptionQuoteLines(SalesHeader: Record "Sales Header"; FullDescription: Text; QuoteLineNo: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        while StrLen(FullDescription) > 0 do begin
+            InitNewSalesLine(SalesHeader, SalesLine);
+
+            SalesLine.Validate(Description, CopyStr(FullDescription, 1, MaxStrLen(SalesLine.Description)));
+            SalesLine."Attached to Line No." := QuoteLineNo;
             SalesLine.Insert();
             FullDescription := CopyStr(FullDescription, MaxStrLen(SalesLine.Description) + 1);
         end;

@@ -51,7 +51,9 @@ codeunit 1220 "SEPA CT-Export File"
             TempClientFileName := FileManagement.BLOBExport(TempBlob, FileName, false);
             FileCreated := TempClientFileName <> '';
             if FileCreated then begin
+#if not CLEAN17
                 FileManagement.MoveFile(TempClientFileName, FileName);
+#endif
                 SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
             end;
         end;

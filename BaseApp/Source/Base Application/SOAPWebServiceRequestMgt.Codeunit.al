@@ -83,7 +83,13 @@ codeunit 1290 "SOAP Web Service Request Mgt."
     var
         XmlDoc: DotNet XmlDocument;
         BodyXmlNode: DotNet XmlNode;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateSoapRequest(RequestOutStream, BodyContentInStream, XMLDoc, UserName, Password, TraceLogEnabled, IsHandled);
+        if IsHandled then
+            exit;
+
         CreateEnvelope(XmlDoc, BodyXmlNode, Username, Password);
         AddBodyToEnvelope(BodyXmlNode, BodyContentInStream);
         XmlDoc.Save(RequestOutStream);
@@ -386,6 +392,11 @@ codeunit 1290 "SOAP Web Service Request Mgt."
         JwtSecurityToken := JwtSecurityTokenHandler.ReadToken(JsonWebToken);
         foreach Claim in JwtSecurityToken.Claims do
             Buffer.AddNewEntry(Claim.Type, Claim.Value);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSoapRequest(var RequestOutStream: OutStream; var BodyContentInStream: InStream; var XmlDoc: DotNet XmlDocument; var Username: Text; var Password: Text; var TraceLogEnabled: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

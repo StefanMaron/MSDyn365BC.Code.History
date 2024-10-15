@@ -21,7 +21,6 @@ codeunit 134010 "ERM Application Customer"
         DeltaAssert: Codeunit "Delta Assert";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        CustomerAmount: Decimal;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         WrongBalancePerTransNoErr: Label 'Wrong total amount of detailed entries per transaction.';
 
@@ -32,14 +31,14 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerInvPmt("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerInvPmt("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
-                CustomerInvPmt("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                CustomerInvPmt("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerInvPmt("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerInvPmt("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+                CustomerInvPmt("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                CustomerInvPmt("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
         TearDown;
@@ -52,17 +51,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
                 // The following two combinations do not generate discount ledger entries and will thus fail to close.
-                asserterror CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                DeltaAssert.Reset();
-                asserterror CustomerInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
-                DeltaAssert.Reset();
+                asserterror CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                DeltaAssert.Reset;
+                asserterror CustomerInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+                DeltaAssert.Reset;
             end;
 
         TearDown;
@@ -75,14 +74,14 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerInvPmtVAT("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerInvPmtVAT("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
-                CustomerInvPmtVAT("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                CustomerInvPmtVAT("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerInvPmtVAT("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerInvPmtVAT("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+                CustomerInvPmtVAT("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                CustomerInvPmtVAT("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
         TearDown;
@@ -95,14 +94,14 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerInvPmtCorrection("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerInvPmtCorrection("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
-                CustomerInvPmtCorrection("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                CustomerInvPmtCorrection("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerInvPmtCorrection("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerInvPmtCorrection("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+                CustomerInvPmtCorrection("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                CustomerInvPmtCorrection("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
         TearDown;
@@ -115,15 +114,15 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerPmtDiscVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerPmtDiscVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
                 // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror CustomerPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                asserterror CustomerPmtDiscVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                asserterror CustomerPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                asserterror CustomerPmtDiscVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
         TearDown;
@@ -136,17 +135,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         SetupPaymentTolerance;
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerPmtTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerPmtTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
                 // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror CustomerPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                asserterror CustomerPmtTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                asserterror CustomerPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                asserterror CustomerPmtTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
         TearDown;
@@ -159,17 +158,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<5D>');
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise);
-                CustomerPmtDiscTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                CustomerPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+                CustomerPmtDiscTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
                 // The following two combinations do not generate payment discount / tolerance ledger entries and will thus fail to close.
-                asserterror CustomerPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise);
-                asserterror CustomerPmtDiscTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise);
+                asserterror CustomerPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
+                asserterror CustomerPmtDiscTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
             end;
 
         TearDown;
@@ -183,17 +182,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
             end;
 
@@ -208,17 +207,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
             end;
 
@@ -234,17 +233,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
             end;
 
@@ -260,17 +259,17 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
         Stepwise: Boolean;
     begin
-        Initialize;
+        Initialize();
 
         for Stepwise := false to true do
             with GenJournalLine do begin
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
                   1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -CustomerAmount, Stepwise,
+                CustomerUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
                   0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
             end;
 
@@ -299,7 +298,7 @@ codeunit 134010 "ERM Application Customer"
     begin
         // [FEATURE] [Adjust Exchange Rates] [Transaction No.]
         // [SCENARIO] Currency Adjustment job posts Detailed Customer Ledger Entries linked by "Transaction No." with related G/L Entries
-        Initialize;
+        Initialize();
 
         // [GIVEN] Currency "FCY" with different rates on Workdate and on (WorkDate + 1)
         CurrencyCode := SetExchRateForCurrency(2);
@@ -373,7 +372,7 @@ codeunit 134010 "ERM Application Customer"
         // [FEATURE] [UT]
         // [SCENARIO 213825] Multiple customer ledger entries applies when call SetApplId function of codeunit "Cust. Entry-SetAppl.ID"
 
-        Initialize;
+        Initialize();
         MockCustLedgEntry(ApplyingCustLedgerEntry);
         MockCustLedgEntry(CustLedgerEntry);
         MockCustLedgEntry(CustLedgerEntry2);
@@ -399,7 +398,7 @@ codeunit 134010 "ERM Application Customer"
         // [FEATURE] [UT]
         // [SCENARIO 213825] Application information clears for already applied customer ledger entries when call SetApplId function of codeunit "Cust. Entry-SetAppl.ID"
 
-        Initialize;
+        Initialize();
         MockCustLedgEntry(ApplyingCustLedgerEntry);
         MockAppliedCustLedgEntry(CustLedgerEntry);
         MockAppliedCustLedgEntry(CustLedgerEntry2);
@@ -476,6 +475,589 @@ codeunit 134010 "ERM Application Customer"
         CustLedgerEntry.TestField("Applies-to ID", '');
     end;
 
+    [Test]
+    procedure ApplyLCYInvoiceToFCYPaymentWithGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System generates "Appln. Rounding" DCLE when Stan applies LCY Invoice to FCY Payment when "Appln. Rounding Precision" specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := AmountDifference * 1.1;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          '', Currency.Code,
+          LCYAmount, -(LCYAmount * ExchangeRate + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryExists(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYInvoiceToFCYPaymentWithoutGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when Stan applies LCY Invoice to FCY Payment when "Appln. Rounding Precision" is not specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := 0;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          '', Currency.Code,
+          LCYAmount, -(LCYAmount * ExchangeRate + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYPaymentToFCYInvoiceWithGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System generates "Appln. Rounding" DCLE when Stan applies LCY Payment to FCY Invoice when "Appln. Rounding Precision" specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := AmountDifference * 1.1;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Document Type"::Invoice,
+          '', Currency.Code,
+          -LCYAmount, LCYAmount * ExchangeRate + AmountDifference,
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryExists(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYPaymentToFCYInvoiceWithoutGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when Stan applies LCY Payment to FCY Invoice when "Appln. Rounding Precision" is not specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := 0;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Document Type"::Invoice,
+          '', Currency.Code,
+          -LCYAmount, LCYAmount * ExchangeRate + AmountDifference,
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYPaymentToFCYRefundWithGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Refund]
+        // [SCENARIO 380201] System generates "Appln. Rounding" DCLE when Stan applies LCY Payment to FCY Refund when "Appln. Rounding Precision" specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := AmountDifference * 1.1;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Document Type"::Refund,
+          '', Currency.Code,
+          -LCYAmount, LCYAmount * ExchangeRate + AmountDifference,
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryExists(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYPaymentToFCYRefundWithoutGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Refund]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when Stan applies LCY Payment to FCY Refund when "Appln. Rounding Precision" is not specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := 0;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Document Type"::Refund,
+          '', Currency.Code,
+          -LCYAmount, LCYAmount * ExchangeRate + AmountDifference,
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYRefundToFCYPaymentWithGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Refund]
+        // [SCENARIO 380201] System generates "Appln. Rounding" DCLE when Stan applies LCY Payment to FCY Invoice when "Appln. Rounding Precision" specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := AmountDifference * 1.1;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Refund,
+          GenJournalLine."Document Type"::Payment,
+          '', Currency.Code,
+          LCYAmount, -(LCYAmount * ExchangeRate + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryExists(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYRefundToFCYPaymentWithoutGLSetupApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Refund]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when Stan applies LCY Payment to FCY Invoice when "Appln. Rounding Precision" is not specified in G/L Setup
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := 0;
+        FCYApplicationRoundingPrecision := 0;
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Refund,
+          GenJournalLine."Document Type"::Payment,
+          '', Currency.Code,
+          LCYAmount, -(LCYAmount * ExchangeRate + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyFCYInvoiceToFCYPaymentWithCurrencyApplRounding()
+    var
+        Currency: array[2] of Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: array[2] of Decimal;
+        ExchangeRate: array[2] of Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System gets "Appln. Rounding Precision" from Invoice's currency when Stan applies FCY[1] Invoice to FCY[2] Payment
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        ExchangeRate[1] := LibraryRandom.RandDecInRange(10, 20, 2);
+        ExchangeRate[2] := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        GLApplicationRoundingPrecision := 0;
+
+        FCYApplicationRoundingPrecision[1] := AmountDifference * 1.5 * ExchangeRate[1];
+        FCYApplicationRoundingPrecision[2] := AmountDifference * 0.5 * ExchangeRate[2];
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency[1], FCYApplicationRoundingPrecision[1], ExchangeRate[1]);
+        CreateCurrencyWithApplicationRoundingPrecision(Currency[2], FCYApplicationRoundingPrecision[2], ExchangeRate[2]);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          Currency[1].Code, Currency[2].Code,
+          LCYAmount * ExchangeRate[1], -(LCYAmount + AmountDifference) * ExchangeRate[2],
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryExists(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyFCYInvoiceToFCYPaymentWithoutCurrencyApplRounding()
+    var
+        Currency: array[2] of Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: array[2] of Decimal;
+        ExchangeRate: array[2] of Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when "Appln. Rounding Precision" is not specified in Invoice's currency when Stan applies FCY[1] Invoice to FCY[2] Payment
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        ExchangeRate[1] := LibraryRandom.RandDecInRange(10, 20, 2);
+        ExchangeRate[2] := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        GLApplicationRoundingPrecision := 0;
+
+        FCYApplicationRoundingPrecision[1] := 0;
+        FCYApplicationRoundingPrecision[2] := AmountDifference * 1.1 * ExchangeRate[2];
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency[1], FCYApplicationRoundingPrecision[1], ExchangeRate[1]);
+        CreateCurrencyWithApplicationRoundingPrecision(Currency[2], FCYApplicationRoundingPrecision[2], ExchangeRate[2]);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          Currency[1].Code, Currency[2].Code,
+          LCYAmount * ExchangeRate[1], -(LCYAmount + AmountDifference) * ExchangeRate[2],
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyFCYInvoiceToLCYPaymentWithCurrencyApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System generates "Appln. Rounding" DCLE when "Appln. Rounding Precision" is specified in Invoice's currency when Stan applies FCY Invoice to LCY Payment
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        GLApplicationRoundingPrecision := 0;
+        FCYApplicationRoundingPrecision := AmountDifference * 1.1 * ExchangeRate;
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          Currency.Code, '',
+          LCYAmount * ExchangeRate, -(LCYAmount + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryExists(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyFCYInvoiceToLCYPaymentWithoutCurrencyApplRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when "Appln. Rounding Precision" is not specified in Invoice's currency when Stan applies FCY Invoice to LCY Payment
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := 0;
+
+        FCYApplicationRoundingPrecision := 0;
+
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          Currency.Code, '',
+          LCYAmount * ExchangeRate, -(LCYAmount + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYInvoiceToFCYPaymentWithoutGLSetupApplRoundingWithCurrencyApplnRounding()
+    var
+        Currency: Record Currency;
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        FCYApplicationRoundingPrecision: Decimal;
+        ExchangeRate: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when "Appln. Rounding Precision" is specified in Payment's currency when Stan applies LCY Invoice to FCY Payment
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := 0;
+
+        FCYApplicationRoundingPrecision := AmountDifference * 1.1;
+
+        ExchangeRate := LibraryRandom.RandDecInRange(10, 20, 2);
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        CreateCurrencyWithApplicationRoundingPrecision(Currency, FCYApplicationRoundingPrecision, ExchangeRate);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          '', Currency.Code,
+          LCYAmount, -(LCYAmount * ExchangeRate + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
+    [Test]
+    procedure ApplyLCYInvoiceToLCYPaymentWithGLSetup()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CustLedgerEntryApplying: Record "Cust. Ledger Entry";
+        CustLedgerEntryApplied: Record "Cust. Ledger Entry";
+        GLApplicationRoundingPrecision: Decimal;
+        LCYAmount: Decimal;
+        AmountDifference: Decimal;
+    begin
+        // [FEATURE] [Rounding] [FCY] [Payment] [Invoice]
+        // [SCENARIO 380201] System doesn't generate "Appln. Rounding" DCLE when "Appln. Rounding Precision" is specified in Payment's currency when Stan applies LCY Invoice to LCY Payment
+        Initialize();
+
+        AmountDifference := LibraryRandom.RandIntInRange(15, 20);
+        GLApplicationRoundingPrecision := AmountDifference * 1.1;
+
+        LCYAmount := LibraryRandom.RandDecInRange(1000, 2000, 2);
+
+        LibraryERM.SetApplnRoundingPrecision(GLApplicationRoundingPrecision);
+
+        ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(
+          GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Document Type"::Payment,
+          '', '',
+          LCYAmount, -(LCYAmount + AmountDifference),
+          CustLedgerEntryApplying, CustLedgerEntryApplied);
+
+        VerifyCustomerEntriesClosed(CustLedgerEntryApplying);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplying);
+
+        VerifyCustomerEntriesOpen(CustLedgerEntryApplied);
+        VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntryApplied);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -489,10 +1071,18 @@ codeunit 134010 "ERM Application Customer"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateAccountInCustomerPostingGroup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        CustomerAmount := -1000;  // Use a fixed amount to avoid rounding issues.
         isInitialized := true;
         Commit();
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+    end;
+
+    local procedure ApplyAndPostGenJournalLine(var GenJournalLineApplying: Record "Gen. Journal Line"; var GenJournalLineApplied: Record "Gen. Journal Line")
+    begin
+        GenJournalLineApplying.Validate("Applies-to Doc. Type", GenJournalLineApplied."Document Type");
+        GenJournalLineApplying.Validate("Applies-to Doc. No.", GenJournalLineApplied."Document No.");
+        GenJournalLineApplying.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLineApplying);
     end;
 
     local procedure CustomerRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
@@ -843,6 +1433,36 @@ codeunit 134010 "ERM Application Customer"
         VerifyCustomerEntriesClosed(CustLedgerEntry);
     end;
 
+    local procedure CreateCurrencyWithApplicationRoundingPrecision(var Currency: Record Currency; ApplicationRoundingPrecision: Decimal; ExchangeRate: Decimal)
+    begin
+        Clear(Currency);
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, ExchangeRate, ExchangeRate));
+        Currency.Validate("Appln. Rounding Precision", ApplicationRoundingPrecision);
+        Currency.Modify(true);
+    end;
+
+    local procedure ScenarioPostDocumentAndApplyToOtherDocumentFCYApplnRounding(DocumentTypeApplying: Enum "Gen. Journal Account Type"; DocumentTypeApplied: Enum "Gen. Journal Account Type"; CurrencyCodeApplying: Code[10]; CurrencyCodeApplied: Code[10]; AmountApplying: Decimal; AmountApplied: Decimal; var CustLedgerEntryApplying: Record "Cust. Ledger Entry"; var CustLedgerEntryApplied: Record "Cust. Ledger Entry")
+    var
+        Customer: Record Customer;
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+    begin
+        LibrarySales.CreateCustomer(Customer);
+
+        CreateGenJournalLineFCY(GenJournalLine[2], DocumentTypeApplied, Customer."No.", CurrencyCodeApplied, AmountApplied);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine[2]);
+
+        CreateGenJournalLineFCY(GenJournalLine[1], DocumentTypeApplying, Customer."No.", CurrencyCodeApplying, AmountApplying);
+        ApplyAndPostGenJournalLine(GenJournalLine[1], GenJournalLine[2]);
+
+        FindCustLedgerEntry(
+          CustLedgerEntryApplying, Customer,
+          DocumentTypeApplying, GenJournalLine[1]."Document No.");
+
+        FindCustLedgerEntry(
+          CustLedgerEntryApplied, Customer,
+          DocumentTypeApplied, GenJournalLine[2]."Document No.");
+    end;
+
     local procedure SetupPaymentTolerance()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -851,6 +1471,11 @@ codeunit 134010 "ERM Application Customer"
         GeneralLedgerSetup.Validate("Payment Tolerance %", 1.0);
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", 5.0);
         GeneralLedgerSetup.Modify(true);
+    end;
+
+    local procedure GetCustomerAmount(): Decimal
+    begin
+        exit(-1000);
     end;
 
     local procedure GenerateDocument(GenJournalBatch: Record "Gen. Journal Batch"; Customer: Record Customer; PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; PmtCurrencyCode: Code[10]; InvCurrencyCode: Code[10]): Text[30]
@@ -921,12 +1546,32 @@ codeunit 134010 "ERM Application Customer"
         exit(GenJournalLine."Document No.");
     end;
 
+    local procedure CreateGenJournalLineFCY(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Account Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; DocumentAmount: Decimal)
+    begin
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, DocumentType,
+          GenJournalLine."Account Type"::Customer, CustomerNo, 0);
+
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate(Amount, DocumentAmount);
+        GenJournalLine.Modify(true);
+    end;
+
     local procedure ClearJournalBatch(GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
         GenJournalLine.DeleteAll();
+    end;
+
+    local procedure FindCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; Customer: Record Customer; DocumentType: Enum "Gen. Journal Account Type"; DocumentNo: Code[20])
+    begin
+        Clear(CustLedgerEntry);
+        CustLedgerEntry.Reset();
+        CustLedgerEntry.SetRange("Customer No.", Customer."No.");
+        CustLedgerEntry.SetAutoCalcFields("Remaining Amount", "Remaining Amt. (LCY)", Amount, "Amount (LCY)");
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
     end;
 
     local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
@@ -936,7 +1581,7 @@ codeunit 134010 "ERM Application Customer"
             "Entry No." :=
               LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             Open := true;
-            Insert;
+            Insert();
             MockDtldLedgEntry("Entry No.");
         end;
     end;
@@ -952,7 +1597,7 @@ codeunit 134010 "ERM Application Customer"
             "Cust. Ledger Entry No." := CustLedgEntryNo;
             "Entry Type" := "Entry Type"::"Initial Entry";
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -973,7 +1618,7 @@ codeunit 134010 "ERM Application Customer"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         GenJournalLine.SetFilter("Journal Batch Name", GenJournalBatch.Name);
-        GenJournalLine.FindFirst;
+        GenJournalLine.FindFirst();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -989,7 +1634,7 @@ codeunit 134010 "ERM Application Customer"
     local procedure PostCustomerApplicationOneGo(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
         // The first entry is the applying entry.
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         CustLedgerEntry.CalcFields(Amount);
         LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry.Amount);
 
@@ -997,7 +1642,7 @@ codeunit 134010 "ERM Application Customer"
         LibraryERM.SetAppliestoIdCustomer(CustLedgerEntry);
 
         // Call Apply codeunit.
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
@@ -1007,11 +1652,11 @@ codeunit 134010 "ERM Application Customer"
         i: Integer;
     begin
         // The first entry is the applying entry.
-        CustLedgerEntry.FindLast;
+        CustLedgerEntry.FindLast();
         CustLedgerEntry2.SetRange("Entry No.", CustLedgerEntry."Entry No.");
-        CustLedgerEntry2.FindFirst;
+        CustLedgerEntry2.FindFirst();
 
-        CustLedgerEntry.FindFirst;
+        CustLedgerEntry.FindFirst();
         for i := 1 to CustLedgerEntry.Count - 1 do begin
             CustLedgerEntry.CalcFields(Amount);
             LibraryERM.SetApplyCustomerEntry(CustLedgerEntry, CustLedgerEntry.Amount);
@@ -1022,7 +1667,7 @@ codeunit 134010 "ERM Application Customer"
             // Post application.
             LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
 
-            CustLedgerEntry.Next;
+            CustLedgerEntry.Next();
         end;
     end;
 
@@ -1045,7 +1690,7 @@ codeunit 134010 "ERM Application Customer"
 
         DtldCustLedgEntry2.SetRange("Transaction No.", DtldCustLedgEntry."Transaction No.");
         DtldCustLedgEntry2.SetRange("Customer No.", DtldCustLedgEntry."Customer No.");
-        DtldCustLedgEntry2.FindFirst;
+        DtldCustLedgEntry2.FindFirst();
 
         PostingDate := DtldCustLedgEntry."Posting Date";
 
@@ -1115,7 +1760,7 @@ codeunit 134010 "ERM Application Customer"
     var
         GLEntry: Record "G/L Entry";
     begin
-        GLEntry.FindLast;
+        GLEntry.FindLast();
         exit(GLEntry."Transaction No.");
     end;
 
@@ -1183,28 +1828,28 @@ codeunit 134010 "ERM Application Customer"
     end;
 
     local procedure VerifyCustomerEntriesClosed(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        CustLedgerEntryLocal: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            FindFirst;
-            repeat
-                Assert.IsFalse(Open, StrSubstNo('Customer ledger entry %1 did not close.', "Entry No."));
-            until Next = 0;
-        end;
+        CustLedgerEntry.FindLast();
+        CustLedgerEntryLocal.Copy(CustLedgerEntry);
+        CustLedgerEntryLocal.SetRange(Open, true);
+        Assert.RecordIsEmpty(CustLedgerEntryLocal);
     end;
 
     local procedure VerifyCustomerEntriesOpen(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        CustLedgerEntryLocal: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            FindFirst;
-            repeat
-                Assert.IsTrue(Open, StrSubstNo('Customer ledger entry %1 did not open.', "Entry No."));
-            until Next = 0;
-        end;
+        CustLedgerEntry.FindLast();
+        CustLedgerEntryLocal.Copy(CustLedgerEntry);
+        CustLedgerEntryLocal.SetRange(Open, false);
+        Assert.RecordIsEmpty(CustLedgerEntryLocal);
     end;
 
     local procedure VerifyAppliedLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; AppliesToID: Code[50])
     begin
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.CalcFields("Remaining Amount");
         CustLedgerEntry.TestField("Applies-to ID", AppliesToID);
         CustLedgerEntry.TestField("Amount to Apply", CustLedgerEntry."Remaining Amount");
@@ -1212,11 +1857,33 @@ codeunit 134010 "ERM Application Customer"
 
     local procedure VerifyUnappliedLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        CustLedgerEntry.Find;
+        CustLedgerEntry.Find();
         CustLedgerEntry.TestField("Applies-to ID", '');
         CustLedgerEntry.TestField("Amount to Apply", 0);
         CustLedgerEntry.TestField("Accepted Payment Tolerance", 0);
         CustLedgerEntry.TestField("Accepted Pmt. Disc. Tolerance", false);
+    end;
+
+    local procedure VerifyRoundingDtldEntryExists(CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        with DetailedCustLedgEntry do begin
+            SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+            SetRange("Entry Type", "Entry Type"::"Appln. Rounding");
+        end;
+        Assert.RecordIsNotEmpty(DetailedCustLedgEntry);
+    end;
+
+    local procedure VerifyRoundingDtldEntryDoesnotExist(CustLedgerEntry: Record "Cust. Ledger Entry")
+    var
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+    begin
+        with DetailedCustLedgEntry do begin
+            SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+            SetRange("Entry Type", "Entry Type"::"Appln. Rounding");
+        end;
+        Assert.RecordIsEmpty(DetailedCustLedgEntry);
     end;
 
     local procedure FindLastApplEntry(VendLedgEntryNo: Integer): Integer
