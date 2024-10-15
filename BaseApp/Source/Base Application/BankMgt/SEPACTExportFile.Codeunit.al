@@ -20,6 +20,12 @@
 
     var
         ExportToServerFile: Boolean;
+        FeatureNameTxt: label 'SEPA Credit Transfer Export', locked = true;
+
+    internal procedure FeatureName(): Text
+    begin
+        exit(FeatureNameTxt)
+    end;
 
     procedure Export(var GenJnlLine: Record "Gen. Journal Line"; XMLPortID: Integer) Result: Boolean
     var

@@ -1,3 +1,5 @@
+#pragma warning disable AA0228
+
 xmlport 1000 "SEPA CT pain.001.001.03"
 {
     Caption = 'SEPA CT pain.001.001.03';
@@ -487,7 +489,12 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     }
 
     trigger OnPreXmlPort()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SEPACTExportFile: Codeunit "SEPA CT-Export File";     
     begin
+        FeatureTelemetry.LogUptake('0000N1X', SEPACTExportFile.FeatureName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000N1Y', SEPACTExportFile.FeatureName(), 'XmlPort SEPA CT pain.001.001.03');
         InitData();
     end;
 
@@ -568,8 +575,14 @@ xmlport 1000 "SEPA CT pain.001.001.03"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnSpecifyRemittanceTextSeparatorText(var SeparatorText: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePassVariableRmtInf(PaymentExportData: Record "Payment Export Data"; var RemittanceText: Text; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AA0228
 }
 
