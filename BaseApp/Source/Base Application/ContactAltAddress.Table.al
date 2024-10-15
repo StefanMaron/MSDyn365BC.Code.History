@@ -29,11 +29,6 @@ table 5051 "Contact Alt. Address"
         field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(Address, "Address 2", "Post Code", City, "Country/Region Code", "Phone No.", "Fax No.");
-            end;
         }
         field(6; "Address 2"; Text[50])
         {
@@ -55,8 +50,13 @@ table 5051 "Contact Alt. Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; "Post Code"; Code[20])
@@ -79,11 +79,12 @@ table 5051 "Contact Alt. Address"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
+#if not CLEAN21
                 OnBeforeValidatePostPode(Rec, IsHandled);
-                if IsHandled then
-                    exit;
-
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+#endif
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; County; Text[30])
@@ -220,7 +221,6 @@ table 5051 "Contact Alt. Address"
 
     var
         PostCode: Record "Post Code";
-        PostCodeMgt: Codeunit "Post Code Management";
 
     local procedure SetSearchEmail()
     begin
@@ -228,8 +228,21 @@ table 5051 "Contact Alt. Address"
             "Search E-Mail" := "E-Mail";
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by event OnBeforeValidatePostCode()','21.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidatePostPode(var ContactAltAddress: Record "Contact Alt. Address"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var ContactAltAddress: Record "Contact Alt. Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var ContactAltAddress: Record "Contact Alt. Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -38,7 +38,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceQuote.Address.AssertEquals(PostCodeRange."Street Name");
         ServiceQuote."Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceQuote.City.AssertEquals(PostCodeRange.City);
-        ServiceQuote.Close;
+        ServiceQuote.Close();
     end;
 
     [Test]
@@ -63,7 +63,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceOrder.Address.AssertEquals(PostCodeRange."Street Name");
         ServiceOrder."Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceOrder.City.AssertEquals(PostCodeRange.City);
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceInvoice.Address.AssertEquals(PostCodeRange."Street Name");
         ServiceInvoice."Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceInvoice.City.AssertEquals(PostCodeRange.City);
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
     end;
 
     [Test]
@@ -113,7 +113,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceCreditMemo.Address.AssertEquals(PostCodeRange."Street Name");
         ServiceCreditMemo."Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceCreditMemo.City.AssertEquals(PostCodeRange.City);
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceQuote."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceQuote."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceQuote."Bill-to City".AssertEquals(PostCodeRange.City);
-        ServiceQuote.Close;
+        ServiceQuote.Close();
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceOrder."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceOrder."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceOrder."Bill-to City".AssertEquals(PostCodeRange.City);
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceInvoice."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceInvoice."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceInvoice."Bill-to City".AssertEquals(PostCodeRange.City);
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
     end;
 
     [Test]
@@ -213,7 +213,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceCreditMemo."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceCreditMemo."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceCreditMemo."Bill-to City".AssertEquals(PostCodeRange.City);
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -238,7 +238,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceQuote."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceQuote."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceQuote."Ship-to City".AssertEquals(PostCodeRange.City);
-        ServiceQuote.Close;
+        ServiceQuote.Close();
     end;
 
     [Test]
@@ -263,7 +263,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceOrder."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceOrder."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceOrder."Ship-to City".AssertEquals(PostCodeRange.City);
-        ServiceOrder.Close;
+        ServiceOrder.Close();
     end;
 
     [Test]
@@ -288,7 +288,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceInvoice."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceInvoice."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceInvoice."Ship-to City".AssertEquals(PostCodeRange.City);
-        ServiceInvoice.Close;
+        ServiceInvoice.Close();
     end;
 
     [Test]
@@ -313,7 +313,7 @@ codeunit 144019 "UT TAB Post Code"
         ServiceCreditMemo."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         ServiceCreditMemo."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         ServiceCreditMemo."Ship-to City".AssertEquals(PostCodeRange.City);
-        ServiceCreditMemo.Close;
+        ServiceCreditMemo.Close();
     end;
 
     [Test]
@@ -338,7 +338,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseQuote."Buy-from Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseQuote."Buy-from Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseQuote."Buy-from City".AssertEquals(PostCodeRange.City);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     [Test]
@@ -363,7 +363,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseOrder."Buy-from Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseOrder."Buy-from Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseOrder."Buy-from City".AssertEquals(PostCodeRange.City);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -388,7 +388,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseInvoice."Buy-from Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseInvoice."Buy-from Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseInvoice."Buy-from City".AssertEquals(PostCodeRange.City);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -413,7 +413,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseCreditMemo."Buy-from Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseCreditMemo."Buy-from Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseCreditMemo."Buy-from City".AssertEquals(PostCodeRange.City);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -438,7 +438,7 @@ codeunit 144019 "UT TAB Post Code"
         BlanketPurchaseOrder."Buy-from Address".AssertEquals(PostCodeRange."Street Name");
         BlanketPurchaseOrder."Buy-from Post Code".AssertEquals(PostCodeRange."Post Code");
         BlanketPurchaseOrder."Buy-from City".AssertEquals(PostCodeRange.City);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     [Test]
@@ -463,7 +463,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseReturnOrder."Buy-from Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseReturnOrder."Buy-from Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseReturnOrder."Buy-from City".AssertEquals(PostCodeRange.City);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     [Test]
@@ -488,7 +488,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseQuote."Pay-to Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseQuote."Pay-to Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseQuote."Pay-to City".AssertEquals(PostCodeRange.City);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     [Test]
@@ -513,7 +513,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseOrder."Pay-to Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseOrder."Pay-to Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseOrder."Pay-to City".AssertEquals(PostCodeRange.City);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -538,7 +538,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseInvoice."Pay-to Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseInvoice."Pay-to Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseInvoice."Pay-to City".AssertEquals(PostCodeRange.City);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -563,7 +563,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseCreditMemo."Pay-to Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseCreditMemo."Pay-to Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseCreditMemo."Pay-to City".AssertEquals(PostCodeRange.City);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -588,7 +588,7 @@ codeunit 144019 "UT TAB Post Code"
         BlanketPurchaseOrder."Pay-to Address".AssertEquals(PostCodeRange."Street Name");
         BlanketPurchaseOrder."Pay-to Post Code".AssertEquals(PostCodeRange."Post Code");
         BlanketPurchaseOrder."Pay-to City".AssertEquals(PostCodeRange.City);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     [Test]
@@ -613,7 +613,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseReturnOrder."Pay-to Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseReturnOrder."Pay-to Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseReturnOrder."Pay-to City".AssertEquals(PostCodeRange.City);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     [Test]
@@ -638,7 +638,7 @@ codeunit 144019 "UT TAB Post Code"
         PurchaseCreditMemo."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         PurchaseCreditMemo."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         PurchaseCreditMemo."Ship-to City".AssertEquals(PostCodeRange.City);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -663,7 +663,7 @@ codeunit 144019 "UT TAB Post Code"
         BlanketPurchaseOrder."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         BlanketPurchaseOrder."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         BlanketPurchaseOrder."Ship-to City".AssertEquals(PostCodeRange.City);
-        BlanketPurchaseOrder.Close;
+        BlanketPurchaseOrder.Close();
     end;
 
     [Test]
@@ -688,7 +688,7 @@ codeunit 144019 "UT TAB Post Code"
         VendorCard.Address.AssertEquals(PostCodeRange."Street Name");
         VendorCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         VendorCard.City.AssertEquals(PostCodeRange.City);
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -712,7 +712,7 @@ codeunit 144019 "UT TAB Post Code"
         VendorBankAccountCard.Address.AssertEquals(PostCodeRange."Street Name");
         VendorBankAccountCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         VendorBankAccountCard.City.AssertEquals(PostCodeRange.City);
-        VendorBankAccountCard.Close;
+        VendorBankAccountCard.Close();
     end;
 
     [Test]
@@ -736,7 +736,7 @@ codeunit 144019 "UT TAB Post Code"
         VendorBankAccountCard."Account Holder Address".AssertEquals(PostCodeRange."Street Name");
         VendorBankAccountCard."Account Holder Post Code".AssertEquals(PostCodeRange."Post Code");
         VendorBankAccountCard."Account Holder City".AssertEquals(PostCodeRange.City);
-        VendorBankAccountCard.Close;
+        VendorBankAccountCard.Close();
     end;
 
     [Test]
@@ -760,7 +760,7 @@ codeunit 144019 "UT TAB Post Code"
         CompanyInformation.Address.AssertEquals(PostCodeRange."Street Name");
         CompanyInformation."Post Code".AssertEquals(PostCodeRange."Post Code");
         CompanyInformation.City.AssertEquals(PostCodeRange.City);
-        CompanyInformation.Close;
+        CompanyInformation.Close();
     end;
 
     [Test]
@@ -784,7 +784,7 @@ codeunit 144019 "UT TAB Post Code"
         CompanyInformation."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         CompanyInformation."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         CompanyInformation."Ship-to City".AssertEquals(PostCodeRange.City);
-        CompanyInformation.Close;
+        CompanyInformation.Close();
     end;
 
     [Test]
@@ -808,7 +808,7 @@ codeunit 144019 "UT TAB Post Code"
         BankAccountCard."Account Holder Address".AssertEquals(PostCodeRange."Street Name");
         BankAccountCard."Account Holder Post Code".AssertEquals(PostCodeRange."Post Code");
         BankAccountCard."Account Holder City".AssertEquals(PostCodeRange.City);
-        BankAccountCard.Close;
+        BankAccountCard.Close();
     end;
 
     [Test]
@@ -832,7 +832,7 @@ codeunit 144019 "UT TAB Post Code"
         BankAccountCard.Address.AssertEquals(PostCodeRange."Street Name");
         BankAccountCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         BankAccountCard.City.AssertEquals(PostCodeRange.City);
-        BankAccountCard.Close;
+        BankAccountCard.Close();
     end;
 
     [Test]
@@ -859,7 +859,7 @@ codeunit 144019 "UT TAB Post Code"
         CompanyDetails.Address.AssertEquals(PostCodeRange."Street Name");
         CompanyDetails."Post Code".AssertEquals(PostCodeRange."Post Code");
         CompanyDetails.City.AssertEquals(PostCodeRange.City);
-        CompanyDetails.Close;
+        CompanyDetails.Close();
     end;
 
     [Test]
@@ -884,7 +884,7 @@ codeunit 144019 "UT TAB Post Code"
         ContactAltAddressCard.Address.AssertEquals(PostCodeRange."Street Name");
         ContactAltAddressCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         ContactAltAddressCard.City.AssertEquals(PostCodeRange.City);
-        ContactAltAddressCard.Close;
+        ContactAltAddressCard.Close();
     end;
 
     [Test]
@@ -909,7 +909,7 @@ codeunit 144019 "UT TAB Post Code"
         ContactCard.Address.AssertEquals(PostCodeRange."Street Name");
         ContactCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         ContactCard.City.AssertEquals(PostCodeRange.City);
-        ContactCard.Close;
+        ContactCard.Close();
     end;
 
     [Test]
@@ -937,7 +937,7 @@ codeunit 144019 "UT TAB Post Code"
         FinanceChargeMemo.Address.AssertEquals(PostCodeRange."Street Name");
         FinanceChargeMemo."Post Code".AssertEquals(PostCodeRange."Post Code");
         FinanceChargeMemo.City.AssertEquals(PostCodeRange.City);
-        FinanceChargeMemo.Close;
+        FinanceChargeMemo.Close();
     end;
 
     [Test]
@@ -962,7 +962,7 @@ codeunit 144019 "UT TAB Post Code"
         LocationCard.Address.AssertEquals(PostCodeRange."Street Name");
         LocationCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         LocationCard.City.AssertEquals(PostCodeRange.City);
-        LocationCard.Close;
+        LocationCard.Close();
     end;
 
     [Test]
@@ -987,7 +987,7 @@ codeunit 144019 "UT TAB Post Code"
         OrderAddressPage.Address.AssertEquals(PostCodeRange."Street Name");
         OrderAddressPage."Post Code".AssertEquals(PostCodeRange."Post Code");
         OrderAddressPage.City.AssertEquals(PostCodeRange.City);
-        OrderAddressPage.Close;
+        OrderAddressPage.Close();
     end;
 
     [Test]
@@ -1015,7 +1015,7 @@ codeunit 144019 "UT TAB Post Code"
         Reminder.Address.AssertEquals(PostCodeRange."Street Name");
         Reminder."Post Code".AssertEquals(PostCodeRange."Post Code");
         Reminder.City.AssertEquals(PostCodeRange.City);
-        Reminder.Close;
+        Reminder.Close();
     end;
 
     [Test]
@@ -1039,7 +1039,7 @@ codeunit 144019 "UT TAB Post Code"
         ResponsibilityCenterCard.Address.AssertEquals(PostCodeRange."Street Name");
         ResponsibilityCenterCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         ResponsibilityCenterCard.City.AssertEquals(PostCodeRange.City);
-        ResponsibilityCenterCard.Close;
+        ResponsibilityCenterCard.Close();
     end;
 
     [Test]
@@ -1064,7 +1064,7 @@ codeunit 144019 "UT TAB Post Code"
         ResourceCard.Address.AssertEquals(PostCodeRange."Street Name");
         ResourceCard."Post Code".AssertEquals(PostCodeRange."Post Code");
         ResourceCard.City.AssertEquals(PostCodeRange.City);
-        ResourceCard.Close;
+        ResourceCard.Close();
     end;
 
     [Test]
@@ -1089,7 +1089,7 @@ codeunit 144019 "UT TAB Post Code"
         TransferOrder."Transfer-from Address".AssertEquals(PostCodeRange."Street Name");
         TransferOrder."Transfer-from Post Code".AssertEquals(PostCodeRange."Post Code");
         TransferOrder."Transfer-from City".AssertEquals(PostCodeRange.City);
-        TransferOrder.Close;
+        TransferOrder.Close();
     end;
 
     [Test]
@@ -1114,7 +1114,7 @@ codeunit 144019 "UT TAB Post Code"
         TransferOrder."Transfer-to Address".AssertEquals(PostCodeRange."Street Name");
         TransferOrder."Transfer-to Post Code".AssertEquals(PostCodeRange."Post Code");
         TransferOrder."Transfer-to City".AssertEquals(PostCodeRange.City);
-        TransferOrder.Close;
+        TransferOrder.Close();
     end;
 
     [Test]
@@ -1139,7 +1139,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesQuote."Sell-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesQuote."Sell-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesQuote."Sell-to City".AssertEquals(PostCodeRange.City);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -1164,7 +1164,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesOrder."Sell-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesOrder."Sell-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesOrder."Sell-to City".AssertEquals(PostCodeRange.City);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -1189,7 +1189,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesInvoice."Sell-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesInvoice."Sell-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesInvoice."Sell-to City".AssertEquals(PostCodeRange.City);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -1214,7 +1214,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesCreditMemo."Sell-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesCreditMemo."Sell-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesCreditMemo."Sell-to City".AssertEquals(PostCodeRange.City);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -1239,7 +1239,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesQuote."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesQuote."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesQuote."Bill-to City".AssertEquals(PostCodeRange.City);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -1264,7 +1264,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesOrder."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesOrder."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesOrder."Bill-to City".AssertEquals(PostCodeRange.City);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -1289,7 +1289,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesInvoice."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesInvoice."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesInvoice."Bill-to City".AssertEquals(PostCodeRange.City);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -1314,7 +1314,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesCreditMemo."Bill-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesCreditMemo."Bill-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesCreditMemo."Bill-to City".AssertEquals(PostCodeRange.City);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -1339,7 +1339,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesQuote."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesQuote."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesQuote."Ship-to City".AssertEquals(PostCodeRange.City);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -1364,7 +1364,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesOrder."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesOrder."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesOrder."Ship-to City".AssertEquals(PostCodeRange.City);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -1389,7 +1389,7 @@ codeunit 144019 "UT TAB Post Code"
         SalesInvoice."Ship-to Address".AssertEquals(PostCodeRange."Street Name");
         SalesInvoice."Ship-to Post Code".AssertEquals(PostCodeRange."Post Code");
         SalesInvoice."Ship-to City".AssertEquals(PostCodeRange.City);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]

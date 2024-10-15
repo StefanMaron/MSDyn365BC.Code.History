@@ -39,7 +39,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         // [THEN] Verify DocAmountVAT and DocAmount are enabled on Purchase Invoice.
         Assert.IsTrue(PurchaseInvoicePage.DocAmountVAT.Enabled, MustBeEnabledMsg);
         Assert.IsTrue(PurchaseInvoicePage.DocAmount.Enabled, MustBeEnabledMsg);
-        PurchaseInvoicePage.Close;
+        PurchaseInvoicePage.Close();
     end;
 
     [Test]
@@ -61,7 +61,7 @@ codeunit 144034 "UT PAG EASINPPINV"
 
         // [WHEN] Invokes Action - Statistics on Purchase Invoice page and verification of Quantity is done inside PurchaseStatisticsPageHandler.
         PurchaseInvoice.Statistics.Invoke;  // Opens PurchaseStatisticsPageHandler.
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -92,7 +92,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         PurchaseLine2.SetRange("No.", PurchaseLine."No.");
         PurchaseLine2.FindFirst();
         PurchaseLine2.TestField(Quantity, -PurchaseLine.Quantity);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -117,7 +117,7 @@ codeunit 144034 "UT PAG EASINPPINV"
         // [THEN] Verify DocAmountVAT and DocAmount are enabled on Purchase Credit Memo.
         Assert.IsTrue(PurchaseCreditMemoPage.DocAmountVAT.Enabled, MustBeEnabledMsg);
         Assert.IsTrue(PurchaseCreditMemoPage.DocAmount.Enabled, MustBeEnabledMsg);
-        PurchaseCreditMemoPage.Close;
+        PurchaseCreditMemoPage.Close();
     end;
 
     local procedure Initialize()

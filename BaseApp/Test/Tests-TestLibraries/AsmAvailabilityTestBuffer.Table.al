@@ -1,5 +1,6 @@
 table 137093 "Asm. Availability Test Buffer"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -118,19 +119,19 @@ table 137093 "Asm. Availability Test Buffer"
     [Scope('OnPrem')]
     procedure ReadDataFromPage(var AsmAvailability: TestPage "Assembly Availability")
     begin
-        Reset;
+        Reset();
         DeleteAll();
 
-        Init;
+        Init();
         ReadHeaderFromPage(AsmAvailability);
-        Insert;
+        Insert();
 
         if AsmAvailability.AssemblyLineAvail.First then
             repeat
-                Init;
+                Init();
                 ReadLineFromPage(AsmAvailability);
-                Insert;
-            until not AsmAvailability.AssemblyLineAvail.Next;
+                Insert();
+            until not AsmAvailability.AssemblyLineAvail.Next();
     end;
 
     local procedure ReadHeaderFromPage(var AsmAvailability: TestPage "Assembly Availability")

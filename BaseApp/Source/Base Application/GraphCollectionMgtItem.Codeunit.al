@@ -6,11 +6,12 @@ codeunit 5470 "Graph Collection Mgt - Item"
     end;
 
     var
+        TypeHelper: Codeunit "Type Helper";
+
         ItemUOMDescriptionTxt: Label 'Graph CDM - Unit of Measure complex type on Item Entity page', Locked = true;
         ItemUOMConversionsDescriptionTxt: Label 'Graph CDM - Unit of Measure Conversions complex type on Item Entity page', Locked = true;
         ValueMustBeEqualErr: Label 'Conversions must be specified with %1 with value %2.', Locked = true;
         BaseUnitOfMeasureCannotHaveConversionsErr: Label 'Base Unit Of Measure must be specified on the item first.', Locked = true;
-        TypeHelper: Codeunit "Type Helper";
 
     [Scope('Cloud')]
     procedure InsertItemFromSalesDocument(var Item: Record Item; var TempFieldSet: Record "Field" temporary; UnitOfMeasureJSON: Text)
@@ -106,13 +107,13 @@ codeunit 5470 "Graph Collection Mgt - Item"
         JSONManagement.InitializeObject(UnitOfMeasureJSON);
         JSONManagement.GetJSONObject(JsonObject);
 
-        ItemUOMConversionJObject := ItemUOMConversionJObject.JObject;
+        ItemUOMConversionJObject := ItemUOMConversionJObject.JObject();
         JSONManagement.AddJPropertyToJObject(
-          ItemUOMConversionJObject, UOMConversionComplexTypeToUnitOfMeasure, Item."Base Unit of Measure");
+          ItemUOMConversionJObject, UOMConversionComplexTypeToUnitOfMeasure(), Item."Base Unit of Measure");
         JSONManagement.AddJPropertyToJObject(
-          ItemUOMConversionJObject, UOMConversionComplexTypeFromToConversionRate, ItemUnitOfMeasure."Qty. per Unit of Measure");
-        JSONManagement.AddJObjectToJObject(JsonObject, UOMConversionComplexTypeName, ItemUOMConversionJObject);
-        exit(JSONManagement.WriteObjectToString);
+          ItemUOMConversionJObject, UOMConversionComplexTypeFromToConversionRate(), ItemUnitOfMeasure."Qty. per Unit of Measure");
+        JSONManagement.AddJObjectToJObject(JsonObject, UOMConversionComplexTypeName(), ItemUOMConversionJObject);
+        exit(JSONManagement.WriteObjectToString());
     end;
 
     [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
@@ -228,7 +229,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
     local procedure InsertOrUpdateUnitOfMeasureRecord(var UnitOfMeasure: Record "Unit of Measure"; var TempUnitOfMeasure: Record "Unit of Measure" temporary)
     var
-        Modify: Boolean;
+        DoModify: Boolean;
     begin
         if TempUnitOfMeasure.Code = '' then
             exit;
@@ -241,15 +242,15 @@ codeunit 5470 "Graph Collection Mgt - Item"
 
         if not (TempUnitOfMeasure.Description in [UnitOfMeasure.Description, '']) then begin
             UnitOfMeasure.Validate(Description, TempUnitOfMeasure.Description);
-            Modify := true;
+            DoModify := true;
         end;
 
         if not (TempUnitOfMeasure.Symbol in [UnitOfMeasure.Symbol, '']) then begin
             UnitOfMeasure.Validate(Symbol, TempUnitOfMeasure.Symbol);
-            Modify := true;
+            DoModify := true;
         end;
 
-        if Modify then
+        if DoModify then
             UnitOfMeasure.Modify(true);
     end;
 
@@ -277,10 +278,10 @@ codeunit 5470 "Graph Collection Mgt - Item"
         JSONManagement.InitializeObject(UnitOfMeasureJSONString);
         JSONManagement.GetJSONObject(JsonObject);
 
-        GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(JsonObject, UOMComplexTypeUnitCode, UnitCode);
+        GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(JsonObject, UOMComplexTypeUnitCode(), UnitCode);
         UnitOfMeasure.Code := CopyStr(UnitCode, 1, MaxStrLen(UnitOfMeasure.Code));
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMComplexTypeUnitName, UnitOfMeasure.Description);
-        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMComplexTypeSymbol, UnitOfMeasure.Symbol);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMComplexTypeUnitName(), UnitOfMeasure.Description);
+        JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMComplexTypeSymbol(), UnitOfMeasure.Symbol);
     end;
 
     local procedure ParseJSONToItemUnitOfMeasure(UnitOfMeasureJSONString: Text; var Item: Record Item; var TempItemUnitOfMeasure: Record "Item Unit of Measure" temporary; var UnitOfMeasure: Record "Unit of Measure"; var BaseUnitOfMeasureCode: Code[20]): Boolean
@@ -295,7 +296,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         JSONManagement.InitializeObject(UnitOfMeasureJSONString);
         JSONManagement.GetJSONObject(JsonObject);
 
-        if not JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMConversionComplexTypeName, ConversionsTxt) then
+        if not JSONManagement.GetStringPropertyValueFromJObjectByName(JsonObject, UOMConversionComplexTypeName(), ConversionsTxt) then
             exit(false);
 
         if ConversionsTxt = '' then
@@ -308,11 +309,11 @@ codeunit 5470 "Graph Collection Mgt - Item"
         JSONManagement.GetJSONObject(JsonObject);
 
         GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(
-          JsonObject, UOMConversionComplexTypeToUnitOfMeasure, BaseUnitOfMeasureTxt);
+          JsonObject, UOMConversionComplexTypeToUnitOfMeasure(), BaseUnitOfMeasureTxt);
         BaseUnitOfMeasureCode := CopyStr(BaseUnitOfMeasureTxt, 1, 20);
 
         GraphMgtGeneralTools.GetMandatoryStringPropertyFromJObject(
-          JsonObject, UOMConversionComplexTypeFromToConversionRate, FromToConversionRateTxt);
+          JsonObject, UOMConversionComplexTypeFromToConversionRate(), FromToConversionRateTxt);
         Evaluate(TempItemUnitOfMeasure."Qty. per Unit of Measure", FromToConversionRateTxt);
         TempItemUnitOfMeasure."Item No." := Item."No.";
         TempItemUnitOfMeasure.Code := UnitOfMeasure.Code;
@@ -327,7 +328,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
         GraphMgtGeneralTools: Codeunit "Graph Mgt - General Tools";
     begin
         GraphMgtGeneralTools.InsertOrUpdateODataType('ITEM-UOM', ItemUOMDescriptionTxt, GetItemUOMEDM('ITEM-UOM-CONVERSION'));
-        GraphMgtGeneralTools.InsertOrUpdateODataType('ITEM-UOM-CONVERSION', ItemUOMConversionsDescriptionTxt, GetItemUOMConversionEDM);
+        GraphMgtGeneralTools.InsertOrUpdateODataType('ITEM-UOM-CONVERSION', ItemUOMConversionsDescriptionTxt, GetItemUOMConversionEDM());
     end;
 
     local procedure GetItemUOMEDM(UOMConversionDefinitionCode: Code[50]): Text
@@ -337,13 +338,13 @@ codeunit 5470 "Graph Collection Mgt - Item"
         exit(
           '<ComplexType Name="unitOfMeasureType">' +
           StrSubstNo('<Property Name="%1" Type="Edm.String" Nullable="true" MaxLength="%2" />',
-            UOMComplexTypeUnitCode, MaxStrLen(DummyUnitOfMeasure.Code)) +
+            UOMComplexTypeUnitCode(), MaxStrLen(DummyUnitOfMeasure.Code)) +
           StrSubstNo('<Property Name="%1" Type="Edm.String" Nullable="true" MaxLength="%2" />',
-            UOMComplexTypeUnitName, MaxStrLen(DummyUnitOfMeasure.Description)) +
+            UOMComplexTypeUnitName(), MaxStrLen(DummyUnitOfMeasure.Description)) +
           StrSubstNo('<Property Name="%1" Type="Edm.String" Nullable="true" MaxLength="%2" />',
-            UOMComplexTypeSymbol, MaxStrLen(DummyUnitOfMeasure.Symbol)) +
+            UOMComplexTypeSymbol(), MaxStrLen(DummyUnitOfMeasure.Symbol)) +
           StrSubstNo('<Property Name="%1" Type="%2" Nullable="true" />',
-            UOMConversionComplexTypeName, UOMConversionDefinitionCode) +
+            UOMConversionComplexTypeName(), UOMConversionDefinitionCode) +
           '</ComplexType>');
     end;
 
@@ -354,15 +355,15 @@ codeunit 5470 "Graph Collection Mgt - Item"
         exit(
           '<ComplexType Name="itemUnitOfMeasureConversionType">' +
           StrSubstNo('<Property Name="%1" Type="Edm.String" Nullable="true" MaxLength="%2" />',
-            UOMConversionComplexTypeToUnitOfMeasure, MaxStrLen(DummyItem."Base Unit of Measure")) +
+            UOMConversionComplexTypeToUnitOfMeasure(), MaxStrLen(DummyItem."Base Unit of Measure")) +
           StrSubstNo('<Property Name="%1" Type="Edm.Decimal" Nullable="true" />',
-            UOMConversionComplexTypeFromToConversionRate) +
+            UOMConversionComplexTypeFromToConversionRate()) +
           '</ComplexType>');
     end;
 
     local procedure EnableItemODataWebService()
     begin
-        WriteItemEDMComplexTypes;
+        WriteItemEDMComplexTypes();
         UpdateIntegrationRecords(false);
     end;
 
@@ -430,15 +431,15 @@ codeunit 5470 "Graph Collection Mgt - Item"
             exit;
 
         if Item."Base Unit of Measure" <> UpperCase(BaseUnitOfMeasure) then
-            Error(ValueMustBeEqualErr, UOMConversionComplexTypeToUnitOfMeasure, Item."Base Unit of Measure");
+            Error(ValueMustBeEqualErr, UOMConversionComplexTypeToUnitOfMeasure(), Item."Base Unit of Measure");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
-        EnableItemODataWebService;
+        EnableItemODataWebService();
         UpdateIntegrationRecords(false);
-        UpdateIds;
+        UpdateIds();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Management", 'OnUpdateRelatedRecordIdFields', '', false, false)]
@@ -456,7 +457,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
             exit;
 
         RecRef.SetTable(Item);
-        Item.UpdateReferencedIds;
+        Item.UpdateReferencedIds();
 
         UpdatedRecRef.GetTable(Item);
         Item.GetReferencedIds(TempField);
@@ -478,7 +479,7 @@ codeunit 5470 "Graph Collection Mgt - Item"
             exit;
 
         repeat
-            Item.UpdateReferencedIds;
+            Item.UpdateReferencedIds();
             Item.Modify(false);
             if WithCommit then
                 APIDataUpgrade.CountRecordsAndCommit(RecordCount);

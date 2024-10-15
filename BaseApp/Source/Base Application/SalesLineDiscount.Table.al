@@ -1,7 +1,7 @@
 table 7004 "Sales Line Discount"
 {
     Caption = 'Sales Line Discount';
-#if not CLEAN19
+#if not CLEAN21
     LookupPageID = "Sales Line Discounts";
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
@@ -132,7 +132,7 @@ table 7004 "Sales Line Discount"
             Caption = 'Unit of Measure Code';
             TableRelation = IF (Type = CONST(Item)) "Item Unit of Measure".Code WHERE("Item No." = FIELD(Code));
 
-#if not CLEAN19
+#if not CLEAN21
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -193,12 +193,13 @@ table 7004 "Sales Line Discount"
     end;
 
     var
+        Campaign: Record Campaign;
+
         Text000: Label '%1 cannot be after %2';
         Text001: Label '%1 must be blank.';
-        Campaign: Record Campaign;
         Text003: Label 'You can only change the %1 and %2 from the Campaign Card when %3 = %4.';
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('This table is replaced by the new implementation (V16) of price calculation: table Price List Line', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitofMeasureCode(var SalesLineDiscount: Record "Sales Line Discount"; xSalesLineDiscount: Record "Sales Line Discount"; var IsHandled: Boolean)

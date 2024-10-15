@@ -1133,7 +1133,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           SalesLine."Unit Price",
           PurchaseLine."Direct Unit Cost",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
     end;
 
     [Test]
@@ -1161,7 +1161,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           PurchaseLine."Direct Unit Cost",
           Round(SalesLine."Unit Price", 0.01),
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
     end;
 
     [Test]
@@ -1199,7 +1199,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           ICOutboxSalesLine."IC Partner Ref. Type"::Item,
           ICOutboxSalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, ICOutboxSalesLine.TableCaption, ICOutboxSalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, ICOutboxSalesLine.TableCaption(), ICOutboxSalesLine.FieldCaption("IC Partner Ref. Type")));
     end;
 
     [Test]
@@ -1237,7 +1237,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           ICOutboxSalesLine."IC Partner Ref. Type"::Item,
           ICOutboxSalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, ICOutboxSalesLine.TableCaption, ICOutboxSalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, ICOutboxSalesLine.TableCaption(), ICOutboxSalesLine.FieldCaption("IC Partner Ref. Type")));
     end;
 
     [Test]
@@ -1351,7 +1351,7 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine."Unit Price",
           PurchaseLine."Direct Unit Cost",
           LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
 
         Assert.AreEqual(SalesLine."Amount Including VAT", PurchaseLine."Line Amount", PurchaseLine.FieldCaption("Line Amount"));
     end;
@@ -1388,7 +1388,7 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseLine."Direct Unit Cost",
           SalesLine."Unit Price",
           LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
 
         Assert.AreEqual(PurchaseLine."Amount Including VAT", SalesLine."Line Amount", SalesLine.FieldCaption("Line Amount"));
     end;
@@ -1424,7 +1424,7 @@ codeunit 134152 "ERM Intercompany II"
           SalesLine."Unit Price",
           PurchaseLine."Direct Unit Cost",
           LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
 
         Assert.AreEqual(SalesLine."Line Amount", PurchaseLine."Line Amount", PurchaseLine.FieldCaption("Line Amount"));
     end;
@@ -1461,7 +1461,7 @@ codeunit 134152 "ERM Intercompany II"
           PurchaseLine."Direct Unit Cost",
           SalesLine."Unit Price",
           LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
 
         Assert.AreEqual(PurchaseLine."Line Amount", SalesLine."Line Amount", SalesLine.FieldCaption("Line Amount"));
     end;
@@ -2018,7 +2018,7 @@ codeunit 134152 "ERM Intercompany II"
         // [THEN] Sales Document is created
         Assert.IsTrue(
           SalesHeader.Get(SalesHeader."Document Type"::Order, SalesHeader."No."),
-          SalesHeader.TableCaption);
+          SalesHeader.TableCaption());
     end;
 
     [Test]
@@ -2202,7 +2202,7 @@ codeunit 134152 "ERM Intercompany II"
         asserterror Customer.Validate("IC Partner Code", ICPartnerCode);
 
         // [THEN] Error occurs: You cannot change the contents of the IC Partner Code field because ...
-        Assert.ExpectedError(StrSubstNo(ICPartnerCodeModifyErr, Customer.FieldCaption("IC Partner Code"), Customer.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ICPartnerCodeModifyErr, Customer.FieldCaption("IC Partner Code"), Customer.TableCaption()));
     end;
 
     [Test]
@@ -2234,7 +2234,7 @@ codeunit 134152 "ERM Intercompany II"
         Customer.Validate("IC Partner Code", ICPartnerCode);
 
         // [THEN] Customer."IC Partner Code" = 'X'
-        Customer.Find;
+        Customer.Find();
         Customer.TestField("IC Partner Code", CustomerICPartnerCode);
     end;
 
@@ -2264,7 +2264,7 @@ codeunit 134152 "ERM Intercompany II"
         asserterror Vendor.Validate("IC Partner Code", ICPartnerCode);
 
         // [THEN] Error occurs: You cannot change the contents of the IC Partner Code field because ...
-        Assert.ExpectedError(StrSubstNo(ICPartnerCodeModifyErr, Vendor.FieldCaption("IC Partner Code"), Vendor.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ICPartnerCodeModifyErr, Vendor.FieldCaption("IC Partner Code"), Vendor.TableCaption()));
     end;
 
     [Test]
@@ -2296,7 +2296,7 @@ codeunit 134152 "ERM Intercompany II"
         Vendor.Validate("IC Partner Code", ICPartnerCode);
 
         // [THEN] Vendor."IC Partner Code" = 'X'
-        Vendor.Find;
+        Vendor.Find();
         Vendor.TestField("IC Partner Code", VendorICPartnerCode);
     end;
 
@@ -2434,11 +2434,11 @@ codeunit 134152 "ERM Intercompany II"
         CopyPurchaseDocument("Purchase Document Type From"::Order, PurchaseHeader, ToPurchaseHeader);
 
         // [THEN] New Purchase Document "IC Status" = "New"
-        ToPurchaseHeader.Find;
+        ToPurchaseHeader.Find();
         Assert.AreEqual(
           ToPurchaseHeader."IC Status",
           ToPurchaseHeader."IC Status"::New,
-          StrSubstNo(TableFieldErr, ToPurchaseHeader.TableCaption, ToPurchaseHeader.FieldCaption("IC Status")));
+          StrSubstNo(TableFieldErr, ToPurchaseHeader.TableCaption(), ToPurchaseHeader.FieldCaption("IC Status")));
     end;
 
     [Test]
@@ -2774,9 +2774,9 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetIntercompanyPostingsEdit;
         LibraryLowerPermissions.AddPurchDocsPost();
         LibraryPurchase.CreatePurchaseDocumentWithItem(InvoicePurchaseHeader, InvoicePurchaseLine,
-          InvoicePurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, Quantity, '', WorkDate);
+          InvoicePurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, Quantity, '', WorkDate());
         LibraryPurchase.CreatePurchaseDocumentWithItem(OrderPurchaseHeader, OrderPurchaseLine,
-          OrderPurchaseHeader."Document Type"::Order, VendorNo, ItemNo, Quantity, '', WorkDate);
+          OrderPurchaseHeader."Document Type"::Order, VendorNo, ItemNo, Quantity, '', WorkDate());
 
         // [GIVEN] Purchase invoice was created like this Purchase Order (Company 1) Send-> Sales Order (Company 2) Post-> Purchase Invoice (Company 1)
         InvoicePurchaseHeader."Your Reference" := OrderPurchaseHeader."No.";
@@ -2824,9 +2824,9 @@ codeunit 134152 "ERM Intercompany II"
         LibraryLowerPermissions.SetPurchDocsPost;
         LibraryLowerPermissions.AddIntercompanyPostingsEdit;
         LibraryPurchase.CreatePurchaseDocumentWithItem(InvoicePurchaseHeader, InvoicePurchaseLine,
-          InvoicePurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, Quantity, '', WorkDate);
+          InvoicePurchaseHeader."Document Type"::Invoice, VendorNo, ItemNo, Quantity, '', WorkDate());
         LibraryPurchase.CreatePurchaseDocumentWithItem(OrderPurchaseHeader, OrderPurchaseLine,
-          OrderPurchaseHeader."Document Type"::Order, VendorNo, ItemNo, Quantity, '', WorkDate);
+          OrderPurchaseHeader."Document Type"::Order, VendorNo, ItemNo, Quantity, '', WorkDate());
 
         // [GIVEN] Purchase invoice was created like this Purchase Order (Company 1) Send-> Sales Order (Company 2) Post-> Purchase Invoice (Company 1)
         InvoicePurchaseHeader."IC Direction" := InvoicePurchaseHeader."IC Direction"::Incoming;
@@ -2896,7 +2896,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           ReceiptNo,
           PurchaseLine."Receipt No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Receipt No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Receipt No.")));
 
         // Cleanup
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -2950,7 +2950,7 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           ReturnShipmentNo,
           PurchaseLine."Return Shipment No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Return Shipment No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Return Shipment No.")));
     end;
 
     [Test]
@@ -3475,7 +3475,7 @@ codeunit 134152 "ERM Intercompany II"
         MockICInboxSalesHeaderWithShipToCountryRegionAndCounty(ICInboxSalesHeader, Customer);
 
         // [WHEN] Create Sales Document in codeunit ICInboxOutboxMgt
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, true, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, true, WorkDate());
 
         // [THEN] Handled IC Inbox Sales Header has "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C"
         HandledICInboxSalesHeader.SetRange("IC Partner Code", ICInboxSalesHeader."IC Partner Code");
@@ -3510,7 +3510,7 @@ codeunit 134152 "ERM Intercompany II"
         MockICInboxPurchHeaderWithShipToCountryRegionAndCounty(ICInboxPurchaseHeader);
 
         // [WHEN] Create Purchase Document in codeunit ICInboxOutboxMgt
-        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, true, WorkDate);
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, true, WorkDate());
 
         // [THEN] Handled IC Inbox Purch. Header has "Ship-to Country/Region Code" = "CRC" and "Ship-to County" = "C"
         HandledICInboxPurchHeader.SetRange("IC Partner Code", ICInboxPurchaseHeader."IC Partner Code");
@@ -3872,7 +3872,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Purchase Order for IC Vendor and Item "I"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, CreateICVendor(CreateICPartner),
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
 
         // [WHEN] Post Purchase Order
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -3899,7 +3899,7 @@ codeunit 134152 "ERM Intercompany II"
         // [GIVEN] Sales Order for IC Customer and Item "I"
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CreateICCustomer(CreateICPartner),
-          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandDecInRange(10, 20, 2), '', WorkDate());
 
         // [WHEN] Post Purchase Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -3929,7 +3929,7 @@ codeunit 134152 "ERM Intercompany II"
         ItemNo := LibraryInventory.CreateItemNo();
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2),
-          '', WorkDate);
+          '', WorkDate());
 
         // [GIVEN] Posted Purchase Order
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -3967,7 +3967,7 @@ codeunit 134152 "ERM Intercompany II"
         ItemNo := LibraryInventory.CreateItemNo();
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CustNo, ItemNo, LibraryRandom.RandDecInRange(10, 20, 2),
-          '', WorkDate);
+          '', WorkDate());
 
         // [GIVEN] Posted Sales Order
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -4114,7 +4114,7 @@ codeunit 134152 "ERM Intercompany II"
           ICInboxSalesLine, ICInboxSalesHeader, ItemNo[2], UnitPrice, Qty, Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '<'));
 
         // [WHEN] Create and release a new sales order from the intercompany inbox.
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
         FindSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -4131,7 +4131,7 @@ codeunit 134152 "ERM Intercompany II"
         SalesLine.TestField("Amount Including VAT", Round(AmtInclVAT, LibraryERM.GetAmountRoundingPrecision, '<'));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure SalesPriceIsNotOverriddenWhenSalesLineCreatedFromInbox()
@@ -4165,7 +4165,7 @@ codeunit 134152 "ERM Intercompany II"
         MockICInboxSalesLine(ICInboxSalesLine, ICInboxSalesHeader, ItemNo, UnitPrice, Qty, Qty * UnitPrice);
 
         // [WHEN] Create a new sales order from the intercompany inbox.
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
         FindSalesDocument(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
 
         // [THEN] The unit price on the new sales order line is 50 LCY.
@@ -4570,7 +4570,7 @@ codeunit 134152 "ERM Intercompany II"
             Get(CreateICPartner);
             Validate("Outbound Sales Item No. Type", "Outbound Sales Item No. Type"::"Common Item No.");
             Validate("Outbound Purch. Item No. Type", "Outbound Purch. Item No. Type"::"Common Item No.");
-            Modify;
+            Modify();
             exit(Code);
         end;
     end;
@@ -4781,10 +4781,10 @@ codeunit 134152 "ERM Intercompany II"
 
         SalesHeader.Validate(
           "Requested Delivery Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         SalesHeader.Validate(
           "Promised Delivery Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         SalesHeader.Modify(true);
     end;
 
@@ -4847,10 +4847,10 @@ codeunit 134152 "ERM Intercompany II"
 
         PurchaseHeader.Validate(
           "Requested Receipt Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)), WorkDate()));
         PurchaseHeader.Validate(
           "Promised Receipt Date",
-          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate));
+          CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(1, 4)), WorkDate()));
         PurchaseHeader.Modify(true);
     end;
 
@@ -5037,7 +5037,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         ItemNo := CreateTrackedItem;
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, ItemNo, 5, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, VendorNo, ItemNo, 5, '', WorkDate());
 
         for i := 1 to 2 do begin
             Evaluate(Qty, SelectStr(i, QtysToReceive));
@@ -5080,7 +5080,7 @@ codeunit 134152 "ERM Intercompany II"
     begin
         ItemNo := CreateTrackedItem;
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", VendorNo, ItemNo, 5, '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", VendorNo, ItemNo, 5, '', WorkDate());
 
         for i := 1 to 2 do begin
             Evaluate(Qty, SelectStr(i, QtysToShip));
@@ -5116,13 +5116,13 @@ codeunit 134152 "ERM Intercompany II"
         RecRef: RecordRef;
     begin
         with VendorLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(VendorLedgEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Vendor No." := VendorNo;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5132,13 +5132,13 @@ codeunit 134152 "ERM Intercompany II"
         RecRef: RecordRef;
     begin
         with CustLedgEntry do begin
-            Init;
+            Init();
             RecRef.GetTable(CustLedgEntry);
             "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Customer No." := CustomerNo;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5204,7 +5204,7 @@ codeunit 134152 "ERM Intercompany II"
         ICInboxSalesHeader."Ship-to County" := PadStr(
             LibraryUtility.GenerateRandomText(MaxStrLen(ICInboxSalesHeader."Ship-to County")),
             MaxStrLen(ICInboxSalesHeader."Ship-to County"));
-        ICInboxSalesHeader."Posting Date" := WorkDate;
+        ICInboxSalesHeader."Posting Date" := WorkDate();
         ICInboxSalesHeader.Insert();
     end;
 
@@ -5245,7 +5245,7 @@ codeunit 134152 "ERM Intercompany II"
             "Line Amount" := "Unit Price" * Quantity;
             "VAT Base Amount" := "Unit Price" * Quantity;
             "Amount Including VAT" := AmtInclVAT;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -5425,7 +5425,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
     begin
-        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate());
         ICOutboxSalesLine."Document Type" := ICOutboxSalesLine."Document Type"::Invoice;
         InboxICPurchaseDocument(
           PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, ICOutboxSalesLine, SalesInvoiceNo, VendorNo);
@@ -5435,7 +5435,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
     begin
-        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate());
         ICOutboxSalesLine."Document Type" := ICOutboxSalesLine."Document Type"::"Credit Memo";
         InboxICPurchaseDocument(
           PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, ICOutboxSalesLine, SalesCrMemoNo, VendorNo);
@@ -5445,7 +5445,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICOutboxPurchLine: Record "IC Outbox Purchase Line";
     begin
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
         ICOutboxPurchLine."Document Type" := ICOutboxPurchLine."Document Type"::Invoice;
         InboxICSalesDocument(
           SalesHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxSalesHeader, ICOutboxPurchLine, PurchInvoiceNo, CustomerNo);
@@ -5455,7 +5455,7 @@ codeunit 134152 "ERM Intercompany II"
     var
         ICOutboxSalesLine: Record "IC Outbox Sales Line";
     begin
-        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate());
         ICOutboxSalesLine."Document Type" := ConvertDocTypeToICOutboxSalesLine(SalesHeader."Document Type");
         InboxICPurchaseDocument(
           PurchaseHeader, ICOutboxTransaction, ICInboxTransaction, ICInboxPurchaseHeader, ICOutboxSalesLine, SalesHeader."No.", VendorNo);
@@ -5470,13 +5470,13 @@ codeunit 134152 "ERM Intercompany II"
           ICOutboxSalesLine, ICOutboxTransaction."Transaction No.",
           SalesDocumentNo, ICOutboxSalesLine."Document Type");
 
-        ICOutboxSalesLine.SetRecFilter;
+        ICOutboxSalesLine.SetRecFilter();
         ICOutboxSalesLine.SetRange("Line No.");
         ICOutboxSalesLine.FindSet();
         repeat
             ICInboxOutboxMgt.OutboxSalesLineToInbox(ICInboxTransaction, ICOutboxSalesLine, ICInboxPurchaseLine);
             ICInboxOutboxMgt.CreatePurchLines(PurchaseHeader, ICInboxPurchaseLine);
-        until ICOutboxSalesLine.Next = 0;
+        until ICOutboxSalesLine.Next() = 0;
     end;
 
     local procedure InboxICSalesDocument(var SalesHeader: Record "Sales Header"; var ICOutboxTransaction: Record "IC Outbox Transaction"; var ICInboxTransaction: Record "IC Inbox Transaction"; var ICInboxSalesHeader: Record "IC Inbox Sales Header"; var ICOutboxPurchaseLine: Record "IC Outbox Purchase Line"; PurchDocumentNo: Code[20]; CustomerNo: Code[20])
@@ -5488,13 +5488,13 @@ codeunit 134152 "ERM Intercompany II"
           ICOutboxPurchaseLine, ICOutboxTransaction."Transaction No.",
           PurchDocumentNo, ICOutboxPurchaseLine."Document Type");
 
-        ICOutboxPurchaseLine.SetRecFilter;
+        ICOutboxPurchaseLine.SetRecFilter();
         ICOutboxPurchaseLine.SetRange("Line No.");
         ICOutboxPurchaseLine.FindSet();
         repeat
             ICInboxOutboxMgt.OutboxPurchLineToInbox(ICInboxTransaction, ICOutboxPurchaseLine, ICInboxSalesLine);
             ICInboxOutboxMgt.CreateSalesLines(SalesHeader, ICInboxSalesLine);
-        until ICOutboxPurchaseLine.Next = 0;
+        until ICOutboxPurchaseLine.Next() = 0;
     end;
 
     local procedure PostAndVerifyICGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; SignFactor: Integer)
@@ -5571,7 +5571,7 @@ codeunit 134152 "ERM Intercompany II"
         ICOutboxPurchaseLine: Record "IC Outbox Purchase Line";
         ICInboxSalesLine: Record "IC Inbox Sales Line";
     begin
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
         FindSalesDocument(SalesHeader, PurchaseHeader."Document Type", CustomerNo);
         FindICOutboxPurchaseLine(
           ICOutboxPurchaseLine, ICOutboxTransaction."Transaction No.",
@@ -5806,7 +5806,7 @@ codeunit 134152 "ERM Intercompany II"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Check Doc. Total Amounts", false);
             Modify(true);
         end;
@@ -5921,7 +5921,7 @@ codeunit 134152 "ERM Intercompany II"
         with Item do begin
             Get(ItemNo);
             Validate("Common Item No.", NewCommonItemNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -6131,10 +6131,10 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           AccountNo, ICOutboxJnlLine."Account No.",
           StrSubstNo(
-            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption));
+            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; ICPartnerCode: Code[20]; AccountNo: Code[20]; Amount: Decimal)
@@ -6148,7 +6148,7 @@ codeunit 134152 "ERM Intercompany II"
         GLEntry.TestField("IC Partner Code", ICPartnerCode);
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(ValidationErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(ValidationErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyDimSetIDInICGLEntry(DocumentNo: Code[20]; AccountNo: Code[20]; ICPartnerCode: Code[20]; DimSetID: Integer; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])
@@ -6262,23 +6262,23 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           PurchaseLine."No.",
           SalesLine."No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
         Assert.AreEqual(
           PurchaseLine."Item Reference No.",
           SalesLine."Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("Item Reference No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("Item Reference No.")));
         Assert.AreEqual(
           PurchaseLine."Variant Code",
           SalesLine."Variant Code",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("Variant Code")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("Variant Code")));
         Assert.AreEqual(
           SalesLine."IC Partner Ref. Type"::"Cross Reference",
           SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           PurchaseLine."Item Reference No.",
           SalesLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Item Reference No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Item Reference No.")));
     end;
 
     local procedure VerifyPurchDocItemRefInfo(PurchaseHeader: Record "Purchase Header"; SalesHeader: Record "Sales Header")
@@ -6291,23 +6291,23 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           SalesLine."No.",
           PurchaseLine."No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
         Assert.AreEqual(
           SalesLine."Item Reference No.",
           PurchaseLine."Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Item Reference No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Item Reference No.")));
         Assert.AreEqual(
           SalesLine."Variant Code",
           PurchaseLine."Variant Code",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("Variant Code")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("Variant Code")));
         Assert.AreEqual(
           PurchaseLine."IC Partner Ref. Type"::"Cross Reference",
           PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
         Assert.AreEqual(
           SalesLine."Item Reference No.",
           PurchaseLine."IC Item Reference No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Item Reference No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Item Reference No.")));
     end;
 
     local procedure VerifyReservationEntryExists(DocumentType: Option; DocumentNo: Code[20])
@@ -6402,12 +6402,12 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           PurchaseLine."IC Partner Ref. Type"::Item,
           PurchaseLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("IC Partner Ref. Type")));
 
         Assert.AreEqual(
           SalesLine."IC Partner Reference",
           PurchaseLine."No.",
-          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption, PurchaseLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, PurchaseLine.TableCaption(), PurchaseLine.FieldCaption("No.")));
     end;
 
     local procedure VerifySalesDocItemInfo(SalesHeader: Record "Sales Header"; PurchaseHeader: Record "Purchase Header")
@@ -6421,12 +6421,12 @@ codeunit 134152 "ERM Intercompany II"
         Assert.AreEqual(
           SalesLine."IC Partner Ref. Type"::Item,
           SalesLine."IC Partner Ref. Type",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("IC Partner Ref. Type")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("IC Partner Ref. Type")));
 
         Assert.AreEqual(
           PurchaseLine."IC Partner Reference",
           SalesLine."No.",
-          StrSubstNo(TableFieldErr, SalesLine.TableCaption, SalesLine.FieldCaption("No.")));
+          StrSubstNo(TableFieldErr, SalesLine.TableCaption(), SalesLine.FieldCaption("No.")));
     end;
 
     local procedure VerifyICOutboxPurchaseLineICPartnerReference(PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
@@ -6461,7 +6461,7 @@ codeunit 134152 "ERM Intercompany II"
             ReservationEntry.SetRange("Source Ref. No.", PurchaseLine."Line No.");
             ReservationEntry.FindFirst();
             Assert.AreEqual(PurchaseLine.Quantity, Abs(ReservationEntry.Quantity), ItemTrackingDoesNotMatchDocLineErr);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure VerifyItemTrackingNotAssignedOnPurchaseLine(var PurchaseHeader: Record "Purchase Header")

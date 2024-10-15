@@ -32,14 +32,6 @@ table 99000754 "Work Center"
         field(6; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                PhoneNo: Text[30];
-                FaxNo: Text[30];
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(Address, "Address 2", "Post Code", City, "Country/Region Code", PhoneNo, FaxNo);
-            end;
         }
         field(7; "Address 2"; Text[50])
         {
@@ -61,8 +53,13 @@ table 99000754 "Work Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -81,8 +78,13 @@ table 99000754 "Work Center"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(12; "Alternate Work Center"; Code[20])
@@ -163,7 +165,7 @@ table 99000754 "Work Center"
                     until ProdOrderCapNeedEntry.Next() = 0;
 
                 OnValidateWorkCenterGroupCodeBeforeModify(Rec, xRec);
-                Modify;
+                Modify();
 
                 RtngLine.SetCurrentKey("Work Center No.");
                 RtngLine.SetRange("Work Center No.", "No.");
@@ -177,7 +179,7 @@ table 99000754 "Work Center"
                 ProdOrderRtngLine.SetRange("Work Center No.", "No.");
                 ProdOrderRtngLine.ModifyAll("Work Center Group Code", "Work Center Group Code");
 
-                Window.Close;
+                Window.Close();
             end;
         }
         field(16; "Global Dimension 1 Code"; Code[20])
@@ -300,7 +302,7 @@ table 99000754 "Work Center"
                   Text008 +
                   Text009);
 
-                Modify;
+                Modify();
 
                 // Capacity Calendar
                 EntryCounter := 0;
@@ -316,7 +318,7 @@ table 99000754 "Work Center"
                         CalendarEntry.Modify();
                     until CalendarEntry.Next() = 0;
 
-                Window.Close;
+                Window.Close();
             end;
         }
         field(31; Capacity; Decimal)
@@ -499,47 +501,41 @@ table 99000754 "Work Center"
                         WhseIntegrationMgt.CheckLocationCode(Location, DATABASE::"Work Center", "No.");
                     end;
 
-                    if "Open Shop Floor Bin Code" <> '' then begin
+                    if "Open Shop Floor Bin Code" <> '' then
                         if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                             Validate("Open Shop Floor Bin Code", '')
                         else
                             TestField("Open Shop Floor Bin Code", '');
-                    end;
-                    if "To-Production Bin Code" <> '' then begin
+                    if "To-Production Bin Code" <> '' then
                         if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                             Validate("To-Production Bin Code", '')
                         else
                             TestField("To-Production Bin Code", '');
-                    end;
-                    if "From-Production Bin Code" <> '' then begin
+                    if "From-Production Bin Code" <> '' then
                         if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                             Validate("From-Production Bin Code", '')
                         else
                             TestField("From-Production Bin Code", '');
-                    end;
                     MachineCenter.SetCurrentKey("Work Center No.");
                     MachineCenter.SetRange("Work Center No.", "No.");
                     if MachineCenter.FindSet(true) then
                         repeat
                             MachineCenter."Location Code" := "Location Code";
-                            if MachineCenter."Open Shop Floor Bin Code" <> '' then begin
+                            if MachineCenter."Open Shop Floor Bin Code" <> '' then
                                 if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                                     MachineCenter.Validate("Open Shop Floor Bin Code", '')
                                 else
                                     MachineCenter.TestField("Open Shop Floor Bin Code", '');
-                            end;
-                            if MachineCenter."To-Production Bin Code" <> '' then begin
+                            if MachineCenter."To-Production Bin Code" <> '' then
                                 if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                                     MachineCenter.Validate("To-Production Bin Code", '')
                                 else
                                     MachineCenter.TestField("To-Production Bin Code", '');
-                            end;
-                            if MachineCenter."From-Production Bin Code" <> '' then begin
+                            if MachineCenter."From-Production Bin Code" <> '' then
                                 if ConfirmAutoRemovalOfBinCode(AutoUpdate) then
                                     MachineCenter.Validate("From-Production Bin Code", '')
                                 else
                                     MachineCenter.TestField("From-Production Bin Code", '');
-                            end;
                             MachineCenter.Modify(true);
                         until MachineCenter.Next() = 0;
                 end;
@@ -614,6 +610,9 @@ table 99000754 "Work Center"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Name)
+        {
+        }
     }
 
     trigger OnDelete()
@@ -624,7 +623,7 @@ table 99000754 "Work Center"
     begin
         CapLedgEntry.SetRange("Work Center No.", "No.");
         if not CapLedgEntry.IsEmpty() then
-            Error(Text010, TableCaption, "No.", CapLedgEntry.TableCaption);
+            Error(Text010, TableCaption(), "No.", CapLedgEntry.TableCaption());
 
         CheckRoutingWithWorkCenterExists();
 
@@ -632,7 +631,7 @@ table 99000754 "Work Center"
         StdCostWksh.SetRange(Type, StdCostWksh.Type::"Work Center");
         StdCostWksh.SetRange("No.", "No.");
         if not StdCostWksh.IsEmpty() then
-            Error(Text010, TableCaption, "No.", StdCostWksh.TableCaption);
+            Error(Text010, TableCaption(), "No.", StdCostWksh.TableCaption());
 
         CalendarEntry.SetCurrentKey("Capacity Type", "No.");
         CalendarEntry.SetRange("Capacity Type", CalendarEntry."Capacity Type"::"Work Center");
@@ -681,15 +680,6 @@ table 99000754 "Work Center"
     end;
 
     var
-        Text000: Label 'The Work Center is being used on production orders.';
-        Text001: Label 'Do you want to change %1?';
-        Text002: Label 'Work Center Group Code is changed...\\';
-        Text003: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@\';
-        Text004: Label 'Calendar Absent.  #3###### @4@@@@@@@@@@@@@\';
-        Text006: Label 'Prod. Order Need  #7###### @8@@@@@@@@@@@@@';
-        Text007: Label '%1 cannot be changed for scheduled work centers.';
-        Text008: Label 'Capacity Unit of Time is corrected on\\';
-        Text009: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@';
         PostCode: Record "Post Code";
         MfgSetup: Record "Manufacturing Setup";
         WorkCenter: Record "Work Center";
@@ -704,9 +694,18 @@ table 99000754 "Work Center"
         EntryCounter: Integer;
         NoOfRecords: Integer;
         GLSetupRead: Boolean;
+
+        Text000: Label 'The Work Center is being used on production orders.';
+        Text001: Label 'Do you want to change %1?';
+        Text002: Label 'Work Center Group Code is changed...\\';
+        Text003: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@\';
+        Text004: Label 'Calendar Absent.  #3###### @4@@@@@@@@@@@@@\';
+        Text006: Label 'Prod. Order Need  #7###### @8@@@@@@@@@@@@@';
+        Text007: Label '%1 cannot be changed for scheduled work centers.';
+        Text008: Label 'Capacity Unit of Time is corrected on\\';
+        Text009: Label 'Calendar Entry    #1###### @2@@@@@@@@@@@@@';
         Text010: Label 'You cannot delete %1 %2 because there is at least one %3 associated with it.', Comment = '%1 = Table caption; %2 = Field Value; %3 = Table Caption';
         Text011: Label 'If you change the %1, then all bin codes on the %2 and related %3 will be removed. Are you sure that you want to continue?';
-        PostCodeMgt: Codeunit "Post Code Management";
 
     procedure AssistEdit(OldWorkCenter: Record "Work Center"): Boolean
     var
@@ -736,7 +735,7 @@ table 99000754 "Work Center"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"Work Center", "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -756,13 +755,21 @@ table 99000754 "Work Center"
         if AutoUpdate then
             exit(true);
 
-        if Confirm(Text011, false, FieldCaption("Location Code"), TableCaption, MachineCenter.TableCaption) then
+        if Confirm(Text011, false, FieldCaption("Location Code"), TableCaption(), MachineCenter.TableCaption()) then
             AutoUpdate := true;
 
         exit(AutoUpdate);
     end;
 
+#if not CLEAN21
+    [Obsolete('Replaced by procedure GetBinForFlushingMethod()', '21.0')]
     procedure GetBinCode(UseFlushingMethod: Boolean; FlushingMethod: Option Manual,Forward,Backward,"Pick + Forward","Pick + Backward"): Code[20]
+    begin
+        exit(GetBinCodeForFlushingMethod(UseFlushingMethod, FlushingMethod));
+    end;
+#endif
+
+    procedure GetBinCodeForFlushingMethod(UseFlushingMethod: Boolean; FlushingMethod: Enum "Flushing Method"): Code[20]
     begin
         if not UseFlushingMethod then
             exit("From-Production Bin Code");
@@ -785,7 +792,7 @@ table 99000754 "Work Center"
         RoutingLine.SetRange(Type, RoutingLine.Type::"Work Center");
         RoutingLine.SetRange("No.", "No.");
         if not RoutingLine.IsEmpty() then
-            Error(Text010, TableCaption, "No.", RoutingLine.TableCaption);
+            Error(Text010, TableCaption(), "No.", RoutingLine.TableCaption());
     end;
 
     [IntegrationEvent(false, false)]
@@ -805,6 +812,16 @@ table 99000754 "Work Center"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateWorkCenterGroupCodeBeforeModify(var WorkCenter: Record "Work Center"; var xWorkCenter: Record "Work Center")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var WorkCenter: Record "Work Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var WorkCenter: Record "Work Center"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 }

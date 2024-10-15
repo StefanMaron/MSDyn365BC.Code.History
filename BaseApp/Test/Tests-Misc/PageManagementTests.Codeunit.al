@@ -242,7 +242,7 @@ codeunit 135001 "Page Management Tests"
         ProductionOrder.Status := ProductionOrder.Status::Simulated;
         Assert.AreEqual(
           PAGE::"Simulated Production Order", PageManagement.GetPageID(ProductionOrder),
-          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption));
+          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption()));
     end;
 
     [Test]
@@ -257,7 +257,7 @@ codeunit 135001 "Page Management Tests"
         ProductionOrder.Status := ProductionOrder.Status::Planned;
         Assert.AreEqual(
           PAGE::"Planned Production Order", PageManagement.GetPageID(ProductionOrder),
-          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption));
+          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption()));
     end;
 
     [Test]
@@ -272,7 +272,7 @@ codeunit 135001 "Page Management Tests"
         ProductionOrder.Status := ProductionOrder.Status::"Firm Planned";
         Assert.AreEqual(
           PAGE::"Firm Planned Prod. Order", PageManagement.GetPageID(ProductionOrder),
-          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption));
+          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption()));
     end;
 
     [Test]
@@ -287,7 +287,7 @@ codeunit 135001 "Page Management Tests"
         ProductionOrder.Status := ProductionOrder.Status::Released;
         Assert.AreEqual(
           PAGE::"Released Production Order", PageManagement.GetPageID(ProductionOrder),
-          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption));
+          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption()));
     end;
 
     [Test]
@@ -302,7 +302,7 @@ codeunit 135001 "Page Management Tests"
         ProductionOrder.Status := ProductionOrder.Status::Finished;
         Assert.AreEqual(
           PAGE::"Finished Production Order", PageManagement.GetPageID(ProductionOrder),
-          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption));
+          StrSubstNo(WrongPageErr, ProductionOrder.TableCaption()));
     end;
 }
 

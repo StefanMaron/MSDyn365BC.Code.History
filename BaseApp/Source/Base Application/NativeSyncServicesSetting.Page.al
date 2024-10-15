@@ -93,17 +93,17 @@ page 2843 "Native - Sync Services Setting"
 
     trigger OnAfterGetRecord()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     trigger OnInit()
     begin
-        Insert;
+        Insert();
     end;
 
     trigger OnOpenPage()
     begin
-        SetCalculatedFields;
+        SetCalculatedFields();
     end;
 
     var

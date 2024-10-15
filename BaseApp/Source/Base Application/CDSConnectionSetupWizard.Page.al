@@ -130,7 +130,7 @@ page 7201 "CDS Connection Setup Wizard"
                 ShowCaption = false;
                 Visible = ApplicationStepVisible;
 
-                field("Client Id"; "Client Id")
+                field("Client Id"; Rec."Client Id")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Client ID';
@@ -148,7 +148,7 @@ page 7201 "CDS Connection Setup Wizard"
                         SetClientSecret(ClientSecret);
                     end;
                 }
-                field("Redirect URL"; "Redirect URL")
+                field("Redirect URL"; Rec."Redirect URL")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the Redirect URL of the Azure Active Directory application that will be used to connect to the Dataverse environment.', Comment = 'Dataverse and Azure Active Directory are names of a Microsoft service and a Microsoft Azure resource and should not be translated.';
@@ -871,11 +871,7 @@ page 7201 "CDS Connection Setup Wizard"
         ConsentVar: Boolean;
         ConsentStepVisible: Boolean;
         InitialSynchRecommendations: Dictionary of [Code[20], Integer];
-#if CLEAN18
         ScopesLbl: Label 'https://globaldisco.crm.dynamics.com/user_impersonation', Locked = true;
-#else
-        GlobalDiscoUrlTok: Label 'https://globaldisco.crm.dynamics.com/', Locked = true;
-#endif
         OpenCoupleSalespeoplePageQst: Label 'The Person ownership model requires that you couple salespersons in Business Central with users in Dataverse before you synchronize data. Otherwise, synchronization will not be successful.\\ Do you want to want to couple salespersons and users now?';
         SynchronizationRecommendationsLbl: Label 'Show synchronization recommendations';
         ConsentLbl: Label 'By enabling this feature, you consent to your data being shared with a Microsoft service that might be outside of your organization''s selected geographic boundaries and might have different compliance and security standards than Microsoft Dynamics Business Central. Your privacy is important to us, and you can choose whether to share data with the service. To learn more, follow the link below.';
@@ -913,9 +909,7 @@ page 7201 "CDS Connection Setup Wizard"
     var
         CDSEnvironment: Codeunit "CDS Environment";
         OAuth2: Codeunit OAuth2;
-#if CLEAN18
         Scopes: List of [Text];
-#endif
         Token: Text;
         RedirectUrl: Text;
     begin
@@ -923,12 +917,8 @@ page 7201 "CDS Connection Setup Wizard"
             RedirectUrl := CDSIntegrationImpl.GetRedirectURL()
         else
             RedirectUrl := "Redirect URL";
-#if CLEAN18
         Scopes.Add(ScopesLbl);
         OAuth2.AcquireOnBehalfOfToken(RedirectUrl, Scopes, Token);
-#else
-        OAuth2.AcquireOnBehalfOfToken(RedirectUrl, GlobalDiscoUrlTok, Token);
-#endif
         CDSEnvironment.SelectTenantEnvironment(Rec, Token, false);
     end;
 

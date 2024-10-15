@@ -215,10 +215,10 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         // set up
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
-        CreateMandate(DirectDebitMandate, Customer."No.", BankAccount."No.", WorkDate, CalcDate('<+1M>', WorkDate));
+        CreateMandate(DirectDebitMandate, Customer."No.", BankAccount."No.", WorkDate(), CalcDate('<+1M>', WorkDate()));
 
         // exercise
-        asserterror DirectDebitMandate.Validate("Valid From", CalcDate('<+2M>', WorkDate));
+        asserterror DirectDebitMandate.Validate("Valid From", CalcDate('<+2M>', WorkDate()));
         Assert.ExpectedError(DateErr);
     end;
 
@@ -233,10 +233,10 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         // set up
         SetUpSEPA(BankAccount, Customer, DirectDebitMandate);
-        CreateMandate(DirectDebitMandate, Customer."No.", BankAccount."No.", WorkDate, CalcDate('<+1M>', WorkDate));
+        CreateMandate(DirectDebitMandate, Customer."No.", BankAccount."No.", WorkDate(), CalcDate('<+1M>', WorkDate()));
 
         // exercise
-        asserterror DirectDebitMandate.Validate("Valid To", CalcDate('<-2M>', WorkDate));
+        asserterror DirectDebitMandate.Validate("Valid To", CalcDate('<-2M>', WorkDate()));
         Assert.ExpectedError(DateErr);
     end;
 
@@ -635,7 +635,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
 
         // exercise
         CreateAndPostPurchaseInvoice(Vendor."No.");
-        GetEntriesAtDate(BankAccount."No.", CalcDate('<3D>', WorkDate));
+        GetEntriesAtDate(BankAccount."No.", CalcDate('<3D>', WorkDate()));
         ProcessProposals(BankAccount."No.");
 
         // verify
@@ -893,7 +893,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test SEPA PAIN 008.001.02");
 
         Clear(NameSpace);
-        ExportFileName := TemporaryPath + CopyStr(Format(CreateGuid), 2, 10) + '.xml';
+        ExportFileName := TemporaryPath + CopyStr(Format(CreateGuid()), 2, 10) + '.xml';
         NameSpace := 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02';
         CreateExportProtocol(11000013);
         IsInitialized := true;
@@ -936,13 +936,13 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     local procedure CreateMandate(var DirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; BankAccountCode: Code[10]; ValidFromDate: Date; ValidToDate: Date)
     begin
         with DirectDebitMandate do begin
-            Init;
+            Init();
             ID := LibraryUtility.GenerateRandomCode(FieldNo(ID), DATABASE::"SEPA Direct Debit Mandate");
             Validate("Customer No.", CustomerNo);
             Validate("Customer Bank Account Code", BankAccountCode);
             Validate("Valid From", ValidFromDate);
             Validate("Valid To", ValidToDate);
-            Validate("Date of Signature", WorkDate);
+            Validate("Date of Signature", WorkDate());
             Validate("Type of Payment", "Type of Payment"::Recurrent);
             Validate("Expected Number of Debits", LibraryRandom.RandInt(10) + 5);
             Insert(true);
@@ -981,7 +981,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
-        PurchaseHeader.Validate("Posting Date", WorkDate);
+        PurchaseHeader.Validate("Posting Date", WorkDate());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
@@ -1056,7 +1056,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
     begin
         with VendorBankAccount do begin
             LibraryPurchase.CreateVendor(Vendor);
-            Init;
+            Init();
             Validate(Code, BankAccount.Name);
             Validate("Vendor No.", Vendor."No.");
             Insert(true);
@@ -1234,7 +1234,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
             "Line No." := 1;
             "Direct Debit Mandate ID" := DirectDebitMandate.ID;
             "Sequence Type" := -1;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1257,7 +1257,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
                 end;
                 if (LineNo = NumberOfPayments - 1) and NewDateForLastPayment then
                     "Transaction Date" += 1;
-                Insert;
+                Insert();
             end;
         end;
     end;
@@ -1480,7 +1480,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
             Assert.AreEqual(
               0, PaymentHistoryLine."Direct Debit Mandate Counter", PaymentHistoryLine.FieldCaption("Direct Debit Mandate Counter"));
             Assert.AreEqual(0, PaymentHistoryLine."Sequence Type", PaymentHistoryLine.FieldCaption("Sequence Type"));
-        until PaymentHistoryLine.Next = 0;
+        until PaymentHistoryLine.Next() = 0;
     end;
 
     local procedure VerifyPostlAdrDoesNotExist()
@@ -1687,7 +1687,7 @@ codeunit 144102 "Test SEPA PAIN 008.001.02"
         File.Open(FileName);
         File.CreateInStream(InStream);
         InStream.Read(ReadText, 5);
-        File.Close;
+        File.Close();
         Assert.AreEqual(CheckString, ReadText, WrongSymbolFoundErr);
     end;
 

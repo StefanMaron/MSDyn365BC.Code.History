@@ -131,7 +131,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Vendor Bank Account Code on Vendor Card.
         VendorCard."Preferred Bank Account Code".AssertEquals(VendorBankAccountCode);
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -147,7 +147,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create Vendor Bank Account without vendor and Verify error code.
         ErrorForVendorBankAccount(PurchaseQuote."Buy-from Vendor Name".Value);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     [Test]
@@ -163,7 +163,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create Vendor Bank Account without vendor and Verify error code.
         ErrorForVendorBankAccount(PurchaseOrder."Buy-from Vendor Name".Value);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -179,7 +179,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create Vendor Bank Account without vendor and Verify error code.
         ErrorForVendorBankAccount(PurchaseReturnOrder."Buy-from Vendor Name".Value);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     [Test]
@@ -195,7 +195,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create Vendor Bank Account without vendor and Verify error code.
         ErrorForVendorBankAccount(PurchaseInvoice."Buy-from Vendor Name".Value);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -211,7 +211,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create Vendor Bank Account without vendor and Verify error code.
         ErrorForVendorBankAccount('');
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure ErrorForVendorBankAccount(BuyFromVendorNo: Code[20])
@@ -244,7 +244,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Purchase Quote Page.
         PurchaseQuote."Bank Account Code".AssertEquals(VendorBankAccountCode);
-        PurchaseQuote.Close;
+        PurchaseQuote.Close();
     end;
 
     [Test]
@@ -268,7 +268,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Purchase Order Page.
         PurchaseOrder."Bank Account Code".AssertEquals(VendorBankAccountCode);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -293,7 +293,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Purchase Return Order Page.
         PurchaseReturnOrder."Bank Account Code".AssertEquals(VendorBankAccountCode);
-        PurchaseReturnOrder.Close;
+        PurchaseReturnOrder.Close();
     end;
 
     [Test]
@@ -317,7 +317,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Purchase Invoice Page.
         PurchaseInvoice."Bank Account Code".AssertEquals(VendorBankAccountCode);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -341,7 +341,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Purchase Credit Memo Page.
         PurchaseCreditMemo."Bank Account Code".AssertEquals(VendorBankAccountCode);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     [Test]
@@ -364,7 +364,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Customer Card Page.
         CustomerCard."Preferred Bank Account Code".AssertEquals(CustomerBankAccountCode);
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -380,7 +380,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create customer Bank Account without customer and Verify error.
         ErrorForCustomerBankAccount('');
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -396,7 +396,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create customer Bank Account without customer and Verify error.
         ErrorForCustomerBankAccount(SalesOrder."Sell-to Customer Name".Value);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -412,7 +412,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create customer Bank Account without customer and Verify error.
         ErrorForCustomerBankAccount(SalesReturnOrder."Sell-to Customer Name".Value);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     [Test]
@@ -428,7 +428,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create customer Bank Account without customer and Verify error.
         ErrorForCustomerBankAccount(SalesInvoice."Sell-to Customer Name".Value);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -444,7 +444,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Exercise and Verify: Create customer Bank Account without customer and Verify error.
         ErrorForCustomerBankAccount(SalesCreditMemo."Sell-to Customer Name".Value);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure ErrorForCustomerBankAccount(SellToCustomerNo: Code[20])
@@ -477,7 +477,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Sales Quote Page.
         SalesQuote."Bank Account Code".AssertEquals(CustomerBankAccountCode);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     [Test]
@@ -501,7 +501,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Sales Page.
         SalesOrder."Bank Account Code".AssertEquals(CustomerBankAccountCode);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -526,7 +526,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Sales Return Order Page.
         SalesReturnOrder."Bank Account Code".AssertEquals(CustomerBankAccountCode);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     [Test]
@@ -550,7 +550,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Sales Invoice Page.
         SalesInvoice."Bank Account Code".AssertEquals(CustomerBankAccountCode);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     [Test]
@@ -574,7 +574,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Bank Account Code on Sales Credit Memo Page.
         SalesCreditMemo."Bank Account Code".AssertEquals(CustomerBankAccountCode);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     [Test]
@@ -594,7 +594,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Proposal.DrillDown;  // Using TelebankProposalPageHandler.
 
         // Verify: Verification done by TelebankProposalPageHandler, Telebank Proposal page open successfully.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -612,7 +612,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Contact.Invoke;  // Using ContactListPageHandler.
 
         // Verify: Verification done by ContactListPageHandler, Contact List page open successfully.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -632,7 +632,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Proposal_Navigate.Invoke;  // Using TelebankProposalPageHandler.
 
         // Verify: Verification done by TelebankProposalPageHandler, Telebank Proposal page open successfully.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -651,7 +651,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.GetProposalEntries.Invoke;  // Using GetProposalEntriesRequestPageHandler.
 
         // Verify: Verification done by GetProposalEntriesRequestPageHandler, report Get Proposal Entries request Page open successfully.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -670,7 +670,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.ProposalOverview.Invoke;  // Using ProposalOverviewRequestPageHandler.
 
         // Verify: Verification done by ProposalOverviewRequestPageHandler, report Proposal Overview request page open successfully.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -689,7 +689,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.PaymentHistoryOverview.Invoke;  // Using PaymentHistoryOverviewRequestPageHandler.
 
         // Verify: Verification done by PaymentHistoryOverviewRequestPageHandler, report Payment History Overview request page open successfully.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -709,7 +709,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.DimensionsMultiple.Invoke;  // Using DefaultDimensionsMultiplePageHandler.
 
         // Verify: Verification done by DefaultDimensionsMultiplePageHandler.
-        TelebankBankOverview.Close;
+        TelebankBankOverview.Close();
     end;
 
     [Test]
@@ -746,10 +746,10 @@ codeunit 144036 "UT PAG Telebank"
 
         // [WHEN] Call action Proposal/Dimension on Telebank Proposal page
         TelebankProposal.HeaderDimensions.Invoke; // EditDimensionSetEntriesPageHandler
-        TelebankProposal.Close;
+        TelebankProposal.Close();
 
         // [THEN] Shortcut Dimensions 1 and 2 still equal to "Dim1" and "Dim2" respectively
-        ProposalLine.Find;
+        ProposalLine.Find();
         ProposalLine.TestField("Shortcut Dimension 1 Code", GlobalDimension1Value);
         ProposalLine.TestField("Shortcut Dimension 2 Code", GlobalDimension2Value);
     end;
@@ -772,7 +772,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Percent Amount field on Proposal Detail Line page.
         ProposalDetailLine.Control2.PercentageAmount.AssertEquals(Percentage);
-        ProposalDetailLine.Close;
+        ProposalDetailLine.Close();
     end;
 
     [Test]
@@ -791,7 +791,7 @@ codeunit 144036 "UT PAG Telebank"
         ProposalDetailLine.Check.Invoke;  // Using MessageHandler.
 
         // Verify: Verification done by MessageHandler, Check action call successfully.
-        ProposalDetailLine.Close;
+        ProposalDetailLine.Close();
     end;
 
     [Test]
@@ -829,7 +829,7 @@ codeunit 144036 "UT PAG Telebank"
         ProposalDetailLine.ToOtherBank.Invoke;
 
         // Verify: Verification done by BankAccountListPageHandler, Bank Account List page open successfully.
-        ProposalDetailLine.Close;
+        ProposalDetailLine.Close();
     end;
 
     [Test]
@@ -901,7 +901,7 @@ codeunit 144036 "UT PAG Telebank"
 
         // Verify: Verify Description field value on Proposal Detail Line subform page.
         ProposalDetailLine."Description 1".AssertEquals('Invoice ' + DocumentNo);
-        ProposalDetailLine.Close;
+        ProposalDetailLine.Close();
     end;
 
     [Test]
@@ -920,7 +920,7 @@ codeunit 144036 "UT PAG Telebank"
         PaymentHistoryCard.Subform.Dimension.Invoke;  // Using DimensionSetEntriesPageHandler.
 
         // Verify: Verification done by DimensionSetEntriesPageHandler, Dimension Set Entries page open successfully.
-        PaymentHistoryCard.Close;
+        PaymentHistoryCard.Close();
     end;
 
     [Test]
@@ -939,7 +939,7 @@ codeunit 144036 "UT PAG Telebank"
         PaymentHistoryCard.Subform.LedgerEntries.Invoke; // Using CustomerLedgerEntriesPageHandler.
 
         // Verify: Verification done by GeneralLedgerEntriesPageHandler, General Ledger Entries page open successfully.
-        PaymentHistoryCard.Close;
+        PaymentHistoryCard.Close();
     end;
 
     [Test]
@@ -958,7 +958,7 @@ codeunit 144036 "UT PAG Telebank"
         PaymentHistoryCard.Subform.DetailInformation.Invoke;  // Using PaymentHistoryLineDetailPageHandler.
 
         // Verify: Verification done by PaymentHistoryLineDetailPageHandler, Detail Information page open successfully.
-        PaymentHistoryCard.Close;
+        PaymentHistoryCard.Close();
     end;
 
     [Test]
@@ -979,7 +979,7 @@ codeunit 144036 "UT PAG Telebank"
         ImportProtocolList.Modify.Invoke;  // Using ImportProtocolsPageHandler.
 
         // Verify: Verification done by ImportProtocolsPageHandler, Import Protocol List page open in edit mode successfully.
-        ImportProtocolList.Close;
+        ImportProtocolList.Close();
     end;
 
     [Test]
@@ -1003,7 +1003,7 @@ codeunit 144036 "UT PAG Telebank"
         BankAccountCard."No.".AssertEquals(No);
 
         // Teardown.
-        BankAccountCard.Close;
+        BankAccountCard.Close();
     end;
 
     [Test]
@@ -1062,7 +1062,7 @@ codeunit 144036 "UT PAG Telebank"
         TelebankBankOverview.Proposal_Navigate.Invoke;
         CodeCoverageMgt.StopApplicationCoverage;
 
-        TelebankProposal.Close;
+        TelebankProposal.Close();
 
         Assert.AreEqual(
           1, CodeCoverageMgt.GetNoOfHitsCoverageForObject(
@@ -1132,7 +1132,7 @@ codeunit 144036 "UT PAG Telebank"
             CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Invoice;
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         CustLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);  // Using Random for Amount.
         CustLedgerEntry.Open := true;
@@ -1185,7 +1185,7 @@ codeunit 144036 "UT PAG Telebank"
         ProposalLine."Line No." := LibraryUtility.GetNewRecNo(ProposalLine, ProposalLine.FieldNo("Line No."));
         ProposalLine."Account Type" := AccountType;
         ProposalLine."Account No." := AccountNo;
-        ProposalLine."Transaction Date" := WorkDate;
+        ProposalLine."Transaction Date" := WorkDate();
         ProposalLine."Transaction Mode" := TransactionMode;
         ProposalLine.Insert();
     end;
@@ -1273,7 +1273,7 @@ codeunit 144036 "UT PAG Telebank"
             VendorLedgerEntry."Entry No." := VendorLedgerEntry2."Entry No." + 1;
         VendorLedgerEntry."Document Type" := VendorLedgerEntry."Document Type"::Invoice;
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         VendorLedgerEntry.Amount := -LibraryRandom.RandDec(100, 2);  // Using Random for Amount.
         VendorLedgerEntry.Open := true;
@@ -1304,7 +1304,7 @@ codeunit 144036 "UT PAG Telebank"
             EmployeeLedgerEntry."Entry No." := EmployeeLedgerEntry2."Entry No." + 1;
         EmployeeLedgerEntry."Document Type" := EmployeeLedgerEntry."Document Type"::Invoice;
         EmployeeLedgerEntry."Employee No." := EmployeeNo;
-        EmployeeLedgerEntry."Posting Date" := WorkDate;
+        EmployeeLedgerEntry."Posting Date" := WorkDate();
         EmployeeLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
         EmployeeLedgerEntry.Amount := -LibraryRandom.RandDec(100, 2);  // Using Random for Amount.
         EmployeeLedgerEntry.Open := true;

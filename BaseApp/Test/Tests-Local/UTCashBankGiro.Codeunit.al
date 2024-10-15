@@ -62,7 +62,7 @@ codeunit 144013 "UT Cash Bank Giro"
         SourceCodeSetupPage."Bank Journal".AssertEquals(SourceCodeSetup."Bank Journal");
 
         // TearDown: Close Source Code Setup page.
-        SourceCodeSetupPage.Close;
+        SourceCodeSetupPage.Close();
     end;
 
     [Test]
@@ -374,7 +374,7 @@ codeunit 144013 "UT Cash Bank Giro"
     begin
         CompanyInformationPage.OpenEdit;
         CompanyInformationPage."Bank Account No.".AssertEquals(BankAccountNo);
-        CompanyInformationPage.Close;
+        CompanyInformationPage.Close();
     end;
 
     [MessageHandler]

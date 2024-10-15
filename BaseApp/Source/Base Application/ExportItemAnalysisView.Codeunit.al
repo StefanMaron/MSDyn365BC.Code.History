@@ -62,10 +62,10 @@ codeunit 7152 "Export Item Analysis View"
         TempExcelBuffer.SelectOrAddSheet(StrSubstNo('%1%2', Text031, ItemAnalysisViewEntry."Analysis View Code"));
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer);
 
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
 
         if not SkipDownload then
-            TempExcelBuffer.OpenExcel;
+            TempExcelBuffer.OpenExcel();
     end;
 
     local procedure CreateDataSheet(var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ShowName: Boolean; ItemFilter: Text; Dim1Filter: Text; Dim2Filter: Text; Dim3Filter: Text; DateFilter: Text; LocationFilter: Text; BudgetFilter: Text; Sign: Boolean)
@@ -105,9 +105,9 @@ codeunit 7152 "Export Item Analysis View"
             Item.SetFilter("No.", ItemFilter);
         if Item.Find('-') then
             repeat
-                if not Item.Mark then begin
+                if not Item.Mark() then begin
                     FillOutItem(Item."No.", ShowName);
-                    StartNewRow;
+                    StartNewRow();
                 end;
             until Item.Next() = 0;
 
@@ -136,7 +136,7 @@ codeunit 7152 "Export Item Analysis View"
             FillNextCellInRow(CalculatePeriodStart(StartDate, 2));
             FillNextCellInRow(CalculatePeriodStart(StartDate, 3));
             FillNextCellInRow(CalculatePeriodStart(StartDate, 4));
-            StartNewRow;
+            StartNewRow();
 
             StartDate := CalcDate('<1W>', StartDate);
         end;
@@ -152,7 +152,7 @@ codeunit 7152 "Export Item Analysis View"
         TempExcelBuffer.DeleteAll();
 
         with ItemAnalysisViewEntry do begin
-            FillCell(1, 1, ItemAnalysisView.TableCaption);
+            FillCell(1, 1, ItemAnalysisView.TableCaption());
             FillCell(2, 2, FieldCaption("Analysis View Code"));
             FillCell(2, 3, "Analysis View Code");
             FillCell(3, 2, Text023);
@@ -285,7 +285,7 @@ codeunit 7152 "Export Item Analysis View"
             FillNextCellInRow(Text035);
             FillNextCellInRow(Text036);
 
-            StartNewRow;
+            StartNewRow();
         end;
     end;
 
@@ -324,7 +324,7 @@ codeunit 7152 "Export Item Analysis View"
                         FillNextCellInRow(Quantity * SignValue);
                         FillNextCellInRow(Format("Location Code"));
 
-                        StartNewRow;
+                        StartNewRow();
                     end;
                 until Next() = 0;
         end;
@@ -377,7 +377,7 @@ codeunit 7152 "Export Item Analysis View"
                         FillNextCellInRow("Sales Amount" * SignValue);
                         FillNextCellInRow("Cost Amount" * SignValue);
                         FillNextCellInRow(Quantity * SignValue);
-                        StartNewRow;
+                        StartNewRow();
                     end;
                 until Next() = 0;
         end;
@@ -389,6 +389,7 @@ codeunit 7152 "Export Item Analysis View"
         PrevPostingDate: Date;
         PrevCalculatedPostingDate: Date;
     begin
+        PrevPostingDate := 0D;
         case DateCompression of
             0:// Week :
                 PostingDate := CalcDate('<CW+1D-1W>', PostingDate);
@@ -403,9 +404,9 @@ codeunit 7152 "Export Item Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast() then begin
+                        if AccountingPeriod.FindLast() then
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
-                        end else
+                        else
                             PrevCalculatedPostingDate := PostingDate;
                     end;
                     PostingDate := PrevCalculatedPostingDate;
@@ -450,7 +451,7 @@ codeunit 7152 "Export Item Analysis View"
 
     local procedure FillOutDim(DimValueCode: Code[20]; DimCode: Code[20]; DimNo: Integer; ShowName: Boolean)
     var
-        ParentTempNameValueBuffer: Record "Name/Value Buffer" temporary;
+        TempParentNameValueBuffer: Record "Name/Value Buffer" temporary;
         DimensionValue: Record "Dimension Value";
         Indent: Integer;
         i: Integer;
@@ -467,13 +468,13 @@ codeunit 7152 "Export Item Analysis View"
                 for i := Indent downto 1 do begin
                     FindDimParent(DimValueCode2, DimCode);
                     TempDimValue2.Get(DimCode, DimValueCode2);
-                    AddParentToBuffer(ParentTempNameValueBuffer, i, TempDimValue2.Code, TempDimValue2.Name);
+                    AddParentToBuffer(TempParentNameValueBuffer, i, TempDimValue2.Code, TempDimValue2.Name);
                 end;
 
-            if ParentTempNameValueBuffer.FindSet() then
+            if TempParentNameValueBuffer.FindSet() then
                 repeat
-                    AddAcc(ShowName, ParentTempNameValueBuffer.Name, ParentTempNameValueBuffer.Value);
-                until ParentTempNameValueBuffer.Next() = 0;
+                    AddAcc(ShowName, TempParentNameValueBuffer.Name, TempParentNameValueBuffer.Value);
+                until TempParentNameValueBuffer.Next() = 0;
 
             if DimensionValue.Get(DimCode, DimValueCode) then;
 
@@ -495,7 +496,7 @@ codeunit 7152 "Export Item Analysis View"
     local procedure FillCell(RowNo: Integer; ColumnNo: Integer; Value: Variant)
     begin
         with TempExcelBuffer do begin
-            Init;
+            Init();
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
             case true of
@@ -507,7 +508,7 @@ codeunit 7152 "Export Item Analysis View"
                     Validate("Cell Type", "Cell Type"::Text);
             end;
             "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -519,7 +520,7 @@ codeunit 7152 "Export Item Analysis View"
         with TempExcelBuffer do begin
             RowNo := "Row No.";
             ColumnNo := "Column No." + 1;
-            Init;
+            Init();
             Validate("Row No.", RowNo);
             Validate("Column No.", ColumnNo);
             case true of
@@ -531,7 +532,7 @@ codeunit 7152 "Export Item Analysis View"
                     Validate("Cell Type", "Cell Type"::Text);
             end;
             "Cell Value as Text" := CopyStr(Format(Value), 1, MaxStrLen("Cell Value as Text"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -602,9 +603,9 @@ codeunit 7152 "Export Item Analysis View"
         TempDimValue2.SetRange("Dimension Value Type", TempDimValue2."Dimension Value Type"::Standard);
         if TempDimValue2.Find('-') then
             repeat
-                if not TempDimValue2.Mark then begin
+                if not TempDimValue2.Mark() then begin
                     FillOutDim(TempDimValue2.Code, DimCode, DimNo, ShowName);
-                    StartNewRow;
+                    StartNewRow();
                     SetStartColumnNo(NoOfLeadingColumns);
                 end;
             until TempDimValue2.Next() = 0;

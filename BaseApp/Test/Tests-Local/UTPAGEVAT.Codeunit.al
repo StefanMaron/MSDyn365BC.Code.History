@@ -73,7 +73,7 @@ codeunit 144048 "UT PAG EVAT"
 
         // Verify: Verify the Editable property of Calculation when the Category is set to "5. Calculation".
         Assert.IsTrue(ElecTaxDeclVATCateg.Calculation.Editable, StrSubstNo(FieldEditableMsg, ElecTaxDeclVATCateg.Calculation.Caption));
-        ElecTaxDeclVATCateg.Close;
+        ElecTaxDeclVATCateg.Close();
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 144048 "UT PAG EVAT"
           StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Declaration Period".Caption));
         Assert.IsFalse(
           ElecTaxDeclarationCard."Declaration Year".Editable, StrSubstNo(FieldEnabledMsg, ElecTaxDeclarationCard."Declaration Year".Caption));
-        ElecTaxDeclarationCard.Close;
+        ElecTaxDeclarationCard.Close();
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 144048 "UT PAG EVAT"
 
         // Verify: No response lines are fetched
         Assert.AreEqual(0, ElecTaxDeclRespMsg.Count, ValueEqualMsg);
-        ElecTaxDeclResponseMsgs.Close;
+        ElecTaxDeclResponseMsgs.Close();
     end;
 
     [Test]
@@ -154,7 +154,7 @@ codeunit 144048 "UT PAG EVAT"
         ElecTaxDeclResponseMsgs.ProcessResponseMessages.Invoke;  // Opens ProcessResponseMessagesReportHandler.
 
         // Verify: Verify report Process Response Messages run successfully and handled in ProcessResponseMessagesReportHandler.
-        ElecTaxDeclResponseMsgs.Close;
+        ElecTaxDeclResponseMsgs.Close();
     end;
 
     [Test]
@@ -188,7 +188,7 @@ codeunit 144048 "UT PAG EVAT"
 
         ElecTaxDeclarationCard.Control1000017.FILTER.SetFilter("Line Type", '');
         Assert.AreEqual(4, CountDeclLinesPageRows(ElecTaxDeclarationCard), ValueEqualMsg);
-        ElecTaxDeclarationCard.Close;
+        ElecTaxDeclarationCard.Close();
     end;
 
     local procedure Initialize()
@@ -198,7 +198,7 @@ codeunit 144048 "UT PAG EVAT"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"UT PAG EVAT");
         LibraryVariableStorage.Clear();
 
-        if not ElecTaxDeclSetup.Get then begin
+        if not ElecTaxDeclSetup.Get() then begin
             ElecTaxDeclSetup.Init();
             ElecTaxDeclSetup.Insert(true);
         end;
@@ -253,7 +253,7 @@ codeunit 144048 "UT PAG EVAT"
         ElecTaxDeclLine: Record "Elec. Tax Declaration Line";
     begin
         with ElecTaxDeclLine do begin
-            Init;
+            Init();
             "Declaration Type" := "Declaration Type"::"VAT Declaration";
             "Declaration No." := DeclarationNo;
             Data := CopyStr(Data, 1, MaxStrLen(Data));
@@ -271,7 +271,7 @@ codeunit 144048 "UT PAG EVAT"
         Count := 0;
         if CardPage.Control1000017.First then begin
             Count += 1;
-            while CardPage.Control1000017.Next do
+            while CardPage.Control1000017.Next() do
                 Count += 1;
         end;
         exit(Count);

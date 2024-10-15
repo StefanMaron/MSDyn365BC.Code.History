@@ -9,6 +9,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryE2EPlanPermissions: Codeunit "Library - E2E Plan Permissions";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
@@ -438,7 +439,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         Assert.ExpectedErrorCode('TestWrapped:Permission');
 
         asserterror ReceiveTransferOrder(TransferHeader."No.");
-        Assert.ExpectedError('There is nothing to post.');
+        Assert.ExpectedError(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         asserterror CreateCustomer;
         Assert.ExpectedErrorCode('DB:ClientInsertDenied');
@@ -738,7 +739,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         PostedTransferShipments.FILTER.SetFilter("Transfer-to Code", ToLocationCode);
         LibraryVariableStorage.Enqueue(InTransitLocationCode);
         PostedTransferShipments.View.Invoke;
-        PostedTransferShipments.Close;
+        PostedTransferShipments.Close();
     end;
 
     [PageHandler]
@@ -746,7 +747,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     procedure PostedTransferShipmentPageHandler(var PostedTransferShipment: TestPage "Posted Transfer Shipment")
     begin
         PostedTransferShipment."In-Transit Code".AssertEquals(LibraryVariableStorage.DequeueText);
-        PostedTransferShipment.Close;
+        PostedTransferShipment.Close();
     end;
 
     local procedure AssertPostedTransferReceiptExists(FromLocationCode: Code[10]; ToLocationCode: Code[10]; InTransitLocationCode: Code[10])
@@ -758,7 +759,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
         PostedTransferReceipts.FILTER.SetFilter("Transfer-to Code", ToLocationCode);
         LibraryVariableStorage.Enqueue(InTransitLocationCode);
         PostedTransferReceipts.View.Invoke;
-        PostedTransferReceipts.Close;
+        PostedTransferReceipts.Close();
     end;
 
     [PageHandler]
@@ -766,7 +767,7 @@ codeunit 135402 "Location Trans. Plan-based E2E"
     procedure PostedTransferReceiptPageHandler(var PostedTransferReceipt: TestPage "Posted Transfer Receipt")
     begin
         PostedTransferReceipt."In-Transit Code".AssertEquals(LibraryVariableStorage.DequeueText);
-        PostedTransferReceipt.Close;
+        PostedTransferReceipt.Close();
     end;
 }
 

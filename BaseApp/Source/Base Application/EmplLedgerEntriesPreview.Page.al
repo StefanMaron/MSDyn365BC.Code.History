@@ -14,27 +14,27 @@ page 5239 "Empl. Ledger Entries Preview"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee entry''s posting date.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the document type that the employee entry belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the employee entry''s document number.';
                 }
-                field("Employee No."; "Employee No.")
+                field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the number of the employee that the entry is linked to.';
                 }
-                field("Message to Recipient"; "Message to Recipient")
+                field("Message to Recipient"; Rec."Message to Recipient")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the message exported to the payment file when you use the Export Payments to File function in the Payment Journal window.';
@@ -44,7 +44,7 @@ page 5239 "Empl. Ledger Entries Preview"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies a description of the employee entry.';
                 }
-                field("Payment Method Code"; "Payment Method Code")
+                field("Payment Method Code"; Rec."Payment Method Code")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the payment method that was used to make the payment that resulted in the entry.';
@@ -122,14 +122,14 @@ page 5239 "Empl. Ledger Entries Preview"
                         DrilldownAmounts(1);
                     end;
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
                     ToolTip = 'Specifies the type of balancing account that is used for the entry.';
                     Visible = false;
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = BasicHR;
                     Editable = false;
@@ -141,63 +141,63 @@ page 5239 "Empl. Ledger Entries Preview"
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies whether the amount on the entry has been fully paid or there is still a remaining amount that must be applied to.';
                 }
-                field("Transaction Mode Code"; "Transaction Mode Code")
+                field("Transaction Mode Code"; Rec."Transaction Mode Code")
                 {
                     ApplicationArea = BasicHR;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = BasicHR;
                     ToolTip = 'Specifies the entry number that is assigned to the entry.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim1Visible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = Dim2Visible;
                 }
-                field("Shortcut Dimension 3 Code"; "Shortcut Dimension 3 Code")
+                field("Shortcut Dimension 3 Code"; Rec."Shortcut Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 3, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim3Visible;
                 }
-                field("Shortcut Dimension 4 Code"; "Shortcut Dimension 4 Code")
+                field("Shortcut Dimension 4 Code"; Rec."Shortcut Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 4, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim4Visible;
                 }
-                field("Shortcut Dimension 5 Code"; "Shortcut Dimension 5 Code")
+                field("Shortcut Dimension 5 Code"; Rec."Shortcut Dimension 5 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 5, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim5Visible;
                 }
-                field("Shortcut Dimension 6 Code"; "Shortcut Dimension 6 Code")
+                field("Shortcut Dimension 6 Code"; Rec."Shortcut Dimension 6 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 6, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim6Visible;
                 }
-                field("Shortcut Dimension 7 Code"; "Shortcut Dimension 7 Code")
+                field("Shortcut Dimension 7 Code"; Rec."Shortcut Dimension 7 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     ToolTip = 'Specifies the code for Shortcut Dimension 7, which is one of dimension codes that you set up in the General Ledger Setup window.';
                     Visible = Dim7Visible;
                 }
-                field("Shortcut Dimension 8 Code"; "Shortcut Dimension 8 Code")
+                field("Shortcut Dimension 8 Code"; Rec."Shortcut Dimension 8 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -222,9 +222,6 @@ page 5239 "Empl. Ledger Entries Preview"
                     Caption = 'Dimensions';
                     Ellipsis = true;
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -245,8 +242,19 @@ page 5239 "Empl. Ledger Entries Preview"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
                 }
             }
         }
@@ -294,7 +302,7 @@ page 5239 "Empl. Ledger Entries Preview"
         if TempEmplLedgerEntry.FindSet() then
             repeat
                 Rec := TempEmplLedgerEntry;
-                Insert;
+                Insert();
             until TempEmplLedgerEntry.Next() = 0;
 
         if TempDetailedEmplLedgEntry2.FindSet() then

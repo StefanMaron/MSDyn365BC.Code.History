@@ -650,7 +650,7 @@ codeunit 144037 "ERM Telebank"
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
-        TelebankProposal.Close;
+        TelebankProposal.Close();
     end;
 
     [Test]
@@ -738,7 +738,7 @@ codeunit 144037 "ERM Telebank"
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
-        TelebankProposal.Close;
+        TelebankProposal.Close();
     end;
 
     [Test]
@@ -770,7 +770,7 @@ codeunit 144037 "ERM Telebank"
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", DummyCurrencyCode);
-        ProposalDetailLine.Close;
+        ProposalDetailLine.Close();
     end;
 
     [Test]
@@ -807,8 +807,8 @@ codeunit 144037 "ERM Telebank"
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
-        ProposalDetailLine.Close;
-        TelebankProposal.Close;
+        ProposalDetailLine.Close();
+        TelebankProposal.Close();
     end;
 
     [Test]
@@ -836,7 +836,7 @@ codeunit 144037 "ERM Telebank"
         UpdateProposalLine(
           ProposalLine, VendorBankAccount."Bank Account No.", VendorBankAccount."Vendor No.", ProposalLine."Nature of the Payment"::" ",
           CurrencyCode);
-        TelebankProposal."Transaction Date".SetValue(Format(CalcDate('<1M>', WorkDate)));
+        TelebankProposal."Transaction Date".SetValue(Format(CalcDate('<1M>', WorkDate())));
 
         // Exercise: Run Process on Telebank Proposal Page.
         TelebankProposal.Process.Invoke;
@@ -844,12 +844,12 @@ codeunit 144037 "ERM Telebank"
         // Verify: Verify Transaction Date on Detail Line.
         DetailLine.SetRange("Account No.", VendorBankAccount."Vendor No.");
         DetailLine.FindFirst();
-        DetailLine.TestField(Date, CalcDate('<1M>', WorkDate));
+        DetailLine.TestField(Date, CalcDate('<1M>', WorkDate()));
 
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
-        TelebankProposal.Close;
+        TelebankProposal.Close();
     end;
 
     [Test]
@@ -1025,7 +1025,7 @@ codeunit 144037 "ERM Telebank"
         Currency.Modify(true);
 
         // [GIVEN] Exchange Rate "ER" for "C" equals to 132.073876
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, ExchangeRate, LibraryRandom.RandInt(3));
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), ExchangeRate, LibraryRandom.RandInt(3));
 
         // [GIVEN] FCY Posted Purchase Invoice with one Line "PL", having Amount = 21111, "VAT %" = 19 and "Amount Including VAT" = ROUND(Amount * (1 + VATRate / 100),"C"."Amount Rounding Precision") = ROUND(21111 * 1.19,1) = 25122
         VendorNo := CreateVendorWithBankAccount('');
@@ -1065,7 +1065,7 @@ codeunit 144037 "ERM Telebank"
 
         // [GIVEN] Vendor, transactions go through "Our bank" with FCY
         CurrencyCode :=
-          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDecInRange(2, 100, 2), LibraryRandom.RandInt(3));
+          LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDecInRange(2, 100, 2), LibraryRandom.RandInt(3));
         VendorNo := CreateVendorWithBankAccount(CurrencyCode);
 
         // [GIVEN] FCY Posted Purchase Invoice [1] with one line, having Amount = 10, VAT % = 10, Amount Including VAT = "XX" = 11
@@ -1316,7 +1316,7 @@ codeunit 144037 "ERM Telebank"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         REPORT.Run(REPORT::"Get Proposal Entries", true, false, VendorLedgerEntry);
         LibraryVariableStorage.AssertEmpty;
@@ -1466,7 +1466,7 @@ codeunit 144037 "ERM Telebank"
         DetailLine: Record "Detail Line";
     begin
         OpenProposalDetailLine(ProposalDetailLine, AccountNo);
-        ProposalDetailLine.Close;
+        ProposalDetailLine.Close();
         DetailLine.SetRange("Account No.", AccountNo);
         DetailLine.FindFirst();
         DetailLine.Delete(true);
@@ -1522,7 +1522,7 @@ codeunit 144037 "ERM Telebank"
         // TearDown: TearDown Freely Transferable Maximum Table and Close Telebank Proposal Page.
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", CurrencyCode);
         RemoveFreelyTransferableMaximum(CompanyInformation."Country/Region Code", '');
-        PaymentHistoryCard.Close;
+        PaymentHistoryCard.Close();
     end;
 
     local procedure OpenProposalDetailLine(var ProposalDetailLine: TestPage "Proposal Detail Line"; AccountNo: Code[20])
@@ -1689,7 +1689,7 @@ codeunit 144037 "ERM Telebank"
           ProposalLine, BankAccountNo, AccountNo, ProposalLine."Nature of the Payment"::Goods, CurrencyCode);
         UpdateTransactionModeForPaymInProcess(ProposalLine."Account Type", ProposalLine."Transaction Mode");
         TelebankProposal.Process.Invoke; // Call action Process.
-        TelebankProposal.Close;
+        TelebankProposal.Close();
     end;
 
     local procedure PostVendorInvoiceUpdateSEPABankAccount(FIELDNO: Integer; FieldValue: Code[20]; var VendorBankAccount: Record "Vendor Bank Account")
@@ -2022,7 +2022,7 @@ codeunit 144037 "ERM Telebank"
         VendorNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(VendorNo);
-        GetProposalEntries.CurrencyDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using Random Value for Day.
+        GetProposalEntries.CurrencyDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using Random Value for Day.
         GetProposalEntries."Vendor Ledger Entry".SetFilter("Vendor No.", VendorNo);
         GetProposalEntries.OK.Invoke;
     end;
@@ -2034,7 +2034,7 @@ codeunit 144037 "ERM Telebank"
         EmployeeNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(EmployeeNo);
-        GetProposalEntries.CurrencyDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Using Random Value for Day.
+        GetProposalEntries.CurrencyDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Using Random Value for Day.
         GetProposalEntries."Employee Ledger Entry".SetFilter("Employee No.", EmployeeNo);
         GetProposalEntries.OK.Invoke;
     end;
@@ -2196,7 +2196,7 @@ codeunit 144037 "ERM Telebank"
     local procedure SetGLSetupEmptyLocalCurrency()
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Local Currency", 0);
             Modify(true);
         end;

@@ -72,7 +72,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         CopySalesOrderSellToAddressFromCustomer(SalesOrder, ArgCustomer);
 
         // Verify - Verify that the sell-to address field values are copied to the ship-to address fields
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.IsTrue(SalesHeader.ShipToAddressEqualsSellToAddress, 'Ship-to and Sell-to address fields are not equal');
     end;
 

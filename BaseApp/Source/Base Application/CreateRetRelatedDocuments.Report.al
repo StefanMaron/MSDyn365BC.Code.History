@@ -129,15 +129,15 @@ report 6697 "Create Ret.-Related Documents"
 
     var
         Vend: Record Vendor;
-        PROPurchHeader: Record "Purchase Header";
-        POPurchHeader: Record "Purchase Header";
-        SROSalesHeader: Record "Sales Header";
-        SOSalesHeader: Record "Sales Header";
         TempRetRelDoc: Record "Returns-Related Document" temporary;
         CopyDocMgt: Codeunit "Copy Document Mgt.";
         VendorNo: Code[20];
 
     protected var
+        POPurchHeader: Record "Purchase Header";
+        PROPurchHeader: Record "Purchase Header";
+        SOSalesHeader: Record "Sales Header";
+        SROSalesHeader: Record "Sales Header";
         CreatePRO: Boolean;
         CreatePO: Boolean;
         CreateSO: Boolean;

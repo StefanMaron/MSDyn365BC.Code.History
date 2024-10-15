@@ -16,7 +16,7 @@ report 115 "Salesperson - Commission"
             column(STRSUBSTNO_Text000_PeriodText_; StrSubstNo(Text000, PeriodText))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Salesperson_Purchaser__TABLECAPTION__________SalespersonFilter; TableCaption + ': ' + SalespersonFilter)
@@ -159,7 +159,7 @@ report 115 "Salesperson - Commission"
 
                 trigger OnPreDataItem()
                 begin
-                    ClearAmounts;
+                    ClearAmounts();
                 end;
             }
 
@@ -172,7 +172,7 @@ report 115 "Salesperson - Commission"
             trigger OnPreDataItem()
             begin
                 PageGroupNo := 1;
-                ClearAmounts;
+                ClearAmounts();
             end;
         }
     }
@@ -209,8 +209,8 @@ report 115 "Salesperson - Commission"
 
     trigger OnPreReport()
     begin
-        SalespersonFilter := "Salesperson/Purchaser".GetFilters;
-        CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters;
+        SalespersonFilter := "Salesperson/Purchaser".GetFilters();
+        CustLedgEntryFilter := "Cust. Ledger Entry".GetFilters();
         PeriodText := "Cust. Ledger Entry".GetFilter("Posting Date");
     end;
 

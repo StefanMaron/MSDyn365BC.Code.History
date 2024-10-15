@@ -31,7 +31,7 @@ codeunit 143000 "Library - NL Localization"
         CBGStatementLine.Insert(true);
         CBGStatementLine.Validate("Statement Type", StatementType);
         CBGStatementLine.Validate("Statement No.", StatementNo);
-        CBGStatementLine.Validate(Date, WorkDate);
+        CBGStatementLine.Validate(Date, WorkDate());
         CBGStatementLine.Validate("Account Type", AccountType);
         CBGStatementLine.Validate("Account No.", AccountNo);
         CBGStatementLine.Validate(Debit, Debit);

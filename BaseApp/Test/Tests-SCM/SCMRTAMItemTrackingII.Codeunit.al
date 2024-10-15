@@ -1689,7 +1689,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         // [THEN] "Quantity Shipped" on Sales Line = "X".
         with SalesLine do begin
-            Find;
+            Find();
             Assert.AreEqual(
               QtyToShip, "Quantity Shipped",
               StrSubstNo(IncorrectShippedQtyMsg, FieldCaption("Quantity Shipped"), FieldCaption("Qty. to Ship")));
@@ -2336,7 +2336,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         GetSalesOrderOnRequisitionWkshtAndCarryOutActionMsg(SalesLine, RequisitionLine, false);
 
         // [WHEN] Post shipment of "DSO" with "Qty. to Ship" < "Quantity"
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Qty. to Ship", ShipReceiveQty);
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -2608,13 +2608,13 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [WHEN] Post the sales invoice.
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] The sales order is successfully invoiced.
         SelectSalesInvoiceLine(SalesInvoiceLine, SalesHeader."No.");
         SalesInvoiceLine.TestField("No.", TrackedItem."No.");
-        SalesInvoiceLine.Next;
+        SalesInvoiceLine.Next();
         SalesInvoiceLine.TestField("No.", NonTrackedItem."No.");
     end;
 
@@ -2653,13 +2653,13 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [WHEN] Post the sales invoice.
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] The sales order is successfully invoiced.
         SelectSalesInvoiceLine(SalesInvoiceLine, SalesHeader."No.");
         SalesInvoiceLine.TestField("No.", TrackedItem."No.");
-        SalesInvoiceLine.Next;
+        SalesInvoiceLine.Next();
         SalesInvoiceLine.TestField("No.", NonTrackedItem."No.");
     end;
 
@@ -2687,7 +2687,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         // [GIVEN] Blanket sales order for 100 pcs, assign lot no.
         LibrarySales.CreateSalesDocumentWithItem(
           BlanketSalesHeader, BlanketSalesLine, BlanketSalesHeader."Document Type"::"Blanket Order", '',
-          Item."No.", LibraryRandom.RandIntInRange(50, 100), '', WorkDate);
+          Item."No.", LibraryRandom.RandIntInRange(50, 100), '', WorkDate());
         LibraryVariableStorage.Enqueue(AssignTracking::GivenLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
         LibraryVariableStorage.Enqueue(BlanketSalesLine.Quantity);
@@ -3473,7 +3473,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         repeat
             SalesLine.Validate("Purchasing Code", PurchasingCode);
             SalesLine.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure AssignTrackingOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; ReqWkshTemplateName: Code[10]; RequisitionWkshNameName: Code[10])
@@ -3484,7 +3484,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         RequisitionLine.FindFirst();
         repeat
             RequisitionLine.OpenItemTrackingLines();
-        until RequisitionLine.Next = 0;
+        until RequisitionLine.Next() = 0;
     end;
 
     local procedure CreateRequisitionWorksheetName(var ReqWkshTemplate: Record "Req. Wksh. Template"; var RequisitionWkshName: Record "Requisition Wksh. Name")
@@ -3532,7 +3532,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SelectPurchaseLine(PurchaseLine, DocumentNo);
         repeat
             PurchaseLine.OpenItemTrackingLines();  // Assign Tracking on Page Handler.
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure GetSalesOrderOnRequisitionWkshtAndCarryOutActionMsg(var SalesLine: Record "Sales Line"; var RequisitionLine: Record "Requisition Line"; TrackingOnRequisition: Boolean)
@@ -3547,7 +3547,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
 
         if TrackingOnRequisition then
             AssignTrackingOnRequisitionLine(RequisitionLine, ReqWkshTemplate.Name, RequisitionWkshName.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure UpdateQuantityToReceiveOnMultiplePurchaseLines(var PurchaseLine: Record "Purchase Line"; DocumentNo: Code[20]; QtyToReceive: Decimal)
@@ -3555,7 +3555,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SelectPurchaseLine(PurchaseLine, DocumentNo);
         repeat
             UpdateQtyToReceiveOnPurchaseLine(PurchaseLine, PurchaseLine.Quantity - QtyToReceive);  // Update Quantity to receive partially on Purchase lines.
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure CreateSalesOrderWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal; MultipleLines: Boolean)
@@ -3837,7 +3837,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         CreateAndReleasePurchaseOrder(PurchaseHeader, ItemNo, LocationCode, Quantity);
         AssignTrackingOnPurchaseLine(PurchaseHeader."No.");  // Assign Tracking on Page handler ItemTrackingDropShipmentPageHandler.
         if SetExpirationDate then
-            UpdateReservationEntry(ItemNo, CalcDate('<+1Y>', WorkDate));
+            UpdateReservationEntry(ItemNo, CalcDate('<+1Y>', WorkDate()));
         LibraryWarehouse.CreateWhseReceiptFromPO(PurchaseHeader);
         FindWarehouseReceiptHeader(WarehouseReceiptHeader, PurchaseHeader."No.", WarehouseReceiptLine."Source Document"::"Purchase Order");
         if PostReceipt then
@@ -4082,8 +4082,8 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             WarehouseActivityLine.Validate("Serial No.", ItemLedgerEntry."Serial No.");
             WarehouseActivityLine.Validate("Lot No.", ItemLedgerEntry."Lot No.");
             WarehouseActivityLine.Modify(true);
-            ItemLedgerEntry.Next;
-        until WarehouseActivityLine.Next = 0;
+            ItemLedgerEntry.Next();
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure FindPostedWhseReceiptHeader(WhseReceiptNo: Code[20])
@@ -4181,7 +4181,8 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     begin
         WhseWorksheetLine.Init();  // Required for PRECAL.
         BinContent.SetRange("Location Code", LocationCode);
-        LibraryWarehouse.WhseGetBinContent(BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, 1);
+        LibraryWarehouse.WhseGetBinContent(
+		    BinContent, WhseWorksheetLine, WhseInternalPutAwayHeader, "Warehouse Destination Type 2"::WhseInternalPutawayHeader);
         WhseIntPutAwayRelease.Release(WhseInternalPutAwayHeader);
     end;
 
@@ -4255,7 +4256,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             repeat
                 BinTypeBuffer := BinType;
                 BinTypeBuffer.Insert();
-            until BinType.Next = 0;
+            until BinType.Next() = 0;
         BinType.DeleteAll();
     end;
 
@@ -4333,7 +4334,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure VerifyPurchaseLineReceived(var PurchaseLine: Record "Purchase Line")
     begin
         with PurchaseLine do begin
-            Find;
+            Find();
             TestField("Quantity Received", Quantity);
         end;
     end;
@@ -4341,7 +4342,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
     local procedure VerifySalesLineShipped(var SalesLine: Record "Sales Line")
     begin
         with SalesLine do begin
-            Find;
+            Find();
             TestField("Quantity Shipped", Quantity);
         end;
     end;
@@ -4354,8 +4355,8 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SelectSalesInvoiceLine(SalesInvoiceLine, OrderNo);
         repeat
             TrackingQuantity := SalesInvoiceLine.Quantity;  // Assign Global Variable for Page Handler.
-            SalesInvoiceLine.ShowItemTrackingLines;  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
-        until SalesInvoiceLine.Next = 0;
+            SalesInvoiceLine.ShowItemTrackingLines();  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
+        until SalesInvoiceLine.Next() = 0;
     end;
 
     local procedure VerifyTrackingOnPostedPurchaseInvoice(OrderNo: Code[20])
@@ -4366,8 +4367,8 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SelectPurchInvLine(PurchInvLine, OrderNo);
         repeat
             TrackingQuantity := PurchInvLine.Quantity;  // Assign Global Variable for Page Handler.
-            PurchInvLine.ShowItemTrackingLines;  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
-        until PurchInvLine.Next = 0;
+            PurchInvLine.ShowItemTrackingLines();  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
+        until PurchInvLine.Next() = 0;
     end;
 
     local procedure VerifyTrackingOnSalesShipmentLine(var SalesShipmentLine: Record "Sales Shipment Line"; DocumentNo: Code[20])
@@ -4376,7 +4377,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SalesShipmentLine.SetRange(Type, SalesShipmentLine.Type::Item);
         SalesShipmentLine.FindFirst();
         TrackingQuantity := SalesShipmentLine.Quantity;  // Assign Global Variable for Page handler.
-        SalesShipmentLine.ShowItemTrackingLines;  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
+        SalesShipmentLine.ShowItemTrackingLines();  // Open Item Tracking Line for Verify on PostedLinesPageHandler.
     end;
 
     local procedure VerifyTrackingOnSalesShipment(OrderNo: Code[20]; Partial: Boolean)
@@ -4388,7 +4389,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         SalesShipmentHeader.FindSet();
         VerifyTrackingOnSalesShipmentLine(SalesShipmentLine, SalesShipmentHeader."No.");
         if Partial then begin
-            SalesShipmentHeader.Next;
+            SalesShipmentHeader.Next();
             VerifyTrackingOnSalesShipmentLine(SalesShipmentLine, SalesShipmentHeader."No.");
         end;
     end;
@@ -4419,7 +4420,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         repeat
             WarehouseActivityLine.TestField("Serial No.");
             WarehouseActivityLine.TestField("Lot No.");
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyRegisteredWhseActivityLine(ActivityType: Enum "Warehouse Activity Type"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20]; Quantity: Decimal)
@@ -4434,7 +4435,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         repeat
             RegisteredWhseActivityLine.TestField("Serial No.");
             RegisteredWhseActivityLine.TestField("Lot No.");
-        until RegisteredWhseActivityLine.Next = 0;
+        until RegisteredWhseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyRegistedInvtMovementLine(ItemNo: Code[20]; LotNo: Code[50]; BinCode: Code[20])
@@ -4442,7 +4443,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         DummyRegisteredInvtMovementLine: Record "Registered Invt. Movement Line";
     begin
         with DummyRegisteredInvtMovementLine do begin
-            Init;
+            Init();
             SetRange("Item No.", ItemNo);
             SetRange("Lot No.", LotNo);
             SetRange("Bin Code", BinCode);
@@ -4470,7 +4471,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         repeat
             ItemLedgerEntry.TestField("Serial No.");
             LineCount += 1;
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         Assert.AreEqual(Quantity, LineCount, NumberOfLineEqualError);  // Verify Number of line - Tracking Line.
     end;
 
@@ -4500,7 +4501,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             WarehouseEntry.TestField(Quantity, SignFactor);
             WarehouseEntry.TestField("Serial No.");
             LineCount += 1;
-        until WarehouseEntry.Next = 0;
+        until WarehouseEntry.Next() = 0;
         Assert.AreEqual(Quantity, LineCount, NumberOfLineEqualError);  // Verify Number of line - Tracking Line.
     end;
 
@@ -4513,7 +4514,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             SumCostAmountActual += ItemLedgerEntry."Cost Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         Assert.AreEqual(SumCostAmountActual, Amount, ValueNotEqual);  // Veriy that sum of Cost Amount(Actual) equals to assigned amount.
     end;
 
@@ -4558,7 +4559,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
                     repeat
                         PostedItemTrackingLines.Quantity.AssertEquals(1);  // Using One for Serial No.
                         LineCount += 1;
-                    until not PostedItemTrackingLines.Next;
+                    until not PostedItemTrackingLines.Next();
                     Assert.AreEqual(TrackingQuantity, LineCount, NumberOfLineEqualError);  // Verify Number of line Tracking Line.
                 end;
             AssignTracking::LotNo:
@@ -4614,7 +4615,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             AssignTracking::GivenLotNo:
                 begin
                     ItemTrackingLines.Last;
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     ItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText);
                     Qty := LibraryVariableStorage.DequeueDecimal;
                     ItemTrackingLines."Quantity (Base)".SetValue(Qty);
@@ -4767,7 +4768,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
             WhseItemTrackingLine."Serial No.".SetValue(ItemLedgerEntry."Serial No.");
             WhseItemTrackingLine."Lot No.".SetValue(ItemLedgerEntry."Lot No.");
             WhseItemTrackingLine.Quantity.SetValue(1);  // Using One for Serial No.
-            ItemLedgerEntry.Next;
+            ItemLedgerEntry.Next();
         end;
         Commit();  // Commit required for Test Cases.
     end;
@@ -4786,7 +4787,7 @@ codeunit 137059 "SCM RTAM Item Tracking-II"
                 WhseItemTrackingLine.New;
                 WhseItemTrackingLine."Serial No.".SetValue(TrackingQuantity2 + AssignTracking);
                 WhseItemTrackingLine.Quantity.SetValue(1);  // Using One for Serial No.
-                ItemLedgerEntry.Next;
+                ItemLedgerEntry.Next();
             end;
         end;
         Commit();  // Commit required for Test Cases.

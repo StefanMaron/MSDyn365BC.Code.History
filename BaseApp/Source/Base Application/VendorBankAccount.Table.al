@@ -1,4 +1,4 @@
-table 288 "Vendor Bank Account"
+﻿table 288 "Vendor Bank Account"
 {
     Caption = 'Vendor Bank Account';
     DataCaptionFields = "Vendor No.", "Code", Name;
@@ -34,11 +34,6 @@ table 288 "Vendor Bank Account"
         field(6; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(Address, "Address 2", "Post Code", City, "Country/Region Code", "Phone No.", "Fax No.");
-            end;
         }
         field(7; "Address 2"; Text[50])
         {
@@ -60,8 +55,13 @@ table 288 "Vendor Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -80,8 +80,13 @@ table 288 "Vendor Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; Contact; Text[100])
@@ -213,22 +218,6 @@ table 288 "Vendor Bank Account"
         field(11000001; "Account Holder Address"; Text[100])
         {
             Caption = 'Account Holder Address';
-
-            trigger OnValidate()
-            var
-                AcctHolderAddress2: Text[50];
-                PhoneNo: Text[30];
-                FaxNo: Text[30];
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(
-                  "Account Holder Address",
-                  AcctHolderAddress2,
-                  "Account Holder Post Code",
-                  "Account Holder City",
-                  "Acc. Hold. Country/Region Code",
-                  "Phone No.",
-                  "Fax No.");
-            end;
         }
         field(11000002; "Account Holder Post Code"; Code[20])
         {
@@ -319,17 +308,20 @@ table 288 "Vendor Bank Account"
         "Acc. Hold. Country/Region Code" := Vend."Country/Region Code";
     end;
 
+    trigger OnRename()
+    begin
+    end;
+
     var
         PostCode: Record "Post Code";
         Text1000001: Label 'Bank Account No. %1 may be incorrect.';
         Vend: Record Vendor;
-        PostCodeMgt: Codeunit "Post Code Management";
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
         BankAccDeleteErr: Label 'You cannot delete this bank account because it is associated with one or more open ledger entries.';
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr);
     end;
@@ -367,6 +359,16 @@ table 288 "Vendor Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBankAccount(var Handled: Boolean; VendorBankAccount: Record "Vendor Bank Account"; var ResultBankAccountNo: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var VendorBankAccount: Record "Vendor Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

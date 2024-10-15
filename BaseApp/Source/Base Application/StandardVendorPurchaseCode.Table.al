@@ -105,7 +105,7 @@ table 175 "Standard Vendor Purchase Code"
         if not IsHandled then begin
             StdVendPurchCodes.SetTableView(StdVendPurchCode);
             StdVendPurchCodes.LookupMode(true);
-            if StdVendPurchCodes.RunModal = ACTION::LookupOK then begin
+            if StdVendPurchCodes.RunModal() = ACTION::LookupOK then begin
                 StdVendPurchCodes.GetSelected(StdVendPurchCode);
                 if StdVendPurchCode.FindSet() then
                     repeat
@@ -154,7 +154,7 @@ table 175 "Standard Vendor Purchase Code"
                     PurchLine.Description := StdPurchLine.Description;
                     PurchLine."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 end else
-                    if not StdPurchLine.EmptyLine then begin
+                    if not StdPurchLine.EmptyLine() then begin
                         StdPurchLine.TestField("No.");
                         PurchLine.Validate("No.", StdPurchLine."No.");
                         if StdPurchLine."Variant Code" <> '' then
@@ -178,9 +178,9 @@ table 175 "Standard Vendor Purchase Code"
 
                 CombineDimensions(PurchLine, StdPurchLine);
                 OnBeforeApplyStdCodesToPurchaseLines(PurchLine, StdPurchLine);
-                if StdPurchLine.InsertLine then begin
+                if StdPurchLine.InsertLine() then begin
                     PurchLine."Line No." := GetNextLineNo(PurchLine);
-                    if not StdPurchLine.EmptyLine then
+                    if not StdPurchLine.EmptyLine() then
                         PurchLine."Suggested Line" := true;
                     PurchLine.Insert(true);
                     InsertExtendedText(PurchLine, PurchHeader);

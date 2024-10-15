@@ -14,7 +14,7 @@ page 99000805 "Standard Task Qlty Measures"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Qlty Measure Code"; "Qlty Measure Code")
+                field("Qlty Measure Code"; Rec."Qlty Measure Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the quality measure.';
@@ -24,17 +24,17 @@ page 99000805 "Standard Task Qlty Measures"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the quality measure description.';
                 }
-                field("Min. Value"; "Min. Value")
+                field("Min. Value"; Rec."Min. Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the minimum value that must be met.';
                 }
-                field("Max. Value"; "Max. Value")
+                field("Max. Value"; Rec."Max. Value")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the maximum value that may be achieved.';
                 }
-                field("Mean Tolerance"; "Mean Tolerance")
+                field("Mean Tolerance"; Rec."Mean Tolerance")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the mean tolerance.';

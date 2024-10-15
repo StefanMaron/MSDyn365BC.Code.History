@@ -324,7 +324,7 @@ codeunit 144003 "ERM Apply GL Entries"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           RemainingAmount, GLEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(RemainingAmountMsg, GLEntry.FieldCaption("Remaining Amount"), RemainingAmount, GLEntry.TableCaption));
+          StrSubstNo(RemainingAmountMsg, GLEntry.FieldCaption("Remaining Amount"), RemainingAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyRemainingAmountOnDocument(DocumentNo: Code[20]; RemAmount: Decimal)
@@ -335,7 +335,7 @@ codeunit 144003 "ERM Apply GL Entries"
         GLEntry.FindSet();
         repeat
             GLEntry.TestField("Remaining Amount", RemAmount * GLEntry.Amount / Abs(GLEntry.Amount));
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     [PageHandler]

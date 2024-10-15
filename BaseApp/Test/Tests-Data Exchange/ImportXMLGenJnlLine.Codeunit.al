@@ -381,13 +381,13 @@ codeunit 132549 "Import XML Gen Jnl Line"
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
         DataExch.FindLast();
         EntryNo := DataExch."Entry No.";
-        GenJnlLineTemplate.Find;
+        GenJnlLineTemplate.Find();
 
         // Verify
         LineNo := GenJnlLineTemplate."Line No.";
         DocNo := GenJnlLineTemplate."Document No.";
         CreateLine(TempExpdGenJnlLine, GenJnlLineTemplate, EntryNo, 1, LineNo * 1,
-          IncCode(0, DocNo), DMY2Date(5, 5, Date2DMY(WorkDate, 3)), '0a 1a 2a 3a 4a 5a 6a 7a 8a 9a 10a 11a', '', '', -105678.5, '');
+          IncCode(0, DocNo), DMY2Date(5, 5, Date2DMY(WorkDate(), 3)), '0a 1a 2a 3a 4a 5a 6a 7a 8a 9a 10a 11a', '', '', -105678.5, '');
 
         AssertDataInTable(TempExpdGenJnlLine, GenJnlLineTemplate, '');
     end;
@@ -562,7 +562,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
     var
         YearText: Text;
     begin
-        YearText := Format(Date2DMY(WorkDate, 3));
+        YearText := Format(Date2DMY(WorkDate(), 3));
         WriteLine(OutStream, '<?xml version="1.0" encoding="' + Encoding + '"?>');
         WriteLine(OutStream,
           '<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="' + NamespaceTxt + '">');
@@ -645,7 +645,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
     var
         YearText: Text;
     begin
-        YearText := Format(Date2DMY(WorkDate, 3));
+        YearText := Format(Date2DMY(WorkDate(), 3));
         WriteLine(OutStream, '<?xml version="1.0" encoding="' + Encoding + '"?>');
         WriteLine(OutStream,
           '<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="' + NamespaceTxt + '">');
@@ -724,7 +724,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
     var
         YearText: Text;
     begin
-        YearText := Format(Date2DMY(WorkDate, 3));
+        YearText := Format(Date2DMY(WorkDate(), 3));
         WriteLine(OutStream, '<?xml version="1.0" encoding="' + Encoding + '"?>');
         WriteLine(OutStream,
           '<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="' + NamespaceTxt + '">');
@@ -847,7 +847,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         while 0 <> InStream.ReadText(EncodedText) do
             Writer.WriteLine(EncodedText);
 
-        Writer.Close;
+        Writer.Close();
     end;
 
     local procedure SetupSourceMoq(DataExchDefCode: Code[20]; TempBlob: Codeunit "Temp Blob")
@@ -991,13 +991,13 @@ codeunit 132549 "Import XML Gen Jnl Line"
         DataExch.SetRange("Data Exch. Def Code", 'SEPA CAMT');
         DataExch.FindLast();
         EntryNo := DataExch."Entry No.";
-        GenJnlLineTemplate.Find;
+        GenJnlLineTemplate.Find();
         LineNo := GenJnlLineTemplate."Line No.";
         DocNo := GenJnlLineTemplate."Document No.";
         CreateLine(TempExpdGenJnlLine, GenJnlLineTemplate, EntryNo, 1, LineNo * 1,
-          IncCode(0, DocNo), DMY2Date(5, 5, Date2DMY(WorkDate, 3)), '', '', '', -105678.5, CurrencyCode);
+          IncCode(0, DocNo), DMY2Date(5, 5, Date2DMY(WorkDate(), 3)), '', '', '', -105678.5, CurrencyCode);
         CreateLine(TempExpdGenJnlLine, GenJnlLineTemplate, EntryNo, 2, LineNo * 3,
-          IncCode(1, DocNo), DMY2Date(8, 8, Date2DMY(WorkDate, 3)), '', 'MUELLER', '', -105.42, CurrencyCode);
+          IncCode(1, DocNo), DMY2Date(8, 8, Date2DMY(WorkDate(), 3)), '', 'MUELLER', '', -105.42, CurrencyCode);
     end;
 
     local procedure AssertDataInTable(var TempExpectedGenJnlLine: Record "Gen. Journal Line" temporary; var ActualGenJnlLine: Record "Gen. Journal Line"; Msg: Text)
@@ -1009,7 +1009,7 @@ codeunit 132549 "Import XML Gen Jnl Line"
         repeat
             LineNo += 1;
             AreEqualRecords(TempExpectedGenJnlLine, ActualGenJnlLine, Msg + 'Line:' + Format(LineNo) + ' ');
-        until (TempExpectedGenJnlLine.Next = 0) or (ActualGenJnlLine.Next = 0);
+        until (TempExpectedGenJnlLine.Next() = 0) or (ActualGenJnlLine.Next() = 0);
         Assert.AreEqual(TempExpectedGenJnlLine.Count, ActualGenJnlLine.Count, 'Row count does not match');
     end;
 

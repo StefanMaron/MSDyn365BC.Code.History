@@ -1,7 +1,8 @@
 table 134449 "County Caption Test"
 {
     DataClassification = ToBeClassified;
-
+    ReplicateData = false;
+    
     fields
     {
         field(1; "Entry No."; Integer)

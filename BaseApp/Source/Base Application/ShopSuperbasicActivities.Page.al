@@ -12,19 +12,19 @@ page 9044 "Shop Super. basic Activities"
             cuegroup("Production Orders")
             {
                 Caption = 'Production Orders';
-                field("Planned Prod. Orders - All"; "Planned Prod. Orders - All")
+                field("Planned Prod. Orders - All"; Rec."Planned Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Planned Production Orders";
                     ToolTip = 'Specifies the number of planned production orders that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Firm Plan. Prod. Orders - All"; "Firm Plan. Prod. Orders - All")
+                field("Firm Plan. Prod. Orders - All"; Rec."Firm Plan. Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Firm Planned Prod. Orders";
                     ToolTip = 'Specifies the number of firm planned production orders that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Released Prod. Orders - All"; "Released Prod. Orders - All")
+                field("Released Prod. Orders - All"; Rec."Released Prod. Orders - All")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Released Production Orders";
@@ -60,13 +60,13 @@ page 9044 "Shop Super. basic Activities"
             cuegroup(Operations)
             {
                 Caption = 'Operations';
-                field("Prod. Orders Routings-in Queue"; "Prod. Orders Routings-in Queue")
+                field("Prod. Orders Routings-in Queue"; Rec."Prod. Orders Routings-in Queue")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Prod. Order Routing";
                     ToolTip = 'Specifies the number of production order routings in queue that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Prod. Orders Routings-in Prog."; "Prod. Orders Routings-in Prog.")
+                field("Prod. Orders Routings-in Prog."; Rec."Prod. Orders Routings-in Prog.")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Prod. Order Routing";
@@ -101,13 +101,13 @@ page 9044 "Shop Super. basic Activities"
             cuegroup("Warehouse Documents")
             {
                 Caption = 'Warehouse Documents';
-                field("Invt. Picks to Production"; "Invt. Picks to Production")
+                field("Invt. Picks to Production"; Rec."Invt. Picks to Production")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Inventory Picks";
                     ToolTip = 'Specifies the number of inventory picks that are displayed in the Manufacturing Cue on the Role Center. The documents are filtered by today''s date.';
                 }
-                field("Invt. Put-aways from Prod."; "Invt. Put-aways from Prod.")
+                field("Invt. Put-aways from Prod."; Rec."Invt. Put-aways from Prod.")
                 {
                     ApplicationArea = Manufacturing;
                     DrillDownPageID = "Inventory Put-aways";
@@ -121,7 +121,7 @@ page 9044 "Shop Super. basic Activities"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced with User Tasks Activities part';
                 ObsoleteTag = '17.0';
-                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
+                field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
@@ -136,7 +136,7 @@ page 9044 "Shop Super. basic Activities"
                     var
                         UserTaskList: Page "User Task List";
                     begin
-                        UserTaskList.SetPageToShowMyPendingUserTasks;
+                        UserTaskList.SetPageToShowMyPendingUserTasks();
                         UserTaskList.Run();
                     end;
                 }
@@ -150,10 +150,10 @@ page 9044 "Shop Super. basic Activities"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Reset();
+        if not Get() then begin
+            Init();
+            Insert();
         end;
         SetRange("User ID Filter", UserId);
     end;

@@ -149,7 +149,7 @@ codeunit 144056 "ERM Telebank Prepayment"
         NoSeriesManagement: Codeunit NoSeriesManagement;
     begin
         Clear(NoSeriesManagement);
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate, false));
+        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));
     end;
 }
 

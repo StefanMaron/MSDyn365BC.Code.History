@@ -33,7 +33,7 @@ report 7305 "Whse.-Source - Create Document"
                         PostedWhseReceiptLine2.Quantity :=
                           Round(
                             PostedWhseReceiptLine2."Qty. (Base)" /
-                            PostedWhseReceiptLine2."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                            PostedWhseReceiptLine2."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                         IsHandled := false;
                         OnPostedWhseReceiptLineOnAfterGetRecordOnBeforeGetWhseItemTrkgSetup(WhseWkshLine, "Posted Whse. Receipt Line", IsHandled);
@@ -52,7 +52,7 @@ report 7305 "Whse.-Source - Create Document"
                         if CreateErrorText = '' then
                             CreatePutAway.GetMessage(CreateErrorText);
                         if EverythingHandled then
-                            EverythingHandled := CreatePutAway.EverythingIsHandled;
+                            EverythingHandled := CreatePutAway.EverythingIsHandled();
                     end;
                 end;
             end;
@@ -88,7 +88,7 @@ report 7305 "Whse.-Source - Create Document"
                     CreatePick.SetCalledFromWksh(false);
 
                 TestField("Qty. per Unit of Measure");
-                if WhseWkshLine.CheckAvailQtytoMove < 0 then
+                if WhseWkshLine.CheckAvailQtytoMove() < 0 then
                     Error(
                       Text004,
                       TableCaption, FieldCaption("Worksheet Template Name"), "Worksheet Template Name",
@@ -174,7 +174,7 @@ report 7305 "Whse.-Source - Create Document"
                     EverythingHandled := false;
 
                 if EverythingHandled then
-                    EverythingHandled := CreatePutAway.EverythingIsHandled;
+                    EverythingHandled := CreatePutAway.EverythingIsHandled();
 
                 QtyHandledBase := CreatePutAway.GetQtyHandledBase(TempWhseItemTrkgLine);
 
@@ -185,7 +185,7 @@ report 7305 "Whse.-Source - Create Document"
                     if (WhseWkshLine."Qty. Outstanding" = 0) and
                        (WhseWkshLine."Qty. Outstanding (Base)" = 0)
                     then
-                        WhseWkshLine.Delete
+                        WhseWkshLine.Delete()
                     else
                         WhseWkshLine.Modify();
                     UpdateWhseItemTrkgLines(PostedWhseRcptLine, SourceType, TempWhseItemTrkgLine);
@@ -232,7 +232,7 @@ report 7305 "Whse.-Source - Create Document"
                     QtyToPick :=
                       Round(
                         ("Qty. (Base)" - ("Qty. Picked (Base)" + "Pick Qty. (Base)")) /
-                        "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                     if QtyToPick > 0 then begin
                         CreatePick.SetWhseInternalPickLine("Whse. Internal Pick Line", 1);
                         CreatePick.SetTempWhseItemTrkgLine(
@@ -283,7 +283,7 @@ report 7305 "Whse.-Source - Create Document"
                 QtyToPutAway: Decimal;
             begin
                 WMSMgt.CheckOutboundBlockedBin("Location Code", "From Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
-                CheckCurrentLineQty;
+                CheckCurrentLineQty();
                 WhseWkshLine.SetRange("Whse. Document Line No.", "Line No.");
                 if not WhseWkshLine.FindFirst() then begin
                     TestField("Qty. per Unit of Measure");
@@ -291,7 +291,7 @@ report 7305 "Whse.-Source - Create Document"
                     QtyToPutAway :=
                       Round(
                         ("Qty. (Base)" - ("Qty. Put Away (Base)" + "Put-away Qty. (Base)")) /
-                        "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                     if QtyToPutAway > 0 then begin
                         InitPostedWhseReceiptLineFromInternalPutAway(PostedWhseReceiptLine, "Whse. Internal Put-away Line", QtyToPutAway);
@@ -357,7 +357,7 @@ report 7305 "Whse.-Source - Create Document"
                     QtyToPick :=
                       Round(
                         ("Expected Qty. (Base)" - ("Qty. Picked (Base)" + "Pick Qty. (Base)")) /
-                        "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                     if QtyToPick > 0 then begin
                         CreatePick.SetProdOrderCompLine("Prod. Order Component", 1);
                         CreatePick.SetTempWhseItemTrkgLine(
@@ -470,19 +470,12 @@ report 7305 "Whse.-Source - Create Document"
             var
                 Item: Record Item;
                 WMSMgt: Codeunit "WMS Management";
-                ItemTrackingManagement: Codeunit "Item Tracking Management";
-                FeatureTelemetry: Codeunit "Feature Telemetry";
                 QtyToPick: Decimal;
                 QtyToPickBase: Decimal;
             begin
                 Item.Get("No.");
                 if Item.IsNonInventoriableType() then
                     CurrReport.Skip();
-
-                if ItemTrackingManagement.GetWhseItemTrkgSetup(Item."No.") then begin
-                    FeatureTelemetry.LogUsage('0000GRM', 'Picks on jobs', 'Skip Whse. Pick: Warehouse Tracking Enabled');
-                    CurrReport.Skip();
-                end;
 
                 WMSMgt.CheckInboundBlockedBin("Location Code", "Bin Code", "No.", "Variant Code", "Unit of Measure Code");
 
@@ -492,10 +485,12 @@ report 7305 "Whse.-Source - Create Document"
                     TestField("Qty. per Unit of Measure");
                     CalcFields("Pick Qty. (Base)");
                     QtyToPickBase := "Quantity (Base)" - ("Qty. Picked (Base)" + "Pick Qty. (Base)");
-                    QtyToPick := Round(QtyToPickBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                    QtyToPick := Round(QtyToPickBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
 
                     if QtyToPick > 0 then begin
                         CreatePick.SetJobPlanningLine("Job Planning Line");
+                        CreatePick.SetTempWhseItemTrkgLine(
+                          "Job Planning Line"."Job No.", Database::"Job Planning Line", '', 0, "Job Contract Entry No.", "Location Code");
                         CreatePick.CreateTempLine("Location Code", "No.", "Variant Code", "Unit of Measure Code", '', "Bin Code", "Qty. per Unit of Measure", "Qty. Rounding Precision", "Qty. Rounding Precision (Base)", QtyToPick, QtyToPickBase);
                     end;
                 end else
@@ -556,10 +551,10 @@ report 7305 "Whse.-Source - Create Document"
                             LookupWhseEmployee: Page "Warehouse Employee List";
                         begin
                             WhseEmployee.SetCurrentKey("Location Code");
-                            WhseEmployee.SetRange("Location Code", GetHeaderLocationCode);
+                            WhseEmployee.SetRange("Location Code", GetHeaderLocationCode());
                             LookupWhseEmployee.LookupMode(true);
                             LookupWhseEmployee.SetTableView(WhseEmployee);
-                            if LookupWhseEmployee.RunModal = ACTION::LookupOK then begin
+                            if LookupWhseEmployee.RunModal() = ACTION::LookupOK then begin
                                 LookupWhseEmployee.GetRecord(WhseEmployee);
                                 AssignedID := WhseEmployee."User ID";
                             end;
@@ -570,7 +565,7 @@ report 7305 "Whse.-Source - Create Document"
                             WhseEmployee: Record "Warehouse Employee";
                         begin
                             if AssignedID <> '' then
-                                WhseEmployee.Get(AssignedID, GetHeaderLocationCode);
+                                WhseEmployee.Get(AssignedID, GetHeaderLocationCode());
                         end;
                     }
                     field(SortingMethodForActivityLines; SortActivity)
@@ -610,7 +605,7 @@ report 7305 "Whse.-Source - Create Document"
         var
             Location: Record Location;
         begin
-            GetLocation(Location, GetHeaderLocationCode);
+            GetLocation(Location, GetHeaderLocationCode());
             if Location."Use ADCS" then
                 DoNotFillQtytoHandle := true;
 
@@ -723,7 +718,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         PostedWhseReceiptLine.Copy(PostedWhseReceiptLine2);
         WhseDoc := WhseDoc::"Posted Receipt";
-        SourceTableCaption := PostedWhseReceiptLine.TableCaption;
+        SourceTableCaption := PostedWhseReceiptLine.TableCaption();
         AssignedID := AssignedID2;
 
         SortingMethod := SortActivity.AsInteger();
@@ -755,7 +750,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         WhseInternalPickLine.Copy(WhseInternalPickLine2);
         WhseDoc := WhseDoc::"Internal Pick";
-        SourceTableCaption := WhseInternalPickLine.TableCaption;
+        SourceTableCaption := WhseInternalPickLine.TableCaption();
         AssignedID := AssignedID2;
 
         SortingMethod := SortActivity.AsInteger();
@@ -769,7 +764,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         WhseInternalPutAwayHeader.Copy(WhseInternalPutAwayHeader2);
         WhseDoc := WhseDoc::"Internal Put-away";
-        SourceTableCaption := WhseInternalPutAwayHeader.TableCaption;
+        SourceTableCaption := WhseInternalPutAwayHeader.TableCaption();
         AssignedID := WhseInternalPutAwayHeader2."Assigned User ID";
 
         SortingMethod := SortActivity.AsInteger();
@@ -783,7 +778,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         ProdOrderHeader.Copy(ProdOrderHeader2);
         WhseDoc := WhseDoc::Production;
-        SourceTableCaption := ProdOrderHeader.TableCaption;
+        SourceTableCaption := ProdOrderHeader.TableCaption();
 
         SortingMethod := SortActivity.AsInteger();
         OnAfterSetProdOrder(ProdOrderHeader, SortingMethod);
@@ -794,7 +789,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         AssemblyHeader.Copy(AssemblyHeader2);
         WhseDoc := WhseDoc::Assembly;
-        SourceTableCaption := AssemblyHeader.TableCaption;
+        SourceTableCaption := AssemblyHeader.TableCaption();
     end;
 
     procedure SetJob(var Job2: Record Job)
@@ -835,12 +830,11 @@ report 7305 "Whse.-Source - Create Document"
                         Format(WhseActivHeader.Type), FirstActivityNo, LastActivityNo) +
                       StrSubstNo(
                         Text002, SourceTableCaption, Format(WhseActivHeader.Type)));
-            end else begin
+            end else
                 if FirstActivityNo = LastActivityNo then
                     Message(Text000, Format(WhseActivHeader.Type), FirstActivityNo)
                 else
                     Message(Text001, Format(WhseActivHeader.Type), FirstActivityNo, LastActivityNo);
-            end;
         end;
         exit(EverythingHandled);
     end;
@@ -872,7 +866,7 @@ report 7305 "Whse.-Source - Create Document"
     begin
         with PostedWhseReceiptLine do begin
             if not Get(WhseWorksheetLine."Whse. Document No.", WhseWorksheetLine."Whse. Document Line No.") then begin
-                Init;
+                Init();
                 "No." := WhseWorksheetLine."Whse. Document No.";
                 "Line No." := WhseWorksheetLine."Whse. Document Line No.";
                 "Item No." := WhseWorksheetLine."Item No.";
@@ -900,7 +894,7 @@ report 7305 "Whse.-Source - Create Document"
     local procedure InitPostedWhseReceiptLineFromInternalPutAway(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; WhseInternalPutAwayLine: Record "Whse. Internal Put-away Line"; QtyToPutAway: Decimal)
     begin
         with PostedWhseReceiptLine do begin
-            Init;
+            Init();
             "No." := WhseInternalPutAwayLine."No.";
             "Line No." := WhseInternalPutAwayLine."Line No.";
             "Location Code" := WhseInternalPutAwayLine."Location Code";
@@ -954,7 +948,7 @@ report 7305 "Whse.-Source - Create Document"
                     PostedWhseRcptLine."Qty. (Base)" := "Qty. to Handle (Base)";
                 QtyToHandleBase -= PostedWhseRcptLine."Qty. (Base)";
                 PostedWhseRcptLine.Quantity :=
-                  Round(PostedWhseRcptLine."Qty. (Base)" / PostedWhseRcptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                  Round(PostedWhseRcptLine."Qty. (Base)" / PostedWhseRcptLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             end;
         end;
 
@@ -997,7 +991,7 @@ report 7305 "Whse.-Source - Create Document"
         WhseItemTrackingLine: Record "Whse. Item Tracking Line";
     begin
         with WhseItemTrackingLine do begin
-            Reset;
+            Reset();
             SetCurrentKey(
               "Source ID", "Source Type", "Source Subtype", "Source Batch Name",
               "Source Prod. Order Line", "Source Ref. No.");
@@ -1017,7 +1011,7 @@ report 7305 "Whse.-Source - Create Document"
                         "Quantity Handled (Base)" += TempWhseItemTrkgLine."Quantity (Base)";
                     "Qty. to Handle (Base)" := "Quantity (Base)" - "Quantity Handled (Base)";
                     OnBeforeWhseItemTrackingLineModify(WhseItemTrackingLine, TempWhseItemTrkgLine);
-                    Modify;
+                    Modify();
                 until Next() = 0;
         end
     end;
@@ -1036,13 +1030,13 @@ report 7305 "Whse.-Source - Create Document"
                 "Qty. Handled (Base)" += WhseWorksheetLine."Qty. Handled (Base)";
                 "Qty. Handled" += WhseWorksheetLine."Qty. Handled (Base)";
                 OnBeforeTempWhseWorksheetLineMovementModify(TempWhseWorksheetLineMovement, WhseWorksheetLine);
-                Modify;
+                Modify();
             end else begin
                 TempWhseWorksheetLineMovement := WhseWorksheetLine;
-                Insert;
+                Insert();
             end;
             UpdateWhseItemTrackingBuffer(WhseWorksheetLine, TempWhseWorksheetLineMovement);
-            Reset;
+            Reset();
         end;
     end;
 
@@ -1114,7 +1108,7 @@ report 7305 "Whse.-Source - Create Document"
             FindSet(true);
             repeat
                 if "Qty. to Handle" = "Qty. Outstanding" then begin
-                    Delete;
+                    Delete();
                     ItemTrackingMgt.DeleteWhseItemTrkgLines(
                       DATABASE::"Whse. Worksheet Line", 0, Name, "Worksheet Template Name", 0, "Line No.", "Location Code", true);
                     QtyHandled -= "Qty. to Handle";
@@ -1134,7 +1128,7 @@ report 7305 "Whse.-Source - Create Document"
                         QtyHandled := 0;
                     end;
                     "Qty. Outstanding (Base)" := "Qty. (Base)" - "Qty. Handled (Base)";
-                    Modify;
+                    Modify();
                 end;
             until (Next() = 0) or (QtyHandledBase = 0);
         end;

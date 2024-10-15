@@ -150,7 +150,7 @@ codeunit 144542 "Sales Document"
     [Scope('OnPrem')]
     procedure GetProposalEntriesRequestPageHandler(var GetProposalEntries: TestRequestPage "Get Proposal Entries")
     begin
-        GetProposalEntries.CurrencyDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), WorkDate));
+        GetProposalEntries.CurrencyDate.SetValue(CalcDate(StrSubstNo('<%1M>', LibraryRandom.RandInt(5)), WorkDate()));
         GetProposalEntries.OK.Invoke;
     end;
 

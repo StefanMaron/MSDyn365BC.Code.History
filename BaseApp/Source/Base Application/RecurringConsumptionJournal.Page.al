@@ -23,7 +23,7 @@ page 99000850 "Recurring Consumption Journal"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ItemJnlMgt.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
                     ItemJnlMgt.CheckName(CurrentJnlBatchName, Rec);
@@ -32,7 +32,7 @@ page 99000850 "Recurring Consumption Journal"
                 trigger OnValidate()
                 begin
                     ItemJnlMgt.CheckName(CurrentJnlBatchName, Rec);
-                    CurrentJnlBatchNameOnAfterVali;
+                    CurrentJnlBatchNameOnAfterVali();
                 end;
             }
             repeater(Control1)
@@ -438,9 +438,6 @@ page 99000850 "Recurring Consumption Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -456,9 +453,6 @@ page 99000850 "Recurring Consumption Journal"
                     ApplicationArea = Manufacturing;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -476,8 +470,6 @@ page 99000850 "Recurring Consumption Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -489,6 +481,23 @@ page 99000850 "Recurring Consumption Journal"
                     ItemJnlLine.SetRange("Journal Batch Name", Rec."Journal Batch Name");
                     REPORT.RunModal(REPORT::"Inventory Movement", true, true, ItemJnlLine);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
+                }
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
             }
         }
     }
@@ -526,7 +535,7 @@ page 99000850 "Recurring Consumption Journal"
     begin
         SetDimensionsVisibility();
 
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             exit;

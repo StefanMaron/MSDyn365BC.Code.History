@@ -13,7 +13,7 @@ report 721 "Inventory - Cost Variance"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Costing Method", "Location Filter";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TableCaptionItemFilter; TableCaption + ': ' + ItemFilter)
@@ -164,8 +164,8 @@ report 721 "Inventory - Cost Variance"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
-        ItemLedgEntryFilter := "Value Entry".GetFilters;
+        ItemFilter := Item.GetFilters();
+        ItemLedgEntryFilter := "Value Entry".GetFilters();
     end;
 
     var

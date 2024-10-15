@@ -411,7 +411,7 @@ codeunit 137928 "SCM Assembly UT"
         AssemblyOrders.Release.Invoke;
 
         // [THEN] The Assembly Order is released.
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         AssemblyHeader.TestField(Status, AssemblyHeader.Status::Released);
     end;
 
@@ -443,7 +443,7 @@ codeunit 137928 "SCM Assembly UT"
         AssemblyOrders.Reopen.Invoke;
 
         // [THEN] The Assembly Order is open.
-        AssemblyHeader.Find;
+        AssemblyHeader.Find();
         AssemblyHeader.TestField(Status, AssemblyHeader.Status::Open);
     end;
 
@@ -814,10 +814,10 @@ codeunit 137928 "SCM Assembly UT"
     local procedure MockATOLink(var AssembleToOrderLink: Record "Assemble-to-Order Link")
     begin
         with AssembleToOrderLink do begin
-            Init;
+            Init();
             "Assembly Document Type" := "Assembly Document Type"::Order;
             "Assembly Document No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -836,28 +836,28 @@ codeunit 137928 "SCM Assembly UT"
     local procedure MockLocation(var Location: Record Location; ToAsmBinCode: Code[20])
     begin
         with Location do begin
-            Init;
+            Init();
             Code := LibraryUtility.GenerateGUID();
             "To-Assembly Bin Code" := ToAsmBinCode;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockWhseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; IsATO: Boolean)
     begin
         with WarehouseShipmentLine do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateGUID();
             "Line No." := LibraryUtility.GetNewRecNo(WarehouseShipmentLine, FieldNo("Line No."));
             "Assemble to Order" := IsATO;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockWhseWorksheetLine(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocType: Enum "Warehouse Worksheet Document Type"; SourceType: Integer; SourceSubtype: Option; SourceNo: Code[20]; WhseDocNo: Code[20]; WhseDocLineNo: Integer)
     begin
         with WhseWorksheetLine do begin
-            Init;
+            Init();
             "Whse. Document Type" := WhseDocType;
             "Source Type" := SourceType;
             "Source Subtype" := SourceSubtype;
@@ -878,7 +878,7 @@ codeunit 137928 "SCM Assembly UT"
             for i := 1 to ArrayLen(ItemNo) do
                 for j := 1 to ArrayLen(LotNo) do
                     for k := 1 to ArrayLen(SerialNo) do begin
-                        Init;
+                        Init();
                         "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
                         "Location Code" := Location.Code;
                         "Bin Code" := Location."To-Assembly Bin Code";
@@ -886,7 +886,7 @@ codeunit 137928 "SCM Assembly UT"
                         "Lot No." := LotNo[j];
                         "Serial No." := SerialNo[k];
                         "Qty. (Base)" := QtyBase;
-                        Insert;
+                        Insert();
                     end;
     end;
 
@@ -1073,7 +1073,7 @@ codeunit 137928 "SCM Assembly UT"
         Evaluate(Item."Safety Lead Time", '<+1D>');
         Item.Insert();
         AssemblyHeader."Item No." := Item."No.";
-        AssemblyHeader."Starting Date" := WorkDate;
+        AssemblyHeader."Starting Date" := WorkDate();
         AssemblyHeader."Ending Date" := CalcDate(Item."Lead Time Calculation", AssemblyHeader."Starting Date");
         AssemblyHeader."Due Date" := CalcDate(Item."Safety Lead Time", AssemblyHeader."Ending Date");
         AssemblyHeader.Insert();

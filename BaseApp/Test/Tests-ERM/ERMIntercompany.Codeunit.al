@@ -70,7 +70,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -1);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(BlockedErr, Vendor.TableCaption, VendorNo, Vendor.Blocked::All));
+        Assert.ExpectedError(StrSubstNo(BlockedErr, Vendor.TableCaption(), VendorNo, Vendor.Blocked::All));
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.IsTrue(
           FindICOutboxTransaction(
             ICOutboxTransaction, GenJournalLine."IC Partner Code", GenJournalLine."Document Type", GenJournalLine."Document No."),
-          StrSubstNo(EntryMustExistErr, ICOutboxTransaction.TableCaption));
+          StrSubstNo(EntryMustExistErr, ICOutboxTransaction.TableCaption()));
 
         // Tear Down.
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -127,7 +127,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -1);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(BlockedErr, Vendor.TableCaption, VendorNo, Vendor.Blocked::All));
+        Assert.ExpectedError(StrSubstNo(BlockedErr, Vendor.TableCaption(), VendorNo, Vendor.Blocked::All));
     end;
 
     [Test]
@@ -155,7 +155,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.IsTrue(
           FindICOutboxTransaction(
             ICOutboxTransaction, GenJournalLine."IC Partner Code", GenJournalLine."Document Type", GenJournalLine."Document No."),
-          StrSubstNo(EntryMustExistErr, ICOutboxTransaction.TableCaption));
+          StrSubstNo(EntryMustExistErr, ICOutboxTransaction.TableCaption()));
 
         // Tear Down: Setup default values.
         LibraryLowerPermissions.SetOutsideO365Scope();
@@ -277,7 +277,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption,
+            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
@@ -316,7 +316,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption,
+            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
@@ -396,7 +396,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, 1);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(BlockedErr, Customer.TableCaption, CustomerNo, CustomerBlocked));
+        Assert.ExpectedError(StrSubstNo(BlockedErr, Customer.TableCaption(), CustomerNo, CustomerBlocked));
     end;
 
     [Test]
@@ -426,7 +426,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption,
+            ICAccountErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No."));
@@ -510,7 +510,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, 1);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(BlockedICPartnerErr, Customer.TableCaption, CustomerNo));
+        Assert.ExpectedError(StrSubstNo(BlockedICPartnerErr, Customer.TableCaption(), CustomerNo));
     end;
 
     [Test]
@@ -557,7 +557,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(BlockedICPartnerErr, Customer.TableCaption, CustomerNo));
+        Assert.ExpectedError(StrSubstNo(BlockedICPartnerErr, Customer.TableCaption(), CustomerNo));
     end;
 
     [Test]
@@ -585,7 +585,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, ICPartner.FieldCaption(Code),
+            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
             ICPartnerCode, true));
     end;
 
@@ -612,7 +612,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, ICPartner.FieldCaption(Code),
+            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
             ICPartnerCode, true));
     end;
 
@@ -684,7 +684,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -1);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Vendor.TableCaption, VendorNo));
+        Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Vendor.TableCaption(), VendorNo));
     end;
 
     [Test]
@@ -712,7 +712,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo, -1);
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Vendor.TableCaption, VendorNo));
+        Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Vendor.TableCaption(), VendorNo));
     end;
 
     [Test]
@@ -763,7 +763,7 @@ codeunit 134151 "ERM Intercompany"
             GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo, 1);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Customer.TableCaption, CustomerNo));
+        Assert.ExpectedError(StrSubstNo(BlockedPrivacyBlockedErr, Customer.TableCaption(), CustomerNo));
     end;
 
     local procedure PostICPartnerLinkedWithCustomer(JournalLineAccountType: Enum "Gen. Journal Account Type"; AccountNumber: Code[20])
@@ -838,7 +838,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ValueMustExistErr, ICPartner.FieldCaption("Inbox Details"), ICPartner.TableCaption, ICPartner.FieldCaption(Code),
+            ValueMustExistErr, ICPartner.FieldCaption("Inbox Details"), ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
             GenJournalLine."Account No."));
 
         // Tear Down: Rollback Partner Code updated in Company Information.
@@ -869,7 +869,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Error Message.
         Assert.ExpectedError(
           StrSubstNo(
-            ValueMustExistErr, ICSetup.FieldCaption("IC Partner Code"), ICSetup.TableCaption,
+            ValueMustExistErr, ICSetup.FieldCaption("IC Partner Code"), ICSetup.TableCaption(),
             ICSetup.FieldCaption("Primary Key"), ICSetup."Primary Key"));
 
         // Tear Down: Rollback IC Partner Code updated in Company Information.
@@ -899,7 +899,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify Error Message.
         Assert.ExpectedError(
-          StrSubstNo(SameICPartnerErr, Vendor.FieldCaption("IC Partner Code"), ICPartnerCode, Vendor.TableCaption, VendorNo));
+          StrSubstNo(SameICPartnerErr, Vendor.FieldCaption("IC Partner Code"), ICPartnerCode, Vendor.TableCaption(), VendorNo));
     end;
 
     [Test]
@@ -952,7 +952,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify error message for Vendor.
         Assert.ExpectedError(
-          StrSubstNo(SameICPartnerErr, Vendor.FieldCaption("IC Partner Code"), ICPartnerCode, Vendor.TableCaption, VendorNo));
+          StrSubstNo(SameICPartnerErr, Vendor.FieldCaption("IC Partner Code"), ICPartnerCode, Vendor.TableCaption(), VendorNo));
     end;
 
     [Test]
@@ -1070,7 +1070,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror Customer.Validate("IC Partner Code", '');
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(RemoveICPartnerErr, Customer.TableCaption));
+        Assert.ExpectedError(StrSubstNo(RemoveICPartnerErr, Customer.TableCaption()));
     end;
 
     [Test]
@@ -1094,7 +1094,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror Vendor.Validate("IC Partner Code", '');
 
         // Verify: Verify error message.
-        Assert.ExpectedError(StrSubstNo(RemoveICPartnerErr, Vendor.TableCaption));
+        Assert.ExpectedError(StrSubstNo(RemoveICPartnerErr, Vendor.TableCaption()));
     end;
 
     [Test]
@@ -1238,7 +1238,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, ICPartner.FieldCaption(Code),
+            ICPartnerBlockedErr, ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), ICPartner.FieldCaption(Code),
             ICPartner.Code, true));
     end;
 
@@ -1264,7 +1264,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.IsFalse(
           FindICOutboxTransaction(
             ICOutboxTransaction, GenJournalLine."IC Partner Code", GenJournalLine."Document Type", GenJournalLine."Document No."),
-          StrSubstNo(EntryMustNotExistErr, ICOutboxTransaction.TableCaption));
+          StrSubstNo(EntryMustNotExistErr, ICOutboxTransaction.TableCaption()));
     end;
 
     [Test]
@@ -1290,7 +1290,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify error message.
         Assert.ExpectedError(
           StrSubstNo(
-            ICPartnerGLAccountNoErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), '', GenJournalLine.TableCaption,
+            ICPartnerGLAccountNoErr, GenJournalLine.FieldCaption("IC Partner G/L Acc. No."), '', GenJournalLine.TableCaption(),
             GenJournalLine.FieldCaption("Journal Template Name"), GenJournalLine."Journal Template Name",
             GenJournalLine.FieldCaption("Journal Batch Name"), GenJournalLine."Journal Batch Name",
             GenJournalLine.FieldCaption("Line No."), GenJournalLine."Line No.", GenJournalLine."IC Partner G/L Acc. No."));
@@ -1365,7 +1365,7 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify that after deleting IC Dimension, IC Dimension Value deleted automatically.
         ICDimensionValue.SetRange("Dimension Code", ICDimension.Code);
         ICDimensionValue.SetRange(Code, ICDimensionValue.Code);
-        Assert.IsFalse(ICDimensionValue.FindFirst, StrSubstNo(EntryMustNotExistErr, ICDimensionValue.TableCaption));
+        Assert.IsFalse(ICDimensionValue.FindFirst, StrSubstNo(EntryMustNotExistErr, ICDimensionValue.TableCaption()));
     end;
 
     [Test]
@@ -1395,7 +1395,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify Error Message.
         Assert.ExpectedError(
-          StrSubstNo(BlockedDimValueErr, ICDimensionValue.TableCaption, ICDimensionValue."Dimension Code", ICDimensionValue.Code));
+          StrSubstNo(BlockedDimValueErr, ICDimensionValue.TableCaption(), ICDimensionValue."Dimension Code", ICDimensionValue.Code));
 
         // Tear Down: Rollback IC General Journal Batch created during test case.
         LibraryLowerPermissions.SetO365Setup();
@@ -1428,7 +1428,7 @@ codeunit 134151 "ERM Intercompany"
         asserterror ICInboxOutboxJnlLineDim.Validate("Dimension Code", ICDimension.Code);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(StrSubstNo(BlockedDimensionErr, ICDimension.TableCaption, ICDimension.Code));
+        Assert.ExpectedError(StrSubstNo(BlockedDimensionErr, ICDimension.TableCaption(), ICDimension.Code));
 
         // Tear Down: Rollback IC General Journal Batch created during test case.
         LibraryLowerPermissions.SetO365Setup();
@@ -1580,8 +1580,8 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
         VerifyICOutboxJournalLineForDiscountEntry(
           ICPartner.Code, GenJournalLine."Account Type"::Customer.AsInteger(), CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
-          PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate),
-          CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()),
+          CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
         VerifyICOutboxJournalLineForDiscountEntry(
           ICPartner.Code, GenJournalLine."Account Type"::"G/L Account".AsInteger(), ICGLAccount."No.", CustomerNo, 0, -GenJournalLine.Amount, 0, 0D, 0D);
     end;
@@ -1618,7 +1618,7 @@ codeunit 134151 "ERM Intercompany"
 
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
         VerifyICOutboxJournalLineForDiscountEntry(
-          ICPartner.Code, GenJournalLine."Account Type"::Vendor.AsInteger(), VendorNo, VendorNo, 0, GenJournalLine.Amount, 0, WorkDate, WorkDate);
+          ICPartner.Code, GenJournalLine."Account Type"::Vendor.AsInteger(), VendorNo, VendorNo, 0, GenJournalLine.Amount, 0, WorkDate(), WorkDate());
         VerifyICOutboxJournalLineForDiscountEntry(
           ICPartner.Code, GenJournalLine."Account Type"::"G/L Account".AsInteger(), ICGLAccount."No.", VendorNo, 0, -GenJournalLine.Amount, 0, 0D, 0D);
     end;
@@ -1662,8 +1662,8 @@ codeunit 134151 "ERM Intercompany"
         // Verify: Verify Amount, VAT Amount, Due Date, Payment Discount Date and Payment Discount % in IC Outbox Journal Line, Using 0 for Payment Discount % and 0D for Due Date and Discount Date.
         VerifyICOutboxJournalLineForDiscountEntry(
           ICPartner.Code, GenJournalLine."Account Type"::Customer.AsInteger(), CustomerNo, CustomerNo, 0, GenJournalLine.Amount,
-          PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate),
-          CalcDate(PaymentTerms."Due Date Calculation", WorkDate));
+          PaymentTerms."Discount %", CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()),
+          CalcDate(PaymentTerms."Due Date Calculation", WorkDate()));
         VerifyICOutboxJournalLineForDiscountEntry(
           ICPartner.Code, GenJournalLine."Account Type"::"G/L Account".AsInteger(), ICGLAccount."No.", CustomerNo, -VATAmount, -GenJournalLine.Amount, 0,
           0D, 0D);
@@ -1709,7 +1709,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.ExpectedError(
           StrSubstNo(
             TransAlreadyExistErr, ICOutboxTransaction."Transaction No.", ICOutboxTransaction.FieldCaption("IC Partner Code"),
-            ICOutboxTransaction."IC Partner Code", ICInboxTransaction.TableCaption));
+            ICOutboxTransaction."IC Partner Code", ICInboxTransaction.TableCaption()));
     end;
 
     [Test]
@@ -1735,7 +1735,7 @@ codeunit 134151 "ERM Intercompany"
         Assert.ExpectedError(
           StrSubstNo(
             TransAlreadyExistErr, ICOutboxTransaction."Transaction No.", HandledICInboxTrans.FieldCaption("IC Partner Code"),
-            ICOutboxTransaction."IC Partner Code", HandledICInboxTrans.TableCaption));
+            ICOutboxTransaction."IC Partner Code", HandledICInboxTrans.TableCaption()));
     end;
 
     [Test]
@@ -1765,7 +1765,7 @@ codeunit 134151 "ERM Intercompany"
         ICPartner.Delete(true);
 
         // [THEN] IC Partner is deleted
-        ICPartner.SetRecFilter;
+        ICPartner.SetRecFilter();
         Assert.RecordIsEmpty(ICPartner);
     end;
 
@@ -1820,7 +1820,7 @@ codeunit 134151 "ERM Intercompany"
         ICPartner.Delete(true);
 
         // [THEN] IC Partner is deleted
-        ICPartner.SetRecFilter;
+        ICPartner.SetRecFilter();
         Assert.RecordIsEmpty(ICPartner);
     end;
 
@@ -2036,7 +2036,7 @@ codeunit 134151 "ERM Intercompany"
     local procedure MockICOutboxTrans(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
         with ICOutboxTransaction do begin
-            Init;
+            Init();
             "Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, FieldNo("Transaction No."));
             "IC Partner Code" := CreateICPartner;
             "Transaction Source" := "Transaction Source"::"Created by Current Company";
@@ -2047,7 +2047,7 @@ codeunit 134151 "ERM Intercompany"
             "Document Date" := LibraryRandom.RandDate(10);
             "IC Partner G/L Acc. No." := LibraryUtility.GenerateGUID();
             "Source Line No." := LibraryRandom.RandInt(100);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2056,12 +2056,12 @@ codeunit 134151 "ERM Intercompany"
         ICInboxTransaction: Record "IC Inbox Transaction";
     begin
         with ICInboxTransaction do begin
-            Init;
+            Init();
             "Transaction No." := ICOutboxTransaction."Transaction No.";
             "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
             "Transaction Source" := ICOutboxTransaction."Transaction Source";
             "Document Type" := ICOutboxTransaction."Document Type";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2070,12 +2070,12 @@ codeunit 134151 "ERM Intercompany"
         HandledICInboxTrans: Record "Handled IC Inbox Trans.";
     begin
         with HandledICInboxTrans do begin
-            Init;
+            Init();
             "Transaction No." := ICOutboxTransaction."Transaction No.";
             "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
             "Transaction Source" := ICOutboxTransaction."Transaction Source";
             "Document Type" := ICOutboxTransaction."Document Type";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2101,7 +2101,7 @@ codeunit 134151 "ERM Intercompany"
         ICOutboxTransaction.SetRange("IC Partner Code", ICPartnerCode);
         ICOutboxTransaction.SetRange("Document Type", DocumentType);
         ICOutboxTransaction.SetRange("Document No.", DocumentNo);
-        exit(ICOutboxTransaction.FindFirst);
+        exit(ICOutboxTransaction.FindFirst())
     end;
 
     local procedure FindICOutboxJournalLine(var ICOutboxJnlLine: Record "IC Outbox Jnl. Line"; ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20])
@@ -2250,10 +2250,10 @@ codeunit 134151 "ERM Intercompany"
         Assert.AreEqual(
           AccountNo, ICOutboxJnlLine."Account No.",
           StrSubstNo(
-            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption));
+            ValidationErr, ICOutboxJnlLine.FieldCaption("Account No."), ICOutboxJnlLine."Account No.", ICOutboxJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption()));
     end;
 
     local procedure VerifyICOutboxJournalLineForDiscountEntry(ICPartnerCode: Code[20]; AccountType: Option; AccountNo: Code[20]; DocumentNo: Code[20]; VATAmount: Decimal; Amount: Decimal; PaymentDiscountPct: Decimal; PaymentDiscountDate: Date; DueDate: Date)
@@ -2263,22 +2263,22 @@ codeunit 134151 "ERM Intercompany"
         FindICOutboxJournalLine(ICOutboxJnlLine, ICPartnerCode, AccountType, AccountNo, DocumentNo);
         Assert.AreEqual(
           PaymentDiscountPct, ICOutboxJnlLine."Payment Discount %",
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("Payment Discount %"), PaymentDiscountPct, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("Payment Discount %"), PaymentDiscountPct, ICOutboxJnlLine.TableCaption()));
         Assert.AreEqual(
           PaymentDiscountDate, ICOutboxJnlLine."Payment Discount Date",
           StrSubstNo(
-            ValidationErr, ICOutboxJnlLine.FieldCaption("Payment Discount Date"), PaymentDiscountDate, ICOutboxJnlLine.TableCaption));
+            ValidationErr, ICOutboxJnlLine.FieldCaption("Payment Discount Date"), PaymentDiscountDate, ICOutboxJnlLine.TableCaption()));
         Assert.AreEqual(
           DueDate, ICOutboxJnlLine."Due Date",
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("Due Date"), DueDate, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("Due Date"), DueDate, ICOutboxJnlLine.TableCaption()));
         Assert.AreEqual(
-          0, ICOutboxJnlLine.Quantity, StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Quantity), 0, ICOutboxJnlLine.TableCaption));
+          0, ICOutboxJnlLine.Quantity, StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Quantity), 0, ICOutboxJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
           VATAmount, ICOutboxJnlLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("VAT Amount"), VATAmount, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption("VAT Amount"), VATAmount, ICOutboxJnlLine.TableCaption()));
         Assert.AreNearlyEqual(
           Amount, ICOutboxJnlLine.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, ICOutboxJnlLine.FieldCaption(Amount), ICOutboxJnlLine.Amount, ICOutboxJnlLine.TableCaption()));
     end;
 
     local procedure VerifyGLEntry(DocumentNo: Code[20]; ICPartnerCode: Code[20])

@@ -1,4 +1,4 @@
-table 224 "Order Address"
+﻿table 224 "Order Address"
 {
     Caption = 'Order Address';
     DataCaptionFields = "Vendor No.", Name, "Code";
@@ -25,16 +25,12 @@ table 224 "Order Address"
         {
             Caption = 'Name 2';
         }
-        field(5; Address; Text[50])
+#pragma warning disable AS0086
+        field(5; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(
-                  Address, "Address 2", "Post Code", City, "Country/Region Code", "Phone No.", "Fax No.");
-            end;
         }
+#pragma warning restore AS0086
         field(6; "Address 2"; Text[50])
         {
             Caption = 'Address 2';
@@ -55,8 +51,13 @@ table 224 "Order Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(8; Contact; Text[100])
@@ -111,8 +112,13 @@ table 224 "Order Address"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(92; County; Text[30])
@@ -172,7 +178,6 @@ table 224 "Order Address"
         Vend: Record Vendor;
         PostCode: Record "Post Code";
         Text001: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
-        PostCodeMgt: Codeunit "Post Code Management";
 
     procedure Caption(): Text
     begin
@@ -189,9 +194,19 @@ table 224 "Order Address"
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::"Order Address", GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::"Order Address", GetPosition())
         else
             Message(Text001);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var OrderAddress: Record "Order Address"; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
     end;
 }
 

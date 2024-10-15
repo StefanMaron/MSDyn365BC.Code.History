@@ -114,7 +114,7 @@ codeunit 138017 "O365 Miscellaneous"
         ItemCard.OpenNew();
         ItemCard.Description.Activate;
         ItemNo := ItemCard."No.".Value;
-        ItemCard.Close;
+        ItemCard.Close();
 
         // Verify
         Item.Get(ItemNo);
@@ -156,7 +156,7 @@ codeunit 138017 "O365 Miscellaneous"
         SetCostingMethodOnItemCard(Item, Item."Costing Method"::LIFO);
 
         // Verify
-        Item.Find;
+        Item.Find();
         Item.TestField("Costing Method", Item."Costing Method"::LIFO);
     end;
 
@@ -182,7 +182,7 @@ codeunit 138017 "O365 Miscellaneous"
         SetCostingMethodOnItemCard(Item, Item."Costing Method"::Specific);
 
         // Verify
-        Item.Find;
+        Item.Find();
         Item.TestField("Costing Method", Item."Costing Method"::Specific);
     end;
 
@@ -202,7 +202,7 @@ codeunit 138017 "O365 Miscellaneous"
         SetCostingMethodOnItemCard(Item, Item."Costing Method"::Average);
 
         // Verify
-        Item.Find;
+        Item.Find();
         Item.TestField("Costing Method", Item."Costing Method"::Average);
     end;
 
@@ -222,7 +222,7 @@ codeunit 138017 "O365 Miscellaneous"
         SetCostingMethodOnItemCard(Item, Item."Costing Method"::Standard);
 
         // Verify
-        Item.Find;
+        Item.Find();
         Item.TestField("Costing Method", Item."Costing Method"::Standard);
     end;
 
@@ -264,7 +264,7 @@ codeunit 138017 "O365 Miscellaneous"
         // [WHEN] Open "Sandbox Environment" page
         SandboxEnvironmentPage.OpenView;
         // [THEN] Page is opened
-        SandboxEnvironmentPage.Close;
+        SandboxEnvironmentPage.Close();
     end;
 
     [Test]
@@ -304,7 +304,7 @@ codeunit 138017 "O365 Miscellaneous"
         // [WHEN] Open "Sandbox Environment (Container)" page
         ContainerSandboxPage.OpenView;
         // [THEN] Page is opened
-        ContainerSandboxPage.Close;
+        ContainerSandboxPage.Close();
     end;
 #endif
 
@@ -370,7 +370,7 @@ codeunit 138017 "O365 Miscellaneous"
 
         Assert.IsTrue(InventorySetup."Expected Cost Posting to G/L".Visible, FieldVisibleSuiteAreaErr);
 
-        InventorySetup.Close;
+        InventorySetup.Close();
     end;
 
     local procedure Initialize()
@@ -378,7 +378,7 @@ codeunit 138017 "O365 Miscellaneous"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"O365 Miscellaneous");
         LibraryApplicationArea.EnableFoundationSetup();
 
-        ClearTables;
+        ClearTables();
         GenProductPostingGroup_Code := 'New Line';
         PrepareVatProductPostingGroup;
 
@@ -405,7 +405,7 @@ codeunit 138017 "O365 Miscellaneous"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
         ItemCard."Costing Method".SetValue(CostingMethodOption);
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     local procedure ClearTables()
@@ -441,7 +441,7 @@ codeunit 138017 "O365 Miscellaneous"
         GenProductPostingGroupsPage.OpenNew();
         GenProductPostingGroupsPage.Code.Value := GenProductPostingGroup_Code;
         GenProductPostingGroupsPage."Def. VAT Prod. Posting Group".Value := 'A';
-        GenProductPostingGroupsPage.Close;
+        GenProductPostingGroupsPage.Close();
     end;
 }
 

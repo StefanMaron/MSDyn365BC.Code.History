@@ -233,8 +233,8 @@
                 Write(PADSTR2(Format(ReportYear), 4, '0', '<'));
                 Write(PADSTR2(Format(ReportMonth), 2, '0', '<'));
                 Write(PADSTR2(CompanyInfo.Name, 40, ' ', '>'));
-                Write(PADSTR2(RegNoCBS, 6, ' ', '>'));
-                Write(PADSTR2(VersionNo, 5, ' ', '>'));
+                Write(PADSTR2(RegNoCBS(), 6, ' ', '>'));
+                Write(PADSTR2(VersionNo(), 5, ' ', '>'));
                 Write(PADSTR2(Format("Export Date", 0, '<Year4><Month,2><Day,2>'), 8, ' ', '>'));
                 Write(PADSTR2(Format("Export Time", 0, '<Hours24,2><Minutes,2><Seconds,2>'), 6, ' ', '>'));
                 Write(PADSTR2(PhoneNo, 15, ' ', '>'));
@@ -375,7 +375,7 @@
             IntrastatJnlBatch."Export Date" := Today;
             IntrastatJnlBatch."Export Time" := Time;
             IntrastatJnlBatch.Reported := true;
-            IntrastatJnlBatch.Modify;
+            IntrastatJnlBatch.Modify();
         end;
     end;
 

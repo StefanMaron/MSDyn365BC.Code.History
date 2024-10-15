@@ -34,9 +34,9 @@ table 5330 "CRM Connection Setup"
             trigger OnValidate()
             begin
                 "User Name" := DelChr("User Name", '<>');
-                CheckUserName;
-                UpdateDomainName;
-                UpdateConnectionString;
+                CheckUserName();
+                UpdateDomainName();
+                UpdateConnectionString();
             end;
         }
         field(4; "User Password Key"; Guid)
@@ -73,21 +73,25 @@ table 5330 "CRM Connection Setup"
                 CRMSetupDefaults: Codeunit "CRM Setup Defaults";
                 CDSIntTableSubscriber: Codeunit "CDS Int. Table. Subscriber";
             begin
-                EnableCRMConnection;
+                if "Is Enabled" then
+                    if "Unit Group Mapping Enabled" then
+                        CRMIntegrationManagement.EnableUnitGroupMapping();
+
+                EnableCRMConnection();
 #if not CLEAN20
-                UpdateIsEnabledState;
+                UpdateIsEnabledState();
 #endif
-                RefreshDataFromCRM;
+                RefreshDataFromCRM();
                 if "Is Enabled" then begin
                     CRMIntegrationTelemetry.LogTelemetryWhenConnectionEnabled();
-                    TestIntegrationUserRequirements;
+                    TestIntegrationUserRequirements();
                     CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
                     if CRMIntegrationManagement.IsOptionMappingEnabled() then
                         CDSIntTableSubscriber.SyncDocumentOptionSets();
-                    SetUseNewestUI;
+                    SetUseNewestUI();
                     Session.LogMessage('0000CM8', CRMConnEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end else begin
-                    CRMIntegrationTelemetry.LogTelemetryWhenConnectionDisabled;
+                    CRMIntegrationTelemetry.LogTelemetryWhenConnectionDisabled();
                     Session.LogMessage('0000CM9', CRMConnDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 end;
             end;
@@ -102,8 +106,8 @@ table 5330 "CRM Connection Setup"
 #if not CLEAN20
             trigger OnValidate()
             begin
-                UpdateAllConnectionRegistrations;
-                UpdateIsEnabledState;
+                UpdateAllConnectionRegistrations();
+                UpdateIsEnabledState();
             end;
 #endif
         }
@@ -129,7 +133,7 @@ table 5330 "CRM Connection Setup"
                     "Newest UI AppModuleId" := '';
 
                 if "Use Newest UI" = true then
-                    "Newest UI AppModuleId" := NewestUIAppModuleId;
+                    "Newest UI AppModuleId" := NewestUIAppModuleId();
             end;
         }
         field(65; "Newest UI AppModuleId"; Text[50])
@@ -144,18 +148,18 @@ table 5330 "CRM Connection Setup"
             trigger OnValidate()
             begin
                 if "Is S.Order Integration Enabled" then
-                    if Confirm(StrSubstNo(SetCRMSOPEnableNoCredsReqQst, PRODUCTNAME.Short)) then
+                    if Confirm(StrSubstNo(SetCRMSOPEnableNoCredsReqQst, PRODUCTNAME.Short())) then
                         SetCRMSOPEnabled()
                     else
                         Error('')
                 else
-                    SetCRMSOPDisabled;
-                RefreshDataFromCRM;
+                    SetCRMSOPDisabled();
+                RefreshDataFromCRM();
 
                 if "Is S.Order Integration Enabled" then
-                    Message(SetCRMSOPEnableConfirmMsg, CRMProductName.SHORT)
+                    Message(SetCRMSOPEnableConfirmMsg, CRMProductName.SHORT())
                 else
-                    Message(SetCRMSOPDisableConfirmMsg, CRMProductName.SHORT);
+                    Message(SetCRMSOPDisableConfirmMsg, CRMProductName.SHORT());
             end;
         }
         field(67; "Is CRM Solution Installed"; Boolean)
@@ -224,9 +228,9 @@ table 5330 "CRM Connection Setup"
                 CRMSetupDefaults: Codeunit "CRM Setup Defaults";
             begin
                 if "Auto Create Sales Orders" then
-                    CRMSetupDefaults.RecreateAutoCreateSalesOrdersJobQueueEntry(DoReadCRMData)
+                    CRMSetupDefaults.RecreateAutoCreateSalesOrdersJobQueueEntry(DoReadCRMData())
                 else
-                    CRMSetupDefaults.DeleteAutoCreateSalesOrdersJobQueueEntry;
+                    CRMSetupDefaults.DeleteAutoCreateSalesOrdersJobQueueEntry();
             end;
         }
         field(81; "Auto Process Sales Quotes"; Boolean)
@@ -239,9 +243,9 @@ table 5330 "CRM Connection Setup"
                 CRMSetupDefaults: Codeunit "CRM Setup Defaults";
             begin
                 if "Auto Process Sales Quotes" then
-                    CRMSetupDefaults.RecreateAutoProcessSalesQuotesJobQueueEntry(DoReadCRMData)
+                    CRMSetupDefaults.RecreateAutoProcessSalesQuotesJobQueueEntry(DoReadCRMData())
                 else
-                    CRMSetupDefaults.DeleteAutoProcessSalesQuotesJobQueueEntry;
+                    CRMSetupDefaults.DeleteAutoProcessSalesQuotesJobQueueEntry();
             end;
         }
         field(118; CurrencyDecimalPrecision; Integer)
@@ -279,9 +283,9 @@ table 5330 "CRM Connection Setup"
                     "Authentication Type"::Office365:
                         Domain := '';
                     "Authentication Type"::AD:
-                        UpdateDomainName;
+                        UpdateDomainName();
                 end;
-                UpdateConnectionString;
+                UpdateConnectionString();
             end;
         }
         field(136; "Connection String"; Text[250])
@@ -317,6 +321,52 @@ table 5330 "CRM Connection Setup"
                     CRMSetupDefaults.DeleteItemAvailabilityJobQueueEntry();
             end;
         }
+        field(141; "Bidirectional Sales Order Int."; Boolean)
+        {
+            Caption = 'Bidirectional Sales Order Int.';
+
+            trigger OnValidate()
+            var
+                SalesReceivablesSetup: Record "Sales & Receivables Setup";
+                CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+            begin
+                if "Bidirectional Sales Order Int." then begin
+                    if SalesReceivablesSetup.Get() then
+                        if not SalesReceivablesSetup."Archive Orders" then begin
+                            SalesReceivablesSetup."Archive Orders" := true;
+                            SalesReceivablesSetup.Modify();
+                        end;
+                    CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
+                end else
+                    CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
+            end;
+        }
+        field(151; "Unit Group Mapping Enabled"; Boolean)
+        {
+            Caption = 'Unit Group Mapping Enabled';
+            InitValue = true;
+
+            trigger OnValidate()
+            var
+                CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                JobQueueEntry: Record "Job Queue Entry";
+                JobQueueEntryId: Guid;
+            begin
+                if "Unit Group Mapping Enabled" then
+                    if Confirm(UnitGroupMappingEnabledConfirmLbl) then begin
+                        JobQueueEntryId := CRMIntegrationManagement.EnableUnitGroupMapping();
+                        if IsNullGuid(JobQueueEntryId) then
+                            Error(ScheduleJobFailedLbl);
+                        if Confirm(UnitGroupMappingEnabledLbl) then begin
+                            JobQueueEntry.SetRange(ID, JobQueueEntryId);
+                            if JobQueueEntry.FindFirst() then
+                                Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
+                        end else
+                            exit;
+                    end else
+                        Error('');
+            end;
+        }
     }
 
     keys
@@ -349,6 +399,10 @@ table 5330 "CRM Connection Setup"
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+        CRMProductName: Codeunit "CRM Product Name";
+        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        TempUserPassword: Text;
+
 #if not CLEAN20
         CantRegisterDisabledConnectionErr: Label 'A disabled connection cannot be registered.';
 #endif
@@ -381,7 +435,6 @@ table 5330 "CRM Connection Setup"
         SetCRMSOPEnableNoCredsReqQst: Label 'Enabling Sales Order Integration will allow you to create %1 Sales Orders from Dynamics CRM.\\Do you want to continue?', Comment = '%1 - product name';
         SetCRMSOPEnableConfirmMsg: Label 'Sales Order Integration with %1 is enabled.', Comment = '%1 = CRM product name';
         SetCRMSOPDisableConfirmMsg: Label 'Sales Order Integration with %1 is disabled.', Comment = '%1 = CRM product name';
-        CRMProductName: Codeunit "CRM Product Name";
         SalesHubAppModuleNameTxt: Label 'Sales Hub', Locked = true;
         SystemAdminRoleTemplateIdTxt: Label '{627090FF-40A3-4053-8790-584EDC5BE201}', Locked = true;
         SystemAdminErr: Label 'User %1 has the %2 role on server %3.\\You must choose a user that does not have the %2 role.', Comment = '%1 user name, %2 - security role name, %3 - server address';
@@ -397,8 +450,9 @@ table 5330 "CRM Connection Setup"
         CategoryTok: Label 'AL Dataverse Integration', Locked = true;
         CRMConnDisabledTxt: Label 'CRM connection has been disabled.', Locked = true;
         CRMConnEnabledTxt: Label 'CRM connection has been enabled.', Locked = true;
-        IsolatedStorageManagement: Codeunit "Isolated Storage Management";
-        TempUserPassword: Text;
+        UnitGroupMappingEnabledConfirmLbl: Label 'When you enable unit group mapping integration table mappings will be updated and a data upgrade job to update unit groups will be scheduled. You can''t disable this feature once it is enabled. Do you want to enable?';
+        UnitGroupMappingEnabledLbl: Label 'Unit group mapping is enabled and a data upgrade job is scheduled. Please wait the job to be completed before you start synchronizing data. Do you want to navigate to the job?';
+        ScheduleJobFailedLbl: Label 'Scheduling data upgrade job failed.';
 
     [Scope('OnPrem')]
     procedure EnsureCDSConnectionIsEnabled();
@@ -483,7 +537,7 @@ table 5330 "CRM Connection Setup"
             ActiveJobs := 0;
         end else begin
             if "Is CRM Solution Installed" then
-                JobQueueEntry.SetFilter("Object ID to Run", GetJobQueueEntriesObjectIDToRunFilter)
+                JobQueueEntry.SetFilter("Object ID to Run", GetJobQueueEntriesObjectIDToRunFilter())
             else
                 JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
             TotalJobs := JobQueueEntry.Count();
@@ -497,7 +551,7 @@ table 5330 "CRM Connection Setup"
     [Scope('OnPrem')]
     procedure HasPassword(): Boolean
     begin
-        exit(GetPassword <> '');
+        exit(GetPassword() <> '');
     end;
 
     [Scope('OnPrem')]
@@ -508,7 +562,7 @@ table 5330 "CRM Connection Setup"
             exit;
         end;
         if IsNullGuid("User Password Key") then
-            "User Password Key" := CreateGuid;
+            "User Password Key" := CreateGuid();
 
         IsolatedStorageManagement.Set("User Password Key", PasswordText, DATASCOPE::Company);
     end;
@@ -533,15 +587,15 @@ table 5330 "CRM Connection Setup"
     begin
         UnregisterTableConnection(TABLECONNECTIONTYPE::CRM, GetDefaultTableConnection(TABLECONNECTIONTYPE::CRM));
 
-        UnregisterConnection;
+        UnregisterConnection();
         if "Is Enabled" then
-            RegisterUserConnection;
+            RegisterUserConnection();
     end;
 
     [Obsolete('This functionality is not in use and not supported', '20.0')]
     procedure UpdateIsEnabledState()
     begin
-        "Is User Mapped To CRM User" := IsCurrentUserMappedToCrmSystemUser;
+        "Is User Mapped To CRM User" := IsCurrentUserMappedToCrmSystemUser();
         "Is Enabled For User" :=
           "Is Enabled" and
           ((not "Is User Mapping Required") or ("Is User Mapping Required" and "Is User Mapped To CRM User"));
@@ -610,7 +664,7 @@ table 5330 "CRM Connection Setup"
 
         PasswordPlaceHolderPos := StrPos(ConnectionString, MissingPasswordTok);
         ConnectionString :=
-          CopyStr(ConnectionString, 1, PasswordPlaceHolderPos - 1) + GetPassword +
+          CopyStr(ConnectionString, 1, PasswordPlaceHolderPos - 1) + GetPassword() +
           CopyStr(ConnectionString, PasswordPlaceHolderPos + StrLen(MissingPasswordTok));
     end;
 
@@ -621,17 +675,17 @@ table 5330 "CRM Connection Setup"
         SyncUser: Record User;
         CallerID: Guid;
     begin
-        RegisterConnection;
+        RegisterConnection();
         SyncUser."User Name" := CopyStr("User Name", 1, MaxStrLen(SyncUser."User Name"));
         SyncUser."Authentication Email" := "User Name";
         if not TryGetSystemUserId(SyncUser, CallerID) then begin
-            UnregisterConnection;
+            UnregisterConnection();
             Validate("Is Enabled", false);
             Validate("Is User Mapping Required", false);
-            Modify;
-            ShowError(UserCRMSetupTxt, StrSubstNo(CannotConnectCRMErr, "User Name", CRMProductName.SHORT));
+            Modify();
+            ShowError(UserCRMSetupTxt, StrSubstNo(CannotConnectCRMErr, "User Name", CRMProductName.SHORT()));
         end else
-            ConnectionName := RegisterAuthUserConnection;
+            ConnectionName := RegisterAuthUserConnection();
     end;
 
     local procedure RegisterAuthUserConnection() ConnectionName: Text
@@ -641,11 +695,11 @@ table 5330 "CRM Connection Setup"
     begin
         if GetUser(User) then
             if not TryGetSystemUserId(User, CallerID) then begin
-                UnregisterConnection;
+                UnregisterConnection();
                 ShowError(UserCRMSetupTxt, StrSubstNo(CannotConnectCRMErr, User."Authentication Email"));
             end else
                 if not IsNullGuid(CallerID) then begin
-                    UnregisterConnection;
+                    UnregisterConnection();
                     ConnectionName := RegisterConnectionWithCallerID(CallerID);
                 end;
     end;
@@ -668,13 +722,13 @@ table 5330 "CRM Connection Setup"
     var
         CRMSystemuser: Record "CRM Systemuser";
     begin
-        Get;
+        Get();
         TestField("Is Enabled");
         FilterCRMSystemUser(CRMSystemuser);
         if CRMSystemuser.FindFirst() then
             IntegrationUserID := CRMSystemuser.SystemUserId;
         if IsNullGuid(IntegrationUserID) then
-            ShowError(UserCRMSetupTxt, StrSubstNo(CannotResolveUserFromConnectionSetupErr, CRMProductName.SHORT));
+            ShowError(UserCRMSetupTxt, StrSubstNo(CannotResolveUserFromConnectionSetupErr, CRMProductName.SHORT()));
     end;
 
     [NonDebuggable]
@@ -693,11 +747,11 @@ table 5330 "CRM Connection Setup"
 #if not CLEAN20
     local procedure GetUser(var User: Record User): Boolean
     begin
-        if User.Get(DATABASE.UserSecurityId) then
+        if User.Get(DATABASE.UserSecurityId()) then
             exit(true);
         User.Reset();
-        User.SetRange("Windows Security ID", Sid);
-        exit(User.FindFirst);
+        User.SetRange("Windows Security ID", Sid());
+        exit(User.FindFirst());
     end;
 #endif
     local procedure GetUserName() UserName: Text
@@ -724,7 +778,7 @@ table 5330 "CRM Connection Setup"
     [Scope('OnPrem')]
     procedure PerformTestConnection()
     begin
-        VerifyTestConnection;
+        VerifyTestConnection();
         Message(ConnectionSuccessMsg);
     end;
 
@@ -732,14 +786,14 @@ table 5330 "CRM Connection Setup"
     procedure VerifyTestConnection(): Boolean
     begin
         if ("Server Address" = '') or ("User Name" = '') then
-            Error(DetailsMissingErr, CRMProductName.SHORT);
+            Error(DetailsMissingErr, CRMProductName.SHORT());
 
-        CRMIntegrationManagement.ClearState;
+        CRMIntegrationManagement.ClearState();
 
-        if not TestConnection then
-            Error(ConnectionErr, CRMIntegrationManagement.GetLastErrorMessage);
+        if not TestConnection() then
+            Error(ConnectionErr, CRMIntegrationManagement.GetLastErrorMessage());
 
-        TestIntegrationUserRequirements;
+        TestIntegrationUserRequirements();
 
         exit(true);
     end;
@@ -748,12 +802,12 @@ table 5330 "CRM Connection Setup"
     var
         TestConnectionName: Text;
     begin
-        TestConnectionName := Format(CreateGuid);
+        TestConnectionName := Format(CreateGuid());
         UnregisterConnectionWithName(TestConnectionName);
         RegisterConnectionWithName(TestConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, GetDefaultCRMConnection(TestConnectionName), true);
-        Success := TryReadSystemUsers;
+        Success := TryReadSystemUsers();
 
         UnregisterConnectionWithName(TestConnectionName);
     end;
@@ -775,7 +829,7 @@ table 5330 "CRM Connection Setup"
         ChosenUserIsBCIntegrationAdmin: Boolean;
         ChosenUserIsBCIntegrationUser: Boolean;
     begin
-        TestConnectionName := Format(CreateGuid);
+        TestConnectionName := Format(CreateGuid());
         UnregisterConnectionWithName(TestConnectionName);
         RegisterConnectionWithName(TestConnectionName);
         SetDefaultTableConnection(
@@ -851,12 +905,12 @@ table 5330 "CRM Connection Setup"
     var
         CRMHelper: DotNet CrmHelper;
     begin
-        if not DoReadCRMData then
+        if not DoReadCRMData() then
             exit;
 
         Version := '';
         CreateOrganizationService(CRMHelper);
-        Version := CRMHelper.GetConnectedCrmVersion;
+        Version := CRMHelper.GetConnectedCrmVersion();
     end;
 
     procedure IsVersionValid(): Boolean
@@ -909,9 +963,9 @@ table 5330 "CRM Connection Setup"
     [NonDebuggable]
     procedure UpdateFromWizard(var SourceCRMConnectionSetup: Record "CRM Connection Setup"; PasswordText: Text)
     begin
-        if not Get then begin
-            Init;
-            Insert;
+        if not Get() then begin
+            Init();
+            Insert();
         end;
         Validate("Server Address", SourceCRMConnectionSetup."Server Address");
         Validate("Authentication Type", "Authentication Type"::Office365);
@@ -919,6 +973,7 @@ table 5330 "CRM Connection Setup"
         SetPassword(PasswordText);
         Validate("Proxy Version", SourceCRMConnectionSetup."Proxy Version");
         "Is S.Order Integration Enabled" := SourceCRMConnectionSetup."Is S.Order Integration Enabled";
+        "Bidirectional Sales Order Int." := SourceCRMConnectionSetup."Bidirectional Sales Order Int.";
         "Item Availability Enabled" := SourceCRMConnectionSetup."Item Availability Enabled";
         Modify(true);
     end;
@@ -928,15 +983,15 @@ table 5330 "CRM Connection Setup"
         if "Is Enabled" = xRec."Is Enabled" then
             exit;
 
-        if not UnregisterConnection then
-            ClearLastError;
+        if not UnregisterConnection() then
+            ClearLastError();
 
         if "Is Enabled" then begin
-            VerifyTestConnection;
-            RegisterConnection;
-            VerifyBaseCurrencyMatchesLCY;
+            VerifyTestConnection();
+            RegisterConnection();
+            VerifyBaseCurrencyMatchesLCY();
             InstallIntegrationSolution();
-            EnableIntegrationTables;
+            EnableIntegrationTables();
             if "Disable Reason" <> '' then
                 CRMIntegrationManagement.ClearConnectionDisableReason(Rec);
         end else begin
@@ -947,8 +1002,8 @@ table 5330 "CRM Connection Setup"
             Clear(BaseCurrencyId);
             BaseCurrencyPrecision := 0;
             BaseCurrencySymbol := '';
-            UpdateCRMJobQueueEntriesStatus;
-            CRMIntegrationManagement.ClearState;
+            UpdateCRMJobQueueEntriesStatus();
+            CRMIntegrationManagement.ClearState();
         end;
     end;
 
@@ -982,14 +1037,14 @@ table 5330 "CRM Connection Setup"
     var
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
-        Modify; // Job Queue to read "Is Enabled"
+        Modify(); // Job Queue to read "Is Enabled"
         Commit();
         CRMSetupDefaults.ResetConfiguration(Rec);
     end;
 
     procedure EnableCRMConnectionFromWizard()
     begin
-        Get;
+        Get();
         Validate("Is Enabled", true);
         Modify(true);
     end;
@@ -999,11 +1054,11 @@ table 5330 "CRM Connection Setup"
         // This function should be called from OnAfterUpgradeComplete trigger (when introduced)
         if "Restore Connection" then begin
             "Restore Connection" := false;
-            Modify;
+            Modify();
             Commit();
-            if TestConnection then
+            if TestConnection() then
                 Validate("Is Enabled", true);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1045,7 +1100,7 @@ table 5330 "CRM Connection Setup"
             TempCRMConnectionSetup.SetPassword(CRMConnectionSetup.GetPassword());
             TempCRMConnectionSetup.SetConnectionString(CRMConnectionSetup.GetConnectionString());
         end;
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
         TempCRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, GetDefaultCRMConnection(ConnectionName), true);
@@ -1066,7 +1121,7 @@ table 5330 "CRM Connection Setup"
         ConnectionName: Text;
     begin
         CreateTempAdminConnection(TempCRMConnectionSetup);
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
         TempCRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, GetDefaultCRMConnection(ConnectionName), true);
@@ -1113,9 +1168,9 @@ table 5330 "CRM Connection Setup"
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
     begin
         if "Is Enabled" then begin
-            "Is CRM Solution Installed" := CRMIntegrationManagement.IsCRMSolutionInstalled;
-            RefreshFromCRMConnectionInformation;
-            if TryRefreshCRMSettings then
+            "Is CRM Solution Installed" := CRMIntegrationManagement.IsCRMSolutionInstalled();
+            RefreshFromCRMConnectionInformation();
+            if TryRefreshCRMSettings() then
                 if ResetSalesOrderMappingConfiguration then
                     CRMSetupDefaults.ResetSalesOrderMappingConfiguration(Rec);
         end;
@@ -1175,16 +1230,16 @@ table 5330 "CRM Connection Setup"
         ConnectionName: Text;
     begin
         CreateTempNoDelegateConnection(TempCRMConnectionSetup);
-        ConnectionName := Format(CreateGuid);
+        ConnectionName := Format(CreateGuid());
         TempCRMConnectionSetup.RegisterConnectionWithName(ConnectionName);
         SetDefaultTableConnection(
           TABLECONNECTIONTYPE::CRM, GetDefaultCRMConnection(ConnectionName), true);
 
-        CRMSetupDefaults.ResetCRMNAVConnectionData;
+        CRMSetupDefaults.ResetCRMNAVConnectionData();
 
         TempCRMConnectionSetup.UnregisterConnectionWithName(ConnectionName);
 
-        RefreshDataFromCRM;
+        RefreshDataFromCRM();
     end;
 
     procedure SynchronizeNow(DoFullSynch: Boolean)
@@ -1216,7 +1271,7 @@ table 5330 "CRM Connection Setup"
             if PAGE.RunModal(PAGE::"Dynamics CRM Admin Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
                 exit(false);
         end;
-        if (not TempOfficeAdminCredentials.FindFirst) or
+        if (not TempOfficeAdminCredentials.FindFirst()) or
            (TempOfficeAdminCredentials.Email = '') or (TempOfficeAdminCredentials.Password = '')
         then begin
             TempOfficeAdminCredentials.DeleteAll(true);
@@ -1241,7 +1296,7 @@ table 5330 "CRM Connection Setup"
             if PAGE.RunModal(PAGE::"Dynamics CRM Admin Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
                 exit(false);
         end;
-        if (not TempOfficeAdminCredentials.FindFirst) or
+        if (not TempOfficeAdminCredentials.FindFirst()) or
            (TempOfficeAdminCredentials.Email = '') or (TempOfficeAdminCredentials.Password = '')
         then begin
             TempOfficeAdminCredentials.DeleteAll(true);
@@ -1262,10 +1317,10 @@ table 5330 "CRM Connection Setup"
         MyNotifications: Record "My Notifications";
         SystemInitialization: Codeunit "System Initialization";
     begin
-        if (not SystemInitialization.IsInProgress) and (GetExecutionContext() = ExecutionContext::Normal) then
+        if (not SystemInitialization.IsInProgress()) and (GetExecutionContext() = ExecutionContext::Normal) then
             Error(ErrorMessage);
 
-        MyNotifications.InsertDefault(GetCRMNotificationId, ActivityDescription, ErrorMessage, true);
+        MyNotifications.InsertDefault(GetCRMNotificationId(), ActivityDescription, ErrorMessage, true);
     end;
 
     local procedure GetCRMNotificationId(): Guid
@@ -1304,9 +1359,9 @@ table 5330 "CRM Connection Setup"
             "Authentication Type"::Office365:
                 exit('AuthType=Office365;');
             "Authentication Type"::AD:
-                exit('AuthType=AD;' + GetDomain);
+                exit('AuthType=AD;' + GetDomain());
             "Authentication Type"::IFD:
-                exit('AuthType=IFD;' + GetDomain + 'HomeRealmUri= ;');
+                exit('AuthType=IFD;' + GetDomain() + 'HomeRealmUri= ;');
             "Authentication Type"::OAuth:
                 exit('AuthType=OAuth;' + 'AppId= ;' + 'RedirectUri= ;' + 'TokenCacheStorePath= ;' + 'LoginPrompt=Auto;');
         end;
@@ -1316,7 +1371,7 @@ table 5330 "CRM Connection Setup"
     procedure UpdateConnectionString() ConnectionString: Text
     begin
         if "Authentication Type" <> "Authentication Type"::Office365 then
-            ConnectionString := StrSubstNo(ConnectionStringFormatTok, "Server Address", GetUserName, MissingPasswordTok, "Proxy Version", CrmAuthenticationType)
+            ConnectionString := StrSubstNo(ConnectionStringFormatTok, "Server Address", GetUserName(), MissingPasswordTok, "Proxy Version", CrmAuthenticationType())
         else
             if CDSIntegrationImpl.GetCDSConnectionFirstPartyAppId() <> '' then
                 ConnectionString := StrSubstNo(CertificateConnectionStringFormatTxt, CertificateAuthTxt, "Server Address", ClientIdTok, CertificateTok, "Proxy Version")
@@ -1472,14 +1527,21 @@ table 5330 "CRM Connection Setup"
             "Server Connection String".CreateOutStream(OutStream);
             OutStream.WriteText(ConnectionString);
         end;
-        if not Modify then;
+        if not Modify() then;
     end;
 
     procedure IsEnabled(): Boolean
     begin
-        if not Get then
+        if not Get() then
             exit(false);
         exit("Is Enabled");
+    end;
+
+    procedure IsBidirectionalSalesOrderIntEnabled(): Boolean
+    begin
+        if not Get then
+            exit(false);
+        exit("Bidirectional Sales Order Int." and "Is Enabled");
     end;
 
     local procedure NewestUIAppModuleId(): Text[50]
@@ -1503,7 +1565,7 @@ table 5330 "CRM Connection Setup"
 
     procedure SetUseNewestUI()
     begin
-        "Newest UI AppModuleId" := NewestUIAppModuleId;
+        "Newest UI AppModuleId" := NewestUIAppModuleId();
         if "Newest UI AppModuleId" <> '' then
             "Use Newest UI" := true;
     end;

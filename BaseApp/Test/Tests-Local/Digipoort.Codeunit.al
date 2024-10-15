@@ -93,7 +93,7 @@ codeunit 144070 Digipoort
         Assert.IsFalse(ElecTaxDeclarationSetup."Digipoort Service Cert. Name".Visible, 'Digipoort Service Cert. Name must be hidden');
         Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Delivery URL".Visible, 'Digipoort Delivery URL must be visible');
         Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Status URL".Visible, 'Digipoort Status URL must be visible');
-        ElecTaxDeclarationSetup.Close;
+        ElecTaxDeclarationSetup.Close();
 
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
@@ -115,7 +115,7 @@ codeunit 144070 Digipoort
         Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Service Cert. Name".Visible, 'Digipoort Service Cert. Name must be visible');
         Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Delivery URL".Visible, 'Digipoort Delivery URL must be visible');
         Assert.IsTrue(ElecTaxDeclarationSetup."Digipoort Status URL".Visible, 'Digipoort Status URL must be visible');
-        ElecTaxDeclarationSetup.Close;
+        ElecTaxDeclarationSetup.Close();
     end;
 
     [Test]

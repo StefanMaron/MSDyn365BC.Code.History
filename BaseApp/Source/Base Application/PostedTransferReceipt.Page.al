@@ -3,7 +3,6 @@ page 5745 "Posted Transfer Receipt"
     Caption = 'Posted Transfer Receipt';
     InsertAllowed = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Receipt';
     RefreshOnActivate = true;
     SourceTable = "Transfer Receipt Header";
 
@@ -14,38 +13,38 @@ page 5745 "Posted Transfer Receipt"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Transfer-from Code"; "Transfer-from Code")
+                field("Transfer-from Code"; Rec."Transfer-from Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location that items are transferred from.';
                 }
-                field("Transfer-to Code"; "Transfer-to Code")
+                field("Transfer-to Code"; Rec."Transfer-to Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code of the location that the items are transferred to.';
                 }
-                field("Direct Transfer"; "Direct Transfer")
+                field("Direct Transfer"; Rec."Direct Transfer")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies that the transfer does not use an in-transit location.';
                 }
-                field("In-Transit Code"; "In-Transit Code")
+                field("In-Transit Code"; Rec."In-Transit Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the in-transit code for the transfer order, such as a shipping agent.';
                 }
-                field("Transfer Order No."; "Transfer Order No.")
+                field("Transfer Order No."; Rec."Transfer Order No.")
                 {
                     ApplicationArea = Location;
                     Editable = false;
@@ -53,26 +52,26 @@ page 5745 "Posted Transfer Receipt"
                     Lookup = false;
                     ToolTip = 'Specifies the number of the related transfer order.';
                 }
-                field("Transfer Order Date"; "Transfer Order Date")
+                field("Transfer Order Date"; Rec."Transfer Order Date")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the date when the transfer order was created.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for this document.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Editable = false;
@@ -88,32 +87,32 @@ page 5745 "Posted Transfer Receipt"
             group(Shipment)
             {
                 Caption = 'Shipment';
-                field("Shipment Date"; "Shipment Date")
+                field("Shipment Date"; Rec."Shipment Date")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies when items on the document are shipped or were shipped. A shipment date is usually calculated from a requested delivery date plus lead time.';
                 }
-                field("Shipment Method Code"; "Shipment Method Code")
+                field("Shipment Method Code"; Rec."Shipment Method Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the delivery conditions of the related shipment, such as free on board (FOB).';
                 }
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     ToolTip = 'Specifies the code for the shipping agent who is transporting the items.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Location;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the code for the service, such as a one-day delivery, that is offered by the shipping agent.';
                 }
-                field("Receipt Date"; "Receipt Date")
+                field("Receipt Date"; Rec."Receipt Date")
                 {
                     ApplicationArea = Location;
                     Editable = false;
@@ -124,14 +123,14 @@ page 5745 "Posted Transfer Receipt"
             group("Transfer-from")
             {
                 Caption = 'Transfer-from';
-                field("Transfer-from Name"; "Transfer-from Name")
+                field("Transfer-from Name"; Rec."Transfer-from Name")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the sender at the location that the items are transferred from.';
                 }
-                field("Transfer-from Name 2"; "Transfer-from Name 2")
+                field("Transfer-from Name 2"; Rec."Transfer-from Name 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name 2';
@@ -139,7 +138,7 @@ page 5745 "Posted Transfer Receipt"
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the name of the sender at the location that the items are transferred from.';
                 }
-                field("Transfer-from Address"; "Transfer-from Address")
+                field("Transfer-from Address"; Rec."Transfer-from Address")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address';
@@ -147,7 +146,7 @@ page 5745 "Posted Transfer Receipt"
                     Importance = Additional;
                     ToolTip = 'Specifies the address of the location that the items are transferred from.';
                 }
-                field("Transfer-from Address 2"; "Transfer-from Address 2")
+                field("Transfer-from Address 2"; Rec."Transfer-from Address 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address 2';
@@ -155,7 +154,7 @@ page 5745 "Posted Transfer Receipt"
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the address of the location that items are transferred from..';
                 }
-                field("Transfer-from City"; "Transfer-from City")
+                field("Transfer-from City"; Rec."Transfer-from City")
                 {
                     ApplicationArea = Location;
                     Caption = 'City';
@@ -167,7 +166,7 @@ page 5745 "Posted Transfer Receipt"
                 {
                     ShowCaption = false;
                     Visible = IsFromCountyVisible;
-                    field("Transfer-from County"; "Transfer-from County")
+                    field("Transfer-from County"; Rec."Transfer-from County")
                     {
                         ApplicationArea = Location;
                         Caption = 'County';
@@ -175,21 +174,21 @@ page 5745 "Posted Transfer Receipt"
                         Importance = Additional;
                     }
                 }
-                field("Transfer-from Post Code"; "Transfer-from Post Code")
+                field("Transfer-from Post Code"; Rec."Transfer-from Post Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Post Code';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Trsf.-from Country/Region Code"; "Trsf.-from Country/Region Code")
+                field("Trsf.-from Country/Region Code"; Rec."Trsf.-from Country/Region Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Country/Region';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Transfer-from Contact"; "Transfer-from Contact")
+                field("Transfer-from Contact"; Rec."Transfer-from Contact")
                 {
                     ApplicationArea = Location;
                     Caption = 'Contact';
@@ -201,14 +200,14 @@ page 5745 "Posted Transfer Receipt"
             group("Transfer-to")
             {
                 Caption = 'Transfer-to';
-                field("Transfer-to Name"; "Transfer-to Name")
+                field("Transfer-to Name"; Rec."Transfer-to Name")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name';
                     Editable = false;
                     ToolTip = 'Specifies the name of the recipient at the location that the items are transferred to.';
                 }
-                field("Transfer-to Name 2"; "Transfer-to Name 2")
+                field("Transfer-to Name 2"; Rec."Transfer-to Name 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Name 2';
@@ -216,7 +215,7 @@ page 5745 "Posted Transfer Receipt"
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the name of the recipient at the location that the items are transferred to.';
                 }
-                field("Transfer-to Address"; "Transfer-to Address")
+                field("Transfer-to Address"; Rec."Transfer-to Address")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address';
@@ -224,7 +223,7 @@ page 5745 "Posted Transfer Receipt"
                     Importance = Additional;
                     ToolTip = 'Specifies the address of the location that the items are transferred to.';
                 }
-                field("Transfer-to Address 2"; "Transfer-to Address 2")
+                field("Transfer-to Address 2"; Rec."Transfer-to Address 2")
                 {
                     ApplicationArea = Location;
                     Caption = 'Address 2';
@@ -232,7 +231,7 @@ page 5745 "Posted Transfer Receipt"
                     Importance = Additional;
                     ToolTip = 'Specifies an additional part of the address of the location that items are transferred to.';
                 }
-                field("Transfer-to City"; "Transfer-to City")
+                field("Transfer-to City"; Rec."Transfer-to City")
                 {
                     ApplicationArea = Location;
                     Caption = 'City';
@@ -244,7 +243,7 @@ page 5745 "Posted Transfer Receipt"
                 {
                     ShowCaption = false;
                     Visible = IsToCountyVisible;
-                    field("Transfer-to County"; "Transfer-to County")
+                    field("Transfer-to County"; Rec."Transfer-to County")
                     {
                         ApplicationArea = Location;
                         Caption = 'County';
@@ -252,21 +251,21 @@ page 5745 "Posted Transfer Receipt"
                         Importance = Additional;
                     }
                 }
-                field("Transfer-to Post Code"; "Transfer-to Post Code")
+                field("Transfer-to Post Code"; Rec."Transfer-to Post Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Post Code';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Trsf.-to Country/Region Code"; "Trsf.-to Country/Region Code")
+                field("Trsf.-to Country/Region Code"; Rec."Trsf.-to Country/Region Code")
                 {
                     ApplicationArea = Location;
                     Caption = 'Country/Region';
                     Editable = false;
                     Importance = Additional;
                 }
-                field("Transfer-to Contact"; "Transfer-to Contact")
+                field("Transfer-to Contact"; Rec."Transfer-to Contact")
                 {
                     ApplicationArea = Location;
                     Caption = 'Contact';
@@ -278,41 +277,41 @@ page 5745 "Posted Transfer Receipt"
             group("Foreign Trade")
             {
                 Caption = 'Foreign Trade';
-                field("Transaction Type"; "Transaction Type")
+                field("Transaction Type"; Rec."Transaction Type")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transaction Specification"; "Transaction Specification")
+                field("Transaction Specification"; Rec."Transaction Specification")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Editable = false;
                     ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Transport Method"; "Transport Method")
+                field("Transport Method"; Rec."Transport Method")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Editable = false;
                     Importance = Promoted;
                     ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Area"; Area)
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Editable = false;
                     ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                 }
-                field("Entry/Exit Point"; "Entry/Exit Point")
+                field("Entry/Exit Point"; Rec."Entry/Exit Point")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Editable = false;
                     ToolTip = 'Specifies the code of either the port of entry at which the items passed into your country/region, or the port of exit.';
                 }
                 field("Partner VAT ID"; Rec."Partner VAT ID")
                 {
-                    ApplicationArea = BasicEU;
+                    ApplicationArea = BasicEU, BasicNO;
                     Editable = false;
                     ToolTip = 'Specifies the counter party''s VAT number.';
                 }
@@ -345,9 +344,6 @@ page 5745 "Posted Transfer Receipt"
                     ApplicationArea = Location;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     RunObject = Page "Transfer Receipt Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -369,9 +365,6 @@ page 5745 "Posted Transfer Receipt"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedOnly = true;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -390,9 +383,6 @@ page 5745 "Posted Transfer Receipt"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -408,15 +398,42 @@ page 5745 "Posted Transfer Receipt"
                 ApplicationArea = Location;
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ShortCutKey = 'Ctrl+Alt+Q';
                 ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
-                    Navigate;
+                    Navigate();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Print_Promoted"; "&Print")
+                {
+                }
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Receipt', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Statistics_Promoted; Statistics)
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
             }
         }
     }

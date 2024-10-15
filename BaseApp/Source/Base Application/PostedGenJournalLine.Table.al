@@ -574,11 +574,9 @@
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(114; "IC Direction"; Option)
+        field(114; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';
-            OptionCaption = 'Outgoing,Incoming';
-            OptionMembers = Outgoing,Incoming;
         }
         field(116; "IC Partner G/L Acc. No."; Code[20])
         {

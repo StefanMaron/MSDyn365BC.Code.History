@@ -18,18 +18,29 @@ page 99000814 "Planned Prod. Order Lines"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the item that is to be produced.';
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    begin
+                        CurrPage.Update();
+                    end;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the date when the produced item must be available. The date is copied from the header of the production order.';
@@ -39,47 +50,47 @@ page 99000814 "Planned Prod. Order Lines"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the value of the Description field on the item card. If you enter a variant code, the variant description is copied to this field instead.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies an additional description.';
                     Visible = false;
                 }
-                field("Production BOM No."; "Production BOM No.")
+                field("Production BOM No."; Rec."Production BOM No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the production BOM that is the basis for creating the Prod. Order Component list for this line.';
                 }
-                field("Routing No."; "Routing No.")
+                field("Routing No."; Rec."Routing No.")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the number of the routing used as the basis for creating the production order routing for this line.';
                 }
-                field("Production BOM Version Code"; "Production BOM Version Code")
+                field("Production BOM Version Code"; Rec."Production BOM Version Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version code of the production BOM.';
                     Visible = false;
                 }
-                field("Routing Version Code"; "Routing Version Code")
+                field("Routing Version Code"; Rec."Routing Version Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version number of the routing.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location code, if the produced items should be stored in a specific location.';
                     Visible = false;
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the bin that the produced item is posted to as output, and from where it can be taken to storage or cross-docked.';
                     Visible = false;
                 }
-                field("Starting Date-Time"; "Starting Date-Time")
+                field("Starting Date-Time"; Rec."Starting Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date and the starting time, which are combined in a format called "starting date-time".';
@@ -115,7 +126,7 @@ page 99000814 "Planned Prod. Order Lines"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Ending Date-Time"; "Ending Date-Time")
+                field("Ending Date-Time"; Rec."Ending Date-Time")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the ending date and the ending time, which are combined in a format called "ending date-time".';
@@ -151,7 +162,7 @@ page 99000814 "Planned Prod. Order Lines"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Scrap %"; "Scrap %")
+                field("Scrap %"; Rec."Scrap %")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the percentage of the item that you expect to be scrapped in the production process.';
@@ -167,7 +178,7 @@ page 99000814 "Planned Prod. Order Lines"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Reserved Quantity"; "Reserved Quantity")
+                field("Reserved Quantity"; Rec."Reserved Quantity")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies how many units of this item have been reserved.';
@@ -178,7 +189,7 @@ page 99000814 "Planned Prod. Order Lines"
                         ReservedQuantityOnAfterValidate();
                     end;
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
@@ -188,23 +199,23 @@ page 99000814 "Planned Prod. Order Lines"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the total cost on the line by multiplying the unit cost by the quantity.';
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -336,7 +347,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByEvent);
+                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByEvent());
                         end;
                     }
                     action(Period)
@@ -348,7 +359,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByPeriod);
+                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByPeriod());
                         end;
                     }
                     action(Variant)
@@ -360,7 +371,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByVariant);
+                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByVariant());
                         end;
                     }
                     action(Location)
@@ -373,7 +384,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByLocation);
+                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByLocation());
                         end;
                     }
                     action(Lot)
@@ -396,7 +407,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByBOM);
+                            ItemAvailFormsMgt.ShowItemAvailFromProdOrderLine(Rec, ItemAvailFormsMgt.ByBOM());
                         end;
                     }
                 }
@@ -436,7 +447,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowRouting;
+                        ShowRouting();
                     end;
                 }
                 action(Components)
@@ -448,7 +459,7 @@ page 99000814 "Planned Prod. Order Lines"
 
                     trigger OnAction()
                     begin
-                        ShowComponents;
+                        ShowComponents();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -456,7 +467,7 @@ page 99000814 "Planned Prod. Order Lines"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -469,11 +480,15 @@ page 99000814 "Planned Prod. Order Lines"
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         DescriptionIndent := 0;
         ShowShortcutDimCode(ShortcutDimCode);
-        DescriptionOnFormat;
+        DescriptionOnFormat();
         GetStartingEndingDateAndTime(StartingTime, StartingDate, EndingTime, EndingDate);
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -509,6 +524,7 @@ page 99000814 "Planned Prod. Order Lines"
         StartingDate: Date;
         EndingDate: Date;
         DateAndTimeFieldVisible: Boolean;
+        VariantCodeMandatory: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

@@ -7,6 +7,8 @@ codeunit 1005 "Job Calculate Batches"
 
     var
         JobDiffBuffer: array[2] of Record "Job Difference Buffer" temporary;
+        PeriodLength2: DateFormula;
+
         Text000: Label '%1 lines were successfully transferred to the journal.';
         Text001: Label 'There is no remaining usage on the job(s).';
         Text002: Label 'The lines were successfully changed.';
@@ -17,7 +19,6 @@ codeunit 1005 "Job Calculate Batches"
         Text007: Label '%1 invoices are created.';
         Text008: Label 'The selected entries were successfully transferred to planning lines.';
         Text009: Label 'Total Cost,Total Price,Line Discount Amount,Line Amount';
-        PeriodLength2: DateFormula;
 
     procedure SplitLines(var JT2: Record "Job Task"): Integer
     var
@@ -28,7 +29,7 @@ codeunit 1005 "Job Calculate Batches"
         JobPlanningLine.LockTable();
         JT.LockTable();
         JT := JT2;
-        JT.Find;
+        JT.Find();
         JobPlanningLine.SetRange("Job No.", JT."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JT."Job Task No.");
         JobPlanningLine.SetFilter("Planning Date", JT2.GetFilter("Planning Date Filter"));
@@ -52,14 +53,14 @@ codeunit 1005 "Job Calculate Batches"
         JobPlanningLine2.SetRange("Job No.", JobPlanningLine2."Job No.");
         JobPlanningLine2.SetRange("Job Task No.", JobPlanningLine2."Job Task No.");
         NextLineNo := JobPlanningLine."Line No." + 10000;
-        if JobPlanningLine2.Next <> 0 then
+        if JobPlanningLine2.Next() <> 0 then
             NextLineNo := (JobPlanningLine."Line No." + JobPlanningLine2."Line No.") div 2;
         JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Billable);
         JobPlanningLine.Modify();
         JobPlanningLine.Validate("Line Type", JobPlanningLine."Line Type"::Budget);
         JobPlanningLine.ClearTracking();
         JobPlanningLine."Line No." := NextLineNo;
-        JobPlanningLine.InitJobPlanningLine;
+        JobPlanningLine.InitJobPlanningLine();
         OnBeforeJobPlanningLineInsert(JobPlanningLine);
         JobPlanningLine.Insert(true);
         exit(true);
@@ -100,8 +101,8 @@ codeunit 1005 "Job Calculate Batches"
         JT.TestField("Job Task No.");
         Job.Get(JT."Job No.");
         if Job.Blocked = Job.Blocked::All then
-            Job.TestBlocked;
-        JT.Find;
+            Job.TestBlocked();
+        JT.Find();
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetRange("Job Task No.", JT."Job Task No.");
@@ -142,8 +143,8 @@ codeunit 1005 "Job Calculate Batches"
         JT.TestField("Job Task No.");
         Job.Get(JT."Job No.");
         if Job.Blocked = Job.Blocked::All then
-            Job.TestBlocked;
-        JT.Find;
+            Job.TestBlocked();
+        JT.Find();
         JobPlanningLine.SetCurrentKey("Job No.", "Job Task No.");
         JobPlanningLine.SetRange("Job No.", Job."No.");
         JobPlanningLine.SetRange("Job Task No.", JT."Job Task No.");
@@ -207,7 +208,7 @@ codeunit 1005 "Job Calculate Batches"
             JobDiffBuffer[1]."Line Amount" := "Line Amount";
             OnCreateJTOnBeforeAssigneJobDiffBuffer2(JobDiffBuffer, JobPlanningLine);
             JobDiffBuffer[2] := JobDiffBuffer[1];
-            if JobDiffBuffer[2].Find then begin
+            if JobDiffBuffer[2].Find() then begin
                 JobDiffBuffer[2].Quantity := JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
                 JobDiffBuffer[2].Modify();
             end else
@@ -275,7 +276,7 @@ codeunit 1005 "Job Calculate Batches"
                     JobJnlBatch.Get(TemplateName, BatchName);
                     JobJnlLine."Source Code" := JobJnlTemplate."Source Code";
                     JobJnlLine."Reason Code" := JobJnlBatch."Reason Code";
-                    JobJnlLine.DontCheckStdCost;
+                    JobJnlLine.DontCheckStdCost();
                     JobJnlLine.Validate("Job No.", JobDiffBuffer[1]."Job No.");
                     JobJnlLine.Validate("Job Task No.", JobDiffBuffer[1]."Job Task No.");
                     JobJnlLine.Validate("Posting Date", PostingDate);
@@ -329,7 +330,7 @@ codeunit 1005 "Job Calculate Batches"
         JobPlanningLine: Record "Job Planning Line";
         JobLedgEntry: Record "Job Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
         Clear(JobDiffBuffer);
         Clear(JobDiffBuffer2);
         Clear(JobDiffBuffer3);
@@ -338,7 +339,7 @@ codeunit 1005 "Job Calculate Batches"
         JobDiffBuffer2.DeleteAll();
         JobDiffBuffer3.DeleteAll();
 
-        JT.Find;
+        JT.Find();
         JobPlanningLine.SetRange("Job No.", JT."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JT."Job Task No.");
         JobPlanningLine.SetFilter("Planning Date", Job.GetFilter("Planning Date Filter"));
@@ -392,7 +393,7 @@ codeunit 1005 "Job Calculate Batches"
                     JobDiffBuffer[1]."Line Amount" := "Line Amount";
                 end;
                 JobDiffBuffer[2] := JobDiffBuffer[1];
-                if JobDiffBuffer[2].Find then begin
+                if JobDiffBuffer[2].Find() then begin
                     JobDiffBuffer[2].Quantity :=
                       JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
                     JobDiffBuffer[2]."Total Cost" :=
@@ -422,7 +423,7 @@ codeunit 1005 "Job Calculate Batches"
                     JobDiffBuffer[1]."Line Amount" := "Line Amount";
                 end;
                 JobDiffBuffer[2] := JobDiffBuffer[1];
-                if JobDiffBuffer[2].Find then begin
+                if JobDiffBuffer[2].Find() then begin
                     JobDiffBuffer[2].Quantity :=
                       JobDiffBuffer[2].Quantity + JobDiffBuffer[1].Quantity;
                     JobDiffBuffer[2]."Total Cost" :=
@@ -443,12 +444,11 @@ codeunit 1005 "Job Calculate Batches"
         GLSetup.Get();
         if CurrencyType = CurrencyType::"Local Currency" then
             CurrencyCode := GLSetup."LCY Code"
-        else begin
+        else
             if Job."Currency Code" <> '' then
                 CurrencyCode := Job."Currency Code"
             else
                 CurrencyCode := GLSetup."LCY Code";
-        end;
         exit(SelectStr(Type + 1, Text009) + ' (' + CurrencyCode + ')');
     end;
 

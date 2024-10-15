@@ -580,8 +580,8 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetArchive.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
         TimeSheetArcCommentSheet.Trap;
         TimeSheetArchive.LineComments.Invoke;
-        TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption));
-        TimeSheetArcCommentSheet.Close;
+        TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
+        TimeSheetArcCommentSheet.Close();
 
         // Delete Time Sheet Archive
         TimeSheetHeaderArchive.Reset();
@@ -1088,7 +1088,7 @@ codeunit 136504 "RES Time Sheet"
 
         LibraryResource.SetResourceBlocked(Resource);
 
-        TimeSheetHeader.Validate("Starting Date", WorkDate);
+        TimeSheetHeader.Validate("Starting Date", WorkDate());
         asserterror TimeSheetHeader.Modify(true);
 
         Assert.ExpectedError(ResourceBlockedErr);
@@ -1296,7 +1296,7 @@ codeunit 136504 "RES Time Sheet"
     begin
         LibraryResource.CreateResJournalLine(ResJournalLine, ResJournalBatch."Journal Template Name", ResJournalBatch.Name);
         ResJournalLine.Validate("Resource No.", ResourceNo);
-        ResJournalLine.Validate("Posting Date", WorkDate);
+        ResJournalLine.Validate("Posting Date", WorkDate());
         ResJournalLine.Validate("Document No.", ResourceNo);
         ResJournalLine.Validate("Time Sheet No.", TimeSheetLine."Time Sheet No.");
         ResJournalLine.Validate("Time Sheet Line No.", TimeSheetLine."Line No.");
@@ -1367,8 +1367,8 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
         TimeSheetCommentSheet.Trap;
         TimeSheetList.Comments.Invoke;
-        TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption));
-        TimeSheetList.Close;
+        TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
+        TimeSheetList.Close();
     end;
 
     local procedure OpenTimeSheetAndEnterComments(var TimeSheet: TestPage "Time Sheet"; TimeSheetHeaderNo: Code[20])
@@ -1380,7 +1380,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeaderNo);
         TimeSheetCommentSheet.Trap;
         TimeSheet.LineComments.Invoke;
-        TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption));
+        TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
 
     local procedure DeleteTimeSheetAndResource(No: Code[20]; ResourceNo: Code[20])
@@ -1484,7 +1484,7 @@ codeunit 136504 "RES Time Sheet"
 
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
         with JobJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", JobJournalTemplate.Name);
             Validate("Journal Batch Name", JobJournalBatch.Name);
             SetRange("Journal Template Name", "Journal Template Name");
@@ -1570,7 +1570,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
         TimeSheetCommentSheet.Trap;
         TimeSheetList.Comments.Invoke;
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption));
+        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
     end;
 
     local procedure VerifyCommentsOnTimeSheetLine(TimeSheetHeaderNo: Code[20])
@@ -1583,7 +1583,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
         TimeSheetCommentSheet.Trap;
         TimeSheet.LineComments.Invoke;
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption));
+        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
 
     local procedure VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeaderNo: Code[20])
@@ -1596,7 +1596,7 @@ codeunit 136504 "RES Time Sheet"
         ManagerTimeSheetList.FILTER.SetFilter("No.", TimeSheetHeaderNo);
         TimeSheetCommentSheet.Trap;
         ManagerTimeSheetList.Comments.Invoke;
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption));
+        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
     end;
 
     local procedure VerifyCommentsOnManagerTimeSheetLine(TimeSheetHeaderNo: Code[20])
@@ -1609,7 +1609,7 @@ codeunit 136504 "RES Time Sheet"
         ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
         TimeSheetCommentSheet.Trap;
         ManagerTimeSheet.LineComments.Invoke;
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption));
+        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
     end;
 
     local procedure VerifyDimensionOfJobJournalLine(JobNo: Code[20]; ResourceNo: Code[20]; ExpectedDimValue: Code[20])

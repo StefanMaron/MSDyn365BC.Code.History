@@ -13,7 +13,7 @@ page 968 "Time Sheet Line Assemb. Detail"
             group(General)
             {
                 Caption = 'General';
-                field("Assembly Order No."; "Assembly Order No.")
+                field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the assembly order number that is associated with the time sheet line.';
@@ -39,7 +39,7 @@ page 968 "Time Sheet Line Assemb. Detail"
     procedure SetParameters(TimeSheetLine: Record "Time Sheet Line")
     begin
         Rec := TimeSheetLine;
-        Insert;
+        Insert();
     end;
 }
 

@@ -36,7 +36,7 @@ xmlport 1230 "Export Generic CSV"
                             currXMLport.BreakUnbound();
                         end;
 
-                        CheckColumnSequence;
+                        CheckColumnSequence();
                         ColumnX := "Data Exch. Field".Value;
 
                         if "Data Exch. Field".Next() = 0 then
@@ -69,7 +69,7 @@ xmlport 1230 "Export Generic CSV"
         if ErrorText <> '' then
             Error(ErrorText);
 
-        Window.Close;
+        Window.Close();
 
         if DataExch.Get(DataExchEntryNo) then
             if DataExchDef.Get(DataExch."Data Exch. Def Code") then
@@ -78,7 +78,7 @@ xmlport 1230 "Export Generic CSV"
 
     trigger OnPreXmlPort()
     begin
-        InitializeGlobals;
+        InitializeGlobals();
     end;
 
     var

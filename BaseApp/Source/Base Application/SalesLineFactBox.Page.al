@@ -20,7 +20,7 @@ page 9087 "Sales Line FactBox"
                     SalesInfoPaneMgt.LookupItem(Rec);
                 end;
             }
-            field("Required Quantity"; "Outstanding Quantity" - "Reserved Quantity")
+            field("Required Quantity"; Rec."Outstanding Quantity" - "Reserved Quantity")
             {
                 ApplicationArea = Reservation;
                 Caption = 'Required Quantity';
@@ -30,7 +30,7 @@ page 9087 "Sales Line FactBox"
             group(Attachments)
             {
                 Caption = 'Attachments';
-                field("Attached Doc Count"; "Attached Doc Count")
+                field("Attached Doc Count"; Rec."Attached Doc Count")
                 {
                     ApplicationArea = All;
                     Caption = 'Documents';
@@ -115,7 +115,7 @@ page 9087 "Sales Line FactBox"
                     Caption = 'Unit of Measure Code';
                     ToolTip = 'Specifies the unit of measure that is used to determine the value in the Unit Price field on the sales line.';
                 }
-                field("Qty. per Unit of Measure"; "Qty. per Unit of Measure")
+                field("Qty. per Unit of Measure"; Rec."Qty. per Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. per Unit of Measure';

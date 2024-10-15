@@ -1399,7 +1399,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Initialize();
         SetupCostCenterTestCases(Dimension, DimensionValue, InitialCostCenterDimension);
 
-        CostAccountMgt.CreateCostCenters;
+        CostAccountMgt.CreateCostCenters();
         CostCenter.Get(DimensionValue.Code);
 
         CostCenter.TestField(Code, DimensionValue.Code);
@@ -1422,7 +1422,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         DimensionValue.DeleteAll();
         CostCenter.DeleteAll();
 
-        CostAccountMgt.CreateCostCenters;
+        CostAccountMgt.CreateCostCenters();
 
         Assert.IsTrue(DimensionValue.IsEmpty, StrSubstNo(Text005, true));
 
@@ -2172,7 +2172,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Verify: Verify that if no cost journal template is present in setup then a default setup will be created
         // with Template name as "STANDARD" and Description as "Standard Template".
         VerifyCostJournalTemplate(JnlSelected);
-        Assert.IsTrue(CostJournalLine.IsEmpty, StrSubstNo(CostJournlLineError, CostJournalLine.TableCaption));
+        Assert.IsTrue(CostJournalLine.IsEmpty, StrSubstNo(CostJournlLineError, CostJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -2195,7 +2195,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJnlManagement.TemplateSelection(CostJournalLine, JnlSelected);
 
         // Verify: Verify that JnlSelected is TRUE for a single Cost Journal Template.
-        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, CostJournalTemplate.TableCaption));
+        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, CostJournalTemplate.TableCaption()));
     end;
 
     [Test]
@@ -2221,7 +2221,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJnlManagement.TemplateSelection(CostJournalLine, JnlSelected);
 
         // Verify: Verify that when more then one  cost journal template are there then a page is open for selection of journal template and JnlSelection is TRUE.
-        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, CostJournalTemplate.TableCaption));
+        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, CostJournalTemplate.TableCaption()));
     end;
 
     [Test]
@@ -2297,8 +2297,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         end;
 
         // Verify: Verify that balance and total balance are equal to expected balance and expected total balance.
-        Assert.AreEqual(ExpectedBalance, Balance, StrSubstNo(ExpectedBalanceError, CostJournalLine.TableCaption));
-        Assert.AreEqual(ExpectedBalance, TotalBalance, StrSubstNo(ExpectedTotBalanceError, CostJournalLine.TableCaption));
+        Assert.AreEqual(ExpectedBalance, Balance, StrSubstNo(ExpectedBalanceError, CostJournalLine.TableCaption()));
+        Assert.AreEqual(ExpectedBalance, TotalBalance, StrSubstNo(ExpectedTotBalanceError, CostJournalLine.TableCaption()));
     end;
 
     [Test]
@@ -2518,7 +2518,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // Exercise: Create Cost journal lines with basic conditions so that it did not get posted.
         LibraryCostAccounting.CreateCostJournalLineBasic(
-          CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name, WorkDate, '', '');
+          CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name, WorkDate(), '', '');
         LineNo := CostJournalLine."Line No.";
         JournalBatchName := CostJournalLine."Journal Batch Name";
         Commit();
@@ -2622,7 +2622,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UpdateCostCenter(CostCenter[4], CostCenter[1]."Line Type"::"End-Total");
 
         // Exercise: Indent cost centers.
-        CostAccMgt.IndentCostCenters;
+        CostAccMgt.IndentCostCenters();
 
         // Verify: To verify the indentation of created Cost Center after invoking Indent Cost Center Action.
         VerifyChartOfCostCenterIndent(CostCenter[1].Code, CostCenter[4].Code, Totaling);
@@ -2697,7 +2697,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UpdateCostCenter(CostCenter, CostCenter."Line Type"::"End-Total");
 
         // Exercise: Indent cost centers.
-        asserterror CostAccountMgt.IndentCostCenters;
+        asserterror CostAccountMgt.IndentCostCenters();
 
         // Verify: Verify the error message for when there is no corresponding Begin Total for End Total Cost Center.
         Assert.ExpectedError(StrSubstNo(EndTotalError, CostCenter.Code));
@@ -2729,7 +2729,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     procedure PostingDateLessthanAllowPostingFrom()
     begin
         // Test that system does not allow to post the entry when Posting Date is less than Allow Posting From in User Setup Table.
-        PostingDateNotAllowed(CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandInt(10)), WorkDate));
+        PostingDateNotAllowed(CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandInt(10)), WorkDate()));
     end;
 
     [Test]
@@ -2737,7 +2737,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
     procedure PostingDateGreaterthanAllowPostingTo()
     begin
         // Test that system does not allow to post the entry when Posting Date is greater than Allow Posting To in User Setup Table.
-        PostingDateNotAllowed(CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate));
+        PostingDateNotAllowed(CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate()));
     end;
 
     [Test]
@@ -2768,7 +2768,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostType.Modify();
 
         // Exercise: Running batch LinkCostTypesToGLAccounts.
-        asserterror CostAccountMgt.LinkCostTypesToGLAccounts;
+        asserterror CostAccountMgt.LinkCostTypesToGLAccounts();
 
         // Verify: Verify the expected error message is coming after running the batch LinkCostTypesToGLAccounts.
         if CostType2ExistsInCostType1Range(CostType."No.", CostType2."No.") then
@@ -2889,7 +2889,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GeneralLedgerSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From
-        GeneralLedgerSetup.Validate("Allow Posting From", WorkDate);
+        GeneralLedgerSetup.Validate("Allow Posting From", WorkDate());
 
         // [WHEN] Setting up Allow Posting To with an earlier value than Allow Posting From
         asserterror GeneralLedgerSetup.Validate("Allow Posting To", WorkDate - LibraryRandom.RandInt(10));
@@ -2913,7 +2913,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GeneralLedgerSetup.Init();
 
         // [GIVEN] Setting up Allow Posting To
-        GeneralLedgerSetup.Validate("Allow Posting To", WorkDate);
+        GeneralLedgerSetup.Validate("Allow Posting To", WorkDate());
 
         // [WHEN] Setting up Allow Posting From with a greater value than Allow Posting To
         asserterror GeneralLedgerSetup.Validate("Allow Posting From", WorkDate + LibraryRandom.RandInt(10));
@@ -2937,7 +2937,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         GeneralLedgerSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From with proper value
-        GeneralLedgerSetup.Validate("Allow Posting From", WorkDate);
+        GeneralLedgerSetup.Validate("Allow Posting From", WorkDate());
 
         // [GIVEN] Setting up Allow Posting To with proper value as well
         GeneralLedgerSetup.Validate("Allow Posting To", WorkDate + LibraryRandom.RandInt(10));
@@ -2963,7 +2963,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UserSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From
-        UserSetup.Validate("Allow Posting From", WorkDate);
+        UserSetup.Validate("Allow Posting From", WorkDate());
 
         // [WHEN] Setting up Allow Posting To with an earlier value than Allow Posting From
         asserterror UserSetup.Validate("Allow Posting To", WorkDate - LibraryRandom.RandInt(10));
@@ -2987,7 +2987,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UserSetup.Init();
 
         // [GIVEN] Setting up Allow Posting To
-        UserSetup.Validate("Allow Posting To", WorkDate);
+        UserSetup.Validate("Allow Posting To", WorkDate());
 
         // [WHEN] Setting up Allow Posting From with a greater value than Allow Posting To
         asserterror UserSetup.Validate("Allow Posting From", WorkDate + LibraryRandom.RandInt(10));
@@ -3011,7 +3011,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         UserSetup.Init();
 
         // [GIVEN] Setting up Allow Posting From with proper value
-        UserSetup.Validate("Allow Posting From", WorkDate);
+        UserSetup.Validate("Allow Posting From", WorkDate());
 
         // [GIVEN] Setting up Allow Posting To with proper value as well
         UserSetup.Validate("Allow Posting To", WorkDate + LibraryRandom.RandInt(10));
@@ -3037,7 +3037,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
 
         // [GIVEN] Init GL Setup and set up incorrect allowed posting range
         GeneralLedgerSetup.Init();
-        GeneralLedgerSetup."Allow Posting To" := WorkDate;
+        GeneralLedgerSetup."Allow Posting To" := WorkDate();
         GeneralLedgerSetup."Allow Posting From" := WorkDate + LibraryRandom.RandInt(10);
         GeneralLedgerSetup.Modify();
 
@@ -3163,7 +3163,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Create Cost Journal line and update its Bal Cost Type No. , Bal Cost Center Code and maintain its previous record
         TempCostJournalLine := CostJournalLine; // to maintain xRec of cost journal line.
         TempCostJournalLine.Insert();
-        LibraryCostAccounting.CreateCostJournalLineBasic(CostJournalLine, CostJournalTemplateName, CostJournalBatchName, WorkDate, '', '');
+        LibraryCostAccounting.CreateCostJournalLineBasic(CostJournalLine, CostJournalTemplateName, CostJournalBatchName, WorkDate(), '', '');
     end;
 
     local procedure CreateCostJournalLine(var CostJournalLine: Record "Cost Journal Line"; var CostJournalTemplate: Record "Cost Journal Template"; var CostJournalBatch: Record "Cost Journal Batch")
@@ -3176,7 +3176,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         LibraryCostAccounting.CreateCostJournalTemplate(CostJournalTemplate);
         LibraryCostAccounting.CreateCostJournalBatch(CostJournalBatch, CostJournalTemplate.Name);
         LibraryCostAccounting.CreateCostJournalLineBasic(
-          CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate, CostType."No.", BalCostType."No.");
+          CostJournalLine, CostJournalTemplate.Name, CostJournalBatch.Name, WorkDate(), CostType."No.", BalCostType."No.");
     end;
 
     local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
@@ -3287,7 +3287,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
             repeat
                 if CostType."No." = CostTypeNo2 then
                     exit(true);
-            until CostType.Next = 0;
+            until CostType.Next() = 0;
         exit(false);
     end;
 
@@ -3354,8 +3354,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         // Setup: Create a User setup with current USERID and creating a cost journal line.
         Initialize();
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup."Allow Posting From" := WorkDate;
-        UserSetup."Allow Posting To" := WorkDate;
+        UserSetup."Allow Posting From" := WorkDate();
+        UserSetup."Allow Posting To" := WorkDate();
         UserSetup.Modify();
         CreateCostJournalBatch(CostJournalBatch);
         LibraryCostAccounting.CreateCostJournalLine(CostJournalLine, CostJournalBatch."Journal Template Name", CostJournalBatch.Name);
@@ -3496,8 +3496,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         VerifyCommonFields(CostEntry, GLEntry, CostCenterCode, CostObjectCode);
 
         // Validate Second cost entry.
-        GLEntry.Next;
-        CostEntry.Next;
+        GLEntry.Next();
+        CostEntry.Next();
         VerifyCommonFields(CostEntry, GLEntry, CostCenterCode, CostObjectCode);
     end;
 
@@ -3530,7 +3530,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
             TypeFieldRef := RecordRef.Field(TypeFieldNo);
             Type := TypeFieldRef.Value;
             BlockedFieldRef.TestField(Type <> TypeValue);
-        until RecordRef.Next = 0;
+        until RecordRef.Next() = 0;
     end;
 
     local procedure VerifyChartOfCostCenterIndent(FromCostCenter: Code[20]; ToCostCenter: Code[20]; Totaling: Text[250])
@@ -3627,8 +3627,8 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostBudgetEntry.FindSet();
         repeat
             Amount += CostBudgetEntry.Amount;
-        until CostBudgetEntry.Next = 0;
-        Assert.AreEqual(0, Amount, StrSubstNo(ValuesAreWrong, CostBudgetEntry.TableCaption));
+        until CostBudgetEntry.Next() = 0;
+        Assert.AreEqual(0, Amount, StrSubstNo(ValuesAreWrong, CostBudgetEntry.TableCaption()));
     end;
 
     local procedure VerifyCostBudgetRegister(JournalBatchName: Code[10]; CostBudgetName: Code[10])
@@ -3669,7 +3669,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         CostJournalTemplate.FindFirst();
         CostJournalTemplate.TestField(Name, 'STANDARD');
         CostJournalTemplate.TestField(Description, 'Standard Template');
-        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, CostJournalTemplate.TableCaption));
+        Assert.IsTrue(JnlSelected, StrSubstNo(TemplateSelectionError, CostJournalTemplate.TableCaption()));
     end;
 
     local procedure VerifyIndentation(RecordRef: RecordRef; IndentationFieldNo: Integer; TypeFieldNo: Integer; FirstLevelIndentation: Integer; SecondLevelIndentation: Integer)
@@ -3703,7 +3703,7 @@ codeunit 134820 "ERM Cost Accounting - Codeunit"
         Assert.AreEqual(3, RecordRef.Count, ExpectedTotaling3);
         FieldRef.SetRange(Expected);
         Assert.AreEqual(1, RecordRef.Count, ExpectedTotaling1);
-        FieldRef.SetRange;
+        FieldRef.SetRange();
     end;
 
     local procedure VerifyAllocTargetShareWithMultipleLines("Count": Integer; ID: Code[10]; LineNo: Integer; ExpectedShare: Decimal)

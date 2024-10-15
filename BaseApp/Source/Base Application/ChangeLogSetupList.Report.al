@@ -12,7 +12,7 @@ report 508 "Change Log Setup List"
         {
             DataItemTableView = SORTING("Table No.");
             RequestFilterFields = "Table No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ChangeLogSetup__Change_Log_Activated_; Format(ChangeLogSetup."Change Log Activated"))

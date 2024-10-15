@@ -19,13 +19,13 @@ page 5331 "CRM Full Synch. Review"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name.';
                 }
-                field("Dependency Filter"; "Dependency Filter")
+                field("Dependency Filter"; Rec."Dependency Filter")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a dependency to the synchronization of another record, such as a customer that must be synchronized before a contact can be synchronized.';
                     Visible = false;
                 }
-                field("Job Queue Entry Status"; "Job Queue Entry Status")
+                field("Job Queue Entry Status"; Rec."Job Queue Entry Status")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = JobQueueEntryStatusStyle;
@@ -33,10 +33,10 @@ page 5331 "CRM Full Synch. Review"
 
                     trigger OnDrillDown()
                     begin
-                        ShowJobQueueLogEntry;
+                        ShowJobQueueLogEntry();
                     end;
                 }
-                field(ActiveSession; IsActiveSession)
+                field(ActiveSession; IsActiveSession())
                 {
                     ApplicationArea = Suite;
                     Caption = 'Active Session';
@@ -47,7 +47,7 @@ page 5331 "CRM Full Synch. Review"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the synchronization direction.';
                 }
-                field("To Int. Table Job Status"; "To Int. Table Job Status")
+                field("To Int. Table Job Status"; Rec."To Int. Table Job Status")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = ToIntTableJobStatusStyle;
@@ -58,7 +58,7 @@ page 5331 "CRM Full Synch. Review"
                         ShowSynchJobLog("To Int. Table Job ID");
                     end;
                 }
-                field("From Int. Table Job Status"; "From Int. Table Job Status")
+                field("From Int. Table Job Status"; Rec."From Int. Table Job Status")
                 {
                     ApplicationArea = Suite;
                     StyleExpr = FromIntTableJobStatusStyle;
@@ -108,10 +108,6 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Sync All';
                 Enabled = ActionStartEnabled;
                 Image = Start;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Start all the default integration jobs for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
 
                 trigger OnAction()
@@ -126,9 +122,9 @@ page 5331 "CRM Full Synch. Review"
                     if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
                         QuestionTxt := StartInitialSynchTeamOwnershipModelQst
                     else
-                        QuestionTxt := StrSubstNo(StartInitialSynchPersonOwnershipModelQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName());
+                        QuestionTxt := StrSubstNo(StartInitialSynchPersonOwnershipModelQst, PRODUCTNAME.Short(), CRMProductName.CDSServiceName());
                     if Confirm(QuestionTxt) then
-                        Start;
+                        Start();
                 end;
             }
             action(Restart)
@@ -137,10 +133,6 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Restart';
                 Enabled = ActionRestartEnabled;
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Restart the integration job for synchronizing Business Central record types and Dataverse entities, as defined on the Integration Table Mappings page.';
                 trigger OnAction()
                 begin
@@ -155,10 +147,6 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Reset';
                 Enabled = ActionResetEnabled;
                 Image = ResetStatus;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Removes all lines, readds all Integration Table Mappings and recalculates synchronization recommendations.';
                 trigger OnAction()
                 begin
@@ -174,10 +162,6 @@ page 5331 "CRM Full Synch. Review"
                 Caption = 'Recommend Full Synchronization';
                 Enabled = ActionRecommendFullSynchEnabled;
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Recommend full synchronization job for the selected line.';
 
                 trigger OnAction()
@@ -190,13 +174,33 @@ page 5331 "CRM Full Synch. Review"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Start_Promoted; Start)
+                {
+                }
+                actionref(Restart_Promoted; Restart)
+                {
+                }
+                actionref(Reset_Promoted; Reset)
+                {
+                }
+                actionref(ScheduleFullSynch_Promoted; ScheduleFullSynch)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        ActionStartEnabled := (not IsThereActiveSessionInProgress) and IsThereBlankStatusLine;
+        ActionStartEnabled := (not IsThereActiveSessionInProgress()) and IsThereBlankStatusLine();
         ActionResetEnabled := (not IsThereActiveSessionInProgress());
         ActionRestartEnabled := (not IsThereActiveSessionInProgress()) and (("Job Queue Entry Status" = "Job Queue Entry Status"::Error) or ("Job Queue Entry Status" = "Job Queue Entry Status"::Finished));
         ActionRecommendFullSynchEnabled := ActionResetEnabled and ("Initial Synch Recommendation" = "Initial Synch Recommendation"::"Couple Records");

@@ -61,7 +61,7 @@ page 1171 "User Task Card"
                             Users.SetRecord(User);
 
                         Users.LookupMode := true;
-                        if Users.RunModal = ACTION::LookupOK then begin
+                        if Users.RunModal() = ACTION::LookupOK then begin
                             Users.GetRecord(User);
                             Rec.Validate("Assigned To", User."User Security ID");
                             CurrPage.Update(true);
@@ -121,7 +121,7 @@ page 1171 "User Task Card"
                             Users.SetRecord(User);
 
                         Users.LookupMode := true;
-                        if Users.RunModal = ACTION::LookupOK then begin
+                        if Users.RunModal() = ACTION::LookupOK then begin
                             Users.GetRecord(User);
                             Rec.Validate("Completed By", User."User Security ID");
                             CurrPage.Update(true);
@@ -161,7 +161,7 @@ page 1171 "User Task Card"
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
-                    CaptionClass = GetObjectTypeCaption;
+                    CaptionClass = GetObjectTypeCaption();
                     Lookup = true;
                     ToolTip = 'Specifies the window that the task opens.';
 
@@ -172,14 +172,18 @@ page 1171 "User Task Card"
                     begin
                         // If object type is empty then show both pages / reports in lookup
                         AllObjWithCaption.FilterGroup(2);
-                        if Rec."Object Type" = 0 then begin
-                            AllObjWithCaption.SetFilter("Object Type", 'Page|Report');
-                            AllObjWithCaption.SetFilter("Object Subtype", '%1|%2', '', 'List');
-                        end else begin
-                            if Rec."Object Type" = AllObjWithCaption."Object Type"::Page then begin
-                                AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
-                                AllObjWithCaption.SetRange("Object Subtype", 'List');
-                            end else
+                        case Rec."Object Type" of
+                            0:
+                                begin
+                                    AllObjWithCaption.SetFilter("Object Type", 'Page|Report');
+                                    AllObjWithCaption.SetFilter("Object Subtype", '%1|%2', '', 'List');
+                                end;
+                            AllObjWithCaption."Object Type"::Page:
+                                begin
+                                    AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Page);
+                                    AllObjWithCaption.SetRange("Object Subtype", 'List');
+                                end;
+                            else
                                 AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::Report);
                         end;
                         AllObjWithCaption.FilterGroup(0);
@@ -188,7 +192,7 @@ page 1171 "User Task Card"
                         AllObjectsWithCaption.SetTableView(AllObjWithCaption);
 
                         AllObjectsWithCaption.LookupMode := true;
-                        if AllObjectsWithCaption.RunModal = ACTION::LookupOK then begin
+                        if AllObjectsWithCaption.RunModal() = ACTION::LookupOK then begin
                             AllObjectsWithCaption.GetRecord(AllObjWithCaption);
                             Rec."Object ID" := AllObjWithCaption."Object ID";
                             Rec."Object Type" := AllObjWithCaption."Object Type";
@@ -208,7 +212,7 @@ page 1171 "User Task Card"
                         end;
                     end;
                 }
-                field(ObjectName; DisplayObjectName)
+                field(ObjectName; DisplayObjectName())
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Resource Name';
@@ -228,8 +232,6 @@ page 1171 "User Task Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Go To Task Item';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the page or report that is associated with this task.';
 
                 trigger OnAction()
@@ -253,8 +255,6 @@ page 1171 "User Task Card"
                 Caption = 'Mark Completed';
                 Enabled = IsMarkCompleteEnabled;
                 Image = Completed;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Mark the task as completed.';
 
                 trigger OnAction()
@@ -269,8 +269,6 @@ page 1171 "User Task Card"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Recurrence';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Make this a recurring task.';
 
                 trigger OnAction()
@@ -280,6 +278,23 @@ page 1171 "User Task Card"
                     UserTaskRecurrence.SetInitialData(Rec);
                     UserTaskRecurrence.RunModal();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Go To Task Item_Promoted"; "Go To Task Item")
+                {
+                }
+                actionref("Mark Completed_Promoted"; "Mark Completed")
+                {
+                }
+                actionref(Recurrence_Promoted; Recurrence)
+                {
+                }
             }
         }
     }
@@ -300,11 +315,13 @@ page 1171 "User Task Card"
     end;
 
     var
-        MultiLineTextControl: Text;
         InvalidPageTypeErr: Label 'You must specify a list page.';
-        IsMarkCompleteEnabled: Boolean;
         PageTok: Label 'Page';
         ReportTok: Label 'Report';
+
+    protected var
+        MultiLineTextControl: Text;
+        IsMarkCompleteEnabled: Boolean;
 
     local procedure DisplayObjectName(): Text
     var

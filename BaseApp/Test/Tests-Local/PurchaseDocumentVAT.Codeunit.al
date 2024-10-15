@@ -632,7 +632,7 @@ codeunit 144541 "Purchase Document - VAT"
     [Scope('OnPrem')]
     procedure GetProposalEntriesRequestPageHandler(var GetProposalEntries: TestRequestPage "Get Proposal Entries")
     begin
-        GetProposalEntries.CurrencyDate.SetValue(CalcDate(StrSubstNo('<%1m>', LibraryRandom.RandInt(5)), WorkDate));
+        GetProposalEntries.CurrencyDate.SetValue(CalcDate(StrSubstNo('<%1m>', LibraryRandom.RandInt(5)), WorkDate()));
         GetProposalEntries.OK.Invoke;
     end;
 

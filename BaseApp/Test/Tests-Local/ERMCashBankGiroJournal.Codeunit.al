@@ -134,10 +134,10 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         OpenCashJournalPage(CashJournal, LibraryERM.CreateGLAccountNo);
 
         // Verify: Verify that Document Date field is autofilled with Work date.
-        CashJournal.Subform."Document Date".AssertEquals(WorkDate);
+        CashJournal.Subform."Document Date".AssertEquals(WorkDate());
 
         // Tear Down: Close Cash Journal Page.
-        CashJournal.Close;
+        CashJournal.Close();
     end;
 
     [Test]
@@ -152,17 +152,17 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Initialize();
         OpenCashJournalListPage;
         OpenCashJournalPage(CashJournal, LibraryERM.CreateGLAccountNo);
-        CashJournal.Subform.Next;  // Go to next line.
+        CashJournal.Subform.Next();  // Go to next line.
         FillValuesOnCashJournalLine(CashJournal, LibraryERM.CreateGLAccountNo);
 
         // Exercise: Fill Document Date on next line, take Date greater than work date.
-        CashJournal.Subform."Document Date".SetValue(CalcDate('<1D>', WorkDate));
+        CashJournal.Subform."Document Date".SetValue(CalcDate('<1D>', WorkDate()));
 
         // Verify: Verify that Document Date field contains correct value.
-        CashJournal.Subform."Document Date".AssertEquals(CalcDate('<1D>', WorkDate));
+        CashJournal.Subform."Document Date".AssertEquals(CalcDate('<1D>', WorkDate()));
 
         // Tear Down: Close Cash Journal.
-        CashJournal.Close;
+        CashJournal.Close();
     end;
 
     [Test]
@@ -220,7 +220,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           -Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AssertFailMsg, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption));
+          StrSubstNo(AssertFailMsg, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankAccountLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), Amount, BankAccountLedgerEntry.TableCaption));
+          StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), Amount, BankAccountLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -274,7 +274,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CashJournal.Subform.Credit.SetValue(LibraryRandom.RandDec(100, 2));  // Set Random Amount.
         Amount := CashJournal.Subform.Credit.AsDEcimal;
         VATAmount := Amount * VATPct / 100;
-        CashJournal.Subform.Next;
+        CashJournal.Subform.Next();
 
         // Exercise: Move cursor to first created line.
         CashJournal.Subform.Previous();
@@ -305,7 +305,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         VATAmount := Amount * VATPct / 100;
         OpenBankGiroJournalListPage(CreateBankAccount);
         OpenBankGiroJournalPage(BankGiroJournal, CBGStatementLine."Account Type"::"G/L Account", GLAccount."No.", Amount, false);
-        BankGiroJournal.Subform.Next;
+        BankGiroJournal.Subform.Next();
 
         // Exercise: Move cursor to first created line.
         BankGiroJournal.Subform.Previous();
@@ -322,7 +322,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     procedure DateChangeYesOnBankJournal()
     begin
         // [SCENARIO] Verify correct date updated on Bank Journal Line when Update Date confirmation is accepted.
-        DocumentDateOnBankGiroJournal(CalcDate('<1D>', WorkDate));
+        DocumentDateOnBankGiroJournal(CalcDate('<1D>', WorkDate()));
     end;
 
     [Test]
@@ -331,7 +331,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     procedure DateChangeNoOnBankJournal()
     begin
         // [SCENARIO] Verify correct date updated on Bank Journal Line when Update Date confirmation is not accepted.
-        DocumentDateOnBankGiroJournal(WorkDate);
+        DocumentDateOnBankGiroJournal(WorkDate());
     end;
 
     [Test]
@@ -559,7 +559,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankAccountNo := CreateAndPostGenJournalLineForBankAccountBalance;
         ProcessAndExportPaymentTelebank(VendorBankAccount, BankAccountNo);
         OpenBankGiroJournalListPage(VendorBankAccount."Bank Account No.");
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, VendorBankAccount."Bank Account No.", WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, VendorBankAccount."Bank Account No.", WorkDate());
 
         // Exercise.
         BankGiroJournal.Post.Invoke;
@@ -585,7 +585,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         PostedDocumentNo :=
-          CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", Customer."No.", WorkDate, '');
+          CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::"Credit Memo", Customer."No.", WorkDate(), '');
         CreateAndUpdateCBGStatementLine(CBGStatementLine, SalesLine, PostedDocumentNo);
         CBGStatement.Get(CBGStatementLine."Journal Template Name", CBGStatementLine."No.");
 
@@ -638,12 +638,12 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // Excercise.
         // Create and Post Sales Documents
         for Index := 1 to NotAppliedSalesDocCount do
-            CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate, '');
+            CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate(), '');
 
         // Create, Post and Apply Sales Documents
         for Index := 1 to AppliedSalesDocCount do begin
             PostedDocumentNo :=
-              CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate, '');
+              CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerNo, WorkDate(), '');
             CreateCBGLine(
               CBGStatementLine,
               CBGStatement,
@@ -770,7 +770,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [WHEN] Run Reconciliation.
         CBGStatementReconciliation(CBGStatement);
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
 
         // [THEN] CBG Statement Line has Reconciliation Status = Applied and "Applied-to DocNo." = "Y"."Document No.".
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
@@ -833,7 +833,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CompanyInformation.Get();
         AccountNumber := CompanyInformation.IBAN;
         CreateAndPostSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate, '');
+          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate(), '');
 
         // Add CBG Statement Line and CBG Statement Line Add. Info..
         CreateCBGStatement(CBGStatement);
@@ -844,7 +844,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementReconciliation(CBGStatement);
 
         // Verify: Verify Reconciliation Status is Unknown for last CBG Statement Line since system doesn't find any matched record.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         Assert.AreEqual(
           Format(CBGStatementLine."Reconciliation Status"::Unknown), Format(CBGStatementLine."Reconciliation Status"),
           CBGStatementLineUnknownErr);
@@ -866,7 +866,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Initialize();
         AccountNumber := 'FR1420041010050500013M' + Format(LibraryRandom.RandIntInRange(10, 99));
         CreateAndPostSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate, '');
+          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomerWithBankAccountIBAN(AccountNumber), WorkDate(), '');
 
         // Add CBG Statement Line and CBG Statement Line Add. Info..
         CreateCBGStatement(CBGStatement);
@@ -876,7 +876,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementReconciliation(CBGStatement);
 
         // Verify: Verify Reconciliation Status is Applied for CBG Statement Line.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         Assert.AreEqual(
           Format(CBGStatementLine."Reconciliation Status"::Applied), Format(CBGStatementLine."Reconciliation Status"),
           CBGStatementLineAppliedErr);
@@ -922,7 +922,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, GenJnlLine."Document No.");
         Assert.IsFalse(
           CustLedgerEntry.Open,
-          StrSubstNo(AssertFailMsg, CustLedgerEntry.FieldCaption(Open), Format(false), CustLedgerEntry.TableCaption));
+          StrSubstNo(AssertFailMsg, CustLedgerEntry.FieldCaption(Open), Format(false), CustLedgerEntry.TableCaption()));
     end;
 
     [Test]
@@ -988,7 +988,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         OpenBankGiroJournalListPage(BankAccountNo);
 
         // [WHEN] Insert Payment History in Bank Giro Journal
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
 
         // [THEN] Dimension Set ID in Bank Giro Journal Line = "X"
         VerifyDimSetIDOnCBGStatementLine(
@@ -1016,7 +1016,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         OpenBankGiroJournalListPage(BankAccountNo);
 
         // [WHEN] Insert Payment History in Bank Giro Journal
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
 
         // [THEN] Dimension Set ID in Bank Giro Journal Line = "X"
         VerifyDimSetIDOnCBGStatementLine(
@@ -1045,11 +1045,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PostPurchaseDocumentWithVendorBankAccount(VendorBankAccount, true, ExportProtocolCode, BankAccountNo, true);
         ExportPaymentTelebank(
           VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.",
-          CalcDate('<1M>', WorkDate), CalcDate('<1M>', WorkDate), ExportProtocolCode);
+          CalcDate('<1M>', WorkDate()), CalcDate('<1M>', WorkDate()), ExportProtocolCode);
 
         // [GIVEN] Bank Giro Journal with suggested Payment History Lines
         OpenBankGiroJournalListPage(BankAccountNo);
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
 
         // [WHEN] Bank Giro Journal posted
         BankGiroJournal.Post.Invoke;
@@ -1346,7 +1346,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [GIVEN] Create and Post General Journal Line with "Account Type" = Customer and "Posting Date" = 02-01-2020.
         CreateGeneralJournal(
           GenJournalLine, CreateCustomer, GenJournalLine."Account Type"::Customer, LibraryRandom.RandDecInRange(1, 100, 2));
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1375,7 +1375,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [GIVEN] Create and Post General Journal Line with "Account Type" = Vendor and "Posting Date" = 02-01-2020.
         CreateGeneralJournal(
           GenJournalLine, CreateVendor, GenJournalLine."Account Type"::Vendor, -LibraryRandom.RandDecInRange(1, 100, 2));
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1407,7 +1407,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
           LibraryHumanResource.CreateEmployeeNoWithBankAccount,
           GenJournalLine."Account Type"::Employee,
           LibraryRandom.RandDecInRange(1, 100, 2));
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1454,7 +1454,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
           SalesLine."Amount Including VAT");
 
         // [WHEN] Set Bank Giro Journal Line Date = 01-01-2020.
-        asserterror CBGStatementLine.Validate(Date, WorkDate - 1);
+        asserterror CBGStatementLine.Validate(Date, WorkDate() - 1);
 
         // [THEN] Bank Giro Journal Line Date cannot be earlier than Customer Ledger Entry Date.
         Assert.ExpectedError(EarlierPostingDateErr);
@@ -1494,7 +1494,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
           PurchaseLine."Amount Including VAT");
 
         // [WHEN] Set Bank Giro Journal Line Date = 01-01-2020.
-        asserterror CBGStatementLine.Validate(Date, WorkDate - 1);
+        asserterror CBGStatementLine.Validate(Date, WorkDate() - 1);
 
         // [THEN] Bank Giro Journal Line Date cannot be earlier than Vendor Ledger Entry Date.
         Assert.ExpectedError(EarlierPostingDateErr);
@@ -1587,7 +1587,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Export telebank proposal for 3 invoices
         ExportPaymentTelebankForSeveralAccounts(
-          VendorNo, BankAccountNo, CalcDate('<5M>', WorkDate), CalcDate('<5M>', WorkDate), ExportProtocolCode);
+          VendorNo, BankAccountNo, CalcDate('<5M>', WorkDate()), CalcDate('<5M>', WorkDate()), ExportProtocolCode);
 
         // [GIVEN] Posted payment for "V1" and "V3" invoice
         InvNo1 := CreatePostVendPaymentAppliedToEntry(VendorNo[1]);
@@ -1597,7 +1597,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         OpenBankGiroJournalListPage(BankAccountNo);
 
         // [GIVEN] Insert Payment History action generated 3 lines
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
         CBGStatementLine.SetFilter("Statement No.", BankAccountNo);
         Assert.RecordCount(CBGStatementLine, 3);
 
@@ -1610,7 +1610,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [THEN] Error messages window opened with description about invoices are not open for vendors "V1" and "V3".
         Assert.ExpectedMessage(InvNo1, ErrorMessages.Description.Value);
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         Assert.ExpectedMessage(InvNo3, ErrorMessages.Description.Value);
         Assert.IsFalse(ErrorMessages.Next, '');
     end;
@@ -1642,7 +1642,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Export telebank proposal for 3 invoices
         ExportPaymentTelebankForSeveralAccounts(
-          EmployeeNo, BankAccountNo, CalcDate('<5M>', WorkDate), CalcDate('<5M>', WorkDate), ExportProtocolCode);
+          EmployeeNo, BankAccountNo, CalcDate('<5M>', WorkDate()), CalcDate('<5M>', WorkDate()), ExportProtocolCode);
 
         // [GIVEN] Posted payment for "E1" and "E2" invoice
         InvNo1 := CreatePostEmployeePaymentAppliedToEntry(EmployeeNo[1]);
@@ -1652,7 +1652,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         OpenBankGiroJournalListPage(BankAccountNo);
 
         // [GIVEN] Insert Payment History action generated 3 lines
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
         CBGStatementLine.SetFilter("Statement No.", BankAccountNo);
         Assert.RecordCount(CBGStatementLine, 3);
 
@@ -1665,7 +1665,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [THEN] Error messages window opened with description about invoices are not open for employees "E1" and "E2".
         Assert.ExpectedMessage(InvNo1, ErrorMessages.Description.Value);
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         Assert.ExpectedMessage(InvNo2, ErrorMessages.Description.Value);
         Assert.IsFalse(ErrorMessages.Next, '');
     end;
@@ -1698,7 +1698,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Export telebank proposal for 3 invoices
         ExportPaymentTelebankForSeveralAccounts(
-          CustomerNo, BankAccountNo, CalcDate('<5M>', WorkDate), CalcDate('<5M>', WorkDate), ExportProtocolCode);
+          CustomerNo, BankAccountNo, CalcDate('<5M>', WorkDate()), CalcDate('<5M>', WorkDate()), ExportProtocolCode);
 
         // [GIVEN] Posted payment for "C2" and "C3" invoice
         InvNo2 := CreatePostCustPaymentAppliedToEntry(CustomerNo[2]);
@@ -1708,7 +1708,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         OpenBankGiroJournalListPage(BankAccountNo);
 
         // [GIVEN] Insert Payment History action generated 3 lines
-        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate);
+        OpenBankGiroJournalAndInvokeInsertPaymentHistory(BankGiroJournal, BankAccountNo, WorkDate());
         CBGStatementLine.SetFilter("Statement No.", BankAccountNo);
         Assert.RecordCount(CBGStatementLine, 3);
 
@@ -1721,7 +1721,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [THEN] Error messages window opened with description about invoices are not open for customers "C1" and "C2".
         Assert.ExpectedMessage(InvNo2, ErrorMessages.Description.Value);
-        ErrorMessages.Next;
+        ErrorMessages.Next();
         Assert.ExpectedMessage(InvNo3, ErrorMessages.Description.Value);
         Assert.IsFalse(ErrorMessages.Next, '');
     end;
@@ -1759,7 +1759,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementReconciliation(CBGStatement);
 
         // [THEN] Reconciliation status of CBG Statement Line is Applied.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
     end;
 
@@ -1796,7 +1796,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementReconciliation(CBGStatement);
 
         // [THEN] Reconciliation status of CBG Statement Line is Applied.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
     end;
 
@@ -1835,7 +1835,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementReconciliation(CBGStatement);
 
         // [THEN] Reconciliation status of CBG Statement Line is Applied.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
     end;
 
@@ -1874,7 +1874,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CBGStatementReconciliation(CBGStatement);
 
         // [THEN] Reconciliation status of CBG Statement Line is Applied.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         CBGStatementLine.TestField("Reconciliation Status", CBGStatementLine."Reconciliation Status"::Applied);
     end;
 
@@ -1940,13 +1940,13 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [GIVEN] Customer with Bank Account, Posted Sales Invoice for this Customer.
         InitCustomerForExport(CustomerBankAccount, ExportProtocolCode, BalAccountNo);
-        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate, '');
+        CreateAndPostSalesDocument(SalesLine, SalesLine."Document Type"::Invoice, CustomerBankAccount."Customer No.", WorkDate(), '');
         FindCustLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, CustomerBankAccount."Customer No.");
 
         // [GIVEN] History Line, created from Posted Invoice on Bank Account.
         ExportPaymentTelebank(
           CustomerBankAccount."Customer No.", CustomerBankAccount."Bank Account No.",
-          WorkDate, CalcDate('<1M>', WorkDate), ExportProtocolCode);
+          WorkDate, CalcDate('<1M>', WorkDate()), ExportProtocolCode);
         FindPaymentHistoryLine(
           PaymentHistoryLine, BalAccountNo, PaymentHistoryLine."Account Type"::Customer, CustomerBankAccount."Customer No.");
 
@@ -1999,13 +1999,13 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         InitVendorForExport(VendorBankAccount, ExportProtocolCode, BalAccountNo);
         CreateAndPostPurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, 1, LibraryRandom.RandDecInRange(100, 200, 2),
-          VendorBankAccount."Vendor No.", WorkDate, '');
+          VendorBankAccount."Vendor No.", WorkDate(), '');
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, VendorBankAccount."Vendor No.");
 
         // [GIVEN] History Line, created from Posted Invoice on Bank Account.
         ExportPaymentTelebank(
           VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.",
-          WorkDate, CalcDate('<1M>', WorkDate), ExportProtocolCode);
+          WorkDate, CalcDate('<1M>', WorkDate()), ExportProtocolCode);
         FindPaymentHistoryLine(
           PaymentHistoryLine, BalAccountNo, PaymentHistoryLine."Account Type"::Vendor, VendorBankAccount."Vendor No.");
 
@@ -2074,11 +2074,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
 
         // [WHEN] Insert CBG Statement Line with Date = 01.01
         InitializeCBGStatementLine(CBGStatementLine, CBGStatement."Journal Template Name", CBGStatement."No.");
-        CBGStatementLine.Validate(Date, WorkDate);
+        CBGStatementLine.Validate(Date, WorkDate());
         CBGStatementLine.Insert(true);
 
         // [THEN] Date on CBG Statement Line is 01.01
-        CBGStatementLine.TestField(Date, WorkDate);
+        CBGStatementLine.TestField(Date, WorkDate());
     end;
 
     [Test]
@@ -3425,7 +3425,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [WHEN] export report
         ExportPaymentTelebank(
           VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.",
-          CalcDate('<1M>', WorkDate), CalcDate('<1M>', WorkDate), ExportProtocolCode);
+          CalcDate('<1M>', WorkDate()), CalcDate('<1M>', WorkDate()), ExportProtocolCode);
 
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
         PaymentHistory.FindFirst();
@@ -3458,7 +3458,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // [WHEN] export report
         ExportPaymentTelebank(
           VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.",
-          CalcDate('<1M>', WorkDate), CalcDate('<1M>', WorkDate), ExportProtocolCode);
+          CalcDate('<1M>', WorkDate()), CalcDate('<1M>', WorkDate()), ExportProtocolCode);
 
         PaymentHistory.SetRange("Our Bank", BankAccountNo);
         PaymentHistory.FindFirst();
@@ -4020,7 +4020,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         // Verify: Verification Done in CashJournalPageHandler/ BankGiroJournalPageHandler.
 
         // Tear Down: Close General Journal Batches Page.
-        GeneralJournalBatches.Close;
+        GeneralJournalBatches.Close();
     end;
 
     local procedure DocumentDateOnBankGiroJournal(Date: Date)
@@ -4036,9 +4036,9 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         UpdateDocumentDateOnBankGiroJournal(CBGStatementLine."Statement No.");
 
         // Verify: Verify correct date updated on Bank Giro Journal Line.
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
         Assert.AreEqual(
-          Date, CBGStatementLine.Date, StrSubstNo(AssertFailMsg, CBGStatementLine.FieldCaption(Date), Date, CBGStatementLine.TableCaption));
+          Date, CBGStatementLine.Date, StrSubstNo(AssertFailMsg, CBGStatementLine.FieldCaption(Date), Date, CBGStatementLine.TableCaption()));
     end;
 
     local procedure ApplyAndPostBankGiroJournal(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; BankGiroJournalAccountType: Option;
@@ -4056,7 +4056,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         BankAccountNo := OpenBankGiroJournalListPage(CreateBankAccount);
         OpenBankGiroJournalPage(BankGiroJournal, BankGiroJournalAccountType, AccountNo, Amount2, Debit);
-        BankGiroJournal.Subform.Next;
+        BankGiroJournal.Subform.Next();
         BankGiroJournal.Subform.Previous();
 
         // Exercise: Apply Vendor Entries and Customer Entries as per the option selected.
@@ -4069,11 +4069,11 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         if Debit then
             Assert.AreNearlyEqual(
               -Amount2, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), -Amount2, BankAccountLedgerEntry.TableCaption))
+              StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), -Amount2, BankAccountLedgerEntry.TableCaption()))
         else
             Assert.AreNearlyEqual(
               Amount2, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-              StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), Amount2, BankAccountLedgerEntry.TableCaption));
+              StrSubstNo(AssertFailMsg, BankAccountLedgerEntry.FieldCaption(Amount), Amount2, BankAccountLedgerEntry.TableCaption()));
     end;
 
     local procedure CBGStatementLineApplyEntries(var CBGStatementLine: Record "CBG Statement Line"; AccountNo: Code[20]; DocNo: Code[20])
@@ -4176,14 +4176,14 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         end;
         CustomerBankAccount.Modify();
 
-        CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate, '');
+        CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, Customer."No.", WorkDate(), '');
 
         CreateCBGStatement(CBGStatement);
         AddCBGStatementLineAndCBGStatementLineAddInfo(CBGStatement, CBGStatementLine, 0, SalesLine."Amount Including VAT", AccountNumber);
 
         CBGStatementReconciliation(CBGStatement);
 
-        CBGStatementLine.Find;
+        CBGStatementLine.Find();
 
         // Verify
         Assert.AreEqual(
@@ -4193,7 +4193,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             AssertFailMsg,
             Format(CBGStatementLine."Reconciliation Status"),
             Format(CBGStatementLine."Reconciliation Status"::Applied),
-            CBGStatementLine.TableCaption))
+            CBGStatementLine.TableCaption()))
     end;
 
     local procedure AddCBGStatementLineAddInfo(CBGStatementLine: Record "CBG Statement Line"; var CBGStatementLineAddInfo: Record "CBG Statement Line Add. Info."; Comment: Text; Type: Enum "CBG Statement Information Type")
@@ -4203,7 +4203,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             "CBG Statement No." := CBGStatementLine."No.";
             "CBG Statement Line No." := CBGStatementLine."Line No.";
             "Line No." := "Line No." + 10000;
-            Init;
+            Init();
             Description := Comment;
             "Information Type" := Type;
             Insert(true);
@@ -4219,7 +4219,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         // This function is used to simulate Import Statement of RABO MUT.ASC protocol file
         with CBGStatementLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", JournalTemplateName);
             Validate("No.", No);
             RecRef.GetTable(CBGStatementLine);
@@ -4227,7 +4227,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             Insert(true);
             Validate("Statement Type", StatementType);
             Validate("Statement No.", StatementNo);
-            Validate(Date, WorkDate);
+            Validate(Date, WorkDate());
             Validate(Amount, CBGDebit - CBGCredit);
             Modify(true);
         end;
@@ -4251,7 +4251,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         Vendor.Get(VendorNo);
         PaymentTerms.Get(Vendor."Payment Terms Code");
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure ComputeCustPaymentDiscountDate(CustomerNo: Code[20]): Date
@@ -4261,7 +4261,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         Customer.Get(CustomerNo);
         PaymentTerms.Get(Customer."Payment Terms Code");
-        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+        exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure CreateCBGStatement(var CBGStatement: Record "CBG Statement")
@@ -4312,19 +4312,19 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         RecRef: RecordRef;
     begin
         with CBGStatementLine do begin
-            Init;
+            Init();
             "Journal Template Name" := CBGStatement."Journal Template Name";
             "No." := CBGStatement."No.";
             RecRef.GetTable(CBGStatementLine);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            Date := WorkDate;
+            Date := WorkDate();
             "Account Type" := AccountType;
             "Account No." := AccountNo;
             Description := "Account No.";
             "Applies-to Doc. Type" := ApplyToDocType;
             "Applies-to Doc. No." := ApplyToDocNo;
             Validate(Amount, PayAmount);
-            Insert;
+            Insert();
             exit("Line No.");
         end;
     end;
@@ -4520,7 +4520,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     local procedure CreateAndSetupGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateName: Code[10])
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, TemplateName);
-        GenJournalBatch.SetupNewBatch;
+        GenJournalBatch.SetupNewBatch();
     end;
 
     local procedure CreateAndUpdateExportProtocol(): Code[20]
@@ -4992,7 +4992,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             SetRange("Account Source", "Account Source"::"G/L Account");
             FindFirst();
             "Update on Posting" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -5225,7 +5225,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PostPurchaseDocumentWithVendorBankAccount(VendorBankAccount, true, ExportProtocolCode, BankAccountNo, false);
         PaymentDiscountDate := ComputePaymentDiscountDate(VendorBankAccount."Vendor No.");
         ExportPaymentTelebank(
-          VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.", WorkDate, PaymentDiscountDate, ExportProtocolCode);
+          VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.", WorkDate(), PaymentDiscountDate, ExportProtocolCode);
     end;
 
     local procedure ProcessAndExportPurchPaymentTelebankWithDim(var VendorBankAccount: Record "Vendor Bank Account"; var DimSetID: Integer; BankAccountNo: Code[20])
@@ -5237,7 +5237,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         CreateVendWithBankAccAndDim(VendorBankAccount, ExportProtocolCode, BankAccountNo);
         DimSetID := CreateAndPostPurchInvWithVendAndPurchaserDim(VendorBankAccount."Vendor No.");
         ExportPaymentTelebank(
-          VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.", WorkDate, WorkDate, ExportProtocolCode);
+          VendorBankAccount."Vendor No.", VendorBankAccount."Bank Account No.", WorkDate(), WorkDate, ExportProtocolCode);
     end;
 
     local procedure ProcessAndExportSalesPaymentTelebankWithDim(var CustomerBankAccount: Record "Customer Bank Account"; var DimSetID: Integer; BankAccountNo: Code[20])
@@ -5250,8 +5250,8 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         DimSetID := CreateAndPostSalesInvWithVendAndPurchaserDim(CustomerBankAccount."Customer No.");
         Commit();
         LibraryVariableStorage.Enqueue(CustomerBankAccount."Customer No.");  // Enqueue for GetSalesProposalEntriesRequestPageHandler.
-        LibraryVariableStorage.Enqueue(WorkDate);  // Enqueue for GetSalesProposalEntriesRequestPageHandler.
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());  // Enqueue for GetSalesProposalEntriesRequestPageHandler.
+        LibraryVariableStorage.Enqueue(WorkDate());
         HandleTelebankExport(CustomerBankAccount."Customer No.", BankAccountNo, ExportProtocolCode);
     end;
 
@@ -5330,7 +5330,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         BankGiroJournal.Subform."Account No.".SetValue(AccountNo);
         BankGiroJournal.Subform."Applies-to Doc. No.".Lookup;
         BankGiroJournal.Subform.Credit.SetValue(0);
-        BankGiroJournal.Subform.Next;
+        BankGiroJournal.Subform.Next();
         BankGiroJournal.Subform.Previous();
         BankGiroJournal.Subform.Credit.SetValue(Amount);
         BankGiroJournal.OK.Invoke;
@@ -5374,7 +5374,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         PaymentHistoryCard.FILTER.SetFilter("Export Protocol", ExportProtocol);
         Commit();  // Commit Required.
         PaymentHistoryCard.Export.Invoke;
-        PaymentHistoryCard.Close;
+        PaymentHistoryCard.Close();
     end;
 
     local procedure OpenGeneralJournalBatchesPage(GenJournalBatch: Record "Gen. Journal Batch"; var GeneralJournalBatches: TestPage "General Journal Batches")
@@ -5396,7 +5396,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         Quantity := LibraryRandom.RandDecInRange(10, 100, 2);  // Take Random Quantity.
         DirectUnitCost := LibraryRandom.RandDec(100, 2);  // Take Random Direct Unit Cost.
         CreateAndPostPurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::Invoice, Quantity, DirectUnitCost, VendorBankAccount."Vendor No.", WorkDate, '');
+          PurchaseLine, PurchaseHeader."Document Type"::Invoice, Quantity, DirectUnitCost, VendorBankAccount."Vendor No.", WorkDate(), '');
         CreateAndPostPurchaseDocument(
           PurchaseLine,
           PurchaseHeader."Document Type"::"Credit Memo",
@@ -5419,7 +5419,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
             VendorNo[i] := VendorBankAccount."Vendor No.";
             CreateAndPostPurchaseDocument(
               PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-              LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDec(100, 2), VendorNo[i], WorkDate, '');
+              LibraryRandom.RandDecInRange(10, 100, 2), LibraryRandom.RandDec(100, 2), VendorNo[i], WorkDate(), '');
         end;
     end;
 
@@ -5434,7 +5434,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         for i := 1 to ArrayLen(CustomerNo) do begin
             CreateCustomerBankAccountAndUpdateCustomer(CustomerBankAccount, ExportProtocol, OurBank, true);
             CustomerNo[i] := CustomerBankAccount."Customer No.";
-            CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, CustomerNo[i], WorkDate, '');
+            CreateAndPostSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, CustomerNo[i], WorkDate(), '');
         end;
     end;
 
@@ -5496,7 +5496,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Max. Payment Tolerance Amount", NewMaxPaymentToleranceAmt);
             Modify(true);
         end;
@@ -5525,8 +5525,8 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
     begin
         BankGiroJournal.OpenEdit;
         BankGiroJournal.FILTER.SetFilter("Account No.", AccountNo);
-        BankGiroJournal."Document Date".SetValue(CalcDate('<1D>', WorkDate));  // Update Date greater than Workdate.
-        BankGiroJournal.Close;
+        BankGiroJournal."Document Date".SetValue(CalcDate('<1D>', WorkDate()));  // Update Date greater than Workdate.
+        BankGiroJournal.Close();
     end;
 
     local procedure UpdateExchRate(CurrencyCode: Code[10]; multiplier: Decimal)
@@ -5641,7 +5641,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Payment, VendorNo);
         Assert.AreNearlyEqual(
           -PaymentAmount, VendorLedgerEntry."Original Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AssertFailMsg, VendorLedgerEntry.FieldCaption("Original Amount"), PaymentAmount, VendorLedgerEntry.TableCaption));
+          StrSubstNo(AssertFailMsg, VendorLedgerEntry.FieldCaption("Original Amount"), PaymentAmount, VendorLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyNumberOfRowsOnCBGReport(NotAppliedDocCount: Integer; AppliedDocCount: Integer)
@@ -5902,7 +5902,7 @@ codeunit 144009 "ERM Cash Bank Giro Journal"
         LibraryVariableStorage.Dequeue(CustomerNo);
         LibraryVariableStorage.Dequeue(CurrencyDate);
         LibraryVariableStorage.Dequeue(PmtDiscountDate);
-        GetProposalEntries.CurrencyDate.SetValue(WorkDate);
+        GetProposalEntries.CurrencyDate.SetValue(WorkDate());
         GetProposalEntries.PmtDiscountDate.SetValue(PmtDiscountDate);
         GetProposalEntries."Cust. Ledger Entry".SetFilter("Customer No.", CustomerNo);
         GetProposalEntries.OK.Invoke;

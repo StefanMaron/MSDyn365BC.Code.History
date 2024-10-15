@@ -95,7 +95,7 @@ table 5196 "To-do Interaction Language"
                 exit;
             RemoveAttachment(false);
             "Attachment No." := 0;
-            Modify;
+            Modify();
             Commit();
         end;
 
@@ -104,7 +104,7 @@ table 5196 "To-do Interaction Language"
             NewAttachNo := AttachmentManagement.InsertAttachment(TaskInteractionLanguage."Attachment No.");
             if NewAttachNo <> 0 then begin
                 "Attachment No." := NewAttachNo;
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -133,11 +133,11 @@ table 5196 "To-do Interaction Language"
                 Attachment.Get("Attachment No.");
             TempAttachment."No." := Attachment."No.";
             TempAttachment."Storage Pointer" := Attachment."Storage Pointer";
-            TempAttachment.WizSaveAttachment;
+            TempAttachment.WizSaveAttachment();
             MarketingSetup.Get();
             if MarketingSetup."Attachment Storage Type" = MarketingSetup."Attachment Storage Type"::"Disk File" then
                 if TempAttachment."No." <> 0 then begin
-                    FileName := TempAttachment.ConstDiskFileName;
+                    FileName := TempAttachment.ConstDiskFileName();
                     if FileName <> '' then
                         Attachment.ExportAttachmentToServerFile(FileName);
                 end;
@@ -148,7 +148,7 @@ table 5196 "To-do Interaction Language"
             Attachment."File Extension" := TempAttachment."File Extension";
             Attachment.Modify();
             "Attachment No." := Attachment."No.";
-            Modify;
+            Modify();
         end else
             Error(Text002);
     end;
@@ -171,7 +171,7 @@ table 5196 "To-do Interaction Language"
         if Attachment.Get("Attachment No.") then
             if Attachment.RemoveAttachment(Prompt) then begin
                 "Attachment No." := 0;
-                Modify;
+                Modify();
                 exit(true);
             end;
     end;

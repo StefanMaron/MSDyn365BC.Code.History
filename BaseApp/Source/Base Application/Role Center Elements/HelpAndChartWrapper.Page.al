@@ -10,7 +10,7 @@ page 1392 "Help And Chart Wrapper"
         {
             field("Status Text"; StatusText)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Status Text';
                 Editable = false;
                 ShowCaption = false;
@@ -20,7 +20,7 @@ page 1392 "Help And Chart Wrapper"
             }
             usercontrol(BusinessChart; "Microsoft.Dynamics.Nav.Client.BusinessChart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
 
                 trigger DataPointClicked(point: DotNet BusinessChartDataPoint)
                 begin
@@ -36,12 +36,12 @@ page 1392 "Help And Chart Wrapper"
                 begin
                     IsChartAddInReady := true;
                     ChartManagement.AddinReady(SelectedChartDefinition, BusinessChartBuffer);
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
 
                 trigger Refresh()
                 begin
-                    UpdateChart
+                    UpdateChart();
                 end;
             }
         }
@@ -53,7 +53,7 @@ page 1392 "Help And Chart Wrapper"
         {
             action("Select Chart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Select Chart';
                 Image = SelectChart;
                 ToolTip = 'Change the chart that is displayed. You can choose from several charts that show data for different performance indicators.';
@@ -61,12 +61,12 @@ page 1392 "Help And Chart Wrapper"
                 trigger OnAction()
                 begin
                     ChartManagement.SelectChart(BusinessChartBuffer, SelectedChartDefinition);
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
             action("Previous Chart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Previous Chart';
                 Image = PreviousSet;
                 ToolTip = 'View the previous chart.';
@@ -77,12 +77,12 @@ page 1392 "Help And Chart Wrapper"
                     if SelectedChartDefinition.Next(-1) = 0 then
                         if not SelectedChartDefinition.FindLast() then
                             exit;
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
             action("Next Chart")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next Chart';
                 Image = NextSet;
                 ToolTip = 'View the next chart.';
@@ -93,7 +93,7 @@ page 1392 "Help And Chart Wrapper"
                     if SelectedChartDefinition.Next() = 0 then
                         if not SelectedChartDefinition.FindFirst() then
                             exit;
-                    InitializeSelectedChart;
+                    InitializeSelectedChart();
                 end;
             }
             group(PeriodLength)
@@ -102,7 +102,7 @@ page 1392 "Help And Chart Wrapper"
                 Image = Period;
                 action(Day)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Day';
                     Image = DueDate;
                     ToolTip = 'Each stack covers one day.';
@@ -114,7 +114,7 @@ page 1392 "Help And Chart Wrapper"
                 }
                 action(Week)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Week';
                     Image = DateRange;
                     ToolTip = 'Each stack except for the last stack covers one week. The last stack contains data from the start of the week until the date that is defined by the Show option.';
@@ -126,7 +126,7 @@ page 1392 "Help And Chart Wrapper"
                 }
                 action(Month)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Month';
                     Image = DateRange;
                     ToolTip = 'Each stack except for the last stack covers one month. The last stack contains data from the start of the month until the date that is defined by the Show option.';
@@ -138,7 +138,7 @@ page 1392 "Help And Chart Wrapper"
                 }
                 action(Quarter)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Quarter';
                     Image = DateRange;
                     ToolTip = 'Each stack except for the last stack covers one quarter. The last stack contains data from the start of the quarter until the date that is defined by the Show option.';
@@ -150,7 +150,7 @@ page 1392 "Help And Chart Wrapper"
                 }
                 action(Year)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Year';
                     Image = DateRange;
                     ToolTip = 'Each stack except for the last stack covers one year. The last stack contains data from the start of the year until the date that is defined by the Show option.';
@@ -163,7 +163,7 @@ page 1392 "Help And Chart Wrapper"
             }
             action(PreviousPeriod)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Previous Period';
                 Enabled = PreviousNextActionEnabled;
                 Image = PreviousRecord;
@@ -177,7 +177,7 @@ page 1392 "Help And Chart Wrapper"
             }
             action(NextPeriod)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Next Period';
                 Enabled = PreviousNextActionEnabled;
                 Image = NextRecord;
@@ -191,7 +191,7 @@ page 1392 "Help And Chart Wrapper"
             }
             action(ChartInformation)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Chart Information';
                 Image = AboutNav;
                 ToolTip = 'View a description of the chart.';
@@ -217,11 +217,11 @@ page 1392 "Help And Chart Wrapper"
         LastUsedChart: Record "Last Used Chart";
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        IsSaaS := EnvironmentInfo.IsSaaS;
+        IsSaaS := EnvironmentInfo.IsSaaS();
         if LastUsedChart.Get(UserId) then
             if SelectedChartDefinition.Get(LastUsedChart."Code Unit ID", LastUsedChart."Chart Name") then;
 
-        InitializeSelectedChart;
+        InitializeSelectedChart();
     end;
 
     var
@@ -243,7 +243,7 @@ page 1392 "Help And Chart Wrapper"
         ChartManagement.UpdateChart(SelectedChartDefinition, BusinessChartBuffer, Period::" ");
         PreviousNextActionEnabled := ChartManagement.UpdateNextPrevious(SelectedChartDefinition);
         ChartManagement.UpdateStatusText(SelectedChartDefinition, BusinessChartBuffer, StatusText);
-        UpdateChart;
+        UpdateChart();
     end;
 
     local procedure SetPeriodAndUpdateChart(PeriodLength: Option)
@@ -251,7 +251,7 @@ page 1392 "Help And Chart Wrapper"
         ChartManagement.SetPeriodLength(SelectedChartDefinition, BusinessChartBuffer, PeriodLength, false);
         ChartManagement.UpdateChart(SelectedChartDefinition, BusinessChartBuffer, Period::" ");
         ChartManagement.UpdateStatusText(SelectedChartDefinition, BusinessChartBuffer, StatusText);
-        UpdateChart;
+        UpdateChart();
     end;
 
     local procedure UpdateChart()

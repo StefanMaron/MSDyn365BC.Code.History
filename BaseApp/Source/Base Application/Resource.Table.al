@@ -52,15 +52,6 @@ table 156 Resource
         field(6; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            var
-                PhoneNo: Text[30];
-                FaxNo: Text[30];
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(
-                  Address, "Address 2", "Post Code", City, "Country/Region Code", PhoneNo, FaxNo);
-            end;
         }
         field(7; "Address 2"; Text[50])
         {
@@ -82,8 +73,13 @@ table 156 Resource
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Social Security No."; Text[30])
@@ -461,8 +457,13 @@ table 156 Resource
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(54; County; Text[30])
@@ -505,6 +506,14 @@ table 156 Resource
             Caption = 'IC Partner Purch. G/L Acc. No.';
             TableRelation = "IC G/L Account";
         }
+        field(61; "Unit Group Exists"; Boolean)
+        {
+            CalcFormula = exist("Unit Group" where("Source Id" = field(SystemId),
+                                                "Source Type" = const(Resource)));
+            Caption = 'Unit Group Exists';
+            Editable = false;
+            FieldClass = FlowField;
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -544,7 +553,7 @@ table 156 Resource
             trigger OnValidate()
             begin
                 if "Use Time Sheet" <> xRec."Use Time Sheet" then
-                    if ExistUnprocessedTimeSheets then
+                    if ExistUnprocessedTimeSheets() then
                         Error(Text005, FieldCaption("Use Time Sheet"));
             end;
         }
@@ -557,7 +566,7 @@ table 156 Resource
             trigger OnValidate()
             begin
                 if "Time Sheet Owner User ID" <> xRec."Time Sheet Owner User ID" then
-                    if ExistUnprocessedTimeSheets then
+                    if ExistUnprocessedTimeSheets() then
                         Error(Text005, FieldCaption("Time Sheet Owner User ID"));
             end;
         }
@@ -577,7 +586,7 @@ table 156 Resource
                     exit;
 
                 if "Time Sheet Approver User ID" <> xRec."Time Sheet Approver User ID" then
-                    if ExistUnprocessedTimeSheets then
+                    if ExistUnprocessedTimeSheets() then
                         Error(Text005, FieldCaption("Time Sheet Approver User ID"));
             end;
         }
@@ -658,7 +667,7 @@ table 156 Resource
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        CheckJobPlanningLine;
+        CheckJobPlanningLine();
 
         MoveEntries.MoveResEntries(Rec);
 
@@ -703,8 +712,8 @@ table 156 Resource
         if PurchaseLine.FindFirst() then
             Error(DocumentExistsErr, "No.", PurchaseLine."Document Type");
 
-        if ExistUnprocessedTimeSheets then
-            Error(Text006, TableCaption, "No.");
+        if ExistUnprocessedTimeSheets() then
+            Error(Text006, TableCaption(), "No.");
 
         DimMgt.DeleteDefaultDim(DATABASE::Resource, "No.");
 
@@ -757,7 +766,6 @@ table 156 Resource
     end;
 
     var
-        Text001: Label 'Do you want to change %1?';
         ResSetup: Record "Resources Setup";
         Res: Record Resource;
         ResCapacityEntry: Record "Res. Capacity Entry";
@@ -774,11 +782,12 @@ table 156 Resource
         NoSeriesMgt: Codeunit NoSeriesManagement;
         MoveEntries: Codeunit MoveEntries;
         DimMgt: Codeunit DimensionManagement;
+
+        Text001: Label 'Do you want to change %1?';
         Text002: Label 'You cannot change %1 because there are ledger entries for this resource.';
         Text004: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         Text005: Label '%1 cannot be changed since unprocessed time sheet lines exist for this resource.';
         Text006: Label 'You cannot delete %1 %2 because unprocessed time sheet lines exist for this resource.', Comment = 'You cannot delete Resource LIFT since unprocessed time sheet lines exist for this resource.';
-        PostCodeMgt: Codeunit "Post Code Management";
         BaseUnitOfMeasureQtyMustBeOneErr: Label 'The quantity per base unit of measure must be 1. %1 is set up with %2 per unit of measure.', Comment = '%1 Name of Unit of measure (e.g. BOX, PCS, KG...), %2 Qty. of %1 per base unit of measure ';
         CannotDeleteResourceErr: Label 'You cannot delete resource %1 because it is used in one or more job planning lines.', Comment = '%1 = Resource No.';
         DocumentExistsErr: Label 'You cannot delete resource %1 because there are one or more outstanding %2 that include this resource.', Comment = '%1 = Resource No.';
@@ -786,7 +795,6 @@ table 156 Resource
         PrivacyBlockedErr: Label 'You cannot create this line because resource %1 is blocked due to privacy.', Comment = '%1=resource no.';
         ConfirmBlockedPrivacyBlockedQst: Label 'If you change the Blocked field, the Privacy Blocked field is changed to No. Do you want to continue?';
         CanNotChangeBlockedDueToPrivacyBlockedErr: Label 'The Blocked field cannot be changed because the user is blocked for privacy reasons.';
-        ResourceUnitGroupPrefixLbl: Label 'RESOURCE', Locked = true;
 
     procedure AssistEdit(OldRes: Record Resource) Result: Boolean
     var
@@ -835,7 +843,7 @@ table 156 Resource
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Resource, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -848,7 +856,7 @@ table 156 Resource
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Resource, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Resource, GetPosition())
         else
             Message(Text004);
     end;
@@ -896,7 +904,7 @@ table 156 Resource
     begin
         TestField("Use Time Sheet", true);
         Resource.Get("No.");
-        Resource.SetRecFilter;
+        Resource.SetRecFilter();
         REPORT.RunModal(REPORT::"Create Time Sheets", true, false, Resource);
     end;
 
@@ -905,7 +913,7 @@ table 156 Resource
         exit(StrSubstNo('''%1''', Code));
     end;
 
-    local procedure TestNoEntriesExist(CurrentFieldName: Text[100])
+    protected procedure TestNoEntriesExist(CurrentFieldName: Text[100])
     var
         ResLedgEntry: Record "Res. Ledger Entry";
     begin
@@ -937,29 +945,19 @@ table 156 Resource
     local procedure UpdateResourceUnitGroup()
     var
         UnitGroup: Record "Unit Group";
-        Modified: Boolean;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        if UnitGroup.Get(UnitGroup."Source Type"::Resource, Rec.SystemId) then begin
-            if UnitGroup."Code" <> ResourceUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR' then begin
-                UnitGroup."Code" := ResourceUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
-                Modified := true;
+        if CRMIntegrationManagement.IsIntegrationEnabled() then begin
+            UnitGroup.SetRange("Source Id", Rec.SystemId);
+            UnitGroup.SetRange("Source Type", UnitGroup."Source Type"::Resource);
+            if UnitGroup.IsEmpty() then begin
+                UnitGroup.Init();
+                UnitGroup."Source Id" := Rec.SystemId;
+                UnitGroup."Source No." := Rec."No.";
+                UnitGroup."Source Type" := UnitGroup."Source Type"::Resource;
+                UnitGroup.Insert();
             end;
-            if UnitGroup."Source Name" <> Rec.Name then begin
-                UnitGroup."Source Name" := Rec.Name;
-                Modified := true;
-            end;
-            if Modified then
-                UnitGroup.Modify();
-            exit;
-        end else begin
-            UnitGroup.Init();
-            UnitGroup."Source Id" := Rec.SystemId;
-            UnitGroup."Source No." := Rec."No.";
-            UnitGroup."Code" := ResourceUnitGroupPrefixLbl + ' ' + Rec."No." + ' ' + 'UOM GR';
-            UnitGroup."Source Name" := Rec.Name;
-            UnitGroup."Source Type" := UnitGroup."Source Type"::Resource;
-            UnitGroup.Insert();
-        end;
+        end
     end;
 
     local procedure DeleteResourceUnitGroup()
@@ -1002,6 +1000,16 @@ table 156 Resource
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateBaseUnitOfMeasure(var Resource: Record Resource; xResource: Record Resource; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Resource: Record Resource; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Resource: Record Resource; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

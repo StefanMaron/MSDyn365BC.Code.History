@@ -94,10 +94,10 @@ codeunit 134275 "Currency UT"
         // [WHEN] set "ISO Code" is 'ZZ', "ISO Numeric Code" is '999' on the page
         Currencies."ISO Code".SetValue('ZZZ');
         Currencies."ISO Numeric Code".SetValue('999');
-        Currencies.Close;
+        Currencies.Close();
 
         // [THEN] Country 'A', where "ISO Code" is 'ZZZ', "ISO Numeric Code" is '999'
-        Currency.Find;
+        Currency.Find();
         Currency.TestField("ISO Code", 'ZZZ');
         Currency.TestField("ISO Numeric Code", '999');
     end;
@@ -127,10 +127,10 @@ codeunit 134275 "Currency UT"
         // [WHEN] set "ISO Code" is 'ZZ', "ISO Numeric Code" is '999' on the page
         CurrencyCard."ISO Code".SetValue('ZZZ');
         CurrencyCard."ISO Numeric Code".SetValue('999');
-        CurrencyCard.Close;
+        CurrencyCard.Close();
 
         // [THEN] Country 'B', where "ISO Code" is 'ZZZ', "ISO Numeric Code" is '999'
-        Currency.Find;
+        Currency.Find();
         Currency.TestField("ISO Code", 'ZZZ');
         Currency.TestField("ISO Numeric Code", '999');
     end;

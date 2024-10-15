@@ -75,7 +75,7 @@ table 5510 "Employee Time Reg Buffer"
                 if not Employee.GetBySystemId(Rec."Employee Id") then
                     Error(CouldNotFindEmployeeErr);
 
-                GraphMgtTimeRegistration.InitUserSetup;
+                GraphMgtTimeRegistration.InitUserSetup();
                 if not Resource.Get(Employee."Resource No.") then begin
                     GraphMgtTimeRegistration.CreateResourceToUseTimeSheet(Resource);
                     Employee.Validate("Resource No.", Resource."No.");
@@ -241,9 +241,9 @@ table 5510 "Employee Time Reg Buffer"
                 Calendar.FindLast();
                 LastDate := Calendar."Period Start";
             end else
-                Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange));
-            if LastDate - FirstDate > MaxDateFilterRange then
-                Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange));
+                Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange()));
+            if LastDate - FirstDate > MaxDateFilterRange() then
+                Error(StrSubstNo(DateFilterIsInvalidErr, MaxDateFilterRange()));
             LoadRecordsFromTSDetails(DateFilter);
             exit;
         end;
@@ -271,7 +271,7 @@ table 5510 "Employee Time Reg Buffer"
 
         TimeSheetHeader.Get(TimeSheetDetail."Time Sheet No.");
         Employee.SetRange("Resource No.", TimeSheetHeader."Resource No.");
-        if not Employee.FindFirst or not Resource.Get(TimeSheetHeader."Resource No.") then
+        if not Employee.FindFirst() or not Resource.Get(TimeSheetHeader."Resource No.") then
             exit;
 
         TransferFields(TimeSheetDetail, true);
@@ -316,15 +316,14 @@ table 5510 "Employee Time Reg Buffer"
         repeat
             TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
             TimeSheetLine.SetRange(Type, TimeSheetLine.Type::Resource);
-            if TimeSheetLine.FindSet() then begin
+            if TimeSheetLine.FindSet() then
                 repeat
                     TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeader."No.");
                     TimeSheetDetail.SetRange("Time Sheet Line No.", TimeSheetLine."Line No.");
-                    if TimeSheetDetail.FindSet() then begin
+                    if TimeSheetDetail.FindSet() then
                         repeat
                             TransferFields(TimeSheetDetail, true);
                             Id := TimeSheetDetail.SystemId;
-
                             "Line No" := TimeSheetDetail."Time Sheet Line No.";
                             "Employee No" := Employee."No.";
                             "Employee Id" := Employee.SystemId;
@@ -332,12 +331,9 @@ table 5510 "Employee Time Reg Buffer"
                                 "Unit of Measure Id" := UnitOfMeasure.SystemId;
                                 "Unit of Measure Code" := UnitOfMeasure.Code;
                             end;
-
                             Insert(true);
                         until TimeSheetDetail.Next() = 0;
-                    end;
                 until TimeSheetLine.Next() = 0;
-            end;
         until TimeSheetHeader.Next() = 0;
     end;
 
@@ -360,6 +356,8 @@ table 5510 "Employee Time Reg Buffer"
         if not TimeSheetDetail.FindSet() then
             exit;
 
+        PrevResourceNo := '';
+        PrevTimeSheetHeaderNo := '';
         repeat
             TimeSheetLine.Get(TimeSheetDetail."Time Sheet No.", TimeSheetDetail."Time Sheet Line No.");
             if TimeSheetLine.Type = TimeSheetLine.Type::Resource then begin
@@ -378,7 +376,7 @@ table 5510 "Employee Time Reg Buffer"
                     if PrevResourceNo = TimeSheetHeader."Resource No." then
                         ResourceFound := true
                     else
-                        if Employee.FindFirst and Resource.Get(TimeSheetHeader."Resource No.") then begin
+                        if Employee.FindFirst() and Resource.Get(TimeSheetHeader."Resource No.") then begin
                             PrevResourceNo := TimeSheetHeader."Resource No.";
                             ResourceFound := true;
                             UnitOfMeasureFound := false;

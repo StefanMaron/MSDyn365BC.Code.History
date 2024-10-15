@@ -183,7 +183,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
             MaxStrLen(CustLedgerEntry.Description)),
           true,
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry"),
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -228,7 +228,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
             MaxStrLen(CustLedgerEntry.Description)),
           true,
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry"),
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -274,7 +274,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
             MaxStrLen(VendorLedgerEntry.Description)),
           true,
           LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("External Document No."), DATABASE::"Vendor Ledger Entry"),
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -319,7 +319,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
             MaxStrLen(VendorLedgerEntry.Description)),
           true,
           LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("External Document No."), DATABASE::"Vendor Ledger Entry"),
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -364,7 +364,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(EmployeeLedgerEntry.Description)), 1,
             MaxStrLen(EmployeeLedgerEntry.Description)),
           true,
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -408,7 +408,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(EmployeeLedgerEntry.Description)), 1,
             MaxStrLen(EmployeeLedgerEntry.Description)),
           true,
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -461,7 +461,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
             MaxStrLen(CustLedgerEntry.Description)),
           true,
           LibraryUtility.GenerateRandomCode(CustLedgerEntry.FieldNo("External Document No."), DATABASE::"Cust. Ledger Entry"),
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -514,7 +514,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
             MaxStrLen(VendorLedgerEntry.Description)),
           true,
           LibraryUtility.GenerateRandomCode(VendorLedgerEntry.FieldNo("External Document No."), DATABASE::"Vendor Ledger Entry"),
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -566,7 +566,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
           CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(EmployeeLedgerEntry.Description)), 1,
             MaxStrLen(EmployeeLedgerEntry.Description)),
           true,
-          CBGStatementLine."Applies-to ID", WorkDate);
+          CBGStatementLine."Applies-to ID", WorkDate());
 
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
 
@@ -721,7 +721,7 @@ codeunit 144010 "UT REP Cash Bank Giro"
         CBGStatement."No." := LibraryRandom.RandInt(10);
         CBGStatement."Account No." := CBGStatement."Journal Template Name";
         CBGStatement."Account Type" := CBGStatement."Account Type"::"Bank Account";
-        CBGStatement.Date := WorkDate;
+        CBGStatement.Date := WorkDate();
         CBGStatement.Type := Type;
         CBGStatement."Document No." := DocumentNo;
         CBGStatement.Currency := LibraryUTUtility.GetNewCode10;

@@ -522,7 +522,7 @@ report 5900 "Service Order"
                 trigger OnAfterGetRecord()
                 begin
                     if Number > 1 then begin
-                        CopyText := FormatDocument.GetCOPYText;
+                        CopyText := FormatDocument.GetCOPYText();
                         OutputNo += 1;
                     end;
                 end;
@@ -602,8 +602,6 @@ report 5900 "Service Order"
     end;
 
     var
-        Text001: Label 'Service Order %1';
-        Text002: Label 'Page %1';
         CompanyInfo: Record "Company Information";
         CompanyInfo1: Record "Company Information";
         CompanyInfo2: Record "Company Information";
@@ -633,6 +631,9 @@ report 5900 "Service Order"
         GrossAmt: Decimal;
         TotalAmt: Decimal;
         TotalGrossAmt: Decimal;
+
+        Text001: Label 'Service Order %1';
+        Text002: Label 'Page %1';
         ContractNoCaptionLbl: Label 'Contract No.';
         ServiceHeaderOrderDateCaptionLbl: Label 'Order Date';
         InvoicetoCaptionLbl: Label 'Invoice to';

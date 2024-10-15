@@ -30,7 +30,7 @@ codeunit 1518 "My Platform Notifications"
         TenantLicenseState: Codeunit "Tenant License State";
     begin
         case NotificationId of
-            GetWorkDateNotificationId:
+            GetWorkDateNotificationId():
                 begin
                     // work date notification should be disabled in evaluation mode by default unless changed by user later
                     if not MyNotifications.Get(UserId, NotificationId) and TenantLicenseState.IsEvaluationMode() then
@@ -44,7 +44,7 @@ codeunit 1518 "My Platform Notifications"
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
     local procedure OnInitializingNotificationWithDefaultState()
     begin
-        InsertDefaultNotification(GetWorkDateNotificationId, true);
+        InsertDefaultNotification(GetWorkDateNotificationId(), true);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"System Action Triggers", 'GetNotificationStatus', '', false, false)]

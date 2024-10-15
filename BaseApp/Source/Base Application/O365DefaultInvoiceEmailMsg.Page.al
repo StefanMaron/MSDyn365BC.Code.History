@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2170 "O365 Default Invoice Email Msg"
 {
     Caption = 'Default message for invoice';
@@ -8,6 +9,9 @@ page 2170 "O365 Default Invoice Email Msg"
     SourceTable = "O365 Default Email Message";
     SourceTableView = SORTING("Document Type")
                       WHERE("Document Type" = FILTER(Invoice));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,7 +19,7 @@ page 2170 "O365 Default Invoice Email Msg"
         {
             field(DefaultEmailMessage; EmailMessage)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Email message';
                 MultiLine = true;
                 ToolTip = 'Specifies your default email message when sending an invoice.';
@@ -44,4 +48,4 @@ page 2170 "O365 Default Invoice Email Msg"
     var
         EmailMessage: Text;
 }
-
+#endif

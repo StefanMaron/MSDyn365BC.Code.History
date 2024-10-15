@@ -40,7 +40,7 @@ codeunit 144544 "ERM G/L Account Where-Used NL"
 
         // [THEN] Transaction Mode is shown on "G/L Account Where-Used List"
         ValidateWhereUsedRecord(
-          TransactionMode.TableCaption,
+          TransactionMode.TableCaption(),
           TransactionMode.FieldCaption("Acc. No. Pmt./Rcpt. in Process"),
           StrSubstNo(
             '%1=%2, %3=%4',

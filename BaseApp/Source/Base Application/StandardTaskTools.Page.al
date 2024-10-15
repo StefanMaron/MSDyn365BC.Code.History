@@ -14,7 +14,7 @@ page 99000803 "Standard Task Tools"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';

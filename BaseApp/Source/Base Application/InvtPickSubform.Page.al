@@ -110,7 +110,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnValidate()
                     begin
-                        BinCodeOnAfterValidate;
+                        BinCodeOnAfterValidate();
                     end;
                 }
                 field("Shelf No."; Rec."Shelf No.")
@@ -137,7 +137,7 @@ page 7378 "Invt. Pick Subform"
 
                     trigger OnValidate()
                     begin
-                        QtytoHandleOnAfterValidate;
+                        QtytoHandleOnAfterValidate();
                     end;
                 }
                 field("Qty. Handled"; Rec."Qty. Handled")

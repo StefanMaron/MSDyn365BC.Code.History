@@ -75,14 +75,14 @@ codeunit 99000840 "Plng. Component-Reserve"
 
     procedure Caption(PlanningComponent: Record "Planning Component") CaptionText: Text
     begin
-        CaptionText := PlanningComponent.GetSourceCaption;
+        CaptionText := PlanningComponent.GetSourceCaption();
     end;
 
     procedure FindReservEntry(PlanningComponent: Record "Planning Component"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
         ReservEntry.InitSortingAndFilters(false);
         PlanningComponent.SetReservationFilters(ReservEntry);
-        exit(ReservEntry.FindLast);
+        exit(ReservEntry.FindLast());
     end;
 
     procedure VerifyChange(var NewPlanningComponent: Record "Planning Component"; var OldPlanningComponent: Record "Planning Component")
@@ -183,12 +183,12 @@ codeunit 99000840 "Plng. Component-Reserve"
                     exit;
             ReservMgt.SetReservSource(NewPlanningComponent);
             if "Qty. per Unit of Measure" <> OldPlanningComponent."Qty. per Unit of Measure" then
-                ReservMgt.ModifyUnitOfMeasure;
+                ReservMgt.ModifyUnitOfMeasure();
             if "Net Quantity (Base)" * OldPlanningComponent."Net Quantity (Base)" < 0 then
                 ReservMgt.DeleteReservEntries(true, 0)
             else
                 ReservMgt.DeleteReservEntries(false, "Net Quantity (Base)");
-            ReservMgt.ClearSurplus;
+            ReservMgt.ClearSurplus();
             ReservMgt.AutoTrack("Net Quantity (Base)");
             AssignForPlanning(NewPlanningComponent);
         end;
@@ -231,7 +231,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         NewReservEntry: Record "Reservation Entry";
         ReservStatus: Enum "Reservation Status";
     begin
-        OldReservEntry.Lock;
+        OldReservEntry.Lock();
 
         if TransferAll then begin
             OldReservEntry.FindSet();
@@ -364,7 +364,7 @@ codeunit 99000840 "Plng. Component-Reserve"
     begin
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(PlanningComponent);
-            PlanningComponent.Find;
+            PlanningComponent.Find();
             QtyPerUOM := PlanningComponent.GetReservationQty(QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase);
         end;
     end;
@@ -378,7 +378,7 @@ codeunit 99000840 "Plng. Component-Reserve"
 
         PlanningComponent.SetReservationEntry(ReservEntry);
 
-        CaptionText := PlanningComponent.GetSourceCaption;
+        CaptionText := PlanningComponent.GetSourceCaption();
     end;
 
     local procedure MatchThisEntry(EntryNo: Integer): Boolean
@@ -422,11 +422,10 @@ codeunit 99000840 "Plng. Component-Reserve"
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
     local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
-        if MatchThisEntry(FromEntrySummary."Entry No.") then begin
+        if MatchThisEntry(FromEntrySummary."Entry No.") then
             IsHandled :=
                 (FilterReservEntry."Source Type" = DATABASE::"Planning Component") and
                 (FilterReservEntry."Source Subtype" = 0);
-        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
@@ -478,7 +477,7 @@ codeunit 99000840 "Plng. Component-Reserve"
         if MatchThisTable(SourceRecRef.Number) then begin
             SourceRecRef.SetTable(PlanningComponent);
             PlanningComponent.SetReservationFilters(ReservEntry);
-            CaptionText := PlanningComponent.GetSourceCaption;
+            CaptionText := PlanningComponent.GetSourceCaption();
         end;
     end;
 

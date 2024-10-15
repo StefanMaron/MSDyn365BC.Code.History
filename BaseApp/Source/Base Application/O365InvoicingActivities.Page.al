@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 9077 "O365 Invoicing Activities"
 {
     Caption = 'Sales Activities';
@@ -5,6 +6,9 @@ page 9077 "O365 Invoicing Activities"
     PageType = CardPart;
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Cue";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -13,7 +17,7 @@ page 9077 "O365 Invoicing Activities"
             cuegroup(Invoiced)
             {
                 Caption = 'Invoiced';
-                field("Invoiced YTD"; "Invoiced YTD")
+                field("Invoiced YTD"; Rec."Invoiced YTD")
                 {
                     ApplicationArea = Invoicing;
                     AutoFormatExpression = CurrencyFormatTxt;
@@ -23,10 +27,10 @@ page 9077 "O365 Invoicing Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowYearlySalesOverview;
+                        ShowYearlySalesOverview();
                     end;
                 }
-                field("Invoiced CM"; "Invoiced CM")
+                field("Invoiced CM"; Rec."Invoiced CM")
                 {
                     ApplicationArea = Invoicing;
                     AutoFormatExpression = CurrencyFormatTxt;
@@ -36,14 +40,14 @@ page 9077 "O365 Invoicing Activities"
 
                     trigger OnDrillDown()
                     begin
-                        ShowMonthlySalesOverview;
+                        ShowMonthlySalesOverview();
                     end;
                 }
             }
             cuegroup(Payments)
             {
                 Caption = 'Payments';
-                field("Sales Invoices Outstanding"; "Sales Invoices Outstanding")
+                field("Sales Invoices Outstanding"; Rec."Sales Invoices Outstanding")
                 {
                     ApplicationArea = Invoicing;
                     AutoFormatExpression = CurrencyFormatTxt;
@@ -56,7 +60,7 @@ page 9077 "O365 Invoicing Activities"
                         ShowInvoices(false);
                     end;
                 }
-                field("Sales Invoices Overdue"; "Sales Invoices Overdue")
+                field("Sales Invoices Overdue"; Rec."Sales Invoices Overdue")
                 {
                     ApplicationArea = Invoicing;
                     AutoFormatExpression = CurrencyFormatTxt;
@@ -75,24 +79,24 @@ page 9077 "O365 Invoicing Activities"
                 Caption = 'Ongoing';
                 field(NoOfQuotes; "No. of Quotes")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Estimates';
                     ToolTip = 'Specifies the number of estimates.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowQuotes;
+                        ShowQuotes();
                     end;
                 }
                 field(NoOfDrafts; "No. of Draft Invoices")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Invoice Drafts';
                     ToolTip = 'Specifies the number of draft invoices.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowDraftInvoices;
+                        ShowDraftInvoices();
                     end;
                 }
             }
@@ -127,7 +131,7 @@ page 9077 "O365 Invoicing Activities"
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if EnvInfoProxy.IsInvoicing then
+        if EnvInfoProxy.IsInvoicing() then
             CODEUNIT.Run(CODEUNIT::"O365 Sales Initial Setup");
     end;
 
@@ -135,9 +139,9 @@ page 9077 "O365 Invoicing Activities"
     begin
         OnOpenActivitiesPage(CurrencyFormatTxt);
 
-        if PageNotifier.IsAvailable then begin
-            PageNotifier := PageNotifier.Create;
-            PageNotifier.NotifyPageReady;
+        if PageNotifier.IsAvailable() then begin
+            PageNotifier := PageNotifier.Create();
+            PageNotifier.NotifyPageReady();
         end;
     end;
 
@@ -171,4 +175,4 @@ page 9077 "O365 Invoicing Activities"
         CurrPage.SATAsyncLoader.SendRequest(CheckUrl, SatisfactionSurveyMgt.GetRequestTimeoutAsync());
     end;
 }
-
+#endif

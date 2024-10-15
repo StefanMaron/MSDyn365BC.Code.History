@@ -187,7 +187,7 @@ codeunit 144055 "UT TAB Telebank"
         GenJnlLine."Line No." := PaymentHistoryLine."Line No.";
 
         with PaymentExportBuffer do begin
-            Init;
+            Init();
             // Exercise.
             CollectDataFromLocalSource(GenJnlLine);
             // Verify.
@@ -224,14 +224,14 @@ codeunit 144055 "UT TAB Telebank"
             PaymentHistoryLine.Urgent := false;
             PaymentHistoryLine.Insert();
 
-            Init;
+            Init();
             CollectDataFromLocalSource(GenJnlLine);
             Assert.AreEqual('NORM', "SEPA Instruction Priority Text", FieldName("SEPA Instruction Priority Text"));
 
             PaymentHistoryLine.Urgent := true;
             PaymentHistoryLine.Modify();
 
-            Init;
+            Init();
             CollectDataFromLocalSource(GenJnlLine);
             Assert.AreEqual('HIGH', "SEPA Instruction Priority Text", FieldName("SEPA Instruction Priority Text"));
         end;
@@ -945,10 +945,10 @@ codeunit 144055 "UT TAB Telebank"
     local procedure MockExportProtocol(var ExportProtocol: Record "Export Protocol"; DefaultFileNames: Text[250])
     begin
         with ExportProtocol do begin
-            Init;
+            Init();
             Code := LibraryUTUtility.GetNewCode;
             "Default File Names" := DefaultFileNames;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -966,7 +966,7 @@ codeunit 144055 "UT TAB Telebank"
         repeat
             OtherTypeAllObj.SetFilter("Object Type", '<>%1', Type);
             OtherTypeAllObj.SetRange("Object ID", AllObj."Object ID");
-        until (AllObj.Next = 0) or OtherTypeAllObj.IsEmpty;
+        until (AllObj.Next() = 0) or OtherTypeAllObj.IsEmpty();
         exit(AllObj."Object ID");
     end;
 
@@ -977,7 +977,7 @@ codeunit 144055 "UT TAB Telebank"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
         with GenJournalLine do begin
-            Init;
+            Init();
             Validate("Posting Date", Today);
             Validate("Document Type", DocumentType);
             Validate("Account Type", AccountType);

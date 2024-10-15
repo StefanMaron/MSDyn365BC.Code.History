@@ -26,7 +26,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile: Text;
     begin
         ExcelFile := CreateExcelFile(TempWriteExcelBuffer, 'Sheet 1');
-        TempWriteExcelBuffer.CloseBook;
+        TempWriteExcelBuffer.CloseBook();
 
         Assert.IsTrue(Exists(ExcelFile), 'File ' + ExcelFile + ' not found');
 
@@ -45,9 +45,9 @@ codeunit 139011 "Excel Buffer Test"
     begin
         SheetName := 'Test Sheet 1';
         ExcelFile := CreateExcelFile(TempWriteExcelBuffer, SheetName);
-        TempWriteExcelBuffer.CloseBook;
+        TempWriteExcelBuffer.CloseBook();
         ReadSheet(TempReadExcelBuffer, ExcelFile, SheetName);
-        TempReadExcelBuffer.CloseBook;
+        TempReadExcelBuffer.CloseBook();
 
         Assert.IsTrue(TempReadExcelBuffer.IsEmpty, 'Default file is not empty');
 
@@ -96,7 +96,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile: Text;
     begin
         ExcelFile := CreateExcelFile(TempExcelBuffer, 'Sheet1');
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         asserterror TempExcelBuffer.OpenBook(ExcelFile, '');
 
         Clear(TempExcelBuffer);
@@ -112,7 +112,7 @@ codeunit 139011 "Excel Buffer Test"
         LastError: Text;
     begin
         ExcelFile := CreateExcelFile(TempExcelBuffer, 'Sheet1');
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         asserterror TempExcelBuffer.OpenBook(ExcelFile, 'Sheet2');
 
         LastError := GetLastErrorText;
@@ -131,7 +131,7 @@ codeunit 139011 "Excel Buffer Test"
         SheetName: Text;
     begin
         ExcelFile := CreateExcelFile(TempExcelBuffer, 'Sheet 1');
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         SheetName := TempExcelBuffer.SelectSheetsName(ExcelFile);
         Assert.AreEqual('Sheet 1', SheetName, 'Sheet name is not the expected one.');
 
@@ -150,7 +150,7 @@ codeunit 139011 "Excel Buffer Test"
     begin
         PopulateTableWithTextsAndInfo(TempExcelBuffer);
         ExcelFile := DumpDataToExcelFile(TempExcelBuffer, 'Sheet 1', '');
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         SheetName := TempExcelBuffer.SelectSheetsName(ExcelFile);
         Assert.AreNotEqual('Sheet 1', SheetName, 'Sheet name is not the expected one.');
 
@@ -183,7 +183,7 @@ codeunit 139011 "Excel Buffer Test"
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer1);
         TempExcelBuffer.SelectOrAddSheet('Sheet 3');
         TempExcelBuffer.WriteAllToCurrentSheet(TempExcelBuffer2);
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
 
         // Validate
         SheetName := TempExcelBuffer.SelectSheetsName(ExcelFile);
@@ -322,7 +322,7 @@ codeunit 139011 "Excel Buffer Test"
 
         TempUpdateExcelBuffer.UpdateBook(ExcelFile, SheetName);
         TempUpdateExcelBuffer.WriteSheet('', '', '');
-        TempUpdateExcelBuffer.CloseBook;
+        TempUpdateExcelBuffer.CloseBook();
 
         Clear(TempUpdateExcelBuffer);
         Clear(TempWriteExcelBuffer);
@@ -362,7 +362,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile: Text;
     begin
         ExcelFile := CreateExcelFile(TempExcelBuffer, 'Sheet1');
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         asserterror TempExcelBuffer.UpdateBook(ExcelFile, '');
         FileManagement.DeleteServerFile(ExcelFile);
     end;
@@ -376,7 +376,7 @@ codeunit 139011 "Excel Buffer Test"
         LastError: Text;
     begin
         ExcelFile := CreateExcelFile(TempExcelBuffer, 'Sheet1');
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         asserterror TempExcelBuffer.UpdateBook(ExcelFile, 'Sheet2');
 
         LastError := GetLastErrorText;
@@ -411,14 +411,14 @@ codeunit 139011 "Excel Buffer Test"
         TempExcelBuffer.DeleteAll();
         Clear(TempExcelBuffer);
         TempExcelBuffer.OpenBook(FileName, SheetNameTok);
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         TempExcelBuffer.SetRange("Row No.", 1);
         TempExcelBuffer.SetRange("Column No.", 1);
         TempExcelBuffer.FindFirst();
         Assert.AreEqual('New Value', TempExcelBuffer."Cell Value as Text", 'Excel file was not updated');
 
         // Tear Down
-        ExcelFile.Close;
+        ExcelFile.Close();
     end;
 
     [Test]
@@ -531,7 +531,7 @@ codeunit 139011 "Excel Buffer Test"
 
         // [GIVEN] Excel file contains cell with value = 'Some value'
         ExcelBuffer.DeleteAll();
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithTexts(ExcelBuffer, 1, 0);
         ExcelFile := DumpDataToExcelFile(ExcelBuffer, SheetNameTok, '');
 
@@ -543,7 +543,7 @@ codeunit 139011 "Excel Buffer Test"
         // [WHEN] Update the cell with value = '' (Invoke UpdateBookExcel with PreserveDataOnUpdate = FALSE)
         ExcelBuffer.UpdateBookExcel(ExcelFile, SheetNameTok, false);
         ExcelBuffer.WriteSheet('', '', '');
-        ExcelBuffer.CloseBook;
+        ExcelBuffer.CloseBook();
 
         // [THEN] Value of cell = ''
         ReadSheet(ExcelBuffer, ExcelFile, SheetNameTok);
@@ -563,7 +563,7 @@ codeunit 139011 "Excel Buffer Test"
 
         // [GIVEN] Excel file contains cell with value = 'Some value'
         ExcelBuffer.DeleteAll();
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithTexts(ExcelBuffer, 1, 0);
         ExcelFile := DumpDataToExcelFile(ExcelBuffer, SheetNameTok, '');
 
@@ -576,7 +576,7 @@ codeunit 139011 "Excel Buffer Test"
         // [WHEN] Update the cell with value = '' (Invoke UpdateBookExcel with PreserveDataOnUpdate = TRUE)
         ExcelBuffer.UpdateBookExcel(ExcelFile, SheetNameTok, true);
         ExcelBuffer.WriteSheet('', '', '');
-        ExcelBuffer.CloseBook;
+        ExcelBuffer.CloseBook();
 
         // [THEN] Value of cell = 'Some value'
         ReadSheet(ExcelBuffer, ExcelFile, SheetNameTok);
@@ -616,7 +616,7 @@ codeunit 139011 "Excel Buffer Test"
         WorkbookReader := WorkbookReader.Open(ExcelFilePath);
         WorksheetReader := WorkbookReader.GetWorksheetByName(SheetNameTok);
         // remove author information
-        WorksheetReader.Worksheet.WorksheetPart.WorksheetCommentsPart.Comments.FirstChild.Remove;
+        WorksheetReader.Worksheet.WorksheetPart.WorksheetCommentsPart.Comments.FirstChild.Remove();
 
         // [THEN] Worksheet/WorksheetPart/WorksheetCommentsPart/Comments/InnerText = "Hello Stan!"
         // OpenXml path: Worksheet/WorksheetPart/WorksheetCommentsPart/Comments/Comment[i]/CommentText/Run/SpreadsheetText/InnerText
@@ -625,7 +625,7 @@ codeunit 139011 "Excel Buffer Test"
           WorksheetReader.Worksheet.WorksheetPart.WorksheetCommentsPart.Comments.InnerText,
           '');
 
-        WorkbookReader.Close;
+        WorkbookReader.Close();
         FileManagement.DeleteServerFile(ExcelFilePath);
     end;
 
@@ -652,7 +652,7 @@ codeunit 139011 "Excel Buffer Test"
         TempValueNameBuffer.FindSet();
         Assert.AreEqual('Sheet1', TempValueNameBuffer.Value, 'First sheet name check failed');
         // [THEN] Second sheet name should be 'Sheet2'
-        TempValueNameBuffer.Next;
+        TempValueNameBuffer.Next();
         Assert.AreEqual('Sheet2', TempValueNameBuffer.Value, 'Second sheet name check failed');
     end;
 
@@ -703,13 +703,13 @@ codeunit 139011 "Excel Buffer Test"
         TempExcelBuffer.WriteSheet('', '', '');
         TempBlob.CreateOutStream(ExcelResultStream);
         // [WHEN] and saved to stream
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         TempExcelBuffer.SaveToStream(ExcelResultStream, true);
         // [WHEN] and then reopened again
         Clear(TempExcelBuffer);
         TempBlob.CreateInStream(ExcelFileStream);
         TempExcelBuffer.OpenBookStream(ExcelFileStream, 'Sheet1');
-        TempExcelBuffer.ReadSheet;
+        TempExcelBuffer.ReadSheet();
         // [THEN] Entries count should be 1
         Assert.AreEqual(1, TempExcelBuffer.Count, 'Sheet count check failed');
         // [THEN] First entry value should be 'Test'
@@ -780,7 +780,7 @@ codeunit 139011 "Excel Buffer Test"
         ExcelFile := CreateExcelFile(ExcelBuffer, SheetName);
         ExcelBuffer.SetUseInfoSheet;
         ExcelBuffer.WriteSheet('', '', UserID);
-        ExcelBuffer.CloseBook;
+        ExcelBuffer.CloseBook();
         exit(ExcelFile);
     end;
 
@@ -789,15 +789,15 @@ codeunit 139011 "Excel Buffer Test"
         Clear(ExcelBuffer);
         ExcelBuffer.DeleteAll();
 
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithNumbers(ExcelBuffer, 12, 0);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithNumbers(ExcelBuffer, 12, 2);
         PopulateRowWithNumbers(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
+        ExcelBuffer.NewRow();
         PopulateRowWithNumbers(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
     end;
 
     local procedure PopulateTableWithTexts(var ExcelBuffer: Record "Excel Buffer")
@@ -805,15 +805,15 @@ codeunit 139011 "Excel Buffer Test"
         Clear(ExcelBuffer);
         ExcelBuffer.DeleteAll();
 
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithTexts(ExcelBuffer, 12, 0);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithTexts(ExcelBuffer, 12, 2);
         PopulateRowWithTexts(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
+        ExcelBuffer.NewRow();
         PopulateRowWithTexts(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
     end;
 
     local procedure PopulateTableWithTextsAndInfo(var ExcelBuffer: Record "Excel Buffer")
@@ -821,11 +821,11 @@ codeunit 139011 "Excel Buffer Test"
         Clear(ExcelBuffer);
         ExcelBuffer.DeleteAll();
 
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithInfo(ExcelBuffer, 12);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithNumbers(ExcelBuffer, 12, 2);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
     end;
 
     local procedure PopulateTableWithDates(var ExcelBuffer: Record "Excel Buffer")
@@ -833,15 +833,15 @@ codeunit 139011 "Excel Buffer Test"
         Clear(ExcelBuffer);
         ExcelBuffer.DeleteAll();
 
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithDates(ExcelBuffer, 12, 0);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithDates(ExcelBuffer, 12, 2);
         PopulateRowWithDates(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
+        ExcelBuffer.NewRow();
         PopulateRowWithDates(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
     end;
 
     local procedure PopulateTableWithMixAndStyling(var ExcelBuffer: Record "Excel Buffer")
@@ -849,22 +849,22 @@ codeunit 139011 "Excel Buffer Test"
         Clear(ExcelBuffer);
         ExcelBuffer.DeleteAll();
 
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithMixAndStyling(ExcelBuffer, 12, 0);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         PopulateRowWithMixAndStyling(ExcelBuffer, 12, 2);
         PopulateRowWithMixAndStyling(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
+        ExcelBuffer.NewRow();
         PopulateRowWithMixAndStyling(ExcelBuffer, 12, 3);
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
     end;
 
     local procedure PopulateRowWithNumbers(var ExcelBuffer: Record "Excel Buffer"; MaxCellNo: Integer; SkipEvery: Integer)
     var
         i: Integer;
     begin
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         for i := 1 to MaxCellNo do
             if SkipEvery = 0 then
                 ExcelBuffer.AddColumn(10000.1234 + i, false, '', false, false, false, '', ExcelBuffer."Cell Type"::Number)
@@ -877,7 +877,7 @@ codeunit 139011 "Excel Buffer Test"
     var
         i: Integer;
     begin
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         for i := 1 to MaxCellNo do
             if SkipEvery = 0 then
                 ExcelBuffer.AddColumn('Text' + Format(i), false, '', false, false, false, '', ExcelBuffer."Cell Type"::Text)
@@ -890,7 +890,7 @@ codeunit 139011 "Excel Buffer Test"
     var
         i: Integer;
     begin
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         for i := 1 to MaxCellNo do
             ExcelBuffer.AddInfoColumn('Text' + Format(i), false, true, false, false, '', ExcelBuffer."Cell Type"::Text)
     end;
@@ -899,7 +899,7 @@ codeunit 139011 "Excel Buffer Test"
     var
         i: Integer;
     begin
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         for i := 1 to MaxCellNo do
             if SkipEvery = 0 then
                 ExcelBuffer.AddColumn(DMY2Date(24, 12, 1900 + i), false, '', false, false, false, '', ExcelBuffer."Cell Type"::Date)
@@ -915,7 +915,7 @@ codeunit 139011 "Excel Buffer Test"
         i: Integer;
     begin
         Assert.IsTrue(MaxCellNo <= 12, 'MaxCellNo should be less or equal to 12');
-        ExcelBuffer.NewRow;
+        ExcelBuffer.NewRow();
         NumberStyles[1] := '0';
         NumberStyles[2] := '0.00';
         NumberStyles[3] := '#,##0';
@@ -964,7 +964,7 @@ codeunit 139011 "Excel Buffer Test"
         Clear(ExcelBuffer);
         ExcelBuffer.DeleteAll();
         ExcelBuffer.OpenBook(ExcelFile, CopyStr(SheetName, 1, 250));
-        ExcelBuffer.ReadSheet;
+        ExcelBuffer.ReadSheet();
     end;
 
     local procedure ValidateExcelFile(var WriteExcelBuffer: Record "Excel Buffer"; ExcelFile: Text; SheetName: Text)
@@ -973,7 +973,7 @@ codeunit 139011 "Excel Buffer Test"
         ValueNumber: Decimal;
     begin
         ReadSheet(TempReadExcelBuffer, ExcelFile, SheetName);
-        TempReadExcelBuffer.CloseBook;
+        TempReadExcelBuffer.CloseBook();
 
         Assert.AreEqual(WriteExcelBuffer.Count, TempReadExcelBuffer.Count, 'Both tables should have the same count');
 
@@ -995,7 +995,7 @@ codeunit 139011 "Excel Buffer Test"
             Assert.AreEqual(
               GetCellNumberFormat(WriteExcelBuffer), TempReadExcelBuffer.NumberFormat, 'Both Tables should point to the same NumberFormat');
 
-        until (WriteExcelBuffer.Next = 0) and (TempReadExcelBuffer.Next = 0);
+        until (WriteExcelBuffer.Next() = 0) and (TempReadExcelBuffer.Next() = 0);
     end;
 
     local procedure GetCellNumberFormat(var ExcelBuffer: Record "Excel Buffer"): Text
@@ -1033,7 +1033,7 @@ codeunit 139011 "Excel Buffer Test"
     [Scope('OnPrem')]
     procedure SelectSheetMPH(var NameValueLookupPage: TestPage "Name/Value Lookup")
     begin
-        NameValueLookupPage.Next;
+        NameValueLookupPage.Next();
         NameValueLookupPage.OK.Invoke;
     end;
 

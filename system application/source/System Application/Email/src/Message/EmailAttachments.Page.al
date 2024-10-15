@@ -45,9 +45,6 @@ page 8889 "Email Attachments"
             action(Upload)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Image = Attach;
                 Caption = 'Add File';
                 ToolTip = 'Attach files, such as documents or images, to the email.';
@@ -66,9 +63,6 @@ page 8889 "Email Attachments"
             action(SourceAttachments)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Image = Attach;
                 Caption = 'Add File from Source';
                 ToolTip = 'Attach a file that was originally attached to the source document, such as a Customer Record, Sales Invoice, etc.';
@@ -87,9 +81,6 @@ page 8889 "Email Attachments"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Image = Word;
                 Caption = 'Add File from Word Template';
                 ToolTip = 'Create and Attach a document using a Word Template.';
@@ -108,9 +99,6 @@ page 8889 "Email Attachments"
             action(Delete)
             {
                 ApplicationArea = All;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Enabled = DeleteActionEnabled;
                 Image = Delete;
                 Caption = 'Delete';

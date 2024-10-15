@@ -95,18 +95,17 @@ codeunit 2003 "ML Prediction Management"
     var
         FeatureIndex: Integer;
     begin
-        if LastFeatureIndex >= MaxNoFeatures then
-            Error(TooManyFeaturesErr, MaxNoFeatures);
+        if LastFeatureIndex >= MaxNoFeatures() then
+            Error(TooManyFeaturesErr, MaxNoFeatures());
 
         if FeatureFieldNo = LabelNo then
             Error(LabelCannotBeFeatureErr);
 
         TestFieldNumber(FeatureFieldNo);
 
-        for FeatureIndex := 1 to LastFeatureIndex do begin
+        for FeatureIndex := 1 to LastFeatureIndex do
             if FeatureNumbers[FeatureIndex] = FeatureFieldNo then
                 Error(FeatureRepeatedErr);
-        end;
 
         LastFeatureIndex := LastFeatureIndex + 1;
         FeatureNumbers[LastFeatureIndex] := FeatureFieldNo;
@@ -157,12 +156,12 @@ codeunit 2003 "ML Prediction Management"
 
         InitializeAzureMLConnector();
 
-        TestFeatureLabelInitialized;
+        TestFeatureLabelInitialized();
         AzureMLConnector.AddParameter('method', 'train');
         AzureMLConnector.AddParameter('train_percent', Format(TrainingPercent, 0, 9));
-        CreateInput;
+        CreateInput();
         if not AzureMLConnector.SendToAzureMLInternal(UsingKeyvaultCredentials) then
-            Error(SomethingWentWrongErr, GetLastDetailedError);
+            Error(SomethingWentWrongErr, GetLastDetailedError());
 
         AzureMLConnector.GetOutput(1, 1, OutputValue);
         Model := OutputValue;
@@ -181,14 +180,14 @@ codeunit 2003 "ML Prediction Management"
 
         InitializeAzureMLConnector();
 
-        TestFeatureLabelInitialized;
+        TestFeatureLabelInitialized();
         AzureMLConnector.AddParameter('method', 'predict');
         AzureMLConnector.AddParameter('model', Model);
-        CreateInput;
+        CreateInput();
         if not AzureMLConnector.SendToAzureMLInternal(UsingKeyvaultCredentials) then
-            Error(SomethingWentWrongErr, GetLastDetailedError);
+            Error(SomethingWentWrongErr, GetLastDetailedError());
 
-        LoadPrediction;
+        LoadPrediction();
     end;
 
     procedure Evaluate(Model: Text; var Quality: Decimal)
@@ -203,12 +202,12 @@ codeunit 2003 "ML Prediction Management"
 
         InitializeAzureMLConnector();
 
-        TestFeatureLabelInitialized;
+        TestFeatureLabelInitialized();
         AzureMLConnector.AddParameter('method', 'evaluate');
         AzureMLConnector.AddParameter('model', Model);
-        if CreateInput then begin
+        if CreateInput() then begin
             if not AzureMLConnector.SendToAzureMLInternal(UsingKeyvaultCredentials) then
-                Error(SomethingWentWrongErr, GetLastDetailedError);
+                Error(SomethingWentWrongErr, GetLastDetailedError());
 
             AzureMLConnector.GetOutput(1, 1, OutputValue);
             SYSTEM.Evaluate(Quality, OutputValue, 9);
@@ -228,10 +227,10 @@ codeunit 2003 "ML Prediction Management"
         if Labels <> '' then
             AzureMLConnector.AddParameter('labels', StrSubstNo('"%1"', Labels));
 
-        CreateDummyInput;
+        CreateDummyInput();
 
         if not AzureMLConnector.SendToAzureMLInternal(UsingKeyvaultCredentials) then
-            Error(SomethingWentWrongErr, GetLastDetailedError);
+            Error(SomethingWentWrongErr, GetLastDetailedError());
 
         AzureMLConnector.GetOutput(1, 1, Result);
         exit(Result);
@@ -280,14 +279,13 @@ codeunit 2003 "ML Prediction Management"
         until RecRef.Next() = 0;
 
         MinLabelCountInitialized := false;
-        foreach Element in LabelDict.Values do begin
+        foreach Element in LabelDict.Values do
             if not MinLabelCountInitialized then begin
                 MinLabelCount := Element;
                 MinLabelCountInitialized := true;
             end else
                 if Element < MinLabelCount then
                     MinLabelCount := Element;
-        end;
 
         if MinLabelCount = TotalRecordCount then
             exit(false); // there is only one label in the dataset
@@ -309,7 +307,7 @@ codeunit 2003 "ML Prediction Management"
     var
         DataTypeManagement: Codeunit "Data Type Management";
     begin
-        TestFeatureLabelInitialized;
+        TestFeatureLabelInitialized();
         DataTypeManagement.GetRecordRef(RecordVar, RecRef);
 
         if not RecRef.FindSet() then
@@ -324,7 +322,7 @@ codeunit 2003 "ML Prediction Management"
     local procedure InitializeAzureMLConnector()
     begin
         if not AzureMLConnector.Initialize(ApiKey, ApiUri, ApiTimeout) then
-            Error(NotInitializedErr, GetLastDetailedError);
+            Error(NotInitializedErr, GetLastDetailedError());
     end;
 
     local procedure CreateLabelDictionary(var LabelDict: DotNet GenericDictionary2)
@@ -379,7 +377,7 @@ codeunit 2003 "ML Prediction Management"
         FieldRef: FieldRef;
         ColumnNo: Integer;
     begin
-        for ColumnNo := 1 to MaxNoFeatures do
+        for ColumnNo := 1 to MaxNoFeatures() do
             AzureMLConnector.AddInputColumnName(StrSubstNo('feature%1', ColumnNo));
         AzureMLConnector.AddInputColumnName('label');
 
@@ -388,21 +386,20 @@ codeunit 2003 "ML Prediction Management"
             exit(false);
 
         repeat
-            AzureMLConnector.AddInputRow;
-            for ColumnNo := 1 to MaxNoFeatures do begin
+            AzureMLConnector.AddInputRow();
+            for ColumnNo := 1 to MaxNoFeatures() do
                 if ColumnNo <= LastFeatureIndex then begin
                     FieldRef := RecRef.Field(FeatureNumbers[ColumnNo]);
                     if FieldRef.Class = FieldClass::FlowField then
-                        FieldRef.CalcField;
+                        FieldRef.CalcField();
                     AzureMLConnector.AddInputValue(Format(FieldRef.Value, 0, 9));
                     AzureMLConnector.AddParameter(StrSubstNo('featuretype%1', ColumnNo), Format(FieldRef.Type));
                 end else
                     AzureMLConnector.AddInputValue('');
-            end;
 
             FieldRef := RecRef.Field(LabelNo);
             if FieldRef.Class = FieldClass::FlowField then
-                FieldRef.CalcField;
+                FieldRef.CalcField();
             AzureMLConnector.AddInputValue(Format(FieldRef.Value, 0, 9));
             AzureMLConnector.AddParameter('labeltype', Format(FieldRef.Type));
         until RecRef.Next() = 0;
@@ -414,12 +411,12 @@ codeunit 2003 "ML Prediction Management"
     var
         ColumnNo: Integer;
     begin
-        for ColumnNo := 1 to MaxNoFeatures do
+        for ColumnNo := 1 to MaxNoFeatures() do
             AzureMLConnector.AddInputColumnName(StrSubstNo('feature%1', ColumnNo));
         AzureMLConnector.AddInputColumnName('label');
 
-        AzureMLConnector.AddInputRow;
-        for ColumnNo := 1 to MaxNoFeatures + 1 do
+        AzureMLConnector.AddInputRow();
+        for ColumnNo := 1 to MaxNoFeatures() + 1 do
             AzureMLConnector.AddInputValue('0');
     end;
 
@@ -475,7 +472,7 @@ codeunit 2003 "ML Prediction Management"
         OutputValue: Text;
     begin
         RowNumber := 1;
-        LabelColumnNumber := MaxNoFeatures + 1;
+        LabelColumnNumber := MaxNoFeatures() + 1;
         ConfidenceColumnNumber := LabelColumnNumber + 1;
         DataTypeManagement.GetRecordRef(RecordVar, RecRef);
         if RecRef.FindSet() then

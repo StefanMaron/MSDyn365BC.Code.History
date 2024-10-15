@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2190 "O365 Invoicing Sales Doc. List"
 {
     Caption = 'Invoices';
@@ -5,11 +6,13 @@ page 2190 "O365 Invoicing Sales Doc. List"
     Editable = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Invoice';
     RefreshOnActivate = true;
     SourceTable = "O365 Sales Document";
     SourceTableTemporary = true;
     SourceTableView = SORTING("Sell-to Customer Name");
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,31 +21,31 @@ page 2190 "O365 Invoicing Sales Doc. List"
             repeater(Control2)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the name of the customer.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                 }
-                field("Total Invoiced Amount"; "Total Invoiced Amount")
+                field("Total Invoiced Amount"; Rec."Total Invoiced Amount")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Style = Ambiguous;
                     StyleExpr = NOT Posted;
                     ToolTip = 'Specifies the total invoiced amount.';
                 }
-                field("Outstanding Status"; "Outstanding Status")
+                field("Outstanding Status"; Rec."Outstanding Status")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     StyleExpr = OutStandingStatusStyle;
                     ToolTip = 'Specifies the outstanding amount, meaning the amount not paid.';
                 }
@@ -56,7 +59,7 @@ page 2190 "O365 Invoicing Sales Doc. List"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -66,8 +69,19 @@ page 2190 "O365 Invoicing Sales Doc. List"
 
                 trigger OnAction()
                 begin
-                    OpenDocument;
+                    OpenDocument();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Invoice', Comment = 'Generated from the PromotedActionCategories property index 3.';
             }
         }
     }
@@ -75,7 +89,7 @@ page 2190 "O365 Invoicing Sales Doc. List"
     trigger OnAfterGetRecord()
     begin
         OutStandingStatusStyle := '';
-        if IsOverduePostedInvoice then
+        if IsOverduePostedInvoice() then
             OutStandingStatusStyle := 'Unfavorable'
         else
             if Posted and not Canceled and ("Outstanding Amount" <= 0) then
@@ -89,7 +103,7 @@ page 2190 "O365 Invoicing Sales Doc. List"
 
     trigger OnInit()
     begin
-        SetSortByDocDate;
+        SetSortByDocDate();
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
@@ -100,4 +114,5 @@ page 2190 "O365 Invoicing Sales Doc. List"
     var
         OutStandingStatusStyle: Text[30];
 }
+#endif
 

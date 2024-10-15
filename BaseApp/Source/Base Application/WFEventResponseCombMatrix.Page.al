@@ -163,12 +163,12 @@ page 1543 "WF Event/Response Comb. Matrix"
 
     trigger OnAfterGetCurrRecord()
     begin
-        PopulateMatrix;
+        PopulateMatrix();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        PopulateMatrix;
+        PopulateMatrix();
     end;
 
     trigger OnOpenPage()
@@ -214,7 +214,7 @@ page 1543 "WF Event/Response Comb. Matrix"
 
         MATRIX_ColumnCount := ColumnSetLength;
 
-        ShowHideColumns;
+        ShowHideColumns();
     end;
 
     procedure ShowHideColumns()
@@ -243,7 +243,7 @@ page 1543 "WF Event/Response Comb. Matrix"
             WorkflowResponse.SetRange(Description, MATRIX_Caption[i]);
             if WorkflowResponse.FindFirst() then
                 if WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse."Function Name",
-                     WFEventResponseCombination."Predecessor Type"::"Event", "Function Name") or (not WorkflowResponse.HasPredecessors)
+                     WFEventResponseCombination."Predecessor Type"::"Event", "Function Name") or (not WorkflowResponse.HasPredecessors())
                 then
                     MATRIX_CellData[i] := true
                 else
@@ -261,10 +261,10 @@ page 1543 "WF Event/Response Comb. Matrix"
 
         if MATRIX_CellData[ColumnNo] then begin
             WorkflowResponseHandling.AddResponsePredecessor(WorkflowResponse."Function Name", "Function Name");
-            WorkflowResponse.MakeIndependent;
+            WorkflowResponse.MakeIndependent();
         end else begin
-            if not WorkflowResponse.HasPredecessors then
-                WorkflowResponse.MakeDependentOnAllEvents;
+            if not WorkflowResponse.HasPredecessors() then
+                WorkflowResponse.MakeDependentOnAllEvents();
 
             if WFEventResponseCombination.Get(WFEventResponseCombination.Type::Response, WorkflowResponse."Function Name",
                  WFEventResponseCombination."Predecessor Type"::"Event", "Function Name")

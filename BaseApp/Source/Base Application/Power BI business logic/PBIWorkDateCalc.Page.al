@@ -30,7 +30,7 @@ page 6313 "PBI WorkDate Calc."
     var
         LogInManagement: Codeunit LogInManagement;
     begin
-        WorkDateNAV := LogInManagement.GetDefaultWorkDate;
+        WorkDateNAV := LogInManagement.GetDefaultWorkDate();
     end;
 
     var

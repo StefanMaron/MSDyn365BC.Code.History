@@ -72,31 +72,13 @@ table 5540 "Timeline Event"
     {
     }
 
-    [Scope('OnPrem')]
-    procedure TransferToTransactionTable(var TimelineEvent: Record "Timeline Event"; var transactionTable: DotNet DataModel_TransactionDataTable)
-    var
-        transactionRow: DotNet DataModel_TransactionRow;
-    begin
-        transactionTable := transactionTable.TransactionDataTable;
-        TimelineEvent.Reset();
-        if TimelineEvent.Find('-') then
-            repeat
-                transactionRow := transactionTable.NewRow;
-                transactionRow.RefNo := Format(TimelineEvent.ID);
-                transactionRow.ChangeRefNo := TimelineEvent.ChangeRefNo;
-                transactionRow.TransactionType := TimelineEvent."Transaction Type";
-                transactionRow.Description := TimelineEvent.Description;
-                transactionRow.OriginalDate := CreateDateTime(TimelineEvent."Original Date", DefaultTime);
-                transactionRow.NewDate := CreateDateTime(TimelineEvent."New Date", DefaultTime);
-                transactionRow.OriginalQuantity := TimelineEvent."Original Quantity";
-                transactionRow.NewQuantity := TimelineEvent."New Quantity";
-                transactionTable.Rows.Add(transactionRow);
-            until (TimelineEvent.Next() = 0);
-    end;
 
+#if not CLEAN21
+    [Obsolete('This procedure is discontinued because the TimelineVisualizer control has been deprecated.', '21.0')]
     procedure DefaultTime(): Time
     begin
         exit(0T);
     end;
+#endif    
 }
 

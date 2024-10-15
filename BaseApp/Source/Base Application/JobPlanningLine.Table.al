@@ -1,4 +1,4 @@
-﻿table 1003 "Job Planning Line"
+table 1003 "Job Planning Line"
 {
     Caption = 'Job Planning Line';
     DrillDownPageID = "Job Planning Lines";
@@ -82,11 +82,11 @@
             begin
                 ValidateModification(xRec."No." <> "No.");
 
-                CheckUsageLinkRelations;
+                CheckUsageLinkRelations();
 
                 UpdateReservation(FieldNo("No."));
 
-                UpdateDescription;
+                UpdateDescription();
 
                 if ("No." = '') or ("No." <> xRec."No.") then begin
                     "Unit of Measure Code" := '';
@@ -95,7 +95,7 @@
                     "Work Type Code" := '';
                     "Gen. Bus. Posting Group" := '';
                     "Gen. Prod. Posting Group" := '';
-                    DeleteAmounts;
+                    DeleteAmounts();
                     "Cost Factor" := 0;
                     if Type = Type::Item then begin
                         "Bin Code" := '';
@@ -106,7 +106,7 @@
                         exit;
                 end;
 
-                GetJob;
+                GetJob();
                 "Customer Price Group" := Job."Customer Price Group";
                 "Price Calculation Method" := Job.GetPriceCalculationMethod();
                 "Cost Calculation Method" := Job.GetCostCalculationMethod();
@@ -175,8 +175,8 @@
 
                 UpdateRemainingQuantity();
 
-                UpdateQtyToTransfer;
-                UpdateQtyToInvoice;
+                UpdateQtyToTransfer();
+                UpdateQtyToInvoice();
 
                 CheckItemAvailable(FieldNo(Quantity));
                 UpdateReservation(FieldNo(Quantity));
@@ -214,7 +214,7 @@
                    Item.Get("No.") and
                    (Item."Costing Method" = Item."Costing Method"::Standard)
                 then
-                    UpdateAllAmounts
+                    UpdateAllAmounts()
                 else begin
                     InitRoundingPrecisions();
                     "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
@@ -609,7 +609,7 @@
                     "Schedule Line" := false;
 
                 if not "Contract Line" and (("Qty. Transferred to Invoice" <> 0) or ("Qty. Invoiced" <> 0)) then
-                    Error(LineTypeErr, TableCaption, FieldCaption("Line Type"), "Line Type");
+                    Error(LineTypeErr, TableCaption(), FieldCaption("Line Type"), "Line Type");
 
                 ControlUsageLink();
             end;
@@ -755,7 +755,7 @@
             trigger OnValidate()
             begin
                 if "Usage Link" and ("Line Type" = "Line Type"::Billable) then
-                    Error(UsageLinkErr, FieldCaption("Usage Link"), TableCaption, FieldCaption("Line Type"), "Line Type");
+                    Error(UsageLinkErr, FieldCaption("Usage Link"), TableCaption(), FieldCaption("Line Type"), "Line Type");
 
                 ControlUsageLink();
 
@@ -888,14 +888,13 @@
                            ("Qty. to Transfer to Invoice" < 0)
                         then
                             Error(QtyToTransferToInvoiceErr, FieldCaption("Qty. to Transfer to Invoice"), 0, Quantity - "Qty. Transferred to Invoice");
-                    end else begin
+                    end else
                         if ("Qty. to Transfer to Invoice" > 0) or
                            ("Qty. to Transfer to Invoice" < 0) and ("Qty. to Transfer to Invoice" < (Quantity - "Qty. Transferred to Invoice"))
                         then
                             Error(QtyToTransferToInvoiceErr, FieldCaption("Qty. to Transfer to Invoice"), Quantity - "Qty. Transferred to Invoice", 0);
-                    end;
                 end else
-                    Error(NoContractLineErr, FieldCaption("Qty. to Transfer to Invoice"), TableCaption, "Line Type");
+                    Error(NoContractLineErr, FieldCaption("Qty. to Transfer to Invoice"), TableCaption(), "Line Type");
             end;
         }
         field(1090; "Qty. Invoiced"; Decimal)
@@ -948,7 +947,7 @@
             trigger OnValidate()
             begin
                 TestField("Qty. per Unit of Measure");
-                UpdatePlanned;
+                UpdatePlanned();
             end;
         }
         field(1102; Reserve; Enum "Reserve Method")
@@ -968,7 +967,7 @@
                     TestField("Reserved Qty. (Base)", 0);
 
                 if xRec.Reserve = Reserve::Always then begin
-                    GetItem;
+                    GetItem();
                     if Item.Reserve = Item.Reserve::Always then
                         TestField(Reserve, Reserve::Always);
                 end;
@@ -1276,7 +1275,7 @@
         JobUsageLink: Record "Job Usage Link";
     begin
         ValidateModification(true);
-        CheckRelatedJobPlanningLineInvoice;
+        CheckRelatedJobPlanningLineInvoice();
 
         if "Usage Link" then begin
             JobUsageLink.SetRange("Job No.", "Job No.");
@@ -1306,12 +1305,12 @@
     trigger OnInsert()
     begin
         LockTable();
-        GetJob;
+        GetJob();
         if Job.Blocked = Job.Blocked::All then
-            Job.TestBlocked;
+            Job.TestBlocked();
         JobTask.Get("Job No.", "Job Task No.");
         JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
-        InitJobPlanningLine;
+        InitJobPlanningLine();
         if Quantity <> 0 then
             UpdateReservation(0);
 
@@ -1396,6 +1395,16 @@
         AmountRoundingPrecisionFCY: Decimal;
         NotPossibleJobPlanningLineErr: Label 'It is not possible to deleted job planning line transferred to an invoice.';
 
+    internal procedure OpenItemTrackingLines()
+    begin
+        JobPlanningLineReserve.CallItemTracking(Rec);
+    end;
+
+    internal procedure IsInbound(): Boolean
+    begin
+        exit("Quantity (Base)" < 0);
+    end;
+
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     begin
         if CurrFieldNo <> CalledByFieldNo then
@@ -1477,7 +1486,7 @@
 
     local procedure CopyFromItem()
     begin
-        GetItem;
+        GetItem();
         Item.TestField(Blocked, false);
         Item.TestField("Gen. Prod. Posting Group");
         Description := Item.Description;
@@ -1497,7 +1506,7 @@
     local procedure CopyFromGLAccount()
     begin
         GLAcc.Get("No.");
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         GLAcc.TestField("Direct Posting", true);
         GLAcc.TestField("Gen. Prod. Posting Group");
         Description := GLAcc.Name;
@@ -1560,7 +1569,7 @@
     begin
         if "Currency Code" <> '' then begin
             if "Currency Date" = 0D then
-                CurrencyDate := WorkDate
+                CurrencyDate := WorkDate()
             else
                 CurrencyDate := "Currency Date";
             OnUpdateCurrencyFactorOnBeforeGetExchangeRate(Rec, CurrExchRate);
@@ -1611,7 +1620,7 @@
            (UnitAmountRoundingPrecisionFCY = 0)
         then begin
             Clear(Currency);
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
             AmountRoundingPrecision := Currency."Amount Rounding Precision";
             UnitAmountRoundingPrecision := Currency."Unit-Amount Rounding Precision";
 
@@ -1648,7 +1657,7 @@
         "Document No." := LastJobPlanningLine."Document No.";
         Type := LastJobPlanningLine.Type;
         Validate("Line Type", LastJobPlanningLine."Line Type");
-        GetJob;
+        GetJob();
         "Currency Code" := Job."Currency Code";
         UpdateCurrencyFactor();
         if LastJobPlanningLine."Planning Date" <> 0D then
@@ -1663,16 +1672,16 @@
     var
         JobJnlManagement: Codeunit JobJnlManagement;
     begin
-        GetJob;
+        GetJob();
         if "Planning Date" = 0D then
-            Validate("Planning Date", WorkDate);
+            Validate("Planning Date", WorkDate());
         "Currency Code" := Job."Currency Code";
         UpdateCurrencyFactor();
         "VAT Unit Price" := 0;
         "VAT Line Discount Amount" := 0;
         "VAT Line Amount" := 0;
         "VAT %" := 0;
-        "Job Contract Entry No." := JobJnlManagement.GetNextEntryNo;
+        "Job Contract Entry No." := JobJnlManagement.GetNextEntryNo();
         "User ID" := UserId;
         "Last Date Modified" := 0D;
         Status := Job.Status;
@@ -1735,7 +1744,7 @@
 
     local procedure GetItemTranslation()
     begin
-        GetJob;
+        GetJob();
         if ItemTranslation.Get("No.", "Variant Code", Job."Language Code") then begin
             Description := ItemTranslation.Description;
             "Description 2" := ItemTranslation."Description 2";
@@ -1811,13 +1820,13 @@
 
         InitRoundingPrecisions();
 
-        UpdateUnitCost;
+        UpdateUnitCost();
         FindPriceAndDiscount(CurrFieldNo);
-        UpdateTotalCost;
-        HandleCostFactor;
-        UpdateUnitPrice;
-        UpdateTotalPrice;
-        UpdateAmountsAndDiscounts;
+        UpdateTotalCost();
+        HandleCostFactor();
+        UpdateUnitPrice();
+        UpdateTotalPrice();
+        UpdateAmountsAndDiscounts();
         UpdateRemainingCostsAndAmounts("Currency Date", "Currency Factor");
 
         OnAfterUpdateAllAmounts(Rec, xRec);
@@ -1833,11 +1842,11 @@
         if IsHandled then
             exit;
 
-        GetJob;
+        GetJob();
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then
                 if RetrieveCostPrice(CurrFieldNo) then begin
-                    if GetSKU then
+                    if GetSKU() then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
@@ -1846,7 +1855,7 @@
                     RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)")
             else
                 if RetrieveCostPrice(CurrFieldNo) then begin
-                    if GetSKU then
+                    if GetSKU() then
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
                         RetrievedCost := Item."Unit Cost" * "Qty. per Unit of Measure";
@@ -1858,7 +1867,7 @@
             RecalculateAmounts(Job."Exch. Calculation (Cost)", xRec."Unit Cost", "Unit Cost", "Unit Cost (LCY)");
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost");
     begin
@@ -1920,14 +1929,14 @@
     end;
 
     local procedure IsQuantityChangedForPrice(): Boolean;
-#if not CLEAN19
+#if not CLEAN21
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
 #endif
     begin
         if Quantity = xRec.Quantity then
             exit(false);
-#if not CLEAN19
+#if not CLEAN21
         exit(PriceCalculationMgt.IsExtendedPriceCalculationEnabled());
 #else
         exit(true);
@@ -2011,7 +2020,7 @@
 
     local procedure UpdateUnitPrice()
     begin
-        GetJob;
+        GetJob();
         RecalculateAmounts(Job."Exch. Calculation (Price)", xRec."Unit Price", "Unit Price", "Unit Price (LCY)");
     end;
 
@@ -2125,7 +2134,7 @@
             // Update Quantity to Post
             Validate("Qty. to Transfer to Journal", "Remaining Qty.");
         end else
-            ClearValues;
+            ClearValues();
 
         OnUseOnBeforeModify(Rec, xRec);
         Modify(true);
@@ -2164,7 +2173,7 @@
                 ConvertAmountToLCY(
                     PostingDate, "Remaining Line Amount", CurrencyFactor, AmountRoundingPrecision);
         end else
-            ClearValues;
+            ClearValues();
     end;
 
     local procedure UpdateRemainingQuantity()
@@ -2244,7 +2253,7 @@
         JobUsageLink: Record "Job Usage Link";
         IsHandled: Boolean;
     begin
-        GetJob;
+        GetJob();
 
         IsHandled := false;
         OnControlUsageLinkOnAfterGetJob(Rec, Job, CurrFieldNo, IsHandled);
@@ -2256,23 +2265,22 @@
                 "Usage Link" := true
             else
                 "Usage Link" := false;
-        end else begin
+        end else
             if not "Schedule Line" then
                 "Usage Link" := false;
-        end;
 
         JobUsageLink.SetRange("Job No.", "Job No.");
         JobUsageLink.SetRange("Job Task No.", "Job Task No.");
         JobUsageLink.SetRange("Line No.", "Line No.");
-        if not JobUsageLink.IsEmpty and not "Usage Link" then
-            Error(ControlUsageLinkErr, TableCaption, FieldCaption("Schedule Line"), FieldCaption("Usage Link"));
+        if not JobUsageLink.IsEmpty() and not "Usage Link" then
+            Error(ControlUsageLinkErr, TableCaption(), FieldCaption("Schedule Line"), FieldCaption("Usage Link"));
 
         Validate("Remaining Qty.", Quantity - "Qty. Posted");
         Validate("Qty. to Transfer to Journal", Quantity - "Qty. Posted");
         UpdateRemainingCostsAndAmounts("Currency Date", "Currency Factor");
 
-        UpdateQtyToTransfer;
-        UpdateQtyToInvoice;
+        UpdateQtyToTransfer();
+        UpdateQtyToInvoice();
     end;
 
     local procedure CalcLineAmount(Qty: Decimal): Decimal
@@ -2286,7 +2294,7 @@
 
     procedure Overdue(): Boolean
     begin
-        if ("Planning Date" < WorkDate) and ("Remaining Qty." > 0) then
+        if ("Planning Date" < WorkDate()) and ("Remaining Qty." > 0) then
             exit(true);
         exit(false);
     end;
@@ -2320,7 +2328,7 @@
                 JobPlanningLineReserve.VerifyQuantity(Rec, xRec);
             FieldNo("Usage Link"):
                 if (Type = Type::Item) and "Usage Link" then begin
-                    GetItem;
+                    GetItem();
                     if Item.Reserve = Item.Reserve::Optional then begin
                         GetJob();
                         Reserve := Job.Reserve
@@ -2386,15 +2394,15 @@
             TestField("Planning Date");
             ReservMgt.SetReservSource(Rec);
             ReservMgt.AutoReserve(FullAutoReservation, '', "Planning Date", QtyToReserve, QtyToReserveBase);
-            Find;
+            Find();
             if not FullAutoReservation then begin
                 Commit();
                 if Confirm(AutoReserveQst, true) then begin
                     ShowReservation();
-                    Find;
+                    Find();
                 end;
             end;
-            UpdatePlanned;
+            UpdatePlanned();
         end;
     end;
 
@@ -2423,7 +2431,7 @@
 
     procedure FilterLinesWithItemToPlan(var Item: Record Item)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(Status, Type, "No.", "Variant Code", "Location Code", "Planning Date");
         SetRange(Status, Status::Order);
         SetRange(Type, Type::Item);
@@ -2451,7 +2459,7 @@
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; NewStatus: Option; AvailabilityFilter: Text; Positive: Boolean)
     begin
-        Reset;
+        Reset();
         SetCurrentKey(Status, Type, "No.", "Variant Code", "Location Code", "Planning Date");
         SetRange(Status, NewStatus);
         SetRange(Type, Type::Item);
@@ -2492,8 +2500,16 @@
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(
-          ItemTrackingMgt.ComposeRowID(DATABASE::"Job Planning Line", Status.AsInteger(),
+          ItemTrackingMgt.ComposeRowID(Database::"Job Planning Line", Status.AsInteger(),
             "Job No.", '', 0, "Job Contract Entry No."));
+    end;
+
+    internal procedure RowID2(): Text[250]
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+    begin
+        exit(
+          ItemTrackingMgt.ComposeRowID(Database::Job, 0, "Job No.", '', 0, "Job Contract Entry No."));
     end;
 
     procedure UpdatePlanned(): Boolean
@@ -2565,8 +2581,8 @@
         ToJobPlanningLine.TransferFields(FromJobPlanningLine);
         ToJobPlanningLine."Line No." := GetNextJobLineNo(FromJobPlanningLine);
         ToJobPlanningLine.Validate("Line Type", "Line Type"::Billable);
-        ToJobPlanningLine.ClearValues;
-        ToJobPlanningLine."Job Contract Entry No." := JobJnlManagement.GetNextEntryNo;
+        ToJobPlanningLine.ClearValues();
+        ToJobPlanningLine."Job Contract Entry No." := JobJnlManagement.GetNextEntryNo();
         if ToJobPlanningLine.Type <> ToJobPlanningLine.Type::Text then begin
             ToJobPlanningLine.Validate(Quantity, NewQuantity);
             ToJobPlanningLine.Validate("Currency Code", FromJobPlanningLine."Currency Code");
@@ -2596,8 +2612,8 @@
             exit(false);
         if "No." = '' then
             exit(false);
-        GetItem;
-        exit(Item.IsNonInventoriableType);
+        GetItem();
+        exit(Item.IsNonInventoriableType());
     end;
 
     procedure ConvertToJobLineType() JobLineType: Enum "Job Line Type"
@@ -2720,6 +2736,13 @@
                 exit(true);
     end;
 
+    procedure TestStatusOpen()
+    begin
+        TestField(Status, Status::Order);
+        GetJob();
+        Job.TestField(Status, Job.Status::Open);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var JobPlanningLine: Record "Job Planning Line"; Job: Record Job; Item: Record Item)
     begin
@@ -2800,7 +2823,7 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobPlanningLine: Record "Job Planning Line"; var ResourceCost: Record "Resource Cost")

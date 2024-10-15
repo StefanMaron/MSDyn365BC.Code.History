@@ -5,7 +5,6 @@ page 5351 "CRM Sales Quote List"
     Editable = false;
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Dynamics 365 Sales';
     SourceTable = "CRM Quote";
     SourceTableView = WHERE(StateCode = FILTER(Active | Won));
     UsageCategory = Lists;
@@ -76,8 +75,6 @@ page 5351 "CRM Sales Quote List"
                     ApplicationArea = Suite;
                     Caption = 'Quote';
                     Image = CoupledQuote;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Open the selected Dynamics 365 Sales quote.';
 
                     trigger OnAction()
@@ -98,8 +95,6 @@ page 5351 "CRM Sales Quote List"
                     Caption = 'Process in Business Central';
                     Enabled = HasRecords and CRMIntegrationEnabled;
                     Image = New;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Create a sales quote in Business Central for the quote entity in Dynamics 365 Sales.';
 
                     trigger OnAction()
@@ -133,8 +128,6 @@ page 5351 "CRM Sales Quote List"
                     Caption = 'Hide Coupled Quotes';
                     Enabled = HasRecords;
                     Image = FilterLines;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Do not show coupled quotes.';
 
                     trigger OnAction()
@@ -148,14 +141,41 @@ page 5351 "CRM Sales Quote List"
                     Caption = 'Show Coupled Quotes';
                     Enabled = HasRecords;
                     Image = ClearFilter;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Show coupled quotes.';
 
                     trigger OnAction()
                     begin
                         MarkedOnly(false);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ProcesseInNAV_Promoted; ProcesseInNAV)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Dynamics 365 Sales', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(CRMGoToQuote_Promoted; CRMGoToQuote)
+                {
                 }
             }
         }

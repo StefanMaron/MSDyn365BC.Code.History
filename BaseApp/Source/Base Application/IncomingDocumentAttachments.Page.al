@@ -22,10 +22,10 @@ page 194 "Incoming Document Attachments"
 
                     trigger OnDrillDown()
                     begin
-                        NameDrillDown;
+                        NameDrillDown();
                     end;
                 }
-                field("File Extension"; "File Extension")
+                field("File Extension"; Rec."File Extension")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -37,14 +37,14 @@ page 194 "Incoming Document Attachments"
                     Editable = false;
                     ToolTip = 'Specifies the type of the attached file.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies when the incoming document line was created.';
                     Visible = false;
                 }
-                field("Created By User Name"; "Created By User Name")
+                field("Created By User Name"; Rec."Created By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the user who created the incoming document line.';
@@ -69,7 +69,7 @@ page 194 "Incoming Document Attachments"
 
                 trigger OnAction()
                 begin
-                    NameDrillDown;
+                    NameDrillDown();
                 end;
             }
         }
@@ -77,7 +77,7 @@ page 194 "Incoming Document Attachments"
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := GetStyleTxt;
+        StyleTxt := GetStyleTxt();
     end;
 
     var

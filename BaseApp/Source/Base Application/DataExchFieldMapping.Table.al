@@ -64,7 +64,7 @@ table 1225 "Data Exch. Field Mapping"
 
             trigger OnValidate()
             begin
-                if IsValidToUseMultiplier and (Multiplier = 0) then
+                if IsValidToUseMultiplier() and (Multiplier = 0) then
                     Error(ZeroNotAllowedErr);
             end;
         }
@@ -151,13 +151,13 @@ table 1225 "Data Exch. Field Mapping"
     begin
         TestField("Column No.");
 
-        if IsValidToUseMultiplier and (Multiplier = 0) then
+        if IsValidToUseMultiplier() and (Multiplier = 0) then
             Validate(Multiplier, 1);
     end;
 
     trigger OnModify()
     begin
-        if IsValidToUseMultiplier and (Multiplier = 0) then
+        if IsValidToUseMultiplier() and (Multiplier = 0) then
             Validate(Multiplier, 1);
     end;
 
@@ -166,7 +166,7 @@ table 1225 "Data Exch. Field Mapping"
 
     procedure InsertRec(DataExchDefCode: Code[20]; DataExchLineDefCode: Code[20]; TableId: Integer; ColumnNo: Integer; FieldId: Integer; NewOptional: Boolean; NewMultiplier: Decimal)
     begin
-        Init;
+        Init();
         Validate("Data Exch. Def Code", DataExchDefCode);
         Validate("Data Exch. Line Def Code", DataExchLineDefCode);
         "Table ID" := TableId;
@@ -174,13 +174,13 @@ table 1225 "Data Exch. Field Mapping"
         "Field ID" := FieldId;
         Validate(Optional, NewOptional);
         Validate(Multiplier, NewMultiplier);
-        Insert;
+        Insert();
     end;
 
     procedure FillSourceRecord("Field": Record "Field")
     begin
         SetRange("Field ID");
-        Init;
+        Init();
 
         "Table ID" := Field.TableNo;
         "Field ID" := Field."No.";

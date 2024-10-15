@@ -3,7 +3,7 @@ codeunit 1104 "Cost Account Allocation"
 
     trigger OnRun()
     begin
-        ConfirmCalcAllocationKeys;
+        ConfirmCalcAllocationKeys();
     end;
 
     var
@@ -23,10 +23,10 @@ codeunit 1104 "Cost Account Allocation"
     var
         NoCalculated: Integer;
     begin
-        if not Confirm(Text000, true, WorkDate) then
+        if not Confirm(Text000, true, WorkDate()) then
             Error('');
 
-        NoCalculated := CalcAllocationKeys;
+        NoCalculated := CalcAllocationKeys();
 
         Message(Text002, NoCalculated);
     end;
@@ -55,7 +55,7 @@ codeunit 1104 "Cost Account Allocation"
                     until CostAllocationTarget.Next() = 0;
                 CostAllocationTarget.Validate(Share);
             until CostAllocationSource.Next() = 0;
-        Window.Close;
+        Window.Close();
 
         exit(NoCalculated);
     end;
@@ -115,7 +115,7 @@ codeunit 1104 "Cost Account Allocation"
 
             if TotalShare <> Share then begin
                 Share := Abs(Round(TotalShare, 0.00001));
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -129,7 +129,7 @@ codeunit 1104 "Cost Account Allocation"
         GLEntry.SetRange("Posting Date", StartDate, EndDate);
         GLEntry.SetFilter("G/L Account No.", CostAllocationTarget."No. Filter");
         if SetCostAccDimFilters(CostAllocationTarget) then begin
-            DimFilter := DimensionManagement.GetDimSetFilter;
+            DimFilter := DimensionManagement.GetDimSetFilter();
             GLEntry.SetFilter("Dimension Set ID", DimFilter);
         end;
         GLEntry.CalcSums(Amount);
@@ -146,7 +146,7 @@ codeunit 1104 "Cost Account Allocation"
         GLBudgetEntry.SetFilter("Budget Name", CostAllocationTarget."Group Filter");
         GLBudgetEntry.SetRange(Date, StartDate, EndDate);
         if SetCostAccDimFilters(CostAllocationTarget) then begin
-            DimFilter := DimensionManagement.GetDimSetFilter;
+            DimFilter := DimensionManagement.GetDimSetFilter();
             GLBudgetEntry.SetFilter("Dimension Set ID", DimFilter);
         end;
         GLBudgetEntry.CalcSums(Amount);
@@ -230,7 +230,7 @@ codeunit 1104 "Cost Account Allocation"
         ValueEntry.SetFilter("Item No.", CostAllocationTarget."No. Filter");
         ValueEntry.SetFilter("Inventory Posting Group", CostAllocationTarget."Group Filter");
         if SetCostAccDimFilters(CostAllocationTarget) then begin
-            DimFilter := DimensionManagement.GetDimSetFilter;
+            DimFilter := DimensionManagement.GetDimSetFilter();
             ValueEntry.SetFilter("Dimension Set ID", DimFilter);
         end;
         TotalShare := SumValueEntryField(ValueEntry, SumFieldNo);
@@ -284,11 +284,11 @@ codeunit 1104 "Cost Account Allocation"
         if CostAllocationTarget."Date Filter Code" = "Cost Allocation Target Period"::" " then
             exit;
 
-        AccPeriod.SetFilter("Starting Date", '>%1', WorkDate);
+        AccPeriod.SetFilter("Starting Date", '>%1', WorkDate());
         if not AccPeriod.Find('-') then
-            Error(Text003, WorkDate);
+            Error(Text003, WorkDate());
 
-        AccPeriod.SetFilter("Starting Date", '>%1', WorkDate);
+        AccPeriod.SetFilter("Starting Date", '>%1', WorkDate());
         AccPeriod.Find('-');
         NextPeriodStart := AccPeriod."Starting Date";
         AccPeriod.SetRange("Starting Date");
@@ -299,7 +299,7 @@ codeunit 1104 "Cost Account Allocation"
         AccPeriod.Next(-1);
         LastPeriodStart := AccPeriod."Starting Date";
 
-        AccPeriod.SetFilter("Starting Date", '>%1', CalcDate('<-1Y>', WorkDate));
+        AccPeriod.SetFilter("Starting Date", '>%1', CalcDate('<-1Y>', WorkDate()));
         AccPeriod.Find('-');
         LastYearNextPeriodStart := AccPeriod."Starting Date";
         AccPeriod.SetRange("Starting Date");
@@ -312,7 +312,7 @@ codeunit 1104 "Cost Account Allocation"
         LastYearPeriodStart := AccPeriod."Starting Date";
 
         AccPeriod.SetRange("New Fiscal Year", true);
-        AccPeriod.SetFilter("Starting Date", '>%1', WorkDate);
+        AccPeriod.SetFilter("Starting Date", '>%1', WorkDate());
         AccPeriod.Find('-');
         NextYearStart := AccPeriod."Starting Date";
         AccPeriod.SetRange("Starting Date");
@@ -330,38 +330,38 @@ codeunit 1104 "Cost Account Allocation"
         case CostAllocationTarget."Date Filter Code" of
             CostAllocationTarget."Date Filter Code"::Week:
                 begin
-                    StartDate := CalcDate('<-CW>', WorkDate);
-                    EndDate := CalcDate('<CW>', WorkDate);
+                    StartDate := CalcDate('<-CW>', WorkDate());
+                    EndDate := CalcDate('<CW>', WorkDate());
                 end;
             CostAllocationTarget."Date Filter Code"::"Last Week":
                 begin
-                    StartDate := CalcDate('<-CW-1W>', WorkDate);
-                    EndDate := CalcDate('<CW-1W>', WorkDate);
+                    StartDate := CalcDate('<-CW-1W>', WorkDate());
+                    EndDate := CalcDate('<CW-1W>', WorkDate());
                 end;
             CostAllocationTarget."Date Filter Code"::Month:
                 begin
-                    StartDate := CalcDate('<-CM>', WorkDate);
-                    EndDate := CalcDate('<CM>', WorkDate);
+                    StartDate := CalcDate('<-CM>', WorkDate());
+                    EndDate := CalcDate('<CM>', WorkDate());
                 end;
             CostAllocationTarget."Date Filter Code"::"Last Month":
                 begin
-                    StartDate := CalcDate('<-CM-1M>', WorkDate);
+                    StartDate := CalcDate('<-CM-1M>', WorkDate());
                     EndDate := CalcDate('<CM>', StartDate);
                 end;
             CostAllocationTarget."Date Filter Code"::"Month of Last Year":
                 begin
-                    StartDate := CalcDate('<-CM-1Y>', WorkDate);
-                    EndDate := CalcDate('<CM-1Y>', WorkDate);
+                    StartDate := CalcDate('<-CM-1Y>', WorkDate());
+                    EndDate := CalcDate('<CM-1Y>', WorkDate());
                 end;
             CostAllocationTarget."Date Filter Code"::Year:
                 begin
-                    StartDate := CalcDate('<-CY>', WorkDate);
-                    EndDate := CalcDate('<CY>', WorkDate);
+                    StartDate := CalcDate('<-CY>', WorkDate());
+                    EndDate := CalcDate('<CY>', WorkDate());
                 end;
             CostAllocationTarget."Date Filter Code"::"Last Year":
                 begin
-                    StartDate := CalcDate('<-CY-1Y>', WorkDate);
-                    EndDate := CalcDate('<CY-1Y>', WorkDate);
+                    StartDate := CalcDate('<-CY-1Y>', WorkDate());
+                    EndDate := CalcDate('<CY-1Y>', WorkDate());
                 end;
             CostAllocationTarget."Date Filter Code"::Period:
                 begin
@@ -396,7 +396,7 @@ codeunit 1104 "Cost Account Allocation"
         CostAccSetup: Record "Cost Accounting Setup";
     begin
         CostAccSetup.Get();
-        DimensionManagement.ClearDimSetFilter;
+        DimensionManagement.ClearDimSetFilter();
         FilterSet :=
           SetDimFilter(CostAccSetup."Cost Center Dimension", CostAllocationTarget."Cost Center Filter") or
           SetDimFilter(CostAccSetup."Cost Object Dimension", CostAllocationTarget."Cost Object Filter");

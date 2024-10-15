@@ -28,7 +28,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
     begin
         PrepareParameter(GLAcc, JnlTemplate, JnlBatch, StandJnlCode);
         ClearGenJnlLine(GenJnlLine);
-        RunCreateGLAccJnl(GenJnlLine, WorkDate, JnlTemplate, JnlBatch, StandJnlCode, GLAcc);
+        RunCreateGLAccJnl(GenJnlLine, WorkDate(), JnlTemplate, JnlBatch, StandJnlCode, GLAcc);
 
         // Validate generated general journal line against standard journal line
         GenJnlLine.FindFirst();
@@ -37,12 +37,12 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         repeat
             GenJnlLine.TestField("Journal Template Name", JnlTemplate);
             GenJnlLine.TestField("Journal Batch Name", JnlBatch);
-            GenJnlLine.TestField("Posting Date", WorkDate);
+            GenJnlLine.TestField("Posting Date", WorkDate());
             GenJnlLine.TestField("Document Type", GenJnlLine."Document Type"::Invoice);
             GenJnlLine.TestField("Account No.", GLAcc);
             GenJnlLine.TestField(Amount, StandardGenJnlLine.Amount);
-            GenJnlLine.Next;
-        until StandardGenJnlLine.Next = 0;
+            GenJnlLine.Next();
+        until StandardGenJnlLine.Next() = 0;
     end;
 
     [Test]
@@ -56,7 +56,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         StandJnlCode: Code[20];
     begin
         PrepareParameter(GLAcc, JnlTemplate, JnlBatch, StandJnlCode);
-        RunBatchAndHandleError(GenJnlLine, WorkDate, '', JnlBatch, StandJnlCode, GLAcc, NoTemplateError);
+        RunBatchAndHandleError(GenJnlLine, WorkDate(), '', JnlBatch, StandJnlCode, GLAcc, NoTemplateError);
     end;
 
     [Test]
@@ -70,7 +70,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         StandJnlCode: Code[20];
     begin
         PrepareParameter(GLAcc, JnlTemplate, JnlBatch, StandJnlCode);
-        RunBatchAndHandleError(GenJnlLine, WorkDate, JnlTemplate, '', StandJnlCode, GLAcc, NoBatchError);
+        RunBatchAndHandleError(GenJnlLine, WorkDate(), JnlTemplate, '', StandJnlCode, GLAcc, NoBatchError);
     end;
 
     local procedure ClearGenJnlLine(var GenJnlLine: Record "Gen. Journal Line")

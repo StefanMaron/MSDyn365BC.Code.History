@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2317 "BC O365 Item Card"
 {
     Caption = 'Price';
@@ -5,6 +6,9 @@ page 2317 "BC O365 Item Card"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = Item;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,20 +19,20 @@ page 2317 "BC O365 Item Card"
                 Caption = 'Product/Service';
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Importance = Promoted;
                     ToolTip = 'Specifies what you are selling.';
                 }
-                field("Unit Price"; "Unit Price")
+                field("Unit Price"; Rec."Unit Price")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price';
                     Importance = Promoted;
                     ToolTip = 'Specifies the price for one unit.';
                 }
                 field(UnitOfMeasureDescription; UnitOfMeasureDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Price per';
                     Editable = false;
                     QuickEntry = false;
@@ -44,7 +48,7 @@ page 2317 "BC O365 Item Card"
 
                         O365UnitsOfMeasureList.SetRecord(TempUnitOfMeasure);
                         O365UnitsOfMeasureList.LookupMode(true);
-                        if O365UnitsOfMeasureList.RunModal = ACTION::LookupOK then begin
+                        if O365UnitsOfMeasureList.RunModal() = ACTION::LookupOK then begin
                             O365UnitsOfMeasureList.GetRecord(TempUnitOfMeasure);
                             Validate("Base Unit of Measure", TempUnitOfMeasure.Code);
                             UnitOfMeasureDescription := TempUnitOfMeasure.Description;
@@ -53,9 +57,9 @@ page 2317 "BC O365 Item Card"
                         CurrPage.Update(true);
                     end;
                 }
-                field("Tax Group Code"; "Tax Group Code")
+                field("Tax Group Code"; Rec."Tax Group Code")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Tax Group';
                     Editable = IsPageEditable;
                     NotBlank = true;
@@ -64,7 +68,7 @@ page 2317 "BC O365 Item Card"
                 }
                 field(VATProductPostingGroupDescription; VATProductPostingGroupDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'VAT';
                     Editable = false;
                     NotBlank = true;
@@ -88,7 +92,7 @@ page 2317 "BC O365 Item Card"
         {
             part(ItemPicture; "Item Picture")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Picture';
                 SubPageLink = "No." = FIELD("No."),
                               "Date Filter" = FIELD("Date Filter"),
@@ -110,11 +114,11 @@ page 2317 "BC O365 Item Card"
         VATProductPostingGroup: Record "VAT Product Posting Group";
         UnitOfMeasure: Record "Unit of Measure";
     begin
-        CreateItemFromTemplate;
+        CreateItemFromTemplate();
         if VATProductPostingGroup.Get("VAT Prod. Posting Group") then
             VATProductPostingGroupDescription := VATProductPostingGroup.Description;
         if UnitOfMeasure.Get("Base Unit of Measure") then
-            UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage;
+            UnitOfMeasureDescription := UnitOfMeasure.GetDescriptionInCurrentLanguage();
         IsPageEditable := CurrPage.Editable;
     end;
 
@@ -122,20 +126,20 @@ page 2317 "BC O365 Item Card"
     var
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        if GuiAllowed and DocumentNoVisibility.ItemNoSeriesIsDefault then
+        if GuiAllowed and DocumentNoVisibility.ItemNoSeriesIsDefault() then
             NewMode := true;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        exit(CanExitAfterProcessingItem);
+        exit(CanExitAfterProcessingItem());
     end;
 
     var
@@ -186,4 +190,4 @@ page 2317 "BC O365 Item Card"
             end;
     end;
 }
-
+#endif

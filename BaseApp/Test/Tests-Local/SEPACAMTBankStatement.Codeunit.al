@@ -990,7 +990,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         while 0 <> InStream.ReadText(EncodedText) do
             Writer.WriteLine(EncodedText);
 
-        Writer.Close;
+        Writer.Close();
     end;
 
     local procedure CreateImportProtocol(var ImportProtocol: Record "Import Protocol"; BankAccountNo: Code[20]; AutoReconciliation: Boolean)
@@ -1245,7 +1245,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         LibraryCAMTFileMgt.WriteCAMTHeader(OutStream);
         LibraryCAMTFileMgt.WriteCAMTStmtHeader(OutStream, '', LibraryUtility.GenerateGUID());
         InstdAmt := LibraryRandom.RandIntInRange(10, 100);
-        LibraryCAMTFileMgt.WriteCAMTStmtLineWithInstdAmt(OutStream, WorkDate, 'StmtText', InstdAmt / 2, '', '', InstdAmt, '');
+        LibraryCAMTFileMgt.WriteCAMTStmtLineWithInstdAmt(OutStream, WorkDate(), 'StmtText', InstdAmt / 2, '', '', InstdAmt, '');
         LibraryCAMTFileMgt.WriteCAMTStmtFooter(OutStream);
         LibraryCAMTFileMgt.WriteCAMTFooter(OutStream);
     end;
@@ -1328,14 +1328,14 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         RecRef: RecordRef;
     begin
         with CBGStatementLineAddInfo do begin
-            Init;
+            Init();
             "CBG Statement No." := CBGStatementLine."No.";
             "CBG Statement Line No." := CBGStatementLine."Line No.";
             RecRef.GetTable(CBGStatementLineAddInfo);
             "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
             Description := PadStr(LibraryUtility.GenerateGUID, MaxStrLen(Description), '0');
             "Information Type" := InformationType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1349,7 +1349,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         repeat
             TempDataExchColumnDef := DataExchColumnDef;
             TempDataExchColumnDef.Insert();
-        until DataExchColumnDef.Next = 0;
+        until DataExchColumnDef.Next() = 0;
 
         DataExchColumnDef.DeleteAll();
     end;
@@ -1362,7 +1362,7 @@ codeunit 144060 "SEPA CAMT Bank Statement"
         repeat
             DataExchColumnDef := TempDataExchColumnDef;
             DataExchColumnDef.Insert();
-        until TempDataExchColumnDef.Next = 0;
+        until TempDataExchColumnDef.Next() = 0;
     end;
 
     local procedure RunImportSEPACAMTReport(ImportProtocolCode: Code[20])

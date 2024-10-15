@@ -14,7 +14,7 @@ page 99000808 "Routing Version List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Version Code"; "Version Code")
+                field("Version Code"; Rec."Version Code")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the version code of the routing.';
@@ -24,7 +24,7 @@ page 99000808 "Routing Version List"
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a description for the routing version.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies the starting date for this routing version.';

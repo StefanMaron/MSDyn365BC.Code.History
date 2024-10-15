@@ -491,6 +491,11 @@ table 122 "Purch. Inv. Header"
             Caption = 'Payment Reference';
             Numeric = true;
         }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -501,6 +506,11 @@ table 122 "Purch. Inv. Header"
             begin
                 ShowDimensions();
             end;
+        }
+        field(1000; "Remit-to Code"; Code[20])
+        {
+            Caption = 'Remit-to Code';
+            Editable = false;
         }
         field(1302; Closed; Boolean)
         {
@@ -716,7 +726,7 @@ table 122 "Purch. Inv. Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -728,9 +738,9 @@ table 122 "Purch. Inv. Header"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetPurchasesFilter <> '' then begin
+        if UserSetupMgt.GetPurchasesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetPurchasesFilter());
             FilterGroup(0);
         end;
     end;
@@ -747,9 +757,9 @@ table 122 "Purch. Inv. Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveCreditMemo;
+                ShowCorrectiveCreditMemo();
             Corrective:
-                ShowCancelledCreditMemo;
+                ShowCancelledCreditMemo();
         end;
     end;
 

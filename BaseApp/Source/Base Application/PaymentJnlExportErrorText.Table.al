@@ -65,7 +65,7 @@ table 1228 "Payment Jnl. Export Error Text"
         "Error Text" := CopyStr(NewText, 1, MaxStrLen("Error Text"));
         "Additional Information" := CopyStr(NewAddnlInfo, 1, MaxStrLen("Additional Information"));
         "Support URL" := CopyStr(NewExtSupportInfo, 1, MaxStrLen("Support URL"));
-        Insert;
+        Insert();
     end;
 
     procedure JnlLineHasErrors(GenJnlLine: Record "Gen. Journal Line"): Boolean

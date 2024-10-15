@@ -32,9 +32,10 @@ codeunit 5922 "Serv-Quote to Order (Yes/No)"
     end;
 
     var
+        ServQuoteToOrder: Codeunit "Service-Quote to Order";
+
         Text000: Label 'Do you want to convert the quote to an order?';
         Text001: Label 'Service quote %1 has been converted to service order no. %2.';
-        ServQuoteToOrder: Codeunit "Service-Quote to Order";
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowMessage(var Rec: Record "Service Header"; OrderNo: Code[20]; var HideMessage: Boolean)

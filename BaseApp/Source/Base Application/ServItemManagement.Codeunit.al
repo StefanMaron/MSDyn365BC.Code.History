@@ -6,8 +6,6 @@ codeunit 5920 ServItemManagement
     end;
 
     var
-        Text000: Label 'Do you want to create a %1?';
-        Text001: Label 'Service item %1 was created. This service item does not belong to any service contract.';
         Item: Record Item;
         ServItemGr: Record "Service Item Group";
         ServItem: Record "Service Item";
@@ -25,6 +23,9 @@ codeunit 5920 ServItemManagement
         ServOrderMgt: Codeunit ServOrderManagement;
         NextLineNo: Integer;
         Index: Integer;
+
+        Text000: Label 'Do you want to create a %1?';
+        Text001: Label 'Service item %1 was created. This service item does not belong to any service contract.';
         Text002: Label 'You have inserted a %1 on the selected %2.\Would you like to copy this information into the %1 field for the newly created %3?';
         Text003: Label 'Posting cannot be completed successfully. %1 %2  belongs to the %3 that requires creating service items. Check if the %4 field contains a whole number.';
         Text004: Label 'Posting cannot be completed successfully. For the items that are used to replace or create service item components, the %1 field on the %2 must contain a whole number.';
@@ -156,7 +157,7 @@ codeunit 5920 ServItemManagement
     local procedure InitNewServItemComponent(var NewServItemComponent: Record "Service Item Component"; ServiceLine: Record "Service Line"; NextLineNo: Integer; PostingDate: Date)
     begin
         with NewServItemComponent do begin
-            Init;
+            Init();
             "Parent Service Item No." := ServiceLine."Service Item No.";
             "Line No." := NextLineNo;
             Active := true;
@@ -213,9 +214,9 @@ codeunit 5920 ServItemManagement
                 if SalesLine."Qty. to Ship (Base)" <> Round(SalesLine."Qty. to Ship (Base)", 1) then
                     Error(
                       Text003,
-                      Item.TableCaption,
+                      Item.TableCaption(),
                       Item."No.",
-                      ServItemGr.TableCaption,
+                      ServItemGr.TableCaption(),
                       SalesLine.FieldCaption("Qty. to Ship (Base)"));
 
                 TempReservEntry.SetRange("Item No.", SalesLine."No.");
@@ -396,7 +397,7 @@ codeunit 5920 ServItemManagement
             TestField("Service Item No.", '');
             TestField("Document No.");
             TestField(Description);
-            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000, LowerCase(ServItem.TableCaption)), true) then
+            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text000, LowerCase(ServItem.TableCaption())), true) then
                 exit;
 
             Clear(ServItem);
@@ -436,7 +437,7 @@ codeunit 5920 ServItemManagement
                 if ConfirmManagement.GetResponseOrDefault(
                      StrSubstNo(
                        Text002, FieldCaption("Service Price Group Code"),
-                       TableCaption, ServItem.TableCaption), true)
+                       TableCaption, ServItem.TableCaption()), true)
                 then
                     ServItem."Service Price Group Code" := "Service Price Group Code";
 
@@ -452,7 +453,7 @@ codeunit 5920 ServItemManagement
             IsHandled := false;
             OnCreateServItemOnServItemLine(ServItem, ServItemLine, IsHandled);
             if not IsHandled then begin
-                Modify;
+                Modify();
                 CreateDimFromDefaultDim(0);
             end;
         end;
@@ -588,14 +589,13 @@ codeunit 5920 ServItemManagement
                             ServItem.SetRange("Item No.", SalesLine."No.");
                             ServItem.SetRange("Customer No.", SalesLine."Sell-to Customer No.");
                             ServItem.SetRange("Serial No.", ReservationEntry."Serial No.");
-                            if ServItem.FindFirst() then begin
-                                if ServItem.CheckIfCanBeDeleted <> '' then begin
+                            if ServItem.FindFirst() then
+                                if ServItem.CheckIfCanBeDeleted() <> '' then begin
                                     ServItem.Validate(Status, ServItem.Status::" ");
                                     ServItem.Modify(true);
                                 end else
                                     if ServItem.Delete(true) then
                                         ServItemDeleted := true;
-                            end;
                         until ReservationEntry.Next() = 0;
                 end;
             until SalesLine.Next() = 0;

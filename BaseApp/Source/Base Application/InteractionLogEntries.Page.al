@@ -4,7 +4,6 @@ page 5076 "Interaction Log Entries"
     Caption = 'Interaction Log Entries';
     Editable = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Entry';
     SourceTable = "Interaction Log Entry";
     SourceTableView = WHERE(Postponed = CONST(false));
     UsageCategory = History;
@@ -22,24 +21,24 @@ page 5076 "Interaction Log Entries"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies whether the interaction has been canceled. The field is not editable.';
                 }
-                field("Attempt Failed"; "Attempt Failed")
+                field("Attempt Failed"; Rec."Attempt Failed")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies whether the interaction records an failed attempt to reach the contact. This field is not editable.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the type of document if there is one that the interaction log entry records. You cannot change the contents of this field.';
                     Visible = false;
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the document (if any) that the interaction log entry records.';
                     Visible = false;
                 }
-                field("Delivery Status"; "Delivery Status")
+                field("Delivery Status"; Rec."Delivery Status")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the status of the delivery of the attachment. There are three options:';
@@ -50,25 +49,25 @@ page 5076 "Interaction Log Entries"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date that you have entered in the Date field in the Create Interaction wizard or the Segment window when you created the interaction. The field is not editable.';
                 }
-                field("Time of Interaction"; "Time of Interaction")
+                field("Time of Interaction"; Rec."Time of Interaction")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the time when the interaction was created. This field is not editable.';
                     Visible = false;
                 }
-                field("Correspondence Type"; "Correspondence Type")
+                field("Correspondence Type"; Rec."Correspondence Type")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the type of correspondence of the attachment in the interaction template. This field is not editable.';
                     Visible = false;
                 }
-                field("Interaction Group Code"; "Interaction Group Code")
+                field("Interaction Group Code"; Rec."Interaction Group Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the interaction group used to create this interaction. This field is not editable.';
                     Visible = false;
                 }
-                field("Interaction Template Code"; "Interaction Template Code")
+                field("Interaction Template Code"; Rec."Interaction Template Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code for the interaction template used to create the interaction. This field is not editable.';
@@ -88,38 +87,38 @@ page 5076 "Interaction Log Entries"
                     trigger OnAssistEdit()
                     begin
                         if "Attachment No." <> 0 then
-                            OpenAttachment;
+                            OpenAttachment();
                     end;
                 }
-                field("Information Flow"; "Information Flow")
+                field("Information Flow"; Rec."Information Flow")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the direction of information flow recorded by the interaction. There are two options: Outbound (the information was received by your contact) and Inbound (the information was received by your company).';
                     Visible = false;
                 }
-                field("Initiated By"; "Initiated By")
+                field("Initiated By"; Rec."Initiated By")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies who initiated the interaction. There are two options: Us (the interaction was initiated by your company) and Them (the interaction was initiated by your contact).';
                     Visible = false;
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact involved in this interaction. This field is not editable.';
                 }
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the name of the contact for which an interaction has been logged.';
                 }
-                field("Contact Company No."; "Contact Company No.")
+                field("Contact Company No."; Rec."Contact Company No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact company.';
                     Visible = false;
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the name of the contact company for which an interaction has been logged.';
@@ -129,22 +128,22 @@ page 5076 "Interaction Log Entries"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the evaluation of the interaction. There are five options: Very Positive, Positive, Neutral, Negative, and Very Negative.';
                 }
-                field("Cost (LCY)"; "Cost (LCY)")
+                field("Cost (LCY)"; Rec."Cost (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the cost of the interaction.';
                 }
-                field("Duration (Min.)"; "Duration (Min.)")
+                field("Duration (Min.)"; Rec."Duration (Min.)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the duration of the interaction.';
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the salesperson who carried out the interaction. This field is not editable.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the ID of the user who logged this entry. This field is not editable.';
@@ -157,47 +156,47 @@ page 5076 "Interaction Log Entries"
                         UserMgt.DisplayUserInformation("User ID");
                     end;
                 }
-                field("Segment No."; "Segment No.")
+                field("Segment No."; Rec."Segment No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the segment. This field is valid only for interactions created for segments, and is not editable.';
                     Visible = false;
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign (if any) to which the interaction is linked. This field is not editable.';
                 }
-                field("Campaign Entry No."; "Campaign Entry No.")
+                field("Campaign Entry No."; Rec."Campaign Entry No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign entry to which the interaction log entry is linked.';
                     Visible = false;
                 }
-                field("Campaign Response"; "Campaign Response")
+                field("Campaign Response"; Rec."Campaign Response")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies whether the interaction records a response to a campaign.';
                     Visible = false;
                 }
-                field("Campaign Target"; "Campaign Target")
+                field("Campaign Target"; Rec."Campaign Target")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies whether the interaction is applied to contacts that are part of the campaign target. This field is not editable.';
                     Visible = false;
                 }
-                field("Opportunity No."; "Opportunity No.")
+                field("Opportunity No."; Rec."Opportunity No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the opportunity to which the interaction is linked.';
                 }
-                field("To-do No."; "To-do No.")
+                field("To-do No."; Rec."To-do No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the task if the interaction has been created to complete a task. This field is not editable.';
                     Visible = false;
                 }
-                field("Interaction Language Code"; "Interaction Language Code")
+                field("Interaction Language Code"; Rec."Interaction Language Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the language code for the interaction for the interaction log. The code is copied from the language code of the interaction template, if one is specified.';
@@ -209,13 +208,13 @@ page 5076 "Interaction Log Entries"
                     ToolTip = 'Specifies the subject text that will be used for this interaction.';
                     Visible = false;
                 }
-                field("Contact Via"; "Contact Via")
+                field("Contact Via"; Rec."Contact Via")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the telephone number that you used when calling the contact.';
                     Visible = false;
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
@@ -255,8 +254,6 @@ page 5076 "Interaction Log Entries"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Filter';
                     Image = "Filter";
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Apply a filter to view specific interaction log entries.';
 
                     trigger OnAction()
@@ -264,7 +261,7 @@ page 5076 "Interaction Log Entries"
                         FilterPageBuilder: FilterPageBuilder;
                     begin
                         FilterPageBuilder.AddTable(TableName, DATABASE::"Interaction Log Entry");
-                        FilterPageBuilder.SetView(TableName, GetView);
+                        FilterPageBuilder.SetView(TableName, GetView());
 
                         if GetFilter("Campaign No.") = '' then
                             FilterPageBuilder.AddFieldNo(TableName, FieldNo("Campaign No."));
@@ -277,7 +274,7 @@ page 5076 "Interaction Log Entries"
                         if GetFilter("Contact Company No.") = '' then
                             FilterPageBuilder.AddFieldNo(TableName, FieldNo("Contact Company No."));
 
-                        if FilterPageBuilder.RunModal then
+                        if FilterPageBuilder.RunModal() then
                             SetView(FilterPageBuilder.GetView(TableName));
                     end;
                 }
@@ -286,13 +283,11 @@ page 5076 "Interaction Log Entries"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Clear Filter';
                     Image = ClearFilter;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Clear the applied filter on specific interaction log entries.';
 
                     trigger OnAction()
                     begin
-                        Reset;
+                        Reset();
                         FilterGroup(2);
                         SetRange(Postponed, false);
                         FilterGroup(0);
@@ -303,8 +298,6 @@ page 5076 "Interaction Log Entries"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Co&mments';
                     Image = ViewComments;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     RunObject = Page "Inter. Log Entry Comment Sheet";
                     RunPageLink = "Entry No." = FIELD("Entry No.");
                     ToolTip = 'View or add comments for the record.';
@@ -327,7 +320,7 @@ page 5076 "Interaction Log Entries"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(InteractionLogEntry);
-                        InteractionLogEntry.ToggleCanceledCheckmark;
+                        InteractionLogEntry.ToggleCanceledCheckmark();
                     end;
                 }
                 action(Resend)
@@ -356,7 +349,7 @@ page 5076 "Interaction Log Entries"
                     trigger OnAction()
                     begin
                         CurrPage.SetSelectionFilter(InteractionLogEntry);
-                        InteractionLogEntry.EvaluateInteraction;
+                        InteractionLogEntry.EvaluateInteraction();
                     end;
                 }
                 separator(Action75)
@@ -372,7 +365,7 @@ page 5076 "Interaction Log Entries"
 
                     trigger OnAction()
                     begin
-                        CreateTask;
+                        CreateTask();
                     end;
                 }
                 action("Delete Canceled Entries")
@@ -390,16 +383,14 @@ page 5076 "Interaction Log Entries"
                 Caption = '&Show Attachments';
                 Enabled = ShowEnable;
                 Image = View;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show attachments or related documents.';
 
                 trigger OnAction()
                 begin
                     if "Attachment No." <> 0 then
-                        OpenAttachment
+                        OpenAttachment()
                     else
-                        ShowDocument;
+                        ShowDocument();
                 end;
             }
             action("Create &Interaction")
@@ -407,13 +398,11 @@ page 5076 "Interaction Log Entries"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Create &Interaction';
                 Image = CreateInteraction;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create an interaction with a specified contact.';
 
                 trigger OnAction()
                 begin
-                    CreateInteraction;
+                    CreateInteraction();
                 end;
             }
             action(CreateOpportunity)
@@ -423,18 +412,51 @@ page 5076 "Interaction Log Entries"
                 Enabled = ShowCreateOpportunity;
                 Gesture = None;
                 Image = NewOpportunity;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Create an opportunity with a specified contact.';
 
                 trigger OnAction()
                 var
                     InteractionMgt: Codeunit "Interaction Mgt.";
                 begin
-                    AssignNewOpportunity;
+                    AssignNewOpportunity();
                     InteractionMgt.ShowNotificationOpportunityCreated(Rec);
                     CurrPage.Update(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Show Attachments_Promoted"; "Show Attachments")
+                {
+                }
+                actionref("Create &Interaction_Promoted"; "Create &Interaction")
+                {
+                }
+                actionref(CreateOpportunity_Promoted; CreateOpportunity)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Filter_Promoted; Filter)
+                {
+                }
+                actionref(ClearFilter_Promoted; ClearFilter)
+                {
+                }
+                actionref("Co&mments_Promoted"; "Co&mments")
+                {
+                }
             }
         }
     }
@@ -446,7 +468,7 @@ page 5076 "Interaction Log Entries"
 
     trigger OnAfterGetRecord()
     begin
-        ShowCreateOpportunity := CanCreateOpportunity;
+        ShowCreateOpportunity := CanCreateOpportunity();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
@@ -465,7 +487,7 @@ page 5076 "Interaction Log Entries"
 
     trigger OnOpenPage()
     begin
-        SetCaption;
+        SetCaption();
     end;
 
     var

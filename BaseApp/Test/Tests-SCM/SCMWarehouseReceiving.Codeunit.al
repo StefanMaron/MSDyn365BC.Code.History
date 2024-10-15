@@ -699,7 +699,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         LibraryVariableStorage.Enqueue(
           StrSubstNo(
             ExceedsAvailableCapacity, ItemUnitOfMeasure.FieldCaption(Cubage), Quantity2 * ItemUnitOfMeasure.Cubage, Bin."Maximum Cubage",
-            Bin.TableCaption, Bin.Code));
+            Bin.TableCaption(), Bin.Code));
 
         // Exercise: Validate Bin Code on Warehouse Receipt Line to generate a Confirm Message.
         UpdateBinCodeOnWarehouseReceiptLine(PurchaseHeader."No.", Bin.Code, '', LocationWhite.Code);
@@ -715,7 +715,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             LibraryVariableStorage.Enqueue(
               StrSubstNo(
                 ExceedsMaximumCubage, Quantity2 * ItemUnitOfMeasure.Cubage, BinContent.FieldCaption("Max. Qty."),
-                Bin.FieldCaption("Maximum Cubage"), Bin."Maximum Cubage", Bin.TableCaption));
+                Bin.FieldCaption("Maximum Cubage"), Bin."Maximum Cubage", Bin.TableCaption()));
             BinContent.Validate("Max. Qty.", Quantity2);
 
             // Verify: Verification is done by Confirm Handler.
@@ -1060,13 +1060,13 @@ codeunit 137152 "SCM Warehouse - Receiving"
         CreateItemWithItemTrackingCode(Item2, false, true, '', LibraryUtility.GetGlobalNoSeriesCode);  // Taking True for Lot.
         CreateAndReleasePurchaseOrderWithTrackingOnMultipleLines(PurchaseHeader, Item."No.", Quantity, Item2."No.", LocationSilver2.Code);
         LibraryVariableStorage.Dequeue(LotNo);  // Dequeue for ItemTrackingPageHandler.
-        UpdateExpirationDateOnReservationEntry(Item."No.", WorkDate);
-        UpdateExpirationDateOnReservationEntry(Item2."No.", WorkDate);
+        UpdateExpirationDateOnReservationEntry(Item."No.", WorkDate());
+        UpdateExpirationDateOnReservationEntry(Item2."No.", WorkDate());
         LibraryVariableStorage.Enqueue(InvPutAwayMessage);  // Enqueue for MessageHandler.
         CreateInventoryActivity(
           WarehouseRequest."Source Document"::"Purchase Order", PurchaseHeader."No.", LocationSilver2.Code, true, false);
         if ExpirationDateOnInventoryPutAway then begin
-            ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+            ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
             UpdateExpirationDateOnInventoryPutAway(PurchaseHeader."No.", Item."No.", ExpirationDate);
             UpdateExpirationDateOnInventoryPutAway(PurchaseHeader."No.", Item2."No.", ExpirationDate);
         end;
@@ -1094,8 +1094,8 @@ codeunit 137152 "SCM Warehouse - Receiving"
             VerifyPostedInventoryPickLine(SalesHeader."No.", LocationSilver2.Code, Item2."No.", Quantity, LotNo, ExpirationDate, false);
             VerifyPostedInventoryPickLineForSerialNo(SalesHeader."No.", Item."No.", LocationSilver2.Code, ExpirationDate, Quantity);
         end else begin
-            VerifyPostedInventoryPickLine(SalesHeader."No.", LocationSilver2.Code, Item2."No.", Quantity, LotNo, WorkDate, false);
-            VerifyPostedInventoryPickLineForSerialNo(SalesHeader."No.", Item."No.", LocationSilver2.Code, WorkDate, Quantity);
+            VerifyPostedInventoryPickLine(SalesHeader."No.", LocationSilver2.Code, Item2."No.", Quantity, LotNo, WorkDate(), false);
+            VerifyPostedInventoryPickLineForSerialNo(SalesHeader."No.", Item."No.", LocationSilver2.Code, WorkDate(), Quantity);
         end;
     end;
 
@@ -2142,7 +2142,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Assert.IsTrue(
           StrPos(
             GetLastErrorText,
-            StrSubstNo(ItemNoMustNotBeChangedWhenWarehouseActivityLineExists, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption)) >
+            StrSubstNo(ItemNoMustNotBeChangedWhenWarehouseActivityLineExists, PurchaseLine.FieldCaption("No."), PurchaseLine.TableCaption())) >
           0, GetLastErrorText);
     end;
 
@@ -2179,7 +2179,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         Assert.IsTrue(
           StrPos(
             GetLastErrorText,
-            StrSubstNo(ItemNoMustNotBeChangedWhenWarehouseActivityLineExists, SalesLine.FieldCaption("No."), SalesLine.TableCaption)) >
+            StrSubstNo(ItemNoMustNotBeChangedWhenWarehouseActivityLineExists, SalesLine.FieldCaption("No."), SalesLine.TableCaption())) >
           0, GetLastErrorText);
     end;
 
@@ -2221,7 +2221,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
           StrPos(
             GetLastErrorText,
             StrSubstNo(
-              ItemNoMustNotBeChangedWhenWarehouseActivityLineExists, TransferLine.FieldCaption("Item No."), TransferLine.TableCaption)) >
+              ItemNoMustNotBeChangedWhenWarehouseActivityLineExists, TransferLine.FieldCaption("Item No."), TransferLine.TableCaption())) >
           0, GetLastErrorText);
     end;
 
@@ -2315,7 +2315,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         // Create Item with Lot and Serial tracking. Create and Release Purchase Order. Update Expiration Date on Reservation Entry.
         CreateItemWithItemTrackingCode(Item, true, true, LibraryUtility.GetGlobalNoSeriesCode, LibraryUtility.GetGlobalNoSeriesCode);  // Lot and Serial as TRUE.
         Quantity := LibraryRandom.RandInt(10);
-        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);
+        ExpirationDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate());
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Assign Lot And Serial");  // Enqueue for ItemTrackingPageHandler.
         CreateAndReleasePurchaseOrder(PurchaseHeader, LocationWhite.Code, '', Item."No.", Quantity, Item."Base Unit of Measure", true);  // Use Tracking as TRUE.
         LibraryVariableStorage.Dequeue(LotNo);
@@ -2743,7 +2743,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         with BinContent do begin
             "Location Code" := LocationWhite.Code;
             "Unit of Measure Code" := UnitOfMeasure.Code;
-            Insert;
+            Insert();
 
             // [WHEN] Calculate Field "Pick Quantity (Base)" on Bin Content
             SetFilterOnUnitOfMeasure;
@@ -2778,7 +2778,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         with BinContent do begin
             "Location Code" := Location.Code;
             "Unit of Measure Code" := UnitOfMeasure.Code;
-            Insert;
+            Insert();
 
             // [WHEN] Calculate Field "Pick Quantity (Base)" on Bin Content
             SetFilterOnUnitOfMeasure;
@@ -3154,7 +3154,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
 
         // [GIVEN] Purchase Order
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
-        PurchaseHeader.SetRecFilter;
+        PurchaseHeader.SetRecFilter();
 
         // [GIVEN] Two Items in two Purchase Lines with Two Location Codes "A" and "B"
         // [GIVEN] Each Location Code with Require Receive
@@ -3177,7 +3177,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         repeat
             WarehouseReceiptHeader.Get(WarehouseReceiptLine."No.");
             LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
-        until WarehouseReceiptLine.Next = 0;
+        until WarehouseReceiptLine.Next() = 0;
 
         // [GIVEN] Receipt for the Line 2 with Location Code "B" is being Undo
         PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
@@ -3556,7 +3556,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         RequisitionWkshName.SetRange("Template Type", RequisitionWkshName."Template Type"::"Req.");
         RequisitionWkshName.FindFirst();
         LibraryPlanning.CalculatePlanForReqWksh(
-          Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate, WorkDate);
+          Item, RequisitionWkshName."Worksheet Template Name", RequisitionWkshName.Name, WorkDate(), WorkDate());
         RequisitionLine.SetRange("Worksheet Template Name", RequisitionWkshName."Worksheet Template Name");
         RequisitionLine.SetRange("Journal Batch Name", RequisitionWkshName.Name);
         RequisitionLine.SetRange("No.", Item."No.");
@@ -3686,7 +3686,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         with WarehouseReceiptLine do begin
             FindWarehouseReceiptLine(WarehouseReceiptLine, "Source Document"::"Purchase Order", PurchaseHeaderNo, Location.Code);
             "Bin Code" := Location."Shipment Bin Code";
-            Modify;
+            Modify();
             OpenItemTrackingLines(); // Assign "Lot No." through ItemTrackingFromReceiptHandler
         end;
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
@@ -4263,7 +4263,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             "Action Type" := "Action Type"::Take;
             "Unit of Measure Code" := UnitOfMeasure.Code;
             "Qty. Outstanding (Base)" := LibraryRandom.RandDec(10, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -4791,7 +4791,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehouseReceiptLine.Validate("Bin Code", BinCode);
         WarehouseReceiptLine.Modify(true);
         if BinCode2 <> '' then begin
-            WarehouseReceiptLine.Next;
+            WarehouseReceiptLine.Next();
             WarehouseReceiptLine.Validate("Bin Code", BinCode2);
             WarehouseReceiptLine.Modify(true);
         end;
@@ -4806,7 +4806,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             WarehouseActivityLine.Validate("Zone Code", Bin."Zone Code");
             WarehouseActivityLine.Validate("Bin Code", Bin.Code);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure UpdateBinCapacityPolicyOnLocation(var Location: Record Location; var OldBinCapacityPolicy: Option; NewBinCapacityPolicy: Option)
@@ -4952,7 +4952,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             Bin.Validate("Maximum Cubage", MaximumCubage);
             Bin.Validate("Maximum Weight", MaximumCubage);  // Taking Maximum Weight as Maximum Cubage.
             Bin.Modify(true);
-        until Bin.Next = 0;
+        until Bin.Next() = 0;
     end;
 
     local procedure UpdateNoSeriesOnItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; NoSeries: Code[20])
@@ -5066,7 +5066,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         WarehousePutAwayLinesCount := 1;
         repeat
             WarehousePutAwayLinesCount += 1;
-        until WarehousePutAway.WhseActivityLines.Next;
+        until WarehousePutAway.WhseActivityLines.Next();
         Assert.IsTrue(WarehouseActivityHeaderLinesCount > WarehousePutAwayLinesCount, NoOfLinesMustBeGreater);
     end;
 
@@ -5103,7 +5103,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     begin
         FilterPostedInvtPickLine(PostedInvtPickLine, SourceNo, ItemNo);
         if NextLine then
-            PostedInvtPickLine.Next;
+            PostedInvtPickLine.Next();
         PostedInvtPickLine.TestField("Location Code", LocationCode);
         PostedInvtPickLine.TestField(Quantity, Quantity);
         PostedInvtPickLine.TestField("Lot No.", LotNo);
@@ -5121,7 +5121,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             PostedInvtPickLine.TestField("Expiration Date", ExpirationDate);
             PostedInvtPickLine.TestField("Serial No.");
             TrackingQuantity += PostedInvtPickLine.Quantity;
-        until PostedInvtPickLine.Next = 0;
+        until PostedInvtPickLine.Next() = 0;
         Assert.AreEqual(TrackingQuantity, Quantity, QuantityMustBeSame);
     end;
 
@@ -5174,7 +5174,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
             WarehouseActivityLine.TestField("Expiration Date", ExpirationDate);
             WarehouseActivityLine.TestField("Serial No.");
             WarehouseActivityLine.TestField("Lot No.");
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyReservedQuantityOnPurchaseLine(ItemNo: Code[20]; Quantity: Decimal)
@@ -5214,13 +5214,13 @@ codeunit 137152 "SCM Warehouse - Receiving"
             RegisteredWhseActivityLine.TestField("Serial No.");
             RegisteredWhseActivityLine.TestField(Quantity, 1);  // Value required for the Quantity.
             RegisteredWhseActivityLine.TestField("Expiration Date", ExpirationDate);
-        until RegisteredWhseActivityLine.Next = 0;
+        until RegisteredWhseActivityLine.Next() = 0;
     end;
 
     local procedure VerifyDueDateAndBinCodeOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; Quantity: Decimal; BinCode: Code[20]; DueDate: Date; NextLine: Boolean)
     begin
         if NextLine then
-            WarehouseActivityLine.Next;
+            WarehouseActivityLine.Next();
         WarehouseActivityLine.TestField("Item No.", ItemNo);
         WarehouseActivityLine.TestField(Quantity, Quantity);
         WarehouseActivityLine.TestField("Bin Code", BinCode);
@@ -5230,7 +5230,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     local procedure VerifyActionTypeBinCodeAndBreakbulkOnWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ItemNo: Code[20]; BinCode: Code[20]; ActionType: Enum "Warehouse Action Type"; BreakbulkNo: Integer; Quantity: Decimal; NextLine: Boolean)
     begin
         if NextLine then
-            WarehouseActivityLine.Next;
+            WarehouseActivityLine.Next();
         WarehouseActivityLine.TestField("Item No.", ItemNo);
         WarehouseActivityLine.TestField("Bin Code", BinCode);
         WarehouseActivityLine.TestField("Action Type", ActionType);
@@ -5256,7 +5256,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
     local procedure VerifyWarehouseActivityLineWithActionType(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; ItemNo: Code[20]; Quantity: Decimal; NextLine: Boolean)
     begin
         if NextLine then
-            WarehouseActivityLine.Next;
+            WarehouseActivityLine.Next();
         WarehouseActivityLine.TestField("Action Type", ActionType);
         WarehouseActivityLine.TestField("Item No.", ItemNo);
         WarehouseActivityLine.TestField(Quantity, Quantity);
@@ -5344,7 +5344,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
         DimensionSelectionMultiple.First;
         repeat
             DimensionSelectionMultiple.Selected.SetValue(true);
-        until not DimensionSelectionMultiple.Next;
+        until not DimensionSelectionMultiple.Next();
         DimensionSelectionMultiple.OK.Invoke;
     end;
 
@@ -5389,7 +5389,7 @@ codeunit 137152 "SCM Warehouse - Receiving"
                 begin
                     TrackingQuantity := ItemTrackingLines.Quantity3.AsDEcimal;
                     CreateItemTrackingLine(ItemTrackingLines, TrackingQuantity / 2);
-                    ItemTrackingLines.Next;
+                    ItemTrackingLines.Next();
                     CreateItemTrackingLine(ItemTrackingLines, TrackingQuantity / 2);
                 end;
         end;

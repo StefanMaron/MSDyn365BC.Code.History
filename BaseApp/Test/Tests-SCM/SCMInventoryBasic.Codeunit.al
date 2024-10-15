@@ -409,7 +409,7 @@ codeunit 137280 "SCM Inventory Basic"
                 if not InventoryPostingSetupExists(Location.Code, Item."Inventory Posting Group") then
                     LibraryInventory.UpdateInventoryPostingSetup(Location);
                 CreateAndPostItemJournalLine(ItemJournalLine, ItemNo, Location.Code, ColumnNumber);
-            until Location.Next = 0;
+            until Location.Next() = 0;
 
         // Exercise: Open Items by Location page to open the Matrix and filter to the newly created item.
         ItemsByLocation.OpenView;
@@ -423,7 +423,7 @@ codeunit 137280 "SCM Inventory Basic"
             repeat
                 ColumnNumber += 1;
                 VerifyMatrixColumn(ItemsByLocation, ColumnNumber, Location.Code, ColumnNumber);
-            until Location.Next = 0;
+            until Location.Next() = 0;
     end;
 
     local procedure VerifyMatrixColumn(var ItemsbyLocation: TestPage "Items by Location"; ColumnNumber: Integer; ExpectedCaption: Text; ExpectedValue: Variant)
@@ -1182,7 +1182,7 @@ codeunit 137280 "SCM Inventory Basic"
               Item."VAT Prod. Posting Group",
               ItemTemplate."VAT Prod. Posting Group",
               StrSubstNo(VatProdPostingGrMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
-        until Item.Next = 0;
+        until Item.Next() = 0;
 
         // Assess: Templates are not applied to items 2 and 4
         Item.SetFilter("No.", '2|4');
@@ -1192,7 +1192,7 @@ codeunit 137280 "SCM Inventory Basic"
               Item."VAT Prod. Posting Group",
               ItemTemplate."VAT Prod. Posting Group",
               StrSubstNo(VatProdPostingGrMostNotMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
-        until Item.Next = 0;
+        until Item.Next() = 0;
 
         UpdateVatProdCodeInItemTemplate(ItemTemplate.Code);
         ItemTemplate.Get(ItemTemplate.Code);
@@ -1204,7 +1204,7 @@ codeunit 137280 "SCM Inventory Basic"
               Item."VAT Prod. Posting Group",
               ItemTemplate."VAT Prod. Posting Group",
               StrSubstNo(VatProdPostingGrMostNotMatchErr, Item."VAT Prod. Posting Group", ItemTemplate.Code));
-        until Item.Next = 0;
+        until Item.Next() = 0;
 
         // Teardown
         asserterror Error('');
@@ -1504,6 +1504,146 @@ codeunit 137280 "SCM Inventory Basic"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure VerifyVariantMandatoryDefaultCaption()
+    var
+        Item: Record Item;
+        ItemCard: TestPage "Item Card";
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] Inga can make variants mandatory for items globally or on certain items
+
+        // [GIVEN] Inventory setup and an item
+        // Inventory setup has "Variant mandatory if exists" = TRUE
+        Initialize();
+        InventorySetup.Get();
+
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Edit record page for item is openend
+        ItemCard.OpenEdit();
+        ItemCard.GotoRecord(Item);
+
+        // [THEN] Caption of default value reflects that default is TRUE/Yes
+        Assert.Equal(ItemCard.VariantMandatoryDefaultYes.Visible(), true);
+        Assert.Equal(ItemCard.VariantMandatoryDefaultNo.Visible(), false);
+
+        // [GIVEN] Inventory setup and an item
+        // Inventory setup has "Variant mandatory if exists" = FALSE
+        InventorySetup.Validate("Variant Mandatory if Exists", false);
+        InventorySetup.Modify();
+
+        LibraryInventory.CreateItem(Item);
+
+        // [WHEN] Edit record page for item is openend
+        ItemCard.GotoRecord(Item);
+
+        // [THEN] Caption of default value reflects that default is FALSE/No
+        Assert.Equal(ItemCard.VariantMandatoryDefaultYes.Visible(), false);
+        Assert.Equal(ItemCard.VariantMandatoryDefaultNo.Visible(), true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IsVariantMandatoryWithVariantsAvailable()
+    var
+        Item: Record Item;
+        ItemVariant: Record "Item Variant";
+        InventorySetup: Record "Inventory Setup";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+
+        // [GIVEN] Inventory setup with "Variant Mandatory is Exists" = yes
+        // and an item which has available variants
+        Initialize();
+        InventorySetup.Get();
+
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify();
+
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateVariant(ItemVariant, Item);
+
+        // [THEN] Item.IsVariantMandatory() is calcuated correctly on different values of Item."Variant Mandatory if Exists"
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Assert.Equal(Item.IsVariantMandatory(), true);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Default);
+        Assert.Equal(Item.IsVariantMandatory(), true);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::No);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        // [GIVEN] Inventory setup with "Variant Mandatory is Exists" = yes
+        // and an item which has available variants
+        InventorySetup.Validate("Variant Mandatory if Exists", false);
+        InventorySetup.Modify();
+
+        // [THEN] Item.IsVariantMandatory() is calcuated correctly on different values of Item."Variant Mandatory if Exists"
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Assert.Equal(Item.IsVariantMandatory(), true);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Default);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::No);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure IsVariantMandatoryNoVariantsAvailable()
+    var
+        Item: Record Item;
+        InventorySetup: Record "Inventory Setup";
+        ItemVariant: Record "Item Variant";
+    begin
+        // [SLICE] [Option to make entry of Variant Code mandatory where variants exist]
+        // [Deliveriable] When Alicia posts an order for an item with variants, the no-variants-selected rule is respected depending on settings
+
+        // [GIVEN] Inventory setup and an item which has NO available variants
+        Initialize();
+        InventorySetup.Get();
+
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify();
+
+        LibraryInventory.CreateItem(Item);
+        ItemVariant.SetRange("Item No.", Item."No.");
+        ItemVariant.DeleteAll();
+
+        // [THEN] Item.IsVariantMandatory() always returns "false" no matter the values of Item."VMiE" and InventorySetup."VMiE"
+        InventorySetup.Validate("Variant Mandatory if Exists", true);
+        InventorySetup.Modify();
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Default);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::No);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        InventorySetup.Validate("Variant Mandatory if Exists", false);
+        InventorySetup.Modify();
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Yes);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::Default);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+
+        Item.Validate("Variant Mandatory if Exists", Item."Variant Mandatory if Exists"::No);
+        Assert.Equal(Item.IsVariantMandatory(), false);
+    end;
+
+    [Test]
     [HandlerFunctions('ProductionBOMPageHandler')]
     [Scope('OnPrem')]
     procedure VerifyProductionBOMFromItemList()
@@ -1574,7 +1714,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemCard.OpenEdit;
         ItemCard.GotoRecord(Item);
         ItemCard."Substituti&ons".Invoke;
-        ItemCard.Close;
+        ItemCard.Close();
 
         // [THEN] Item Substitution record is created
         Assert.IsTrue(FindItemSubstitution(ItemSubstitution.Type::Item, Item."No.",
@@ -1604,7 +1744,7 @@ codeunit 137280 "SCM Inventory Basic"
         NonstockItemCard.OpenEdit;
         NonstockItemCard.GotoRecord(NonstockItem);
         NonstockItemCard."Substituti&ons".Invoke;
-        NonstockItemCard.Close;
+        NonstockItemCard.Close();
 
         // [THEN] Item Substitution record is created
         Assert.IsTrue(
@@ -1632,7 +1772,7 @@ codeunit 137280 "SCM Inventory Basic"
         // [THEN] Button to view Sales Price Worksheet page is visible
         Assert.IsTrue(
           ItemList."Sales Price Worksheet".Visible, StrSubstNo(ControlVisibilityErr, true));
-        ItemList.Close;
+        ItemList.Close();
 
         // [WHEN] Page Item List is opened from Phone
         BindSubscription(TestClientTypeSubscriber);
@@ -1662,7 +1802,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Item Turnover Page from Item Card of PL."No.", show postings today, and Drill Down Purchases (Qty.)
         InvokeItemTurnoverFromItemCard(ItemTurnover, PurchaseLine."No.");
-        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ItemLedgerEntries.Trap;
         ItemTurnover.ItemTurnoverLines.PurchasesQty.DrillDown;
 
@@ -1686,7 +1826,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Item Turnover Page from Item Card of SL."No.", show postings today, and Drill Down Sales (Qty.)
         InvokeItemTurnoverFromItemCard(ItemTurnover, SalesLine."No.");
-        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ItemLedgerEntries.Trap;
         ItemTurnover.ItemTurnoverLines.SalesQty.DrillDown;
 
@@ -1710,7 +1850,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Item Turnover Page from Item Card of PL."No.", show postings today, and Drill Down Purchases (LCY)
         InvokeItemTurnoverFromItemCard(ItemTurnover, PurchaseLine."No.");
-        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ValueEntries.Trap;
         ItemTurnover.ItemTurnoverLines.PurchasesLCY.DrillDown;
 
@@ -1734,7 +1874,7 @@ codeunit 137280 "SCM Inventory Basic"
 
         // [WHEN] Open Item Turnover Page from Item Card of SL."No.", show postings today, and Drill Down Sales (LCY)
         InvokeItemTurnoverFromItemCard(ItemTurnover, SalesLine."No.");
-        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemTurnover.ItemTurnoverLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ValueEntries.Trap;
         ItemTurnover.ItemTurnoverLines.SalesLCY.DrillDown;
 
@@ -2621,7 +2761,7 @@ codeunit 137280 "SCM Inventory Basic"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate);
+          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2635,7 +2775,7 @@ codeunit 137280 "SCM Inventory Basic"
         CreateAndPostPurchOrderLine(PurchaseLine);
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo,
-          PurchaseLine."No.", LibraryRandom.RandInt(PurchaseLine.Quantity), '', WorkDate);
+          PurchaseLine."No.", LibraryRandom.RandInt(PurchaseLine.Quantity), '', WorkDate());
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(20, 40, 2));
         SalesLine.Modify(true);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -2723,7 +2863,7 @@ codeunit 137280 "SCM Inventory Basic"
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             TotalQuantity += ItemLedgerEntry.Quantity;
             TotalCost += ItemLedgerEntry."Cost Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         Item.Get(ItemNo);
         Assert.AreNearlyEqual(TotalCost / TotalQuantity, Item."Unit Cost", LibraryERM.GetAmountRoundingPrecision, UnitCostErr);
@@ -2800,7 +2940,7 @@ codeunit 137280 "SCM Inventory Basic"
     [Scope('OnPrem')]
     procedure ItemAvailabilityByPeriodsPageHandler(var ItemAvailabilityByPeriods: TestPage "Item Availability by Periods")
     begin
-        ItemAvailabilityByPeriods.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate));
+        ItemAvailabilityByPeriods.ItemAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ItemAvailabilityByPeriods.ItemAvailLines.ProjAvailableBalance.AssertEquals(GlobalQuantity);
         ItemAvailabilityByPeriods.OK.Invoke;
     end;
@@ -2838,7 +2978,7 @@ codeunit 137280 "SCM Inventory Basic"
                     ItemChargeAssignmentSales.First;
                     repeat
                         ItemChargeAssignmentSales."Qty. to Assign".SetValue(GlobalQtyToAssign);
-                    until not ItemChargeAssignmentSales.Next;
+                    until not ItemChargeAssignmentSales.Next();
                 end;
             GlobalItemChargeAssignment::GetShipmentLine:
                 begin
@@ -2865,7 +3005,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemChargeAssignmentSales.First;
         repeat
             ItemChargeAssignmentSales."Qty. to Assign".SetValue(-0.5);
-        until not ItemChargeAssignmentSales.Next;
+        until not ItemChargeAssignmentSales.Next();
         ItemChargeAssignmentSales.OK.Invoke;
     end;
 
@@ -2876,7 +3016,7 @@ codeunit 137280 "SCM Inventory Basic"
         ItemChargeAssignmentPurch.First;
         repeat
             ItemChargeAssignmentPurch."Qty. to Assign".SetValue(-0.5);
-        until not ItemChargeAssignmentPurch.Next;
+        until not ItemChargeAssignmentPurch.Next();
         ItemChargeAssignmentPurch.OK.Invoke;
     end;
 
@@ -2946,7 +3086,7 @@ codeunit 137280 "SCM Inventory Basic"
         LibraryVariableStorage.Dequeue(VarCount);
         Count := VarCount;
         while Count > 1 do begin
-            ItemStatisticsMatrix.Next;
+            ItemStatisticsMatrix.Next();
             Count := Count - 1;
         end;
         ItemStatisticsMatrix.Amount.AssertEquals(GlobalAmount);

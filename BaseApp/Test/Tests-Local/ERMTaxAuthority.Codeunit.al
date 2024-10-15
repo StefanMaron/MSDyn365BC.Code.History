@@ -501,7 +501,7 @@ codeunit 144005 "ERM Tax Authority"
         GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
     end;
 
     local procedure ReverseTransaction(TransactionNo: Integer)

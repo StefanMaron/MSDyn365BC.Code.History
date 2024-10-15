@@ -515,6 +515,14 @@ table 112 "Sales Invoice Header"
                                                                                       Posted = CONST(true)));
             Caption = 'Last Email Sent Time';
             FieldClass = FlowField;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(167; "Last Email Sent Status"; Option)
         {
@@ -526,6 +534,14 @@ table 112 "Sales Invoice Header"
             FieldClass = FlowField;
             OptionCaption = 'Not Sent,In Process,Finished,Error';
             OptionMembers = "Not Sent","In Process",Finished,Error;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(168; "Sent as Email"; Boolean)
         {
@@ -535,6 +551,14 @@ table 112 "Sales Invoice Header"
                                                                     "Job Last Status" = CONST(Finished)));
             Caption = 'Sent as Email';
             FieldClass = FlowField;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
@@ -544,6 +568,14 @@ table 112 "Sales Invoice Header"
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
             Caption = 'Last Email Notif Cleared';
             FieldClass = FlowField;
+            ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+            ObsoleteState = Removed;
+            ObsoleteTag = '24.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(171; "Sell-to Phone No."; Text[30])
         {
@@ -579,6 +611,11 @@ table 112 "Sales Invoice Header"
             ObsoleteState = Removed;
             ObsoleteTag = '22.0';
 #endif
+        }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
         }
         field(180; "Payment Reference"; Code[50])
         {
@@ -1007,7 +1044,7 @@ table 112 "Sales Invoice Header"
     procedure GetLegalStatement(): Text
     begin
         SalesSetup.Get();
-        exit(SalesSetup.GetLegalStatement);
+        exit(SalesSetup.GetLegalStatement());
     end;
 
     procedure GetRemainingAmount(): Decimal
@@ -1028,7 +1065,7 @@ table 112 "Sales Invoice Header"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "No."));
     end;
 
     procedure SetSecurityFilterOnRespCenter()
@@ -1092,7 +1129,7 @@ table 112 "Sales Invoice Header"
     begin
         TempBlob.FromRecord(Rec, FieldNo("Work Description"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     procedure GetCurrencySymbol(): Text[10]
@@ -1100,12 +1137,12 @@ table 112 "Sales Invoice Header"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Currency: Record Currency;
     begin
-        if GeneralLedgerSetup.Get then
+        if GeneralLedgerSetup.Get() then
             if ("Currency Code" = '') or ("Currency Code" = GeneralLedgerSetup."LCY Code") then
-                exit(GeneralLedgerSetup.GetCurrencySymbol);
+                exit(GeneralLedgerSetup.GetCurrencySymbol());
 
         if Currency.Get("Currency Code") then
-            exit(Currency.GetCurrencySymbol);
+            exit(Currency.GetCurrencySymbol());
 
         exit("Currency Code");
     end;
@@ -1127,9 +1164,9 @@ table 112 "Sales Invoice Header"
         CalcFields(Cancelled, Corrective);
         case true of
             Cancelled:
-                ShowCorrectiveCreditMemo;
+                ShowCorrectiveCreditMemo();
             Corrective:
-                ShowCancelledCreditMemo;
+                ShowCancelledCreditMemo();
         end;
     end;
 

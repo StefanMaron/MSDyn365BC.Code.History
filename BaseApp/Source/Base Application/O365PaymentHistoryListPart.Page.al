@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2119 "O365 Payment History ListPart"
 {
     Caption = 'Payment History';
@@ -10,6 +11,9 @@ page 2119 "O365 Payment History ListPart"
     ShowFilter = false;
     SourceTable = "O365 Payment History Buffer";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,23 +23,23 @@ page 2119 "O365 Payment History ListPart"
             {
                 field(Type; Type)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the type of the entry.';
                     Visible = ShowTypeColumn;
                 }
                 field(Amount; Amount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the payment received.';
                 }
-                field("Date Received"; "Date Received")
+                field("Date Received"; Rec."Date Received")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies the date the payment is received.';
                 }
-                field("Payment Method"; "Payment Method")
+                field("Payment Method"; Rec."Payment Method")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
             }
@@ -48,7 +52,7 @@ page 2119 "O365 Payment History ListPart"
         {
             action(MarkAsUnpaid)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Cancel payment registration';
                 Gesture = RightSwipe;
                 Image = Cancel;
@@ -59,12 +63,12 @@ page 2119 "O365 Payment History ListPart"
 
                 trigger OnAction()
                 begin
-                    MarkPaymentAsUnpaid;
+                    MarkPaymentAsUnpaid();
                 end;
             }
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Image = DocumentEdit;
                 ShortCutKey = 'Return';
                 Visible = false;
@@ -127,7 +131,7 @@ page 2119 "O365 Payment History ListPart"
 
     local procedure MarkPaymentAsUnpaid()
     begin
-        if CancelPayment then begin
+        if CancelPayment() then begin
             FillPaymentHistory(SalesInvoiceDocNo);
             ARecordHasBeenDeleted := true;
         end
@@ -138,4 +142,4 @@ page 2119 "O365 Payment History ListPart"
         exit(ARecordHasBeenDeleted);
     end;
 }
-
+#endif

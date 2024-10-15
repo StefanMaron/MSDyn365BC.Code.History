@@ -1,4 +1,4 @@
-table 287 "Customer Bank Account"
+﻿table 287 "Customer Bank Account"
 {
     Caption = 'Customer Bank Account';
     DataCaptionFields = "Customer No.", "Code", Name;
@@ -29,11 +29,6 @@ table 287 "Customer Bank Account"
         field(6; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(Address, "Address 2", "Post Code", City, "Country/Region Code", "Phone No.", "Fax No.");
-            end;
         }
         field(7; "Address 2"; Text[50])
         {
@@ -55,8 +50,13 @@ table 287 "Customer Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(9; "Post Code"; Code[20])
@@ -75,8 +75,13 @@ table 287 "Customer Bank Account"
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(10; Contact; Text[100])
@@ -185,7 +190,7 @@ table 287 "Customer Bank Account"
                     exit;
 
                 CompanyInfo.CheckIBAN(IBAN);
-                UpdateIBAN;
+                UpdateIBAN();
             end;
         }
         field(25; "SWIFT Code"; Code[20])
@@ -196,7 +201,7 @@ table 287 "Customer Bank Account"
 
             trigger OnValidate()
             begin
-                UpdateSWIFT;
+                UpdateSWIFT();
             end;
         }
         field(1211; "Bank Clearing Code"; Text[50])
@@ -215,22 +220,6 @@ table 287 "Customer Bank Account"
         field(11000001; "Account Holder Address"; Text[100])
         {
             Caption = 'Account Holder Address';
-
-            trigger OnValidate()
-            var
-                AcctHolderAddress2: Text[50];
-                PhoneNo: Text[30];
-                FaxNo: Text[30];
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(
-                  "Account Holder Address",
-                  AcctHolderAddress2,
-                  "Account Holder Post Code",
-                  "Account Holder City",
-                  "Acc. Hold. Country/Region Code",
-                  PhoneNo,
-                  FaxNo);
-            end;
         }
         field(11000002; "Account Holder Post Code"; Code[20])
         {
@@ -283,7 +272,7 @@ table 287 "Customer Bank Account"
 
             trigger OnValidate()
             begin
-                UpdateMandateID;
+                UpdateMandateID();
             end;
         }
     }
@@ -332,10 +321,13 @@ table 287 "Customer Bank Account"
         "Acc. Hold. Country/Region Code" := Cust."Country/Region Code";
     end;
 
+    trigger OnRename()
+    begin
+    end;
+
     var
         PostCode: Record "Post Code";
         Cust: Record Customer;
-        PostCodeMgt: Codeunit "Post Code Management";
         Text1000001: Label 'Bank Account No. %1 may be incorrect.';
         BankAccIdentifierIsEmptyErr: Label 'You must specify either a Bank Account No. or an IBAN.';
         BankAccDeleteErr: Label 'You cannot delete this bank account because it is associated with one or more open ledger entries.';
@@ -382,7 +374,7 @@ table 287 "Customer Bank Account"
 
     procedure GetBankAccountNoWithCheck() AccountNo: Text
     begin
-        AccountNo := GetBankAccountNo;
+        AccountNo := GetBankAccountNo();
         if AccountNo = '' then
             Error(BankAccIdentifierIsEmptyErr);
     end;
@@ -415,6 +407,16 @@ table 287 "Customer Bank Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetBankAccount(var Handled: Boolean; CustomerBankAccount: Record "Customer Bank Account"; var ResultBankAccountNo: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var CustomerBankAccount: Record "Customer Bank Account"; var PostCodeRec: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

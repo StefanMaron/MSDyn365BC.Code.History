@@ -10,7 +10,7 @@
     begin
         LockTable();
         BankAccount.Get("Bal. Account No.");
-        if Export(Rec, BankAccount.GetPaymentExportXMLPortID, '') then
+        if Export(Rec, BankAccount.GetPaymentExportXMLPortID(), '') then
             ExpUserFeedbackGenJnl.SetExportFlagOnGenJnlLine(Rec);
     end;
 
@@ -47,7 +47,7 @@
         OnBeforeBLOBExport(TempBlob, CreditTransferRegister, UseCommonDialog, FileCreated, IsHandled);
         if not IsHandled then
             FileCreated :=
-              FileManagement.BLOBExport(TempBlob, FileName, UseCommonDialog) <> '';
+                FileManagement.BLOBExport(TempBlob, FileName, UseCommonDialog) <> '';
         if FileCreated then
             SetCreditTransferRegisterToFileCreated(CreditTransferRegister, TempBlob);
 

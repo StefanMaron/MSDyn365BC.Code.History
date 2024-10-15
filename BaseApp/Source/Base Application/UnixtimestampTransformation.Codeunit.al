@@ -12,7 +12,7 @@ codeunit 1225 "Unixtimestamp Transformation"
     [EventSubscriber(ObjectType::Table, Database::"Transformation Rule", 'OnTransformation', '', false, false)]
     local procedure TransformUnixtimestampOnTransformation(TransformationCode: Code[20]; InputText: Text; var OutputText: Text)
     begin
-        if TransformationCode <> GetUnixTimestampCode then
+        if TransformationCode <> GetUnixTimestampCode() then
             exit;
         if not TryConvert2BigInteger(InputText, OutputText) then
             OutputText := ''

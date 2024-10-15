@@ -13,17 +13,17 @@ page 5059 "Contact Alt. Addr. Date Ranges"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date from which the alternate address is valid. There are certain rules for how dates should be entered.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last day on which the alternate address is valid. There are certain rules for how dates should be entered.';
                 }
-                field("Contact Alt. Address Code"; "Contact Alt. Address Code")
+                field("Contact Alt. Address Code"; Rec."Contact Alt. Address Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the contact alternate address to which the date range applies.';

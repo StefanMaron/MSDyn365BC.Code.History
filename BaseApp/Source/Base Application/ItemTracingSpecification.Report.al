@@ -13,7 +13,7 @@ report 6520 "Item Tracing Specification"
             column(FormatToday; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(HeaderText1; HeaderText[1])
@@ -362,7 +362,7 @@ report 6520 "Item Tracing Specification"
 
     trigger OnPreReport()
     begin
-        if TempTrackEntry.Find then
+        if TempTrackEntry.Find() then
             NoOfRecords := TempTrackEntry.Count
         else
             NoOfRecords := 0;

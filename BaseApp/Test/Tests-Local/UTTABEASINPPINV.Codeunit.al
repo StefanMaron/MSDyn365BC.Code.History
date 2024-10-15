@@ -176,7 +176,7 @@ codeunit 144033 "UT TAB EASINPPINV"
         VATPct: Decimal;
     begin
         // Setup: Create Purchase Document.
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         VATPct := CreatePurchaseDocument(PurchaseHeader, PurchaseLine, DocumentType);
 
         // Exercise.

@@ -1,7 +1,7 @@
 page 5603 "Main Asset Statistics"
 {
     Caption = 'Main Asset Statistics';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = Card;
@@ -213,7 +213,7 @@ page 5603 "Main Asset Statistics"
         GLPriceVisible := false;
         DispDateVisible := false;
 
-        ClearAll;
+        ClearAll();
         if "Main Asset/Component" <> "Main Asset/Component"::"Main Asset" then
             exit;
         with FADeprBook do begin

@@ -230,7 +230,7 @@ codeunit 144057 "UT COD Telebank"
             // second line
             "Line No." += 1;
             "Account Type" := "Account Type"::Vendor;
-            Insert;
+            Insert();
 
             VendLedgEntry.SetFilter("External Document No.", '<>%1', '');
             VendLedgEntry.FindFirst();
@@ -306,35 +306,35 @@ codeunit 144057 "UT COD Telebank"
     local procedure MockPaymentHistory(var PaymentHistory: Record "Payment History")
     begin
         with PaymentHistory do begin
-            Init;
+            Init();
             "Our Bank" := LibraryUTUtility.GetNewCode;
             "Run No." := LibraryUTUtility.GetNewCode;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockPaymentHistoryLine(var PaymentHistoryLine: Record "Payment History Line"; PaymentHistory: Record "Payment History")
     begin
         with PaymentHistoryLine do begin
-            Init;
+            Init();
             "Our Bank" := PaymentHistory."Our Bank";
             "Run No." := PaymentHistory."Run No.";
             "Line No." := 1;
             "Account Type" := "Account Type"::Customer;
             "Account No." := LibraryUTUtility.GetNewCode;
-            Date := WorkDate;
+            Date := WorkDate();
             Amount := 1;
             Bank := LibraryUTUtility.GetNewCode10;
             "Currency Code" := LibraryUTUtility.GetNewCode10;
             "Description 1" := LibraryUTUtility.GetNewCode;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockDetailLine(var DetailLine: Record "Detail Line"; PaymentHistoryLine: Record "Payment History Line"; SerialNoEntry: Integer)
     begin
         with DetailLine do begin
-            Init;
+            Init();
             "Transaction No." := LibraryUtility.GetNewRecNo(DetailLine, FieldNo("Transaction No."));
             "Our Bank" := PaymentHistoryLine."Our Bank";
             Status := Status::"In process";
@@ -342,7 +342,7 @@ codeunit 144057 "UT COD Telebank"
             "Connect Lines" := PaymentHistoryLine."Line No.";
             "Account Type" := "Account Type"::Vendor;
             "Serial No. (Entry)" := SerialNoEntry;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -375,7 +375,7 @@ codeunit 144057 "UT COD Telebank"
                 if "Account Type" = "Account Type"::Vendor then
                     PaymentHistoryLine."Description 1" := AppliesToDocNo;
                 Assert.AreEqual(PaymentHistoryLine."Description 1", Description, FieldName(Description));
-                PaymentHistoryLine.Next;
+                PaymentHistoryLine.Next();
             until Next = 0;
         end;
     end;

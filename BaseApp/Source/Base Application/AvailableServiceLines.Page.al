@@ -175,13 +175,10 @@ page 5999 "Available - Service Lines"
     begin
         ReservEntry.TestField("Source Type");
 
-        SetFilters;
+        SetFilters();
     end;
 
     var
-        Text000: Label 'Fully reserved.';
-        Text001: Label 'Do you want to cancel the reservation?';
-        Text002: Label 'The available quantity is %1.';
         ReservEntry: Record "Reservation Entry";
         ReservEntry2: Record "Reservation Entry";
         ReservMgt: Codeunit "Reservation Management";
@@ -193,6 +190,10 @@ page 5999 "Available - Service Lines"
         NewQtyReservedBase: Decimal;
         CaptionText: Text;
         CurrentSubType: Option;
+
+        Text000: Label 'Fully reserved.';
+        Text001: Label 'Do you want to cancel the reservation?';
+        Text002: Label 'The available quantity is %1.';
 
     protected var
         QtyToReserve: Decimal;
@@ -274,12 +275,12 @@ page 5999 "Available - Service Lines"
         Rec.SetFilter("Needed by Date", ReservMgt.GetAvailabilityFilter(ReservEntry."Shipment Date"));
         case CurrentSubType of
             0, 1, 2, 4:
-                if ReservMgt.IsPositive then
+                if ReservMgt.IsPositive() then
                     Rec.SetFilter("Quantity (Base)", '<0')
                 else
                     Rec.SetFilter("Quantity (Base)", '>0');
             3:
-                if not ReservMgt.IsPositive then
+                if not ReservMgt.IsPositive() then
                     Rec.SetFilter("Quantity (Base)", '<0')
                 else
                     Rec.SetFilter("Quantity (Base)", '>0');

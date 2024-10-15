@@ -6,7 +6,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     end;
 
     var
-        GLAccWhereUsed: Record "G/L Account Where-Used" temporary;
+        TempGLAccWhereUsed: Record "G/L Account Where-Used" temporary;
         NextEntryNo: Integer;
         Text000: Label 'The update has been interrupted to respect the warning.';
         ShowWhereUsedQst: Label 'You cannot delete a %1 that is used in one or more setup windows.\Do you want to open the G/L Account No. Where-Used List Window?', Comment = '%1 -  Table Caption';
@@ -158,10 +158,10 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         GLSetup.Get();
         if GLSetup."Check G/L Account Usage" then begin
             CheckPostingGroups(GLAccNo);
-            if GLAccWhereUsed.FindFirst() then begin
+            if TempGLAccWhereUsed.FindFirst() then begin
                 Commit();
-                if ConfirmManagement.GetResponse(StrSubstNo(ShowWhereUsedQst, GLAcc.TableCaption), true) then
-                    ShowGLAccWhereUsed;
+                if ConfirmManagement.GetResponse(StrSubstNo(ShowWhereUsedQst, GLAcc.TableCaption()), true) then
+                    ShowGLAccWhereUsed();
                 Error(Text000);
             end;
         end;
@@ -171,22 +171,22 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     procedure CheckGLAcc(GLAccNo: Code[20])
     begin
         CheckPostingGroups(GLAccNo);
-        ShowGLAccWhereUsed;
+        ShowGLAccWhereUsed();
     end;
 
     local procedure ShowGLAccWhereUsed()
     begin
-        OnBeforeShowGLAccWhereUsed(GLAccWhereUsed);
+        OnBeforeShowGLAccWhereUsed(TempGLAccWhereUsed);
 
-        GLAccWhereUsed.SetCurrentKey("Table Name");
-        PAGE.RunModal(0, GLAccWhereUsed);
+        TempGLAccWhereUsed.SetCurrentKey("Table Name");
+        PAGE.RunModal(0, TempGLAccWhereUsed);
     end;
 
     procedure InsertGroupForRecord(var TempGLAccountWhereUsed: Record "G/L Account Where-Used" temporary; TableID: Integer; TableCaption: Text[80]; GLAccNo: Code[20]; GLAccNo2: Code[20]; FieldCaption: Text[80]; "Key": array[8] of Text[80])
     begin
         TempGLAccountWhereUsed."Table ID" := TableID;
         TempGLAccountWhereUsed."Table Name" := TableCaption;
-        GLAccWhereUsed.Copy(TempGLAccountWhereUsed, true);
+        TempGLAccWhereUsed.Copy(TempGLAccountWhereUsed, true);
         InsertGroup(GLAccNo, GLAccNo2, FieldCaption, Key);
     end;
 
@@ -194,85 +194,85 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
     begin
         if GLAccNo = GLAccNo2 then begin
             if NextEntryNo = 0 then
-                NextEntryNo := GLAccWhereUsed.GetLastEntryNo() + 1;
+                NextEntryNo := TempGLAccWhereUsed.GetLastEntryNo() + 1;
 
-            GLAccWhereUsed."Field Name" := FieldCaption;
+            TempGLAccWhereUsed."Field Name" := FieldCaption;
             if Key[1] <> '' then
-                GLAccWhereUsed.Line := Key[1] + '=' + Key[4]
+                TempGLAccWhereUsed.Line := Key[1] + '=' + Key[4]
             else
-                GLAccWhereUsed.Line := '';
+                TempGLAccWhereUsed.Line := '';
             if Key[2] <> '' then
-                GLAccWhereUsed.Line := GLAccWhereUsed.Line + ', ' + Key[2] + '=' + Key[5];
+                TempGLAccWhereUsed.Line := TempGLAccWhereUsed.Line + ', ' + Key[2] + '=' + Key[5];
             if Key[3] <> '' then
-                GLAccWhereUsed.Line := GLAccWhereUsed.Line + ', ' + Key[3] + '=' + Key[6];
+                TempGLAccWhereUsed.Line := TempGLAccWhereUsed.Line + ', ' + Key[3] + '=' + Key[6];
             if Key[7] <> '' then
-                GLAccWhereUsed.Line := GLAccWhereUsed.Line + ', ' + Key[7] + '=' + Key[8];
-            GLAccWhereUsed."Entry No." := NextEntryNo;
-            GLAccWhereUsed."Key 1" := CopyStr(Key[4], 1, MaxStrLen(GLAccWhereUsed."Key 1"));
-            GLAccWhereUsed."Key 2" := CopyStr(Key[5], 1, MaxStrLen(GLAccWhereUsed."Key 2"));
-            GLAccWhereUsed."Key 3" := CopyStr(Key[6], 1, MaxStrLen(GLAccWhereUsed."Key 3"));
-            GLAccWhereUsed."Key 4" := CopyStr(Key[8], 1, MaxStrLen(GLAccWhereUsed."Key 4"));
+                TempGLAccWhereUsed.Line := TempGLAccWhereUsed.Line + ', ' + Key[7] + '=' + Key[8];
+            TempGLAccWhereUsed."Entry No." := NextEntryNo;
+            TempGLAccWhereUsed."Key 1" := CopyStr(Key[4], 1, MaxStrLen(TempGLAccWhereUsed."Key 1"));
+            TempGLAccWhereUsed."Key 2" := CopyStr(Key[5], 1, MaxStrLen(TempGLAccWhereUsed."Key 2"));
+            TempGLAccWhereUsed."Key 3" := CopyStr(Key[6], 1, MaxStrLen(TempGLAccWhereUsed."Key 3"));
+            TempGLAccWhereUsed."Key 4" := CopyStr(Key[8], 1, MaxStrLen(TempGLAccWhereUsed."Key 4"));
             NextEntryNo := NextEntryNo + 1;
-            GLAccWhereUsed.Insert();
+            TempGLAccWhereUsed.Insert();
         end;
     end;
 
     local procedure InsertGroupFromRecRef(var RecRef: RecordRef; FieldCaption: Text[80])
     var
-        KeyRef: KeyRef;
         FieldRef: FieldRef;
+        KeyRef: KeyRef;
         KeyFieldCount: Integer;
         FieldCaptionAndValue: Text;
     begin
         if NextEntryNo = 0 then
-            NextEntryNo := GLAccWhereUsed.GetLastEntryNo() + 1;
+            NextEntryNo := TempGLAccWhereUsed.GetLastEntryNo() + 1;
 
-        GLAccWhereUsed."Entry No." := NextEntryNo;
-        GLAccWhereUsed."Field Name" := FieldCaption;
-        GLAccWhereUsed.Line := '';
+        TempGLAccWhereUsed."Entry No." := NextEntryNo;
+        TempGLAccWhereUsed."Field Name" := FieldCaption;
+        TempGLAccWhereUsed.Line := '';
         KeyRef := RecRef.KeyIndex(1);
         for KeyFieldCount := 1 to KeyRef.FieldCount do begin
             FieldRef := KeyRef.FieldIndex(KeyFieldCount);
             FieldCaptionAndValue := StrSubstNo('%1=%2', FieldRef.Caption, FieldRef.Value);
-            if GLAccWhereUsed.Line = '' then
-                GLAccWhereUsed.Line := CopyStr(FieldCaptionAndValue, 1, MaxStrLen(GLAccWhereUsed.Line))
+            if TempGLAccWhereUsed.Line = '' then
+                TempGLAccWhereUsed.Line := CopyStr(FieldCaptionAndValue, 1, MaxStrLen(TempGLAccWhereUsed.Line))
             else
-                GLAccWhereUsed.Line :=
-                  CopyStr(GLAccWhereUsed.Line + ', ' + FieldCaptionAndValue, 1, MaxStrLen(GLAccWhereUsed.Line));
+                TempGLAccWhereUsed.Line :=
+                  CopyStr(TempGLAccWhereUsed.Line + ', ' + FieldCaptionAndValue, 1, MaxStrLen(TempGLAccWhereUsed.Line));
 
             case KeyFieldCount of
                 1:
-                    GLAccWhereUsed."Key 1" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(GLAccWhereUsed."Key 1"));
+                    TempGLAccWhereUsed."Key 1" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(TempGLAccWhereUsed."Key 1"));
                 2:
-                    GLAccWhereUsed."Key 2" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(GLAccWhereUsed."Key 2"));
+                    TempGLAccWhereUsed."Key 2" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(TempGLAccWhereUsed."Key 2"));
                 3:
-                    GLAccWhereUsed."Key 3" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(GLAccWhereUsed."Key 3"));
+                    TempGLAccWhereUsed."Key 3" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(TempGLAccWhereUsed."Key 3"));
                 4:
-                    GLAccWhereUsed."Key 4" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(GLAccWhereUsed."Key 4"));
+                    TempGLAccWhereUsed."Key 4" := CopyStr(Format(FieldRef.Value), 1, MaxStrLen(TempGLAccWhereUsed."Key 4"));
             end;
         end;
         NextEntryNo := NextEntryNo + 1;
-        GLAccWhereUsed.Insert();
+        TempGLAccWhereUsed.Insert();
     end;
 
     procedure CheckPostingGroups(GLAccNo: Code[20])
     var
         GLAcc: Record "G/L Account";
-        TableBuffer: Record "Integer" temporary;
+        TempTableBuffer: Record "Integer" temporary;
     begin
         NextEntryNo := 0;
-        Clear(GLAccWhereUsed);
-        GLAccWhereUsed.DeleteAll();
+        Clear(TempGLAccWhereUsed);
+        TempGLAccWhereUsed.DeleteAll();
         GLAcc.Get(GLAccNo);
-        GLAccWhereUsed."G/L Account No." := GLAccNo;
-        GLAccWhereUsed."G/L Account Name" := GLAcc.Name;
+        TempGLAccWhereUsed."G/L Account No." := GLAccNo;
+        TempGLAccWhereUsed."G/L Account Name" := GLAcc.Name;
 
-        if FillTableBuffer(TableBuffer) then
+        if FillTableBuffer(TempTableBuffer) then
             repeat
-                CheckTable(GLAccNo, TableBuffer.Number);
-            until TableBuffer.Next() = 0;
+                CheckTable(GLAccNo, TempTableBuffer.Number);
+            until TempTableBuffer.Next() = 0;
 
-        OnAfterCheckPostingGroups(GLAccWhereUsed, GLAccNo);
+        OnAfterCheckPostingGroups(TempGLAccWhereUsed, GLAccNo);
     end;
 
     local procedure FillTableBuffer(var TableBuffer: Record "Integer"): Boolean
@@ -303,7 +303,7 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
 
         OnAfterFillTableBuffer(TableBuffer);
 
-        exit(TableBuffer.FindSet);
+        exit(TableBuffer.FindSet());
     end;
 
     procedure AddTable(var TableBuffer: Record "Integer"; TableID: Integer)
@@ -327,9 +327,9 @@ codeunit 100 "Calc. G/L Acc. Where-Used"
         RecRef: RecordRef;
     begin
         RecRef.Open(TableID);
-        GLAccWhereUsed.Init();
-        GLAccWhereUsed."Table ID" := TableID;
-        GLAccWhereUsed."Table Name" := RecRef.Caption;
+        TempGLAccWhereUsed.Init();
+        TempGLAccWhereUsed."Table ID" := TableID;
+        TempGLAccWhereUsed."Table Name" := RecRef.Caption;
 
         TableRelationsMetadata.SetRange("Table ID", TableID);
         TableRelationsMetadata.SetRange("Related Table ID", DATABASE::"G/L Account");

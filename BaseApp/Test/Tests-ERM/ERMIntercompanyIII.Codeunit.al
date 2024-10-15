@@ -152,7 +152,7 @@ codeunit 134154 "ERM Intercompany III"
         MockICInboxSalesOrder(ICInboxSalesHeader, DimensionValue, CustomerNo);
 
         // [WHEN] Invoke CreateSalesDocument
-        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreateSalesDocument(ICInboxSalesHeader, false, WorkDate());
 
         // [THEN] Created Sales Order has dimensions:
         // [THEN] Sales header:
@@ -199,7 +199,7 @@ codeunit 134154 "ERM Intercompany III"
         MockICInboxPurchOrder(ICInboxPurchaseHeader, DimensionValue, VendorNo);
 
         // [WHEN] Invoke CreatePurchDocument
-        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate);
+        ICInboxOutboxMgt.CreatePurchDocument(ICInboxPurchaseHeader, false, WorkDate());
 
         // [THEN] Created Purchase Order has dimensions:
         // [THEN] Purchase header:
@@ -3154,8 +3154,8 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxPurchaseHeader."Document Type" := ICInboxPurchaseHeader."Document Type"::Order;
         ICInboxPurchaseHeader."Buy-from Vendor No." := VendorNo;
         ICInboxPurchaseHeader."Pay-to Vendor No." := VendorNo;
-        ICInboxPurchaseHeader."Posting Date" := WorkDate;
-        ICInboxPurchaseHeader."Document Date" := WorkDate;
+        ICInboxPurchaseHeader."Posting Date" := WorkDate();
+        ICInboxPurchaseHeader."Document Date" := WorkDate();
         ICInboxPurchaseHeader.Insert();
     end;
 
@@ -3339,7 +3339,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         ICDimensions.OpenView;
         ICDimensions.CopyFromDimensions.Invoke;
-        ICDimensions.Close;
+        ICDimensions.Close();
     end;
 
     local procedure SetFilterDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; DimensionValue: Record "Dimension Value")

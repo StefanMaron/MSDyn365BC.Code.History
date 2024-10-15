@@ -71,7 +71,7 @@
             exit(true);
 
         if CountryCode = '' then begin
-            if not CompanyInfo.Get then
+            if not CompanyInfo.Get() then
                 exit;
             SetRange("Country/Region Code", CompanyInfo."Country/Region Code");
         end else
@@ -278,7 +278,7 @@
         if IsHandled then
             exit;
 
-        if not CompanyInformation.Get then
+        if not CompanyInformation.Get() then
             exit;
 
         if UpperCase(CopyStr(VATRegNo, 1, 2)) <> 'NL' then

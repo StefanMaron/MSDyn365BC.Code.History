@@ -198,7 +198,7 @@ codeunit 144026 "UT COD Required Description"
         CBGStatementLine."Statement No." := CBGStatement."Account No.";
         CBGStatementLine."Account Type" := AccountType;
         CBGStatementLine."Account No." := AccountNo;
-        CBGStatementLine.Date := WorkDate;
+        CBGStatementLine.Date := WorkDate();
         CBGStatementLine."Document No." := LibraryUTUtility.GetNewCode;
         CBGStatementLine.Insert();
     end;
@@ -232,7 +232,7 @@ codeunit 144026 "UT COD Required Description"
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Account Type" := AccountType;
         GenJournalLine."Account No." := AccountNo;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         GenJournalLine.Amount := LibraryRandom.RandDec(10, 2);  // Use Random for Amount.
         GenJournalLine.Insert();

@@ -1,7 +1,14 @@
 table 407 "Graph Mail Setup"
 {
     Caption = 'Graph Mail Setup';
-
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
     fields
     {
         field(1; "Code"; Code[10])
@@ -48,7 +55,7 @@ table 407 "Graph Mail Setup"
     fieldgroups
     {
     }
-
+#if not CLEAN21
     var
         GraphMailCategoryTxt: Label 'AL GraphMail', Locked = true;
         GraphMailSentMsg: Label 'Sent an email', Locked = true;
@@ -66,18 +73,20 @@ table 407 "Graph Mail Setup"
         RefreshTokenKeyTxt: Label 'RefreshTokenKey', Locked = true;
 
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure IsEnabled(): Boolean
     var
         GraphMail: Codeunit "Graph Mail";
     begin
-        exit(GraphMail.IsEnabled);
+        exit(GraphMail.IsEnabled());
     end;
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure RenewRefreshToken()
     begin
-        GetToken;
+        GetToken();
     end;
 
     [NonDebuggable]
@@ -94,7 +103,7 @@ table 407 "Graph Mail Setup"
         if ResourceId = '' then
             Error(MissingClientInfoErr);
 
-        if not IsEnabled then
+        if not IsEnabled() then
             Error(NotEnabledErr);
 
         if not TryGetToken(ResourceId, TokenCacheState, "Sender AAD ID", AccessToken) then begin
@@ -102,13 +111,13 @@ table 407 "Graph Mail Setup"
                 IsolatedStorage.Delete(Format(RefreshTokenKeyTxt), DataScope::Company);
             Clear("Expires On");
             Validate(Enabled, false);
-            Modify;
+            Modify();
             exit;
         end;
 
         SetRefreshToken(TokenCacheState);
         Validate("Expires On", CreateDateTime(Today + 14, Time));
-        Modify;
+        Modify();
 
         exit(AccessToken);
     end;
@@ -121,7 +130,7 @@ table 407 "Graph Mail Setup"
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
         Session.LogMessage('00001QL', GraphMailGetTokenMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
-        AccessToken := AzureADMgt.GetTokenFromTokenCacheState(ResourceId, AadUserId, GetTokenCacheState, TokenCacheState);
+        AccessToken := AzureADMgt.GetTokenFromTokenCacheState(ResourceId, AadUserId, GetTokenCacheState(), TokenCacheState);
 
         if AccessToken = '' then
             Error('');
@@ -129,6 +138,7 @@ table 407 "Graph Mail Setup"
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SendTestMail(Recipient: Text)
     var
         TempEmailItem: Record "Email Item" temporary;
@@ -142,15 +152,16 @@ table 407 "Graph Mail Setup"
         TempEmailItem."From Address" := CopyStr("Sender Email", 1, MaxStrLen(TempEmailItem."From Address"));
         TempEmailItem."From Name" := CopyStr("Sender Name", 1, MaxStrLen(TempEmailItem."From Name"));
         TempEmailItem.Subject := TestEmailSubjectTxt;
-        TempEmailItem.SetBodyText(GraphMail.GetTestMessageBody);
+        TempEmailItem.SetBodyText(GraphMail.GetTestMessageBody());
 
         Payload := GraphMail.PrepareMessage(TempEmailItem);
 
-        SendWebRequest(Payload, GetToken);
+        SendWebRequest(Payload, GetToken());
     end;
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SendMail(TempEmailItem: Record "Email Item" temporary; var TokenCacheState: Text)
     var
         GraphMail: Codeunit "Graph Mail";
@@ -184,7 +195,7 @@ table 407 "Graph Mail Setup"
     begin
         TempBlob.CreateInStream(ResponseInStream);
 
-        HttpWebRequestMgt.Initialize(StrSubstNo('%1/v1.0/me/sendMail', GraphMail.GetGraphDomain));
+        HttpWebRequestMgt.Initialize(StrSubstNo('%1/v1.0/me/sendMail', GraphMail.GetGraphDomain()));
         HttpWebRequestMgt.SetMethod('POST');
         HttpWebRequestMgt.SetContentType('application/json');
         HttpWebRequestMgt.SetReturnType('application/json');
@@ -210,6 +221,7 @@ table 407 "Graph Mail Setup"
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetRefreshToken(Token: Text)
     begin
         IsolatedStorage.Set(Format(RefreshTokenKeyTxt), Token, DataScope::Company);
@@ -217,6 +229,7 @@ table 407 "Graph Mail Setup"
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure Initialize(ShowDialogs: Boolean): Boolean
     var
         AzureKeyVault: Codeunit "Azure Key Vault";
@@ -243,7 +256,7 @@ table 407 "Graph Mail Setup"
         if not SetUserFields(Token) then begin
             if GuiAllowed and ShowDialogs then
                 Message(MissingEmailMsg);
-            Init; // clean the rec
+            Init(); // clean the rec
             Session.LogMessage('00007IB', UserInfoFailedErr, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', GraphMailCategoryTxt);
             exit(false);
         end;
@@ -269,7 +282,7 @@ table 407 "Graph Mail Setup"
     begin
         TempBlob.CreateInStream(ResponseInStream);
 
-        HttpWebRequestMgt.Initialize(StrSubstNo('%1/v1.0/me/', GraphMail.GetGraphDomain));
+        HttpWebRequestMgt.Initialize(StrSubstNo('%1/v1.0/me/', GraphMail.GetGraphDomain()));
         HttpWebRequestMgt.SetReturnType('application/json');
         HttpWebRequestMgt.AddHeader('Authorization', StrSubstNo('Bearer %1', Token));
 
@@ -292,5 +305,6 @@ table 407 "Graph Mail Setup"
 
         exit(true);
     end;
+#endif
 }
 

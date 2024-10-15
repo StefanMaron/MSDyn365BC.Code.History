@@ -1,4 +1,4 @@
-﻿codeunit 135300 "O365 Purch Item Charge Tests"
+codeunit 135300 "O365 Purch Item Charge Tests"
 {
     Subtype = Test;
     TestPermissions = NonRestrictive;

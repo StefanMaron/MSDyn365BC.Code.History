@@ -429,7 +429,7 @@ codeunit 136206 "Marketing Profiling"
         Assert.RecordIsEmpty(ContactProfileAnswer);
 
         // [THEN] Contact "C" is included in "Answer 2"
-        ProfileQuestionnaireLine.Next;
+        ProfileQuestionnaireLine.Next();
         ContactProfileAnswer.SetRange("Line No.", ProfileQuestionnaireLine."Line No.");
         Assert.RecordIsNotEmpty(ContactProfileAnswer);
     end;
@@ -482,8 +482,8 @@ codeunit 136206 "Marketing Profiling"
         // [SCENARIO 381660] Stan calls "Update Contacts Classification" report when question's classification method is "Percentage of Value"
         Initialize();
         InvoiceAmount := LibraryRandom.RandIntInRange(10, 20);
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate('<2Y>', WorkDate); // move to clean year.
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<2Y>', WorkDate()); // move to clean year.
         ProfileQuestionnaireCode := CreateQuestionnairesHeaderWithContactType(ProfileQuestionnaireHeader."Contact Type"::Companies);
 
         // [GIVEN] Question with "Classification Method" = "Percentage of Value"
@@ -532,7 +532,7 @@ codeunit 136206 "Marketing Profiling"
             Assert.RecordIsNotEmpty(ContactProfileAnswer);
             ContactProfileAnswer.SetFilter("Line No.", '<>%1', ProfileQuestionnaireLine."Line No.");
             Assert.RecordIsEmpty(ContactProfileAnswer);
-            ProfileQuestionnaireLine.Next;
+            ProfileQuestionnaireLine.Next();
         end;
     end;
 
@@ -624,7 +624,7 @@ codeunit 136206 "Marketing Profiling"
         CreateContsFromVendors: Report "Create Conts. from Vendors";
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.SetRecFilter;
+        Vendor.SetRecFilter();
         CreateContsFromVendors.UseRequestPage(false);
         CreateContsFromVendors.SetTableView(Vendor);
         CreateContsFromVendors.Run();
@@ -976,7 +976,7 @@ codeunit 136206 "Marketing Profiling"
     procedure SettingTwoAnswerUnCheckOneOnQuestionnaireHandler(var ContactProfAnswers: TestPage "Contact Profile Answers")
     begin
         ContactProfAnswers.Set.SetValue(true);
-        ContactProfAnswers.Next;
+        ContactProfAnswers.Next();
         asserterror ContactProfAnswers.Set.SetValue(true);
         ContactProfAnswers.Set.SetValue(false);
         ContactProfAnswers.OK.Invoke; // No error pops up after uncheck the 2nd answer.
@@ -1002,7 +1002,7 @@ codeunit 136206 "Marketing Profiling"
         LibraryVariableStorage.Dequeue(ToValue);
 
         TestPage.First;
-        TestPage.Next;
+        TestPage.Next();
         TestPage."From Value".SetValue(FromValue);
         TestPage."To Value".SetValue(ToValue);
 

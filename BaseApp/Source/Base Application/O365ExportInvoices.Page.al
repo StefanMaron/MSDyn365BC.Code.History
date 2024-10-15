@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2129 "O365 Export Invoices"
 {
     Caption = 'Export Invoices';
     PageType = StandardDialog;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,19 +16,19 @@ page 2129 "O365 Export Invoices"
                 ShowCaption = false;
                 field(StartDate; StartDate)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Start Date';
                     ToolTip = 'Specifies the starting date of the time period to export invoices';
                 }
                 field(EndDate; EndDate)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'End Date';
                     ToolTip = 'Specifies the ending date of the time period to export invoices';
                 }
                 field(Email; Email)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email';
                     ExtendedDatatype = EMail;
                     ToolTip = 'Specifies the email recipients for the exported invoices';
@@ -69,10 +73,10 @@ page 2129 "O365 Export Invoices"
     var
         O365EmailSetup: Record "O365 Email Setup";
     begin
-        StartDate := CalcDate('<-CM>', WorkDate);
-        EndDate := WorkDate;
+        StartDate := CalcDate('<-CM>', WorkDate());
+        EndDate := WorkDate();
         if O365EmailSetup.FindLast() then
             Email := O365EmailSetup.Email;
     end;
 }
-
+#endif

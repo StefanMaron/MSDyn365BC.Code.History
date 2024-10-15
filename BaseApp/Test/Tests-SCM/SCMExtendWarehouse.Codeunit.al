@@ -402,7 +402,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             WarehouseShipmentLine.Validate("Bin Code", Bin.Code);
             WarehouseShipmentLine.Modify(true);
-        until WarehouseShipmentLine.Next = 0;
+        until WarehouseShipmentLine.Next() = 0;
     end;
 
     local procedure SetBinAndCreateWhsePick(Location: Record Location; Bin: Record Bin)
@@ -505,7 +505,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             ProdOrderComponent."Bin Code" := Bin.Code;
             ProdOrderComponent.Modify(true);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure ChangeBinForComponent(ProdOrderComponent: Record "Prod. Order Component"; ToBinCode: Code[20])
@@ -524,7 +524,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             ProdOrderComponent.Validate("Quantity per", NewQuantity);
             ProdOrderComponent.Modify(true);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure ChangeFromBinCodeOnIntMovLines(InternalMovementHeader: Record "Internal Movement Header"; NewBin: Record Bin)
@@ -537,7 +537,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             InternalMovementLine.Validate("From Bin Code", NewBin.Code);
             InternalMovementLine.Modify(true);
-        until InternalMovementLine.Next = 0;
+        until InternalMovementLine.Next() = 0;
     end;
 
     local procedure ChangeQtyOnIntMovLines(InternalMovementHeader: Record "Internal Movement Header"; Qty: Decimal)
@@ -550,7 +550,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             InternalMovementLine.Validate(Quantity, Qty);
             InternalMovementLine.Modify(true);
-        until InternalMovementLine.Next = 0;
+        until InternalMovementLine.Next() = 0;
     end;
 
     local procedure ChangeItemQtyOnInternalMvmt(InternalMovementHeader: Record "Internal Movement Header"; Item: Record Item; Quantity: Decimal)
@@ -563,7 +563,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             InternalMovementLine.Validate(Quantity, Quantity);
             InternalMovementLine.Modify(true);
-        until InternalMovementLine.Next = 0;
+        until InternalMovementLine.Next() = 0;
     end;
 
     local procedure CalculateAndPostConsumption(ProductionOrder: Record "Production Order")
@@ -663,7 +663,7 @@ codeunit 137030 "SCM Extend Warehouse"
             ProdOrderComponent.Validate("Variant Code", VariantCode);
             ProdOrderComponent."Bin Code" := BinCode;
             ProdOrderComponent.Modify(true);
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
     end;
 
     local procedure FillQtyToHandle(ProductionOrder: Record "Production Order"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal; ActivityType: Enum "Warehouse Activity Type")
@@ -711,7 +711,7 @@ codeunit 137030 "SCM Extend Warehouse"
         repeat
             WarehouseActivityLine.Validate("Bin Code", BinCode);
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure SplitWhseActivityLine(ProductionOrder: Record "Production Order"; ActionType: Enum "Warehouse Action Type"; QtyToHandle: Decimal)
@@ -948,7 +948,7 @@ codeunit 137030 "SCM Extend Warehouse"
           LibraryWarehouse.CreateInternalMovementHeader(InternalMovementHeader, LocationCode, ToBinCode);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertCannotCreateInvtMvmt(InternalMovementHeader: Record "Internal Movement Header")
@@ -958,7 +958,7 @@ codeunit 137030 "SCM Extend Warehouse"
           LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_THERE_NOTHING_TO_HANDLE) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertCannotCreateInvtMvmtMan(WarehouseActivityHeader: Record "Warehouse Activity Header"; Message: Text[1024])
@@ -968,7 +968,7 @@ codeunit 137030 "SCM Extend Warehouse"
           LibraryWarehouse.GetSourceDocInventoryMovement(WarehouseActivityHeader);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertCannotCreateInvtMvmtProd(ProductionOrder: Record "Production Order")
@@ -981,7 +981,7 @@ codeunit 137030 "SCM Extend Warehouse"
             WarehouseRequest."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_THERE_NOTHING_TO_CREATE) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertCannotCreateWhsePick(Location: Record Location; Bin: Record Bin)
@@ -991,7 +991,7 @@ codeunit 137030 "SCM Extend Warehouse"
           SetBinAndCreateWhsePick(Location, Bin);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_NOTHING_TO_HANDLE) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertCannotRegisterInvtMovm(Location: Record Location; Message: Text[1024])
@@ -1001,7 +1001,7 @@ codeunit 137030 "SCM Extend Warehouse"
           RegisterInventoryMovement(Location);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertCannotSplitLine(ProductionOrder: Record "Production Order"; Qty: Decimal; Message: Text[1024])
@@ -1013,7 +1013,7 @@ codeunit 137030 "SCM Extend Warehouse"
           SplitWhseActivityLine(ProductionOrder, WarehouseActivityLine."Action Type"::Take, Qty);
         Assert.IsTrue(StrPos(GetLastErrorText, Message) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure AssertProdOrderComponent(ProductionOrder: Record "Production Order"; ComponentItemNo: Code[30]; RemainingQty: Decimal; ExpQuantity: Decimal; PickedQuantity: Decimal; PickedQuantityBase: Decimal; LocationCode: Code[30]; BinCode: Code[30]; ExpectedCount: Integer)
@@ -1344,7 +1344,7 @@ codeunit 137030 "SCM Extend Warehouse"
           CreateInternalMovementGetBin(InternalMovementHeader, Item, LocationWhite, FirstBin, '');
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_DIRECT_NO) > 0, GetLastErrorText);
 
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -5778,7 +5778,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
 
@@ -5822,7 +5822,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         SetBinAndCreateWhsePick(Location, SecondBin);
@@ -5888,7 +5888,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
 
@@ -5929,7 +5929,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
         SetBinAndCreateWhsePick(Location, SecondBin);
@@ -5989,7 +5989,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         ReserveSalesLine(SalesLine, true, 1);
     end;
 
@@ -6043,7 +6043,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // This shouldn't be created - handle message - nothing to create
@@ -6053,7 +6053,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AutoFillQtyAndRegisterInvtMvmt(Location);
 
         // Change bin code on sales line and create the pick for the Sales order
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Bin Code", SecondBin.Code);
         SalesLine.Modify(true);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
@@ -6114,7 +6114,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
@@ -6180,7 +6180,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         ReserveSalesLine(SalesLine, true, 1);
 
         // Check reserved qty
@@ -6221,7 +6221,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, SecondBin, FirstBin.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         ReserveSalesLine(SalesLine, true, 1);
 
         // Check reserved qty
@@ -6272,7 +6272,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseRequest."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
 
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
 
@@ -6340,7 +6340,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         LibraryWarehouse.CreateInvtPutPickMovement(
           WarehouseRequest."Source Document"::"Prod. Consumption", ProductionOrder."No.", false, false, true);
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // This shouldn't be created - handle message - nothing to create
@@ -6350,7 +6350,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AutoFillQtyAndRegisterInvtMvmt(Location);
 
         // Change bin code on sales line and create the pick for the Sales order
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Bin Code", SecondBin.Code);
         SalesLine.Modify(true);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
@@ -6406,7 +6406,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertInvtMovement(ProductionOrder, ChildItem, Location, FirstBin, SecondBin, 2, 0, 1);
 
         // Create and reserve sales order
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         ReserveSalesLine(SalesLine, true, 2);
 
@@ -6459,7 +6459,7 @@ codeunit 137030 "SCM Extend Warehouse"
         AssertInvtMovement(ProductionOrder, ChildItem, Location, FirstBin, SecondBin, 2, 0, 1);
 
         // Create sales order and reserve
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         ReserveSalesLine(SalesLine, true, 2);
@@ -6518,7 +6518,7 @@ codeunit 137030 "SCM Extend Warehouse"
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 1, Location.Code, '');
         SetBinCodeOnCompLines(ProductionOrder, SecondBin);
 
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
 
@@ -6584,7 +6584,7 @@ codeunit 137030 "SCM Extend Warehouse"
         CreateRelProdOrderAndRefresh(ProductionOrder, ParentItem."No.", 1, Location.Code, '');
         SetBinCodeOnCompLines(ProductionOrder, SecondBin);
 
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBin, 2, WorkDate());
         ReserveSalesLine(SalesLine, true, 2);
 
         // Check reserved qty
@@ -6647,7 +6647,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // This shouldn't be created - handle message - nothing to create
@@ -6685,7 +6685,7 @@ codeunit 137030 "SCM Extend Warehouse"
 
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBin, 1);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, FirstBin, 1, WorkDate());
         ReserveSalesLine(SalesLine, true, 2);
 
         // Check reserved qty
@@ -6743,7 +6743,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBinD, 1);
         AddInventoryNonDirectLocation(Item, Location, SecondBinND, 2);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, ThirdBinND, SecondBinND.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
@@ -6761,7 +6761,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.RegisterWhseActivity(WhseActivityHdr);
 
         // Create pick again
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Bin Code", ThirdBinND.Code);
         SalesLine.Modify(true);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
@@ -6826,7 +6826,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBinD, 1);
         AddInventoryNonDirectLocation(Item, Location, SecondBinND, 2);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
@@ -6849,7 +6849,7 @@ codeunit 137030 "SCM Extend Warehouse"
         asserterror SetBinAndCreateWhsePick(Location, SecondBinND);
         Assert.IsTrue(StrPos(GetLastErrorText, MSG_NOTHING_TO_HANDLE) > 0,
           'Creating picks with same bin on Take & Place lines not allowed');
-        ClearLastError;
+        ClearLastError();
 
         // Change shipment bin to a bin where the item does not exist
         FindBin(FourthBinND, Location, false, 3);
@@ -6899,7 +6899,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBinD, 1);
         AddInventoryNonDirectLocation(Item, Location, SecondBinND, 1);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CreateInternalMovementGetBin(InternalMovementHeader, Item, Location, ThirdBinND, SecondBinND.Code);
         LibraryWarehouse.CreateInvtMvmtFromInternalMvmt(InternalMovementHeader);
@@ -6951,7 +6951,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         AddInventoryNonDirectLocation(Item, Location, FirstBinD, 1);
         AddInventoryNonDirectLocation(Item, Location, SecondBinND, 1);
-        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 2, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location, SecondBinND, 2, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
 
@@ -7024,7 +7024,7 @@ codeunit 137030 "SCM Extend Warehouse"
         FindChild(ParentItem, ChildItem, 1);
         AddInventoryNonDirectLocation(ChildItem, Location, FirstBinD, 2);
         AddInventoryNonDirectLocation(ChildItem, Location, FirstBinND, 2);
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBinND, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBinND, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // Create rel prod order
@@ -7042,7 +7042,7 @@ codeunit 137030 "SCM Extend Warehouse"
         LibraryWarehouse.RegisterWhseActivity(WhseActivityHdr);
 
         // Create pick
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("Bin Code", SecondBinND.Code);
         SalesLine.Modify(true);
         LibraryWarehouse.CreateInvtPutPickMovement(WhseActivityHdr."Source Document"::"Sales Order", SalesHeader."No.", false, true, false);
@@ -7091,7 +7091,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         FindChild(ParentItem, ChildItem, 1);
         AddInventoryNonDirectLocation(ChildItem, Location, FirstBinND, 2);
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBinND, 1, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBinND, 1, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // Create rel prod order
@@ -7154,7 +7154,7 @@ codeunit 137030 "SCM Extend Warehouse"
         // Exercise
         FindChild(ParentItem, ChildItem, 1);
         AddInventoryNonDirectLocation(ChildItem, Location, FirstBinND, 20);
-        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBinND, 20, WorkDate);
+        CreateSalesOrder(SalesHeader, SalesLine, ChildItem, Location, FirstBinND, 20, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // Create rel prod order

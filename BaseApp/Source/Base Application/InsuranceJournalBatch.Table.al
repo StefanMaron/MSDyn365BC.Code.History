@@ -32,7 +32,7 @@ table 5634 "Insurance Journal Batch"
                     InsuranceJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                     InsuranceJnlLine.SetRange("Journal Batch Name", Name);
                     InsuranceJnlLine.ModifyAll("Reason Code", "Reason Code");
-                    Modify;
+                    Modify();
                 end;
             end;
         }
@@ -59,7 +59,7 @@ table 5634 "Insurance Journal Batch"
                 InsuranceJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                 InsuranceJnlLine.SetRange("Journal Batch Name", Name);
                 InsuranceJnlLine.ModifyAll("Posting No. Series", "Posting No. Series");
-                Modify;
+                Modify();
             end;
         }
     }
@@ -93,14 +93,15 @@ table 5634 "Insurance Journal Batch"
     begin
         InsuranceJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         InsuranceJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while InsuranceJnlLine.FindFirst do
+        while InsuranceJnlLine.FindFirst() do
             InsuranceJnlLine.Rename("Journal Template Name", Name, InsuranceJnlLine."Line No.");
     end;
 
     var
-        Text000: Label 'must not be %1';
         InsuranceJnlTempl: Record "Insurance Journal Template";
         InsuranceJnlLine: Record "Insurance Journal Line";
+
+        Text000: Label 'must not be %1';
 
     procedure SetupNewBatch()
     begin

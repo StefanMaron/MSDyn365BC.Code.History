@@ -230,8 +230,8 @@ codeunit 131305 "Library - ERM Country Data"
                     GeneralPostingSetup.Validate("Inventory Adjmt. Account", GeneralPostingSetup."Overhead Applied Account");
                     GeneralPostingSetup.Modify(true);
                 end;
-            until GeneralProductPostingGroup.Next = 0;
-        until GeneralBusinessPostingGroup.Next = 0;
+            until GeneralProductPostingGroup.Next() = 0;
+        until GeneralBusinessPostingGroup.Next() = 0;
     end;
 
     local procedure UpdateAccountsInGeneralPostingSetup()
@@ -259,7 +259,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if GeneralPostingSetup."Purchase Variance Account" = '' then
                     GeneralPostingSetup.Validate("Purchase Variance Account", CreateGLAccount);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     procedure DisableActivateChequeNoOnGeneralLedgerSetup()
@@ -372,7 +372,7 @@ codeunit 131305 "Library - ERM Country Data"
             repeat
                 FAPostingGroup.Validate("Acq. Cost Acc. on Disposal", CreateGLAccountWithSetup);
                 FAPostingGroup.Modify(true);
-            until FAPostingGroup.Next = 0;
+            until FAPostingGroup.Next() = 0;
     end;
 
     local procedure CreateGLAccountWithSetup(): Code[20]

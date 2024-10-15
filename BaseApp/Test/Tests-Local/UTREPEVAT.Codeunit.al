@@ -1356,7 +1356,7 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationHeader."Declaration Type" := DeclarationType;
         ElecTaxDeclarationHeader."No." := LibraryUTUtility.GetNewCode10;
         ElecTaxDeclarationHeader."Declaration Period" := DeclarationPeriod;
-        ElecTaxDeclarationHeader."Declaration Year" := Date2DMY(WorkDate, 3);
+        ElecTaxDeclarationHeader."Declaration Year" := Date2DMY(WorkDate(), 3);
         ElecTaxDeclarationHeader."Our Reference" := LibraryUTUtility.GetNewCode10;
         ElecTaxDeclarationHeader.Insert();
         exit(ElecTaxDeclarationHeader."No.");
@@ -1524,7 +1524,7 @@ codeunit 144049 "UT REP EVAT"
         ElecTaxDeclarationCard.OpenEdit;
         ElecTaxDeclarationCard.FILTER.SetFilter("No.", No);
         ElecTaxDeclarationCard.CreateElectronicTaxDeclaration.Invoke;
-        ElecTaxDeclarationCard.Close;
+        ElecTaxDeclarationCard.Close();
     end;
 
     local procedure RunReportAndVerifyElecTaxDeclarationLine(No: Code[20]; Caption: Text; Caption2: Text; Value: Text; Value2: Text)
@@ -1551,7 +1551,7 @@ codeunit 144049 "UT REP EVAT"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Fiscal Entity No.", '777777770B77');
             Modify(true);
             exit("Fiscal Entity No.");

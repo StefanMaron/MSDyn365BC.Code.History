@@ -69,13 +69,13 @@ codeunit 137061 "SCM Purchases & Payables"
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         PurchaseHeader.Validate("Location Code", Location.Code);
-        PurchaseHeader.Validate("Requested Receipt Date", WorkDate);
+        PurchaseHeader.Validate("Requested Receipt Date", WorkDate());
         PurchaseHeader.Modify(true);
 
         // Exercise: Create Purchase Line.
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader,
           PurchaseLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
-        PurchaseHeader.Validate("Promised Receipt Date", WorkDate);
+        PurchaseHeader.Validate("Promised Receipt Date", WorkDate());
         PurchaseHeader.Modify(true);
 
         // Verify: Verify Expected Receipt Date and Promised Receipt Date in Purchase line.
@@ -193,7 +193,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Verify: verify error msg.
         Assert.IsTrue(
           StrPos(GetLastErrorText, AssociatedSalesOrderError) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
 
         // Exercise: Post Sales Invoice and Purchase invoice.
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
@@ -232,7 +232,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Verify: verify error msg.
         Assert.IsTrue(
           StrPos(GetLastErrorText, DropshipmentMessage) > 0, GetLastErrorText);
-        ClearLastError;
+        ClearLastError();
     end;
 
     [Test]
@@ -284,7 +284,7 @@ codeunit 137061 "SCM Purchases & Payables"
         repeat
             Assert.AreEqual(
               Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntry);
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     [Test]
@@ -332,7 +332,7 @@ codeunit 137061 "SCM Purchases & Payables"
         repeat
             Assert.AreEqual(
               Location2.Code, ReservationEntry."Location Code", ChangedOnReservationEntry);
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     [Test]
@@ -574,8 +574,8 @@ codeunit 137061 "SCM Purchases & Payables"
         UpdateLeadTimeCalculationOnPurchaseLine(PurchaseLine, LeadTimeCalculation);
 
         // Verify: Verify the Planned Receipt Date calculated from Lead Time Calculation on Purchase Line.
-        PurchaseLine.Find;
-        PurchaseLine.TestField("Planned Receipt Date", CalcDate(LeadTimeCalculation, WorkDate));
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Planned Receipt Date", CalcDate(LeadTimeCalculation, WorkDate()));
     end;
 
     [Test]
@@ -614,7 +614,7 @@ codeunit 137061 "SCM Purchases & Payables"
 
         // [WHEN] Receive Purchase, Post Sales, Invoice Purchase
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
@@ -653,7 +653,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Purchase Line with populated "Direct Unit Cost" = 10
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate);
+          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 50));
 
         // [WHEN] In the "Unit Cost (LCY)" field, enter a value = 15 exceeding "Direct Unit Cost"
@@ -679,7 +679,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Purchase Line PL with populated "Direct Unit Cost"
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate);
+          LibraryPurchase.CreateVendorNo, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 50));
 
         // [WHEN] VALIDATE PL."Unit Cost (LCY)" with value less than "Direct Unit Cost"
@@ -712,7 +712,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // [GIVEN] Purchase order for the "Q" pcs of the item. "Direct Unit Cost" on the purchase line = "Y", that is greater than "X".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          LibraryPurchase.CreateVendorNo, Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(20, 40, 2));
         PurchaseLine.Modify(true);
 
@@ -874,7 +874,7 @@ codeunit 137061 "SCM Purchases & Payables"
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
         ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
         ItemJournalLine.Validate("External Document No.", ExternalDocumentNo);
         ItemJournalLine.Modify(true);
     end;
@@ -1035,7 +1035,7 @@ codeunit 137061 "SCM Purchases & Payables"
         // Combine Sales Shipments and Post Invoice.
         SalesHeader2.SetRange("Sell-to Customer No.", Customer."No.");
         SalesShipmentHeader3.SetRange("Sell-to Customer No.", Customer."No.");
-        LibrarySales.CombineShipments(SalesHeader2, SalesShipmentHeader3, WorkDate, WorkDate, false, true, false, false);
+        LibrarySales.CombineShipments(SalesHeader2, SalesShipmentHeader3, WorkDate(), WorkDate, false, true, false, false);
     end;
 
     local procedure CombineForSalesMemoSetup(Customer: Record Customer; SalesShipmentNo: Code[20]; SalesShipmentNo2: Code[20])
@@ -1161,8 +1161,8 @@ codeunit 137061 "SCM Purchases & Payables"
         ManufacturingSetup.Get();
         PurchaseLine.SetRange("No.", ItemNo);
         PurchaseLine.FindFirst();
-        PurchaseLine.TestField("Expected Receipt Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
-        PurchaseLine.TestField("Promised Receipt Date", WorkDate);
+        PurchaseLine.TestField("Expected Receipt Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
+        PurchaseLine.TestField("Promised Receipt Date", WorkDate());
     end;
 
     local procedure VerifyCostAmountLedgerEntry(ItemNo: Code[20]; CostAmountAct: Decimal; ExternalDocumentNo: Code[35])
@@ -1231,8 +1231,8 @@ codeunit 137061 "SCM Purchases & Payables"
         DequeueVariable: Variant;
     begin
         LibraryVariableStorage.Dequeue(DequeueVariable);
-        CombineReturnReceipts.PostingDateReq.SetValue(WorkDate);
-        CombineReturnReceipts.DocDateReq.SetValue(WorkDate);
+        CombineReturnReceipts.PostingDateReq.SetValue(WorkDate());
+        CombineReturnReceipts.DocDateReq.SetValue(WorkDate());
         CombineReturnReceipts.SalesOrderHeader.SetFilter("Sell-to Customer No.", DequeueVariable);
         CombineReturnReceipts.OK.Invoke;
     end;

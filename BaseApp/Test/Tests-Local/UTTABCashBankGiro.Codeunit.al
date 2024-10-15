@@ -94,7 +94,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
           CreateCustomerLedgerEntry, CreateCurrency);
 
         // Exercise.
-        asserterror CBGStatement.CheckBalance;
+        asserterror CBGStatement.CheckBalance();
 
         // Verify: Verify error code, actual error is 'Process canceled, check the statement lines or correct the opening and the closing balance.', on Check Balance of CBG Statement table.
         Assert.ExpectedErrorCode('Dialog');
@@ -414,7 +414,7 @@ codeunit 144012 "UT TAB Cash Bank Giro"
         CBGStatement."Journal Template Name" := CreateJournalTemplate(CreateGLAccount);
         CBGStatement."No." := LibraryRandom.RandInt(10);
         CBGStatement."Account No." := CBGStatement."Journal Template Name";
-        CBGStatement.Date := WorkDate;
+        CBGStatement.Date := WorkDate();
         CBGStatement.Type := Type;
         CBGStatement."Account Type" := CBGStatement."Account Type"::"G/L Account";
         CBGStatement."Opening Balance" := LibraryRandom.RandDec(100, 2);

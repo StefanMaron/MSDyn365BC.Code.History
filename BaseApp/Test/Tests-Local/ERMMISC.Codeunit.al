@@ -1128,7 +1128,7 @@ codeunit 144018 "ERM MISC"
         CBGStatementLine.Validate("No.", CBGStatement."No.");
         CBGStatementLine.Validate("Line No.", LibraryRandom.RandInt(10));
         CBGStatementLine.Insert(true);
-        CBGStatementLine.Validate(Date, WorkDate);
+        CBGStatementLine.Validate(Date, WorkDate());
         CBGStatementLine.Validate("Account Type", AccountType);
         CBGStatementLine.Validate("Account No.", AccountNo);
         CBGStatementLine.Validate("Applies-to Doc. Type", CBGStatementLine."Applies-to Doc. Type"::"Credit Memo");
@@ -1250,7 +1250,7 @@ codeunit 144018 "ERM MISC"
 
     local procedure CreateSimpleIntrastatJnlTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     begin
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
         IntrastatJnlBatch.Modify(true);
     end;
@@ -1274,7 +1274,7 @@ codeunit 144018 "ERM MISC"
         ItemFilter := Item[1]."No.";
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateForeignVendorNo);
 
-        PurchaseHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<+1M>', WorkDate()));
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
@@ -1453,11 +1453,11 @@ codeunit 144018 "ERM MISC"
     begin
         IntrastatJournal.OpenEdit;
         LibraryVariableStorage.AssertEmpty;
-        LibraryVariableStorage.Enqueue(CalcDate('<+1D>', WorkDate));
-        LibraryVariableStorage.Enqueue(CalcDate('<+1M>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<+1D>', WorkDate()));
+        LibraryVariableStorage.Enqueue(CalcDate('<+1M>', WorkDate()));
         IntrastatJournal.GetEntries.Invoke;
         VerifyIntrastatJnlLinesExist(IntrastatJnlBatch);
-        IntrastatJournal.Close;
+        IntrastatJournal.Close();
     end;
 
     local procedure RunSuggestLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNo: Code[20])
@@ -1514,7 +1514,7 @@ codeunit 144018 "ERM MISC"
             IntrastatJnlLine.Validate("Net Weight", LibraryRandom.RandDecInRange(1, 10, 2));
             IntrastatJnlLine.Validate("Entry/Exit Point", ExitEntryPoint);
             IntrastatJnlLine.Modify(true);
-        until IntrastatJnlLine.Next = 0;
+        until IntrastatJnlLine.Next() = 0;
     end;
 
     local procedure CreateIntrastatJnlLineWithMandatoryFields(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlTemplateName: Code[10]; IntrastatJnlBatchName: Code[10]; CountryCode: Code[10])
@@ -1524,7 +1524,7 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine.Validate("Transaction Type", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
         IntrastatJnlLine."Transaction Specification" := Format(LibraryRandom.RandIntInRange(10, 99));
         IntrastatJnlLine.Validate("Entry/Exit Point", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Entry/Exit Point"));
-        IntrastatJnlLine.Validate(Date, WorkDate);
+        IntrastatJnlLine.Validate(Date, WorkDate());
         IntrastatJnlLine.Validate("Item No.", CreateItemForIntrastat);
         IntrastatJnlLine.Validate("Source Entry No.", LibraryRandom.RandIntInRange(1, 10));
         IntrastatJnlLine.Validate(Quantity, LibraryRandom.RandIntInRange(1, 10));
@@ -1551,7 +1551,7 @@ codeunit 144018 "ERM MISC"
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption()));
     end;
 
 
@@ -1692,7 +1692,7 @@ codeunit 144018 "ERM MISC"
         GLAccountWhereUsedList.First;
         for i := 2 to LibraryVariableStorage.DequeueInteger do begin // for 2 lines and more
             GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
-            GLAccountWhereUsedList.Next;
+            GLAccountWhereUsedList.Next();
         end;
         GLAccountWhereUsedList."Field Name".AssertEquals(LibraryVariableStorage.DequeueText);
         GLAccountWhereUsedList.OK.Invoke;

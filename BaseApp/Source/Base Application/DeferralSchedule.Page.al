@@ -16,17 +16,17 @@ page 1702 "Deferral Schedule"
             group(Control1)
             {
                 ShowCaption = false;
-                field("Amount to Defer"; "Amount to Defer")
+                field("Amount to Defer"; Rec."Amount to Defer")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount to defer per period.';
                 }
-                field("Calc. Method"; "Calc. Method")
+                field("Calc. Method"; Rec."Calc. Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how the Amount field for each period is calculated. Straight-Line: Calculated per the number of periods, distributed by period length. Equal Per Period: Calculated per the number of periods, distributed evenly on periods. Days Per Period: Calculated per the number of days in the period. User-Defined: Not calculated. You must manually fill the Amount field for each period.';
                 }
-                field("No. of Periods"; "No. of Periods")
+                field("No. of Periods"; Rec."No. of Periods")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how many accounting periods the total amounts will be deferred to.';
@@ -45,7 +45,7 @@ page 1702 "Deferral Schedule"
                     Editable = false;
                     ToolTip = 'Specifies the method used to calculate the start date that is used for calculating deferral amounts.';
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies when to start calculating deferral amounts.';
@@ -76,15 +76,23 @@ page 1702 "Deferral Schedule"
                     ApplicationArea = Suite;
                     Caption = 'Calculate Schedule';
                     Image = CalculateCalendar;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Calculate the deferral schedule by which revenue or expense amounts will be distributed over multiple accounting periods.';
 
                     trigger OnAction()
                     begin
-                        Changed := CalculateSchedule;
+                        Changed := CalculateSchedule();
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CalculateSchedule_Promoted; CalculateSchedule)
+                {
                 }
             }
         }
@@ -107,7 +115,7 @@ page 1702 "Deferral Schedule"
 
     trigger OnOpenPage()
     begin
-        InitForm;
+        InitForm();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -177,7 +185,7 @@ page 1702 "Deferral Schedule"
     [Scope('OnPrem')]
     procedure GetParameter(): Boolean
     begin
-        exit(Changed or CurrPage.DeferralSheduleSubform.PAGE.GetChanged)
+        exit(Changed or CurrPage.DeferralSheduleSubform.PAGE.GetChanged())
     end;
 
     procedure InitForm()

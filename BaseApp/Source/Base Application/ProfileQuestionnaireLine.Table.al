@@ -92,7 +92,7 @@ table 5088 "Profile Questionnaire Line"
                     if "Classification Method" = "Classification Method"::" " then
                         "Classification Method" := "Classification Method"::"Defined Value";
                 end else
-                    ResetFields;
+                    ResetFields();
             end;
         }
         field(8; "Vendor Class. Field"; Enum "Profile Quest. Vend. Class. Field")
@@ -108,7 +108,7 @@ table 5088 "Profile Questionnaire Line"
                     if "Classification Method" = "Classification Method"::" " then
                         "Classification Method" := "Classification Method"::"Defined Value";
                 end else
-                    ResetFields;
+                    ResetFields();
             end;
         }
         field(9; "Contact Class. Field"; Enum "Profile Quest. Cont. Class. Field")
@@ -124,7 +124,7 @@ table 5088 "Profile Questionnaire Line"
                     Rating.SetRange("Profile Questionnaire Line No.", "Line No.");
                     if Rating.FindFirst() then
                         if Confirm(Text000, false) then
-                            Rating.DeleteAll
+                            Rating.DeleteAll()
                         else
                             Error(Text001, FieldCaption("Contact Class. Field"));
                 end;
@@ -144,7 +144,7 @@ table 5088 "Profile Questionnaire Line"
                         Clear("Ending Date Formula");
                     end;
                 end else
-                    ResetFields;
+                    ResetFields();
             end;
         }
         field(10; "Starting Date Formula"; DateFormula)
@@ -244,7 +244,7 @@ table 5088 "Profile Questionnaire Line"
                 ContProfileAnswer.SetRange("Profile Questionnaire Code", "Profile Questionnaire Code");
                 ContProfileAnswer.SetRange("Line No.", "Line No.");
                 ContProfileAnswer.ModifyAll("Answer Priority", Priority);
-                Modify;
+                Modify();
             end;
         }
         field(18; "No. of Decimals"; Integer)
@@ -340,6 +340,9 @@ table 5088 "Profile Questionnaire Line"
         {
             Clustered = true;
         }
+        key(Key2; Type, Description)
+        {
+        }
     }
 
     fieldgroups
@@ -370,7 +373,7 @@ table 5088 "Profile Questionnaire Line"
 
         if Type = Type::Question then begin
             ProfileQuestionnaireLine.Get("Profile Questionnaire Code", "Line No.");
-            if (ProfileQuestionnaireLine.Next <> 0) and
+            if (ProfileQuestionnaireLine.Next() <> 0) and
                (ProfileQuestionnaireLine.Type = ProfileQuestnLine.Type::Answer)
             then
                 Error(Text004);
@@ -470,9 +473,9 @@ table 5088 "Profile Questionnaire Line"
 
     procedure CreateRatingFromProfQuestnLine(var ProfileQuestnLine: Record "Profile Questionnaire Line")
     begin
-        Init;
+        Init();
         "Profile Questionnaire Code" := ProfileQuestnLine."Profile Questionnaire Code";
-        StartWizard;
+        StartWizard();
     end;
 
     local procedure StartWizard()
@@ -480,10 +483,10 @@ table 5088 "Profile Questionnaire Line"
         "Wizard Step" := "Wizard Step"::"1";
         Validate("Auto Contact Classification", true);
         Validate("Contact Class. Field", "Contact Class. Field"::Rating);
-        Insert;
+        Insert();
 
-        ValidateAnswerOption;
-        ValidateIntervalOption;
+        ValidateAnswerOption();
+        ValidateIntervalOption();
 
         PAGE.RunModal(PAGE::"Create Rating", Rec);
     end;
@@ -499,10 +502,8 @@ table 5088 "Profile Questionnaire Line"
                         Error(Text006);
                 end;
             "Wizard Step"::"2":
-                begin
-                    if TempProfileQuestionnaireLine.Count = 0 then
-                        Error(Text007);
-                end;
+                if TempProfileQuestionnaireLine.Count = 0 then
+                    Error(Text007);
             "Wizard Step"::"3":
                 if ("Wizard From Value" = 0) and ("Wizard To Value" = 0) then
                     Error(Text008);
@@ -520,7 +521,7 @@ table 5088 "Profile Questionnaire Line"
                     "Wizard Step" := "Wizard Step" + 1;
                     TempProfileQuestionnaireLine.SetRange("Line No.");
                     TempProfileQuestionnaireLine.Find('-');
-                    SetIntervalOption;
+                    SetIntervalOption();
                 end;
             "Wizard Step"::"3":
                 begin
@@ -529,12 +530,12 @@ table 5088 "Profile Questionnaire Line"
                     TempProfileQuestionnaireLine."From Value" := "Wizard From Value";
                     TempProfileQuestionnaireLine."To Value" := "Wizard To Value";
                     TempProfileQuestionnaireLine.Modify();
-                    if TempProfileQuestionnaireLine.Next <> 0 then begin
+                    if TempProfileQuestionnaireLine.Next() <> 0 then begin
                         TempProfileQuestionnaireLine.SetRange("Line No.", TempProfileQuestionnaireLine."Line No.");
                         "Wizard From Line No." := TempProfileQuestionnaireLine."Line No.";
                         "Wizard From Value" := TempProfileQuestionnaireLine."From Value";
                         "Wizard To Value" := TempProfileQuestionnaireLine."To Value";
-                        SetIntervalOption;
+                        SetIntervalOption();
                     end else begin
                         TempProfileQuestionnaireLine.SetRange("Line No.");
                         TempProfileQuestionnaireLine.Find('-');
@@ -559,7 +560,7 @@ table 5088 "Profile Questionnaire Line"
                         "Wizard From Line No." := TempProfileQuestionnaireLine."Line No.";
                         "Wizard From Value" := TempProfileQuestionnaireLine."From Value";
                         "Wizard To Value" := TempProfileQuestionnaireLine."To Value";
-                        SetIntervalOption
+                        SetIntervalOption();
                     end else begin
                         TempProfileQuestionnaireLine.SetRange("Line No.");
                         TempProfileQuestionnaireLine.Find('-');
@@ -616,7 +617,7 @@ table 5088 "Profile Questionnaire Line"
                 "Interval Option" := "Interval Option"::Interval
         end;
 
-        ValidateIntervalOption;
+        ValidateIntervalOption();
     end;
 
     procedure ValidateIntervalOption()
@@ -682,7 +683,7 @@ table 5088 "Profile Questionnaire Line"
         if "Answer Option" <> "Answer Option"::Custom then
             if TempProfileQuestionnaireLine.Count <> TempProfileQuestionnaireLine2.Count then
                 "Answer Option" := "Answer Option"::Custom
-            else begin
+            else
                 if TempProfileQuestionnaireLine.Find('-') then
                     repeat
                         if not TempProfileQuestionnaireLine2.Get(
@@ -693,7 +694,6 @@ table 5088 "Profile Questionnaire Line"
                             if TempProfileQuestionnaireLine.Description <> TempProfileQuestionnaireLine2.Description then
                                 "Answer Option" := "Answer Option"::Custom
                     until (TempProfileQuestionnaireLine.Next() = 0) or ("Answer Option" = "Answer Option"::Custom);
-            end;
     end;
 
     procedure GetProfileLineAnswerDesc(): Text[250]

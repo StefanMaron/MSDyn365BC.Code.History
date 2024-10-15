@@ -32,7 +32,7 @@ codeunit 132455 "Session Management"
             repeat
                 StopSession(ActiveSession."Session ID", StrSubstNo(Text001, UserId));
                 Stopped := Stopped + 1;
-            until ActiveSession.Next = 0;
+            until ActiveSession.Next() = 0;
 
         exit(Stopped);
     end;
@@ -47,7 +47,7 @@ codeunit 132455 "Session Management"
         ActiveSession.SetRange("Server Instance ID", ServiceInstanceId);
 
         StartDateTime := CurrentDateTime;
-        while ActiveSession.FindFirst do begin
+        while ActiveSession.FindFirst() do begin
             if CurrentDateTime - StartDateTime > Timeout then
                 exit(false);
 
@@ -78,7 +78,7 @@ codeunit 132455 "Session Management"
     var
         ActiveSession: Record "Active Session";
     begin
-        SelectLatestVersion;
+        SelectLatestVersion();
 
         if ClientType <> -1 then
             ActiveSession.SetRange("Client Type", ClientType);

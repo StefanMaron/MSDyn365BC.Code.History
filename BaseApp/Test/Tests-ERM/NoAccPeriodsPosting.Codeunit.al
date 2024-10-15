@@ -132,7 +132,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Fixed Asset with acquisition and appreciation at the beginnig of month
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        StartingDate := CalcDate('<-CM>', WorkDate);
+        StartingDate := CalcDate('<-CM>', WorkDate());
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         CreateFADepreciationBook(FADepreciationBook, GenJournalBatch, FixedAsset."No.", FixedAsset."FA Posting Group", StartingDate);
@@ -146,7 +146,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         FADepreciationBook.CalcFields("Book Value");
 
         // [WHEN] Run Calculate Depreciation at the end of month
-        RunCalculateDepreciation(FixedAsset."No.", FADepreciationBook."Depreciation Book Code", CalcDate('<CM>', WorkDate));
+        RunCalculateDepreciation(FixedAsset."No.", FADepreciationBook."Depreciation Book Code", CalcDate('<CM>', WorkDate()));
 
         // [THEN] Depreciation amount is calculated for one month
         // cod134027.DepreciationAmountWithAppreciationEntry
@@ -190,7 +190,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Purchase Invoice with 'straight line' Deferral Template
         CreatePurchaseInvoiceWithDeferral(
-          PurchaseHeader, PurchaseLine, CreateGLAccountWithStraightLineDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 10));
+          PurchaseHeader, PurchaseLine, CreateGLAccountWithStraightLineDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -212,7 +212,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Purchase Invoice with 'days per period' Deferral Template
         CreatePurchaseInvoiceWithDeferral(
-          PurchaseHeader, PurchaseLine, CreateGLAccountWithDaysPerPeriodDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 10));
+          PurchaseHeader, PurchaseLine, CreateGLAccountWithDaysPerPeriodDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Purchase Invoice
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -234,7 +234,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Sales Invoice with 'straight line' Deferral Template
         CreateSalesInvoiceWithDeferral(
-          SalesHeader, SalesLine, CreateGLAccountWithStraightLineDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 10));
+          SalesHeader, SalesLine, CreateGLAccountWithStraightLineDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Sales Invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -256,7 +256,7 @@ codeunit 134361 "No Acc. Periods: Posting"
 
         // [GIVEN] Sales Invoice with 'days per period' Deferral Template
         CreateSalesInvoiceWithDeferral(
-          SalesHeader, SalesLine, CreateGLAccountWithDaysPerPeriodDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate), 10));
+          SalesHeader, SalesLine, CreateGLAccountWithDaysPerPeriodDeferral, LibraryRandom.RandDateFrom(CalcDate('<-CM>', WorkDate()), 10));
 
         // [WHEN] Post Sales Invoice
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -304,7 +304,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
 
         // [THEN] Item is valued at the end of the month ("Valuation Date" is 31.01.2020), cost amount on the outbound entry is updated to 10 EUR
-        VerifyAvgCostAdjmtEntryPoint(Item."No.", AccountingPeriodMgt.GetDefaultPeriodEndingDate(WorkDate));
+        VerifyAvgCostAdjmtEntryPoint(Item."No.", AccountingPeriodMgt.GetDefaultPeriodEndingDate(WorkDate()));
         VerifyItemLedgEntryCostAmount(Item."No.", -UnitCost * ItemJournalLine.Quantity);
     end;
 
@@ -494,7 +494,7 @@ codeunit 134361 "No Acc. Periods: Posting"
         repeat
             GLEntry.TestField("Posting Date", PostingDate);
             PostingDate := CalcDate('<-CM + 1M>', PostingDate);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         GLEntry.CalcSums(Amount);
         GLEntry.TestField(Amount, AmountToDefer);
     end;

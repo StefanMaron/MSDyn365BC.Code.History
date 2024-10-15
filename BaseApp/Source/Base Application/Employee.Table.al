@@ -53,17 +53,12 @@
             trigger OnValidate()
             begin
                 if "Search Name" = '' then
-                    "Search Name" := SetSearchNameToFullnameAndInitials;
+                    "Search Name" := SetSearchNameToFullnameAndInitials();
             end;
         }
         field(8; Address; Text[100])
         {
             Caption = 'Address';
-
-            trigger OnValidate()
-            begin
-                PostCodeMgt.FindStreetNameFromAddress(Address, "Address 2", "Post Code", City, "Country/Region Code", "Phone No.", "Fax No.");
-            end;
         }
         field(9; "Address 2"; Text[50])
         {
@@ -85,8 +80,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(11; "Post Code"; Code[20])
@@ -105,8 +105,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
         field(12; County; Text[30])
@@ -215,7 +220,7 @@
             begin
                 EmployeeQualification.SetRange("Employee No.", "No.");
                 EmployeeQualification.ModifyAll("Employee Status", Status);
-                Modify;
+                Modify();
             end;
         }
         field(32; "Inactive Date"; Date)
@@ -560,7 +565,7 @@
         DimMgt.UpdateDefaultDim(
           DATABASE::Employee, "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
-        UpdateSearchName;
+        UpdateSearchName();
     end;
 
     trigger OnModify()
@@ -590,7 +595,7 @@
         DimMgt.RenameDefaultDim(DATABASE::Employee, xRec."No.", "No.");
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
-        UpdateSearchName;
+        UpdateSearchName();
     end;
 
     var
@@ -613,7 +618,6 @@
         BlockedEmplForJnrlErr: Label 'You cannot create this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         BlockedEmplForJnrlPostingErr: Label 'You cannot post this document because employee %1 is blocked due to privacy.', Comment = '%1 = employee no.';
         EmployeeLinkedToResourceErr: Label 'You cannot link multiple employees to the same resource. Employee %1 is already linked to that resource.', Comment = '%1 = employee no.';
-        PostCodeMgt: Codeunit "Post Code Management";
         PartnerTypeMismatchErr: Label 'The Partner Type field must be blank because the transaction is related to an employee.';
         BankAccNoMsg: Label 'Bank Account No. %1 may be incorrect.', Comment = '%1 - bank account no';
 
@@ -656,7 +660,7 @@
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::Employee, "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
@@ -669,7 +673,7 @@
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Employee, GetPosition())
         else
             Message(Text000);
     end;
@@ -678,16 +682,16 @@
     var
         PrevSearchName: Code[250];
     begin
-        PrevSearchName := xRec.FullName + ' ' + xRec.Initials;
+        PrevSearchName := xRec.FullName() + ' ' + xRec.Initials;
         if ((("First Name" <> xRec."First Name") or ("Middle Name" <> xRec."Middle Name") or ("Last Name" <> xRec."Last Name") or
              (Initials <> xRec.Initials)) and ("Search Name" = PrevSearchName))
         then
-            "Search Name" := SetSearchNameToFullnameAndInitials;
+            "Search Name" := SetSearchNameToFullnameAndInitials();
     end;
 
     local procedure SetSearchNameToFullnameAndInitials(): Code[250]
     begin
-        exit(FullName + ' ' + Initials);
+        exit(FullName() + ' ' + Initials);
     end;
 
     procedure GetBankAccountNo(): Text
@@ -752,6 +756,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedEmployee(Employee: Record Employee; IsPosting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(var Employee: Record Employee; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(var Employee: Record Employee; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 

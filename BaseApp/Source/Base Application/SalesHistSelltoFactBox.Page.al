@@ -8,7 +8,7 @@ page 9080 "Sales Hist. Sell-to FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = All;
                 Caption = 'Customer No.';
@@ -16,77 +16,77 @@ page 9080 "Sales Hist. Sell-to FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             group(Control23)
             {
                 ShowCaption = false;
                 Visible = false;
-                field("No. of Quotes"; "No. of Quotes")
+                field("No. of Quotes"; Rec."No. of Quotes")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ongoing Sales Quotes';
                     DrillDownPageID = "Sales Quotes";
                     ToolTip = 'Specifies the number of sales quotes that have been registered for the customer.';
                 }
-                field("No. of Blanket Orders"; "No. of Blanket Orders")
+                field("No. of Blanket Orders"; Rec."No. of Blanket Orders")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Ongoing Sales Blanket Orders';
                     DrillDownPageID = "Blanket Sales Orders";
                     ToolTip = 'Specifies the number of sales blanket orders that have been registered for the customer.';
                 }
-                field("No. of Orders"; "No. of Orders")
+                field("No. of Orders"; Rec."No. of Orders")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ongoing Sales Orders';
                     DrillDownPageID = "Sales Order List";
                     ToolTip = 'Specifies the number of sales orders that have been registered for the customer.';
                 }
-                field("No. of Invoices"; "No. of Invoices")
+                field("No. of Invoices"; Rec."No. of Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ongoing Sales Invoices';
                     DrillDownPageID = "Sales Invoice List";
                     ToolTip = 'Specifies the number of unposted sales invoices that have been registered for the customer.';
                 }
-                field("No. of Return Orders"; "No. of Return Orders")
+                field("No. of Return Orders"; Rec."No. of Return Orders")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Ongoing Sales Return Orders';
                     DrillDownPageID = "Sales Return Order List";
                     ToolTip = 'Specifies the number of sales return orders that have been registered for the customer.';
                 }
-                field("No. of Credit Memos"; "No. of Credit Memos")
+                field("No. of Credit Memos"; Rec."No. of Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ongoing Sales Credit Memos';
                     DrillDownPageID = "Sales Credit Memos";
                     ToolTip = 'Specifies the number of unposted sales credit memos that have been registered for the customer.';
                 }
-                field("No. of Pstd. Shipments"; "No. of Pstd. Shipments")
+                field("No. of Pstd. Shipments"; Rec."No. of Pstd. Shipments")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Shipments';
                     DrillDownPageID = "Posted Sales Shipments";
                     ToolTip = 'Specifies the number of posted sales shipments that have been registered for the customer.';
                 }
-                field("No. of Pstd. Invoices"; "No. of Pstd. Invoices")
+                field("No. of Pstd. Invoices"; Rec."No. of Pstd. Invoices")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Invoices';
                     DrillDownPageID = "Posted Sales Invoices";
                     ToolTip = 'Specifies the number of posted sales invoices that have been registered for the customer.';
                 }
-                field("No. of Pstd. Return Receipts"; "No. of Pstd. Return Receipts")
+                field("No. of Pstd. Return Receipts"; Rec."No. of Pstd. Return Receipts")
                 {
                     ApplicationArea = SalesReturnOrder;
                     Caption = 'Posted Sales Return Receipts';
                     DrillDownPageID = "Posted Return Receipts";
                     ToolTip = 'Specifies the number of posted sales return receipts that have been registered for the customer.';
                 }
-                field("No. of Pstd. Credit Memos"; "No. of Pstd. Credit Memos")
+                field("No. of Pstd. Credit Memos"; Rec."No. of Pstd. Credit Memos")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Posted Sales Credit Memos';

@@ -39,16 +39,8 @@ table 730 "Standard Address"
             end;
 
             trigger OnValidate()
-            var
-                O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-                CountryRegionCode: Code[10];
-            begin
-                if O365SalesInitialSetup.Get and O365SalesInitialSetup."Is initialized" then begin
-                    CountryRegionCode := "Country/Region Code";
-                    PostCode.ValidateCity(City, "Post Code", County, CountryRegionCode, false);
-                    exit;
-                end;
 
+            begin
                 PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
@@ -78,16 +70,7 @@ table 730 "Standard Address"
             end;
 
             trigger OnValidate()
-            var
-                O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-                CountryRegionCode: Code[10];
             begin
-                if O365SalesInitialSetup.Get and O365SalesInitialSetup."Is initialized" then begin
-                    CountryRegionCode := "Country/Region Code";
-                    PostCode.ValidatePostCode(City, "Post Code", County, CountryRegionCode, false);
-                    exit;
-                end;
-
                 PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
             end;
         }
@@ -118,8 +101,9 @@ table 730 "Standard Address"
 
     var
         PostCode: Record "Post Code";
-        DevMsgNotTemporaryErr: Label 'This function can only be used when the record is temporary.';
         FormatAddress: Codeunit "Format Address";
+
+        DevMsgNotTemporaryErr: Label 'This function can only be used when the record is temporary.';
 
     procedure ToString() FullAddress: Text
     var
@@ -135,18 +119,17 @@ table 730 "Standard Address"
         FormatAddress.FormatAddr(AddressArray, '', '', '', Address, "Address 2", City, "Post Code", County, "Country/Region Code");
         for AddressPosition := 1 to 8 do begin
             AddressArray[AddressPosition] := DelChr(AddressArray[AddressPosition], '<', ', ');
-            if AddressArray[AddressPosition] <> '' then begin
+            if AddressArray[AddressPosition] <> '' then
                 if FullAddress = '' then
                     FullAddress := AddressArray[AddressPosition]
                 else
-                    FullAddress += ', ' + AddressArray[AddressPosition]
-            end;
+                    FullAddress += ', ' + AddressArray[AddressPosition];
         end;
     end;
 
     procedure CopyFromCustomer(Customer: Record Customer)
     begin
-        Init;
+        Init();
         "Related RecordID" := Customer.RecordId;
         Address := Customer.Address;
         "Address 2" := Customer."Address 2";
@@ -160,7 +143,7 @@ table 730 "Standard Address"
 
     procedure CopyFromCompanyInformation(CompanyInformation: Record "Company Information")
     begin
-        Init;
+        Init();
         "Related RecordID" := CompanyInformation.RecordId;
         Address := CompanyInformation.Address;
         "Address 2" := CompanyInformation."Address 2";
@@ -173,7 +156,7 @@ table 730 "Standard Address"
 
     procedure CopyFromSalesHeaderSellTo(SalesHeader: Record "Sales Header")
     begin
-        Init;
+        Init();
         "Address Type" := "Address Type"::"Sell-to";
         "Related RecordID" := SalesHeader.RecordId;
         Address := SalesHeader."Sell-to Address";
@@ -187,7 +170,7 @@ table 730 "Standard Address"
 
     procedure CopyFromSalesInvoiceHeaderSellTo(SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
-        Init;
+        Init();
         "Address Type" := "Address Type"::"Sell-to";
         "Related RecordID" := SalesInvoiceHeader.RecordId;
         Address := SalesInvoiceHeader."Sell-to Address";
@@ -206,13 +189,13 @@ table 730 "Standard Address"
         RecID := "Related RecordID";
         case RecID.TableNo of
             DATABASE::Customer:
-                SaveToCustomer;
+                SaveToCustomer();
             DATABASE::"Company Information":
-                SaveToCompanyInformation;
+                SaveToCompanyInformation();
             DATABASE::"Sales Header":
                 case "Address Type" of
                     "Address Type"::"Sell-to":
-                        SaveToSalesHeaderSellTo;
+                        SaveToSalesHeaderSellTo();
                 end;
         end;
     end;

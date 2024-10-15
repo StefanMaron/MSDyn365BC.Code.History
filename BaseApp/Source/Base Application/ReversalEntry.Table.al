@@ -254,7 +254,7 @@
             exit;
 
         InsertReversalEntry(Number, RevType);
-        if UnapplyGLEntries then
+        if UnapplyGLEntries() then
             Commit();
 
         TempReversalEntry.SetCurrentKey("Document No.", "Posting Date", "Entry Type", "Entry No.");
@@ -331,7 +331,7 @@
         OnBeforeCheckEntries(Rec, DATABASE::"G/L Entry", SkipCheck);
         if not SkipCheck then begin
             if GLEntry.IsEmpty() then
-                Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption);
+                Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption());
             if GLEntry.Find('-') then begin
                 CheckGLEntry();
                 repeat
@@ -420,7 +420,7 @@
             exit;
 
         if GLEntry."Journal Batch Name" = '' then
-            TestFieldError;
+            TestFieldError();
     end;
 
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
@@ -800,7 +800,7 @@
                 begin
                     if EmployeeLedgerEntry.Get("Entry No.") then;
                     if Employee.Get(EmployeeLedgerEntry."Employee No.") then;
-                    exit(StrSubstNo('%1 %2 %3', Employee.TableCaption(), Employee."No.", Employee.FullName));
+                    exit(StrSubstNo('%1 %2 %3', Employee.TableCaption(), Employee."No.", Employee.FullName()));
                 end;
             "Entry Type"::"Bank Account":
                 begin
@@ -821,7 +821,7 @@
                     exit(StrSubstNo('%1 %2 %3', FA.TableCaption(), FA."No.", FA.Description));
                 end;
             "Entry Type"::VAT:
-                exit(StrSubstNo('%1', VATEntry.TableCaption));
+                exit(StrSubstNo('%1', VATEntry.TableCaption()));
             else begin
                     OnAfterCaption(Rec, NewCaption);
                     exit(NewCaption);
@@ -1144,7 +1144,7 @@
                     TempReversalEntry."Reversal Type" := RevType;
                     TempReversalEntry."Entry Type" := TempReversalEntry."Entry Type"::"G/L Account";
                     if not GLAcc.Get(GLEntry."G/L Account No.") then
-                        Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption);
+                        Error(CannotReverseDeletedErr, GLEntry.TableCaption(), GLAcc.TableCaption());
                     TempReversalEntry."Account No." := GLAcc."No.";
                     TempReversalEntry."Account Name" := GLAcc.Name;
                     TempReversalEntry.CopyFromGLEntry(GLEntry);
@@ -1169,7 +1169,7 @@
         TempReversalEntry."Entry Type" := TempReversalEntry."Entry Type"::Employee;
         Employee.Get(EmployeeLedgerEntry."Employee No.");
         TempReversalEntry."Account No." := Employee."No.";
-        TempReversalEntry."Account Name" := CopyStr(Employee.FullName, 1, MaxStrLen(TempReversalEntry."Account Name"));
+        TempReversalEntry."Account Name" := CopyStr(Employee.FullName(), 1, MaxStrLen(TempReversalEntry."Account Name"));
         TempReversalEntry.CopyFromEmployeeLedgerEntry(EmployeeLedgerEntry);
         TempReversalEntry."Line No." := NextLineNo;
         TempReversalEntry.Insert();

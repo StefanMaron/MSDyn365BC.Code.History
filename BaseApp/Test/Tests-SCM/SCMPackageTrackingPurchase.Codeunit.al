@@ -886,7 +886,7 @@ codeunit 137265 "SCM Package Tracking Purchase"
         PackageNoInfo.SetRange("Item No.", ItemNo);
         PackageNoInfo.SetRange("Package No.", PackageNo);
         PackageNoInfo.SetRange("Location Filter", Locationcode);
-        Assert.IsTrue(PackageNoInfo.FindLast(), StrSubstNo(PackageNoInfoFoundErr, PackageNoInfo.TableCaption, PackageNoInfo.GetFilters));
+        Assert.IsTrue(PackageNoInfo.FindLast(), StrSubstNo(PackageNoInfoFoundErr, PackageNoInfo.TableCaption(), PackageNoInfo.GetFilters));
 
         PackageNoInfo.CalcFields(Inventory);
 

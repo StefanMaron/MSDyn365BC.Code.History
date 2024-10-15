@@ -23,22 +23,22 @@ page 5909 "Service Item Groups"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a description of the service item group.';
                 }
-                field("Default Contract Discount %"; "Default Contract Discount %")
+                field("Default Contract Discount %"; Rec."Default Contract Discount %")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the discount percentage used as the default quote discount in a service contract quote.';
                 }
-                field("Default Serv. Price Group Code"; "Default Serv. Price Group Code")
+                field("Default Serv. Price Group Code"; Rec."Default Serv. Price Group Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service price group code used as the default service price group in the Service Price Group table.';
                 }
-                field("Default Response Time (Hours)"; "Default Response Time (Hours)")
+                field("Default Response Time (Hours)"; Rec."Default Response Time (Hours)")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the default response time for the service item group.';
                 }
-                field("Create Service Item"; "Create Service Item")
+                field("Create Service Item"; Rec."Create Service Item")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies that when you ship an item associated with this group, the item is registered as a service item in the Service Item table.';

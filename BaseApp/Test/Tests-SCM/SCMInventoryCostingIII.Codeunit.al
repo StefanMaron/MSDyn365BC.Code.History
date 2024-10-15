@@ -62,7 +62,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Receipt Lines, Value Entry and Item Tracking Lines.
         VerifyReceiptLineWithValueEntry(PurchRcptLine, PurchaseLine, 1, 1, PurchaseLine.Quantity);  // 1 is Sign Factor.
         VerifyReceiptLineWithValueEntry(PurchRcptLine, PurchaseLine, -1, 1, PurchaseLine.Quantity);  // 1 and -1 are Sign Factors.
-        PurchRcptLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        PurchRcptLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnPurchaseLineAfterUndo(PurchaseLine, PurchaseLine.Quantity);
     end;
 
@@ -158,7 +158,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Receipt Lines, Value Entry and Item Tracking Lines.
         VerifyReceiptLineWithValueEntry(PurchRcptLine, PurchaseLine, 1, 1, PurchaseLine.Quantity);  // 1 is Sign Factor.
         VerifyReceiptLineWithValueEntry(PurchRcptLine, PurchaseLine, -1, 1, PurchaseLine.Quantity);  // 1 and -1 are Sign Factors.
-        PurchRcptLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        PurchRcptLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnPurchaseLineAfterUndo(PurchaseLine, PurchaseLine.Quantity);
     end;
 
@@ -352,7 +352,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Return Shipment Lines, Value Entry and Item Tracking Lines.
         VerifyReturnShipmentLineWithValueEntry(ReturnShipmentLine, PurchaseLine, 1, -1, PurchaseLine.Quantity);  // 1 and -1 are Sign Factors.
         VerifyReturnShipmentLineWithValueEntry(ReturnShipmentLine, PurchaseLine, -1, -1, PurchaseLine.Quantity);  // -1 is Sign Factor.
-        ReturnShipmentLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        ReturnShipmentLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnPurchaseLineAfterUndo(PurchaseLine, PurchaseLine.Quantity);
     end;
 
@@ -442,7 +442,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Return Shipment Lines, Value Entry and Item Tracking Lines.
         VerifyReturnShipmentLineWithValueEntry(ReturnShipmentLine, PurchaseLine, 1, -1, PurchaseLine.Quantity);  // 1 and -1 are Sign Factors.
         VerifyReturnShipmentLineWithValueEntry(ReturnShipmentLine, PurchaseLine, -1, -1, PurchaseLine.Quantity);  // -1 is Sign Factor.
-        ReturnShipmentLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        ReturnShipmentLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnPurchaseLineAfterUndo(PurchaseLine, PurchaseLine.Quantity);
     end;
 
@@ -569,7 +569,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Return Shipment Lines, Value Entry and Item Tracking Lines.
         VerifyReturnShipmentLineWithValueEntry(ReturnShipmentLine, PurchaseLine, -1, 1, PurchaseLine.Quantity);  // 1 and -1 are Sign Factors.
         VerifyReturnShipmentLineWithValueEntry(ReturnShipmentLine, PurchaseLine, 1, 1, PurchaseLine.Quantity);  // 1 is Sign Factor.
-        ReturnShipmentLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        ReturnShipmentLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnPurchaseLineAfterUndo(PurchaseLine, PurchaseLine.Quantity);
     end;
 
@@ -906,7 +906,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Shipment Lines, Value Entry and Item Tracking Lines.
         VerifyShipmentLineWithValueEntry(SalesShipmentLine, SalesLine, 1, -1);  // 1 and -1 are Sign Factors.
         VerifyShipmentLineWithValueEntry(SalesShipmentLine, SalesLine, -1, -1);  // -1 is Sign Factor.
-        SalesShipmentLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        SalesShipmentLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnSalesLineAfterUndo(SalesLine);
     end;
 
@@ -936,7 +936,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Shipment Lines, Value Entry and Item Tracking Lines.
         VerifyShipmentLineWithValueEntry(SalesShipmentLine, SalesLine, 1, -1);  // 1 and -1 are Sign Factors.
         VerifyShipmentLineWithValueEntry(SalesShipmentLine, SalesLine, -1, -1);  // -1 is Sign Factor.
-        SalesShipmentLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        SalesShipmentLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnSalesLineAfterUndo(SalesLine);
     end;
 
@@ -1002,7 +1002,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Shipment Lines, Value Entry and Item Tracking Lines.
         VerifyShipmentLineWithValueEntry(SalesShipmentLine, SalesLine, 1, 1);  // 1 is Sign Factor.
         VerifyShipmentLineWithValueEntry(SalesShipmentLine, SalesLine, -1, 1);  // 1 and -1 are Sign Factors.
-        SalesShipmentLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        SalesShipmentLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnSalesLineAfterUndo(SalesLine);
     end;
 
@@ -1031,7 +1031,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Receipt Lines, Value Entry and Item Tracking Lines.
         VerifyReturnReceiptLineWithValueEntry(ReturnReceiptLine, SalesLine, 1, 1);  // 1 is Sign Factor.
         VerifyReturnReceiptLineWithValueEntry(ReturnReceiptLine, SalesLine, -1, 1);  // 1 and -1 are Sign Factors.
-        ReturnReceiptLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        ReturnReceiptLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnSalesLineAfterUndo(SalesLine);
     end;
 
@@ -1128,7 +1128,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Receipt Lines, Value Entry and Item Tracking Lines.
         VerifyReturnReceiptLineWithValueEntry(ReturnReceiptLine, SalesLine, 1, 1);  // 1 is Sign Factor.
         VerifyReturnReceiptLineWithValueEntry(ReturnReceiptLine, SalesLine, -1, 1);  // 1 and -1 are Sign Factors.
-        ReturnReceiptLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        ReturnReceiptLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnSalesLineAfterUndo(SalesLine);
     end;
 
@@ -1251,7 +1251,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Receipt Lines, Value Entry and Item Tracking Lines.
         VerifyReturnReceiptLineWithValueEntry(ReturnReceiptLine, SalesLine, 1, -1);  // 1 and -1 are Sign Factors.
         VerifyReturnReceiptLineWithValueEntry(ReturnReceiptLine, SalesLine, -1, -1);  // -1 is Sign Factor.
-        ReturnReceiptLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        ReturnReceiptLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnSalesLineAfterUndo(SalesLine);
     end;
 
@@ -1492,7 +1492,7 @@ codeunit 137288 "SCM Inventory Costing III"
         repeat
             LibraryVariableStorage.Enqueue(TempReservationEntry."Serial No.");
             LibraryVariableStorage.Enqueue(SignFactor * -TempReservationEntry.Quantity);
-        until TempReservationEntry.Next = 0;
+        until TempReservationEntry.Next() = 0;
     end;
 
     local procedure FilterForReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLine: Record "Purchase Line"; ItemNo: Code[20])
@@ -1565,7 +1565,7 @@ codeunit 137288 "SCM Inventory Costing III"
         repeat
             TempReservationEntry := ReservationEntry;
             TempReservationEntry.Insert();
-        until ReservationEntry.Next = 0;
+        until ReservationEntry.Next() = 0;
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; No: Code[20])
@@ -1612,7 +1612,7 @@ codeunit 137288 "SCM Inventory Costing III"
         // Verify: Verify Receipt Lines, Value Entry and Item Tracking Lines.
         VerifyReceiptLineWithValueEntry(PurchRcptLine, PurchaseLine, 1, 1, TempReservationEntry.Count);  // 1 is Sign Factor.
         VerifyReceiptLineWithValueEntry(PurchRcptLine, PurchaseLine, -1, 1, TempReservationEntry.Count);   // 1 and -1 are Sign Factors.
-        PurchRcptLine.ShowItemTrackingLines;  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
+        PurchRcptLine.ShowItemTrackingLines();  // Verify Tracking Lines in PostedItemTrackingLinesHandler.
         VerifyTrackingOnPurchaseLineAfterUndo(PurchaseLine, TempReservationEntry.Count);
     end;
 
@@ -1878,7 +1878,7 @@ codeunit 137288 "SCM Inventory Costing III"
         ValueEntry.FindSet();
         repeat
             ValueEntry.TestField("Valued Quantity", ValuedQuantity);
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
     end;
 
     [ConfirmHandler]
@@ -1930,7 +1930,7 @@ codeunit 137288 "SCM Inventory Costing III"
                     ItemTrackingLines.First;
                     for Count := 1 to IterationCount do begin
                         ItemTrackingLines."Qty. to Handle (Base)".AssertEquals(QuantityToHandle / IterationCount);
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                     end;
                 end;
         end;
@@ -1968,7 +1968,7 @@ codeunit 137288 "SCM Inventory Costing III"
             LibraryVariableStorage.Dequeue(Quantity);  // Dequeue variable.
             PostedItemTrackingLines."Serial No.".AssertEquals(TrackingCode);
             PostedItemTrackingLines.Quantity.AssertEquals(Quantity);
-        until not PostedItemTrackingLines.Next;
+        until not PostedItemTrackingLines.Next();
         PostedItemTrackingLines.OK.Invoke;
     end;
 }
