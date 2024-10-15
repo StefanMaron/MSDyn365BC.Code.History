@@ -114,7 +114,7 @@ codeunit 1311 "Activities Mgt."
             repeat
                 Amount := Amount + VendorLedgerEntry."Remaining Amt. (LCY)";
             until VendorLedgerEntry.Next = 0;
-        exit(Amount);
+        exit(-Amount);
     end;
 
     [Scope('OnPrem')]

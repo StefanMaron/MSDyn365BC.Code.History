@@ -1176,10 +1176,12 @@
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
+        JobPlanningLine: Record "Job Planning Line";
         ServiceLine: Record "Service Line";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
@@ -1220,6 +1222,16 @@
                         AsmLine.Modify();
                     end;
                 end;
+            DATABASE::"Job Planning Line":
+                begin
+                    JobPlanningLine.SetRange("Job Contract Entry No.", ReqLine."Demand Line No.");
+                    JobPlanningLine.FindFirst();
+                    JobPlanningLineReserve.BindToProdOrder(JobPlanningLine, ProdOrderLine, ReservQty, ReservQtyBase);
+                    if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
+                        JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
+                        JobPlanningLine.Modify();
+                    end;
+                end;
             DATABASE::"Service Line":
                 begin
                     ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
@@ -1238,10 +1250,12 @@
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
         AsmLine: Record "Assembly Line";
+        JobPlanningLine: Record "Job Planning Line";
         ServiceLine: Record "Service Line";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
@@ -1280,6 +1294,16 @@
                         AsmLine.Modify();
                     end;
                 end;
+            DATABASE::"Job Planning Line":
+                begin
+                    JobPlanningLine.SetRange("Job Contract Entry No.", ReqLine."Demand Line No.");
+                    JobPlanningLine.FindFirst();
+                    JobPlanningLineReserve.BindToTransfer(JobPlanningLine, TransLine, ReservQty, ReservQtyBase);
+                    if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
+                        JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
+                        JobPlanningLine.Modify();
+                    end;
+                end;
             DATABASE::"Service Line":
                 begin
                     ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
@@ -1298,10 +1322,12 @@
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
         AsmLine: Record "Assembly Line";
+        JobPlanningLine: Record "Job Planning Line";
         ServiceLine: Record "Service Line";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         AsmLineReserve: Codeunit "Assembly Line-Reserve";
+        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ReservQty: Decimal;
         ReservQtyBase: Decimal;
@@ -1342,6 +1368,16 @@
                         AsmLine.Modify();
                     end;
                 end;
+            DATABASE::"Job Planning Line":
+                begin
+                    JobPlanningLine.SetRange("Job Contract Entry No.", ReqLine."Demand Line No.");
+                    JobPlanningLine.FindFirst();
+                    JobPlanningLineReserve.BindToAssembly(JobPlanningLine, AsmHeader, ReservQty, ReservQtyBase);
+                    if JobPlanningLine.Reserve = JobPlanningLine.Reserve::Never then begin
+                        JobPlanningLine.Reserve := JobPlanningLine.Reserve::Optional;
+                        JobPlanningLine.Modify();
+                    end;
+                end;
             DATABASE::"Service Line":
                 begin
                     ServiceLine.Get(ReqLine."Demand Subtype", ReqLine."Demand Order No.", ReqLine."Demand Line No.");
@@ -1360,10 +1396,12 @@
         ProdOrderComp: Record "Prod. Order Component";
         SalesLine: Record "Sales Line";
         AsmLine: Record "Assembly Line";
+        JobPlanningLine: Record "Job Planning Line";
         ServiceLine: Record "Service Line";
         ProdOrderCompReserve: Codeunit "Prod. Order Comp.-Reserve";
         SalesLineReserve: Codeunit "Sales Line-Reserve";
         AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
+        JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
     begin
         case SupplyReqLine."Demand Type" of
@@ -1390,6 +1428,13 @@
                     AsmLine.Get(SupplyReqLine."Demand Subtype", SupplyReqLine."Demand Order No.", SupplyReqLine."Demand Line No.");
                     AssemblyLineReserve.BindToRequisition(
                       AsmLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
+                end;
+            DATABASE::"Job Planning Line":
+                begin
+                    JobPlanningLine.SetRange("Job Contract Entry No.", SupplyReqLine."Demand Line No.");
+                    JobPlanningLine.FindFirst();
+                    JobPlanningLineReserve.BindToRequisition(
+                      JobPlanningLine, DemandReqLine, SupplyReqLine."Demand Quantity", SupplyReqLine."Demand Quantity (Base)");
                 end;
             DATABASE::"Service Line":
                 begin

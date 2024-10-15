@@ -10,7 +10,6 @@ report 10085 "Aged Accounts Payable NA"
     {
         dataitem(Vendor; Vendor)
         {
-            PrintOnlyIfDetail = true;
             RequestFilterFields = "No.", "Vendor Posting Group", "Payment Terms Code", "Purchaser Code";
             column(Aged_Accounts_Payable_; 'Aged Accounts Payable')
             {
@@ -538,6 +537,13 @@ report 10085 "Aged Accounts Payable NA"
                     if VendLedgEntry.IsEmpty() then
                         CurrReport.Skip();
                 end;
+
+                if not PrintVendorWithZeroBalance then begin
+                    VendLedgEntry.SetRange("Vendor No.", "No.");
+                    VendLedgEntry.SetRange(Open, true);
+                    if VendLedgEntry.IsEmpty() then
+                        CurrReport.Skip();
+                end;
             end;
 
             trigger OnPreDataItem()
@@ -700,6 +706,12 @@ report 10085 "Aged Accounts Payable NA"
                         Caption = 'Print to Excel';
                         ToolTip = 'Specifies if you want to export the data to an Excel spreadsheet for additional analysis or formatting before printing.';
                     }
+                    field(PrintVendorWithZeroBalanceControl; PrintVendorWithZeroBalance)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Print Vendors with Zero Balance';
+                        ToolTip = 'Specifies if you want to print the list of vendors that have a balance of zero.';
+                    }
                 }
             }
         }
@@ -779,6 +791,7 @@ report 10085 "Aged Accounts Payable NA"
         AgingDate: Date;
         UseExternalDocNo: Boolean;
         DocNo: Code[35];
+        PrintVendorWithZeroBalance: Boolean;
         AmountsAreInLbl: Label 'Amounts are in %1', Comment = '%1=currency code';
         VendorBlockedLbl: Label '*** This vendor is blocked for %1 processing ***', Comment = '%1=blocking type';
         PrivacyBlockedTxt: Label '*** This vendor is blocked for privacy ***.';

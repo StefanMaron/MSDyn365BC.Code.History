@@ -406,7 +406,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 if ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and
                    not ("Order Date" = xRec."Order Date")
                 then
@@ -2142,7 +2141,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 if "Promised Receipt Date" <> 0D then
                     Error(
                       Text034,
@@ -2171,7 +2169,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
 
                 if "Lead Time Calculation" <> xRec."Lead Time Calculation" then
@@ -2185,7 +2182,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen();
                 if "Inbound Whse. Handling Time" <> xRec."Inbound Whse. Handling Time" then
                     UpdatePurchLinesByFieldNo(FieldNo("Inbound Whse. Handling Time"), CurrFieldNo <> 0);
             end;
