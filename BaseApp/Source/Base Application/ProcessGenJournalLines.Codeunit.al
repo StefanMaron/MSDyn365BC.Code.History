@@ -74,6 +74,8 @@ codeunit 1247 "Process Gen. Journal  Lines"
         UpdateGenJournalLines(GenJnlLineTemplate);
 
         ProgressWindow.Close;
+
+        OnAfterImportBankStatement(GenJnlLine, GenJnlLineTemplate);
     end;
 
     procedure CreateGeneralJournalLineTemplate(var GenJournalLineTemplate: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line")
@@ -118,6 +120,11 @@ codeunit 1247 "Process Gen. Journal  Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateGeneralJournalLineTemplate(var GenJournalLineTemplate: Record "Gen. Journal Line"; GenJournalLine: Record "Gen. Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterImportBankStatement(var GenJournalLine: Record "Gen. Journal Line"; GenJournalLineTemplate: Record "Gen. Journal Line")
     begin
     end;
 

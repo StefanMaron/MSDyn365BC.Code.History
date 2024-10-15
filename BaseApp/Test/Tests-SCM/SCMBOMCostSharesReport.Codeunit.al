@@ -284,6 +284,75 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure OnlyRunTimeIsMultipliedByQtyPerWhenCalculateQtyPerTopItem()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        WorkCenter: Record "Work Center";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        BOMBuffer: Record "BOM Buffer";
+        BOMCostShares: TestPage "BOM Cost Shares";
+        QtyPer: Integer;
+    begin
+        // [FEATURE] [Bom Cost Share] [Routing]
+        // [SCENARIO 405462] Only Run Time is multiplied by "Quantity per" in "Qty. per Top Item" field for routing line in BOM Cost Shares page.
+        Initialize();
+        QtyPer := LibraryRandom.RandIntInRange(2, 10);
+
+        // [GIVEN] Component item "C", final product "P".
+        LibraryInventory.CreateItem(CompItem);
+        LibraryInventory.CreateItem(ProdItem);
+
+        // [GIVEN] Create routing, fill in "Setup Time", "Run Time", "Wait Time", and "Move Time".
+        LibraryManufacturing.CreateWorkCenter(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(1), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingLine.Validate("Setup Time", LibraryRandom.RandInt(100));
+        RoutingLine.Validate("Run Time", LibraryRandom.RandInt(100));
+        RoutingLine.Validate("Wait Time", LibraryRandom.RandInt(100));
+        RoutingLine.Validate("Move Time", LibraryRandom.RandInt(100));
+        RoutingLine.Modify(true);
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Production BOM with 2 pcs of component "C".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", QtyPer);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Assign the routing to component "C".
+        CompItem.Find();
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::"Prod. Order");
+        CompItem.Validate("Routing No.", RoutingHeader."No.");
+        CompItem.Modify(true);
+
+        // [GIVEN] Assign the production BOM to product "P", quantity per = 2 (!).
+        ProdItem.Find();
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [WHEN] Open "BOM Cost Shares" page for "P".
+        BOMCostShares.Trap();
+        RunBOMCostSharesPage(ProdItem);
+
+        // [THEN] Locate the line that represents the routing.
+        // [THEN] "Qty. per Parent" = "Run Time" + (setup + wait + move).
+        // [THEN] "Qty. per Top Item" = "Run Time" * 2 + (setup + wait + move)
+        BOMCostShares.Expand(true);
+        BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::"Work Center"));
+        BOMCostShares.FILTER.SetFilter("No.", WorkCenter."No.");
+        BOMCostShares."Qty. per Parent".AssertEquals(
+          RoutingLine."Setup Time" + RoutingLine."Run Time" + RoutingLine."Wait Time" + RoutingLine."Move Time");
+        BOMCostShares."Qty. per Top Item".AssertEquals(
+          RoutingLine."Setup Time" + RoutingLine."Run Time" * QtyPer + RoutingLine."Wait Time" + RoutingLine."Move Time");
+    end;
+
     local procedure SetupItemWithRoutingWithCosts(var Item: Record Item)
     begin
         LibraryAssembly.CreateItem(Item, Item."Costing Method"::FIFO, Item."Replenishment System"::"Prod. Order", '', '');

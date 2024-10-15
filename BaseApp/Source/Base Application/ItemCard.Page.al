@@ -1,4 +1,4 @@
-page 30 "Item Card"
+﻿page 30 "Item Card"
 {
     Caption = 'Item Card';
     PageType = Card;
@@ -2523,6 +2523,7 @@ page 30 "Item Card"
         EnvironmentInfo: Codeunit "Environment Information";
         ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
+        OnBeforeOnOpenPage(Rec);
         IsFoundationEnabled := ApplicationAreaMgmtFacade.IsFoundationEnabled();
         SetNoFieldVisible();
         IsSaaS := EnvironmentInfo.IsSaaS();
@@ -2875,6 +2876,11 @@ page 30 "Item Card"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterOnOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeOnOpenPage(var Item: Record Item)
     begin
     end;
 

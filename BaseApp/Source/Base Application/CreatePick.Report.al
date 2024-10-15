@@ -32,6 +32,7 @@ report 5754 "Create Pick"
                         if PerDestination then begin
                             PickWhseWkshLine.SetRange("Destination Type", PickWhseWkshLine."Destination Type");
                             PickWhseWkshLine.SetRange("Destination No.", PickWhseWkshLine."Destination No.");
+                            OnAfterGetRecordOnBeforeSetPickFiltersPerDestination(PickWhseWkshLine);
                             SetPickFilters;
                             PickWhseWkshLineFilter.CopyFilter("Destination Type", PickWhseWkshLine."Destination Type");
                             PickWhseWkshLineFilter.CopyFilter("Destination No.", PickWhseWkshLine."Destination No.");
@@ -42,6 +43,7 @@ report 5754 "Create Pick"
                         end;
                         PickWhseWkshLineFilter.CopyFilter("Whse. Document Type", PickWhseWkshLine."Whse. Document Type");
                         PickWhseWkshLineFilter.CopyFilter("Whse. Document No.", PickWhseWkshLine."Whse. Document No.");
+                        OnAfterGetRecordOnAfterPickWhseWkshLineFilterSetFilters(PickWhseWkshLineFilter, PickWhseWkshLine);
                     until not PickWhseWkshLine.Find('-');
                     CheckPickActivity;
                 end else begin
@@ -120,6 +122,7 @@ report 5754 "Create Pick"
                         ApplicationArea = Warehouse;
                         BlankZero = true;
                         Caption = 'Max. No. of Pick Lines';
+                        MinValue = 0;
                         MultiLine = true;
                         ToolTip = 'Specifies if you want to create pick documents that have no more than the specified number of lines in each document.';
                     }
@@ -128,6 +131,7 @@ report 5754 "Create Pick"
                         ApplicationArea = Warehouse;
                         BlankZero = true;
                         Caption = 'Max. No. of Pick Source Docs.';
+                        MinValue = 0;
                         MultiLine = true;
                         ToolTip = 'Specifies if you want to create pick documents that each cover no more than the specified number of source documents.';
                     }
@@ -253,7 +257,6 @@ report 5754 "Create Pick"
         WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         PickQty: Decimal;
         PickQtyBase: Decimal;
-        TempMaxNoOfSourceDoc: Integer;
         OldFirstSetPickNo: Code[20];
         TotalQtyPickedBase: Decimal;
         PickListReportID: Integer;
@@ -314,16 +317,20 @@ report 5754 "Create Pick"
             then begin
                 PickWhseWkshLine.TestField("Destination No.");
                 Cust.Get(PickWhseWkshLine."Destination No.");
-                case PickWhseWkshLine."Source Document" of
-                    PickWhseWkshLine."Source Document"::"Sales Order":
-                        Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::Order, false, false);
-                    PickWhseWkshLine."Source Document"::"Sales Return Order":
-                        Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::"Return Order", false, false);
-                end;
+                IsHandled := false;
+                OnCreateTempLineOnBeforeCustCheckBlockedCustOnDocs(PickWhseWkshLine, IsHandled);
+                if not IsHandled then
+                    case PickWhseWkshLine."Source Document" of
+                        PickWhseWkshLine."Source Document"::"Sales Order":
+                            Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::Order, false, false);
+                        PickWhseWkshLine."Source Document"::"Sales Return Order":
+                            Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::"Return Order", false, false);
+                    end;
             end;
 
             CreatePick.SetCalledFromWksh(true);
 
+            OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine);
             with PickWhseWkshLine do
                 CreatePick.CreateTempLine("Location Code", "Item No.", "Variant Code",
                   "Unit of Measure Code", '', "To Bin Code", "Qty. per Unit of Measure", PickQty, PickQtyBase);
@@ -360,7 +367,6 @@ report 5754 "Create Pick"
         ItemTrackingMgt.UpdateWhseItemTrkgLines(TempWhseItemTrkgLine);
         Commit();
 
-        TempMaxNoOfSourceDoc := MaxNoOfSourceDoc;
         PickWhseActivHeader.SetRange(Type, PickWhseActivHeader.Type::Pick);
         PickWhseActivHeader.SetRange("No.", FirstSetPickNo, LastPickNo);
         PickWhseActivHeader.Find('-');
@@ -373,9 +379,8 @@ report 5754 "Create Pick"
                 OnBeforePrintPickList(PickWhseActivHeader, PickListReportID, IsHandled);
                 if not IsHandled then
                     WarehouseDocumentPrint.PrintPickHeader(PickWhseActivHeader);
-                TempMaxNoOfSourceDoc -= 1;
             end;
-        until ((PickWhseActivHeader.Next() = 0) or (TempMaxNoOfSourceDoc = 0));
+        until PickWhseActivHeader.Next() = 0;
     end;
 
     procedure SetWkshPickLine(var PickWhseWkshLine2: Record "Whse. Worksheet Line")
@@ -545,6 +550,26 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetWkshPickLine(PickWhseWkshLine: Record "Whse. Worksheet Line"; var SortPick: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnBeforeSetPickFiltersPerDestination(var PickWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetRecordOnAfterPickWhseWkshLineFilterSetFilters(var PickWhseWkshLineFilter: Record "Whse. Worksheet Line"; var PickWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnBeforeCustCheckBlockedCustOnDocs(PickWhseWkshLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine: Record "Whse. Worksheet Line")
     begin
     end;
 }

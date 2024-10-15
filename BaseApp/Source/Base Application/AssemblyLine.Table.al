@@ -1115,6 +1115,8 @@
           DimMgt.EditDimensionSet(
             "Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20]; HeaderDimensionSetID: Integer)
@@ -1168,6 +1170,8 @@
     begin
         "Dimension Set ID" := DimMgt.GetDeltaDimSetID("Dimension Set ID", NewHeaderSetID, OldHeaderSetID);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterUpdateDim(Rec);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -1834,6 +1838,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetReservationFilters(var ReservEntry: Record "Reservation Entry"; AssemblyLine: Record "Assembly Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var AssemblyLine: Record "Assembly Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDim(var AssemblyLine: Record "Assembly Line")
     begin
     end;
 

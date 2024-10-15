@@ -292,7 +292,12 @@ codeunit 378 "Transfer Extended Text"
                 NextLineNo := NextLineNo + LineSpacing;
                 ToSalesLine.Description := TempExtTextLine.Text;
                 ToSalesLine."Attached to Line No." := SalesLine."Line No.";
-                OnBeforeToSalesLineInsert(ToSalesLine, SalesLine, TempExtTextLine, NextLineNo, LineSpacing);
+
+                IsHandled := false;
+                OnBeforeToSalesLineInsert(ToSalesLine, SalesLine, TempExtTextLine, NextLineNo, LineSpacing, IsHandled);
+                if IsHandled then
+                    exit;
+
                 ToSalesLine.Insert();
             until TempExtTextLine.Next() = 0;
             MakeUpdateRequired := true;
@@ -722,7 +727,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer)
+    local procedure OnBeforeToSalesLineInsert(var ToSalesLine: Record "Sales Line"; SalesLine: Record "Sales Line"; TempExtTextLine: Record "Extended Text Line" temporary; var NextLineNo: Integer; LineSpacing: Integer; var IsHandled: Boolean)
     begin
     end;
 
