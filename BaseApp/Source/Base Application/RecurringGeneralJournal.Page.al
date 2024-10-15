@@ -43,6 +43,11 @@
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a recurring method if the Recurring field of the General Journal Template table indicates the journal is recurring.';
+
+                    trigger OnValidate()
+                    begin
+                        IsDimensionBalanceLine();
+                    end;
                 }
                 field("Recurring Frequency"; "Recurring Frequency")
                 {
@@ -310,12 +315,22 @@
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
+
+                    trigger OnValidate()
+                    begin
+                        CheckShortcutDimCodeRecurringMethod("Shortcut Dimension 1 Code");
+                    end;
                 }
                 field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible2;
+
+                    trigger OnValidate()
+                    begin
+                        CheckShortcutDimCodeRecurringMethod("Shortcut Dimension 2 Code");
+                    end;
                 }
                 field(ShortcutDimCode3; ShortcutDimCode[3])
                 {
@@ -328,6 +343,7 @@
 
                     trigger OnValidate()
                     begin
+                        CheckShortcutDimCodeRecurringMethod(ShortcutDimCode[3]);
                         ValidateShortcutDimCode(3, ShortcutDimCode[3]);
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 3);
@@ -344,6 +360,7 @@
 
                     trigger OnValidate()
                     begin
+                        CheckShortcutDimCodeRecurringMethod(ShortcutDimCode[4]);
                         ValidateShortcutDimCode(4, ShortcutDimCode[4]);
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 4);
@@ -360,6 +377,7 @@
 
                     trigger OnValidate()
                     begin
+                        CheckShortcutDimCodeRecurringMethod(ShortcutDimCode[5]);
                         ValidateShortcutDimCode(5, ShortcutDimCode[5]);
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 5);
@@ -376,6 +394,7 @@
 
                     trigger OnValidate()
                     begin
+                        CheckShortcutDimCodeRecurringMethod(ShortcutDimCode[6]);
                         ValidateShortcutDimCode(6, ShortcutDimCode[6]);
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 6);
@@ -392,6 +411,7 @@
 
                     trigger OnValidate()
                     begin
+                        CheckShortcutDimCodeRecurringMethod(ShortcutDimCode[7]);
                         ValidateShortcutDimCode(7, ShortcutDimCode[7]);
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 7);
@@ -408,6 +428,7 @@
 
                     trigger OnValidate()
                     begin
+                        CheckShortcutDimCodeRecurringMethod(ShortcutDimCode[8]);
                         ValidateShortcutDimCode(8, ShortcutDimCode[8]);
 
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
@@ -532,7 +553,8 @@
                     Promoted = true;
                     PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
-                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+                    Enabled = not DimensionBalanceLine;
+                    ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history. The action is disabled for BD Balance by Dimension and RBD Reversing Balance by Dimension recurring methods.';
 
                     trigger OnAction()
                     begin
@@ -590,7 +612,8 @@
                     Image = Filter;
                     Promoted = true;
                     PromotedCategory = Category5;
-                    ToolTip = 'Set a filter that can be used with the BD Balance by Dimension or RBD Reversing Balance by Dimension recurring methods. When applied, it will get the balance by dimensions from general ledger entries.';
+                    Enabled = DimensionBalanceLine;
+                    ToolTip = 'Set a filter that can be used with the BD Balance by Dimension or RBD Reversing Balance by Dimension recurring methods. When applied, it will get the balance by dimensions from general ledger entries. The action is disabled for all recurring methods except BD Balance by Dimension and RBD Reversing Balance by Dimension options.';
 
                     trigger OnAction()
                     begin
@@ -682,6 +705,7 @@
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         UpdateBalance;
         SetJobQueueVisibility();
+        IsDimensionBalanceLine();
     end;
 
     trigger OnAfterGetRecord()
@@ -745,6 +769,7 @@
         DebitCreditVisible: Boolean;
         JobQueuesUsed: Boolean;
         JobQueueVisible: Boolean;
+        DimensionBalanceLine: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];
@@ -806,6 +831,11 @@
     begin
         JobQueueVisible := "Job Queue Status" = "Job Queue Status"::"Scheduled for Posting";
         JobQueuesUsed := GeneralLedgerSetup.JobQueueActive;
+    end;
+
+    local procedure IsDimensionBalanceLine()
+    begin
+        DimensionBalanceLine := "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"];
     end;
 
     [IntegrationEvent(false, false)]

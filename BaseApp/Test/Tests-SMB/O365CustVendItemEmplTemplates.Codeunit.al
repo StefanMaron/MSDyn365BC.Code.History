@@ -1,4 +1,4 @@
-codeunit 138008 "Cust/Vend/Item/Empl Templates"
+﻿codeunit 138008 "Cust/Vend/Item/Empl Templates"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -22,6 +22,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -308,6 +309,39 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyCustomer(Customer, CustomerTempl);
         // [THEN] Customer dimensions inserted from "T" dimensions
         VerifyDimensions(Database::Customer, Customer."No.", Database::"Customer Templ.", CustomerTempl.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplCreateCustomerOneTemplateDocSendingProfileUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        DocumentSendingProfile: Record "Document Sending Profile";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 389638] Create new customer with one template and filled in "Document Sending Profile"
+        Initialize();
+        CustomerTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetCustTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T" with data and dimensions
+        LibraryTemplates.CreateCustomerTemplateWithDataAndDimensions(CustomerTempl);
+        UpdateDocSendingProfile(DocumentSendingProfile, CustomerTempl);
+
+        // [WHEN] Create new customer
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
+
+        // [THEN] Customer inserted with data from "T"
+        VerifyCustomer(Customer, CustomerTempl);
+        // [THEN] Customer dimensions inserted from "T" dimensions
+        VerifyDimensions(Database::Customer, Customer."No.", Database::"Customer Templ.", CustomerTempl.Code);
+        // [THEN] "Document Sending Profile" filled in customer
+        Assert.AreEqual(DocumentSendingProfile.Code, Customer."Document Sending Profile", 'Wrong document sending profile');
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -1291,7 +1325,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Template "T2" with data and dimensions
         LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
-        UpdateItemTemplateGenAndVatGroups(ItemTempl2);
+        UpdateItemTemplateGenAndVatGroups(ItemTempl2, 1);
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
@@ -1342,7 +1376,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
         // [GIVEN] Template "T2" with data and dimensions
         LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl2);
-        UpdateItemTemplateGenAndVatGroups(ItemTempl2);
+        UpdateItemTemplateGenAndVatGroups(ItemTempl2, 2);
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
         LibraryVariableStorage.Enqueue(ItemTempl2.Code);
 
@@ -1479,6 +1513,376 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         VerifyDimensions(Database::"Item Templ.", ItemTempl.Code, Database::Item, Item."No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplCreateVendorWithNoSeriesUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 388434] Create new vendor with "No. Series" assigned in template
+        Initialize();
+        VendorTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with "No. Series" ("NS") filled in
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+        VendorTempl.Validate("No. Series", LibraryERM.CreateNoSeriesCode('VT'));
+        VendorTempl.Modify(true);
+
+        // [WHEN] Create new vendor
+        VendorTemplMgt.InsertVendorFromTemplate(Vendor);
+
+        // [THEN] Vendor inserted with "No." assigned from "NS"
+        VerifyCustVendItemEmplNo(VendorTempl."No. Series", Vendor."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VendorTemplCreateVendorWithoutNoSeriesUT()
+    var
+        Vendor: Record Vendor;
+        VendorTempl: Record "Vendor Templ.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        // [SCENARIO 388434] Create new vendor with empty "No. Series" in template
+        Initialize();
+        VendorTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] "Vendor Nos." filled in "Purchases & Payables Setup"
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Vendor Nos." := LibraryERM.CreateNoSeriesCode('PPS');
+        PurchasesPayablesSetup.Modify();
+
+        // [GIVEN] Template with empty "No. Series"
+        LibraryTemplates.CreateVendorTemplate(VendorTempl);
+
+        // [WHEN] Create new vendor
+        VendorTemplMgt.InsertVendorFromTemplate(Vendor);
+
+        // [THEN] Vendor inserted with "No." assigned from "Purchases & Payables Setup"
+        VerifyCustVendItemEmplNo(PurchasesPayablesSetup."Vendor Nos.", Vendor."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplCreateCustomerWithNoSeriesUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 388434] Create new Customer with "No. Series" assigned in template
+        Initialize();
+        CustomerTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with "No. Series" ("NS") filled in
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+        CustomerTempl.Validate("No. Series", LibraryERM.CreateNoSeriesCode('CT'));
+        CustomerTempl.Modify(true);
+
+        // [WHEN] Create new Customer
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
+
+        // [THEN] Customer inserted with "No." assigned from "NS"
+        VerifyCustVendItemEmplNo(CustomerTempl."No. Series", Customer."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CustomerTemplCreateCustomerWithoutNoSeriesUT()
+    var
+        Customer: Record Customer;
+        CustomerTempl: Record "Customer Templ.";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        // [SCENARIO 388434] Create new Customer with empty "No. Series" in template
+        Initialize();
+        CustomerTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] "Customer Nos." filled in "Sales & Receivables Setup"
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Customer Nos." := LibraryERM.CreateNoSeriesCode('SRS');
+        SalesReceivablesSetup.Modify();
+
+        // [GIVEN] Template with empty "No. Series"
+        LibraryTemplates.CreateCustomerTemplate(CustomerTempl);
+
+        // [WHEN] Create new Customer
+        CustomerTemplMgt.InsertCustomerFromTemplate(Customer);
+
+        // [THEN] Customer inserted with "No." assigned from "Sales & Receivables Setup"
+        VerifyCustVendItemEmplNo(SalesReceivablesSetup."Customer Nos.", Customer."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCreateItemWithNoSeriesUT()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        // [SCENARIO 388434] Create new Item with "No. Series" assigned in template
+        Initialize();
+        ItemTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with "No. Series" ("NS") filled in
+        LibraryTemplates.CreateItemTemplate(ItemTempl);
+        ItemTempl.Validate("No. Series", LibraryERM.CreateNoSeriesCode('IT'));
+        ItemTempl.Modify(true);
+
+        // [WHEN] Create new Item
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] Item inserted with "No." assigned from "NS"
+        VerifyCustVendItemEmplNo(ItemTempl."No. Series", Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemTemplCreateItemWithoutNoSeriesUT()
+    var
+        Item: Record Item;
+        ItemTempl: Record "Item Templ.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        InventorySetup: Record "Inventory Setup";
+        SavedItemNosCode: Code[20];
+    begin
+        // [SCENARIO 388434] Create new Item with empty "No. Series" in template
+        Initialize();
+        ItemTempl.DeleteAll();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] "Item Nos." filled in "Inventory Setup"
+        InventorySetup.Get();
+        SavedItemNosCode := InventorySetup."Item Nos.";
+        InventorySetup."Item Nos." := LibraryERM.CreateNoSeriesCode('IS');
+        InventorySetup.Modify();
+
+        // [GIVEN] Template with empty "No. Series"
+        LibraryTemplates.CreateItemTemplate(ItemTempl);
+
+        // [WHEN] Create new Item
+        ItemTemplMgt.InsertItemFromTemplate(Item);
+
+        // [THEN] Item inserted with "No." assigned from "Inventory Setup"
+        VerifyCustVendItemEmplNo(InventorySetup."Item Nos.", Item."No.");
+
+        InventorySetup."Item Nos." := SavedItemNosCode;
+        InventorySetup.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EmployeeTemplCreateEmployeeWithNoSeriesUT()
+    var
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendEmployeeEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 388434] Create new Employee with "No. Series" assigned in template
+        Initialize();
+        EmployeeTempl.DeleteAll();
+        BindSubscription(CustVendEmployeeEmplTemplates);
+        CustVendEmployeeEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template with "No. Series" ("NS") filled in
+        LibraryTemplates.CreateEmployeeTemplate(EmployeeTempl);
+        EmployeeTempl.Validate("No. Series", LibraryERM.CreateNoSeriesCode('ET'));
+        EmployeeTempl.Modify(true);
+
+        // [WHEN] Create new Employee
+        EmployeeTemplMgt.InsertEmployeeFromTemplate(Employee);
+
+        // [THEN] Employee inserted with "No." assigned from "NS"
+        VerifyCustVendItemEmplNo(EmployeeTempl."No. Series", Employee."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure EmployeeTemplCreateEmployeeWithoutNoSeriesUT()
+    var
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendEmployeeEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+        HumanResourcesSetup: Record "Human Resources Setup";
+        SavedEmployeeNosCode: code[20];
+    begin
+        // [SCENARIO 388434] Create new Employee with empty "No. Series" in template
+        Initialize();
+        EmployeeTempl.DeleteAll();
+        BindSubscription(CustVendEmployeeEmplTemplates);
+        CustVendEmployeeEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] "Employee Nos." filled in "Human Resources Setup"
+        HumanResourcesSetup.Get();
+        SavedEmployeeNosCode := HumanResourcesSetup."Employee Nos.";
+        HumanResourcesSetup."Employee Nos." := LibraryERM.CreateNoSeriesCode('HRS');
+        HumanResourcesSetup.Modify();
+
+        // [GIVEN] Template with empty "No. Series"
+        LibraryTemplates.CreateEmployeeTemplate(EmployeeTempl);
+
+        // [WHEN] Create new Employee
+        EmployeeTemplMgt.InsertEmployeeFromTemplate(Employee);
+
+        // [THEN] Employee inserted with "No." assigned from "Human Resources Setup"
+        VerifyCustVendItemEmplNo(HumanResourcesSetup."Employee Nos.", Employee."No.");
+
+        HumanResourcesSetup."Employee Nos." := SavedEmployeeNosCode;
+        HumanResourcesSetup.Modify();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectEmployeeTemplListHandler')]
+    procedure EmployeeTemplApplyTemplateFromEmployeeTwoTemplatesUT()
+    var
+        Employee: Record Employee;
+        EmployeeTempl1: Record "Employee Templ.";
+        EmployeeTempl2: Record "Employee Templ.";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 384920] Apply template to Employee with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl2);
+        EmployeeTempl2.Get(EmployeeTempl2.Code);
+        LibraryVariableStorage.Enqueue(EmployeeTempl2.Code);
+
+        // [GIVEN] Employee "E"
+        LibraryHumanResource.CreateEmployee(Employee);
+
+        // [WHEN] Apply "T2" to "E"
+        EmployeeTemplMgt.UpdateEmployeeFromTemplate(Employee);
+
+        // [THEN] "E" filled with data from "T2"
+        Employee.Get(Employee."No.");
+        VerifyEmployee(Employee, EmployeeTempl2);
+
+        // [THEN] Employee dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Employee, Employee."No.", Database::"Employee Templ.", EmployeeTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('SelectEmployeeTemplListHandler')]
+    procedure EmployeeTemplApplyTemplateForTwoEmployeesTwoTemplatesUT()
+    var
+        Employee: array[3] of Record Employee;
+        EmployeeTempl1: Record "Employee Templ.";
+        EmployeeTempl2: Record "Employee Templ.";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 384920] Apply template for two Employees with two existing templates
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetVendTemplateFeatureEnabled(true);
+
+        // [GIVEN] Template "T1" with data and dimensions
+        LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl1);
+
+        // [GIVEN] Template "T2" with data and dimensions
+        LibraryTemplates.CreateEmployeeTemplateWithDataAndDimensions(EmployeeTempl2);
+        EmployeeTempl2.Get(EmployeeTempl2.Code);
+        LibraryVariableStorage.Enqueue(EmployeeTempl2.Code);
+
+        // [GIVEN] Tow Employees "E1" and "E2"
+        LibraryHumanResource.CreateEmployee(Employee[1]);
+        LibraryHumanResource.CreateEmployee(Employee[2]);
+        Employee[3].SetFilter("No.", '%1|%2', Employee[1]."No.", Employee[2]."No.");
+
+        // [WHEN] Apply "T2" for "E1" and "E2" at one time
+        EmployeeTemplMgt.UpdateEmployeesFromTemplate(Employee[3]);
+
+        // [THEN] "E1" filled with data from "T2"
+        Employee[1].Get(Employee[1]."No.");
+        VerifyEmployee(Employee[1], EmployeeTempl2);
+
+        // [THEN] "E1" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Employee, Employee[1]."No.", Database::"Employee Templ.", EmployeeTempl2.Code);
+
+        // [THEN] "E2" filled with data from "T2"
+        Employee[2].Get(Employee[2]."No.");
+        VerifyEmployee(Employee[2], EmployeeTempl2);
+
+        // [THEN] "E2" dimensions inserted from "T2" dimensions
+        VerifyDimensions(Database::Employee, Employee[2]."No.", Database::"Employee Templ.", EmployeeTempl2.Code);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('EmployeeTemplCardHandler')]
+    [Scope('OnPrem')]
+    procedure EmployeeTemplSaveEmployeeAsTemplate()
+    var
+        Employee: Record Employee;
+        EmployeeTempl: Record "Employee Templ.";
+        DimensionValue: Record "Dimension Value";
+        EmployeeTemplMgt: Codeunit "Employee Templ. Mgt.";
+        CustVendItemEmplTemplates: Codeunit "Cust/Vend/Item/Empl Templates";
+    begin
+        // [SCENARIO 384920] Save Employee as a template
+        Initialize();
+        BindSubscription(CustVendItemEmplTemplates);
+        CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
+
+        // [GIVEN] Employee with dimensions
+        CreateEmployeeWithData(Employee);
+
+        LibraryDimension.GetGlobalDimCodeValue(1, DimensionValue);
+        Employee.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        LibraryDimension.GetGlobalDimCodeValue(2, DimensionValue);
+        Employee.Validate("Global Dimension 2 Code", DimensionValue.Code);
+        Employee.Modify(true);
+        LibraryVariableStorage.Enqueue(Employee."No.");
+
+        // [WHEN] Save Employee as template
+        EmployeeTemplMgt.SaveAsTemplate(Employee);
+
+        // [THEN] New Employee template with dimensions is created (UI part verified in EmployeeTemplCardHandler)
+        EmployeeTempl.Get(LibraryVariableStorage.DequeueText());
+        Assert.AreEqual(Employee."Employee Posting Group", EmployeeTempl."Employee Posting Group", InsertedTemplateErr);
+        Assert.AreEqual(Employee."Statistics Group Code", EmployeeTempl."Statistics Group Code", InsertedTemplateErr);
+        Assert.AreEqual(Employee."Global Dimension 1 Code", EmployeeTempl."Global Dimension 1 Code", InsertedTemplateErr);
+        Assert.AreEqual(Employee."Global Dimension 2 Code", EmployeeTempl."Global Dimension 2 Code", InsertedTemplateErr);
+        VerifyDimensions(Database::"Employee Templ.", EmployeeTempl.Code, Database::Employee, Employee."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
@@ -1534,17 +1938,53 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustomerTempl.Modify(true);
     end;
 
-    local procedure UpdateItemTemplateGenAndVatGroups(var ItemTempl: Record "Item Templ.")
+    local procedure UpdateItemTemplateGenAndVatGroups(var ItemTempl: Record "Item Templ."; SearchGenPostingType: Integer)
     var
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        LibraryERM.FindGeneralPostingSetupInvtBase(GeneralPostingSetup);
-        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        case SearchGenPostingType of
+            1:
+                LibraryERM.SetSearchGenPostingTypeSales;
+            2:
+                LibraryERM.SetSearchGenPostingTypePurch();
+        end;
+        LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
+        LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
 
         ItemTempl."Gen. Prod. Posting Group" := GeneralPostingSetup."Gen. Prod. Posting Group";
         ItemTempl."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         ItemTempl.Modify(true);
+    end;
+
+    local procedure CreateEmployeeWithData(var Employee: Record Employee)
+    var
+        EmployeePostingGroup: Record "Employee Posting Group";
+        EmployeeStatisticsGroup: Record "Employee Statistics Group";
+    begin
+        LibraryHumanResource.CreateEmployee(Employee);
+
+        EmployeePostingGroup.Init();
+        EmployeePostingGroup.Validate(Code, LibraryUtility.GenerateRandomCode(EmployeePostingGroup.FieldNo(Code), Database::"Employee Posting Group"));
+        EmployeePostingGroup.Insert();
+
+        EmployeeStatisticsGroup.Init();
+        EmployeeStatisticsGroup.Validate(Code, LibraryUtility.GenerateRandomCode(EmployeeStatisticsGroup.FieldNo(Code), Database::"Employee Statistics Group"));
+        EmployeeStatisticsGroup.Insert();
+
+        Employee.Validate("Employee Posting Group", EmployeePostingGroup.Code);
+        Employee.Validate("Statistics Group Code", EmployeeStatisticsGroup.Code);
+        Employee.Modify(true);
+    end;
+
+    local procedure UpdateDocSendingProfile(var DocumentSendingProfile: Record "Document Sending Profile"; var CustomerTempl: Record "Customer Templ.")
+    begin
+        DocumentSendingProfile.Init();
+        DocumentSendingProfile.Validate(Code, LibraryUtility.GenerateRandomCode(DocumentSendingProfile.FieldNo(Code), Database::"Document Sending Profile"));
+        DocumentSendingProfile.Insert();
+
+        CustomerTempl."Document Sending Profile" := DocumentSendingProfile.Code;
+        CustomerTempl.Modify(true);
     end;
 
     local procedure VerifyTemplateGlobalDimensionIsDefaultDimension(TemplateTableId: Integer; TemplateCode: Code[20]; GlobalDim1CodeValue: Code[20]; GlobalDim2CodeValue: Code[20])
@@ -1687,6 +2127,15 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         Assert.IsTrue(Customer."Customer Disc. Group" = CustomerTempl."Customer Disc. Group", CopyTemplateDataErr);
     end;
 
+    local procedure VerifyCustVendItemEmplNo(NoSeriesCode: Code[20]; CustVendItemEmplNo: Code[20])
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        Assert.AreEqual(NoSeriesLine."Last No. Used", CustVendItemEmplNo, 'Wrong number assigned.');
+    end;
+
     [ModalPageHandler]
     procedure SelectVendorTemplListHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
     var
@@ -1809,6 +2258,21 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryVariableStorage.Enqueue(ItemTemplCard.Code.Value);
 
         ItemTemplCard.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    procedure EmployeeTemplCardHandler(var EmployeeTemplCard: TestPage "Employee Templ. Card")
+    var
+        Employee: Record Employee;
+    begin
+        Employee.Get(LibraryVariableStorage.DequeueText());
+
+        EmployeeTemplCard."Employee Posting Group".AssertEquals(Employee."Employee Posting Group");
+        EmployeeTemplCard."Statistics Group Code".AssertEquals(Employee."Statistics Group Code");
+
+        LibraryVariableStorage.Enqueue(EmployeeTemplCard.Code.Value);
+
+        EmployeeTemplCard.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnAfterIsEnabled', '', false, false)]

@@ -1,6 +1,7 @@
 ﻿codeunit 134485 "ERM Dimension Shortcuts"
 {
     Subtype = Test;
+    EventSubscriberInstance = Manual;
     TestPermissions = Disabled;
 
     trigger OnRun()
@@ -21,7 +22,8 @@
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryERM: Codeunit "Library - ERM";
         IsInitialized: Boolean;
-        TempBatchNameTxt: Label 'BD_TEMP_B';
+        TempBatchNameTxt: Label 'BD_TEMP';
+        ShortcutDimErrorTxt: Label 'Recurring Method must not be BD Balance by Dimension in Gen. Journal Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -5384,17 +5386,20 @@
     [Scope('OnPrem')]
     procedure RecurringByDimPostedEntryBatchName()
     var
+        GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         RecurringGenJournalLine: Record "Gen. Journal Line";
         DimensionValue: array[6] of Record "Dimension Value";
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
         GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        ERMDimensionShortcuts: Codeunit "ERM Dimension Shortcuts";
         i: Integer;
         AllocGLAccNo: code[20];
     begin
-        // [SCENARIO 388593] Posted recurring journal lines contain original batch name, not the temporary one
+        // [SCENARIO 388380] Posted recurring journal lines contain original batch name, not the temporary one
         Initialize;
+        RemoveTempBatches();
 
         // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
         CreateShortcutDimensions(DimensionValue);
@@ -5408,15 +5413,23 @@
             LibraryERM.PostGeneralJnlLine(GenJournalLine);
         end;
 
-        // [WHEN] Post recurring journal without dimension filter
+        // [GIVEN] Recurring Journal batch 'X' with line without dimension filter
         CreateRecurringGenJnlLine(RecurringGenJournalLine, GLAccount."No.");
+
+        // [GIVEN] Recurring Journal batch, where Name = 'BD_TEMP998'
+        GenJournalBatch."Journal Template Name" := RecurringGenJournalLine."Journal Template Name";
+        GenJournalBatch.Name := StrSubstNo('%1%2', TempBatchNameTxt, '998');
+        GenJournalBatch.Insert(true);
+
+        // [WHEN] Post recurring journal 
+        BindSubscription(ERMDimensionShortcuts); // OnAfterInsertGenJournalBatch
         LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
 
         // [THEN] "Reversing" recurring entries contain original batch name
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
         Assert.RecordCount(GLEntry, 6);
-        GLEntry.SetRange("Journal Batch Name", TempBatchNameTxt);
+        GLEntry.SetFilter("Journal Batch Name", StrSubstNo('%1*', TempBatchNameTxt));
         Assert.RecordCount(GLEntry, 0);
 
         // [THEN] "Allocation" recurring entries contain original batch name
@@ -5428,8 +5441,222 @@
         GLEntry.SetRange("G/L Account No.", GenJnlAllocation."Account No.");
         GLEntry.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
         Assert.RecordCount(GLEntry, 6);
-        GLEntry.SetRange("Journal Batch Name", TempBatchNameTxt);
+        GLEntry.SetFilter("Journal Batch Name", StrSubstNo('%1*', TempBatchNameTxt));
         Assert.RecordCount(GLEntry, 0);
+
+        // [THEN] Recurring Journal batch still exists, where Name = 'BD_TEMP998'
+        Assert.IsTrue(GenJournalBatch.Find(), 'temp batch is not found');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimValidateRecurringShortcutDimCode()
+    var
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 388417] User cannot fill shortcut dimension code on the recurring journal page for "Recurring Method" = "BD Balance by Dimension" line
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] Recurring journal line, "Recurring Method" = "BD Balance by Dimension"
+        CreateRecurringGenJnlLine(RecurringGenJournalLine, LibraryERM.CreateGLAccountNo());
+
+        // [WHEN] Fill shortcut dimension X code on the recurring journal page
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", RecurringGenJournalLine);
+
+        // [THEN] Error message is thrown
+        asserterror RecurringGeneralJournal.ShortcutDimCode3.SetValue(DimensionValue[1].Code);
+        Assert.ExpectedError(ShortcutDimErrorTxt);
+        asserterror RecurringGeneralJournal.ShortcutDimCode4.SetValue(DimensionValue[2].Code);
+        Assert.ExpectedError(ShortcutDimErrorTxt);
+        asserterror RecurringGeneralJournal.ShortcutDimCode5.SetValue(DimensionValue[3].Code);
+        Assert.ExpectedError(ShortcutDimErrorTxt);
+        asserterror RecurringGeneralJournal.ShortcutDimCode6.SetValue(DimensionValue[4].Code);
+        Assert.ExpectedError(ShortcutDimErrorTxt);
+        asserterror RecurringGeneralJournal.ShortcutDimCode7.SetValue(DimensionValue[5].Code);
+        Assert.ExpectedError(ShortcutDimErrorTxt);
+        asserterror RecurringGeneralJournal.ShortcutDimCode8.SetValue(DimensionValue[6].Code);
+        Assert.ExpectedError(ShortcutDimErrorTxt);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimValidateRecurringShortcutDimCodeNonDimBalLine()
+    var
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        RecurringGeneralJournal: TestPage "Recurring General Journal";
+    begin
+        // [SCENARIO 388417] User fill shortcut dimension code on the recurring journal page for "Recurring Method" <> "BD Balance by Dimension" line
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] Recurring journal line, "Recurring Method" = "F Fixed"
+        CreateRecurringGenJnlLine(RecurringGenJournalLine, LibraryERM.CreateGLAccountNo());
+        RecurringGenJournalLine."Recurring Method" := RecurringGenJournalLine."Recurring Method"::"F  Fixed";
+        RecurringGenJournalLine.Modify();
+
+        // [WHEN] Fill shortcut dimension X code on the recurring journal page
+        RecurringGeneralJournal.Trap();
+        Page.Run(Page::"Recurring General Journal", RecurringGenJournalLine);
+
+        // [THEN] Shortcut dimension X code is filled in
+        RecurringGeneralJournal.ShortcutDimCode3.SetValue(DimensionValue[1].Code);
+        RecurringGeneralJournal.ShortcutDimCode3.AssertEquals(DimensionValue[1].Code);
+        RecurringGeneralJournal.ShortcutDimCode4.SetValue(DimensionValue[2].Code);
+        RecurringGeneralJournal.ShortcutDimCode4.AssertEquals(DimensionValue[2].Code);
+        RecurringGeneralJournal.ShortcutDimCode5.SetValue(DimensionValue[3].Code);
+        RecurringGeneralJournal.ShortcutDimCode5.AssertEquals(DimensionValue[3].Code);
+        RecurringGeneralJournal.ShortcutDimCode6.SetValue(DimensionValue[4].Code);
+        RecurringGeneralJournal.ShortcutDimCode6.AssertEquals(DimensionValue[4].Code);
+        RecurringGeneralJournal.ShortcutDimCode7.SetValue(DimensionValue[5].Code);
+        RecurringGeneralJournal.ShortcutDimCode7.AssertEquals(DimensionValue[5].Code);
+        RecurringGeneralJournal.ShortcutDimCode8.SetValue(DimensionValue[6].Code);
+        RecurringGeneralJournal.ShortcutDimCode8.AssertEquals(DimensionValue[6].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimTempBatchDeleted()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLAccount: Record "G/L Account";
+        GLEntry: Record "G/L Entry";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        ERMDimensionShortcuts: Codeunit "ERM Dimension Shortcuts";
+        i: Integer;
+    begin
+        // [SCENARIO 388437] Temporary recurring journal batch does not exist after trying to post without error
+        Initialize;
+        RemoveTempBatches();
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] 6 posted gen. jnl. lines
+        LibraryERM.CreateGLAccount(GLAccount);
+        for i := 1 to 6 do begin
+            CreateGenJnlLine(GenJournalLine, GLAccount."No.", i * 100);
+            GenJournalLine.Validate("Dimension Set ID", CreateDimSet(DimensionValue[i]));
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [GIVEN] Recurring Journal batch 'X' with the line (should not be posted due to "Posting Date") 
+        CreateRecurringGenJnlLine(RecurringGenJournalLine, GLAccount."No.");
+        RecurringGenJournalLine."Posting Date" := WorkDate() - 1;
+        RecurringGenJournalLine.Modify();
+        // [GIVEN] Recurring Journal batch, where Name = 'BD_TEMP003'
+        GenJournalBatch."Journal Template Name" := RecurringGenJournalLine."Journal Template Name";
+        GenJournalBatch.Name := StrSubstNo('%1%2', TempBatchNameTxt, '003');
+        GenJournalBatch.Insert(true);
+
+        // [WHEN] Try to post recurring journal 'X'
+        BindSubscription(ERMDimensionShortcuts); // OnAfterInsertGenJournalBatch
+        LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
+
+        // [THEN] Temporary recurring batch does not exist
+        GenJournalBatch.SetRange("Journal Template Name", RecurringGenJournalLine."Journal Template Name");
+        GenJournalBatch.SetFilter(Name, StrSubstNo('%1*', TempBatchNameTxt));
+        Assert.RecordCount(GenJournalBatch, 1);
+        Assert.IsTrue(GenJournalBatch.FindFirst(), 'not found temp batch from previous posting');
+        // [THEN] There are no posted G/L entries
+        GLEntry.SetRange("G/L Account No.", GLAccount."No.");
+        GLEntry.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
+        Assert.RecordCount(GLEntry, 0);
+        GLEntry.SetFilter("Journal Batch Name", StrSubstNo('%1*', TempBatchNameTxt));
+        Assert.RecordCount(GLEntry, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimPostTwoRecurringLines()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLEntry: Record "G/L Entry";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        i: Integer;
+        GLAccNo: array[6] of Code[20];
+    begin
+        // [SCENARIO 388437] Temporary recurring journal batch does not exist after trying to post without error
+        Initialize;
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] 6 posted gen. jnl. lines
+        for i := 1 to 6 do begin
+            GLAccNo[i] := LibraryERM.CreateGLAccountNo();
+            CreateGenJnlLine(GenJournalLine, GLAccNo[i], i * 100);
+            GenJournalLine.Validate("Dimension Set ID", CreateDimSet(DimensionValue[i]));
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [WHEN] Post two recurring journal liens with different accounts
+        CreateTwoRecurringGenJnlLines(RecurringGenJournalLine, GLAccNo[1], GLAccNo[2]);
+        LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
+
+        // [THEN] There are posted G/L entries for 
+        GLEntry.SetRange("G/L Account No.", GLAccNo[1], GLAccNo[2]);
+        GLEntry.SetRange("Journal Batch Name", RecurringGenJournalLine."Journal Batch Name");
+        Assert.RecordCount(GLEntry, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure RecurringByDimPostOverflowBatchName()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringGenJournalLine: Record "Gen. Journal Line";
+        DimensionValue: array[6] of Record "Dimension Value";
+        GLEntry: Record "G/L Entry";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        i: Integer;
+        GLAccNo: array[6] of Code[20];
+    begin
+        // [SCENARIO 388437] Temporary recurring journal batch gets overflow error
+        Initialize;
+        RemoveTempBatches();
+
+        // [GIVEN] Shortcut dimensions 3-8 are filled in the general ledger setup
+        CreateShortcutDimensions(DimensionValue);
+        SetGLSetupShortcutDimensionsAll(DimensionValue);
+        // [GIVEN] 6 posted gen. jnl. lines
+        for i := 1 to 6 do begin
+            GLAccNo[i] := LibraryERM.CreateGLAccountNo();
+            CreateGenJnlLine(GenJournalLine, GLAccNo[i], i * 100);
+            GenJournalLine.Validate("Dimension Set ID", CreateDimSet(DimensionValue[i]));
+            GenJournalLine.Modify(true);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        end;
+
+        // [GIVEN] Batch 'X' with two recurring journal lines with different accounts
+        CreateTwoRecurringGenJnlLines(RecurringGenJournalLine, GLAccNo[1], GLAccNo[2]);
+        // [GIVEN] Recurring Journal batch, where Name = 'BD_TEMP999'
+        GenJournalBatch."Journal Template Name" := RecurringGenJournalLine."Journal Template Name";
+        GenJournalBatch.Name := StrSubstNo('%1%2', TempBatchNameTxt, '999');
+        GenJournalBatch.Insert(true);
+
+        // [WHEN] Post batch 'X'
+        asserterror LibraryERM.PostGeneralJnlLine(RecurringGenJournalLine);
+
+        // [THEN] Overflow error on teh temp batch name calculation: 'The length of the string is 11'
+        Assert.ExpectedError('The length of the string is 11');
     end;
 
     local procedure Initialize()
@@ -5519,6 +5746,14 @@
         GLSetup.Validate("Shortcut Dimension 7 Code", '');
         GLSetup.Validate("Shortcut Dimension 8 Code", '');
         GLSetup.Modify();
+    end;
+
+    local procedure RemoveTempBatches()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        GenJournalBatch.SetFilter(Name, StrSubstNo('%1*', TempBatchNameTxt));
+        GenJournalBatch.DeleteAll(true);
     end;
 
     local procedure SetGLSetupAllDimensions()
@@ -5667,6 +5902,45 @@
         GenJnlAllocation.Modify(true);
     end;
 
+    local procedure CreateTwoRecurringGenJnlLines(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountNo2: Code[20])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+    begin
+        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalBatch.Recurring := true;
+        GenJournalBatch.Modify(true);
+        GenJournalBatch.SetupNewBatch();
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", AccountNo, 0);
+        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), Database::"Gen. Journal Line"), 1, 20);
+        GenJournalLine."Recurring Method" := GenJournalLine."Recurring Method"::"BD Balance by Dimension";
+        Evaluate(GenJournalLine."Recurring Frequency", '<1M>');
+        GenJournalLine.Modify(true);
+
+        LibraryERM.CreateGenJnlAllocation(GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        GenJnlAllocation.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlAllocation.Validate("Allocation %", 100);
+        GenJnlAllocation.Modify(true);
+
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", AccountNo2, 0);
+        GenJournalLine."Document No." := CopyStr(LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), Database::"Gen. Journal Line"), 1, 20);
+        GenJournalLine."Recurring Method" := GenJournalLine."Recurring Method"::"BD Balance by Dimension";
+        Evaluate(GenJournalLine."Recurring Frequency", '<1M>');
+        GenJournalLine.Modify(true);
+
+        LibraryERM.CreateGenJnlAllocation(GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+        GenJnlAllocation.Validate("Account No.", LibraryERM.CreateGLAccountNo());
+        GenJnlAllocation.Validate("Allocation %", 100);
+        GenJnlAllocation.Modify(true);
+    end;
+
     local procedure CreateGenJnlDimFilter(RecurringGenJournalLine: Record "Gen. Journal Line"; DimensionValue: Record "Dimension Value")
     var
         GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
@@ -5779,6 +6053,15 @@
             EditDimensionSetEntries."Dimension Code".Value(DimensionValue."Dimension Code");
             EditDimensionSetEntries.DimensionValueCode.Value(DimensionValue.Code);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Batch", 'OnAfterInsertEvent', '', false, false)]
+    local procedure OnAfterInsertGenJournalBatch(var Rec: Record "Gen. Journal Batch"; RunTrigger: Boolean);
+    begin
+        if Rec.IsTemporary then
+            exit;
+        if CopyStr(Rec.Name, 1, 7) = TempBatchNameTxt then
+            Assert.AreEqual(StrSubstNo('#%1#%2#', ServiceInstanceId(), SessionId()), Rec.Description, 'Temp batch Description');
     end;
 }
 
