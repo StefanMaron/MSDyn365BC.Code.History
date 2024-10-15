@@ -16,6 +16,7 @@ codeunit 142076 "Payment Tolerance"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -28,6 +29,7 @@ codeunit 142076 "Payment Tolerance"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
+        Initialize();
 
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
@@ -55,6 +57,7 @@ codeunit 142076 "Payment Tolerance"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 378178] Payment Discount Date should be calculated according to "Discount Date Calculation" of Payment Terms
+        Initialize();
 
         // [GIVEN] Payment Terms "X" with "Discount %" = 0, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
         LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
@@ -88,7 +91,7 @@ codeunit 142076 "Payment Tolerance"
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 211536] Payment Discount is calculated on "Cash Receipt Journal Factbox" page when Payment applies to multiple invoices by "Applies-To ID"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period is 5 days
         UpdateGeneralLedgerSetup(OldPmtDiscToleranceWarning, OldPaymentDiscountGracePeriod, false, '<5D>'); // Payment Discount Grace Period - 5D.
@@ -141,7 +144,7 @@ codeunit 142076 "Payment Tolerance"
         // [FEATURE] [Sales] [Payment Discount Tolerance]
         // [SCENARIO 211536] Payment Discount is calculated on "Cash Receipt Journal Factbox" page when Payment applies to Invoice by "Applies-To Doc. No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period is 5 days
         UpdateGeneralLedgerSetup(OldPmtDiscToleranceWarning, OldPaymentDiscountGracePeriod, false, '<5D>'); // Payment Discount Grace Period - 5D.
@@ -183,7 +186,7 @@ codeunit 142076 "Payment Tolerance"
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 211536] Payment Discount is calculated on "Payment Journal Factbox" page when Payment applies to multiple invoices by "Applies-To ID"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period is 5 days
         UpdateGeneralLedgerSetup(OldPmtDiscToleranceWarning, OldPaymentDiscountGracePeriod, false, '<5D>'); // Payment Discount Grace Period - 5D.
@@ -236,7 +239,7 @@ codeunit 142076 "Payment Tolerance"
         // [FEATURE] [Purchase] [Payment Discount Tolerance]
         // [SCENARIO 211536] Payment Discount is calculated on "Paymene Journal Factbox" page when Payment applies to Invoice by "Applies-To Doc. No"
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Payment Discount Grace Period is 5 days
         UpdateGeneralLedgerSetup(OldPmtDiscToleranceWarning, OldPaymentDiscountGracePeriod, false, '<5D>'); // Payment Discount Grace Period - 5D.
@@ -264,13 +267,17 @@ codeunit 142076 "Payment Tolerance"
 
     local procedure Initialize()
     begin
-        LibrarySetupStorage.Restore;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Payment Tolerance");
+
+        LibrarySetupStorage.Restore();
         LibraryRandom.SetSeed(1);  // Use Random Number to generate the seed for RANDOM function.
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Payment Tolerance");
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         IsInitialized := true;
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Payment Tolerance");
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; PaymentTermsCode: Code[10])

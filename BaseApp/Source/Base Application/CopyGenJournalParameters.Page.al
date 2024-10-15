@@ -46,19 +46,19 @@ page 184 "Copy Gen. Journal Parameters"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Replace Posting Date';
-                    ToolTip = 'Specifies if the posting date will be replaced with the value of current field while copy posted journal lines.';
+                    ToolTip = 'Specifies if the posting date will be replaced with the value of current field while copy posted journal lines. If you leave this field blank original Posting Date will be used in Target Journal.';
                 }
                 field("Replace Document No."; "Replace Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Replace Document No.';
-                    ToolTip = 'Specifies if the document number will be replaced with the value of current field while copy posted journal lines.';
+                    ToolTip = 'Specifies if the document number will be replaced with the value of current field while copy posted journal lines. If you leave this field blank original Document No. will be used in Target Journal.';
                 }
                 field("Reverse Sign"; "Reverse Sign")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reverse Sign';
-                    ToolTip = 'Specifies if the posted journal line amount will be passed to journal line with reversed sign.';
+                    ToolTip = 'Specifies if the amount will be replaced with the opposite value while copy posted journal lines. If you leave this field disabled original amount will be used in Target Journal.';
                 }
             }
         }

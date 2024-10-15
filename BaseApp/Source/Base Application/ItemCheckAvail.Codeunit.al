@@ -50,7 +50,13 @@ codeunit 311 "Item-Check Avail."
         TempAsmHeader: Record "Assembly Header" temporary;
         TempAsmLine: Record "Assembly Line" temporary;
         ATOLink: Record "Assemble-to-Order Link";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLineCheck(SalesLine, Rollback, IsHandled);
+        if IsHandled then
+            exit(Rollback);
+
         NotificationLifecycleMgt.RecallNotificationsForRecordWithAdditionalContext(
           SalesLine.RecordId, GetItemAvailabilityNotificationId, true);
         if SalesLineShowWarning(SalesLine) then
@@ -222,7 +228,10 @@ codeunit 311 "Item-Check Avail."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeSetFilterOnItem(Item, ItemNo, ItemVariantCode, ItemLocationCode, ShipmentDate, UseOrderPromise, IsHandled);
+        if IsHandled then
+            exit;
 
         Item.Get(ItemNo);
         Item.SetRange("No.", ItemNo);
@@ -619,6 +628,11 @@ codeunit 311 "Item-Check Avail."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterItemJnlLineShowWarning(var ItemJournalLine: Record "Item Journal Line"; var ItemNetChange: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineCheck(SalesLine: Record "Sales Line"; var Rollback: Boolean; var IsHandled: Boolean)
     begin
     end;
 

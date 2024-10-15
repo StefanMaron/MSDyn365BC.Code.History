@@ -321,6 +321,8 @@ codeunit 5320 "Exchange Web Services Client"
     begin
         Clear(ServiceOnClient);
         Clear(ServiceOnServer);
+        Clear(TempExchangeFolder);
+        Clear(LongPathsDetected);
         Session.LogMessage('0000D8Q', ServiceInvalidatedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTxt);
     end;
 

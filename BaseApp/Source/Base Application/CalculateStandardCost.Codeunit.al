@@ -326,8 +326,8 @@ codeunit 5812 "Calculate Standard Cost"
                               BOMComp."Quantity per" *
                               UOMMgt.GetResQtyPerUnitOfMeasure(Res, BOMComp."Unit of Measure Code") /
                               LotSize;
-                            Item."Single-Level Capacity Cost" += ComponentQuantity * TempPriceListLine."Unit Price";
-                            Item."Single-Level Cap. Ovhd Cost" += ComponentQuantity * (TempPriceListLine."Unit Cost" - TempPriceListLine."Unit Price");
+                            Item."Single-Level Capacity Cost" += ComponentQuantity * TempPriceListLine."Direct Unit Cost";
+                            Item."Single-Level Cap. Ovhd Cost" += ComponentQuantity * (TempPriceListLine."Unit Cost" - TempPriceListLine."Direct Unit Cost");
                         end;
                 end;
             until BOMComp.Next = 0;
@@ -753,7 +753,7 @@ codeunit 5812 "Calculate Standard Cost"
             if StdCostWkshName <> '' then
                 if StdCostWksh.Get(StdCostWkshName, StdCostWksh.Type::Resource, ResourceNo) then begin
                     PriceListLine."Unit Cost" := StdCostWksh."New Standard Cost";
-                    PriceListLine."Unit Price" :=
+                    PriceListLine."Direct Unit Cost" :=
                         CostCalcMgt.CalcDirUnitCost(
                             StdCostWksh."New Standard Cost",
                             StdCostWksh."New Overhead Rate",

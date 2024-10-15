@@ -1,4 +1,4 @@
-codeunit 5813 "Undo Purchase Receipt Line"
+﻿codeunit 5813 "Undo Purchase Receipt Line"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "Purch. Rcpt. Line" = imd,
@@ -102,7 +102,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     DocLineNo := GetCorrectionLineNo(PurchRcptLine);
 
                 InsertNewReceiptLine(PurchRcptLine, ItemRcptEntryNo, DocLineNo);
-                OnAfterInsertNewReceiptLine(PurchRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo);
+                OnAfterInsertNewReceiptLine(PurchRcptLine, PostedWhseRcptLine, PostedWhseRcptLineFound, DocLineNo, PostedWhseRcptLine);
 
                 if PostedWhseRcptLineFound then
                     WhseUndoQty.UndoPostedWhseRcptLine(PostedWhseRcptLine);
@@ -482,7 +482,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertNewReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var PostedWhseRcptLineFound: Boolean; DocLineNo: Integer)
+    local procedure OnAfterInsertNewReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var PostedWhseRcptLineFound: Boolean; DocLineNo: Integer; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
 

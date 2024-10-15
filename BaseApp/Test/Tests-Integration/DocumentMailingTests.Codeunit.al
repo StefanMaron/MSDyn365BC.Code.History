@@ -120,7 +120,7 @@ codeunit 135060 "Document Mailing Tests"
         DocumentSendingProfile_MultiInvoices_Email_Background_Internal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('SelectSendingOptionsStrMenuHandler')]
     [Scope('OnPrem')]
     procedure DocumentSendingProfile_MultiInvoices_Email_Background()

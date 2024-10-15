@@ -149,11 +149,17 @@ page 343 "Check Credit Limit"
     end;
 
     [Scope('OnPrem')]
-    procedure SalesHeaderShowWarning(SalesHeader: Record "Sales Header"): Boolean
+    procedure SalesHeaderShowWarning(SalesHeader: Record "Sales Header") Result: Boolean
     var
         OldSalesHeader: Record "Sales Header";
         AssignDeltaAmount: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderShowWarning(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         // Used when additional lines are inserted
         SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
@@ -199,8 +205,15 @@ page 343 "Check Credit Limit"
     end;
 
     [Scope('OnPrem')]
-    procedure SalesLineShowWarning(SalesLine: Record "Sales Line"): Boolean
+    procedure SalesLineShowWarning(SalesLine: Record "Sales Line") Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLineShowWarning(SalesLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesSetup.Get();
         if SalesSetup."Credit Warnings" =
            SalesSetup."Credit Warnings"::"No Warning"
@@ -446,6 +459,7 @@ page 343 "Check Credit Limit"
     begin
         if GetFilter("Date Filter") = '' then
             SetFilter("Date Filter", '..%1', WorkDate);
+        OnCalcOverdueBalanceLCYAfterSetFilter(Rec);
         CalcFields("Balance Due (LCY)");
     end;
 
@@ -530,6 +544,21 @@ page 343 "Check Credit Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineShowWarning(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; var Result: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderShowWarning(var SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineShowWarning(var SalesLine: Record "Sales Line"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcOverdueBalanceLCYAfterSetFilter(var Customer: Record Customer);
     begin
     end;
 }

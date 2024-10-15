@@ -402,6 +402,7 @@ report 11005 "VAT Statement Germany"
                         else
                             VATStmtLine2.TestField("Amount Type");
                     end;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount, UseAmtsInAddCurr);
                     CalcTotalAmount(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -498,6 +499,11 @@ report 11005 "VAT Statement Germany"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcAmountVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal; UseAmtsInAddCurr: Boolean)
     begin
     end;
 }

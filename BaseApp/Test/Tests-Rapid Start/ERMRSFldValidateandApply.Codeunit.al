@@ -17,6 +17,8 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         ConfigValidateManagement: Codeunit "Config. Validate Management";
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryInventory: Codeunit "Library - Inventory";
+        LibraryWarehouse: Codeunit "Library - Warehouse";
         isInitialized: Boolean;
         SingleEntryRecNo: Integer;
         MigrationError: Label 'There are errors in Migration Data Error.';
@@ -900,6 +902,93 @@ codeunit 136609 "ERM RS Fld. Validate and Apply"
         Assert.RecordIsEmpty(IntegrationRecord);
         ConfigPackageError.SetRange("Package Code", ConfigPackage.Code);
         Assert.RecordIsEmpty(ConfigPackageError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ApplyPackageValidationEnumField()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        Location: Record Location;
+        ReorderingPolicy: Enum "Reordering Policy";
+        ItemNo: Code[20];
+    begin
+        // [SCENARIO 371872] Validation of Enum field when applying package 
+        Initialize();
+
+        ItemNo := LibraryInventory.CreateItemNo();
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] Config. Package with Stockkeeping Unit record
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Stockkeeping Unit",
+          StockkeepingUnit.FieldNo("Location Code"),
+          Location.Code,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Stockkeeping Unit",
+          StockkeepingUnit.FieldNo("Item No."),
+          ItemNo,
+          SingleEntryRecNo);
+
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Stockkeeping Unit",
+          StockkeepingUnit.FieldNo("Variant Code"),
+          '',
+          SingleEntryRecNo);
+
+        // [GIVEN] Config. Package record "Reordering Policy" = "Maximum Qty."
+        LibraryRapidStart.CreatePackageDataForField(
+          ConfigPackage,
+          ConfigPackageTable,
+          DATABASE::"Stockkeeping Unit",
+          StockkeepingUnit.FieldNo("Reordering Policy"),
+          FORMAT(ReorderingPolicy::"Maximum Qty."),
+          SingleEntryRecNo);
+
+        // [WHEN] Package is applied
+        LibraryRapidStart.ApplyPackage(ConfigPackage, false);
+
+        // [THEN] Created Stockkeeping unit has "Include Inventory" = True;
+        // "Reordering Policy" was validated
+        ConfigPackageTable.Get(ConfigPackage.Code, DATABASE::"Stockkeeping Unit");
+        StockkeepingUnit.GET(Location.Code, ItemNo, '');
+        Assert.IsTrue(StockkeepingUnit."Include Inventory", 'Wrong field value');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UT_ConfigValidateManagement_GetOptionNo_NoFieldRefModification()
+    var
+        StockkeepingUnit: Record "Stockkeeping Unit";
+        RecordRef: RecordRef;
+        FieldRef: FieldRef;
+        OptionNo: Integer;
+    begin
+        // [SCENARIO 371872] UT checks codeunit ConfigValidateManagement method does not modify FieldRef
+
+        // [GIVEN] FieldRef points to enum field with value " "
+        RecordRef.Open(Database::"Stockkeeping Unit");
+        FieldRef := RecordRef.Field(StockkeepingUnit.FieldNo("Reordering Policy"));
+        Assert.AreEqual(' ', Format(FieldRef.Value), 'Wrong FieldRef value');
+
+        // [WHEN] GetOptionNo is invoked for FieldRef with value 'Maximum Qty.'
+        OptionNo := ConfigValidateManagement.GetOptionNo('Maximum Qty.', FieldRef);
+
+        // [THEN] Returned value is 2 and is equal to number in sequence
+        Assert.AreEqual(2, OptionNo, 'Wrong value returned');
+
+        // [THEN] FieldRef value is not changed and is equal to ' '
+        Assert.AreEqual(' ', Format(FieldRef.Value), 'Wrong FieldRef value');
     end;
 }
 

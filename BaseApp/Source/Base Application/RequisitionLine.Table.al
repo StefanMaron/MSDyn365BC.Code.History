@@ -1,4 +1,4 @@
-table 246 "Requisition Line"
+﻿table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
     DataCaptionFields = "Journal Batch Name", "Line No.";
@@ -165,6 +165,8 @@ table 246 "Requisition Line"
 
                 if LookupVendor(Vend, true) then
                     Validate("Vendor No.", Vend."No.");
+
+                OnAfterLookupVendorNo(Rec, Vend);
             end;
 
             trigger OnValidate()
@@ -184,13 +186,7 @@ table 246 "Requisition Line"
                                   DATABASE::Vendor, Vend.GetPosition);
                             Vend.VendPrivacyBlockedErrorMessage(Vend, false);
                         end;
-                        if Vend.Blocked = Vend.Blocked::All then begin
-                            if PlanningResiliency then
-                                TempPlanningErrorLog.SetError(
-                                  StrSubstNo(Text031, Vend.TableCaption, Vend."No."),
-                                  DATABASE::Vendor, Vend.GetPosition);
-                            Vend.VendBlockedErrorMessage(Vend, false);
-                        end;
+                        CheckVendorBlocked(Vend);
                         if "Order Date" = 0D then
                             Validate("Order Date", WorkDate);
 
@@ -619,6 +615,7 @@ table 246 "Requisition Line"
                         "Qty. per Unit of Measure" := 1
                     else
                         "Qty. per Unit of Measure" := 0;
+                OnValidateUnitofMeasureCodeOnBeforeGetDirectCost(Rec, Item);
                 GetDirectCost(FieldNo("Unit of Measure Code"));
 
                 if "Planning Line Origin" = "Planning Line Origin"::"Order Planning" then
@@ -633,7 +630,14 @@ table 246 "Requisition Line"
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateQuantityBase(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField("Prod. Order No.", '');
                 TestField("Qty. per Unit of Measure", 1);
                 Validate(Quantity, "Quantity (Base)");
@@ -1111,7 +1115,13 @@ table 246 "Requisition Line"
             trigger OnValidate()
             var
                 ShouldSetDueDate: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateStartingTime(Rec, ShouldSetDueDate, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::Item);
                 if ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
                     PlanningLineMgt.Recalculate(Rec, 0)
@@ -1154,7 +1164,13 @@ table 246 "Requisition Line"
             trigger OnValidate()
             var
                 ShouldSetDueDate: Boolean;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateEndingTime(Rec, ShouldSetDueDate, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::Item);
                 if ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.") then
                     PlanningLineMgt.RecalculateWithOptionalModify(Rec, 1, false)
@@ -1427,7 +1443,14 @@ table 246 "Requisition Line"
             Caption = 'Action Message';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateActionMessage(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Action Message" = xRec."Action Message") or
                    (("Action Message" in ["Action Message"::" ", "Action Message"::New]) and
                     (xRec."Action Message" in ["Action Message"::" ", "Action Message"::New]))
@@ -1550,7 +1573,14 @@ table 246 "Requisition Line"
     }
 
     trigger OnDelete()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ReqLine.Reset();
         ReqLine.Get("Worksheet Template Name", "Journal Batch Name", "Line No.");
         while (ReqLine.Next <> 0) and (ReqLine.Level > Level) do
@@ -1992,6 +2022,7 @@ table 246 "Requisition Line"
         PlanningRtngLine: Record "Planning Routing Line";
         UntrackedPlanningElement: Record "Untracked Planning Element";
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
+        IsHandled: Boolean;
     begin
         if Type <> Type::Item then
             exit;
@@ -2002,7 +2033,10 @@ table 246 "Requisition Line"
         if PlanningComponent.Find('-') then
             repeat
                 PlanningComponent.BlockDynamicTracking(BlockReservation);
-                PlanningComponent.Delete(true);
+                IsHandled := false;
+                OnDeleteRelationsOnBeforePlanningComponentDelete(Rec, IsHandled);
+                if not IsHandled then
+                    PlanningComponent.Delete(true);
             until PlanningComponent.Next = 0;
 
         PlanningRtngLine.SetRange("Worksheet Template Name", "Worksheet Template Name");
@@ -2075,6 +2109,8 @@ table 246 "Requisition Line"
 
         "Recurring Method" := LastReqLine."Recurring Method";
         "Price Calculation Method" := Vendor.GetPriceCalculationMethod();
+
+        OnAfterSetUpNewLine(Rec, LastReqLine);
     end;
 
     local procedure CheckEndingDate(ShowWarning: Boolean)
@@ -2740,7 +2776,14 @@ table 246 "Requisition Line"
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLocation(Rec, Location, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if LocationCode = '' then
             Clear(Location)
         else
@@ -2769,6 +2812,7 @@ table 246 "Requisition Line"
         "Line No." := "Line No." + 10000;
         "Planning Line Origin" := "Planning Line Origin"::"Order Planning";
 
+        OnTransferFromUnplannedDemandOnBeforeSetType(Rec);
         Type := Type::Item;
         "No." := UnplannedDemand."Item No.";
         "Location Code" := UnplannedDemand."Location Code";
@@ -2797,13 +2841,14 @@ table 246 "Requisition Line"
         "Demand Line No." := UnplannedDemand."Demand Line No.";
         "Demand Ref. No." := UnplannedDemand."Demand Ref. No.";
 
+        OnTransferFromUnplannedDemandOnBeforeSetStatus(Rec, UnplannedDemand);
         Status := UnplannedDemand.Status;
 
         Level := 1;
         "Action Message" := ReqLine."Action Message"::New;
         "User ID" := UserId;
 
-        UpdateDim(DATABASE::Vendor,"Vendor No.",DimMgt.TypeToTableID3(Type),"No.");
+        UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type), "No.");
 
         OnAfterTransferFromUnplannedDemand(Rec, UnplannedDemand);
     end;
@@ -2830,6 +2875,8 @@ table 246 "Requisition Line"
             Validate("Ending Date", "Due Date");
             Validate("Ending Time", 0T);
         end;
+
+        OnAfterSetSupplyDates(Rec);
     end;
 
     procedure SetSupplyQty(DemandQtyBase: Decimal; NeededQtyBase: Decimal)
@@ -2970,6 +3017,24 @@ table 246 "Requisition Line"
                     TempPlanningErrorLog.SetError(
                       StrSubstNo(Text044, NoSeriesLine."Ending No.", NoSeriesCode),
                       DATABASE::"No. Series", NoSeries.GetPosition);
+        end;
+    end;
+
+    local procedure CheckVendorBlocked(Vend: Record Vendor)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckVendorBlocked(Rec, Vend, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Vend.Blocked = Vend.Blocked::All then begin
+            if PlanningResiliency then
+                TempPlanningErrorLog.SetError(
+                  StrSubstNo(Text031, Vend.TableCaption, Vend."No."),
+                  DATABASE::Vendor, Vend.GetPosition);
+            Vend.VendBlockedErrorMessage(Vend, false);
         end;
     end;
 
@@ -3251,8 +3316,7 @@ table 246 "Requisition Line"
         DeleteRelations;
         Validate("Production BOM No.", '');
         Validate("Routing No.", '');
-        if Item."Purch. Unit of Measure" <> '' then
-            Validate("Unit of Measure Code", Item."Purch. Unit of Measure");
+        UpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure();
         Validate("Transfer-from Code", '');
         if StockkeepingUnit."Vendor No." = '' then
             Validate("Vendor No.")
@@ -3262,10 +3326,26 @@ table 246 "Requisition Line"
         OnAfterSetReplenishmentSystemFromPurchase(Rec, Item, StockkeepingUnit);
     end;
 
+    local procedure UpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Item."Purch. Unit of Measure" <> '' then
+            Validate("Unit of Measure Code", Item."Purch. Unit of Measure");
+    end;
+
     local procedure SetReplenishmentSystemFromProdOrder()
     var
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        OnBeforeSetReplenishmentSystemFromProdOrder(Rec);
+
         if ReqWkshTmpl.Get("Worksheet Template Name") and
            (ReqWkshTmpl.Type = ReqWkshTmpl.Type::"Req.") and (ReqWkshTmpl.Name <> '') and not SourceDropShipment
         then
@@ -3277,43 +3357,61 @@ table 246 "Requisition Line"
               DATABASE::Item, Item.GetPosition);
 
         Item.TestField("Base Unit of Measure");
-        if "Ref. Order No." = '' then begin
-            "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-            "Ref. Order Status" := "Ref. Order Status"::Planned;
-            MfgSetup.Get();
-            if PlanningResiliency and (MfgSetup."Planned Order Nos." = '') then
-                TempPlanningErrorLog.SetError(
-                  StrSubstNo(Text032, MfgSetup.TableCaption, '',
-                    MfgSetup.FieldCaption("Planned Order Nos.")),
-                  DATABASE::"Manufacturing Setup", MfgSetup.GetPosition);
-            MfgSetup.TestField("Planned Order Nos.");
-            if PlanningResiliency then
-                CheckNoSeries(MfgSetup."Planned Order Nos.", "Due Date");
-            if not Subcontracting then
-                NoSeriesMgt.InitSeries(
-                  MfgSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series");
-        end;
+        IsHandled := false;
+        OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(Rec, IsHandled);
+        if not IsHandled then
+            if "Ref. Order No." = '' then begin
+                "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
+                "Ref. Order Status" := "Ref. Order Status"::Planned;
+                MfgSetup.Get();
+                if PlanningResiliency and (MfgSetup."Planned Order Nos." = '') then
+                    TempPlanningErrorLog.SetError(
+                      StrSubstNo(Text032, MfgSetup.TableCaption, '',
+                        MfgSetup.FieldCaption("Planned Order Nos.")),
+                      DATABASE::"Manufacturing Setup", MfgSetup.GetPosition);
+                MfgSetup.TestField("Planned Order Nos.");
+                if PlanningResiliency then
+                    CheckNoSeries(MfgSetup."Planned Order Nos.", "Due Date");
+                if not Subcontracting then
+                    NoSeriesMgt.InitSeries(
+                      MfgSetup."Planned Order Nos.", xRec."No. Series", "Due Date", "Ref. Order No.", "No. Series");
+            end;
         Validate("Vendor No.", '');
 
-        if not Subcontracting then begin
-            OnSetReplenishmentSystemFromProdOrderOnBeforeSetProdFields(
-                Rec, Item, Subcontracting, PlanningResiliency, TempPlanningErrorLog);
-            Validate("Production BOM No.", Item."Production BOM No.");
-            Validate("Routing No.", Item."Routing No.");
-        end else begin
-            "Production BOM No." := Item."Production BOM No.";
-            "Routing No." := Item."Routing No.";
-        end;
+        IsHandled := false;
+        OnSetReplenishmentSystemFromProdOrderOnBeforeAssignProdFields(Rec, IsHandled);
+        if not IsHandled then
+            if not Subcontracting then begin
+                OnSetReplenishmentSystemFromProdOrderOnBeforeSetProdFields(
+                    Rec, Item, Subcontracting, PlanningResiliency, TempPlanningErrorLog);
+                Validate("Production BOM No.", Item."Production BOM No.");
+                Validate("Routing No.", Item."Routing No.");
+            end else begin
+                "Production BOM No." := Item."Production BOM No.";
+                "Routing No." := Item."Routing No.";
+            end;
 
         OnSetReplenishmentSystemFromProdOrderOnAfterSetProdFields(Rec, Item, Subcontracting);
 
         Validate("Transfer-from Code", '');
-        Validate("Unit of Measure Code", Item."Base Unit of Measure");
+        UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure();
 
         if ("Planning Line Origin" = "Planning Line Origin"::"Order Planning") and ValidateFields then
             PlanningLineMgt.Calculate(Rec, 1, true, true, 0);
 
         OnAfterSetReplenishmentSystemFromProdOrder(Rec, Item);
+    end;
+
+    local procedure UpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure(Rec, Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        Validate("Unit of Measure Code", Item."Base Unit of Measure");
     end;
 
     local procedure SetReplenishmentSystemFromAssembly()
@@ -3517,6 +3615,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckVendorBlocked(var RequisitionLine: Record "Requisition Line"; var Vendor: Record Vendor; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteMultiLevel(var RequisitionLine: Record "Requisition Line")
     begin
     end;
@@ -3542,6 +3645,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFromBinCode(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
@@ -3563,6 +3671,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateOrderReceiptDate(var RequisitionLine: Record "Requisition Line"; LeadTimeCalc: DateFormula; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateQuantityBase(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3648,6 +3761,86 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyDescriptionFromGLAcc(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupVendorNo(var RequisitionLine: Record "Requisition Line"; var Vend: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateStartingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateEndingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(var RequisitionLine: Record "Requisition Line"; var Location: Record Location; LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetUpNewLine(var RequisitionLine: Record "Requisition Line"; LastReqLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferFromUnplannedDemandOnBeforeSetType(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelationsOnBeforePlanningComponentDelete(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTransferFromUnplannedDemandOnBeforeSetStatus(var RequisitionLine: Record "Requisition Line"; var UnplannedDemand: Record "Unplanned Demand")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateActionMessage(var RequisitionLine: Record "Requisition Line"; var xRequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeAssignProdFields(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetReplenishmentSystemFromProdOrder(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetSupplyDates(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateUnitofMeasureCodeOnBeforeGetDirectCost(var RequisitionLine: Record "Requisition Line"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitOfMeasureCodeFromItemBaseUnitOfMeasure(var RequisitionLine: Record "Requisition Line"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure(var RequisitionLine: Record "Requisition Line"; var Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 }

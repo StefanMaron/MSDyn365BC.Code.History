@@ -204,6 +204,7 @@ codeunit 5510 "Production Journal Mgt"
             ItemJnlLine.Validate("Item No.", "Item No.");
             ItemJnlLine.Validate("Unit of Measure Code", "Unit of Measure Code");
             ItemJnlLine.Description := Description;
+            OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(ItemJnlLine, ProdOrderComp);
             if NeededQty <> 0 then
                 if Item."Rounding Precision" > 0 then
                     ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
@@ -383,7 +384,13 @@ codeunit 5510 "Production Journal Mgt"
     var
         PageTemplate: Option Item,Transfer,"Phys. Inventory",Revaluation,Consumption,Output,Capacity,"Prod. Order";
         User: Text;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetTemplateAndBatchName(ToTemplateName, ToBatchName, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlTemplate.Reset();
         ItemJnlTemplate.SetRange("Page ID", PAGE::"Production Journal");
         ItemJnlTemplate.SetRange(Recurring, false);
@@ -431,7 +438,13 @@ codeunit 5510 "Production Journal Mgt"
     var
         ItemJnlLine2: Record "Item Journal Line";
         ReservEntry: Record "Reservation Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteJnlLines(TemplateName, BatchName, ProdOrderNo, ProdOrderLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ItemJnlLine2.Reset();
         ItemJnlLine2.SetRange("Journal Template Name", TemplateName);
         ItemJnlLine2.SetRange("Journal Batch Name", BatchName);
@@ -573,6 +586,21 @@ codeunit 5510 "Production Journal Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertOutputItemJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteJnlLines(TemplateName: Code[10]; BatchName: Code[10]; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetTemplateAndBatchName(var ToTemplateName: Code[10]; var ToBatchName: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertConsumptionItemJnlLineOnBeforeValidateQuantity(var ItemJnlLine: Record "Item Journal Line"; ProdOrderComp: Record "Prod. Order Component")
     begin
     end;
 }

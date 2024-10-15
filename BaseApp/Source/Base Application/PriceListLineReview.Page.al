@@ -1,11 +1,13 @@
 page 7005 "Price List Line Review"
 {
+    Caption = 'Price List Lines';
     InsertAllowed = false;
     DeleteAllowed = false;
     LinksAllowed = false;
-    PageType = Worksheet;
+    PageType = List;
+    RefreshOnActivate = true;
     SourceTable = "Price List Line";
-    DataCaptionFields = "Price Type", "Amount Type";
+    DataCaptionExpression = DataCaptionExpr;
 
     layout
     {
@@ -36,6 +38,7 @@ page 7005 "Price List Line Review"
                     Caption = 'Applies-to Type';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = not HideSourceControls;
                     ToolTip = 'Specifies the type of the source the price applies to.';
                 }
                 field("Source No."; Rec."Source No.")
@@ -43,6 +46,7 @@ page 7005 "Price List Line Review"
                     Caption = 'Applies-to No.';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = not HideSourceControls;
                     ToolTip = 'Specifies the number of the source the price applies to.';
                 }
                 field("Asset Type"; Rec."Asset Type")
@@ -50,6 +54,7 @@ page 7005 "Price List Line Review"
                     Caption = 'Product Type';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = not HideProductControls;
                     ToolTip = 'Specifies the type of the product.';
                 }
                 field("Asset No."; Rec."Asset No.")
@@ -57,6 +62,7 @@ page 7005 "Price List Line Review"
                     Caption = 'Product No.';
                     ApplicationArea = All;
                     Editable = false;
+                    Visible = not HideProductControls;
                     ShowMandatory = true;
                     ToolTip = 'Specifies the number of the product.';
                     trigger OnValidate()
@@ -68,6 +74,7 @@ page 7005 "Price List Line Review"
                 {
                     ApplicationArea = All;
                     Editable = IsDraft;
+                    Visible = not HideProductControls;
                     ToolTip = 'Specifies the description of the product.';
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -109,6 +116,12 @@ page 7005 "Price List Line Review"
                         SetMandatoryAmount();
                     end;
                 }
+                field("Currency Code"; Rec."Currency Code")
+                {
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the currency code of the price list.';
+                }
                 field("Unit Price"; Rec."Unit Price")
                 {
                     ApplicationArea = All;
@@ -129,7 +142,7 @@ page 7005 "Price List Line Review"
                     StyleExpr = not PriceMandatory;
                     ToolTip = 'Specifies the unit cost factor, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
-                field(DirectUnitCost; Rec."Unit Price")
+                field(DirectUnitCost; Rec."Direct Unit Cost")
                 {
                     Caption = 'Direct Unit Cost';
                     ApplicationArea = All;
@@ -143,12 +156,12 @@ page 7005 "Price List Line Review"
                 field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = All;
-                    Editable = AmountEditable and IsDraft;
+                    Editable = AmountEditable and IsDraft and ResourceAsset;
                     Enabled = PriceMandatory;
-                    Visible = PriceVisible and not IsSalesPrice;
+                    Visible = PriceVisible and not IsSalesPrice and ResourceAsset;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the unit cost of the product.';
+                    ToolTip = 'Specifies the unit cost of the resource.';
                 }
                 field("Starting Date"; Rec."Starting Date")
                 {
@@ -170,12 +183,24 @@ page 7005 "Price List Line Review"
                     Editable = PriceMandatory and IsDraft;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the if the line discount allowed.';
+                    ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
                 field("Line Discount %"; Rec."Line Discount %")
                 {
+                    AccessByPermission = tabledata "Sales Discount Access" = R;
                     ApplicationArea = All;
-                    Visible = DiscountVisible;
+                    Visible = DiscountVisible and IsSalesPrice;
+                    Enabled = DiscountMandatory;
+                    Editable = DiscountMandatory and IsDraft;
+                    Style = Subordinate;
+                    StyleExpr = not DiscountMandatory;
+                    ToolTip = 'Specifies the line discount percentage for the product.';
+                }
+                field(PurchLineDiscountPct; Rec."Line Discount %")
+                {
+                    AccessByPermission = tabledata "Purchase Discount Access" = R;
+                    ApplicationArea = All;
+                    Visible = DiscountVisible and not IsSalesPrice;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory and IsDraft;
                     Style = Subordinate;
@@ -190,7 +215,7 @@ page 7005 "Price List Line Review"
                     Editable = PriceMandatory and IsDraft;
                     Style = Subordinate;
                     StyleExpr = not PriceMandatory;
-                    ToolTip = 'Specifies the if the invoice discount allowed.';
+                    ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
             }
         }
@@ -248,6 +273,66 @@ page 7005 "Price List Line Review"
                     end;
                 }
             }
+            action(SalesPriceLists)
+            {
+                ApplicationArea = All;
+                Caption = 'Sales Price Lists';
+                Image = Sales;
+                Promoted = true;
+                PromotedCategory = Process;
+                Visible = IsSalesPrice;
+                ToolTip = 'View the list of all sales price lists.';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Sales Price Lists");
+                end;
+            }
+            action(SalesJobPriceLists)
+            {
+                ApplicationArea = All;
+                Caption = 'Sales Job Price Lists';
+                Image = Sales;
+                Promoted = true;
+                PromotedCategory = Process;
+                Visible = IsSalesPrice;
+                ToolTip = 'View the list of all sales job price lists.';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Sales Job Price Lists");
+                end;
+            }
+            action(PurchPriceLists)
+            {
+                ApplicationArea = All;
+                Caption = 'Purchase Price Lists';
+                Image = Purchase;
+                Promoted = true;
+                PromotedCategory = Process;
+                Visible = not IsSalesPrice;
+                ToolTip = 'View the list of all purchase price lists.';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Purchase Price Lists");
+                end;
+            }
+            action(PurchJobPriceLists)
+            {
+                ApplicationArea = All;
+                Caption = 'Purchase Job Price Lists';
+                Image = Purchase;
+                Promoted = true;
+                PromotedCategory = Process;
+                Visible = not IsSalesPrice;
+                ToolTip = 'View the list of all purchase job price lists.';
+
+                trigger OnAction()
+                begin
+                    Page.Run(Page::"Purchase Job Price Lists");
+                end;
+            }
         }
     }
 
@@ -278,9 +363,14 @@ page 7005 "Price List Line Review"
         IsDraft: Boolean;
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
+        HideProductControls: Boolean;
+        HideSourceControls: Boolean;
         LineExists: Boolean;
+        DataCaptionSourceAssetTok: Label '%1 %2 - %3 %4 %5', Locked = true, Comment = '%1-%5 - Source Type, Source No., Product Type, Product No, Description';
+        DataCaptionAssetTok: Label '%1 %2 %3', Locked = true, Comment = '%1 %2 %3 - Product Type, Product No, Description';
 
     protected var
+        DataCaptionExpr: Text;
         PriceType: Enum "Price Type";
         ViewAmountType: Enum "Price Amount Type";
 
@@ -325,12 +415,57 @@ page 7005 "Price List Line Review"
 
     procedure Set(PriceAssetList: Codeunit "Price Asset List"; NewPriceType: Enum "Price Type"; NewAmountType: Enum "Price Amount Type")
     var
+        PriceSource: Record "Price Source";
         PriceUXManagement: Codeunit "Price UX Management";
     begin
         PriceType := NewPriceType;
         ViewAmountType := NewAmountType;
-        PriceUXManagement.SetPriceListLineFilters(Rec, PriceAssetList, PriceType, ViewAmountType);
+        PriceSource."Price Type" := PriceType;
+        PriceUXManagement.SetPriceListLineFilters(Rec, PriceSource, PriceAssetList, ViewAmountType);
+        SetDataCaptionExpr(PriceAssetList);
         UpdateColumnVisibility();
+    end;
+
+    procedure Set(PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List"; NewAmountType: Enum "Price Amount Type")
+    var
+        PriceUXManagement: Codeunit "Price UX Management";
+    begin
+        PriceType := PriceSource."Price Type";
+        ViewAmountType := NewAmountType;
+        PriceUXManagement.SetPriceListLineFilters(Rec, PriceSource, PriceAssetList, ViewAmountType);
+        SetDataCaptionExpr(PriceSource, PriceAssetList);
+        UpdateColumnVisibility();
+    end;
+
+    local procedure SetDataCaptionExpr(PriceAssetList: Codeunit "Price Asset List")
+    var
+        TempPriceAsset: Record "Price Asset" temporary;
+    begin
+        if PriceAssetList.GetList(TempPriceAsset) then
+            if TempPriceAsset.FindLast() then begin
+                TempPriceAsset.ValidateAssetNo();
+                DataCaptionExpr :=
+                    StrSubstNo(DataCaptionAssetTok,
+                        TempPriceAsset."Asset Type", TempPriceAsset."Asset No.", TempPriceAsset.Description);
+                HideProductControls := true;
+            end;
+    end;
+
+    local procedure SetDataCaptionExpr(PriceSource: Record "Price Source"; PriceAssetList: Codeunit "Price Asset List")
+    var
+        TempPriceAsset: Record "Price Asset" temporary;
+    begin
+        if PriceSource."Source No." <> '' then
+            if PriceAssetList.GetList(TempPriceAsset) then
+                if TempPriceAsset.FindLast() then begin
+                    TempPriceAsset.ValidateAssetNo();
+                    DataCaptionExpr :=
+                        StrSubstNo(DataCaptionSourceAssetTok,
+                            PriceSource."Source Type", PriceSource."Source No.",
+                            TempPriceAsset."Asset Type", TempPriceAsset."Asset No.", TempPriceAsset.Description);
+                    HideProductControls := true;
+                    HideSourceControls := true;
+                end;
     end;
 
     local procedure SetEditable()

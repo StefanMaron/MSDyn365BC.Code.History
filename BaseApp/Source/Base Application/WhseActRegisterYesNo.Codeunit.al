@@ -20,7 +20,10 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
     var
         IsHandled: Boolean;
     begin
-        OnBeforeCode(WhseActivLine);
+        IsHandled := false;
+        OnBeforeCode(WhseActivLine, IsHandled);
+        if IsHandled then
+            exit;
 
         with WhseActivLine do begin
             if ("Activity Type" = "Activity Type"::"Invt. Movement") and
@@ -51,7 +54,7 @@ codeunit 7306 "Whse.-Act.-Register (Yes/No)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnBeforeCode(var WarehouseActivityLine: Record "Warehouse Activity Line"; var IsHandled: Boolean)
     begin
     end;
 
