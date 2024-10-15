@@ -1270,6 +1270,7 @@ table 5767 "Warehouse Activity Line"
         else
             LineSpacing := 10000;
 
+        OnSplitLineOnBeforeRenumberAllLines(WhseActivLine, LineSpacing);
         if LineSpacing = 0 then
             ReNumberWhseActivityLines(NewWhseActivLine, WhseActivLine, NewLineNo, LineSpacing);
 
@@ -1588,10 +1589,9 @@ table 5767 "Warehouse Activity Line"
         WhseItemTrkgLine: Record "Whse. Item Tracking Line";
         WhseDocType2: Option;
     begin
-        if WhseActivLine.TrackingExists then begin
+        if WhseActivLine.TrackingExists() then begin
             WhseItemTrkgLine.SetCurrentKey("Serial No.", "Lot No.");
-            WhseItemTrkgLine.SetRange("Serial No.", WhseActivLine."Serial No.");
-            WhseItemTrkgLine.SetRange("Lot No.", WhseActivLine."Lot No.");
+            WhseItemTrkgLine.SetTrackingFilterFromWhseActivityLine(WhseActivLine);
             if (WhseActivLine."Whse. Document Type" = WhseActivLine."Whse. Document Type"::Shipment) and
                WhseActivLine."Assemble to Order"
             then
@@ -2161,8 +2161,7 @@ table 5767 "Warehouse Activity Line"
         RegisteredWhseActivityLine.SetRange("Source Line No.", "Source Line No.");
         RegisteredWhseActivityLine.SetRange("Source Type", "Source Type");
         RegisteredWhseActivityLine.SetRange("Source Subtype", "Source Subtype");
-        RegisteredWhseActivityLine.SetRange("Lot No.", "Lot No.");
-        RegisteredWhseActivityLine.SetRange("Serial No.", "Serial No.");
+        RegisteredWhseActivityLine.SetTrackingFilterFromWhseActivityLine(Rec);
         exit(RegisteredWhseActivityLine.IsEmpty);
     end;
 
@@ -3063,6 +3062,11 @@ table 5767 "Warehouse Activity Line"
     local procedure OnAfterCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; xRec: Record "Warehouse Activity Line"; CurrFieldNo: Integer; LineReservedQty: Integer; ReservedQty: Decimal)
     begin
         // use ReservedQty parameter instead of LineReservedQty for the same purpose
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSplitLineOnBeforeRenumberAllLines(var WarehouseActivityLine: Record "Warehouse Activity Line"; var LineSpacing: Integer)
+    begin
     end;
 }
 

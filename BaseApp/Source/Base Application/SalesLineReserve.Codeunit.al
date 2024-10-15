@@ -447,14 +447,20 @@ codeunit 99000832 "Sales Line-Reserve"
     var
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
+        IsHandled: Boolean;
     begin
         if SecondSourceQuantityArray[1] = DATABASE::"Warehouse Shipment Line" then
             ItemTrackingLines.SetSecondSourceID(DATABASE::"Warehouse Shipment Line", AsmToOrder);
 
         TrackingSpecification.InitFromSalesLine(SalesLine);
-        ItemTrackingLines.SetSourceSpec(TrackingSpecification, SalesLine."Shipment Date");
-        ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
-        ItemTrackingLines.RunModal;
+
+        IsHandled := false;
+        OnCallItemTrackingSecondSourceOnBeforeOpenItemTrackingLines(SalesLine, TrackingSpecification, SecondSourceQuantityArray, IsHandled);
+        if not IsHandled then begin
+            ItemTrackingLines.SetSourceSpec(TrackingSpecification, SalesLine."Shipment Date");
+            ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
+            ItemTrackingLines.RunModal();
+        end;
     end;
 
     procedure RetrieveInvoiceSpecification(var SalesLine: Record "Sales Line"; var TempInvoicingSpecification: Record "Tracking Specification" temporary) OK: Boolean
@@ -492,11 +498,11 @@ codeunit 99000832 "Sales Line-Reserve"
             ReservEntry.TestField("Item Ledger Entry No.");
             TrackingSpecification.Get(ReservEntry."Item Ledger Entry No.");
             TempInvoicingSpecification := TrackingSpecification;
-            TempInvoicingSpecification."Qty. to Invoice (Base)" :=
-              ReservEntry."Qty. to Invoice (Base)";
+            TempInvoicingSpecification."Qty. to Invoice (Base)" := ReservEntry."Qty. to Invoice (Base)";
             TempInvoicingSpecification."Qty. to Invoice" :=
               Round(ReservEntry."Qty. to Invoice (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
             TempInvoicingSpecification."Buffer Status" := TempInvoicingSpecification."Buffer Status"::MODIFY;
+            OnRetrieveInvoiceSpecificationOnBeforeInsert(TempInvoicingSpecification, ReservEntry);
             TempInvoicingSpecification.Insert();
             ReservEntry.Delete();
         until ReservEntry.Next() = 0;
@@ -1102,6 +1108,16 @@ codeunit 99000832 "Sales Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(var SalesLine: Record "Sales Line"; var ItemTrackingLines: Page "Item Tracking Lines")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCallItemTrackingSecondSourceOnBeforeOpenItemTrackingLines(var SalesLine: Record "Sales Line"; TrackingSpecification: Record "Tracking Specification"; SecondSourceQuantityArray: Array[3] of Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRetrieveInvoiceSpecificationOnBeforeInsert(var TempInvoicingSpecification: Record "Tracking Specification" temporary; ReservEntry: Record "Reservation Entry")
     begin
     end;
 }

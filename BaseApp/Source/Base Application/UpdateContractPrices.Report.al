@@ -14,6 +14,8 @@ report 6031 "Update Contract Prices"
             RequestFilterFields = "Contract No.", "Item Filter";
 
             trigger OnAfterGetRecord()
+            var
+                NumberOfPeriods: Integer;
             begin
                 ServContract.Get("Contract Type", "Contract No.");
                 ServContract.SuspendStatusCheck(true);
@@ -67,9 +69,12 @@ report 6031 "Update Contract Prices"
                       TotContractLinesAmount - ServContract."Annual Amount", '');
 
                     ServContract."Annual Amount" := TotContractLinesAmount;
-                    ServContract."Amount per Period" :=
-                      Round(ServContract."Annual Amount" / ReturnNoOfPer(ServContract."Invoice Period"),
-                        Currency."Amount Rounding Precision");
+                    NumberOfPeriods := ReturnNoOfPer(ServContract."Invoice Period");
+                    if NumberOfPeriods = 0 then
+                        ServContract."Amount per Period" := 0
+                    else
+                        ServContract."Amount per Period" :=
+                            Round(ServContract."Annual Amount" / NumberOfPeriods, Currency."Amount Rounding Precision");
                     if OldAnnualAmount <> ServContract."Annual Amount" then
                         ServContract."Print Increase Text" := true;
                     ServContract.Modify();

@@ -724,9 +724,8 @@ codeunit 99000774 "Calculate Routing Line"
 
         repeat
             LotSize := SendAheadLotSize;
-            RemainNeedQty :=
-              LotSize *
-              ProdOrderRoutingLine.RunTimePer;
+            RemainNeedQty := LotSize * ProdOrderRoutingLine.RunTimePer();
+            OnCalculateRoutingLineBackOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine, RemainNeedQty);
             RemainNeedQty :=
               Round(
                 RemainNeedQty *
@@ -1031,7 +1030,8 @@ codeunit 99000774 "Calculate Routing Line"
                   ProdStartingDate, ProdStartingTime, ProdOrderRoutingLine2."Ending Date", ProdOrderRoutingLine2."Ending Time");
 
             LotSize := SendAheadLotSize;
-            RemainNeedQty := LotSize * ProdOrderRoutingLine.RunTimePer;
+            RemainNeedQty := LotSize * ProdOrderRoutingLine.RunTimePer();
+            OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine, RemainNeedQty);
             RemainNeedQty :=
               Round(
                 RemainNeedQty *
@@ -2101,6 +2101,16 @@ codeunit 99000774 "Calculate Routing Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcRoutingLineBackOnBeforeGetQueueTime(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var ProdOrderRoutingLine2: Record "Prod. Order Routing Line"; var ProdOrderRoutingLine3: Record "Prod. Order Routing Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineBackOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var RemainNeedQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateRoutingLineForwardOnAfterCalcRemainNeedQtyForLotSize(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var RemainNeedQty: Decimal)
     begin
     end;
 }

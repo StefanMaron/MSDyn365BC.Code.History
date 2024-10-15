@@ -921,7 +921,7 @@ codeunit 134191 "WF Demo Inc. Doc. Approvals"
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
         // [SCENARIO] The user cannot insert a file with 0 bytes
-        // [GIVEN] Create the Incoming Document and Create an Empty Doc Attachement
+        // [GIVEN] Create the Incoming Document and Create an Empty Doc Attachment
         // [WHEN] The user trys to attach the empty document
         // [THEN] The user will get an error saying they cannot attache a document with no content
 

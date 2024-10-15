@@ -324,7 +324,7 @@ table 90 "BOM Component"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateAgainstRecursion(ItemNo: Code[20]; var IsHandled: Boolean)
     begin
     end;

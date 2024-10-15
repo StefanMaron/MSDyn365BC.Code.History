@@ -31,7 +31,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         MissingWriteInProductNoErr: Label '%1 %2 %3 contains a write-in product. You must choose the default write-in product in Sales & Receivables Setup window.', Comment = '%1 - Dataverse service name,%2 - document type (order or quote), %3 - document number';
         MisingWriteInProductTelemetryMsg: Label 'The user is missing a default write-in product when creating a sales order from a %1 order.', Locked = true;
         CrmTelemetryCategoryTok: Label 'AL CRM Integration', Locked = true;
-        SuccessfullyCoupledSalesOrderTelemetryMsg: Label 'Successfully coupled sales order %2 to %1 order %3.', Locked = true;
+        SuccessfullyCoupledSalesOrderTelemetryMsg: Label 'Successfully coupled sales order %2 to %1 order %3 (order number %4).', Locked = true;
         SuccessfullyCreatedSalesOrderHeaderTelemetryMsg: Label 'Successfully created order header %2 from %1 order %3.', Locked = true;
         SuccessfullyCreatedSalesOrderNotesTelemetryMsg: Label 'Successfully created notes for sales order %2 from %1 order %3.', Locked = true;
         SuccessfullyCreatedSalesOrderLinesTelemetryMsg: Label 'Successfully created lines for sales order %2 from %1 order %3.', Locked = true;
@@ -42,6 +42,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         StartingToCreateSalesOrderNotesTelemetryMsg: Label 'Starting to create order lines from %1 order %2.', Locked = true;
         StartingToApplySalesOrderDiscountsTelemetryMsg: Label 'Starting to appliy discounts from %1 order %3 to sales order %2.', Locked = true;
         StartingToSetLastBackOfficeSubmitTelemetryMsg: Label 'Starting to set lastbackofficesubmit on %1 order %2 to the following date: %3.', Locked = true;
+        SkippingCreateSalesOrderHeaderConnectionDisabledMsg: Label 'Skipping creation of order header from %1 order %2. The %1 integration is not enabled.', Locked = true;
         NoLinesFoundInSalesOrderTelemetryMsg: Label 'No lines found in %1 order %2.', Locked = true;
         NoNotesFoundInSalesOrderTelemetryMsg: Label 'No notes found in %1 order %2.', Locked = true;
         StartingToUncoupleSalesOrderTelemetryMsg: Label 'Starting to uncouple sales order %2 from %1 order %3.', Locked = true;
@@ -74,9 +75,10 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         // NAV settings (in G/L Setup as well as per-customer discounts) did not allow using the CRM discounts
         // Using NAV discounts
         // But the user will be able to manually update the discounts after the order is created in NAV
-        if not HideSalesOrderDiscountsDialog() then
-            if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName()), true) then
-                Error('');
+        if GuiAllowed() then
+            if not HideSalesOrderDiscountsDialog() then
+                if not Confirm(StrSubstNo(OverwriteCRMDiscountQst, PRODUCTNAME.Short, CRMProductName.CDSServiceName()), true) then
+                    Error('');
 
         Session.LogMessage('0000DEW', StrSubstNo(SuccessfullyAppliedSalesOrderDiscountsTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
     end;
@@ -233,7 +235,14 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     end;
 
     procedure CreateInNAV(CRMSalesorder: Record "CRM Salesorder"; var SalesHeader: Record "Sales Header"): Boolean
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
+        if not CRMConnectionSetup.IsEnabled() then begin
+            Session.LogMessage('0000EU9', StrSubstNo(SkippingCreateSalesOrderHeaderConnectionDisabledMsg, CRMProductName.SHORT(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            exit;
+        end;
+
         CRMSalesorder.TestField(StateCode, CRMSalesorder.StateCode::Submitted);
         exit(CreateNAVSalesOrder(CRMSalesorder, SalesHeader));
     end;
@@ -257,7 +266,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
             SetCompanyId(CrmSalesOrder);
             SetLastBackOfficeSubmit(CRMSalesorder, Today);
-            Session.LogMessage('000083B', StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
+            Session.LogMessage('000083B', StrSubstNo(SuccessfullyCoupledSalesOrderTelemetryMsg, CRMProductName.CDSServiceName(), SalesHeader.SystemId, CRMSalesorder.SalesOrderId, CRMSalesOrder.OrderNumber), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         end else begin
             if CoupledSalesHeaderExists(CRMSalesorder, SalesHeader) then begin
                 if GuiAllowed() then
@@ -384,7 +393,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         Customer: Record Customer;
         QuoteSalesHeader: Record "Sales header";
         CRMQuote: Record "CRM Quote";
-        CRMQuoteToSalesQuote: Codeunit "CRM Quote to Sales Quote";
+        ArchiveManagement: Codeunit ArchiveManagement;
     begin
         Session.LogMessage('0000DF0', StrSubstNo(StartingToCreateSalesOrderHeaderTelemetryMsg, CRMProductName.CDSServiceName(), CRMSalesorder.SalesOrderId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
         SalesHeader.Init();
@@ -408,7 +417,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
                 QuoteSalesHeader.SetRange("Your Reference", CRMQuote.QuoteNumber);
                 if QuoteSalesHeader.FindLast() then begin
                     SalesHeader."Quote No." := QuoteSalesHeader."No.";
-                    CRMQuoteToSalesQuote.ManageSalesQuoteArchive(QuoteSalesHeader);
+                    ArchiveManagement.ArchSalesDocumentNoConfirm(QuoteSalesHeader);
                 end;
             end;
 

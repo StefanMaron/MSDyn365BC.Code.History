@@ -1,4 +1,4 @@
-table 5406 "Prod. Order Line"
+﻿table 5406 "Prod. Order Line"
 {
     Caption = 'Prod. Order Line';
     DataCaptionFields = "Prod. Order No.";
@@ -847,6 +847,7 @@ table 5406 "Prod. Order Line"
         ProdOrderComp: Record "Prod. Order Component";
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
         WhseOutputProdRelease: Codeunit "Whse.-Output Prod. Release";
+        IsHandled: Boolean;
     begin
         OnBeforeDeleteRelations(Rec);
 
@@ -871,7 +872,10 @@ table 5406 "Prod. Order Line"
         ProdOrderComp.SetRange(Status, Status);
         ProdOrderComp.SetRange("Prod. Order No.", "Prod. Order No.");
         ProdOrderComp.SetRange("Prod. Order Line No.", "Line No.");
-        ProdOrderComp.DeleteAll(true);
+        IsHandled := false;
+        OnDeleteRelationsOnBeforeProdOrderCompDeleteAll(ProdOrderComp, Blocked, IsHandled);
+        if not IsHandled then
+            ProdOrderComp.DeleteAll(true);
 
         if not CalledFromComponent then begin
             ProdOrderComp.SetRange("Prod. Order Line No.");
@@ -1269,7 +1273,7 @@ table 5406 "Prod. Order Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateProdOrderComp(Rec, QtyPerUnitOfMeasure, CurrFieldNo, IsHandled);
+        OnBeforeUpdateProdOrderComp(Rec, QtyPerUnitOfMeasure, CurrFieldNo, IsHandled, ProdOrderComp, Blocked);
         if IsHandled then
             exit;
 
@@ -1518,7 +1522,12 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateProdOrderComp(var ProdOrderLine: Record "Prod. Order Line"; QtyPerUnitOfMeasure: Decimal; CurrFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateProdOrderComp(var ProdOrderLine: Record "Prod. Order Line"; QtyPerUnitOfMeasure: Decimal; CurrFieldNo: Integer; var IsHandled: Boolean; var ProdOrderComp: Record "Prod. Order Component"; Blocked: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelationsOnBeforeProdOrderCompDeleteAll(var ProdOrderComp: Record "Prod. Order Component"; Blocked: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

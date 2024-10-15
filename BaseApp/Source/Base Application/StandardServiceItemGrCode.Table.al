@@ -38,7 +38,14 @@ table 5998 "Standard Service Item Gr. Code"
     }
 
     trigger OnDelete()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         StdServiceLine.Reset();
         StdServiceLine.SetRange("Standard Service Code", Code);
         if not StdServiceLine.IsEmpty() then
@@ -160,6 +167,11 @@ table 5998 "Standard Service Item Gr. Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertServLine(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var StandardServiceItemGrCode: Record "Standard Service Item Gr. Code"; var IsHandled: Boolean)
     begin
     end;
 
