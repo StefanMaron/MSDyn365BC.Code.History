@@ -1704,7 +1704,10 @@
                     "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
             end;
         end else
-            "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
+            if (Type = Type::Resource) and ("Posting Date" <> xRec."Posting Date") and ("Currency Code" <> '') then
+                "Unit Cost (LCY)" := "Unit Cost (LCY)"
+            else
+                "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
 
         OnAfterUpdateUnitCost(Rec, UnitAmountRoundingPrecision, CurrFieldNo);
     end;
@@ -1756,7 +1759,7 @@
                         exit(false);
                 Type::Resource:
                     if not (CalledByFieldNo in
-                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code")])
+                         [FieldNo("No."), FieldNo(Quantity), FieldNo("Work Type Code"), FieldNo("Unit of Measure Code"), FieldNo("Posting Date")])
                     then
                         exit(false);
                 Type::"G/L Account":
@@ -1777,7 +1780,8 @@
             Type::Resource:
                 if ("No." <> xRec."No.") or
                    ("Work Type Code" <> xRec."Work Type Code") or
-                   ("Unit of Measure Code" <> xRec."Unit of Measure Code")
+                   ("Unit of Measure Code" <> xRec."Unit of Measure Code") or
+                   (("Posting Date" <> xRec."Posting Date") and ("Currency Code" <> ''))
                 then
                     exit(true);
             Type::"G/L Account":
@@ -1949,6 +1953,10 @@
         OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
+
+        // Patch for fixing Edit-in-Excel issues due to dependency on xRec. 
+        if not GuiAllowed() then
+            if xRec.Get(xRec.RecordId()) then;
 
         if "Total Price" <> 0 then begin
             if ("Line Amount" <> xRec."Line Amount") and ("Line Discount Amount" = xRec."Line Discount Amount") then begin

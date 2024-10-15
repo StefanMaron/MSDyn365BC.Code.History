@@ -18745,7 +18745,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Sum(Fields!TotalNetChangeAmt3.Value)</Value>
+                                  <Value>=Last(Fields!TotalNetChangeAmt3.Value)</Value>
                                   <Style>
                                     <FontStyle>Normal</FontStyle>
                                     <FontFamily>Segoe UI</FontFamily>
