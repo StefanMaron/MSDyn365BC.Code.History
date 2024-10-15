@@ -46,7 +46,9 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Statement Comment Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Statement Attachment");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Multiple Interest Calc. Line");
+#if not CLEAN19
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Detailed G/L Entry");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Attribute Code");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"VAT Period");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Subst. Customer Posting Group");

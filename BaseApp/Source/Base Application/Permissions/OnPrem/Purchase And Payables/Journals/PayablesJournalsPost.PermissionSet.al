@@ -16,7 +16,9 @@ permissionset 3602 "Payables Journals - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Date Compr. Register" = r,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
+#endif
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,

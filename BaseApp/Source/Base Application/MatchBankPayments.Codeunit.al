@@ -435,10 +435,11 @@
                     InitializeVendorLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempVendorLedgerEntryMatchingBuffer);
                 end;
                 CurrencyCode := BankAccReconciliationLine."Currency Code";
-
+#if not CLEAN19
                 TempGeneralLedgerEntryMatchingBuffer.Reset();
                 TempGeneralLedgerEntryMatchingBuffer.DeleteAll();
                 InitializeGeneralLedgerEntriesMatchingBuffer(BankAccReconciliationLine, TempGeneralLedgerEntryMatchingBuffer);
+#endif
                 // NAVCZ
 
                 StartTime := CurrentDateTime();
@@ -752,7 +753,8 @@
           TempEmployeeLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(
             MinAmount, MaxAmount, BankAccReconciliationLine."Transaction Date", UsePaymentDiscounts);
     end;
-
+#if not CLEAN19
+[Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     [Scope('OnPrem')]
     procedure MatchSingleLineGLAccount(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliesToEntryNo: Integer; var NoOfLedgerEntriesWithinTolerance: Integer; var NoOfLedgerEntriesOutsideTolerance: Integer)
     var
@@ -784,6 +786,7 @@
           TempGeneralLedgerEntryMatchingBuffer.GetNoOfLedgerEntriesOutsideRange(
             MinAmount, MaxAmount, BankAccReconciliationLine."Transaction Date", false);
     end;
+#endif
 
     procedure MatchSingleLineBankAccountLedgerEntry(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; AppliesToEntryNo: Integer; var NoOfLedgerEntriesWithinTolerance: Integer; var NoOfLedgerEntriesOutsideTolerance: Integer)
     var
@@ -1089,7 +1092,8 @@
             TempVendLedgMatchingBufferInitialized := true;
         end;
     end;
-
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure InitializeGeneralLedgerEntriesMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary)
     var
         GLEntry: Record "G/L Entry";
@@ -1112,6 +1116,7 @@
                 TempLedgerEntryMatchingBuffer.InsertFromGeneralLedgerEntry(GLEntry);
             until GLEntry.Next() = 0;
     end;
+#endif
 
     local procedure InitializeSalesAdvanceLettersMatchingBuffer(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempSalesAdvanceMatchingBuffer: Record "Advance Letter Matching Buffer" temporary)
     var
@@ -2463,6 +2468,7 @@
         BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line";
     begin
         BankAccReconciliationLine2.CopyFilters(BankAccReconciliationLine);
+        OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(BankAccReconciliationLine2, BankAccReconciliationLine);
 
         if BankAccReconciliationLine2.FindSet() then
             repeat
@@ -2482,6 +2488,7 @@
         PaymentMatchingDetails.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         PaymentMatchingDetails.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         PaymentMatchingDetails.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        OnDeletePaymentMatchDetailsOnAfterPaymentMatchingDetailsSetFilters(PaymentMatchingDetails, BankAccReconciliation);
         PaymentMatchingDetails.DeleteAll(true);
     end;
 
@@ -2492,6 +2499,7 @@
         AppliedPaymentEntry.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         AppliedPaymentEntry.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
         AppliedPaymentEntry.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(AppliedPaymentEntry, BankAccReconciliation);
         AppliedPaymentEntry.DeleteAll(true);
     end;
 
@@ -3109,6 +3117,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnDeletePaymentMatchDetailsOnAfterPaymentMatchingDetailsSetFilters(var PaymentMatchingDetails: Record "Payment Matching Details"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteAppliedPaymentEntriesOnAfterAppliedPaymentEntrySetFilters(var AppliedPaymentEntry: Record "Applied Payment Entry"; BankAccReconciliation: Record "Bank Acc. Reconciliation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnDisableMatchBankLedgerEntriesFromClosingLedgerEntries(var Disable: boolean)
     begin
     end;
@@ -3140,6 +3158,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRelatedPartyInfoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Name: Text[100]; Address: Text[100]; City: Text[30]; AccountType: Enum "Gen. Journal Account Type"; var RelatedPartyMatchedInfoText: Text; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(var BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
     begin
     end;
 }

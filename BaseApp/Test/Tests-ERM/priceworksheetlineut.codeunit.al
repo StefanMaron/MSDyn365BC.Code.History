@@ -1264,7 +1264,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to No. is filled.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"All Locations", "Source No." is 'X'
-        PriceWorksheetLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceWorksheetLine."Source Type" := "Price Source Type"::Test_All_Locations;
         PriceWorksheetLine."Source No." := 'X';
 
         // [WHEN] Verify source
@@ -1281,7 +1281,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to No. is blank.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is 'X', "Source No." is <blank>
-        PriceWorksheetLine."Source Type" := "Price Source Type"::Location;
+        PriceWorksheetLine."Source Type" := "Price Source Type"::Test_Location;
         PriceWorksheetLine."Parent Source No." := 'X';
         PriceWorksheetLine."Source No." := '';
 
@@ -1299,7 +1299,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to Parent No. is filled.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"All Locations", "Parent Source No." is 'X'
-        PriceWorksheetLine."Source Type" := "Price Source Type"::"All Locations";
+        PriceWorksheetLine."Source Type" := "Price Source Type"::Test_All_Locations;
         PriceWorksheetLine."Parent Source No." := 'X';
 
         // [WHEN] Verify source
@@ -1316,7 +1316,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [SCENARIO] Verify source in the line fails on inconsistent source: Applies-to Parent No. is blank.
         Initialize();
         // [GIVEN] New price list line, where "Source Type"::"Location", "Parent Source No." is <blank>
-        PriceWorksheetLine."Source Type" := "Price Source Type"::Location;
+        PriceWorksheetLine."Source Type" := "Price Source Type"::Test_Location;
         PriceWorksheetLine."Parent Source No." := '';
 
         // [WHEN] Verify source

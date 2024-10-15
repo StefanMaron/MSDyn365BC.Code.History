@@ -460,7 +460,8 @@
         exit(ByVolumeTok)
     end;
 
-#if not CLEAN17
+#if not CLEAN18
+    [Obsolete('Merge to W1.', '18.2')]
     [Scope('OnPrem')]
     procedure CreateItemEntryChargeAssgnt(var FromItemLedgerEntry: Record "Item Ledger Entry"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)")
     var

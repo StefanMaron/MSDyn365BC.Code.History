@@ -664,9 +664,10 @@ permissionset 4716 "D365 BUS PREMIUM"
                   tabledata "Intermediate Data Import" = RIMD,
                   tabledata "Internal Movement Header" = RIMD,
                   tabledata "Internal Movement Line" = RIMD,
+#if not CLEAN19
                   tabledata "Intrastat Checklist Setup" = RIMD,
-                  tabledata "Intrastat Currency Exch. Rate" = RIMD,
-                  tabledata "Intrastat Delivery Group" = RIMD,
+#endif
+                  tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Line" = RIMD,
                   tabledata "Intrastat Jnl. Template" = RIMD,

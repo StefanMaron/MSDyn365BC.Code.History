@@ -2357,6 +2357,7 @@ report 35 "Document Entries"
         PostingDateFilter := NewPostingDateFilter;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.2')]
     [Scope('OnPrem')]
     procedure SetCashDesk(NewCashDeskNo: Code[20])
     begin

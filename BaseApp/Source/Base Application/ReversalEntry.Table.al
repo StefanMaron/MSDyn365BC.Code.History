@@ -227,7 +227,9 @@ table 179 "Reversal Entry"
         PostedAndAppliedSameTransactionErr: Label 'You cannot reverse register number %1 because it contains customer or vendor or employee ledger entries that have been posted and applied in the same transaction.\\You must reverse each transaction in register number %1 separately.', Comment = '%1="G/L Register No."';
         Text013: Label 'You cannot reverse %1 No. %2 because the entry has an associated Realized Gain/Loss entry.';
         HideDialog: Boolean;
+#if not CLEAN19
         ReverseErr: Label 'You cannot reverse %1 No %2 because the entry was either applied to another entry or has been changed by a batch job.';
+#endif
         CheckFaErr: Label 'Function Reverse Register and Reverse Transaction cannot be used! Use function Cancel Entries instead.';
         UnrealizedVATReverseErr: Label 'You cannot reverse %1 No. %2 because the entry has an associated Unrealized VAT Entry.';
         ReverseAdvPaymErr: Label 'You cannot reverse %1 No. %2 because the entry is linked to advanced.', Comment = '%1=Table Caption;%2=Entry No.';
@@ -418,11 +420,13 @@ table 179 "Reversal Entry"
             GLAcc.TestField(Blocked, false);
             GLEntry.TestField("Job No.", '');
         end;
+#if not CLEAN19
         // NAVCZ
         GLEntry.CalcFields("Applied Amount");
         if GLEntry."Applied Amount" <> 0 then
             Error(ReverseErr, GLEntry.TableCaption, GLEntry."Entry No.");
         // NAVCZ
+#endif
         if GLEntry.Reversed then
             AlreadyReversedEntry(GLEntry.TableCaption, GLEntry."Entry No.");
         BalanceCheckAmount := BalanceCheckAmount + GLEntry.Amount;

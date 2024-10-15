@@ -128,11 +128,16 @@ page 20 "General Ledger Entries"
                     ToolTip = 'Specifies the Amount of the entry.';
                     Visible = AmountVisible;
                 }
+#if not CLEAN19
                 field("Applied Amount"; "Applied Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the applied amount for the general ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field(RemainingAmount; RemainingAmount)
                 {
@@ -141,13 +146,22 @@ page 20 "General Ledger Entries"
                     Caption = 'Remaining Amount';
                     Editable = false;
                     ToolTip = 'Specifies the remaining amount of general ledger entries';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
                 field(Closed; Closed)
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies to indicate that the general ledger entry is closed.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Debit Amount"; "Debit Amount")
                 {
                     ApplicationArea = Basic, Suite;
@@ -465,6 +479,7 @@ page 20 "General Ledger Entries"
                         ShowValueEntries;
                     end;
                 }
+#if not CLEAN19
                 action("Applied Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -473,7 +488,12 @@ page 20 "General Ledger Entries"
                     RunObject = Page "Applied General Ledger Entries";
                     RunPageOnRec = true;
                     ToolTip = 'Open the page with applied G/L entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
             }
         }
         area(processing)
@@ -505,6 +525,7 @@ page 20 "General Ledger Entries"
                         ReversalEntry.ReverseTransaction("Transaction No.")
                     end;
                 }
+#if not CLEAN19
                 action("Apply Entries")
                 {
                     ApplicationArea = Basic, Suite;
@@ -512,6 +533,10 @@ page 20 "General Ledger Entries"
                     Image = ApplyEntries;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'The function allows to apply customer''s or vendor''s entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -526,6 +551,10 @@ page 20 "General Ledger Entries"
                     Caption = 'Unapply Entries';
                     Image = UnApply;
                     ToolTip = 'Specifies uncertainty entries';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -534,6 +563,7 @@ page 20 "General Ledger Entries"
                         GLEntryPostApplication.UnApplyGLEntry("Entry No."); // NAVCZ
                     end;
                 }
+#endif
                 group(IncomingDocument)
                 {
                     Caption = 'Incoming Document';

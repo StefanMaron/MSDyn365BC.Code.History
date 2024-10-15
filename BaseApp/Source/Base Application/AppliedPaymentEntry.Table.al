@@ -581,10 +581,12 @@ table 1294 "Applied Payment Entry"
                 exit(GetEmployeeLedgEntryRemAmt());
             "Account Type"::"Bank Account":
                 exit(GetBankAccLedgEntryRemAmt);
-                // NAVCZ
+#if not CLEAN19
+            // NAVCZ
             "Account Type"::"G/L Account":
                 exit(GetGenLedgEntryRemAmt);
-                // NAVCZ
+        // NAVCZ
+#endif
         end;
 
         OnAfterGetRemAmt(Rec, Result);
@@ -662,6 +664,8 @@ table 1294 "Applied Payment Entry"
         exit(BankAccLedgEntry."Remaining Amount");
     end;
 
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure GetGenLedgEntryRemAmt(): Decimal
     var
         GLEntry: Record "G/L Entry";
@@ -670,6 +674,7 @@ table 1294 "Applied Payment Entry"
         GLEntry.Get("Applies-to Entry No.");
         exit(GLEntry.RemainingAmount);
     end;
+#endif
 
     local procedure GetAdvanceLetterRemAmt(): Decimal
     var

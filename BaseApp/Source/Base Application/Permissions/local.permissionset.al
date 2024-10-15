@@ -43,7 +43,9 @@ permissionset 1001 "LOCAL"
                   tabledata "Currency Nominal Value" = RIMD,
                   tabledata "Depreciation Group" = RIMD,
                   tabledata "Detailed Fin. Charge Memo Line" = RIMD,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = RIMD,
+#endif
                   tabledata "Detailed Iss.Fin.Ch. Memo Line" = RIMD,
                   tabledata "Detailed Issued Reminder Line" = RIMD,
                   tabledata "Detailed Reminder Line" = RIMD,

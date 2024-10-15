@@ -1,10 +1,14 @@
+#if not CLEAN19
 report 11760 "Inventory Account to the date"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryAccounttothedate.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Inventory Account to Date';
+    Caption = 'Inventory Account to Date (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -263,4 +267,4 @@ report 11760 "Inventory Account to the date"
         ShowApplyEntries := NewShowApplyEntries;
     end;
 }
-
+#endif

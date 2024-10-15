@@ -8,7 +8,9 @@ permissionset 6719 "Jobs - Edit"
                   tabledata Customer = R,
                   tabledata "Customer Bank Account" = R,
                   tabledata "Default Dimension" = RIMD,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = r,
+#endif
                   tabledata "Dtld. Price Calculation Setup" = RIMD,
                   tabledata "Duplicate Price Line" = RIMD,
                   tabledata "G/L Entry" = r,

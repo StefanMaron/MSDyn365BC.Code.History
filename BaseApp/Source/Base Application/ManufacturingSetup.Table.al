@@ -163,6 +163,13 @@ table 99000765 "Manufacturing Setup"
         field(31071; "Exact Cost Rev.Manda. (Cons.)"; Boolean)
         {
             Caption = 'Exact Cost Rev.Manda. (Cons.)';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
     }
 

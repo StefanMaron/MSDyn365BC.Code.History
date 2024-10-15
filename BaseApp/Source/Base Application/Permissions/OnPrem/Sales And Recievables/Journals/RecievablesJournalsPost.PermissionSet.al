@@ -23,7 +23,9 @@ permissionset 6207 "Recievables Journals - Post"
                   tabledata "Customer Posting Group" = R,
                   tabledata "Date Compr. Register" = r,
                   tabledata "Detailed Cust. Ledg. Entry" = ri,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
+#endif
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "G/L Account" = r,

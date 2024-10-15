@@ -7,7 +7,10 @@ permissionset 2345 "Intrastat - Edit"
     Permissions = tabledata Area = R,
                   tabledata "Country/Region" = R,
                   tabledata "Entry/Exit Point" = R,
+#if not CLEAN19
                   tabledata "Intrastat Checklist Setup" = RIMD,
+#endif
+                  tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Currency Exch. Rate" = R,
                   tabledata "Intrastat Delivery Group" = R,
                   tabledata "Intrastat Jnl. Batch" = RIMD,

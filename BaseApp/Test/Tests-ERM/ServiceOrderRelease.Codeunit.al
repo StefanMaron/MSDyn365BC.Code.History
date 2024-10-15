@@ -30,6 +30,7 @@ codeunit 136140 "Service Order Release"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         IsInitialized: Boolean;
         ShipmentConfirmationMessage: Text[1024];
         WMSFullLocation: Code[10];
@@ -40,7 +41,6 @@ codeunit 136140 "Service Order Release"
         NoWarehouseRequestErrorMsg: Label 'No Warehouse Request was found. The warehouse shipment could not be created.';
         YellowLocationCode: Code[10];
         NothingToPostErr: Label 'There is nothing to post.';
-        WarehousePartialShippingErrorTxt: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
         BinMandatoryErrorTxt: Label 'Bin Code must have a value in Service Line: Document Type=';
         QuantityInsufficientErrorTxt: Label 'Quantity (Base) is not sufficient to complete this action. The quantity in the bin is';
         NonPickableBinErrorTxt: Label 'Pick must be equal to ''Yes''  in Bin Type: Code=';
@@ -2576,6 +2576,7 @@ codeunit 136140 "Service Order Release"
     [Scope('OnPrem')]
     procedure PostPartialWarehouseShipmentWithCompleteShippingAdvice()
     var
+        WarehouseSetup: Record "Warehouse Setup";
         Item: Record Item;
         ServiceHeader: Record "Service Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -2587,6 +2588,10 @@ codeunit 136140 "Service Order Release"
         FirstShipmentQuantity: Integer;
     begin
         Initialize;
+        WarehouseSetup.Get();
+        WarehouseSetup.Validate(
+          "Shipment Posting Policy", WarehouseSetup."Shipment Posting Policy"::"Stop and show the first posting error");
+        WarehouseSetup.Modify(true);
 
         // SETUP: Create Service order on WHITE Location and Release Service Order, Create Whse Shpment header.
         LocationCode := WMSFullLocation;
@@ -2614,7 +2619,7 @@ codeunit 136140 "Service Order Release"
 
         // VERIFY: Error is thrown when shipping a partial warehouse shipment with full shipping advice.
         asserterror LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
-        Assert.AreEqual(WarehousePartialShippingErrorTxt, GetLastErrorText,
+        Assert.AreEqual(ServiceOrderShipmentErr, GetLastErrorText,
           'Error when shipping partially with fully shipping advice');
     end;
 
@@ -3143,6 +3148,8 @@ codeunit 136140 "Service Order Release"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Order Release");
         ClearGlobals;
+        LibrarySetupStorage.Restore();
+
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Service Order Release");
@@ -3152,6 +3159,9 @@ codeunit 136140 "Service Order Release"
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        LibrarySetupStorage.Save(DATABASE::"Warehouse Setup");
+
         IsInitialized := true;
         WMSFullLocation := GetWhiteLocation;
         YellowLocationCode := CreateYellowLocation(Location);

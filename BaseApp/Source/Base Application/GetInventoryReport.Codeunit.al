@@ -1,4 +1,4 @@
-codeunit 5845 "Get Inventory Report"
+﻿codeunit 5845 "Get Inventory Report"
 {
     TableNo = "Inventory Report Entry";
 
@@ -304,7 +304,7 @@ codeunit 5845 "Get Inventory Report"
                 exit;
             GLAcc.SetFilter("Date Filter", InvtReportHeader.GetFilter("Posting Date Filter"));
             IsHandled := false;
-            OnInsertGLInvtReportEntryBeforeCalcGLAccount(InvtReportHeader, InventoryReportLine, GLAcc, IsHandled);
+            OnInsertGLInvtReportEntryBeforeCalcGLAccount(InvtReportHeader, InventoryReportLine, GLAcc, IsHandled, CostAmount, WindowPostingType);
             if not IsHandled then
                 CostAmount := CalcGLAccount(GLAcc);
 
@@ -1643,7 +1643,7 @@ codeunit 5845 "Get Inventory Report"
                 repeat
                     TempInvtPostingSetup.Reset();
                     TempInvtPostingSetup.SetRange("Inventory Account", InvtPostingSetup."Inventory Account");
-                    if not IsGLNotTheSameHandled(InventoryReportLine, InvtPostingSetup, TempInvtPostingSetup) then
+                    if not IsGLNotTheSameHandled(InventoryReportLine, InvtPostingSetup, TempInvtPostingSetup, TotalInventory) then
                         if not TempInvtPostingSetup.FindFirst then
                             if GLAcc.Get(InvtPostingSetup."Inventory Account") then
                                 TotalInventory := TotalInventory - CalcGLAccount(GLAcc);
@@ -1866,13 +1866,13 @@ codeunit 5845 "Get Inventory Report"
     end;
 #endif
 
-    local procedure IsGLNotTheSameHandled(var InventoryReportLine: Record "Inventory Report Entry"; var InvtPostingSetup: Record "Inventory Posting Setup"; var TempInvtPostingSetup: Record "Inventory Posting Setup" temporary) IsHandled: Boolean;
+    local procedure IsGLNotTheSameHandled(var InventoryReportLine: Record "Inventory Report Entry"; var InvtPostingSetup: Record "Inventory Posting Setup"; var TempInvtPostingSetup: Record "Inventory Posting Setup" temporary; var TotalInventory: Decimal) IsHandled: Boolean
     begin
-        OnBeforeIsGLNotTheSameHandled(TempInvtPostingSetup, InvtPostingSetup, InvtReportHeader, InventoryReportLine, IsHandled)
+        OnBeforeIsGLNotTheSameHandled(TempInvtPostingSetup, InvtPostingSetup, InvtReportHeader, InventoryReportLine, IsHandled, TotalInventory, WindowPostingType)
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIsGLNotTheSameHandled(var TempInvtentoryPostingSetup: Record "Inventory Posting Setup" temporary; var InvtentoryPostingSetup: Record "Inventory Posting Setup"; var InvtentoryReportHeader: Record "Inventory Report Header"; var InventoryReportLine: Record "Inventory Report Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeIsGLNotTheSameHandled(var TempInvtentoryPostingSetup: Record "Inventory Posting Setup" temporary; var InvtentoryPostingSetup: Record "Inventory Posting Setup"; var InvtentoryReportHeader: Record "Inventory Report Header"; var InventoryReportLine: Record "Inventory Report Entry"; var IsHandled: Boolean; var TotalInventory: Decimal; WindowPostingType: Text[80])
     begin
     end;
 
@@ -1912,7 +1912,7 @@ codeunit 5845 "Get Inventory Report"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertGLInvtReportEntryBeforeCalcGLAccount(var InvtReportHeader: Record "Inventory Report Header"; var InventoryReportLine: Record "Inventory Report Entry"; var GLAcc: Record "G/L Account"; var IsHandled: Boolean)
+    local procedure OnInsertGLInvtReportEntryBeforeCalcGLAccount(var InvtReportHeader: Record "Inventory Report Header"; var InventoryReportLine: Record "Inventory Report Entry"; var GLAcc: Record "G/L Account"; var IsHandled: Boolean; var CostAmount: Decimal; WindowPostingType: Text[80])
     begin
     end;
 }

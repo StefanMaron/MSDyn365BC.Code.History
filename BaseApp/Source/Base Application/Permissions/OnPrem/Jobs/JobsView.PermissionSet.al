@@ -12,7 +12,9 @@ permissionset 5679 "Jobs - View"
                   tabledata "Batch Processing Session Map" = Rimd,
                   tabledata Currency = R,
                   tabledata "Date Compr. Register" = Rim,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Rim,
+#endif
                   tabledata "G/L Account" = R,
                   tabledata "G/L Entry - VAT Entry Link" = RI,
                   tabledata "G/L Entry" = Rim,

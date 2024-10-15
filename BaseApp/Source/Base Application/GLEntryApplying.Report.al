@@ -1,11 +1,15 @@
+#if not CLEAN19
 report 11767 "G/L Entry Applying"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GLEntryApplying.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'G/L Entry Applying';
+    Caption = 'G/L Entry Applying (Obsolete)';
     Permissions = TableData "G/L Entry" = rm;
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -378,4 +382,4 @@ report 11767 "G/L Entry Applying"
         GLEntry: Record "G/L Entry";
         TDetailedGLEntry: Record "Detailed G/L Entry" temporary;
 }
-
+#endif

@@ -1508,7 +1508,9 @@
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
                 ItemTrackingLines: Page "Item Tracking Lines";
+#if not CLEAN19                
                 ManufSetup: Record "Manufacturing Setup";
+#endif
                 IsHandled: Boolean;
             begin
                 if "Applies-from Entry" <> 0 then begin
@@ -1526,6 +1528,7 @@
                     if not IsHandled then
                         if ItemLedgEntry.TrackingExists then
                             Error(Text033, FieldCaption("Applies-from Entry"), ItemTrackingLines.Caption);
+#if not CLEAN19
                     // NAVCZ
                     if "Entry Type" = "Entry Type"::Consumption then begin
                         ManufSetup.Get();
@@ -1540,6 +1543,7 @@
                         "Unit Cost" := 0
                     else
                         // NAVCZ
+#endif
                         "Unit Cost" := CalcUnitCost(ItemLedgEntry);
                 end;
             end;
@@ -2523,7 +2527,9 @@
     var
         ItemLedgEntry: Record "Item Ledger Entry";
         ItemJnlLine2: Record "Item Journal Line";
+#if not CLEAN19        
         ManufSetup: Record "Manufacturing Setup";
+#endif
         PositiveFilterValue: Boolean;
     begin
         OnBeforeSelectItemEntry(Rec, xRec, CurrentFieldNo);
@@ -2543,6 +2549,7 @@
             ItemLedgEntry.SetCurrentKey("Item No.", Positive);
             ItemLedgEntry.SetRange("Item No.", "Item No.");
         end;
+#if not CLEAN19
         // NAVCZ
         if ("Entry Type" = "Entry Type"::Consumption) and
            ("Value Entry Type" <> "Value Entry Type"::Revaluation) and
@@ -2559,6 +2566,7 @@
             end;
         end;
         // NAVCZ
+#endif
 
         if "Location Code" <> '' then
             ItemLedgEntry.SetRange("Location Code", "Location Code");
@@ -2576,7 +2584,7 @@
         end else
             ItemLedgEntry.SetRange(Positive, false);
 
-        OnSelectItemEntryOnBeforeOpenPage(ItemLedgEntry, Rec);
+        OnSelectItemEntryOnBeforeOpenPage(ItemLedgEntry, Rec, CurrentFieldNo);
 
         if PAGE.RunModal(PAGE::"Item Ledger Entries", ItemLedgEntry) = ACTION::LookupOK then begin
             ItemJnlLine2 := Rec;
@@ -4707,7 +4715,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSelectItemEntryOnBeforeOpenPage(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    local procedure OnSelectItemEntryOnBeforeOpenPage(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 

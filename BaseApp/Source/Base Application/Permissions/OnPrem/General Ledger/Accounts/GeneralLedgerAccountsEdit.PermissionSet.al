@@ -17,7 +17,9 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Customer Posting Group" = r,
                   tabledata "Default Dimension" = RIMD,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Rm,
+#endif
                   tabledata "Employee Ledger Entry" = r,
                   tabledata "Employee Posting Group" = r,
                   tabledata "Extended Text Header" = RIMD,

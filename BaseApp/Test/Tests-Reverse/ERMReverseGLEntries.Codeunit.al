@@ -329,10 +329,14 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
         ReversalEntry: Record "Reversal Entry";
+        SaveWorkDate: Date;
     begin
         // Test Date Compress G/L Entries
         // Setup: Create and Post Line for Customer, Vendor, Bank and Fixed Asset from General Journal Line, Run Date Compress batch job.
         Initialize;
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
+
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo, -LibraryRandom.RandInt(100));
@@ -349,6 +353,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
+        WorkDate(SaveWorkDate);
 
         // Exercise: Reverse Posted Entry from G/L Register.
         GLRegister.FindLast;
@@ -369,14 +374,18 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
         ReversalEntry: Record "Reversal Entry";
+        SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Customer from General Journal Line, Run Date Compress batch job.
         Initialize;
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Customer,
           LibrarySales.CreateCustomerNo, -LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
+        WorkDate(SaveWorkDate);
 
         // Exercise: Reverse Posted Entry from Customer Ledger Entry.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::" ", GenJournalLine."Document No.");
@@ -397,14 +406,18 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLEntry: Record "G/L Entry";
         ReversalEntry: Record "Reversal Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Vendor from General Journal Line, Run Date Compress batch job.
         Initialize;
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::Vendor,
           LibraryPurchase.CreateVendorNo, LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
+        WorkDate(SaveWorkDate);
 
         // Exercise: Reverse Posted Entry from Vendor Ledger Entry.
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::" ", GenJournalLine."Document No.");
@@ -425,14 +438,18 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
         ReversalEntry: Record "Reversal Entry";
+        SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Bank Account from General Journal Line, Run Date Compress batch job.
         Initialize;
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Bank Account",
           FindBankAccount, LibraryRandom.RandInt(100));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
+        WorkDate(SaveWorkDate);
 
         // Exercise: Reverse Posted Entry from Bank Ledger Entry.
         BankAccountLedgerEntry.SetRange("Bank Account No.", GenJournalLine."Account No.");
@@ -455,9 +472,12 @@ codeunit 134131 "ERM Reverse GL Entries"
         GLAccount: Record "G/L Account";
         GLEntry: Record "G/L Entry";
         ReversalEntry: Record "Reversal Entry";
+        SaveWorkDate: Date;
     begin
         // Setup: Create and Post Line for Fixed Asset from General Journal Line, Run Date Compress batch job.
         Initialize;
+        SaveWorkDate := WorkDate();
+        WorkDate(LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Fixed Asset",
           FindFixedAsset, LibraryRandom.RandInt(100));
@@ -465,6 +485,7 @@ codeunit 134131 "ERM Reverse GL Entries"
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         DateCompressForGLEntries(GenJournalLine."Document No.");
+        WorkDate(SaveWorkDate);
 
         // Exercise: Reverse Posted Entry from Maintenance Ledger Entry.
         MaintenanceLedgerEntry.SetRange("FA No.", GenJournalLine."Account No.");
@@ -868,6 +889,8 @@ codeunit 134131 "ERM Reverse GL Entries"
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse GL Entries");
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        LibraryFiscalYear.CreateFiscalYear();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;

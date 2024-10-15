@@ -337,6 +337,13 @@
         field(31077; "Exact Cost Reversing Mandatory"; Boolean)
         {
             Caption = 'Exact Cost Reversing Mandatory';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(31078; "Post Neg. Transfers as Corr."; Boolean)
         {

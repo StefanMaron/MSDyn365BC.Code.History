@@ -833,6 +833,8 @@ codeunit 134134 "ERM Reverse Bank Ledger"
         if isInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reverse Bank Ledger");
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        LibraryFiscalYear.CreateFiscalYear();
         LibraryERMCountryData.DisableActivateChequeNoOnGeneralLedgerSetup;
         LibraryERMCountryData.UpdateLocalPostingSetup;
         LibraryERMCountryData.UpdateGeneralLedgerSetup;

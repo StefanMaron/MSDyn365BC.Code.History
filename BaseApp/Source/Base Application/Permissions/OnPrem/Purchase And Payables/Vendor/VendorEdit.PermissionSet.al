@@ -18,7 +18,9 @@ permissionset 7371 "Vendor - Edit"
                   tabledata Currency = R,
                   tabledata "Cust. Ledger Entry" = r,
                   tabledata "Default Dimension" = RIMD,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = rm,
+#endif
                   tabledata "Detailed Vendor Ledg. Entry" = Rim,
                   tabledata "Dtld. Price Calculation Setup" = Rid,
                   tabledata "Duplicate Price Line" = Rid,

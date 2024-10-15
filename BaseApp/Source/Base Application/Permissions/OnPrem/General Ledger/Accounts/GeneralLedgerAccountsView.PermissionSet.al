@@ -12,7 +12,9 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata Currency = R,
                   tabledata "Customer Posting Group" = R,
                   tabledata "Default Dimension" = R,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = R,
+#endif
                   tabledata "Employee Posting Group" = R,
                   tabledata "Extended Text Header" = R,
                   tabledata "Extended Text Line" = R,

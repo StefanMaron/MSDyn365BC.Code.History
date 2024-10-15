@@ -379,7 +379,6 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     end;
 
     [Test]
-    [HandlerFunctions('DateCompressConfirmHandler')]
     [Scope('OnPrem')]
     procedure UnapplyDateCompressVendLedger()
     var
@@ -393,7 +392,7 @@ codeunit 134007 "ERM Apply Unapply Vendor"
         // Check error when Unapplying Vendor Ledger entry which have been Date Compressed.
 
         // Setup: Create and post General Journal Lines, find Closed Fiscal Year, Date Compress the Vendor Ledger Entry.
-        Initialize;
+        Initialize();
         FirstPostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
         LibraryFiscalYear.CheckPostingDate(FirstPostingDate);
         CreatePostApplyGenJournalLine(
@@ -1297,6 +1296,8 @@ codeunit 134007 "ERM Apply Unapply Vendor"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Vendor");
         LibraryPurchase.SetInvoiceRounding(false);
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        LibraryFiscalYear.CreateFiscalYear();
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.CreateGeneralPostingSetupData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
@@ -2509,13 +2510,6 @@ codeunit 134007 "ERM Apply Unapply Vendor"
     procedure MessageHandler(Message: Text[1024])
     begin
         // Message Handler.
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure DateCompressConfirmHandler(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     [ModalPageHandler]

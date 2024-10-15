@@ -251,6 +251,7 @@
                           (CurrentSignFactor * SourceQuantityArray[1] < 0) and not
                           InsertIsBlocked, CurrentSignFactor, "Item Tracking Type"::"Lot No.", MaxQuantity);
                         Rec."Bin Code" := '';
+                        OnAssistEditLotNoOnBeforeCurrPageUdate(Rec, xRec);
                         CurrPage.Update();
                     end;
 
@@ -1487,6 +1488,8 @@
         Rec.SetRange("Location Code", TrackingSpecification."Location Code");
         Rec.SetRange("Variant Code", TrackingSpecification."Variant Code");
         Rec.FilterGroup := 0;
+
+        OnAfterSetFilters(Rec, TrackingSpecification);
     end;
 
     local procedure CheckLine(TrackingLine: Record "Tracking Specification")
@@ -3033,6 +3036,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFilters(var TrackingSpecificationRec: Record "Tracking Specification"; TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetSourceSpec(var TrackingSpecification: Record "Tracking Specification"; var CurrTrackingSpecification: Record "Tracking Specification"; var AvailabilityDate: Date; var BlockCommit: Boolean)
     begin
     end;
@@ -3049,6 +3057,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAssignSerialNoBatchOnAfterInsert(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssistEditLotNoOnBeforeCurrPageUdate(var TrackingSpecification: Record "Tracking Specification"; xTrackingSpecification: Record "Tracking Specification")
     begin
     end;
 

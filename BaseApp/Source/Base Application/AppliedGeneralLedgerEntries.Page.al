@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 11777 "Applied General Ledger Entries"
 {
-    Caption = 'Applied General Ledger Entries';
+    Caption = 'Applied General Ledger Entries (Obsolete)';
     DataCaptionExpression = Caption;
     Editable = false;
     PageType = List;
     SourceTable = "G/L Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -132,4 +136,4 @@ page 11777 "Applied General Ledger Entries"
             GLAccount.Name));
     end;
 }
-
+#endif

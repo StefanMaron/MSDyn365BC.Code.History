@@ -1,4 +1,4 @@
-codeunit 408 DimensionManagement
+﻿codeunit 408 DimensionManagement
 {
     Permissions = TableData "Gen. Journal Template" = imd,
                   TableData "Gen. Journal Batch" = imd;
@@ -996,6 +996,8 @@ codeunit 408 DimensionManagement
         DefaultDim.SetRange("No.", No);
         if not DefaultDim.IsEmpty() then
             DefaultDim.DeleteAll();
+
+        OnAfterDeleteDefaultDim(TableID, No);
     end;
 
     procedure RenameDefaultDim(TableID: Integer; OldNo: Code[20]; NewNo: Code[20])
@@ -1553,7 +1555,13 @@ codeunit 408 DimensionManagement
     procedure DefaultDimOnInsert(DefaultDimension: Record "Default Dimension")
     var
         CallingTrigger: Option OnInsert,OnModify,OnDelete;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDefaultDimOnInsert(DefaultDimension, IsHandled);
+        if IsHandled then
+            exit;
+
         if DefaultDimension."Table ID" = DATABASE::Job then
             UpdateJobTaskDim(DefaultDimension, false);
 
@@ -1563,7 +1571,13 @@ codeunit 408 DimensionManagement
     procedure DefaultDimOnModify(DefaultDimension: Record "Default Dimension")
     var
         CallingTrigger: Option OnInsert,OnModify,OnDelete;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDefaultDimOnModify(DefaultDimension, IsHandled);
+        if IsHandled then
+            exit;
+
         if DefaultDimension."Table ID" = DATABASE::Job then
             UpdateJobTaskDim(DefaultDimension, false);
 
@@ -1573,7 +1587,13 @@ codeunit 408 DimensionManagement
     procedure DefaultDimOnDelete(DefaultDimension: Record "Default Dimension")
     var
         CallingTrigger: Option OnInsert,OnModify,OnDelete;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDefaultDimOnDelete(DefaultDimension, IsHandled);
+        if IsHandled then
+            exit;
+
         if DefaultDimension."Table ID" = DATABASE::Job then
             UpdateJobTaskDim(DefaultDimension, true);
 
@@ -2794,6 +2814,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteDefaultDim(TableID: Integer; No: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecDefaultDimID(RecVariant: Variant; CurrFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SourceCode: Code[20]; var InheritFromDimSetID: Integer; var InheritFromTableNo: Integer; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var DefaultDimSetID: Integer)
     begin
     end;
@@ -2845,6 +2870,21 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckValuePosting(TableID: array[10] of Integer; No: array[10] of Code[20]; var TempDimBuf: Record "Dimension Buffer" temporary; var IsChecked: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDefaultDimOnInsert(var DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDefaultDimOnDelete(var DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDefaultDimOnModify(var DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
     begin
     end;
 

@@ -1131,6 +1131,7 @@
                     GetBankAccountLedgerEntriesInAmountRange(BankAccountLedgerEntry, AmountFilter, MinAmount, MaxAmount);
                     PAGE.Run(PAGE::"Bank Account Ledger Entries", BankAccountLedgerEntry);
                 end;
+#if not CLEAN19
             // NAVCZ
             "Account Type"::"G/L Account":
                 begin
@@ -1138,6 +1139,7 @@
                     PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
                 end;
         // NAVCZ
+#endif
         end;
 
         OnAfterDrillDownOnNoOfLedgerEntriesBasedOnAmount(Rec, AmountFilter);
@@ -1168,7 +1170,8 @@
 
         exit(VendorLedgerEntry.Count);
     end;
-
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure GetGeneralLedgerEntriesInAmountRange(var GLEntry: Record "G/L Entry"; AccountNo: Code[20]; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
     var
         TempGLEntry: Record "G/L Entry" temporary;
@@ -1194,6 +1197,7 @@
         GLEntry.MarkedOnly(true);
         exit(GLEntry.Count);
     end;
+#endif
 
     local procedure GetBankAccountLedgerEntriesInAmountRange(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; AmountFilter: Text; MinAmount: Decimal; MaxAmount: Decimal): Integer
     var
@@ -1230,7 +1234,8 @@
         if AccountNo <> '' then
             VendorLedgerEntry.SetFilter("Vendor No.", AccountNo);
     end;
-
+#if not CLEAN19
+    [Obsolete('This procedure is discontinued and should no longer be used.', '19.0')]
     local procedure GetApplicableGeneralLedgerEntries(var GLEntry: Record "G/L Entry"; AccountNo: Code[20])
     begin
         // NAVCZ
@@ -1240,6 +1245,7 @@
         if AccountNo <> '' then
             GLEntry.SetFilter("G/L Account No.", AccountNo);
     end;
+#endif
 
     local procedure GetApplicableBankAccountLedgerEntries(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; CurrencyCode: Code[10]; AccountNo: Code[20])
     begin

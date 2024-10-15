@@ -1,12 +1,16 @@
+#if not CLEAN19
 page 11775 "Apply General Ledger Entries"
 {
-    Caption = 'Apply General Ledger Entries';
+    Caption = 'Apply General Ledger Entries (Obsolete)';
     DataCaptionFields = "G/L Account No.";
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = Worksheet;
     Permissions = TableData "G/L Entry" = m;
     SourceTable = "G/L Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -600,4 +604,4 @@ page 11775 "Apply General Ledger Entries"
         CalcApplnAmount;
     end;
 }
-
+#endif

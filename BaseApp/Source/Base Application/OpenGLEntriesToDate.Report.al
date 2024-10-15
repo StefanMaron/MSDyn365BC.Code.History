@@ -1,10 +1,14 @@
+#if not CLEAN19
 report 11781 "Open G/L Entries To Date"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './OpenGLEntriesToDate.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'Open G/L Entries To Date';
+    Caption = 'Open G/L Entries To Date (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     dataset
     {
@@ -212,7 +216,7 @@ report 11781 "Open G/L Entries To Date"
         TotalCreditAmount: Decimal;
         PreviousAccountNo: Code[20];
         CurrReport_PAGENOCaptionLbl: Label 'Page';
-        Open_G_L_Entries_To_DateCaptionLbl: Label 'Open G/L Entries To Date';
+        Open_G_L_Entries_To_DateCaptionLbl: Label 'Open G/L Entries To Date (Obsolete)';
         Balance_To_Date_CaptionLbl: Label 'Balance To Date:';
         Credit_AmountCaptionLbl: Label 'Credit Amount';
         Debit_AmountCaptionLbl: Label 'Debit Amount';
@@ -225,4 +229,4 @@ report 11781 "Open G/L Entries To Date"
         Account_No_CaptionLbl: Label 'Account No.';
         Account_TotalCaptionLbl: Label 'Account Total';
 }
-
+#endif

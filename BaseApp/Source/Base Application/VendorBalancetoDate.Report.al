@@ -78,10 +78,8 @@ report 321 "Vendor - Balance to Date"
                 {
                     IncludeCaption = true;
                 }
-                column(OriginalAmt; OriginalAmt)
+                column(OriginalAmt; Format(OriginalAmt, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, CurrencyCode)))
                 {
-                    AutoFormatExpression = CurrencyCode;
-                    AutoFormatType = 1;
                 }
                 column(EntryNo_VendLedgEntry3; "Entry No.")
                 {
@@ -106,10 +104,8 @@ report 321 "Vendor - Balance to Date"
                     column(DocNo_DtldVendLedgEntry; DtldVendLedgDocumentNo)
                     {
                     }
-                    column(Amt; Amt)
+                    column(Amt; Format(Amt, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, CurrencyCode)))
                     {
-                        AutoFormatExpression = CurrencyCode;
-                        AutoFormatType = 1;
                     }
                     column(CurrencyCode1; CurrencyCode)
                     {
@@ -117,10 +113,8 @@ report 321 "Vendor - Balance to Date"
                     column(DtldVendtLedgEntryNum; DtldVendtLedgEntryNum)
                     {
                     }
-                    column(RemainingAmt; RemainingAmt)
+                    column(RemainingAmt; Format(RemainingAmt, 0, AutoFormat.ResolveAutoFormat("Auto Format"::AmountFormat, CurrencyCode)))
                     {
-                        AutoFormatExpression = CurrencyCode;
-                        AutoFormatType = 1;
                     }
 
                     trigger OnAfterGetRecord()
@@ -363,6 +357,7 @@ report 321 "Vendor - Balance to Date"
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         CurrencyTotalBuffer: Record "Currency Total Buffer" temporary;
         CurrencyTotalBuffer2: Record "Currency Total Buffer" temporary;
+        AutoFormat: Codeunit "Auto Format";
         PrintAmountInLCY: Boolean;
         PrintOnePrPage: Boolean;
         VendFilter: Text;

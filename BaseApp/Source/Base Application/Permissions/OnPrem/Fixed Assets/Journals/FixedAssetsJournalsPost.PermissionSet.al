@@ -18,7 +18,9 @@ permissionset 2018 "Fixed Assets Journals - Post"
                   tabledata Customer = r,
                   tabledata "Date Compr. Register" = r,
                   tabledata "Depreciation Group" = R,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
+#endif
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,
                   tabledata "FA Allocation" = R,

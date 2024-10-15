@@ -94,7 +94,9 @@ codeunit 418 "User Management"
                   TableData "Issued Bank Statement Header" = rm,
                   TableData "Issued Payment Order Header" = rm,
                   TableData "Posted Cash Document Header" = rm,
+#if not CLEAN19
                   TableData "Detailed G/L Entry" = rm,
+#endif
                   TableData "Sales Advance Letter Entry" = rm,
                   TableData "Purch. Advance Letter Entry" = rm,
                   TableData "FA History Entry" = rm,

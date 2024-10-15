@@ -2403,6 +2403,7 @@
         exit(StrSubstNo(PaymentOrderHeaderTypeCondnTxt, Encode(PmtOrdHdr.GetView(false)), Encode(PmtOrdLn.GetView(false))));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.2')]
     procedure BuildCashDocHeaderTypeConditions(Status: Option): Text
     var
         CashDocHdr: Record "Cash Document Header";

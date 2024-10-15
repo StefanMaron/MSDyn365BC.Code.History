@@ -37,10 +37,12 @@ codeunit 21 "Item Jnl.-Check Line"
         InvtPeriod: Record "Inventory Period";
         WorkCenter: Record "Work Center";
         Item: Record Item;
+#if not CLEAN19
         Item2: Record Item;
         ManufSetup: Record "Manufacturing Setup";
         T337: Record "Reservation Entry";
         TmpItemTrackingCode: Record "Item Tracking Code";
+#endif
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
 #if not CLEAN18
         UserChecksMgt: Codeunit "User Setup Adv. Management";
@@ -183,6 +185,7 @@ codeunit 21 "Item Jnl.-Check Line"
             if "Entry Type" = "Entry Type"::"Assembly Consumption" then
                 CheckWarehouse(ItemJnlLine);
 
+#if not CLEAN19
             // NAVCZ
             if (not Adjustment) and ("Value Entry Type" = "Value Entry Type"::"Direct Cost") then
                 case "Entry Type" of
@@ -244,7 +247,7 @@ codeunit 21 "Item Jnl.-Check Line"
                             end;
                 end;
             // NAVCZ
-
+#endif
             if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or ("Item Charge No." <> '') then
                 if "Inventory Value Per" = "Inventory Value Per"::" " then
                     TestField("Applies-to Entry");

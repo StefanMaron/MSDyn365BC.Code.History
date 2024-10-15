@@ -17,7 +17,9 @@ permissionset 862 "Payables Documents - Post"
                   tabledata Currency = r,
                   tabledata "Currency Exchange Rate" = r,
                   tabledata "Customer Bank Account" = R,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = Ri,
+#endif
                   tabledata "Detailed Vendor Ledg. Entry" = ri,
                   tabledata "Dimension Combination" = R,
                   tabledata "Dimension Value Combination" = R,

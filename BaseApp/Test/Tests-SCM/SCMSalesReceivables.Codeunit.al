@@ -26,6 +26,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryCosting: Codeunit "Library - Costing";
         LibraryRandom: Codeunit "Library - Random";
         LibraryManufacturing: Codeunit "Library - Manufacturing";
+        LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         NumberofLineErr: Label 'Number of Line must be same.';
         QuantityErr: Label 'Quantity must be same.';
@@ -345,7 +346,6 @@ codeunit 137062 "SCM Sales & Receivables"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTRUE')]
     [Scope('OnPrem')]
     procedure B43940_SameDimDateCompress()
     var
@@ -357,6 +357,7 @@ codeunit 137062 "SCM Sales & Receivables"
         DimensionValue2: Record "Dimension Value";
         DimensionValue3: Record "Dimension Value";
         ItemBudgetName: Record "Item Budget Name";
+        DateCompression: Codeunit "Date Compression";
         PeriodLength: Option Day,Week,Month,Quarter,Year,Period;
         DimensionCode: Code[20];
         DimensionCode2: Code[20];
@@ -368,6 +369,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // 1. Setup.
         Initialize(false);
         ClearEntries;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryInventory.CreateItem(Item);
 
         // Same Dimensions in both Item Budget Entry Lines.
@@ -388,8 +390,8 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryDimension.FindDimensionValue(DimensionValue3, DimensionCode3);
 
         // Create Item Budget Entries.
-        CreateItemBudgetEntry(Item, WorkDate, DimensionValue.Code, DimensionValue2.Code, DimensionValue3.Code);
-        CreateItemBudgetEntry(Item, CalcDate('<1D>', WorkDate), DimensionValue.Code, DimensionValue2.Code, DimensionValue3.Code);
+        CreateItemBudgetEntry(Item, CalcDate('<-123D>', DateCompression.CalcMaxEndDate()), DimensionValue.Code, DimensionValue2.Code, DimensionValue3.Code);
+        CreateItemBudgetEntry(Item, CalcDate('<-122D>', DateCompression.CalcMaxEndDate()), DimensionValue.Code, DimensionValue2.Code, DimensionValue3.Code);
         ItemBudgetEntry.SetRange("Budget Dimension 1 Code", DimensionValue3.Code); // filtering on created.
 
         // Create Selected Dimensions for Date Compress.
@@ -399,7 +401,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Enqueue(DeletesEntriesMsg);  // Enqueue Value for Confirm Handler.
         LibraryVariableStorage.Enqueue(UpdateAnalysisViewsQst);  // Enqueue Value for Confirm Handler.
         LibraryInventory.DateComprItemBudgetEntries(
-          ItemBudgetEntry, 0, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate), PeriodLength::Quarter, LibraryUtility.GenerateGUID); // NAVCZ
+          ItemBudgetEntry, 0, CalcDate('<-CY>', DateCompression.CalcMaxEndDate()), DateCompression.CalcMaxEndDate(), PeriodLength::Month, LibraryUtility.GenerateGUID);
 
         // 3. Verify: verify compressed Item Budget Entries and date compresed Item Budget Entries.
         VerifyDimension(ItemBudgetEntry, 1, DimensionValue.Code, DimensionValue2.Code);  // Value is important for Test.
@@ -408,7 +410,6 @@ codeunit 137062 "SCM Sales & Receivables"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTRUE')]
     [Scope('OnPrem')]
     procedure B43940_DiffDimDateCompress()
     var
@@ -420,6 +421,7 @@ codeunit 137062 "SCM Sales & Receivables"
         DimensionValue2: Record "Dimension Value";
         DimensionValue3: Record "Dimension Value";
         ItemBudgetName: Record "Item Budget Name";
+        DateCompression: Codeunit "Date Compression";
         PeriodLength: Option Day,Week,Month,Quarter,Year,Period;
         DimensionCode: Code[20];
         DimensionCode2: Code[20];
@@ -431,6 +433,7 @@ codeunit 137062 "SCM Sales & Receivables"
         // 1. Setup.
         Initialize(false);
         ClearEntries;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
         LibraryInventory.CreateItem(Item);
 
         // Different Dimensions in both Item Budget Entry lines.
@@ -451,8 +454,8 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryDimension.FindDimensionValue(DimensionValue3, DimensionCode3);
 
         // Create Item Budget Entries.
-        CreateItemBudgetEntry(Item, WorkDate, DimensionValue.Code, '', DimensionValue3.Code);
-        CreateItemBudgetEntry(Item, CalcDate('<1D>', WorkDate), '', DimensionValue2.Code, DimensionValue3.Code);
+        CreateItemBudgetEntry(Item, CalcDate('<-123D>', DateCompression.CalcMaxEndDate()), DimensionValue.Code, '', DimensionValue3.Code);
+        CreateItemBudgetEntry(Item, CalcDate('<-122D>', DateCompression.CalcMaxEndDate()), '', DimensionValue2.Code, DimensionValue3.Code);
         ItemBudgetEntry.SetRange("Budget Dimension 1 Code", DimensionValue3.Code); // filtering on created.
 
         // Create Selected Dimension for Date Compress.
@@ -462,7 +465,7 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Enqueue(DeletesEntriesMsg);  // Enqueue Value for Confirm Handler.
         LibraryVariableStorage.Enqueue(UpdateAnalysisViewsQst);  // Enqueue Value for Confirm Handler.
         LibraryInventory.DateComprItemBudgetEntries(
-          ItemBudgetEntry, 0, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate), PeriodLength::Month, LibraryUtility.GenerateGUID);
+          ItemBudgetEntry, 0, CalcDate('<-CY>', DateCompression.CalcMaxEndDate()), DateCompression.CalcMaxEndDate(), PeriodLength::Month, LibraryUtility.GenerateGUID);
 
         // 3. Verify: verify compressed Item Budget Entries and date compresed Item Budget Entries.
         // Value is important for Test.
@@ -864,7 +867,7 @@ codeunit 137062 "SCM Sales & Receivables"
             // Verify: Verify Item Reference No. error.
             // Bug 361020
             // Assert.ExpectedError(StrSubstNo(ItemReferenceErr, ItemReference."Reference No."));
-    end;
+        end;
 #endif
     end;
 
@@ -879,14 +882,17 @@ codeunit 137062 "SCM Sales & Receivables"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerFALSE')]
+    [HandlerFunctions('ConfirmHandlerFALSE,SendNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure SalesOrderWithoutAvailableReservedQuantity()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
     begin
         // Verify Reserved Quantity on Sales Order with Sales Return Order when Quantity not available for Reservation.
         // Setup.
         Initialize(false);
         SalesOrderWithReservedQuantity(true);  // Multiple Sales Order as True.
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure SalesOrderWithReservedQuantity(MultipleSalesOrder: Boolean)
@@ -1673,6 +1679,16 @@ codeunit 137062 "SCM Sales & Receivables"
         LibraryVariableStorage.Dequeue(ExpectedMessage);  // Dequeue variable.
         Assert.IsTrue(StrPos(Question, ExpectedMessage) > 0, Question);
         Reply := true;
+    end;
+
+    [SendNotificationHandler]
+    procedure SendNotificationHandler(var Notification: Notification): Boolean
+    begin
+    end;
+
+    [RecallNotificationHandler]
+    procedure RecallNotificationHandler(var Notification: Notification): Boolean
+    begin
     end;
 }
 

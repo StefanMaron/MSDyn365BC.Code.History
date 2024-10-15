@@ -2019,6 +2019,8 @@ table 5965 "Service Contract Header"
             else
                 RetPer := 0;
         end;
+
+        OnAfterReturnNoOfPer(InvoicePeriod, RetPer);
     end;
 
     local procedure CalculateEndPeriodDate(Prepaid: Boolean; NextInvDate: Date): Date
@@ -2579,6 +2581,11 @@ table 5965 "Service Contract Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateDimTableIDs(var ServiceContractHeader: Record "Service Contract Header"; CallingFieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterReturnNoOfPer(InvoicePeriod: Enum "Service Contract Header Invoice Period"; var RetPer: Integer)
     begin
     end;
 

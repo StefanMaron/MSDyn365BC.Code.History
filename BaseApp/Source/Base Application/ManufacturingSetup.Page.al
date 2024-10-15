@@ -74,11 +74,17 @@ page 99000768 "Manufacturing Setup"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN19
                 field("Exact Cost Rev.Manda. (Cons.)"; "Exact Cost Rev.Manda. (Cons.)")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if it is mandatory the Exact Cost Reversing.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
             }
             group(Numbering)
             {

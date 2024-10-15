@@ -1,7 +1,11 @@
+#if not CLEAN19
 codeunit 11766 "G/L Entry -Post Application"
 {
     Permissions = TableData "G/L Entry" = rm,
                   TableData "Detailed G/L Entry" = rim;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -369,4 +373,4 @@ codeunit 11766 "G/L Entry -Post Application"
         Clear(ApplGenLedgEntries);
     end;
 }
-
+#endif

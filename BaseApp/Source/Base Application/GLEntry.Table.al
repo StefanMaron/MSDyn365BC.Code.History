@@ -415,28 +415,58 @@ table 17 "G/L Entry"
         field(11762; "Closed at Date"; Date)
         {
             Caption = 'Closed at Date';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11763; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
-
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
+#if not CLEAN19
             trigger OnValidate()
             var
                 ApplyGLEntryForm: Page "Apply General Ledger Entries";
             begin
                 ApplyGLEntryForm.CheckAppliesToID(Rec);
             end;
+#endif
         }
         field(11764; "Date Filter"; Date)
         {
             Caption = 'Date Filter';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
             FieldClass = FlowFilter;
         }
         field(11765; "Amount to Apply"; Decimal)
         {
             AutoFormatType = 1;
             Caption = 'Amount to Apply';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
 
+#if not CLEAN19
             trigger OnValidate()
             begin
                 CalcFields("Applied Amount");
@@ -445,20 +475,42 @@ table 17 "G/L Entry"
                 if Abs("Amount to Apply") > Abs(Amount - "Applied Amount") then
                     Error(Text11701, FieldCaption("Amount to Apply"), FieldCaption(Amount), FieldCaption("Applied Amount"));
             end;
+#endif
         }
         field(11766; "Applying Entry"; Boolean)
         {
             Caption = 'Applying Entry';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11767; Closed; Boolean)
         {
             Caption = 'Closed';
+#if CLEAN19
+            ObsoleteState = Removed;
+#else
+            ObsoleteState = Pending;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
         }
         field(11768; "Applied Amount"; Decimal)
         {
+#if not CLEAN19
             CalcFormula = - Sum("Detailed G/L Entry".Amount WHERE("G/L Entry No." = FIELD("Entry No."),
                                                                   "Posting Date" = FIELD("Date Filter")));
             Caption = 'Applied Amount';
+            ObsoleteState = Pending;
+#else
+            ObsoleteState = Removed;
+#endif
+            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+            ObsoleteTag = '19.0';
             Editable = false;
             FieldClass = FlowField;
         }
@@ -555,8 +607,10 @@ table 17 "G/L Entry"
     var
         GLSetup: Record "General Ledger Setup";
         GLSetupRead: Boolean;
+#if not CLEAN19
         Text11700: Label '%1 must have the same sign as %2.';
         Text11701: Label '%1 must not be larger than difference between %2 and %3.';
+#endif
 
     procedure GetLastEntryNo(): Integer;
     var
@@ -741,6 +795,8 @@ table 17 "G/L Entry"
         OnAfterCopyPostingGroupsFromDtldCVBuf(Rec, DtldCVLedgEntryBuf);
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to Advanced Localization Pack for Czech.', '19.0')]
     [Scope('OnPrem')]
     procedure RemainingAmount(): Decimal
     begin
@@ -751,6 +807,7 @@ table 17 "G/L Entry"
         CalcFields("Applied Amount");
         exit(Amount - "Applied Amount");
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyGLEntryFromGenJnlLine(var GLEntry: Record "G/L Entry"; var GenJournalLine: Record "Gen. Journal Line")

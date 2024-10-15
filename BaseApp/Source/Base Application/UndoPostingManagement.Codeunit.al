@@ -598,6 +598,7 @@
 
             OnBeforePostItemJnlLine(ItemJnlLine, TempApplyToItemLedgEntry);
             PostItemJnlLine(ItemJnlLine);
+            OnPostItemJnlLineAppliedToListOnAfterPostItemJnlLine(ItemJnlLine, TempApplyToItemLedgEntry);
 
             UndoValuePostingFromJob(ItemJnlLine, ItemApplicationEntry, TempApplyToItemLedgEntry);
 
@@ -1027,7 +1028,7 @@
 
         if ItemJnlLine2."Job No." <> '' then begin
             IsHandled := false;
-            OnPostItemJnlLineOnBeforePostItemJnlLineForJob(ItemJnlLine2, IsHandled);
+            OnPostItemJnlLineOnBeforePostItemJnlLineForJob(ItemJnlLine2, IsHandled, ItemJnlLine, PostJobConsumptionBeforePurch);
             if not IsHandled then
                 PostJobConsumptionBeforePurch := PostItemJnlLineForJob(ItemJnlLine, ItemJnlLine2);
         end;
@@ -1420,6 +1421,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineAppliedToListOnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeInitOustanding(var SalesLine: Record "Sales Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal)
     begin
     end;
@@ -1430,7 +1436,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostItemJnlLineOnBeforePostItemJnlLineForJob(var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnPostItemJnlLineOnBeforePostItemJnlLineForJob(var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line"; var PostJobConsumptionBeforePurch: Boolean)
     begin
     end;
 

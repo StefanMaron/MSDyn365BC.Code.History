@@ -53,12 +53,18 @@ page 8901 "Finance Manager Role Center"
                     ObsoleteTag = '17.4';
                     Visible = false;
                 }
+#if not CLEAN19
                 action("G/L Entry Applying")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'G/L Entry Applying';
                     RunObject = report "G/L Entry Applying";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 group("Group1")
                 {
                     Caption = 'VAT';
@@ -630,18 +636,28 @@ page 8901 "Finance Manager Role Center"
                             ObsoleteTag = '17.0';
                             Visible = false;
                         }
+#if not CLEAN19
                         action("Open G/L Entries To Date")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Open G/L Entries To Date';
                             RunObject = report "Open G/L Entries To Date";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                            ObsoleteTag = '19.0';
+                            Visible = false;
                         }
                         action("Inventory Account to the date")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Inventory Account to the date';
                             RunObject = report "Inventory Account to the date";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                            ObsoleteTag = '19.0';
+                            Visible = false;
                         }
+#endif
                         action("Joining Bank. Acc. Adjustment")
                         {
                             ApplicationArea = Basic, Suite;

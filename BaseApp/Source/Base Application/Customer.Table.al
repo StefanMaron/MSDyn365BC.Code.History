@@ -698,7 +698,14 @@ table 18 Customer
             Caption = 'VAT Registration No.';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateVATRegistrationNo(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 "VAT Registration No." := UpperCase("VAT Registration No.");
                 if "VAT Registration No." <> xRec."VAT Registration No." then
                     VATRegistrationValidation;
@@ -1833,7 +1840,13 @@ table 18 Customer
         VATRegistrationLogMgt: Codeunit "VAT Registration Log Mgt.";
         ConfirmManagement: Codeunit "Confirm Management";
         RegistrationLogMgt: Codeunit "Registration Log Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         ApprovalsMgmt.OnCancelCustomerApprovalRequest(Rec);
 
         ServiceItem.SetRange("Customer No.", "No.");
@@ -3527,12 +3540,22 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultSalesperson(var Customer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateCity(var Customer: Record Customer; var PostCodeRec: Record "Post Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVATRegistrationNo(var Customer: Record "Customer"; xCustomer: Record "Customer"; FieldNumber: Integer; var IsHandled: Boolean)
     begin
     end;
 

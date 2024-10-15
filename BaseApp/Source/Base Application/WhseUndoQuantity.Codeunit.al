@@ -223,12 +223,7 @@ codeunit 7320 "Whse. Undo Quantity"
             NewPostedWhseShptLine."Line No." := "Line No.";
             NewPostedWhseShptLine.Find('=');
 
-            if NewPostedWhseShptLine.Find('>') then begin
-                LineSpacing := (NewPostedWhseShptLine."Line No." - "Line No.") div 2;
-                if LineSpacing = 0 then
-                    Error(Text001);
-            end else
-                LineSpacing := 10000;
+            LineSpacing := GetWhseShptLineSpacing(OldPostedWhseShptLine, NewPostedWhseShptLine);
 
             NewPostedWhseShptLine.Reset();
             NewPostedWhseShptLine.Init();
@@ -236,9 +231,26 @@ codeunit 7320 "Whse. Undo Quantity"
             NewPostedWhseShptLine."Line No." := "Line No." + LineSpacing;
             NewPostedWhseShptLine.Quantity := -Quantity;
             NewPostedWhseShptLine."Qty. (Base)" := -"Qty. (Base)";
-            OnBeforePostedWhseShptLineInsert(NewPostedWhseShptLine, OldPostedWhseShptLine);
+            OnBeforePostedWhseShptLineInsert(NewPostedWhseShptLine, OldPostedWhseShptLine, LineSpacing);
             NewPostedWhseShptLine.Insert();
         end;
+    end;
+
+    local procedure GetWhseShptLineSpacing(OldPostedWhseShptLine: Record "Posted Whse. Shipment Line"; var NewPostedWhseShptLine: Record "Posted Whse. Shipment Line") LineSpacing: Integer
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetWhseShptLineSpacing(OldPostedWhseShptLine, NewPostedWhseShptLine, LineSpacing, IsHandled);
+        if IsHandled then
+            exit(LineSpacing);
+
+        if NewPostedWhseShptLine.Find('>') then begin
+            LineSpacing := (NewPostedWhseShptLine."Line No." - OldPostedWhseShptLine."Line No.") div 2;
+            if LineSpacing = 0 then
+                Error(Text001);
+        end else
+            LineSpacing := 10000;
     end;
 
     local procedure DeleteWhsePutAwayRequest(var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
@@ -478,6 +490,11 @@ codeunit 7320 "Whse. Undo Quantity"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWhseShptLineSpacing(OldPostedWhseShptLine: Record "Posted Whse. Shipment Line"; var NewPostedWhseShptLine: Record "Posted Whse. Shipment Line"; var LineSpacing: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeOldPostedWhseRcptLineModify(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
     begin
     end;
@@ -493,7 +510,7 @@ codeunit 7320 "Whse. Undo Quantity"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostedWhseShptLineInsert(var NewPostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; OldPostedWhseShipmentLine: Record "Posted Whse. Shipment Line")
+    local procedure OnBeforePostedWhseShptLineInsert(var NewPostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; OldPostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; LineSpacing: Integer)
     begin
     end;
 

@@ -315,7 +315,7 @@ table 246 "Requisition Line"
                         if ("Location Code" <> '') and ("No." <> '') and not IsDropShipment then begin
                             GetLocation("Location Code");
                             ShouldGetDefaultBin := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
-                            OnValidateLocationCodeOnBeforeGetDefaultBin(Rec, ShouldGetDefaultBin);
+                            OnValidateLocationCodeOnBeforeGetDefaultBin(Rec, ShouldGetDefaultBin, Location);
                             if ShouldGetDefaultBin then
                                 WMSManagement.GetDefaultBin("No.", "Variant Code", "Location Code", "Bin Code");
                         end;
@@ -1116,7 +1116,7 @@ table 246 "Requisition Line"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateStartingTime(Rec, ShouldSetDueDate, IsHandled);
+                OnBeforeValidateStartingTime(Rec, ShouldSetDueDate, IsHandled, CurrFieldNo, CurrentFieldNo, xRec);
                 if IsHandled then
                     exit;
 
@@ -1165,7 +1165,7 @@ table 246 "Requisition Line"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateEndingTime(Rec, ShouldSetDueDate, IsHandled);
+                OnBeforeValidateEndingTime(Rec, ShouldSetDueDate, IsHandled, CurrFieldNo, CurrentFieldNo);
                 if IsHandled then
                     exit;
 
@@ -1244,7 +1244,14 @@ table 246 "Requisition Line"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateUnitCost(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestField(Type, Type::Item);
                 TestField("No.");
 
@@ -2818,10 +2825,7 @@ table 246 "Requisition Line"
 
     procedure TransferFromUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
     begin
-        Init;
-        "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
-        "Line No." := "Line No." + 10000;
-        "Planning Line Origin" := "Planning Line Origin"::"Order Planning";
+        InitRecordForOrderPlanning();
 
         OnTransferFromUnplannedDemandOnBeforeSetType(Rec);
         Type := Type::Item;
@@ -2862,6 +2866,21 @@ table 246 "Requisition Line"
         UpdateDim(DATABASE::Vendor, "Vendor No.", DimMgt.TypeToTableID3(Type.AsInteger()), "No.");
 
         OnAfterTransferFromUnplannedDemand(Rec, UnplannedDemand);
+    end;
+
+    local procedure InitRecordForOrderPlanning()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInitRecordForOrderPlanning(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Init();
+        "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
+        "Line No." := "Line No." + 10000;
+        "Planning Line Origin" := "Planning Line Origin"::"Order Planning";
     end;
 
     procedure SetSupplyDates(DemandDate: Date)
@@ -3329,12 +3348,20 @@ table 246 "Requisition Line"
         Validate("Routing No.", '');
         UpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure();
         Validate("Transfer-from Code", '');
+
+        ValidateVendorNoWithStockkeepingUnit(StockkeepingUnit);
+
+        OnAfterSetReplenishmentSystemFromPurchase(Rec, Item, StockkeepingUnit);
+    end;
+
+    local procedure ValidateVendorNoWithStockkeepingUnit(StockkeepingUnit: Record "Stockkeeping Unit")
+    begin
+        OnBeforeValidateVendorNoWithStockkeepingUnit(Rec, StockkeepingUnit);
+
         if StockkeepingUnit."Vendor No." = '' then
             Validate("Vendor No.")
         else
             Validate("Vendor No.", StockkeepingUnit."Vendor No.");
-
-        OnAfterSetReplenishmentSystemFromPurchase(Rec, Item, StockkeepingUnit);
     end;
 
     local procedure UpdateUnitOfMeasureCodeFromItemPurchUnitOfMeasure()
@@ -3369,7 +3396,7 @@ table 246 "Requisition Line"
 
         Item.TestField("Base Unit of Measure");
         IsHandled := false;
-        OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(Rec, IsHandled);
+        OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(Rec, IsHandled, xRec);
         if not IsHandled then
             if ("Ref. Order No." = '') and (not Subcontracting) then begin // NAVCZ
                 "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
@@ -3672,6 +3699,11 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitRecordForOrderPlanning(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupVendor(var RequisitionLine: Record "Requisition Line"; var Vendor: Record Vendor; var PreferItemVendorCatalog: Boolean; var IsHandled: Boolean; var IsVendorSelected: Boolean)
     begin
     end;
@@ -3688,6 +3720,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFromBinCode(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateVendorNoWithStockkeepingUnit(var RequisitionLine: Record "Requisition Line"; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 
@@ -3713,6 +3750,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateQuantityBase(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateUnitCost(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3767,7 +3809,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateLocationCodeOnBeforeGetDefaultBin(RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean)
+    local procedure OnValidateLocationCodeOnBeforeGetDefaultBin(RequisitionLine: Record "Requisition Line"; var ShouldGetDefaultBin: Boolean; Location: Record Location)
     begin
     end;
 
@@ -3807,7 +3849,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateStartingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeValidateStartingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean; CallingFieldNo: Integer; CurrentFieldNo: Integer; xRequisitionLine: Record "Requisition Line")
     begin
     end;
 
@@ -3817,7 +3859,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateEndingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeValidateEndingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean; CallingFieldNo: Integer; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -3827,7 +3869,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    local procedure OnSetReplenishmentSystemFromProdOrderOnBeforeProcessPlannedOrderNosField(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean; xRequisitionLine: Record "Requisition Line")
     begin
     end;
 

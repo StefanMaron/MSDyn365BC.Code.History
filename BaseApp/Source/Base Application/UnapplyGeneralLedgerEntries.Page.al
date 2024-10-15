@@ -1,6 +1,7 @@
+#if not CLEAN19
 page 11776 "Unapply General Ledger Entries"
 {
-    Caption = 'Unapply General Ledger Entries';
+    Caption = 'Unapply General Ledger Entries (Obsolete)';
     DataCaptionExpression = Caption;
     DeleteAllowed = false;
     Editable = true;
@@ -9,6 +10,9 @@ page 11776 "Unapply General Ledger Entries"
     PageType = Worksheet;
     SourceTable = "Detailed G/L Entry";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -160,4 +164,4 @@ page 11776 "Unapply General Ledger Entries"
             DtldGLEntry."G/L Entry No."));
     end;
 }
-
+#endif

@@ -505,7 +505,7 @@
                     TempItemChargeAssgntSales."Qty. to Assign" := 0;
                 AssignSalesItemCharge(ItemChargeAssignmentSales, TempItemChargeAssgntSales, Currency, QtyRemaining, AmountRemaining);
             until TempItemChargeAssgntSales.Next() = 0;
-        OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(ItemChargeAssignmentSales, QtyRemaining, TotalQtyToAssign);
+        OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(ItemChargeAssignmentSales, QtyRemaining, TotalQtyToAssign, Currency);
         TempItemChargeAssgntSales.DeleteAll();
     end;
 
@@ -718,7 +718,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; QtyRemaining: Decimal; TotalQtyToAssign: Decimal)
+    local procedure OnAssignByWeightOnBeforeTempItemChargeAssgntSalesDelete(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; QtyRemaining: Decimal; TotalQtyToAssign: Decimal; Currency: Record Currency)
     begin
     end;
 

@@ -579,7 +579,7 @@ table 363 "Analysis View"
                          Text004 +
                          Text005 +
                          Text007 +
-                         Text008 +
+                         StrSubstNo(Text008, NoNotUpdated) +
                          Text009, true)
                     then begin
                     if Find('-') then
@@ -594,6 +594,22 @@ table 363 "Analysis View"
                 end else
                     Error(Text010);
         end;
+    end;
+
+    procedure UpdateAllAnalysisViews(ShowWindow: Boolean)
+    var
+        AnalysisView: Record "Analysis View";
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+    begin
+        if AnalysisView.FindSet then
+            repeat
+                if AnalysisView.Blocked then begin
+                    AnalysisView."Refresh When Unblocked" := true;
+                    AnalysisView."Last Budget Entry No." := 0;
+                    AnalysisView.Modify();
+                end else
+                    UpdateAnalysisView.Update(AnalysisView, 2, ShowWindow);
+            until Next() = 0;
     end;
 
     procedure UpdateLastEntryNo()

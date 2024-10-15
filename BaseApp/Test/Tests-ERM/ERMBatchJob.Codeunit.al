@@ -51,6 +51,7 @@ codeunit 134900 "ERM Batch Job"
         TestPageIsNotOpenErr: Label 'The TestPage is not open.';
         DefaultSalesCategoryCodeLbl: Label 'SALESBCKGR';
         DefaultPurchCategoryCodeLbl: Label 'PURCHBCKGR';
+        ConfirmUpdateQst: Label 'You have changed %1. Do you want to update %2?';
 
     [Test]
     [Scope('OnPrem')]
@@ -143,6 +144,7 @@ codeunit 134900 "ERM Batch Job"
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -170,6 +172,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeaderArchive.SetRange("No.", DocumentNo);
         Assert.RecordIsEmpty(PurchaseHeaderArchive);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -1424,6 +1427,7 @@ codeunit 134900 "ERM Batch Job"
 
     [Test]
     [Scope('OnPrem')]
+    [HandlerFunctions('CurrExchRateConfirmHandler')]
     procedure DropShipmentSalesOrderFCYPurchOrderLCY()
     var
         Customer: Record Customer;
@@ -2604,13 +2608,13 @@ codeunit 134900 "ERM Batch Job"
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         // Create Fiscal Year, Close Fiscal Year, General Journal Batch. Create and Post General Journal Lines.
-        LibraryFiscalYear.CreateFiscalYear;
-        LibraryFiscalYear.CloseFiscalYear;
+        LibraryFiscalYear.CreateClosedAccountingPeriods();
+        LibraryFiscalYear.CreateFiscalYear();
         CreateGeneralJournalBatch(GenJournalBatch);
-        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, LibraryFiscalYear.GetLastPostingDate(true));
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, LibraryFiscalYear.GetFirstPostingDate(true));
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', LibraryFiscalYear.GetLastPostingDate(true)));
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', LibraryFiscalYear.GetFirstPostingDate(true)));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Journal Batch Name");
     end;
@@ -3354,6 +3358,7 @@ codeunit 134900 "ERM Batch Job"
         LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
     end;
 
+#if not CLEAN19
     local procedure DeletePurchaseOrderArchive(PurchaseHeader: Record "Purchase Header")
     var
         PurchaseHeaderArchive: Record "Purchase Header Archive";
@@ -3365,6 +3370,7 @@ codeunit 134900 "ERM Batch Job"
         DeletePurchaseOrderVersions.UseRequestPage(false);
         DeletePurchaseOrderVersions.Run;
     end;
+#endif
 
     local procedure DeleteBlanketPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; No: Code[20])
     var
@@ -4311,10 +4317,11 @@ codeunit 134900 "ERM Batch Job"
     procedure DateCompressGenLedgerHandler(var DateCompressGeneralLedger: TestRequestPage "Date Compress General Ledger")
     var
         DateComprRegister: Record "Date Compr. Register";
+        DateCompression: Codeunit "Date Compression";
     begin
         // Perform Date Compression with Retain field is set to True.
-        DateCompressGeneralLedger."EntrdDateComprReg.""Starting Date""".SetValue(LibraryFiscalYear.GetLastPostingDate(true));
-        DateCompressGeneralLedger.EndingDate.SetValue(LibraryFiscalYear.GetLastPostingDate(false));
+        DateCompressGeneralLedger."EntrdDateComprReg.""Starting Date""".SetValue(LibraryFiscalYear.GetFirstPostingDate(true));
+        DateCompressGeneralLedger.EndingDate.SetValue(DateCompression.CalcMaxEndDate());
         DateCompressGeneralLedger."EntrdDateComprReg.""Period Length""".SetValue(DateComprRegister."Period Length"::Week);
         DateCompressGeneralLedger."Retain[1]".SetValue(true);
         DateCompressGeneralLedger."Retain[2]".SetValue(true);
@@ -4335,6 +4342,19 @@ codeunit 134900 "ERM Batch Job"
             DimensionSelectionMultiple.Selected.SetValue(true);
         until not DimensionSelectionMultiple.Next;
         DimensionSelectionMultiple.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    procedure CurrExchRateConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    var
+        DummyPurchHeader: Record "Purchase Header";
+    begin
+#if CLEAN17        
+        Assert.ExpectedConfirm(StrSubstNo(ConfirmUpdateQst, DummyPurchHeader.FieldCaption("VAT Date CZL"), DummyPurchHeader.FieldCaptiom("VAT Currency Factor CZL")), Question);
+#else
+        Assert.ExpectedConfirm(StrSubstNo(ConfirmUpdateQst, DummyPurchHeader.FieldCaption("VAT Date"), DummyPurchHeader.FieldCaption("VAT Currency Factor")), Question);
+#endif
+        Reply := true;
     end;
 
     [ConfirmHandler]

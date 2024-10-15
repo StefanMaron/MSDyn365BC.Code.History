@@ -134,11 +134,17 @@
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+#if not CLEAN19
                 field("Exact Cost Reversing Mandatory"; "Exact Cost Reversing Mandatory")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if it is mandatory the Exact Cost Reversing.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+                    ObsoleteTag = '19.0';
+                    Visible = false;
                 }
+#endif
                 field("Use GPPG from SKU"; "Use GPPG from SKU")
                 {
                     ApplicationArea = Basic, Suite;

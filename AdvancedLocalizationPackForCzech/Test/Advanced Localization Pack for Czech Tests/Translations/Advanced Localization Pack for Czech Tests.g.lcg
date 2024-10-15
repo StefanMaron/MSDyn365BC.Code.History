@@ -5,4 +5,13 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
+  <Item ItemId=";Codeunit 1356517166 - NamedType 3403262118" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected Remaining Amount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Applying G/L Entries CZA - NamedType UnexpectedRemAmtErr)]]></Cmt>
+    </Cmts>
+  </Item>
 </LCX>

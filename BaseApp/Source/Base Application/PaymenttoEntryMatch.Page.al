@@ -165,12 +165,14 @@ page 1288 "Payment-to-Entry Match"
                     MatchBankPayments.MatchSingleLineBankAccountLedgerEntry(
                       BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,
                       NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
+#if not CLEAN19
                 // NAVCZ
                 "Account Type"::"G/L Account":
                     MatchBankPayments.MatchSingleLineGLAccount(
                       BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,
                       NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
                 // NAVCZ
+#endif
                 else
                     Error(AccTypeErr);
             end;

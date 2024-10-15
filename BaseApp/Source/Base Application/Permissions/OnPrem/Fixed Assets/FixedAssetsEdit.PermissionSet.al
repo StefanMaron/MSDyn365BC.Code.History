@@ -18,7 +18,9 @@ permissionset 3846 "Fixed Assets - Edit"
                   tabledata "Depreciation Group" = R,
                   tabledata "Depreciation Table Header" = RIMD,
                   tabledata "Depreciation Table Line" = RIMD,
+#if not CLEAN19
                   tabledata "Detailed G/L Entry" = rm,
+#endif
                   tabledata Employee = R,
                   tabledata "Employee Ledger Entry" = r,
                   tabledata "FA Class" = RIMD,

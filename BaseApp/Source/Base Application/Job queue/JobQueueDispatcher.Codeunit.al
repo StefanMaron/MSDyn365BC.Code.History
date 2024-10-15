@@ -49,13 +49,13 @@ codeunit 448 "Job Queue Dispatcher"
         OnBeforeHandleRequest(JobQueueEntry);
 
         with JobQueueEntry do begin
-            if Status in [Status::Ready, Status::"On Hold with Inactivity Timeout"] then begin
-                Status := Status::"In Process";
-                "User Session Started" := CurrentDateTime();
-                "User Session ID" := SessionId();
-                "User Service Instance ID" := ServiceInstanceId();
-                Modify();
-            end;
+            // Always update the JQE because if the session dies and the task is rerun, it should have the latest information
+            Status := Status::"In Process";
+            "User Session Started" := CurrentDateTime();
+            "User Session ID" := SessionId();
+            "User Service Instance ID" := ServiceInstanceId();
+            Modify(); // Modify incase it fails when inserting Log Entry
+
             InsertLogEntry(JobQueueLogEntry);
             ScheduleRecoveryJob();
             Modify();

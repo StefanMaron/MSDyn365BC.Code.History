@@ -1,10 +1,14 @@
+#if not CLEAN19
 page 11778 "Detailed G/L Entries"
 {
-    Caption = 'Detailed G/L Entries';
+    Caption = 'Detailed G/L Entries (Obsolete)';
     DataCaptionFields = "G/L Entry No.", "G/L Account No.";
     Editable = false;
     PageType = List;
     SourceTable = "Detailed G/L Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Advanced Localization Pack for Czech.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -104,4 +108,4 @@ page 11778 "Detailed G/L Entries"
     var
         Navigate: Page Navigate;
 }
-
+#endif
