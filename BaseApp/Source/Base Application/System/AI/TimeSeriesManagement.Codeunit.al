@@ -62,7 +62,7 @@ codeunit 2000 "Time Series Management"
     var
         CashFlowSetup: Record "Cash Flow Setup";
         ApiUrl: Text[250];
-        MLApiKey: Text[200];
+        MLApiKey: SecretText;
         UsingStandardCredentials: Boolean;
         LimitValue: Decimal;
     begin
@@ -70,7 +70,7 @@ codeunit 2000 "Time Series Management"
             exit(false);
 
         CashFlowSetup.GetMLCredentials(ApiUrl, MLApiKey, LimitValue, UsingStandardCredentials);
-        Initialize(ApiUrl, MLApiKey, CashFlowSetup.TimeOut, UsingStandardCredentials);
+        Initialize(ApiUrl, MLApiKey.Unwrap(), CashFlowSetup.TimeOut, UsingStandardCredentials);
         SetMaximumHistoricalPeriods(CashFlowSetup."Historical Periods");
         GetState(TimeSeriesLibState);
         if not (TimeSeriesLibState = TimeSeriesLibState::Initialized) then
@@ -456,6 +456,17 @@ codeunit 2000 "Time Series Management"
     begin
         Evaluate(TimeSeriesModelOption, TimeSeriesModel);
         exit(TimeSeriesModelOption);
+    end;
+
+    [NonDebuggable]
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure GetMLForecastCredentials(var ApiUri: Text[250]; var ApiKey: SecretText; var LimitType: Option; var Limit: Decimal)
+    var
+        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
+    begin
+        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(ForecastSecretNameTxt, ApiUri, ApiKey, LimitType, Limit);
+        ApiUri += '/execute?api-version=2.0&details=true';
     end;
 
     [NonDebuggable]

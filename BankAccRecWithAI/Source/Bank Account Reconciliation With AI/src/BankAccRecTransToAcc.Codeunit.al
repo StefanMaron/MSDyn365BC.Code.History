@@ -26,7 +26,6 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
         TexttoAccountMapping: Record "Text-to-Account Mapping";
         RecordMatchMgt: Codeunit "Record Match Mgt.";
         AzureOpenAI: Codeunit "Azure OpenAi";
-        AOAIDeployments: Codeunit "AOAI Deployments";
         AOAIOperationResponse: Codeunit "AOAI Operation Response";
         AOAIChatCompletionParams: Codeunit "AOAI Chat Completion Params";
         AOAIChatMessages: Codeunit "AOAI Chat Messages";
@@ -76,7 +75,7 @@ codeunit 7251 "Bank Acc. Rec. Trans. to Acc."
         BestGLAccountNo := '';
         BankAccReconciliationLine.MarkedOnly(true);
         if not BankAccReconciliationLine.IsEmpty() then begin
-            AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", AOAIDeployments.GetGPT40613());
+            AzureOpenAI.SetAuthorization(Enum::"AOAI Model Type"::"Chat Completions", 'gpt-4-preview');
             AzureOpenAI.SetCopilotCapability(Enum::"Copilot Capability"::"Bank Account Reconciliation");
             AOAIChatCompletionParams.SetMaxTokens(BankRecAIMatchingImpl.MaxTokens());
             AOAIChatCompletionParams.SetTemperature(0);
