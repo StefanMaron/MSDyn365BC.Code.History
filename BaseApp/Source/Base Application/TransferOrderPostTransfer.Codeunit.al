@@ -43,6 +43,8 @@
             TransLine.SetFilter(Quantity, '<>%1', 0);
             if TransLine.FindSet() then
                 repeat
+                    if not WhseShip then
+                        TransLine.TestField("Qty. to Ship");
                     TransLine.TestField("Quantity Shipped", 0);
                     TransLine.TestField("Quantity Received", 0);
                     TransLine.CheckDirectTransferQtyToShip()

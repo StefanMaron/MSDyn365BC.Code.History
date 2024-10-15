@@ -34,7 +34,6 @@ codeunit 134322 "General Journal Line Approval"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure DeleteAfterSendingRequest()
     var
@@ -87,7 +86,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure RenameAfterSendingRequest()
     var
@@ -213,7 +211,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversApproveRequest()
     var
@@ -272,7 +269,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversApproveFilteredRequest()
     var
@@ -331,7 +327,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForCustomerAccountType()
     var
@@ -370,7 +365,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForCustomerBalAccountType()
     var
@@ -409,7 +403,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForVendorAccountType()
     var
@@ -448,7 +441,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForVendorBalAccountType()
     var
@@ -487,7 +479,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForBankAccountType()
     var
@@ -528,7 +519,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ChainOfApproversForBankBalAccountType()
     var
@@ -569,7 +559,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure SendGenJnlLineForApprovalRestrictsUsage()
     var
@@ -670,7 +659,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure ApproveGenJnlLineForApprovalAllowsUsage()
     var
@@ -1159,7 +1147,7 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,BankPaymentOrderRequestPageHandler')]
+    [HandlerFunctions('BankPaymentOrderRequestPageHandler')]
     [Scope('OnPrem')]
     procedure GenJournalLineNoRestrictionAfterCheckPrinted()
     var
@@ -1224,7 +1212,6 @@ codeunit 134322 "General Journal Line Approval"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure LineWorkflowStatusFactboxBecomesVisibleWhenSentOnApproval()
     var
