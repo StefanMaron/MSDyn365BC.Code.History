@@ -459,5 +459,6 @@
     local procedure OnBeforeUpdateErrors(var IsHandled: boolean; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin
     end;
+
 }
 

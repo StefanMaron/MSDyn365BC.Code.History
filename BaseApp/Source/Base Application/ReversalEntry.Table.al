@@ -251,7 +251,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeReverseEntries(Number, RevType, IsHandled);
+        OnBeforeReverseEntries(Number, RevType, IsHandled, HideDialog);
         if IsHandled then
             exit;
 
@@ -265,6 +265,8 @@
             ReversalPost.Run(TempReversalEntry);
         end;
         TempReversalEntry.DeleteAll();
+
+        OnAfterReverseEntries(Number, RevType, HideDialog);
     end;
 
     local procedure InsertReversalEntry(Number: Integer; RevType: Option Transaction,Register)
@@ -839,7 +841,13 @@
     var
         UserSetup: Record "User Setup";
         FASetup: Record "FA Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckFAPostingDate(FAPostingDate, Caption, EntryNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if (AllowPostingFrom = 0D) and (AllowPostingto = 0D) then begin
             if UserId <> '' then
                 if UserSetup.Get(UserId) then begin
@@ -1532,6 +1540,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterReverseEntries(Number: Integer; RevType: Integer; HideDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetReverseFilter(Number: Integer; RevType: Option Transaction,Register; GLRegister: Record "G/L Register")
     begin
     end;
@@ -1548,6 +1561,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckFA(var FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckFAPostingDate(FAPostingDate: Date; Caption: Text[50]; EntryNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -1572,7 +1590,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReverseEntries(Number: Integer; RevType: Integer; var IsHandled: Boolean)
+    local procedure OnBeforeReverseEntries(Number: Integer; RevType: Integer; var IsHandled: Boolean; HideDialog: Boolean)
     begin
     end;
 

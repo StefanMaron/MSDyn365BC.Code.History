@@ -1408,6 +1408,38 @@ codeunit 144352 "Swiss SEPA CT Export"
 
     [Test]
     [Scope('OnPrem')]
+    procedure XMLExport_Negative_PaymentType3_BankAccountBlankSWIFT()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        BankAccount: Record "Bank Account";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [XML] [Export]
+        // [SCENARIO 423336] Swiss SEPA CT export for Bank Account with blank SWIFT Code and Payment Type 3
+        Initialize();
+
+        // [GIVEN] Payment Journal line for Vendor with bank account of Payment Type 3
+        VendorNo := CreateVendorWithBankAccount_DomesticSWIFT();
+        CreatePaymentJournalLine(GenJournalLine, VendorNo, GetEURCurrency(), '',
+            GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Payment);
+
+        // [GIVEN] SWIFT Code is blank in Bank Account in Payment Journal
+        ResetSWIFTCodeInBankAccount(GenJournalLine."Bal. Account No.");
+
+        // [WHEN] Export payment to file
+        asserterror GenJournalLine_XMLExport(GenJournalLine);
+
+        // [THEN] The file export has error 'Bank Account must have a value in SWIFT Code.'
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(ExportHasErrorsErr);
+        VerifyPaymentJnlExportErrorText(
+            GenJournalLine,
+            StrSubstNo(
+                FieldKeyBlankErr, BankAccount.TableCaption, GenJournalLine."Bal. Account No.", BankAccount.FieldCaption("SWIFT Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure XMLExport_Negative_PaymentType5_BankAccountBlankSWIFT()
     var
         GenJournalLine: Record "Gen. Journal Line";

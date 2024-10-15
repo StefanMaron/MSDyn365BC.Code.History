@@ -5,6 +5,7 @@ report 3010536 "Adjust Exchange Rates G/L"
     ApplicationArea = Basic, Suite;
     Caption = 'Adjust Exchange Rates G/L';
     UsageCategory = ReportsAndAnalysis;
+    AllowScheduling = false;
 
     dataset
     {

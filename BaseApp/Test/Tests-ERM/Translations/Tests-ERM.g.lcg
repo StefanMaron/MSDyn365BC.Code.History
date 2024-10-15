@@ -4856,6 +4856,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Sales Batch Posting - NamedType DefaultCategoryCodeLbl)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1561933298 - NamedType 2117039878" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[General Journal IC Batch - %1.zip]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - today date, Sample: Sales IC Batch - 23-01-2024.zip]D;]A;(LookupHint=Codeunit ERM Sales Batch Posting - NamedType GLInterCompanyZipFileNamePatternTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1561933298 - NamedType 1295316563" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Sales IC Batch - %1.zip]]></Val>
@@ -7666,11 +7675,11 @@
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starting Date cannot be after Ending Date.]]></Val>
+      <Val><![CDATA[Starting Date %1 cannot be after Ending Date %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Header UT - NamedType StartingDateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 - dates]D;]A;(LookupHint=Codeunit Price List Header UT - NamedType StartingDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2122422003 - NamedType 740848053" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7846,11 +7855,11 @@
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starting Date cannot be after Ending Date.]]></Val>
+      <Val><![CDATA[Starting Date %1 cannot be after Ending Date %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType StartingDateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 - dates]D;]A;(LookupHint=Codeunit Price List Line UT - NamedType StartingDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 436135240" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7878,6 +7887,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Lists UI - NamedType AllLinesVerifiedMsg)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1304875132 - NamedType 3437661164" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1 is not allowed for %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 - Amount type, %2 - source type]D;]A;(LookupHint=Codeunit Price Lists UI - NamedType AmountTypeNotAlowedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1304875132 - NamedType 2047648732" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8071,11 +8089,11 @@
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 2751571763" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Starting Date cannot be after Ending Date.]]></Val>
+      <Val><![CDATA[Starting Date %1 cannot be after Ending Date %2.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price Worksheet Line UT - NamedType StartingDateErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 and %2 - dates]D;]A;(LookupHint=Codeunit Price Worksheet Line UT - NamedType StartingDateErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2055198712 - NamedType 436135240" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -8339,6 +8357,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RED Test Unit for Purch Doc - NamedType DeferralLineQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2499218720 - NamedType 3869243324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[When %1 is selected for]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RED Test Unit for Purch Doc - NamedType GLAccountOmitErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2499218720 - NamedType 1118497802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must create a deferral schedule because you have specified the deferral code %2 in line %1.]]></Val>
@@ -8373,6 +8400,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RED Test Unit for Sales Doc - NamedType DeferralLineQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2938631860 - NamedType 3869243324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[When %1 is selected for]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit RED Test Unit for Sales Doc - NamedType GLAccountOmitErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2938631860 - NamedType 1118497802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12009,6 +12045,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType DecimalPlacesInDeferralPctErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 518006362 - NamedType 3869243324" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[When %1 is selected for]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test RED Setup Gen. Jnl. - NamedType GLAccountOmitErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 518006362 - NamedType 838049233" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -1521,11 +1521,11 @@ page 41 "Sales Quote"
                 }
                 action("Rec&alculate Lines")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Advanced;
                     Caption = 'Rec&alculate Lines';
                     Image = Recalculate;
                     ShortCutKey = 'Ctrl+F11';
-                    ToolTip = 'Recalculate and insert lines on the sales document that you are creating. The batch job retains the item numbers and item quantities but recalculates the amounts on the lines based on the customer information on the new document header. In this way, the batch job accounts for item prices and discounts that are specifically linked to the customer on the new header.';
+                    ToolTip = 'Indents the lines between a begin-total and the matching end-total by one level to make the document easier to read.';
 
                     trigger OnAction()
                     begin

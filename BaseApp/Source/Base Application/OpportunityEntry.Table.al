@@ -319,7 +319,13 @@
         SalesCycleStage: Record "Sales Cycle Stage";
         Opp: Record Opportunity;
         SalesHeader: Record "Sales Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateEstimates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesCycleStage.Get("Sales Cycle Code", "Sales Cycle Stage") then begin
             SalesCycle.Get("Sales Cycle Code");
             if ("Chances of Success %" = 0) and (SalesCycleStage."Chances of Success %" <> 0) then
@@ -389,6 +395,7 @@
                     Task."Opportunity Entry No." := "Entry No.";
                     Task.Date := "Date of Change";
                     Task.Duration := 1440 * 1000 * 60;
+                    OnCreateTaskOnBeforeInsertTask(Rec, Task);
                     Task.InsertTask(
                       Task, TempRMCommentLine, TempAttendee,
                       TempTaskInteractionLanguage, TempAttachment,
@@ -472,7 +479,14 @@
     end;
 
     procedure CheckStatus()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckStatus(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ("Action Taken" in ["Action Taken"::Won, "Action Taken"::Lost]) then
             Error(Text011);
         if "Close Opportunity Code" = '' then
@@ -526,7 +540,14 @@
     end;
 
     procedure CheckStatus2()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckStatus2(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Action Type" = "Action Type"::" " then
             Error(Text006, "Sales Cycle Code");
 
@@ -889,7 +910,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckStatus(var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckStatus2(var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestCust(OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateEstimates(var OpportunityEntry: Record "Opportunity Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -900,6 +936,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCloseOppFromOppOnBeforeStartWizard(Opportunity: Record Opportunity; var OpportunityEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTaskOnBeforeInsertTask(var OpportunityEntry: Record "Opportunity Entry"; var Task: Record "To-do")
     begin
     end;
 

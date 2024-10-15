@@ -1355,6 +1355,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH Small Features - NamedType ShipingDateTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 717929128 - NamedType 4120943920" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT_Statement_Line___Amount_Type_]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH VATSTAT - NamedType VATStatementLineAmountTypeTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 717929128 - NamedType 1659712524" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT_Statement_Line__Type]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test CH VATSTAT - NamedType VATStatementLineTypeTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2882970826 - NamedType 1835513807" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[ConsNo_DtldCustLedgEntry]]></Val>

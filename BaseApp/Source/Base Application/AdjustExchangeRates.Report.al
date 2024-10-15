@@ -2827,12 +2827,18 @@
                     NewVATEntry."Entry No." := NewVATEntry4No."Entry No." + 1;
                     NewVATEntry.Insert();
                 end;
-                if NewVATEntry.Amount <> 0 then
+                if GLEntry."Entry No." = 0 then begin
+                    VATEntryLink.SetRange("VAT Entry No.", "VAT Entry"."Entry No.");
+                    if VATEntryLink.FindFirst() then
+                        GLEntry."Entry No." := VATEntryLink."G/L Entry No.";
+                end;
+                if GLEntry."Entry No." <> 0 then
                     if not VATEntryLink.Get(GLEntry."Entry No.", NewVATEntry."Entry No.") then
-                        VATEntryLink.InsertLink(GLEntry."Entry No.", NewVATEntry."Entry No.");
+                        VATEntryLink.InsertLinkSelf(GLEntry."Entry No.", NewVATEntry."Entry No.");
                 if CorrRevChargeEntryNo <> 0 then begin
                     GLEntry.Get(CorrRevChargeEntryNo);
-                    VATEntryLink.InsertLink(GLEntry."Entry No.", NewVATEntry."Entry No.");
+                    if not VATEntryLink.Get(GLEntry."Entry No.", NewVATEntry."Entry No.") then
+                        VATEntryLink.InsertLinkSelf(GLEntry."Entry No.", NewVATEntry."Entry No.");
                 end;
             end;
         end;
