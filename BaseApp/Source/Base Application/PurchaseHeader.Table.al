@@ -5436,6 +5436,14 @@
         end;
     end;
 
+    procedure GetUseDate(): Date
+    begin
+        if "Posting Date" = 0D then
+            exit(WorkDate());
+
+        exit("Posting Date");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetFullDocTypeTxt(var PurchaseHeader: Record "Purchase Header"; var FullDocTypeTxt: Text; var IsHandled: Boolean)
     begin
