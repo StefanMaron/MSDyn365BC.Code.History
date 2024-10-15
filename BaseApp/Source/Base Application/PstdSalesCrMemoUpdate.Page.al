@@ -20,7 +20,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the record.';
+                    ToolTip = 'Specifies the posted credit memo number. You cannot change the number because the document has already been posted.';
                 }
                 field("Sell-to Customer Name"; "Sell-to Customer Name")
                 {
@@ -33,7 +33,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the posting date for the entry.';
+                    ToolTip = 'Specifies the date when the credit memo was posted.';
                 }
             }
             group(Shipping)
@@ -58,6 +58,12 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
                     ApplicationArea = Suite;
                     Editable = true;
                     ToolTip = 'Specifies the shipping agent''s package number.';
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = true;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
                 }
             }
         }
@@ -87,7 +93,8 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
         IsChanged :=
           ("Shipping Agent Code" <> xSalesCrMemoHeader."Shipping Agent Code") or
           ("Shipping Agent Service Code" <> xSalesCrMemoHeader."Shipping Agent Service Code") or
-          ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.");
+          ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.") or
+          ("Fattura Document Type" <> xSalesCrMemoHeader."Fattura Document Type");
 
         OnAfterRecordChanged(Rec, xSalesCrMemoHeader, IsChanged);
     end;

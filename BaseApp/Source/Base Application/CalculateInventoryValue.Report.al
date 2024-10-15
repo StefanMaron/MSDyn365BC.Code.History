@@ -1,4 +1,4 @@
-report 5899 "Calculate Inventory Value"
+﻿report 5899 "Calculate Inventory Value"
 {
     Caption = 'Calculate Inventory Value';
     ProcessingOnly = true;
@@ -37,6 +37,7 @@ report 5899 "Calculate Inventory Value"
                 ItemLedgEntry.SetRange(Positive, true);
                 CopyFilter("Location Filter", ItemLedgEntry."Location Code");
                 CopyFilter("Variant Filter", ItemLedgEntry."Variant Code");
+                OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(ItemLedgEntry);
                 if ItemLedgEntry.Find('-') then
                     repeat
                         if IncludeEntryInCalc(ItemLedgEntry, PostingDate, IncludeExpectedCost) then begin
@@ -695,6 +696,11 @@ report 5899 "Calculate Inventory Value"
 
     [IntegrationEvent(false, false)]
     local procedure OnInitItemJnlLineOnBeforeValidateFields(var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemAfterGetRecordOnAfterItemLedgEntrySetFilters(var ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
 }

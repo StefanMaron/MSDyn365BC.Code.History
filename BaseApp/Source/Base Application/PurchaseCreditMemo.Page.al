@@ -306,7 +306,7 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the total amount of the check that was received for the purchase.';
+                    ToolTip = 'Specifies the total amount including VAT on the purchase document from the vendor.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {
@@ -392,6 +392,13 @@ page 52 "Purchase Credit Memo"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                }
+                field("Reason Code"; "Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
+                    Visible = false;
                 }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {

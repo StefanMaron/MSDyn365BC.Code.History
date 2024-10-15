@@ -17,6 +17,7 @@ codeunit 139453 "O365 Customer Permission Test"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryService: Codeunit "Library - Service";
         IsInitialized: Boolean;
 
@@ -227,6 +228,7 @@ codeunit 139453 "O365 Customer Permission Test"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         MarketingSetup: Record "Marketing Setup";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Customer Permission Test");
         LibraryUtility.GetGlobalNoSeriesCode();
         LibrarySetupStorage.Restore();
 

@@ -1535,8 +1535,6 @@
             TableRelation = "VAT Business Posting Group";
 
             trigger OnValidate()
-            var
-                VATBusinessPostingGroup: Record "VAT Business Posting Group";
             begin
                 TestStatusOpen();
                 if not CheckVATExemption then
@@ -1546,8 +1544,7 @@
                 then
                     RecreatePurchLines(FieldCaption("VAT Bus. Posting Group"));
 
-                VATBusinessPostingGroup.Get("VAT Bus. Posting Group");
-                Validate("Operation Type", VATBusinessPostingGroup."Default Purch. Operation Type");
+                ValidateOperationType();
             end;
         }
         field(118; "Applies-to ID"; Code[50])
@@ -2345,7 +2342,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            Caption = 'Check Total';
+            Caption = 'Total Amount';
         }
         field(12104; "Reverse Sales VAT No. Series"; Code[20])
         {
@@ -2641,7 +2638,13 @@
         PostPurchDelete: Codeunit "PostPurch-Delete";
         ArchiveManagement: Codeunit ArchiveManagement;
         ShowPostedDocsToPrint: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Posting No." <> '' then
             Error(Text1130018);
 
@@ -2657,7 +2660,7 @@
         Validate("Applies-to ID", '');
         Validate("Incoming Document Entry No.", 0);
 
-        ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
+        DeleteRecordInApprovalRequest();
         PurchLine.LockTable();
 
         WhseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
@@ -3832,6 +3835,18 @@
         end;
     end;
 
+    local procedure DeleteRecordInApprovalRequest()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteRecordInApprovalRequest(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
+    end;
+
     local procedure ClearItemAssgntPurchFilter(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     begin
         TempItemChargeAssgntPurch.SetRange("Document Line No.");
@@ -4110,6 +4125,20 @@
             end;
 
         OnAfterSetOperationType(Rec);
+    end;
+
+    local procedure ValidateOperationType()
+    var
+        VATBusinessPostingGroup: Record "VAT Business Posting Group";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateOperationType(Rec, IsHandled);
+        if IsHandled then
+            exit;
+            
+        VATBusinessPostingGroup.Get("VAT Bus. Posting Group");
+        Validate("Operation Type", VATBusinessPostingGroup."Default Purch. Operation Type");
     end;
 
     procedure ShowDocDim()
@@ -4623,10 +4652,16 @@
         PurchasePostViaJobQueue.CancelQueueEntry(Rec);
     end;
 
-    procedure AddSpecialOrderToAddress(SalesHeader: Record "Sales Header"; ShowError: Boolean)
+    procedure AddSpecialOrderToAddress(var SalesHeader: Record "Sales Header"; ShowError: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddSpecialOrderToAddress(Rec, SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         if ShowError then
             if PurchLinesExist() then begin
                 PurchaseHeader := Rec;
@@ -5633,7 +5668,13 @@
     local procedure SetPurchaserCode(PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20])
     var
         UserSetupPurchaserCode: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPurchaserCode(Rec, PurchaserCodeToCheck, PurchaserCodeToAssign, IsHandled);
+        if IsHandled then
+            exit;
+
         UserSetupPurchaserCode := GetUserSetupPurchaserCode;
         if PurchaserCodeToCheck <> '' then begin
             if SalespersonPurchaser.Get(PurchaserCodeToCheck) then
@@ -6124,6 +6165,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddSpecialOrderToAddress(var PurchaseHeader: Record "Purchase Header"; var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeAssistEdit(var PurchaseHeader: Record "Purchase Header"; OldPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6165,6 +6211,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseLines(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRecordInApprovalRequest(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -6219,6 +6270,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetShipToCodeEmpty(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
@@ -6255,6 +6311,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultPurchaser(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPurchaserCode(var PurchaseHeader: Record "Purchase Header"; PurchaserCodeToCheck: Code[20]; var PurchaserCodeToAssign: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -6312,7 +6373,10 @@
     local procedure OnBeforeValidateDocumentDateWithPostingDate(var PurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
-
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateOperationType(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer)
     begin

@@ -1,4 +1,4 @@
-report 5692 "Calculate Depreciation"
+﻿report 5692 "Calculate Depreciation"
 {
     AdditionalSearchTerms = 'write down fixed asset';
     ApplicationArea = FixedAssets;
@@ -385,6 +385,11 @@ report 5692 "Calculate Depreciation"
     {
     }
 
+    trigger OnInitReport()
+    begin
+        OnBeforeOnInitReport(DeprBookCode);
+    end;
+
     trigger OnPostReport()
     var
         PageGenJnlLine: Record "Gen. Journal Line";
@@ -420,6 +425,8 @@ report 5692 "Calculate Depreciation"
                     PAGE.Run(PAGE::"Fixed Asset G/L Journal", PageGenJnlLine);
                 end;
         end;
+
+        OnAfterOnPostReport();
     end;
 
     trigger OnPreReport()
@@ -565,6 +572,11 @@ report 5692 "Calculate Depreciation"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateDepreciation(FANo: Code[20]; var TempGenJournalLine: Record "Gen. Journal Line" temporary; var TempFAJournalLine: Record "FA Journal Line" temporary; var DeprAmount: Decimal; var NumberOfDays: Integer; DeprBookCode: Code[10]; DeprUntilDate: Date; EntryAmounts: array[4] of Decimal; DaysInPeriod: Integer)
     begin
     end;
@@ -576,6 +588,11 @@ report 5692 "Calculate Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var TempGenJournalLine: Record "Gen. Journal Line" temporary; var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnInitReport(var DeprBookCode: Code[10])
     begin
     end;
 

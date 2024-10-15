@@ -56,13 +56,17 @@ codeunit 12181 "FatturaPA Service Validation"
         ServiceMgtSetup: Record "Service Mgt. Setup";
         DummyElectronicDocumentFormat: Record "Electronic Document Format";
         FatturaPASalesValidation: Codeunit "FatturaPA Sales Validation";
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
     begin
         ServiceMgtSetup.Get();
-        if not ServiceMgtSetup."Validate Document On Posting" then
+        if not ServiceMgtSetup."Validate Document On Posting" then begin
+            FatturaDocHelper.AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(PassedServHeader, false);
             exit;
+        end;
 
         FatturaPASalesValidation.AutoValidateDocument(
           PassedServHeader, PassedServHeader."Customer No.", DummyElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
+        FatturaDocHelper.AssignFatturaDocTypeFromVATPostingSetupToServiceHeader(PassedServHeader, true);
     end;
 }
 

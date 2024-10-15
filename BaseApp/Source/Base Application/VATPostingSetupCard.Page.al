@@ -106,6 +106,11 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if you want to include the entry in the VAT Payment Communication report.';
                 }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
+                }
             }
             group(Sales)
             {

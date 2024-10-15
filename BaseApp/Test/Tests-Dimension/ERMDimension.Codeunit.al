@@ -924,6 +924,41 @@ codeunit 134380 "ERM Dimension"
         Assert.AreEqual(Counter[1], Counter[2] - 1, StrSubstNo(CountOfLocalTablesErr, Counter[1] + 1, Counter[2]));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure DimSelectionBufferGetDimSelectionTextReturnsCorrectValue()
+    var
+        SelectedDimension: Record "Selected Dimension";
+        AnalysisView: Record "Analysis View";
+        DimensionSelectionBuffer: Record "Dimension Selection Buffer";
+        DimSelectionText: Text[250];
+    begin
+        // [UT]
+        // [SCENARIO 376135] "Dimension Selection Buffer".GetDimSelectionText returns correct value when "Dimension Code" has max length.
+        Initialize();
+
+        // [GIVEN] "Analysis View" and
+        // [GIVEN] "Selection Dimension"."Dimension Code" with max length
+        LibraryERM.CreateAnalysisView(AnalysisView);
+        SelectedDimension.Init();
+        SelectedDimension."User ID" := UserId();
+        SelectedDimension."Object Type" := 1;
+        SelectedDimension."Object ID" := 1;
+        SelectedDimension."Dimension Code" :=
+          CopyStr(
+            LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(SelectedDimension."Dimension Code"), 0),
+            1,
+            MaxStrLen(SelectedDimension."Dimension Code"));
+        SelectedDimension."Analysis View Code" := AnalysisView.Code;
+        SelectedDimension.Insert();
+
+        // [WHEN] Invoke "Dimension Selection Buffer".GetDimSelectionText
+        DimSelectionText := DimensionSelectionBuffer.GetDimSelectionText(1, 1, AnalysisView.Code);
+
+        // [THEN] Returned value must be equal "Selected Dimension"."Dimension Code"
+        SelectedDimension.TestField("Dimension Code", DimSelectionText);
+    end;
+
     local procedure Initialize()
     var
         Dimension: Record Dimension;

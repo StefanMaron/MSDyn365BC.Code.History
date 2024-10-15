@@ -140,7 +140,7 @@ page 12152 "Subcontracting Order"
                 field("Check Total"; "Check Total")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies the total amount of the check that was received for the purchase.';
+                    ToolTip = 'Specifies the total amount including VAT on the purchase document from the vendor.';
                 }
                 field(Status; Status)
                 {

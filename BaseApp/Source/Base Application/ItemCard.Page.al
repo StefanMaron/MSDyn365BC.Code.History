@@ -1518,8 +1518,11 @@
                     ToolTip = 'Set up an approval workflow for creating or changing items, by going through a few pages that will guide you.';
 
                     trigger OnAction()
+                    var
+                        WorkflowManagement: Codeunit "Workflow Management";
                     begin
                         PAGE.RunModal(PAGE::"Item Approval WF Setup Wizard");
+                        EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Item, EventFilter);
                     end;
                 }
                 action(ManageApprovalWorkflow)
@@ -2449,11 +2452,10 @@
     trigger OnAfterGetCurrRecord()
     var
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
-        WorkflowManagement: Codeunit "Workflow Management";
-        WorkflowEventHandling: Codeunit "Workflow Event Handling";
         WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
     begin
         CreateItemFromTemplate;
+
         EnableControls;
         if CRMIntegrationEnabled then begin
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
@@ -2466,17 +2468,19 @@
 
         WorkflowWebhookManagement.GetCanRequestAndCanCancel(RecordId, CanRequestApprovalForFlow, CanCancelApprovalForFlow);
 
-        EventFilter := WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode + '|' +
-          WorkflowEventHandling.RunWorkflowOnItemChangedCode;
-
-        EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Item, EventFilter);
-
         CurrPage.ItemAttributesFactbox.PAGE.LoadItemAttributesData("No.");
     end;
 
     trigger OnInit()
+    var
+        WorkflowManagement: Codeunit "Workflow Management";
+        WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         InitControls;
+        EventFilter := WorkflowEventHandling.RunWorkflowOnSendItemForApprovalCode + '|' +
+          WorkflowEventHandling.RunWorkflowOnItemChangedCode;
+
+        EnabledApprovalWorkflowsExist := WorkflowManagement.EnabledWorkflowExist(DATABASE::Item, EventFilter);
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -2527,9 +2531,6 @@
         ShowStockoutWarningDefaultNo: Boolean;
         ShowPreventNegInventoryDefaultYes: Boolean;
         ShowPreventNegInventoryDefaultNo: Boolean;
-        SocialListeningSetupVisible: Boolean;
-        [InDataSet]
-        SocialListeningVisible: Boolean;
         CRMIntegrationEnabled: Boolean;
         CRMIsCoupledToRecord: Boolean;
         BlockedFilterApplied: Boolean;
@@ -2624,8 +2625,6 @@
 
         EnablePlanningControls();
         EnableCostingControls();
-
-        SetSocialListeningFactboxVisibility;
 
         if ExtendedPriceEnabled then
             UpdateSpecialPriceListsTxt(PriceType::Any)
@@ -2727,14 +2726,6 @@
     begin
         StandardCostEnable := "Costing Method" = "Costing Method"::Standard;
         UnitCostEnable := "Costing Method" <> "Costing Method"::Standard;
-    end;
-
-    [Obsolete('Microsoft Social Engagement has been discontinued.', '17.0')]
-    local procedure SetSocialListeningFactboxVisibility()
-    var
-        SocialListeningMgt: Codeunit "Social Listening Management";
-    begin
-        SocialListeningMgt.GetItemFactboxVisibility(Rec, SocialListeningSetupVisible, SocialListeningVisible);
     end;
 
     local procedure InitControls()

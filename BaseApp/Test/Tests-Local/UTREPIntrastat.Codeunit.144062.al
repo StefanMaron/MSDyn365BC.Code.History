@@ -44,7 +44,7 @@ codeunit 144062 "UT REP Intrastat"
 
         // Verify: Verify VAT Registration No. and Total Weight on Intrastat - Monthly Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."VAT Registration No.");
+        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."Partner VAT ID");
         LibraryReportDataset.AssertElementWithValueExists(IntraformBufferTotalWeightCap, IntrastatJnlLine."Total Weight");
         LibraryReportDataset.AssertElementWithValueExists(
           IntraFormBufferCountryOfOriginCodeCap, IntrastatJnlLine."Country/Region of Origin Code");
@@ -70,7 +70,7 @@ codeunit 144062 "UT REP Intrastat"
 
         // Verify: Verify VAT Registration No. and Corrective Entry on Intrastat - Quarterly Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."VAT Registration No.");
+        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."Partner VAT ID");
         LibraryReportDataset.AssertElementWithValueExists(IntraFormBufferCorrectiveEntryCap, true);
     end;
 
@@ -95,7 +95,7 @@ codeunit 144062 "UT REP Intrastat"
 
         // Verify: Verify VAT Registration No. and Intrastat Payment Method on Intrastat - Monthly Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."VAT Registration No.");
+        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."Partner VAT ID");
         LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLinePaymentMethodCap, PaymentMethod."Intrastat Payment Method");
     end;
 
@@ -120,7 +120,7 @@ codeunit 144062 "UT REP Intrastat"
 
         // Verify: Verify VAT Registration No. and Intrastat Payment Method on Intrastat - Quarterly Report.
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."VAT Registration No.");
+        LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLineVATRegistrationNoCap, IntrastatJnlLine."Partner VAT ID");
         LibraryReportDataset.AssertElementWithValueExists(IntrastatJnlLinePaymentMethodCap, PaymentMethod."Intrastat Payment Method");
     end;
 
@@ -211,7 +211,7 @@ codeunit 144062 "UT REP Intrastat"
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, EUService);
         IntrastatJnlLine."Journal Template Name" := IntrastatJnlBatch."Journal Template Name";
         IntrastatJnlLine."Journal Batch Name" := IntrastatJnlBatch.Name;
-        IntrastatJnlLine."VAT Registration No." := LibraryUTUtility.GetNewCode;
+        IntrastatJnlLine."Partner VAT ID" := LibraryUTUtility.GetNewCode;
         IntrastatJnlLine."Tariff No." := LibraryUTUtility.GetNewCode10;  // Taking length for Tariff No. Code 10 because Tariff No. in Intra - form Buffer table is of Code 10.
         IntrastatJnlLine."Country/Region Code" := CreateCountryRegionCode;
         IntrastatJnlLine."Payment Method" := CreatePaymentMethod;

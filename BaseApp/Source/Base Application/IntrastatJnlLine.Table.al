@@ -271,6 +271,10 @@ table 263 "Intrastat Jnl. Line"
             Caption = 'Shpt. Method Code';
             TableRelation = "Shipment Method";
         }
+        field(30; "Partner VAT ID"; Text[50])
+        {
+            Caption = 'Partner VAT ID';
+        }
         field(12100; "Currency Code"; Code[10])
         {
             Caption = 'Currency Code';
@@ -285,6 +289,9 @@ table 263 "Intrastat Jnl. Line"
         field(12102; "VAT Registration No."; Code[20])
         {
             Caption = 'VAT Registration No.';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Merged to W1';
+            ObsoleteTag = '18.0';
         }
         field(12103; "Corrective entry"; Boolean)
         {
@@ -429,6 +436,9 @@ table 263 "Intrastat Jnl. Line"
         key(Key5; "Document No.")
         {
         }
+        key(Key6; Type, "Country/Region Code", "Partner VAT ID", "Transaction Type", "Tariff No.", "Group Code", "Transport Method", "Transaction Specification", "Country/Region of Origin Code", "Area", "Corrective entry")
+        {
+        }
     }
 
     fieldgroups
@@ -562,7 +572,7 @@ table 263 "Intrastat Jnl. Line"
         if VATEntry.Get(SourceEntryNo) then begin
             Date := VATEntry."Document Date";
             "Country/Region Code" := GetIntrastatCountryCode(VATEntry."Country/Region Code");
-            "VAT Registration No." := VATEntry."VAT Registration No.";
+            "Partner VAT ID" := VATEntry."VAT Registration No.";
             Amount := GetLineAmount(VATEntry);
             "Document No." := VATEntry."Document No.";
             "Statistics Period" := IntrastatJnlBatch."Statistics Period";
@@ -951,6 +961,133 @@ table 263 "Intrastat Jnl. Line"
             exit;
 
         IntrastatJnlBatch.TestField(Reported, false);
+    end;
+
+    procedure GetCountryOfOriginCode(): Code[10]
+    var
+        ItemVendor: Record "Item Vendor";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        if IntrastatJnlBatch.Type = IntrastatJnlBatch.Type::Purchases then
+            if ("Source Type"::"Item Entry" = "Source Type"::"Item Entry") and ItemLedgerEntry.Get("Source Entry No.") then
+                if ItemVendor.Get(ItemLedgerEntry."Source No.", ItemLedgerEntry."Item No.", ItemLedgerEntry."Variant Code") and
+                   (ItemVendor."Country/Region of Origin Code" <> '')
+                then
+                    exit(GetIntrastatCountryCode(ItemVendor."Country/Region of Origin Code"));
+
+        exit(GetIntrastatCountryCode(Item."Country/Region of Origin Code"));
+    end;
+
+    procedure GetPartnerID(): Text[50]
+    begin
+        case "Source Type" of
+            "Source Type"::"Job Entry":
+                exit(GetPartnerIDFromJobEntry());
+            "Source Type"::"Item Entry":
+                exit(GetPartnerIDFromItemEntry());
+        end;
+    end;
+
+    local procedure GetPartnerIDFromItemEntry(): Text[50]
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        ServiceShipmentHeader: Record "Service Shipment Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        Customer: Record Customer;
+        Vendor: Record Vendor;
+    begin
+        ItemLedgerEntry.Get("Source Entry No.");
+        case ItemLedgerEntry."Document Type" of
+            ItemLedgerEntry."Document Type"::"Sales Invoice":
+                begin
+                    SalesInvoiceHeader.Get(ItemLedgerEntry."Document No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        SalesInvoiceHeader."Bill-to Country/Region Code", SalesInvoiceHeader."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Sales Shipment":
+                begin
+                    SalesShipmentHeader.Get(ItemLedgerEntry."Document No.");
+                    Customer.Get(SalesShipmentHeader."Sell-to Customer No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        SalesShipmentHeader."Sell-to Country/Region Code", Customer."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Sales Return Receipt":
+                begin
+                    ReturnReceiptHeader.Get(ItemLedgerEntry."Document No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ReturnReceiptHeader."Bill-to Country/Region Code", ReturnReceiptHeader."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Purchase Credit Memo":
+                begin
+                    PurchCrMemoHdr.Get(ItemLedgerEntry."Document No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        PurchCrMemoHdr."Pay-to Country/Region Code", PurchCrMemoHdr."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Purchase Return Shipment":
+                begin
+                    ReturnShipmentHeader.Get(ItemLedgerEntry."Document No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ReturnShipmentHeader."Pay-to Country/Region Code", ReturnShipmentHeader."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Purchase Receipt":
+                begin
+                    PurchRcptHeader.Get(ItemLedgerEntry."Document No.");
+                    Vendor.Get(PurchRcptHeader."Buy-from Vendor No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        PurchRcptHeader."Buy-from Country/Region Code", Vendor."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Service Shipment":
+                begin
+                    ServiceShipmentHeader.Get(ItemLedgerEntry."Document No.");
+                    Customer.Get(ServiceShipmentHeader."Bill-to Customer No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ServiceShipmentHeader."Bill-to Country/Region Code", ServiceShipmentHeader."VAT Registration No."));
+                end;
+            ItemLedgerEntry."Document Type"::"Service Invoice":
+                begin
+                    ServiceInvoiceHeader.Get(ItemLedgerEntry."Document No.");
+                    Customer.Get(ServiceInvoiceHeader."Bill-to Customer No.");
+                    exit(
+                      GetPartnerIDForCountry(
+                        ServiceInvoiceHeader."Bill-to Country/Region Code", ServiceInvoiceHeader."VAT Registration No."));
+                end;
+        end;
+    end;
+
+    local procedure GetPartnerIDFromJobEntry(): Text[50]
+    var
+        Job: Record Job;
+        JobLedgerEntry: Record "Job Ledger Entry";
+        Customer: Record Customer;
+    begin
+        JobLedgerEntry.Get("Source Entry No.");
+        Job.Get(JobLedgerEntry."Job No.");
+        Customer.Get(Job."Bill-to Customer No.");
+
+        exit(
+          GetPartnerIDForCountry(Customer."Country/Region Code", Customer."VAT Registration No."));
+    end;
+
+    local procedure GetPartnerIDForCountry(CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]): Text[50]
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if CountryRegion.Get(CountryRegionCode) then
+            exit(VATRegistrationNo);
+        exit('QV999999999999');
     end;
 
     [IntegrationEvent(true, false)]

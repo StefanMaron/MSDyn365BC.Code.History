@@ -7,5 +7,6 @@ enum 7000 "Price Calculation Method"
     }
     value(1; "Lowest Price")
     {
+        Caption = 'Lowest Price';
     }
 }

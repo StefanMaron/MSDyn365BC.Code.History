@@ -530,6 +530,7 @@
                 ProdOrderLine."Due Date" := NewDueDate;
         end;
 
+        OnCalculateProdOrderDatesOnBeforeUpdateDatetime(ProdOrderLine, NewDueDate, LetDueDateDecrease);
         ProdOrderLine.UpdateDatetime;
         ProdOrderLine.Modify();
 
@@ -1009,6 +1010,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateProdOrderDatesOnSetBeforeDueDate(var ProdOrderLine: Record "Prod. Order Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateProdOrderDatesOnBeforeUpdateDatetime(var ProdOrderLine: Record "Prod. Order Line"; NewDueDate: Date; LetDueDateDecreate: Boolean)
     begin
     end;
 

@@ -260,28 +260,19 @@ page 9086 "Service Hist. Bill-to FactBox"
     {
     }
 
-    trigger OnAfterGetRecord()
-    begin
-        CalcNoOfBillRecords;
-    end;
-
     trigger OnFindRecord(Which: Text): Boolean
+    var
+        Result: Boolean;
     begin
-        NoOfQuotes := 0;
-        NoOfOrders := 0;
-        NoOfInvoices := 0;
-        NoOfCreditMemos := 0;
-        NoOfPostedShipments := 0;
-        NoOfPostedInvoices := 0;
-        NoOfPostedCreditMemos := 0;
-
-        if Find(Which) then begin
-            FilterGroup(4);
-            SetFilter("No.", GetBillToCustomerNo);
-            FilterGroup(0);
+        if Rec.Find(Which) then begin
+            Rec.FilterGroup(4);
+            Rec."No." := Rec.GetBillToCustomerNo();
+            Rec.FilterGroup(0);
+            Result := true;
         end;
 
-        exit(Find(Which));
+        CalcNoOfBillRecords();
+        exit(Result);
     end;
 
     var
@@ -292,6 +283,7 @@ page 9086 "Service Hist. Bill-to FactBox"
         NoOfPostedShipments: Integer;
         NoOfPostedInvoices: Integer;
         NoOfPostedCreditMemos: Integer;
+        TaskIdCalculateCue: Integer;
 
     local procedure ShowDetails()
     begin
@@ -300,42 +292,48 @@ page 9086 "Service Hist. Bill-to FactBox"
 
     local procedure CalcNoOfBillRecords()
     var
-        ServHeader: Record "Service Header";
-        ServShptHeader: Record "Service Shipment Header";
-        ServInvHeader: Record "Service Invoice Header";
-        ServCrMemoHeader: Record "Service Cr.Memo Header";
+        CalcServiceHistFactBox: Codeunit "Calc. Service Hist Fact Box";
+        Args: Dictionary of [Text, Text];
     begin
-        ServHeader.Reset();
-        ServHeader.SetRange("Document Type", ServHeader."Document Type"::Quote);
-        ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfQuotes := ServHeader.Count();
+        if (TaskIdCalculateCue <> 0) then
+            CurrPage.CancelBackgroundTask(TaskIdCalculateCue);
 
-        ServHeader.Reset();
-        ServHeader.SetRange("Document Type", ServHeader."Document Type"::Order);
-        ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfOrders := ServHeader.Count();
+        NoOfQuotes := 0;
+        NoOfOrders := 0;
+        NoOfInvoices := 0;
+        NoOfCreditMemos := 0;
+        NoOfPostedShipments := 0;
+        NoOfPostedInvoices := 0;
+        NoOfPostedCreditMemos := 0;
 
-        ServHeader.Reset();
-        ServHeader.SetRange("Document Type", ServHeader."Document Type"::Invoice);
-        ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfInvoices := ServHeader.Count();
+        Args.Add(CalcServiceHistFactBox.GetBillToCustomerNoLbl(), Rec."No.");
+        CurrPage.EnqueueBackgroundTask(TaskIdCalculateCue, Codeunit::"Calc. Service Hist Fact Box", Args);
+    end;
 
-        ServHeader.Reset();
-        ServHeader.SetRange("Document Type", ServHeader."Document Type"::"Credit Memo");
-        ServHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfCreditMemos := ServHeader.Count();
+    trigger OnPageBackgroundTaskCompleted(TaskId: Integer; Results: Dictionary of [Text, Text])
+    var
+        CalcServiceHistFactBox: Codeunit "Calc. Service Hist Fact Box";
+    begin
+        if (TaskId <> TaskIdCalculateCue) or (Results.Count() = 0) then
+            exit;
 
-        ServShptHeader.Reset();
-        ServShptHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfPostedShipments := ServShptHeader.Count();
+        NoOfQuotes := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfQuotesLbl());
+        NoOfOrders := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfOrdersLbl());
+        NoOfInvoices := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfInvoicesLbl());
+        NoOfCreditMemos := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfCreditMemosLbl());
+        NoOfPostedShipments := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfPostedShipmentsLbl());
+        NoOfPostedInvoices := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfPostedInvoicesLbl());
+        NoOfPostedCreditMemos := GetResultAsInt(Results, CalcServiceHistFactBox.GetNoOfPostedCreditMemosLbl());
+    end;
 
-        ServInvHeader.Reset();
-        ServInvHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfPostedInvoices := ServInvHeader.Count();
-
-        ServCrMemoHeader.Reset();
-        ServCrMemoHeader.SetRange("Bill-to Customer No.", "No.");
-        NoOfPostedCreditMemos := ServCrMemoHeader.Count();
+    local procedure GetResultAsInt(var DictionaryToLookIn: Dictionary of [Text, Text]; KeyToSearchFor: Text): Integer
+    var
+        i: Integer;
+    begin
+        if not DictionaryToLookIn.ContainsKey(KeyToSearchFor) then
+            exit(0);
+        if Evaluate(i, DictionaryToLookIn.Get(KeyToSearchFor)) then;
+        exit(i);
     end;
 }
 

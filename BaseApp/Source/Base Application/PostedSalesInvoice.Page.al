@@ -265,7 +265,7 @@ page 132 "Posted Sales Invoice"
                 group("Work Description")
                 {
                     Caption = 'Work Description';
-                    field(GetWorkDescription; GetWorkDescription)
+                    field(GetWorkDescription; GetWorkDescription())
                     {
                         ApplicationArea = Basic, Suite;
                         Editable = false;
@@ -323,6 +323,12 @@ page 132 "Posted Sales Invoice"
                     Editable = false;
                     Importance = Additional;
                     ToolTip = 'Specifies how the customer must pay for products on the sales document.';
+                }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
                 }
                 group(Control15)
                 {
@@ -1086,7 +1092,7 @@ page 132 "Posted Sales Invoice"
                         CorrectPstdSalesInvYesNo: Codeunit "Correct PstdSalesInv (Yes/No)";
                     begin
                         if CorrectPstdSalesInvYesNo.CorrectInvoice(Rec) then
-                            CurrPage.Close;
+                            CurrPage.Close();
                     end;
                 }
                 action(CancelInvoice)
@@ -1162,6 +1168,26 @@ page 132 "Posted Sales Invoice"
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer.';
                 }
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedSalesInvoiceUpdate: Page "Posted Sales Invoice - Update";
+                begin
+                    PostedSalesInvoiceUpdate.LookupMode := true;
+                    PostedSalesInvoiceUpdate.SetRec(Rec);
+                    PostedSalesInvoiceUpdate.RunModal();
+                end;
             }
         }
     }

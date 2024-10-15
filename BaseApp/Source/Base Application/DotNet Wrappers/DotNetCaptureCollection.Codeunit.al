@@ -1,5 +1,8 @@
 codeunit 3057 DotNet_CaptureCollection
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This codeunit is obsolete. Use the Captures table in the Regex Module instead.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin

@@ -535,6 +535,7 @@
                     OnInsertTransShptLineOnAfterCreatePostedShptLine(WhseShptLine, PostedWhseShptLine);
                 end;
             end;
+            OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine, TransLine, SuppressCommit, WhsePosting);
             if WhsePosting then
                 PostWhseJnlLine(ItemJnlLine, OriginalQuantity, OriginalQuantityBase);
         end;
@@ -920,6 +921,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransShptLineOnAfterCreatePostedShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertTransShptLineOnBeforePostWhseJnlLine(TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; SuppressCommit: Boolean; var WhsePosting: Boolean)
     begin
     end;
 

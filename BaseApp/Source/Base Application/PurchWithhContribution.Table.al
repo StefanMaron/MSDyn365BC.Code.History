@@ -371,6 +371,22 @@ table 12137 "Purch. Withh. Contribution"
                 if "WHT Amount Manual" = "Withholding Tax Amount" then
                     Error(
                       StrSubstNo(WHTAmtManualEqWHTAmtErr, FieldCaption("WHT Amount Manual"), FieldCaption("Withholding Tax Amount"), TableCaption));
+
+                GetHeader();
+                if "WHT Amount Manual" <> 0 then begin
+                    "WHT Amount Manual" := Round("WHT Amount Manual", Curr."Amount Rounding Precision");
+                    if "Taxable Base" <> 0 then
+                        "Withholding Tax %" := Round(("WHT Amount Manual" / "Taxable Base") * 100, Curr."Amount Rounding Precision");
+                    Validate("Withholding Tax Amount", "WHT Amount Manual");
+                end else begin
+                    if "Payment Date" <> 0D then
+                        SocSecBracketLine.WithholdLineFilter(PurchSetup, "Withholding Tax Code", "Payment Date")
+                    else
+                        SocSecBracketLine.WithholdLineFilter(PurchSetup, "Withholding Tax Code", PurchHeader."Document Date");
+
+                    "Withholding Tax %" := PurchSetup."Withholding Tax %";
+                    Validate("Withholding Tax Amount", Round("Taxable Base" * "Withholding Tax %" / 100, Curr."Amount Rounding Precision"));
+                end;
             end;
         }
     }

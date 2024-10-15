@@ -1296,13 +1296,18 @@
     procedure WHTAmountManualWhenNotEqualToNonBlankWithholdingTaxAmount()
     var
         PurchWithhContribution: Record "Purch. Withh. Contribution";
+        PurchaseHeader: Record "Purchase Header";
         WHTAmountManual: Decimal;
     begin
         // [FEATURE] [UT] [WHT Amount Manual] [Purch. Withh. Contribution]
         // [SCENARIO 266126] When validate "WHT Amount Manual" = "X" <> "Withholding Tax Amount" and "Withholding Tax Amount" <> 0 then "WHT Amount Manual" = "X" in Purch. Withh. Contribution
         Initialize;
 
+        LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, LibraryPurchase.CreateVendorNo);
         PurchWithhContribution.Init();
+        PurchWithhContribution."Document Type" := PurchaseHeader."Document Type";
+        PurchWithhContribution."No." := PurchaseHeader."No.";
+
         PurchWithhContribution.Validate("Withholding Tax Amount", LibraryRandom.RandDecInRange(10, 20, 2));
         WHTAmountManual := PurchWithhContribution."Withholding Tax Amount" / 2;
         PurchWithhContribution.Validate("WHT Amount Manual", WHTAmountManual);
@@ -1592,7 +1597,6 @@
         PurchWithhContribution.Validate("Soc.Sec.Non Taxable Amount", PurchWithhContribution."Contribution Base");
         PurchWithhContribution.TestField("Withholding Tax Amount");
         PurchWithhContribution.Validate("WHT Amount Manual", Round(PurchWithhContribution."Withholding Tax Amount" * 0.99));
-        Assert.AreNotEqual(PurchWithhContribution."WHT Amount Manual", PurchWithhContribution."Withholding Tax Amount", '');
         PurchWithhContribution.Modify(true);
 
         // [GIVEN] Purchase Invoice was posted
@@ -1966,6 +1970,138 @@
         Assert.ExpectedError(MultiApplyErr);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+    
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmountAndPercentWereChangedWhenWHTAmountManualValidated()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchWithhContribution: Record "Purch. Withh. Contribution";
+        VendorBillHeader: Record "Vendor Bill Header";
+        WithholdCode: Code[20];
+        ContributionCode: Code[20];
+        WithholdingTaxAmount: Decimal;
+        WithholdingTaxPercent: Decimal;
+    begin
+        // [SCENARIO 375830] Input of the "WHT Amount Manual" change "Withholding Tax Amount" and "Withholding Tax %"
+        Initialize();
+
+        // [GIVEN] Withholding Tax and Social Security were set up:
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+
+        // [GIVEN] Vendor Bill Header with Payment Method Code
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+
+        // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
+        CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
+          PurchaseHeader, WithholdCode, ContributionCode, VendorBillHeader."Payment Method Code");
+
+        // [GIVEN] Opened "Purch. Withh. Contribution"
+        PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Memorize "Withholding Tax Amount" and "Withholding Tax %"
+        WithholdingTaxAmount := PurchWithhContribution."Withholding Tax Amount";
+        WithholdingTaxPercent := PurchWithhContribution."Withholding Tax %";
+
+        // [WHEN] Validate "WHT Amount Manual" to (2 * "Withholding Tax Amount")
+        PurchWithhContribution.Validate("WHT Amount Manual", Round(PurchWithhContribution."Withholding Tax Amount" * 2));
+
+        // [THEN] "Withholding Tax Amount" and "Withholding Tax %" increse too
+        PurchWithhContribution.TestField("Withholding Tax Amount", WithholdingTaxAmount * 2);
+        PurchWithhContribution.TestField("Withholding Tax %", WithholdingTaxPercent * 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmountAndPercentWereRecalculatedWhenWHTAmountManualValidatedTo0AndPaymantDateIsEmty()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchWithhContribution: Record "Purch. Withh. Contribution";
+        VendorBillHeader: Record "Vendor Bill Header";
+        WithholdCode: Code[20];
+        ContributionCode: Code[20];
+        WithholdingTaxAmount: Decimal;
+        WithholdingTaxPercent: Decimal;
+    begin
+        // [SCENARIO 375830] Change of the "WHT Amount Manual" from non-zero value to 0 recalculate "Withholding Tax Amount" and "Withholding Tax %"
+        Initialize();
+
+        // [GIVEN] Withholding Tax and Social Security were set up:
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+
+        // [GIVEN] Vendor Bill Header with Payment Method Code
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+
+        // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
+        CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
+          PurchaseHeader, WithholdCode, ContributionCode, VendorBillHeader."Payment Method Code");
+
+        // [GIVEN] Opened "Purch. Withh. Contribution"
+        PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Memorize "Withholding Tax Amount" and "Withholding Tax %"
+        WithholdingTaxAmount := PurchWithhContribution."Withholding Tax Amount";
+        WithholdingTaxPercent := PurchWithhContribution."Withholding Tax %";
+
+        // [GIVEN] Validated "WHT Amount Manual" to (2 * "Withholding Tax Amount")
+        PurchWithhContribution.Validate("WHT Amount Manual", Round(PurchWithhContribution."Withholding Tax Amount" * 2));
+
+        // [GIVEN] Payment Date = ''
+        PurchWithhContribution."Payment Date" := 0D;
+
+        // [WHEN] Change "WHT Amount Manual" to 0
+        PurchWithhContribution.Validate("WHT Amount Manual", 0);
+
+        // [THEN] "Withholding Tax Amount" and "Withholding Tax %" recalculate to previous values
+        PurchWithhContribution.TestField("Withholding Tax Amount", WithholdingTaxAmount);
+        PurchWithhContribution.TestField("Withholding Tax %", WithholdingTaxPercent);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure WHTAmountAndPercentWereRecalculatedWhenWHTAmountManualValidatedTo0AndPaymentDateIsFilled()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchWithhContribution: Record "Purch. Withh. Contribution";
+        VendorBillHeader: Record "Vendor Bill Header";
+        WithholdCode: Code[20];
+        ContributionCode: Code[20];
+        WithholdingTaxAmount: Decimal;
+        WithholdingTaxPercent: Decimal;
+    begin
+        // [SCENARIO 375830] Change of the "WHT Amount Manual" from non-zero value to 0 recalculate "Withholding Tax Amount" and "Withholding Tax %"
+        Initialize();
+
+        // [GIVEN] Withholding Tax and Social Security were set up:
+        SetupWithhAndSocSec(ContributionCode, WithholdCode);
+
+        // [GIVEN] Vendor Bill Header with Payment Method Code
+        CreateVendorBillHeaderWithPaymentMethod(VendorBillHeader, CreatePaymentMethodWithBill);
+
+        // [GIVEN] Purchase Invoice with same Payment Method Code, Amount 10000.0 and VAT 10 % (Amount Including VAT = 11000.0)
+        CreatePurchaseInvoiceWithWithholdSetupAndPmtMethod(
+          PurchaseHeader, WithholdCode, ContributionCode, VendorBillHeader."Payment Method Code");
+
+        // [GIVEN] Opened "Purch. Withh. Contribution"
+        PurchWithhContribution.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+
+        // [GIVEN] Memorize "Withholding Tax Amount" and "Withholding Tax %"
+        WithholdingTaxAmount := PurchWithhContribution."Withholding Tax Amount";
+        WithholdingTaxPercent := PurchWithhContribution."Withholding Tax %";
+
+        // [GIVEN] Validated "WHT Amount Manual" to (2 * "Withholding Tax Amount")
+        PurchWithhContribution.Validate("WHT Amount Manual", Round(PurchWithhContribution."Withholding Tax Amount" * 2));
+
+        // [GIVEN] Payment Date = WorkDate
+        PurchWithhContribution."Payment Date" := WorkDate;
+
+        // [WHEN] Change "WHT Amount Manual" to 0
+        PurchWithhContribution.Validate("WHT Amount Manual", 0);
+
+        // [THEN] "Withholding Tax Amount" and "Withholding Tax %" recalculate to previous values
+        PurchWithhContribution.TestField("Withholding Tax Amount", WithholdingTaxAmount);
+        PurchWithhContribution.TestField("Withholding Tax %", WithholdingTaxPercent);
     end;
 
     local procedure Initialize()

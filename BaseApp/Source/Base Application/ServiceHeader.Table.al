@@ -2662,6 +2662,7 @@
         LoanerEntry: Record "Loaner Entry";
         ServAllocMgt: Codeunit ServAllocationManagement;
         ReservMgt: Codeunit "Reservation Management";
+        ShowPostedDocsToPrint: Boolean;
     begin
         if "Posting No." <> '' then
             Error(Text1130019);
@@ -2767,10 +2768,11 @@
         PaymentSales.SetRange(Code, "No.");
         PaymentSales.DeleteAll();
 
-        if (ServShptHeader."No." <> '') or
+        ShowPostedDocsToPrint := (ServShptHeader."No." <> '') or
            (ServInvHeader."No." <> '') or
-           (ServCrMemoHeader."No." <> '')
-        then
+           (ServCrMemoHeader."No." <> '');
+        OnBeforeShowPostedDocsToPrintCreatedMsg(ShowPostedDocsToPrint);
+        if ShowPostedDocsToPrint then
             Message(PostedDocsToPrintCreatedMsg);
     end;
 
@@ -4500,6 +4502,7 @@
         TotalingServiceLine."Gen. Bus. Posting Group" := SplitServiceLine."Gen. Bus. Posting Group";
         TotalingServiceLine."Gen. Prod. Posting Group" := SplitServiceLine."Gen. Prod. Posting Group";
         TotalingServiceLine."VAT Identifier" := SplitServiceLine."VAT Identifier";
+        TotalingServiceLine."Posting Date" := "Posting Date";
         TotalingServiceLine.CreateDim(
           DimMgt.TypeToTableID5(TotalingServiceLine.Type.AsInteger()), TotalingServiceLine."No.",
           DATABASE::Job, TotalingServiceLine."Job No.",
@@ -5115,6 +5118,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalespersonCode(var ServiceHeader: Record "Service Header"; SalesPersonCodeToCheck: Code[20]; var SalesPersonCodeToAssign: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeShowPostedDocsToPrintCreatedMsg(var ShowPostedDocsToPrint: Boolean)
     begin
     end;
 

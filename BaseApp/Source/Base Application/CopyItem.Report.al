@@ -21,7 +21,7 @@ report 730 "Copy Item"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(SourceItemNo; SourceItem."No.")
+                    field(SourceItemNo; SourceItemNumber)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Source Item No.';
@@ -198,6 +198,7 @@ report 730 "Copy Item"
         trigger OnOpenPage()
         begin
             SourceItem := TempItem;
+            SourceItemNumber := SourceItem."No.";
             InvtSetup.Get();
             TargetNoSeries := InvtSetup."Item Nos.";
 
@@ -266,6 +267,7 @@ report 730 "Copy Item"
         SourceItemDoesNotExistErr: Label 'Source item number %1 does not exist.', Comment = '%1 - item number.';
         SpecifyTargetItemNoErr: Label 'You must specify the target item number.';
         TargetItemDoesNotExistErr: Label 'Target item number %1 already exists.', Comment = '%1 - item number.';
+        SourceItemNumber: Code[20];
         TargetNoSeries: Code[20];
         TargetItemNoTxt: Label 'Target Item No.';
         TargetItemNo: Code[20];

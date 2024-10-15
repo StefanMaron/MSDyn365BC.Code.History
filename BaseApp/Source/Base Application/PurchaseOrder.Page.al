@@ -279,7 +279,7 @@ page 50 "Purchase Order"
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
                     ShowMandatory = true;
-                    ToolTip = 'Specifies the total amount of the check that was received for the purchase.';
+                    ToolTip = 'Specifies the total amount including VAT on the purchase document from the vendor.';
                 }
                 field(Status; Status)
                 {

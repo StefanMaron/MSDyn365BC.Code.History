@@ -1,4 +1,4 @@
-table 352 "Default Dimension"
+﻿table 352 "Default Dimension"
 {
     Caption = 'Default Dimension';
 
@@ -41,7 +41,13 @@ table 352 "Default Dimension"
             trigger OnValidate()
             var
                 RecRef: RecordRef;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateNo(Rec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No." = '' then
                     exit;
                 RecRef.Open("Table ID");
@@ -353,6 +359,8 @@ table 352 "Default Dimension"
                     GLAcc."Global Dimension 1 Code" := NewDimValue;
                 2:
                     GLAcc."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateGLAccGlobalDimCodeOnCaseElse(GlobalDimCodeNo, GLAccNo, NewDimValue);
             end;
             GLAcc.Modify(true);
         end;
@@ -398,6 +406,8 @@ table 352 "Default Dimension"
                     Item."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Item."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateItemGlobalDimCodeOnCaseElse(GlobalDimCodeNo, ItemNo, NewDimValue);
             end;
             Item.Modify(true);
         end;
@@ -413,6 +423,8 @@ table 352 "Default Dimension"
                     ResGr."Global Dimension 1 Code" := NewDimValue;
                 2:
                     ResGr."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateResGrGlobalDimCodeOnCaseElse(GlobalDimCodeNo, ResGrNo, NewDimValue);
             end;
             ResGr.Modify(true);
         end;
@@ -428,6 +440,8 @@ table 352 "Default Dimension"
                     Res."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Res."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateResGlobalDimCodeCaseElse(GlobalDimCodeNo, ResNo, NewDimValue);
             end;
             Res.Modify(true);
         end;
@@ -443,6 +457,8 @@ table 352 "Default Dimension"
                     Job."Global Dimension 1 Code" := NewDimValue;
                 2:
                     Job."Global Dimension 2 Code" := NewDimValue;
+                else
+                    OnUpdateJobGlobalDimCodeCaseElse(GlobalDimCodeNo, JobNo, NewDimValue);
             end;
             Job.Modify(true);
         end;
@@ -949,9 +965,38 @@ table 352 "Default Dimension"
             EmployeeTempl.Modify(true);
         end;
     end;
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNo(DefaultDimension: Record "Default Dimension"; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGlobalDimCode(GlobalDimCodeNo: Integer; TableID: Integer; AccNo: Code[20]; NewDimValue: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateGLAccGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; GLAccNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateItemGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; ItemNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateResGrGlobalDimCodeOnCaseElse(GlobalDimCodeNo: Integer; ResGrNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateResGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; ResNo: Code[20]; NewDimValue: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateJobGlobalDimCodeCaseElse(GlobalDimCodeNo: Integer; JobNo: Code[20]; NewDimValue: Code[20])
     begin
     end;
 }

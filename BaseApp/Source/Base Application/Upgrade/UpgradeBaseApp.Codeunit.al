@@ -50,6 +50,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradePurchaseRcptLineOverReceiptCode();
         UpgradeContactMobilePhoneNo();
         UpgradePostCodeServiceKey();
+        UpgradeIntrastatJnlLine();
     end;
 
     local procedure SetReviewRequiredOnBankPmtApplRules()
@@ -83,7 +84,7 @@ codeunit 104000 "Upgrade - BaseApp"
         IF DefaultDimension.FINDSET THEN
             REPEAT
                 DefaultDimension.UpdateReferencedIds;
-            UNTIL DefaultDimension.NEXT = 0;
+            UNTIL DefaultDimension.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag());
     end;
@@ -101,7 +102,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 GenJournalBatch.UpdateBalAccountId;
                 IF GenJournalBatch.MODIFY THEN;
-            UNTIL GenJournalBatch.NEXT = 0;
+            UNTIL GenJournalBatch.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBalAccountNoOnJournalAPIUpgradeTag());
     end;
@@ -122,7 +123,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 REPEAT
                     Item.UpdateItemCategoryId;
                     IF Item.MODIFY THEN;
-                UNTIL Item.NEXT = 0;
+                UNTIL Item.Next() = 0;
         END;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemCategoryOnItemAPIUpgradeTag());
@@ -148,7 +149,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     Job.Modify();
                     Job.UpdateReferencedIds;
                 END;
-            UNTIL Job.NEXT = 0;
+            UNTIL Job.Next() = 0;
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAddingIDToJobsUpgradeTag());
     end;
 
@@ -249,7 +250,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 IncomingDocument.URL := IncomingDocument.URL1 + IncomingDocument.URL2 + IncomingDocument.URL3 + IncomingDocument.URL4;
                 IncomingDocument.Modify();
-            UNTIL IncomingDocument.NEXT = 0;
+            UNTIL IncomingDocument.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIncomingDocumentURLUpgradeTag());
     end;
@@ -269,7 +270,7 @@ codeunit 104000 "Upgrade - BaseApp"
             repeat
                 RecordLink.URL1 := RecordLink.URL1 + RecordLink.URL2 + RecordLink.URL3 + RecordLink.URL4;
                 RecordLink.Modify();
-            until RecordLink.Next = 0;
+            until RecordLink.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetRecordLinkURLUpgradeTag());
     end;
@@ -346,7 +347,7 @@ codeunit 104000 "Upgrade - BaseApp"
                         UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
                     END;
                 END;
-            UNTIL SalesInvoiceEntityAggregate.NEXT = 0;
+            UNTIL SalesInvoiceEntityAggregate.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesInvoiceEntityAggregateUpgradeTag());
     end;
@@ -400,7 +401,7 @@ codeunit 104000 "Upgrade - BaseApp"
                         UpdatePurchaseDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE);
                     END;
                 END;
-            UNTIL PurchInvEntityAggregate.NEXT = 0;
+            UNTIL PurchInvEntityAggregate.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewPurchInvEntityAggregateUpgradeTag());
     end;
@@ -426,7 +427,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     TargetRecordRef.GETTABLE(SalesOrderEntityBuffer);
                     UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
                 END;
-            UNTIL SalesOrderEntityBuffer.NEXT = 0;
+            UNTIL SalesOrderEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesOrderEntityBufferUpgradeTag());
     end;
@@ -452,7 +453,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     TargetRecordRef.GETTABLE(SalesQuoteEntityBuffer);
                     UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, TRUE);
                 END;
-            UNTIL SalesQuoteEntityBuffer.NEXT = 0;
+            UNTIL SalesQuoteEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesQuoteEntityBufferUpgradeTag());
     end;
@@ -488,7 +489,7 @@ codeunit 104000 "Upgrade - BaseApp"
                         UpdateSalesDocumentFields(SourceRecordRef, TargetRecordRef, TRUE, TRUE, FALSE);
                     END;
                 END;
-            UNTIL SalesCrMemoEntityBuffer.NEXT = 0;
+            UNTIL SalesCrMemoEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesCrMemoEntityBufferUpgradeTag());
     end;
@@ -696,7 +697,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 JobQueueEntry."Error Message 3" := '';
                 JobQueueEntry."Error Message 4" := '';
                 JobQueueEntry.Modify();
-            UNTIL JobQueueEntry.NEXT = 0;
+            UNTIL JobQueueEntry.Next() = 0;
 
         JobQueueLogEntry.SETFILTER("Error Message 2", '<>%1', '');
         IF JobQueueLogEntry.FINDSET(TRUE) THEN
@@ -707,7 +708,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 JobQueueLogEntry."Error Message 3" := '';
                 JobQueueLogEntry."Error Message 4" := '';
                 JobQueueLogEntry.Modify();
-            UNTIL JobQueueLogEntry.NEXT = 0;
+            UNTIL JobQueueLogEntry.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag);
     end;
@@ -772,7 +773,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 StandardCustomerSalesCode.SETRANGE(Code, StandardSalesCode.Code);
                 StandardCustomerSalesCode.MODIFYALL("Currency Code", StandardSalesCode."Currency Code");
-            UNTIL StandardSalesCode.NEXT = 0;
+            UNTIL StandardSalesCode.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetStandardSalesCodeUpgradeTag());
     end;
@@ -791,7 +792,7 @@ codeunit 104000 "Upgrade - BaseApp"
             REPEAT
                 StandardVendorPurchaseCode.SETRANGE(Code, StandardPurchaseCode.Code);
                 StandardVendorPurchaseCode.MODIFYALL("Currency Code", StandardPurchaseCode."Currency Code");
-            UNTIL StandardPurchaseCode.NEXT = 0;
+            UNTIL StandardPurchaseCode.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetStandardPurchaseCodeUpgradeTag());
     end;
@@ -1045,7 +1046,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     TargetRecordRef.GETTABLE(SalesOrderEntityBuffer);
                     UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
                 END;
-            UNTIL SalesOrderEntityBuffer.NEXT = 0;
+            UNTIL SalesOrderEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesOrderShipmentMethodUpgradeTag());
     end;
@@ -1081,7 +1082,7 @@ codeunit 104000 "Upgrade - BaseApp"
                         UpdateSalesDocumentShipmentMethodFields(SourceRecordRef, TargetRecordRef);
                     END;
                 END;
-            UNTIL SalesCrMemoEntityBuffer.NEXT = 0;
+            UNTIL SalesCrMemoEntityBuffer.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesCrMemoShipmentMethodUpgradeTag());
     end;
@@ -1603,6 +1604,24 @@ codeunit 104000 "Upgrade - BaseApp"
         PostCodeServiceConfig.SaveServiceKey(IsolatedStorageValue);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPostCodeServiceKeyUpgradeTag());
+    end;
+
+    local procedure UpgradeIntrastatJnlLine()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+      if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag) THEN
+        exit;
+
+      if IntrastatJnlLine.FindSet() then
+        repeat
+          IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine."VAT Registration No.";
+          IntrastatJnlLine.Modify();
+        until IntrastatJnlLine.Next() = 0;
+
+      UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
     end;
 }
 

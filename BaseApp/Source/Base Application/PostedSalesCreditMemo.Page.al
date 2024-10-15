@@ -330,6 +330,12 @@ page 134 "Posted Sales Credit Memo"
                     Editable = false;
                     ToolTip = 'Specifies the code for the transport method used for the item on this line.';
                 }
+                field("Fattura Document Type"; "Fattura Document Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the value to export into the TipoDocument XML node of the Fattura document.';
+                }
             }
             group(Individual)
             {
