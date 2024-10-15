@@ -230,10 +230,6 @@ codeunit 1876 "Business Setup Subscribers"
         VATReportConfigShortTitleTxt: Label 'VAT report configuration';
         VATReportConfigDescriptionTxt: Label 'Configure the objects that you use to process VAT reports.';
         VATReportConfigKeywordsTxt: Label 'VAT Report, Return, EC Sales List';
-        VATReportTitleTxt: Label 'VAT report setup';
-        VATReportShortTitleTxt: Label 'VAT report setup';
-        VATReportDescriptionTxt: Label 'Before you can create and submit VAT reports, you must set up a number series and other information.';
-        VATReportKeywordsTxt: Label 'VAT Report, Suggest, Validate, Submission, VAT Return, EC Sales List';
 #if not CLEAN19
         EnvironmentTitleTxt: Label 'Set up a sandbox environment';
         EnvironmentShortTitleTxt: Label 'Sandbox environments';
@@ -335,8 +331,6 @@ codeunit 1876 "Business Setup Subscribers"
               Page::"VAT Clauses", ManualSetupCategory::Finance, VATClausesKeywordsTxt);
             Sender.InsertManualSetup(VATReportConfigTitleTxt, VATReportConfigShortTitleTxt, VATReportConfigDescriptionTxt, 2, ObjectType::Page,
               Page::"VAT Reports Configuration", ManualSetupCategory::Finance, VATReportConfigKeywordsTxt);
-            Sender.InsertManualSetup(VATReportTitleTxt, VATReportShortTitleTxt, VATReportDescriptionTxt, 3, ObjectType::Page,
-              Page::"VAT Report Setup", ManualSetupCategory::Finance, VATReportKeywordsTxt);
             Sender.InsertManualSetup(CashFlowSetupTitleTxt, CashFlowSetupShortTitleTxt, CashFlowSetupDescriptionTxt, 5, ObjectType::Page,
               Page::"Cash Flow Setup", ManualSetupCategory::Finance, CashFlowSetupKeywordsTxt);
         end;
