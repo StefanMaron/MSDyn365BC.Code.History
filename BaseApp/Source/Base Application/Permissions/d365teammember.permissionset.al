@@ -256,6 +256,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Comment Line" = RM,
                   tabledata "Communication Method" = RM,
                   tabledata "Company Information" = RM,
+                  tabledata "Company Size" = RM,
                   tabledata Confidential = RM,
                   tabledata "Confidential Information" = RM,
                   tabledata "Config. Field Map" = RM,

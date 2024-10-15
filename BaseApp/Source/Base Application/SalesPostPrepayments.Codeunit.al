@@ -1775,12 +1775,24 @@
             SalesLine.FieldError("Unit Price", StrSubstNo(Text018, SalesHeader.FieldCaption("Prepayment %")));
     end;
 
-    local procedure CheckSystemCreatedInvoiceRoundEntry(SalesLine: Record "Sales Line"; CustomerPostingGroup: Code[20]): Boolean
+    local procedure CheckSystemCreatedInvoiceRoundEntry(SalesLine: Record "Sales Line"; CustomerPostingGroupCode: Code[20]): Boolean
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        if (SalesLine.Type = SalesLine.Type::"G/L Account") and
-           (SalesLine."No." = GetInvRoundingAccNo(CustomerPostingGroup)) and
-           (SalesLine."System-Created Entry")
-        then
+        if (SalesLine.Type <> SalesLine.Type::"G/L Account") or (not SalesLine."System-Created Entry") then
+            exit(false);
+
+        if CustomerPostingGroupCode = '' then
+            exit(false);
+
+        CustomerPostingGroup.SetLoadFields("Invoice Rounding Account");
+        if not CustomerPostingGroup.Get(CustomerPostingGroupCode) then
+            exit(false);
+
+        if CustomerPostingGroup."Invoice Rounding Account" = '' then
+            exit(false);
+
+        if SalesLine."No." = CustomerPostingGroup."Invoice Rounding Account" then
             exit(true);
     end;
 
