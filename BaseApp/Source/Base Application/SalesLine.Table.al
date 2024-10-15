@@ -3070,6 +3070,25 @@
         {
             Caption = 'Package Tracking No.';
         }
+        field(10001; "Retention Attached to Line No."; Integer)
+        {
+            Caption = 'Retention Attached to Line No.';
+            TableRelation = IF (Quantity = FILTER (< 0)) "Sales Line"."Line No." WHERE ("Document Type" = FIELD ("Document Type"),
+                                                                                    "Document No." = FIELD ("Document No."),
+                                                                                    Quantity = FILTER (> 0));
+
+            trigger OnValidate()
+            begin
+                if Quantity >= 0 then
+                    TestField("Retention Attached to Line No.", 0);
+            end;
+        }
+        field(10002; "Retention VAT %"; Decimal)
+        {
+            Caption = 'Retention VAT %';
+            MaxValue = 100;
+            MinValue = 0;
+        }
     }
 
     keys

@@ -531,6 +531,14 @@ table 113 "Sales Invoice Line"
         {
             Caption = 'Package Tracking No.';
         }
+        field(10001; "Retention Attached to Line No."; Integer)
+        {
+            Caption = 'Retention Attached to Line No.';
+        }
+        field(10002; "Retention VAT %"; Decimal)
+        {
+            Caption = 'Retention VAT %';
+        }
     }
 
     keys

@@ -49,8 +49,7 @@
         Text1020000: Label 'Tax country/region %1 is being used.  You must use %2.';
         Text1020001: Label 'Note to Programmers: The function "CopyTaxDifferences" must not be called unless the function "EndSalesTaxCalculation", or the function "PutSalesTaxAmountLineTable", is called first.';
         Text1020003: Label 'Invalid function call. Function reserved for external tax engines only.';
-        TempPrepaidSalesLine: Record "Sales Line" temporary;
-        PrepmtPosting: Boolean;
+        IsTotalTaxAmountRoundingSpecified: Boolean;
 
     procedure CallExternalTaxEngineForDoc(DocTable: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]) STETransactionID: Text[20]
     begin
@@ -656,7 +655,6 @@
             exit;
 
         if not SalesHeaderRead then begin
-            TempPrepaidSalesLine.DeleteAll();
             if TempSalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
                 SalesHeader := TempSalesHeader
             else
@@ -682,11 +680,6 @@
             exit;
 
         SalesLine.TestField("Tax Group Code");
-        if IsFinalPrepaidSalesLine(SalesLine) then begin
-            TempPrepaidSalesLine := SalesLine;
-            TempPrepaidSalesLine.Insert();
-        end;
-
         with TempSalesTaxLine do begin
             Reset;
             case TaxCountry of
@@ -1280,7 +1273,6 @@
                     OnEndSalesTaxCalculationOnBeforeSalesTaxAmountLine2Insert(SalesTaxAmountLine2, TempSalesTaxLine);
                     SalesTaxAmountLine2.Insert();
                 until Next(-1) = 0;
-                UpdateSalesTaxForPrepmt(SalesTaxAmountLine2, TotalTaxAmount, RoundTax);
                 HandleRoundTaxUpOrDown(SalesTaxAmountLine2, RoundTax, TotalTaxAmount, LastTaxAreaCode, LastTaxGroupCode);
             end;
             DeleteAll();
@@ -1422,7 +1414,9 @@
         if IsHandled then
             exit;
 
-        TotalTaxAmountRounding := 0;
+        if not IsTotalTaxAmountRoundingSpecified then
+            TotalTaxAmountRounding := 0;
+
         if not SalesHeaderRead then begin
             if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
                 exit;
@@ -1489,15 +1483,11 @@
                             SalesLine."VAT Base Amount" := SalesLine.Amount;
                             OnDistTaxOverSalesLinesOnTempSalesTaxLineLoopOnAfterSetSalesLineVATBaseAmount(SalesLine, SalesHeader);
                             if SalesLine2.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then begin
-                                if not IsFinalPrepaidSalesLine(SalesLine) then
-                                    SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" + ReturnTaxAmount;
+                                SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" + ReturnTaxAmount;
                                 SalesLine2.Modify();
                             end else begin
                                 SalesLine2.Copy(SalesLine);
-                                if IsFinalPrepaidSalesLine(SalesLine) then
-                                    SalesLine2."Amount Including VAT" := SalesLine2."Amount Including VAT" - SalesLine.GetPrepaidSalesAmountInclVAT
-                                else
-                                    SalesLine2."Amount Including VAT" := SalesLine.Amount + ReturnTaxAmount;
+                                SalesLine2."Amount Including VAT" := SalesLine.Amount + ReturnTaxAmount;
                                 SalesLine2.Insert();
                             end;
                             if SalesLine."Tax Liable" then
@@ -2115,65 +2105,21 @@
         end;
     end;
 
-    local procedure IsFinalPrepaidSalesLine(SalesLine: Record "Sales Line"): Boolean
-    var
-        SalesHeader: Record "Sales Header";
-        CheckSalesLine: Record "Sales Line";
-    begin
-        if not PrepmtPosting then
-            exit(false);
-
-        SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
-        if not CheckSalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.") then
-            exit(false);
-
-        if CheckSalesLine."Prepayment %" = 0 then
-            exit;
-
-        if not SalesHeader."Prepmt. Include Tax" then
-            if CheckSalesLine."Prepmt. Amt. Inv." = 0 then
-                exit(false);
-
-        exit(CheckSalesLine.IsFinalInvoice);
-    end;
-
-    local procedure UpdateSalesTaxForPrepmt(var SalesTaxAmountLine: Record "Sales Tax Amount Line"; var TotalTaxAmount: Decimal; RoundTax: Option "To Nearest",Up,Down)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        CheckTotalTaxAmount: Decimal;
-        TaxRoundingDiff: Decimal;
-    begin
-        if TotalTaxAmount = 0 then
-            exit;
-
-        case RoundTax of
-            RoundTax::"To Nearest":
-                CheckTotalTaxAmount := Round(TotalTaxAmount);
-            RoundTax::Up:
-                CheckTotalTaxAmount := Round(TotalTaxAmount, 0.01, '>');
-            RoundTax::Down:
-                CheckTotalTaxAmount := Round(TotalTaxAmount, 0.01, '<');
-        end;
-
-        if not TempPrepaidSalesLine.IsEmpty then begin
-            TempPrepaidSalesLine.CalcSums("Amount Including VAT");
-            TaxRoundingDiff :=
-              TempPrepaidSalesLine."Amount Including VAT" - TempPrepaidSalesLine.GetPrepaidSalesAmountInclVAT -
-              (SalesTaxAmountLine."Tax Base Amount" + CheckTotalTaxAmount);
-            GeneralLedgerSetup.Get();
-            if Abs(TaxRoundingDiff) <= GeneralLedgerSetup."Amount Rounding Precision" then begin
-                TotalTaxAmount := TotalTaxAmount + TaxRoundingDiff;
-                SalesTaxAmountLine."Tax Amount" += TaxRoundingDiff;
-                SalesTaxAmountLine."Amount Including Tax" += TaxRoundingDiff;
-                SalesTaxAmountLine.Modify();
-            end;
-        end;
-    end;
-
     [Scope('OnPrem')]
+    [Obsolete('Not relevant anymore: redesign of Sales Tax roundings.', '18.0')]
     procedure SetPrepmtPosting(NewPrepmtPosting: Boolean)
     begin
-        PrepmtPosting := NewPrepmtPosting;
+    end;
+
+    internal procedure SetTotalTaxAmountRounding(NewTotalTaxAmountRounding: Decimal)
+    begin
+        TotalTaxAmountRounding := NewTotalTaxAmountRounding;
+        IsTotalTaxAmountRoundingSpecified := true;
+    end;
+
+    internal procedure GetTotalTaxAmountRounding(): Decimal
+    begin
+        exit(TotalTaxAmountRounding);
     end;
 
     local procedure SetTaxDetailFilter(var TaxDetail: Record "Tax Detail"; TaxJurisdictionCode: Code[10]; TaxGroupCode: Code[20]; Date: Date)
