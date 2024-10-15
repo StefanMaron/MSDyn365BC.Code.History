@@ -460,7 +460,14 @@
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLocation(LocationCode, Rec, Location, IsHandled);
+        if IsHandled then
+            exit;
+
         if LocationCode = '' then
             Location.GetLocationSetup(LocationCode, Location)
         else
@@ -641,6 +648,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeErrorIfUserIsNotWhseEmployee(LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(LocationCode: Code[10]; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 

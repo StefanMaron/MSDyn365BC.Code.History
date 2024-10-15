@@ -344,6 +344,13 @@ page 51 "Purchase Invoice"
                     Importance = Additional;
                     ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
                 }
+                field("Reason Code"; "Reason Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the document.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;

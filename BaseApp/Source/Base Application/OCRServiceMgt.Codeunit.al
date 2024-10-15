@@ -662,7 +662,7 @@ codeunit 1294 "OCR Service Mgt."
     [Scope('OnPrem')]
     procedure GetDocuments(ExternalBatchFilter: Text): Integer
     var
-        DotNet_Regex: Codeunit DotNet_Regex;
+        Regex: Codeunit Regex;
         XMLDOMManagement: Codeunit "XML DOM Management";
         XMLRootNode: DotNet XmlNode;
         XMLNode: DotNet XmlNode;
@@ -686,8 +686,7 @@ codeunit 1294 "OCR Service Mgt."
                 foreach ChildNode in XMLNode.SelectNodes('DocumentId') do begin
                     DocId := ChildNode.InnerText;
 
-                    DotNet_Regex.Regex('^[a-zA-Z0-9\-\{\}]*$');
-                    if not DotNet_Regex.IsMatch(DocId) then begin
+                    if not Regex.IsMatch(DocId, '^[a-zA-Z0-9\-\{\}]*$') then begin
                         Session.LogMessage('00008LB', InvalidDocumentIdTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
                         Error(NotValidDocIDErr, DocId);
                     end;

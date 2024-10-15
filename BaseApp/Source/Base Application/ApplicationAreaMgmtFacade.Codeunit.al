@@ -1,10 +1,5 @@
 codeunit 9179 "Application Area Mgmt. Facade"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     procedure GetApplicationAreaSetupRecFromCompany(var ApplicationAreaSetup: Record "Application Area Setup"; CompanyName: Text): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
@@ -16,252 +11,251 @@ codeunit 9179 "Application Area Mgmt. Facade"
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.GetApplicationAreaSetup);
+        exit(ApplicationAreaMgmt.GetApplicationAreas());
     end;
 
     procedure SetupApplicationArea()
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        ApplicationAreaMgmt.SetupApplicationArea;
+        ApplicationAreaMgmt.SetupApplicationArea();
     end;
 
     procedure IsFoundationEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsFoundationEnabled);
+        exit(ApplicationAreaMgmt.IsFoundationEnabled());
     end;
 
     procedure IsBasicOnlyEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsBasicOnlyEnabled);
+        exit(ApplicationAreaMgmt.IsBasicOnlyEnabled());
     end;
 
     procedure IsAdvancedEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsAdvancedEnabled);
+        exit(ApplicationAreaMgmt.IsAdvancedEnabled());
     end;
 
     procedure IsFixedAssetEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsFixedAssetEnabled);
+        exit(ApplicationAreaMgmt.IsFixedAssetEnabled());
     end;
 
     procedure IsJobsEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsJobsEnabled);
+        exit(ApplicationAreaMgmt.IsJobsEnabled());
     end;
 
     procedure IsBasicHREnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsBasicHREnabled);
+        exit(ApplicationAreaMgmt.IsBasicHREnabled());
     end;
 
     procedure IsDimensionEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsDimensionEnabled);
+        exit(ApplicationAreaMgmt.IsDimensionEnabled());
     end;
 
     procedure IsLocationEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsLocationEnabled);
+        exit(ApplicationAreaMgmt.IsLocationEnabled());
     end;
 
     procedure IsAssemblyEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsAssemblyEnabled);
+        exit(ApplicationAreaMgmt.IsAssemblyEnabled());
     end;
 
     procedure IsItemChargesEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsItemChargesEnabled);
+        exit(ApplicationAreaMgmt.IsItemChargesEnabled());
     end;
 
     procedure IsItemTrackingEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsItemTrackingEnabled);
+        exit(ApplicationAreaMgmt.IsItemTrackingEnabled());
     end;
 
     procedure IsIntercompanyEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsIntercompanyEnabled);
+        exit(ApplicationAreaMgmt.IsIntercompanyEnabled());
     end;
 
     procedure IsSalesReturnOrderEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsSalesReturnOrderEnabled);
+        exit(ApplicationAreaMgmt.IsSalesReturnOrderEnabled());
     end;
 
     procedure IsPurchaseReturnOrderEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsPurchaseReturnOrderEnabled);
+        exit(ApplicationAreaMgmt.IsPurchaseReturnOrderEnabled());
     end;
 
     procedure IsCostAccountingEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsCostAccountingEnabled);
+        exit(ApplicationAreaMgmt.IsCostAccountingEnabled());
     end;
 
     procedure IsSalesBudgetEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsSalesBudgetEnabled);
+        exit(ApplicationAreaMgmt.IsSalesBudgetEnabled());
     end;
 
     procedure IsPurchaseBudgetEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsPurchaseBudgetEnabled);
+        exit(ApplicationAreaMgmt.IsPurchaseBudgetEnabled());
     end;
 
     procedure IsItemBudgetEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsItemBudgetEnabled);
+        exit(ApplicationAreaMgmt.IsItemBudgetEnabled());
     end;
 
     procedure IsSalesAnalysisEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsSalesAnalysisEnabled);
+        exit(ApplicationAreaMgmt.IsSalesAnalysisEnabled());
     end;
 
     procedure IsPurchaseAnalysisEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsPurchaseAnalysisEnabled);
+        exit(ApplicationAreaMgmt.IsPurchaseAnalysisEnabled());
     end;
 
     procedure IsInventoryAnalysisEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsInventoryAnalysisEnabled);
+        exit(ApplicationAreaMgmt.IsInventoryAnalysisEnabled());
     end;
 
+    [Obsolete('Invoicing Application Area has been discontinued.', '18.0')]
     procedure IsInvoicingOnlyEnabled(): Boolean
-    var
-        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsInvoicingOnlyEnabled);
+        exit(false);
     end;
 
     procedure IsManufacturingEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsManufacturingEnabled);
+        exit(ApplicationAreaMgmt.IsManufacturingEnabled());
     end;
 
     procedure IsPlanningEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsPlanningEnabled);
+        exit(ApplicationAreaMgmt.IsPlanningEnabled());
     end;
 
     procedure IsRelationshipMgmtEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsRelationshipMgmtEnabled);
+        exit(ApplicationAreaMgmt.IsRelationshipMgmtEnabled());
     end;
 
     procedure IsServiceEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsServiceEnabled);
+        exit(ApplicationAreaMgmt.IsServiceEnabled());
     end;
 
     procedure IsWarehouseEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsWarehouseEnabled);
+        exit(ApplicationAreaMgmt.IsWarehouseEnabled());
     end;
 
     procedure IsReservationEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsReservationEnabled);
+        exit(ApplicationAreaMgmt.IsReservationEnabled());
     end;
 
     procedure IsOrderPromisingEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsOrderPromisingEnabled);
+        exit(ApplicationAreaMgmt.IsOrderPromisingEnabled());
     end;
 
     procedure IsCommentsEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsCommentsEnabled);
+        exit(ApplicationAreaMgmt.IsCommentsEnabled());
     end;
 
     procedure IsRecordLinksEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsRecordLinksEnabled);
+        exit(ApplicationAreaMgmt.IsRecordLinksEnabled());
     end;
 
     procedure IsNotesEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsNotesEnabled);
+        exit(ApplicationAreaMgmt.IsNotesEnabled());
     end;
 
     procedure IsVATEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsVATEnabled);
+        exit(ApplicationAreaMgmt.IsVATEnabled());
     end;
 
     procedure IsSalesTaxEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsSalesTaxEnabled);
+        exit(ApplicationAreaMgmt.IsSalesTaxEnabled());
     end;
 
     procedure IsBasicCountryEnabled(CountryCode: Code[10]): Boolean
@@ -275,28 +269,28 @@ codeunit 9179 "Application Area Mgmt. Facade"
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsSuiteEnabled);
+        exit(ApplicationAreaMgmt.IsSuiteEnabled());
     end;
 
     procedure IsAllDisabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsAllDisabled);
+        exit(ApplicationAreaMgmt.IsAllDisabled());
     end;
 
     procedure IsPremiumEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsPremiumEnabled);
+        exit(ApplicationAreaMgmt.IsPremiumEnabled());
     end;
 
     procedure CheckAppAreaOnlyBasic()
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        ApplicationAreaMgmt.CheckAppAreaOnlyBasic;
+        ApplicationAreaMgmt.CheckAppAreaOnlyBasic();
     end;
 
     procedure IsValidExperienceTierSelected(SelectedExperienceTier: Text): Boolean
@@ -341,35 +335,35 @@ codeunit 9179 "Application Area Mgmt. Facade"
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsBasicExperienceEnabled);
+        exit(ApplicationAreaMgmt.IsBasicExperienceEnabled());
     end;
 
     procedure IsEssentialExperienceEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsEssentialExperienceEnabled);
+        exit(ApplicationAreaMgmt.IsEssentialExperienceEnabled());
     end;
 
     procedure IsPremiumExperienceEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsPremiumExperienceEnabled);
+        exit(ApplicationAreaMgmt.IsPremiumExperienceEnabled());
     end;
 
     procedure IsCustomExperienceEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsCustomExperienceEnabled);
+        exit(ApplicationAreaMgmt.IsCustomExperienceEnabled());
     end;
 
     procedure IsAdvancedExperienceEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
     begin
-        exit(ApplicationAreaMgmt.IsAdvancedExperienceEnabled);
+        exit(ApplicationAreaMgmt.IsAdvancedExperienceEnabled());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, 9178, 'OnGetBasicExperienceAppAreas', '', false, false)]
@@ -452,10 +446,10 @@ codeunit 9179 "Application Area Mgmt. Facade"
         SaveGlobalLanguage: Integer;
     begin
         GetExperienceTierCurrentCompany(ExperienceTierTxt);
-        if (ExperienceTierTxt = '') and EnvironmentInfo.IsSandbox then
+        if (ExperienceTierTxt = '') and EnvironmentInfo.IsSandbox() then
             ExperienceTier := ExperienceTier::Advanced
         else begin
-            SaveGlobalLanguage := GlobalLanguage;
+            SaveGlobalLanguage := GlobalLanguage();
             GlobalLanguage := 1033;
             Evaluate(ExperienceTier, ExperienceTierTxt);
             GlobalLanguage := SaveGlobalLanguage;
