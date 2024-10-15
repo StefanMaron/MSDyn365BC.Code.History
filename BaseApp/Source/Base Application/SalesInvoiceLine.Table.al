@@ -602,6 +602,10 @@ table 113 "Sales Invoice Line"
             Caption = 'EC Difference';
             Editable = true;
         }
+        field(10704; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
     }
 
     keys

@@ -150,6 +150,11 @@ page 133 "Posted Sales Invoice Subform"
                     ToolTip = 'Specifies whether the invoice line could have been included in a possible invoice discount calculation.';
                     Visible = false;
                 }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
+                }
                 field("Job No."; "Job No.")
                 {
                     ApplicationArea = Jobs;

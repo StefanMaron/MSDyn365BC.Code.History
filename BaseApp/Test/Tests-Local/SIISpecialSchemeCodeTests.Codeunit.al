@@ -27,6 +27,7 @@ codeunit 147562 "SII Special Scheme Code Tests"
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         CannotInsertMoreThanThreeCodesErr: Label 'You cannot specify more than three special scheme codes for each document.';
         InconsitencyOfRegimeCodeAndVATClauseErr: Label 'If the sales special scheme code is 01 General, the SII exemption code of the VAT clause must not be equal to E2 or E3.';
+        ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -1596,10 +1597,12 @@ codeunit 147562 "SII Special Scheme Code Tests"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure SalesInvWithRegimeCode17()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesHeader: Record "Sales Header";
+        SalesInvLine: Record "Sales Invoice Line";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
     begin
@@ -1619,13 +1622,23 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+
+        // [THEN] "Special Scheme Code" is 17 in posted sales credit memo line
+        // Bug id 463723: Special Scheme code does not exist on lines
+        SalesInvLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+        SalesInvLine.FindFirst();
+        SalesInvLine.TestField("Special Scheme Code", SalesInvLine."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure SalesCrMemoWithRegimeCode17()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesHeader: Record "Sales Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
     begin
@@ -1645,13 +1658,23 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+
+        // [THEN] "Special Scheme Code" is 17 in posted sales credit memo line
+        // Bug id 463723: Special Scheme code does not exist on lines
+        SalesCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLine.TestField("Special Scheme Code", SalesCrMemoLine."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure SalesReplacementCrMemoWithRegimeCode17()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesHeader: Record "Sales Header";
+        SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
     begin
@@ -1671,13 +1694,23 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+
+        // [THEN] "Special Scheme Code" is 17 in posted sales credit memo line
+        // Bug id 463723: Special Scheme code does not exist on lines
+        SalesCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+        SalesCrMemoLine.FindFirst();
+        SalesCrMemoLine.TestField("Special Scheme Code", SalesCrMemoLine."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure ServInvWithRegimeCode17()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ServiceHeader: Record "Service Header";
+        ServInvLine: Record "Service Invoice Line";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
     begin
@@ -1697,17 +1730,27 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+
+        // [THEN] "Special Scheme Code" is 17 in posted service invoice line
+        // Bug id 463723: Special Scheme code does not exist on lines
+        ServInvLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+        ServInvLine.FindFirst();
+        ServInvLine.TestField("Special Scheme Code", ServInvLine."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure ServCrMemoWithRegimeCode17()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ServiceHeader: Record "Service Header";
+        ServCrMemoLine: Record "Service Cr.Memo Line";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
     begin
-        // [FEATURE] [Service] [Invoice]
+        // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 433362] Service credit memo with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
 
         Initialize();
@@ -1723,17 +1766,27 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+
+        // [THEN] "Special Scheme Code" is 17 in posted service credit memo line
+        // Bug id 463723: Special Scheme code does not exist on lines
+        ServCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+        ServCrMemoLine.FindFirst();
+        ServCrMemoLine.TestField("Special Scheme Code", ServCrMemoLine."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     procedure ServReplacementCrMemoWithRegimeCode17()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         ServiceHeader: Record "Service Header";
+        ServCrMemoLine: Record "Service Cr.Memo Line";
         SIIXMLCreator: Codeunit "SII XML Creator";
         XMLDoc: DotNet XmlDocument;
     begin
-        // [FEATURE] [Service] [Invoice]
+        // [FEATURE] [Service] [Credit Memo]
         // [SCENARIO 433362] Service replacement credit memo with "Special Scheme Code" equals "17 Operations Under The One-Stop-Shop Regime" exports with ClaveRegimenEspecialOTrascendencia equals "17"
 
         Initialize();
@@ -1749,6 +1802,260 @@ codeunit 147562 "SII Special Scheme Code Tests"
         // [THEN] ClaveRegimenEspecialOTrascendencia is "17" in exported SII File
         LibrarySII.VerifyOneNodeWithValueByXPath(
           XMLDoc, XPathSalesFacturaExpedidaTok, 'sii:ClaveRegimenEspecialOTrascendencia', '17');
+
+        // [THEN] "Special Scheme Code" is 17 in posted service credit memo line
+        // Bug id 463723: Special Scheme code does not exist on lines
+        ServCrMemoLine.SetRange("Document No.", CustLedgerEntry."Document No.");
+        ServCrMemoLine.FindFirst();
+        ServCrMemoLine.TestField("Special Scheme Code", ServCrMemoLine."Special Scheme Code"::"17 Operations Under The One-Stop-Shop Regime");
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ChangeRegimeCodeInSalesHeader()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 463723] Special scheme code changes in sales lines when Stan changes the value in the sales header with confirmation
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "01 General"
+        CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice, SalesHeader."Correction Type"::" ");
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, SalesHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(true); // confirm change
+
+        // [WHEN] Confirm change of "Special Scheme Code" to "04 Gold" in the header
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"04 Gold");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Special Scheme Code" is "04 Gold" in the line
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField("Special Scheme Code", SalesLine."Special Scheme Code"::"04 Gold");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure DoNotChangeRegimeCodeInSalesHeader()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 463723] Special scheme code does not change in sales lines when Stan changes the value in the sales header and not confirm
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "01 General"
+        CreateSalesDoc(SalesHeader, SalesHeader."Document Type"::Invoice, SalesHeader."Correction Type"::" ");
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, SalesHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(false); // do not confirm change
+
+        // [WHEN] Confirm change of "Special Scheme Code" to "04 Gold" in the header
+        SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"04 Gold");
+        SalesHeader.Modify(true);
+
+        // [THEN] "Special Scheme Code" is "04 Gold" in the line
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField("Special Scheme Code", SalesLine."Special Scheme Code"::"01 General");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ChangeRegimeCodeInServiceHeader()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service] [UT]
+        // [SCENARIO 463723] Special scheme code changes in sales lines when Stan changes the value in the service header with confirmation
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "01 General"
+        CreateServiceDoc(ServiceHeader, ServiceHeader."Document Type"::Invoice);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, ServiceHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(true); // confirm change
+
+        // [WHEN] Confirm change of "Special Scheme Code" to "04 Gold" in the header
+        ServiceHeader.Validate("Special Scheme Code", ServiceHeader."Special Scheme Code"::"04 Gold");
+        ServiceHeader.Modify(true);
+
+        // [THEN] "Special Scheme Code" is "04 Gold" in the line
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
+        ServiceLine.TestField("Special Scheme Code", ServiceLine."Special Scheme Code"::"04 Gold");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure DoNotChangeRegimeCodeInServiceHeader()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+    begin
+        // [FEATURE] [Service] [UT]
+        // [SCENARIO 463723] Special scheme code does not change in sales lines when Stan changes the value in the service header and not confirm
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "01 General"
+        CreateServiceDoc(ServiceHeader, ServiceHeader."Document Type"::Invoice);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, ServiceHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(false); // do not confirm change
+
+        // [WHEN] Confirm change of "Special Scheme Code" to "04 Gold" in the header
+        ServiceHeader.Validate("Special Scheme Code", ServiceHeader."Special Scheme Code"::"04 Gold");
+        ServiceHeader.Modify(true);
+
+        // [THEN] "Special Scheme Code" is "04 Gold" in the line
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
+        ServiceLine.TestField("Special Scheme Code", ServiceLine."Special Scheme Code"::"01 General");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ChangeRegimeCodeInPurchHeader()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [UT]
+        // [SCENARIO 463723] Special scheme code changes in sales lines when Stan changes the value in the purchase header with confirmation
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "01 General"
+        CreatePurchDoc(PurchHeader, PurchHeader."Document Type"::Invoice, PurchHeader."Correction Type"::" ");
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, PurchHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(true); // confirm change
+
+        // [WHEN] Confirm change of "Special Scheme Code" to "04 Gold" in the header
+        PurchHeader.Validate("Special Scheme Code", PurchHeader."Special Scheme Code"::"04 Gold");
+        PurchHeader.Modify(true);
+
+        // [THEN] "Special Scheme Code" is "04 Gold" in the line
+        LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
+        PurchLine.TestField("Special Scheme Code", PurchLine."Special Scheme Code"::"04 Gold");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure DoNotChangeRegimeCodeInPurchaseHeader()
+    var
+        PurchHeader: Record "Purchase Header";
+        PurchLine: Record "Purchase Line";
+    begin
+        // [FEATURE] [Purchase] [UT]
+        // [SCENARIO 463723] Special scheme code does not change in sales lines when Stan changes the value in the purchase header and not confirm
+
+        Initialize();
+
+        // [GIVEN] Sales invoice with "Special Scheme Code" = "01 General"
+        CreatePurchDoc(PurchHeader, PurchHeader."Document Type"::Invoice, PurchHeader."Correction Type"::" ");
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, PurchHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(false); // do not confirm change
+
+        // [WHEN] Confirm change of "Special Scheme Code" to "04 Gold" in the header
+        PurchHeader.Validate("Special Scheme Code", PurchHeader."Special Scheme Code"::"04 Gold");
+        PurchHeader.Modify(true);
+
+        // [THEN] "Special Scheme Code" is "04 Gold" in the line
+        LibraryPurchase.FindFirstPurchLine(PurchLine, PurchHeader);
+        PurchLine.TestField("Special Scheme Code", PurchLine."Special Scheme Code"::"01 General");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesLineInheritsSpecialSchemeCodeFromVATPostingSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 463723] Special scheme codes specified in the VAT Posting Setup assign to the sales line
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup "X" with "Sales Special Scheme Code" = "03"
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+
+        // [WHEN] Create sales line with "VAT Posting Setup" = "X"
+        LibrarySII.CreateSalesLineWithUnitPrice(
+          SalesHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              SalesHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"03 Special System")));
+
+        // [THEN] Sales line has "Special Scheme Code" = "03"
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+        SalesLine.TestField("Special Scheme Code", SalesLine."Special Scheme Code"::"03 Special System");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseLineInheritsSpecialSchemeCodeFromVATPostingSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Purchase] [UT]
+        // [SCENARIO 463723] Special scheme codes specified in the VAT Posting Setup assign to the purchase line
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup "X" with "Purchase Special Scheme Code" = "03"
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+
+        // [WHEN] Create purchase line with "VAT Posting Setup" = "X"
+        LibrarySII.CreatePurchLineWithUnitCost(
+          PurchaseHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithPurchSpecialSchemeCode(
+              PurchaseHeader."VAT Bus. Posting Group", VATPostingSetup."Purch. Special Scheme Code"::"03 Special System")));
+
+        // [THEN] Purchase line has "Special Scheme Code" = "03"
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.TestField("Special Scheme Code", PurchaseLine."Special Scheme Code"::"03 Special System");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ServiceLineInheritsSpecialSchemeCodeFromVATPostingSetup()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        // [FEATURE] [Service] [UT]
+        // [SCENARIO 463723] Special scheme codes specified in the VAT Posting Setup assign to the service line
+
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup "X" with "Sales Special Scheme Code" = "03"
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+
+        // [WHEN] Create service line with "VAT Posting Setup" = "X"
+        LibrarySII.CreateServiceLineWithUnitPrice(
+          ServiceHeader,
+          LibrarySII.CreateItemNoWithSpecificVATSetup(
+            CreateVATPostingSetupWithSalesSpecialSchemeCode(
+              ServiceHeader."VAT Bus. Posting Group", VATPostingSetup."Sales Special Scheme Code"::"03 Special System")));
+
+        // [THEN] Service line has "Special Scheme Code" = "03"
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.FindFirst();
+        ServiceLine.TestField("Special Scheme Code", ServiceLine."Special Scheme Code"::"03 Special System");
     end;
 
     local procedure Initialize()
@@ -1825,6 +2132,8 @@ codeunit 147562 "SII Special Scheme Code Tests"
     begin
         CreateSalesDoc(SalesHeader, DocType, CorrType);
         SalesHeader.Validate("Correction Type", CorrType);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, SalesHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(true);
         SalesHeader.Validate("Special Scheme Code", SpecialSchemeCode);
         SalesHeader.Modify(true);
         LibraryERM.FindCustomerLedgerEntry(
@@ -1838,6 +2147,8 @@ codeunit 147562 "SII Special Scheme Code Tests"
     begin
         CreateServiceDoc(ServiceHeader, DocType);
         ServiceHeader.Validate("Correction Type", CorrType);
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, ServiceHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(true);
         ServiceHeader.Validate("Special Scheme Code", SpecialSchemeCode);
         ServiceHeader.Modify(true);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -1992,6 +2303,13 @@ codeunit 147562 "SII Special Scheme Code Tests"
         Assert.IsTrue(SIIPurchDocSchemeCodes.Next(), '');
         SIIPurchDocSchemeCodes."Special Scheme Code".AssertEquals(' ');
         Assert.IsFalse(SIIPurchDocSchemeCodes.Next(), '');
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(Question, LibraryVariableStorage.DequeueText());
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

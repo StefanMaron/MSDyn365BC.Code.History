@@ -331,7 +331,6 @@
 
                 UpdateDirectUnitCostByField(FieldNo("Location Code"));
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
-                DeleteWarehouseRequest(xRec);
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -1352,6 +1351,7 @@
 
             trigger OnValidate()
             var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
                 IsHandled: Boolean;
             begin
                 TestStatusOpen();
@@ -1395,6 +1395,7 @@
                             "Direct Unit Cost" * (100 + "VAT %" + "EC %") / (100 + xRec."VAT %" + xRec."EC %"),
                             Currency."Unit-Amount Rounding Precision"));
                     UpdateAmounts();
+                    SIISchemeCodeMgt.UpdatePurchSpecialSchemeCodeInPurchLine(Rec);
                 end;
             end;
         }
@@ -3382,6 +3383,10 @@
             Editable = false;
             MinValue = 0;
         }
+        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
@@ -3680,8 +3685,6 @@
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Purchase.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
-
-        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -8270,22 +8273,6 @@
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource, FieldNo);
-    end;
-
-    local procedure DeleteWarehouseRequest(PurchaseLine: Record "Purchase Line")
-    var
-        WarehouseRequest: Record "Warehouse Request";
-    begin
-        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        if ((PurchaseLine."Document Type" = "Purchase Document Type"::Order) and (PurchaseLine.Quantity >= 0)) or ((PurchaseLine."Document Type" = "Purchase Document Type"::"Return Order") and (PurchaseLine.Quantity < 0)) then
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound)
-        else
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound);
-        WarehouseRequest.SetSourceFilter(Database::"Purchase Line", PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.");
-        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
-        WarehouseRequest.SetRange("Location Code", PurchaseLine."Location Code");
-        if not WarehouseRequest.IsEmpty() then
-            WarehouseRequest.DeleteAll(true);
     end;
 
     internal procedure SaveLookupSelection(Selected: RecordRef)

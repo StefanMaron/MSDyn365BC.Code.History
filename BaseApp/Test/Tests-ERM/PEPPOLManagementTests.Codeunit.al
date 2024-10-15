@@ -3623,6 +3623,7 @@ codeunit 139155 "PEPPOL Management Tests"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         TempVATAmtLine: Record "VAT Amount Line" temporary;
+        TempSalesLineInvRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         LineExtensionAmount: Text;
         LegalMonetaryTotalCurrencyID: Text;
@@ -3652,6 +3653,7 @@ codeunit 139155 "PEPPOL Management Tests"
 
         PEPPOLMgt.GetLegalMonetaryInfo(
           SalesHeader,
+          TempSalesLineInvRounding,
           TempVATAmtLine,
           LineExtensionAmount,
           LegalMonetaryTotalCurrencyID,

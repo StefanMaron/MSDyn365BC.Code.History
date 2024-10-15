@@ -356,8 +356,6 @@
                     ValidateReturnReasonCode(FieldNo("Location Code"));
 
                 CreateDimFromDefaultDim(Rec.FieldNo("Location Code"));
-
-                DeleteWarehouseRequest(xRec);
             end;
         }
         field(8; "Posting Group"; Code[20])
@@ -1412,6 +1410,7 @@
 
             trigger OnValidate()
             var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -1463,6 +1462,7 @@
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();
+                SIISchemeCodeMgt.UpdateSalesSpecialSchemeCodeInSalesLine(Rec);
             end;
         }
         field(91; "Currency Code"; Code[10])
@@ -3260,6 +3260,10 @@
             Editable = false;
             MinValue = 0;
         }
+        field(10704; "Special Scheme Code"; Enum "SII Sales Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
     }
 
     keys
@@ -3426,8 +3430,6 @@
             DeferralUtilities.DeferralCodeOnDelete(
                 "Deferral Document Type"::Sales.AsInteger(), '', '',
                 "Document Type".AsInteger(), "Document No.", "Line No.");
-
-        DeleteWarehouseRequest(Rec);
     end;
 
     trigger OnInsert()
@@ -8465,22 +8467,6 @@
                 "VAT Difference" := TempSalesLine."VAT Difference";
                 "Amount Including VAT" := TempSalesLine."Amount Including VAT";
             end;
-    end;
-
-    local procedure DeleteWarehouseRequest(SalesLine: Record "Sales Line")
-    var
-        WarehouseRequest: Record "Warehouse Request";
-    begin
-        WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
-        if ((SalesLine."Document Type" = "Sales Document Type"::Order) and (SalesLine.Quantity >= 0)) or ((SalesLine."Document Type" = "Sales Document Type"::"Return Order") and (SalesLine.Quantity < 0)) then
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Outbound)
-        else
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
-        WarehouseRequest.SetSourceFilter(Database::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.");
-        WarehouseRequest.SetRange("Document Status", WarehouseRequest."Document Status"::Open);
-        WarehouseRequest.SetRange("Location Code", SalesLine."Location Code");
-        if not WarehouseRequest.IsEmpty() then
-            WarehouseRequest.DeleteAll(true);
     end;
 
 #if not CLEAN20

@@ -2435,6 +2435,13 @@
         field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
         {
             Caption = 'Special Scheme Code';
+
+            trigger OnValidate()
+            var
+                SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";
+            begin
+                SIISchemeCodeMgt.UpdatePurchaseSpecialSchemeCodeInPurchaseHeader(Rec, xRec);
+            end;
         }
         field(10710; "Operation Description"; Text[250])
         {

@@ -136,6 +136,11 @@ page 135 "Posted Sales Cr. Memo Subform"
                     ToolTip = 'Specifies whether the credit memo line could have included a possible invoice discount calculation.';
                     Visible = false;
                 }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
+                }
                 field("Job No."; "Job No.")
                 {
                     ApplicationArea = Jobs;

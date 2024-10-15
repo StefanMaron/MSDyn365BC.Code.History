@@ -4307,6 +4307,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Special Scheme Code Tests - NamedType CannotInsertMoreThanThreeCodesErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3849314057 - NamedType 2551427998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a Field Caption like Currency Code]D;]A;(LookupHint=Codeunit SII Special Scheme Code Tests - NamedType ConfirmChangeQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3849314057 - NamedType 366426057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[If the sales special scheme code is 01 General, the SII exemption code of the VAT clause must not be equal to E2 or E3.]]></Val>
@@ -4494,6 +4503,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SII Update Doc. Info - NamedType XPathSalesIDOtroTok)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2395523379 - NamedType 2551427998" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to change %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = a Field Caption like Currency Code]D;]A;(LookupHint=Codeunit SIIDocumentTests - NamedType ConfirmChangeQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2395523379 - NamedType 3088887303" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

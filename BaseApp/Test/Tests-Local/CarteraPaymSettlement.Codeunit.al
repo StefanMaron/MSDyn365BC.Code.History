@@ -1231,11 +1231,10 @@ codeunit 147501 "Cartera Paym. Settlement"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
         SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"07 Special Cash");
         SalesHeader.Modify(true);
 
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LineQuantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);

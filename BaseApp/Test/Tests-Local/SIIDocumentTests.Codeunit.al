@@ -23,6 +23,7 @@ codeunit 147520 SIIDocumentTests
         LibrarySII: Codeunit "Library - SII";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
         XmlType: Option Invoice,"Intra Community",Payment;
         IsInitialized: Boolean;
         GlobalCreditMemoType: Option " ",Replacement,Difference,Removal;
@@ -31,6 +32,7 @@ codeunit 147520 SIIDocumentTests
         XPathSalesBaseImponibleTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:TipoDesglose/sii:DesgloseFactura/sii:Sujeta/sii:NoExenta/sii:DesgloseIVA/sii:DetalleIVA';
         XPathPurchFacturaRecibidaTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/';
         XPathPurchCrMemoRemovalIDFacturaTok: Label '//soapenv:Body/siiLR:BajaLRFacturasRecibidas/siiLR:RegistroLRBajaRecibidas/siiLR:IDFactura';
+        ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         UploadType: Option Regular,Intracommunity,RetryAccepted;
 
     [Test]
@@ -2070,6 +2072,7 @@ codeunit 147520 SIIDocumentTests
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure FechaOperacionAfterPostingDateWhenSchemeCode14AndVersion11bis()
     var
@@ -2087,7 +2090,9 @@ codeunit 147520 SIIDocumentTests
 
         // [GIVEN] Posted Sales Invoice with "Special Scheme Code" = "14", "Posting Date" = January 20, "Shipment Date" = January 25
         CustomerNo := LibrarySales.CreateCustomerNo();
-        CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, LibraryRandom.RandDateFrom(WorkDate, 10));
+        CreateSalesShipmentWithShipDate(SalesHeader, CustomerNo, LibraryRandom.RandDateFrom(WorkDate(), 10));
+        LibraryVariableStorage.Enqueue(StrSubstNo(ConfirmChangeQst, SalesHeader.FieldCaption("Special Scheme Code")));
+        LibraryVariableStorage.Enqueue(true); // confirm change
         SalesHeader.Validate("Special Scheme Code", SalesHeader."Special Scheme Code"::"14 Invoice Work Certification");
         SalesHeader.Modify(true);
         SalesInvoiceHeaderNo := LibrarySales.PostSalesDocument(SalesHeader, false, true);
@@ -2453,7 +2458,7 @@ codeunit 147520 SIIDocumentTests
         // Tear down
         WorkDate := OldWorkDate;
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     procedure NoFechaOperacionNodeForSalesPrepaymentInvoice()
@@ -3357,6 +3362,13 @@ codeunit 147520 SIIDocumentTests
     [Scope('OnPrem')]
     procedure MessageHandler(Msg: Text)
     begin
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(Question, LibraryVariableStorage.DequeueText());
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

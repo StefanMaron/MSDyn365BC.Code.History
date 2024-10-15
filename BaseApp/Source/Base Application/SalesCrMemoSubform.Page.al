@@ -414,6 +414,11 @@
                         UpdateForm(false);
                     end;
                 }
+                field("Special Scheme Code"; Rec."Special Scheme Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the special scheme code.';
+                }
                 field("Job No."; "Job No.")
                 {
                     ApplicationArea = Jobs;

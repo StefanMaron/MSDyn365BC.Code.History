@@ -668,6 +668,10 @@ table 123 "Purch. Inv. Line"
             AutoFormatType = 1;
             Caption = 'EC Difference';
         }
+        field(10709; "Special Scheme Code"; Enum "SII Purch. Special Scheme Code")
+        {
+            Caption = 'Special Scheme Code';
+        }
         field(99000750; "Routing No."; Code[20])
         {
             Caption = 'Routing No.';
