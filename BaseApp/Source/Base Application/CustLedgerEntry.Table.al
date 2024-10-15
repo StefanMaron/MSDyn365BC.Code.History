@@ -825,7 +825,14 @@ table 21 "Cust. Ledger Entry"
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
         IssuedReminderHeader: Record "Issued Reminder Header";
+        IsHandled: Boolean;
+        IsPageOpened: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDoc(Rec, IsPageOpened, IsHandled);
+        if IsHandled then
+            exit(IsPageOpened);
+
         case "Document Type" of
             "Document Type"::Invoice:
                 begin
@@ -1189,6 +1196,11 @@ table 21 "Cust. Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetAmountToApply(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDoc(CustLedgerEntry: Record "Cust. Ledger Entry"; var IsPageOpened: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

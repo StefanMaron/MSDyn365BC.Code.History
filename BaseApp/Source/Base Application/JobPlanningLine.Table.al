@@ -1521,7 +1521,13 @@ table 1003 "Job Planning Line"
     var
         ResCost: Record "Resource Cost";
         RetrievedCost: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetJob;
         if (Type = Type::Item) and Item.Get("No.") then
             if Item."Costing Method" = Item."Costing Method"::Standard then begin
@@ -1619,8 +1625,14 @@ table 1003 "Job Planning Line"
     local procedure FindPriceAndDiscount(var JobPlanningLine: Record "Job Planning Line"; CalledByFieldNo: Integer)
     var
         PriceType: Enum "Price Type";
+        IsHandled: Boolean;
     begin
         if RetrieveCostPrice and ("No." <> '') then begin
+            IsHandled := false;
+            OnBeforeFindPriceAndDiscount(CalledByFieldNo, IsHandled);
+            if IsHandled then
+                exit;
+
             ApplyPrice(PriceType::Sale, CalledByFieldNo);
             ApplyPrice(PriceType::Purchase, CalledByFieldNo);
             if Type = Type::"G/L Account" then begin
@@ -1663,6 +1675,8 @@ table 1003 "Job Planning Line"
                ("Unit Cost" <> xRec."Unit Cost")
             then
                 "Unit Price" := Round("Unit Cost" / (1 - Item."Profit %" / 100), UnitAmountRoundingPrecisionFCY);
+
+        OnAfterHandleCostFactor(Rec, xRec, Item);
     end;
 
     local procedure UpdateUnitPrice()
@@ -1702,7 +1716,14 @@ table 1003 "Job Planning Line"
     end;
 
     local procedure UpdateAmountsAndDiscounts()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAmountsAndDiscounts(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Total Price" = 0 then begin
             "Line Amount" := 0;
             "Line Discount Amount" := 0;
@@ -2214,6 +2235,11 @@ table 1003 "Job Planning Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitJobPlanningLine(var JobPlanningLine: Record "Job Planning Line")
     begin
     end;
@@ -2249,8 +2275,18 @@ table 1003 "Job Planning Line"
     begin
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeFindPriceAndDiscount(CalledByFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeHandleCostFactor(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmountsAndDiscounts(var JobPlanningLine: Record "Job Planning Line"; xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2266,6 +2302,11 @@ table 1003 "Job Planning Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateAllAmounts(var JobPlanningLine: Record "Job Planning Line"; var xJobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitCost(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 

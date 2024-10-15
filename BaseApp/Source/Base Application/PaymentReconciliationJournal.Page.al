@@ -1081,19 +1081,6 @@ page 1290 "Payment Reconciliation Journal"
         PageClosedByPosting := false;
 
         SetDimensionsVisibility;
-
-        if BankStatementLinesListIsEmpty("Statement No.", "Statement Type", "Bank Account No.") then
-            CreateEmptyListNotification();
-    end;
-
-    local procedure CreateEmptyListNotification()
-    var
-        Notification: Notification;
-    begin
-        Notification.Id := CreateGuid();
-        Notification.Message := ListEmptyMsg;
-        Notification.Scope := NotificationScope::LocalScope;
-        Notification.Send;
     end;
 
     var
@@ -1122,7 +1109,6 @@ page 1290 "Payment Reconciliation Journal"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
-        ListEmptyMsg: Label 'No bank statement lines exist. Choose the Import Bank Statement action to enter lines from a file, or enter lines manually.';
 
     local procedure UpdateSorting(IsAscending: Boolean)
     var

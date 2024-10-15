@@ -32,7 +32,7 @@ codeunit 99000813 "Carry Out Action"
             if TrySourceType = TrySourceType::Production then
                 BlockDynamicTrackingOnComp(true);
             if ProductionExist and AssemblyExist then
-                Delete(true);
+                DeleteRequisitionLine(Rec);
             BlockDynamicTracking(false);
         end;
     end;
@@ -518,6 +518,13 @@ codeunit 99000813 "Carry Out Action"
 
         AsmHeader.Get(AsmHeader."Document Type"::Order, ReqLine."Ref. Order No.");
         AsmHeader.Delete(true);
+    end;
+
+    local procedure DeleteRequisitionLine(var RequisitionLine: Record "Requisition Line")
+    begin
+        OnBeforeDeleteRequisitionLine(RequisitionLine);
+        RequisitionLine.Delete(true);
+        OnAfterDeleteRequisitionLine(RequisitionLine);
     end;
 
     procedure InsertProdOrder(ReqLine: Record "Requisition Line"; ProdOrderChoice: Option " ",Planned,"Firm Planned","Firm Planned & Print")
@@ -1342,6 +1349,11 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterDeleteRequisitionLine(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertProdOrder(var ProductionOrder: Record "Production Order"; ProdOrderChoice: Integer; var RequisitionLine: Record "Requisition Line")
     begin
     end;
@@ -1403,6 +1415,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeletePurchaseLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteRequisitionLine(var RequisitionLine: Record "Requisition Line")
     begin
     end;
 

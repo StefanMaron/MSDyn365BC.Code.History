@@ -1094,15 +1094,6 @@
       <Cmt Name="Dev"><![CDATA[The Customer record has been created.]D;]A;(LookupHint=Codeunit Person and Company Contacts - NamedType RelatedRecordIsCreatedMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3120133182 - NamedType 2848871132" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Do you want to create contact as a vendor using a vendor template?]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Person and Company Contacts - NamedType CreateVendorFromContactQst)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3120133182 - NamedType 911140891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of Business Relations must be equal to '0'  in Contact: No.=%1. Current value is '1'.]]></Val>
@@ -1112,6 +1103,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Person and Company Contacts - NamedType BusinessRelationsNotZeroErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3120133182 - NamedType 2287169996" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to create contact as a vendor using a vendor template?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Person and Company Contacts - NamedType CreateVendorFromTemplateQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2226873536 - NamedType 2569744608" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Confirm Stub]]></Val>
@@ -1119,6 +1119,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Contact Lookup - NamedType ConfirmStubQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1093329899 - NamedType 2835671693" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[https://outlook.office365.com/EWS/Exchange.asmx]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Email Logging - NamedType DefaultExchangeEndpointTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1093329899 - NamedType 336422914" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[testendpoint.exchange]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Email Logging - NamedType TestExchangeEndpointTxt)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

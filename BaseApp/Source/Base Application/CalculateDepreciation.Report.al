@@ -51,6 +51,9 @@ report 5692 "Calculate Depreciation"
                 else
                     Window.Update(2, "No.");
 
+                Custom1Amount := Round(Custom1Amount, GeneralLedgerSetup."Amount Rounding Precision");
+                DeprAmount := Round(DeprAmount, GeneralLedgerSetup."Amount Rounding Precision");
+
                 OnAfterCalculateDepreciation(
                     "No.", TempGenJnlLine, TempFAJnlLine, DeprAmount, NumberOfDays, DeprBookCode, DeprUntilDate, EntryAmounts, DaysInPeriod);
 
@@ -390,6 +393,7 @@ report 5692 "Calculate Depreciation"
         TempFAJnlLine: Record "FA Journal Line" temporary;
         DeprBook: Record "Depreciation Book";
         FAJnlSetup: Record "FA Journal Setup";
+        GeneralLedgerSetup: Record "General Ledger Setup";
         CalculateDepr: Codeunit "Calculate Depreciation";
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
         Window: Dialog;

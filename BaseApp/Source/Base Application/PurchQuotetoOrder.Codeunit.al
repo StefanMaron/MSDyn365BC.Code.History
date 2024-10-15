@@ -99,6 +99,7 @@ codeunit 96 "Purch.-Quote to Order"
             // NAVCZ
 
             PurchOrderLine.LockTable();
+            OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Insert(true);
 
             PurchOrderHeader."Order Date" := "Order Date";
@@ -115,6 +116,7 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderHeader.Validate("Posting Desc. Code", "Posting Desc. Code");
             // NAVCZ
             OnBeforeInsertPurchOrderHeader(PurchOrderHeader, PurchHeader);
+            OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(PurchOrderHeader, PurchHeader);
             PurchOrderHeader.Modify();
         end;
 
@@ -201,6 +203,7 @@ codeunit 96 "Purch.-Quote to Order"
     begin
     end;
 
+    [Obsolete('Replaced by OnCreatePurchHeaderOnBeforePurchOrderHeaderModify()', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertPurchOrderHeader(var PurchOrderHeader: Record "Purchase Header"; PurchQuoteHeader: Record "Purchase Header")
     begin
@@ -228,6 +231,16 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreatePurchHeaderOnBeforeInitRecord(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnBeforePurchOrderHeaderInsert(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnBeforePurchOrderHeaderModify(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 

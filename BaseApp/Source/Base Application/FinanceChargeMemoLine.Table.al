@@ -658,6 +658,8 @@ table 303 "Finance Charge Memo Line"
                     CustLedgEntry.SetRange("Customer No.", FinChrgMemoHeader."Customer No.");
                 end;
         end;
+
+        OnAfterSetCustLedgEntryView(CustLedgEntry, FinChrgTerms);
     end;
 
     local procedure LookupCustLedgEntry()
@@ -773,6 +775,11 @@ table 303 "Finance Charge Memo Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVATProdPostingGroupOnAfterVATPostingSetupGet(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetCustLedgEntryView(var CustLedgEntry: Record "Cust. Ledger Entry"; FinChrgTerms: Record "Finance Charge Terms")
     begin
     end;
 }

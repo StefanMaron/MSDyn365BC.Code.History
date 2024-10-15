@@ -1211,13 +1211,19 @@ codeunit 1535 "Approvals Mgmt."
         exit(false);
     end;
 
-    local procedure IsSufficientGenJournalLineApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"): Boolean
+    local procedure IsSufficientGenJournalLineApprover(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry") Result: Boolean
     var
         GenJournalLine: Record "Gen. Journal Line";
         RecRef: RecordRef;
+        IsHandled: Boolean;
     begin
         RecRef.Get(ApprovalEntryArgument."Record ID to Approve");
         RecRef.SetTable(GenJournalLine);
+
+        IsHandled := false;
+        OnIsSufficientGenJournalLineApproverOnAfterRecRefSetTable(UserSetup, ApprovalEntryArgument, GenJournalLine, Result, IsHandled);
+        if IsHandled then
+            exit;
 
         if GenJournalLine.IsForPurchase then
             exit(IsSufficientPurchApprover(UserSetup, ApprovalEntryArgument."Document Type", ApprovalEntryArgument."Amount (LCY)"));
@@ -1297,6 +1303,7 @@ codeunit 1535 "Approvals Mgmt."
 
     procedure PrePostApprovalCheckSales(var SalesHeader: Record "Sales Header"): Boolean
     begin
+        OnBeforePrePostApprovalCheckSales(SalesHeader);
         if IsSalesHeaderPendingApproval(SalesHeader) then
             Error(SalesPrePostCheckErr, SalesHeader."Document Type", SalesHeader."No.");
 
@@ -1305,6 +1312,7 @@ codeunit 1535 "Approvals Mgmt."
 
     procedure PrePostApprovalCheckPurch(var PurchaseHeader: Record "Purchase Header"): Boolean
     begin
+        OnBeforePrePostApprovalCheckPurch(PurchaseHeader);
         if IsPurchaseHeaderPendingApproval(PurchaseHeader) then
             Error(PurchPrePostCheckErr, PurchaseHeader."Document Type", PurchaseHeader."No.");
 
@@ -2351,6 +2359,16 @@ codeunit 1535 "Approvals Mgmt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePrePostApprovalCheckPurch(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePrePostApprovalCheckSales(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeIsSufficientSalesApprover(UserSetup: Record "User Setup"; DocumentType: Enum "Sales Document Type"; ApprovalAmountLCY: Decimal; var IsSufficient: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -2372,6 +2390,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnDelegateSelectedApprovalRequestOnBeforeSubstituteUserIdForApprovalEntry(var ApprovalEntry: Record "Approval Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsSufficientGenJournalLineApproverOnAfterRecRefSetTable(UserSetup: Record "User Setup"; ApprovalEntryArgument: Record "Approval Entry"; GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

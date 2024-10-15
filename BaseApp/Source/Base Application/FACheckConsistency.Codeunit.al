@@ -76,8 +76,7 @@ codeunit 5606 "FA Check Consistency"
     local procedure CheckNormalPosting()
     begin
         with FALedgEntry do begin
-            if FADeprBook."Disposal Date" > 0D then
-                CreateDisposedError;
+            CheckDisposalDate(FADeprBook, FA);
             SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             SetRange("FA No.", FANo);
             SetRange("Depreciation Book Code", DeprBookCode);
@@ -140,6 +139,8 @@ codeunit 5606 "FA Check Consistency"
     end;
 
     local procedure CheckSalesPosting()
+    var
+        Sign: Integer;
     begin
         with FALedgEntry do begin
             if FADeprBook."Acquisition Date" = 0D then
@@ -171,8 +172,12 @@ codeunit 5606 "FA Check Consistency"
                 SetRange("FA Posting Date");
                 if Find('-') then
                     repeat
-                        NewAmount := NewAmount + Amount;
-                        if NewAmount > 0 then
+                        if "Entry No." = FALedgEntry2."Entry No." then
+                            Sign := -1
+                        else
+                            Sign := 1;
+                        NewAmount := NewAmount + Sign * Amount;
+                        if NewAmount < 0 then
                             CreatePostingTypeError;
                     until Next = 0;
             end;
@@ -308,6 +313,12 @@ codeunit 5606 "FA Check Consistency"
         end;
     end;
 
+    procedure CheckDisposalDate(FADeprBook : Record "FA Depreciation Book"; FixedAsset: Record "Fixed Asset")
+    begin
+        if FADeprBook."Disposal Date" > 0D then
+            CreateDisposedError(FixedAsset, FADeprBook."Depreciation Book Code");
+    end;
+
     local procedure CreateAcquisitionCostError()
     begin
         FAJnlLine."FA Posting Type" := FAJnlLine."FA Posting Type"::"Acquisition Cost";
@@ -315,9 +326,11 @@ codeunit 5606 "FA Check Consistency"
           FAName, FAJnlLine."FA Posting Type");
     end;
 
-    local procedure CreateDisposedError()
+    local procedure CreateDisposedError(FixedAsset: Record "Fixed Asset"; DeprBookCode: Code[10])
+    var
+        DepreciationCalc: Codeunit "Depreciation Calculation";
     begin
-        Error(Text001, FAName);
+        Error(Text001, DepreciationCalc.FAName(FixedAsset,DeprBookCode));
     end;
 
     local procedure CreateDisposalError()

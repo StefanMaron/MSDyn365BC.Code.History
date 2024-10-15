@@ -476,6 +476,8 @@
                                 ShipToAddress: Record "Ship-to Address";
                                 ShipToAddressList: Page "Ship-to Address List";
                             begin
+                                OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
                                 case ShipToOptions of
                                     ShipToOptions::"Default (Sell-to Address)":
                                         begin
@@ -501,6 +503,8 @@
                                             IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
                                         end;
                                 end;
+
+                                OnAfterValidateShipToOptions(Rec, ShipToOptions);
                             end;
                         }
                         group(Control202)
@@ -2075,6 +2079,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShipToOptions(var SalesHeader: Record "Sales Header"; ShipToOptions: Option)
     begin
     end;
 }

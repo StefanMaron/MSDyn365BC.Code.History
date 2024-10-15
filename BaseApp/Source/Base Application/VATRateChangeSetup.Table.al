@@ -227,6 +227,18 @@ table 550 "VAT Rate Change Setup"
             Caption = 'Ignore Status on Service Docs.';
             InitValue = true;
         }
+        field(110; "Update Unit Price For G/L Acc."; Boolean)
+        {
+            Caption = 'Update Unit Prices for G/L Accounts';
+        }
+        field(111; "Upd. Unit Price For Item Chrg."; Boolean)
+        {
+            Caption = 'Update Unit Prices for Item Charges';
+        }
+        field(112; "Upd. Unit Price For FA"; Boolean)
+        {
+            Caption = 'Update Unit Prices for Fixed Assets';
+        }
     }
 
     keys

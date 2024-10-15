@@ -25,6 +25,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalBatchErr: Label 'Gen. Journal Batch name is blank.';
         PostingNoSeriesMustBeEmptyErr: Label 'Posting No. Series must be equal to ''''';
         OutOfBalanceErr: Label 'is out of balance';
+        ConfirmManualCheckTxt: Label 'A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?';
 
     [Test]
     [Scope('OnPrem')]
@@ -45,7 +46,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // 3. Verify that the count of posted entries is equal to the sum of debit and credit lines.
 
         // Setup: Create Multiple General Journal Lines of Debit and Credit Amounts. Taking Random Amount in multiplication of 4 to generate even amount and avoid rounding issue.
-        Initialize;
+        Initialize();
         DebitAmt := LibraryRandom.RandInt(1000) * 4;
         NoOfDrLines := 2 * LibraryRandom.RandInt(3);
         SelectAndClearGeneralJournalBatch(GenJournalBatch);
@@ -74,7 +75,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Test error occurs on running Create Customer Journal Lines Report without General Journal Template.
 
         // 1. Setup: Create General Journal Batch and Find Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
@@ -99,7 +100,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Test error occurs on running Create Customer Journal Lines Report without General Batch Name.
 
         // 1. Setup: Create General Journal Batch and Find Standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
@@ -126,7 +127,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Test General Journal Lines are created for Customer after running Create Customer Journal Lines Report.
 
         // 1. Setup: Create Customer and General Journal Batch. Find Standard General Journal.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
@@ -160,7 +161,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create General Journal line, Post with NO and Verify Entry No of G/L Entry has not increased.
 
         // 1. Setup: Find Last G/L Entry No.
-        Initialize;
+        Initialize();
         LastGLEntryNo := GetLastGLEntryNumber;
 
         // Create General Journal Line.
@@ -186,7 +187,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create General Journal line, Post with YES and Verify Entry No of G/L Entry has increased.
 
         // 1. Setup: Find Last G/L Entry No.
-        Initialize;
+        Initialize();
         LastGLEntryNo := GetLastGLEntryNumber;
 
         // Create General Journal Line.
@@ -211,7 +212,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Verify General Journal Batch Name on General Journal Page with Number Series.
 
         // 1. Setup: Create General Journal Batch with Number Series.
-        Initialize;
+        Initialize();
         CreateGeneralBatchWithNoSeries(GenJournalBatch);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
 
@@ -239,7 +240,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Verify Balance Account on General Journal Page with Number Series.
 
         // 1. Setup: Create General Journal Batch with Number Series.
-        Initialize;
+        Initialize();
         CreateGeneralBatchWithNoSeries(GenJournalBatch);
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
 
@@ -272,7 +273,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create and post General Journal Line having Customer with Balance Account number and verify Customer number and G/L Entry after posting.
 
         // Setup: Create Customer, G/L Account and  General Journal Line and LibraryRandom used for generating Random Amount.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndUpdateGLAccount(GLAccount, GLAccount."Gen. Posting Type"::Purchase);
         CreateBatchAndUpdateTemplate(GenJournalBatch, GenJournalTemplate.Type::General);
@@ -305,7 +306,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create and post General Journal Line having Customer without Balance Account number and verify Customer number and G/L Entry after posting.
 
         // Setup: Create Customer, G/L Account and  General Journal Lines and LibraryRandom used for generating Random Amount.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndUpdateGLAccount(GLAccount, GLAccount."Gen. Posting Type"::Purchase);
         CreateBatchAndUpdateTemplate(GenJournalBatch, GenJournalTemplate.Type::General);
@@ -339,7 +340,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create and post General Journal Line having Vendor with Balance Account number and verify Vendor number and G/L Entry after posting.
 
         // Setup: Create Customer, G/L Account and  General Journal Lines and LibraryRandom used for generating Random Amount.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndUpdateGLAccount(GLAccount, GLAccount."Gen. Posting Type"::Sale);
         CreateBatchAndUpdateTemplate(GenJournalBatch, GenJournalTemplate.Type::General);
@@ -372,7 +373,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create and post General Journal Line having Vendor without Balance Account number and verify Vendor number and G/L Entry after posting.
 
         // Setup: Create Customer, G/L Account and  General Journal Lines and LibraryRandom used for generating Random Amount.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateAndUpdateGLAccount(GLAccount, GLAccount."Gen. Posting Type"::Sale);
         CreateBatchAndUpdateTemplate(GenJournalBatch, GenJournalTemplate.Type::General);
@@ -407,7 +408,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create and post multiple General Journal Lines including Customer withhout having Balance Account number and verify Vendor number and G/L Entry after posting.
 
         // Setup: Create Customer, G/L Account and  General Journal Lines and LibraryRandom used for generating Random Amount.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreateVendor(Vendor2);
         CreateAndUpdateGLAccount(GLAccount, GLAccount."Gen. Posting Type"::Purchase);
@@ -444,7 +445,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Create and post multiple General Journal Lines including Customer withhout having Balance Account number and verify Customer number and G/L Entry after posting.
 
         // Setup: Create Customer, G/L Account and  General Journal Lines and LibraryRandom used for generating Random Amount.
-        Initialize;
+        Initialize();
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomer(Customer2);
         CreateAndUpdateGLAccount(GLAccount, GLAccount."Gen. Posting Type"::Sale);
@@ -478,7 +479,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Test that error occurs when General Journal Lines are posted with and without Posting No. Series.
 
         // Setup: Create two General Journal Lines with and without Posting No Series and Random Amount.
-        Initialize;
+        Initialize();
         SelectAndClearGeneralJournalBatch(GenJournalBatch);
         CreateGeneralJournalLineWithPostingNoSeries(
           GenJournalLine, GenJournalBatch, LibraryUtility.GetGlobalNoSeriesCode, LibraryRandom.RandDec(100, 2));  // General Journal Line with Posting No Series.
@@ -504,7 +505,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         // Test that Source Code is automatically filled when Standard General Journal page is opened.
 
         // Setup: Create a new General Journal Batch and standard General Journal.
-        Initialize;
+        Initialize();
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateStandardGeneralJournal(StandardGeneralJournal, GenJournalBatch."Journal Template Name");
 
@@ -528,7 +529,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
 
         // Setup: Create General Journal Lines using No. Series by General Journal Page."Document No." of the Journal Lines will contain different number of digits.
         // Exercise: Post General Journal.
-        Initialize;
+        Initialize();
         JournalBatchName :=
           CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(Format(LibraryRandom.RandInt(8)), LibraryRandom.RandIntInRange(10, 20));
 
@@ -546,7 +547,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Force Doc. Balance]
         // [SCENARIO 363317] Journal lines balanced by Posting Date but not balanced by Document No. can be posted when "Force Doc. Balance" is off.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch/Template with "Force Doc. Balance" = FALSE.
         CreateGeneralJournalBatchTemplateForceDocBalance(GenJournalBatch, false);
@@ -581,7 +582,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Force Doc. Balance]
         // [SCENARIO 363317] Journal lines balanced by Posting Date but not balanced by Document No. cannot be posted when "Force Doc. Balance" is on.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Gen. Journal Batch/Template with "Force Doc. Balance" = TRUE.
         CreateGeneralJournalBatchTemplateForceDocBalance(GenJournalBatch, true);
@@ -620,7 +621,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         OldManualNos: Boolean;
     begin
         // [SCENARIO 377797] Marked Gen.Journal Batches are markedonly when posting error with the same Document No. in one No. Series used.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two batches in Gen.Journal Template with the same No. Series "S" defined
         CreateGeneralBatchWithNoSeries(GenJournalBatchA);
@@ -667,7 +668,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Suggest Balancing Amount] [UI]
         // [SCENARIO 167318] User should be able to set Suggest Balancing Amount on General Journal Batches page.
-        Initialize;
+        Initialize();
 
         // [GIVEN] General Journal Batch "N"
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, false);
@@ -700,7 +701,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Suggest Balancing Amount]
         // [SCENARIO 167318] Suggest balancing Amount for new line below Gen.Jnl.Lines where Document No. comes sequentially
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Suggest balancing amount" is TRUE on Journal Template
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, true);
@@ -740,7 +741,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Suggest Balancing Amount]
         // [SCENARIO 167318] Suggest balancing Amount for new line below Gen.Jnl.Lines where Document No. is mixed between lines.
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Suggest balancing amount" is TRUE on Journal Template
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, true);
@@ -780,7 +781,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Suggest Balancing Amount]
         // [SCENARIO 167318] Suggest balancing Amount for new line above last line of Gen.Jnl.Lines where Document No. comes sequentially
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Suggest balancing amount" is TRUE on Journal Template
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, true);
@@ -817,7 +818,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Suggest Balancing Amount]
         // [SCENARIO 167318] Suggest balancing Amount between Gen.Jnl.Lines with different Document Nos
-        Initialize;
+        Initialize();
 
         // [GIVEN] "Suggest balancing amount" is TRUE on Gen.Journal Batch
         CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, true);
@@ -950,7 +951,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Customer Journal Lines]
         // [SCENARIO 278125] Source code is copied from journal template by report Create Customer Journal Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new source code SC
         LibraryERM.CreateSourceCode(SourceCode);
@@ -984,7 +985,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Vendor Journal Lines]
         // [SCENARIO 278125] Source code is copied from journal template by report Create Vendor Journal Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new source code SC
         LibraryERM.CreateSourceCode(SourceCode);
@@ -1019,7 +1020,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create G/L Account Journal Lines]
         // [SCENARIO 278125] Source code is copied from journal template by report Create G/L Account Journal Lines
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create new source code SC
         LibraryERM.CreateSourceCode(SourceCode);
@@ -1053,7 +1054,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Customer Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create Customer Journal Lines" report called from C/AL code without request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -1079,7 +1080,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Vendor Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create Vendor Journal Lines" report called from C/AL code without request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -1105,7 +1106,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create G/L Account Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create G/L Account Journal Lines" report called from C/AL code without request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -1131,7 +1132,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Item Journal Lines]
         // [SCENARIO 299575] Stan can create item journal lines with the specified document number via "Create Item Journal Lines" report called from C/AL code without request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateItemJournalBatch(ItemJournalBatch);
@@ -1157,7 +1158,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Customer Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create Customer Journal Lines" report called with request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -1170,7 +1171,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.TestField("Document No.", DocumentNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1185,7 +1186,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Vendor Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create Vendor Journal Lines" report called with request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -1198,7 +1199,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.TestField("Document No.", DocumentNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1213,7 +1214,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create G/L Account Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create G/L Account Journal Lines" report called with request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateGeneralJournalBatch(GenJournalBatch);
@@ -1226,7 +1227,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.TestField("Document No.", DocumentNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1241,7 +1242,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Item Journal Lines]
         // [SCENARIO 299575] Stan can create item journal lines with the specified document number via "Create Item Journal Lines" report called with request page.
-        Initialize;
+        Initialize();
 
         DocumentNo := LibraryUtility.GenerateGUID;
         CreateItemJournalBatch(ItemJournalBatch);
@@ -1254,7 +1255,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryInventory.FindItemJournalLine(ItemJournalLine, ItemJournalBatch);
         ItemJournalLine.TestField("Document No.", DocumentNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1272,7 +1273,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Customer Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create Customer Journal Lines" report called from General Journal page.
-        Initialize;
+        Initialize();
 
         Customer.ModifyAll(Blocked, Customer.Blocked::All);
         LineCount := 3;
@@ -1313,7 +1314,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create Vendor Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create Vendor Journal Lines" report called from General Journal page.
-        Initialize;
+        Initialize();
 
         Vendor.ModifyAll(Blocked, Vendor.Blocked::All);
         LineCount := 3;
@@ -1354,7 +1355,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         // [FEATURE] [Create G/L Account Journal Lines]
         // [SCENARIO 299575] Stan can create gen. journal lines with the specified document number via "Create G/L Account Journal Lines" report called from General Journal page.
-        Initialize;
+        Initialize();
 
         GLAccount.ModifyAll(Blocked, true);
         LineCount := 3;
@@ -1381,6 +1382,152 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
         GenJournalLine.SetRange("Document No.", DocumentNo);
         Assert.RecordCount(GenJournalLine, LineCount);
+
+        GLAccount.ModifyAll(Blocked, false);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure WarningPostWithEmptyBalAccountNoAndManualCheckAccept()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Manual Check]
+        // [SCENARIO 356131] When trying to post Gen. Journal lines with empty "Bal. Account No." and "Manual Check", warning is shown. Accepting resumes posting.
+        Initialize();
+
+        // [GIVEN] Pair of Gen. Journal Lines with "Document Type" = "Payment", "Account Type" = "Vendor" / "Bank Account", "Amount" = 100 / -100,
+        // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
+        CreateGeneralJournalLinesForManualCheck(
+            GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+        DocumentNo := GenJnlLine."Document No.";
+
+        // [WHEN] "Gen. Jnl.-Post" codeunit is run for Gen. Journal Lines.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", GenJnlLine);
+
+        // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
+        LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+
+        // [THEN] When accepted, Gen. Journal Lines are posted.
+        VerifyGLEntriesCount(DocumentNo, 2);
+        VerifyGenJournalLinesCount(DocumentNo, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure WarningPostWithEmptyBalAccountNoAndManualCheckCancel()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Manual Check]
+        // [SCENARIO 356131] When trying to post Gen. Journal lines with empty "Bal. Account No." and "Manual Check", warning is shown. Canceling stops posting.
+        Initialize();
+
+        // [GIVEN] Pair of Gen. Journal Lines with "Document Type" = "Payment", "Account Type" = "Vendor" / "Bank Account", "Amount" = 100 / -100,
+        // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
+        CreateGeneralJournalLinesForManualCheck(
+            GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+        DocumentNo := GenJnlLine."Document No.";
+
+        // [WHEN] "Gen. Jnl.-Post" codeunit is run for Gen. Journal Lines.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post", GenJnlLine);
+
+        // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
+        LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+
+        // [THEN] When canceled, Gen. Journal Lines are not posted.
+        VerifyGLEntriesCount(DocumentNo, 0);
+        VerifyGenJournalLinesCount(DocumentNo, 2);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler,MessageHandler,GLRegisterReportHandler')]
+    [Scope('OnPrem')]
+    procedure WarningPostAndPrintWithEmptyBalAccountNoAndManualCheckAccept()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Manual Check]
+        // [SCENARIO 356131] When trying to post and print Gen. Journal lines with empty "Bal. Account No." and "Manual Check", warning is shown. Accepting resumes posting.
+        Initialize();
+
+        // [GIVEN] Pair of Gen. Journal Lines with "Document Type" = "Payment", "Account Type" = "Vendor" / "Bank Account", "Amount" = 100 / -100,
+        // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
+        CreateGeneralJournalLinesForManualCheck(
+            GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+        DocumentNo := GenJnlLine."Document No.";
+
+        // [WHEN] "Gen. Jnl.-Post+Print" codeunit is run for Gen. Journal Lines.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(true);
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", GenJnlLine);
+
+        // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
+        LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+
+        // [THEN] When accepted, Gen. Journal Lines are posted.
+        VerifyGLEntriesCount(DocumentNo, 2);
+        VerifyGenJournalLinesCount(DocumentNo, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    [Scope('OnPrem')]
+    procedure WarningPostAndPrintWithEmptyBalAccountNoAndManualCheckCancel()
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Manual Check]
+        // [SCENARIO 356131] When trying to post and print Gen. Journal lines with empty "Bal. Account No." and "Manual Check", warning is shown. Canceling stops posting.
+        Initialize();
+
+        // [GIVEN] Pair of Gen. Journal Lines with "Document Type" = "Payment", "Account Type" = "Vendor" / "Bank Account", "Amount" = 100 / -100,
+        // [GIVEN] "Bal. Account Type" = "G/L Account", "Bal. Account No." is empty, "Bank Payment Type" = blank / "Manual Check", same "Document No".
+        CreateGeneralJournalLinesForManualCheck(
+            GenJnlLine, GenJnlLine."Document Type"::Payment, GenJnlLine."Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo, GenJnlLine."Bal. Account Type"::"G/L Account", '', LibraryRandom.RandDec(100, 1));
+        DocumentNo := GenJnlLine."Document No.";
+
+        // [WHEN] "Gen. Jnl.-Post+Print" codeunit is run for Gen. Journal Lines.
+        LibraryVariableStorage.Enqueue(true);
+        LibraryVariableStorage.Enqueue(false);
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Post+Print", GenJnlLine);
+
+        // [THEN] Warning with text "When printing checks from lines with Bal. Acc. No blank you will not be able to void the check. Do you want to continue?".
+        LibraryVariableStorage.DequeueText();
+        Assert.ExpectedMessage(ConfirmManualCheckTxt, LibraryVariableStorage.DequeueText);
+
+        // [THEN] When canceled, Gen. Journal Lines are not posted.
+        VerifyGLEntriesCount(DocumentNo, 0);
+        VerifyGenJournalLinesCount(DocumentNo, 2);
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -1542,6 +1689,28 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         GenJournalLine.Validate("Posting Date", PostingDate);
         GenJournalLine.Validate("Document No.", BalDocumentNo);
         GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalLinesForManualCheck(var GenJnlLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; BalAccountType: Option; BalAccountNo: Code[20]; LineAmount: Decimal)
+    var
+        GenJnlBatch: Record "Gen. Journal Batch";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        DocumentNo: Code[20];
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
+        with GenJnlLine do begin
+            LibraryERM.CreateGeneralJnlLineWithBalAcc(
+              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
+              AccountType, AccountNo, BalAccountType, '', LineAmount);
+            DocumentNo := "Document No.";
+            LibraryERM.CreateGeneralJnlLineWithBalAcc(
+              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
+              "Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, BalAccountType, '', -LineAmount);
+            Validate("Document No.", DocumentNo);
+            Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
+            Modify(true);
+        end;
     end;
 
     local procedure CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(LastNoUsed: Code[20]; LineCount: Integer): Code[10]
@@ -1910,6 +2079,22 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CustLedgerEntry.TestField("Sell-to Customer No.", CustomerNo);
     end;
 
+    local procedure VerifyGenJournalLinesCount(DocumentNo: Code[20]; LineCount: Integer)
+    var
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        GenJnlLine.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(GenJnlLine, LineCount);
+    end;
+
+    local procedure VerifyGLEntriesCount(DocumentNo: Code[20]; LineCount: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(GLEntry, LineCount);
+    end;
+
     local procedure VerifyVendorLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; VendorNo: Code[20])
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1991,6 +2176,14 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         Reply := true;
     end;
 
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmMessageHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := LibraryVariableStorage.DequeueBoolean;
+        LibraryVariableStorage.Enqueue(Question);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure CreateGLAccJournalLinesRequestPageHandler(var CreateGLAccJournalLines: TestRequestPage "Create G/L Acc. Journal Lines")
@@ -2044,6 +2237,12 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         CreateItemJournalLines.TemplateCode.SetValue(LibraryVariableStorage.DequeueText); // Std. Template Code
         CreateItemJournalLines.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
         CreateItemJournalLines.OK.Invoke;
+    end;
+
+    [ReportHandler]
+    [Scope('OnPrem')]
+    procedure GLRegisterReportHandler(var GLRegister: Report "G/L Register")
+    begin
     end;
 }
 

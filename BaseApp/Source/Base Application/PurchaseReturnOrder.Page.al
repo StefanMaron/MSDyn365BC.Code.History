@@ -1657,6 +1657,8 @@ page 6640 "Purchase Return Order"
 
     local procedure ValidateShippingOption()
     begin
+        OnBeforeValidateShipToOptions(Rec, ShipToOptions);
+
         case ShipToOptions of
             ShipToOptions::"Default (Vendor Address)":
                 begin
@@ -1666,6 +1668,8 @@ page 6640 "Purchase Return Order"
             ShipToOptions::"Alternate Vendor Address":
                 Validate("Order Address Code", '');
         end;
+
+        OnAfterValidateShipToOptions(Rec, ShipToOptions);
     end;
 
     local procedure CalculateCurrentShippingOption()
@@ -1678,6 +1682,16 @@ page 6640 "Purchase Return Order"
             else
                 ShipToOptions := ShipToOptions::"Custom Address";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterValidateShipToOptions(var PurchaseHeader: Record "Purchase Header"; ShipToOptions: Option)
+    begin
     end;
 }
 

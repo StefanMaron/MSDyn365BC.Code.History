@@ -1,4 +1,4 @@
-codeunit 5063 ArchiveManagement
+﻿codeunit 5063 ArchiveManagement
 {
 
     trigger OnRun()
@@ -329,6 +329,7 @@ codeunit 5063 ArchiveManagement
             SalesHeader."No." := SalesHeaderArchive."No.";
             OnBeforeSalesHeaderInsert(SalesHeader, SalesHeaderArchive);
             SalesHeader.Insert(true);
+            OnRestoreSalesDocumentOnAfterSalesHeaderInsert(SalesHeader, SalesHeaderArchive);
             SalesHeader.TransferFields(SalesHeaderArchive);
             SalesHeader.Status := SalesHeader.Status::Open;
             if SalesHeaderArchive."Sell-to Contact No." <> '' then
@@ -374,6 +375,7 @@ codeunit 5063 ArchiveManagement
                 with SalesLine do begin
                     Init;
                     TransferFields(SalesLineArchive);
+                    OnRestoreSalesLinesOnBeforeSalesLineInsert(SalesLine, SalesLineArchive);
                     Insert(true);
                     OnRestoreSalesLinesOnAfterSalesLineInsert(SalesLine, SalesLineArchive);
                     if Type <> Type::" " then begin
@@ -833,7 +835,17 @@ codeunit 5063 ArchiveManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnRestoreSalesDocumentOnAfterSalesHeaderInsert(var SalesHeader: Record "Sales Header"; SalesHeaderArchive: Record "Sales Header Archive");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnRestoreSalesLinesOnAfterSalesLineInsert(var SalesLine: Record "Sales Line"; var SalesLineArchive: Record "Sales Line Archive")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestoreSalesLinesOnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; var SalesLineArchive: Record "Sales Line Archive")
     begin
     end;
 
