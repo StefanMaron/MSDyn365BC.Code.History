@@ -940,6 +940,64 @@ codeunit 134227 "ERM PostRecurringJournal"
 
     [Test]
     [Scope('OnPrem')]
+    procedure PostGenJournalLineCustomerWithAllocationLine_CopyVATSetup_TRUE()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
+        VATEntryCount: Integer;
+    begin
+        // [FEATURE] [Gen. Jnl. Allocation] [Customer]
+        // [SCENARIO 332089] Posting gen. allocation lines must rely on positive "Copy VAT Setup on Jnl. Lines" of general journal batch
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
+        GenJournalBatch.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
+
+        VATEntryCount := VATEntry.Count;
+        CreateGeneralJournalLineWithType(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccount."No.", 100);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        Assert.RecordCount(VATEntry, VATEntryCount + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostGenJournalLineVendorWithAllocationLine_CopyVATSetup_TRUE()
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        VATEntry: Record "VAT Entry";
+        VATEntryCount: Integer;
+    begin
+        // [FEATURE] [Gen. Jnl. Allocation] [Vendor]
+        // [SCENARIO 332089] Posting gen. allocation lines must rely on positive "Copy VAT Setup on Jnl. Lines" of general journal batch
+        CreateRecurringGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
+        GenJournalBatch.Modify(true);
+
+        GLAccount.Get(LibraryERM.CreateGLAccountWithPurchSetup());
+
+        VATEntryCount := VATEntry.Count;
+        CreateGeneralJournalLineWithType(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"F  Fixed", GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), -LibraryRandom.RandDecInRange(1000, 2000, 2));
+        CreateGenJnlAllocationWithAccountAndAllocPct(GenJournalLine, GLAccount."No.", 100);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        Assert.RecordCount(VATEntry, VATEntryCount + 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure PostRecurringGenJnlLinesNotSortedByDocNoWithForceDocBalance()
     var
         GenJournalLine: Record "Gen. Journal Line";

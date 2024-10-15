@@ -69,7 +69,6 @@ table 334 "Column Layout"
         {
             Caption = 'Show';
             InitValue = Always;
-            NotBlank = true;
             OptionCaption = 'Always,Never,When Positive,When Negative';
             OptionMembers = Always,Never,"When Positive","When Negative";
         }

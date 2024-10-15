@@ -15,8 +15,16 @@ report 14930 "Item Write-off act TORG-16"
                 DataItemTableView = SORTING("Document Type", "Document No.", "Line No.");
 
                 trigger OnAfterGetRecord()
+                var
+                    ReservationEntry: Record "Reservation Entry";
                 begin
-                    Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", ItemDocHeader."Posting Date");
+                    ReservationEntry.SetSourceFilter(DATABASE::"Item Document Line", "Document Type", "Document No.", "Line No.", false);
+                    if ReservationEntry.FindSet() then
+                        repeat
+                            Torg16DocHelper.FillWriteOffReasonBody(ReservationEntry."Appl.-to Item Entry", "Reason Code", ItemDocHeader."Posting Date");
+                        until ReservationEntry.Next() = 0
+                    else
+                        Torg16DocHelper.FillWriteOffReasonBody("Applies-to Entry", "Reason Code", ItemDocHeader."Posting Date");
                 end;
 
                 trigger OnPostDataItem()

@@ -47,7 +47,7 @@ codeunit 147103 "SCM CD Transfer"
 
     var
         IsNotOnvInventoryErr: Label 'You have insufficient quantity of Item %1 on inventory.';
-        QtyToHandleMessage: Label 'Qty. to Handle (Base) in Tracking Specification for Item No. %1, Serial No.: %2, Lot No.:  is currently 3. It must be 4.';
+        QtyToHandleMessage: Label 'Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently 3. It must be 4.\\Check the assignment for serial number %2, lot number .';
         CDInfoNotExist: Label 'The CD No. Information does not exist.';
         CDNoRequired: Label 'You must assign a CD number for item %1.', Comment = '%1 - Item No.';
         Text001: Label 'Error in TearDown';

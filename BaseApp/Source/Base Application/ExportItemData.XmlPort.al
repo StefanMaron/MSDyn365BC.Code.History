@@ -4,7 +4,7 @@ xmlport 5801 "Export Item Data"
     DefaultFieldsValidation = false;
     Direction = Export;
     FieldDelimiter = '<~>';
-    FieldSeparator = '<Ž©>';
+    FieldSeparator = '<;>';
     Format = VariableText;
     TextEncoding = UTF16;
     UseRequestPage = false;
@@ -24,12 +24,6 @@ xmlport 5801 "Export Item Data"
                 {
                 }
                 fieldelement(Item_No2; Item."No. 2")
-                {
-                }
-                fieldelement(Item_Description; Item.Description)
-                {
-                }
-                fieldelement(Item_SearchDescription; Item."Search Description")
                 {
                 }
                 fieldelement(Item_BaseUnitofMeasure; Item."Base Unit of Measure")
@@ -771,13 +765,7 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemApplnEntry_CreationDate; TempItemApplnEntry."Creation Date")
                 {
                 }
-                fieldelement(ItemApplnEntry_CreatedByUser; TempItemApplnEntry."Created By User")
-                {
-                }
                 fieldelement(ItemApplnEntry_LastModifiedDate; TempItemApplnEntry."Last Modified Date")
-                {
-                }
-                fieldelement(ItemApplnEntry_LastModifiedByUser; TempItemApplnEntry."Last Modified By User")
                 {
                 }
                 fieldelement(ItemApplnEntry_CostApplication; TempItemApplnEntry."Cost Application")
@@ -855,13 +843,7 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ValueEntry_SalesAmountActual; ValueEntry."Sales Amount (Actual)")
                 {
                 }
-                fieldelement(ValueEntry_SalespersPurchCode; ValueEntry."Salespers./Purch. Code")
-                {
-                }
                 fieldelement(ValueEntry_DiscountAmount; ValueEntry."Discount Amount")
-                {
-                }
-                fieldelement(ValueEntry_UserID; ValueEntry."User ID")
                 {
                 }
                 fieldelement(ValueEntry_SourceCode; ValueEntry."Source Code")
@@ -1462,9 +1444,6 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ProdOrder2_EndingDateTime; TempProdOrder."Ending Date-Time")
                 {
                 }
-                fieldelement(ProdOrder2_AssignedUserID; TempProdOrder."Assigned User ID")
-                {
-                }
 
                 trigger OnAfterInsertRecord()
                 var
@@ -1848,13 +1827,7 @@ xmlport 5801 "Export Item Data"
                 fieldelement(CapValueEntry_SalesAmountActual; TempCapValueEntry."Sales Amount (Actual)")
                 {
                 }
-                fieldelement(CapValueEntry_SalespersPurchCode; TempCapValueEntry."Salespers./Purch. Code")
-                {
-                }
                 fieldelement(CapValueEntry_DiscountAmount; TempCapValueEntry."Discount Amount")
-                {
-                }
-                fieldelement(CapValueEntry_UserID; TempCapValueEntry."User ID")
                 {
                 }
                 fieldelement(CapValueEntry_SourceCode; TempCapValueEntry."Source Code")
@@ -2176,19 +2149,10 @@ xmlport 5801 "Export Item Data"
                 fieldelement(ItemApplnEntryHist_CreationDate; TempItemApplnEntryHistory."Creation Date")
                 {
                 }
-                fieldelement(ItemApplnEntryHist_CreatedByUser; TempItemApplnEntryHistory."Created By User")
-                {
-                }
                 fieldelement(ItemApplnEntryHist_LastModifiedDate; TempItemApplnEntryHistory."Last Modified Date")
                 {
                 }
-                fieldelement(ItemApplnEntryHist_LastModifiedByUser; TempItemApplnEntryHistory."Last Modified By User")
-                {
-                }
                 fieldelement(ItemApplnEntryHist_DeletedDate; TempItemApplnEntryHistory."Deleted Date")
-                {
-                }
-                fieldelement(ItemApplnEntryHist_DeletedByUser; TempItemApplnEntryHistory."Deleted By User")
                 {
                 }
                 fieldelement(ItemApplnEntryHist_CostApplication; TempItemApplnEntryHistory."Cost Application")
@@ -2247,9 +2211,6 @@ xmlport 5801 "Export Item Data"
                 {
                 }
                 fieldelement(ItemRegister_SourceCode; ItemRegister."Source Code")
-                {
-                }
-                fieldelement(ItemRegister_UserID; ItemRegister."User ID")
                 {
                 }
                 fieldelement(ItemRegister_JournalBatchName; ItemRegister."Journal Batch Name")
@@ -2411,6 +2372,78 @@ xmlport 5801 "Export Item Data"
                     StockkeepingUnit.SetRange("Item No.", FilteredItem."No.");
                 end;
             }
+            tableelement(invadjmentry; "Inventory Adjmt. Entry (Order)")
+            {
+                AutoUpdate = true;
+                MinOccurs = Zero;
+                XmlName = 'InvAdjmEntry';
+                SourceTableView = SORTING("Order Type", "Order No.", "Order Line No.");
+                fieldelement(InvAdjmEntry_OrderType; InvAdjmEntry."Order Type")
+                {
+                }
+                fieldelement(InvAdjmEntry_OrderNo; InvAdjmEntry."Order No.")
+                {
+                }
+                fieldelement(InvAdjmEntry_OrderLineNo; InvAdjmEntry."Order Line No.")
+                {
+                }
+                fieldelement(InvAdjmEntry_ItemNo; InvAdjmEntry."Item No.")
+                {
+                }
+                fieldelement("InvAdjmEntry_RoutingNo."; InvAdjmEntry."Routing No.")
+                {
+                }
+                fieldelement("InvAdjmEntry_RoutingReferenceNo."; InvAdjmEntry."Routing Reference No.")
+                {
+                }
+                fieldelement(InvAdjmEntry_IndirectCostPercentage; InvAdjmEntry."Indirect Cost %")
+                {
+                }
+                fieldelement(InvAdjmEntry_OverheadRate; InvAdjmEntry."Overhead Rate")
+                {
+                }
+                fieldelement(InvAdjmEntry_CostisAdjusted; InvAdjmEntry."Cost is Adjusted")
+                {
+                }
+                fieldelement(InvAdjmEntry_AllowOnlineAdjustment; InvAdjmEntry."Allow Online Adjustment")
+                {
+                }
+                fieldelement(InvAdjmEntry_UnitCost; InvAdjmEntry."Unit Cost")
+                {
+                }
+                fieldelement(InvAdjmEntry_DirectCost; InvAdjmEntry."Direct Cost")
+                {
+                }
+                fieldelement(InvAdjmEntry_IndirectCost; InvAdjmEntry."Indirect Cost")
+                {
+                }
+                fieldelement("InvAdjmEntry_Single-LevelMaterialCost"; InvAdjmEntry."Single-Level Material Cost")
+                {
+                }
+                fieldelement("InvAdjmEntry_Single-LevelCapacityCost"; InvAdjmEntry."Single-Level Capacity Cost")
+                {
+                }
+                fieldelement("InvAdjmEntry_Single-LevelSubcontrd.Cost"; InvAdjmEntry."Single-Level Subcontrd. Cost")
+                {
+                }
+                fieldelement("InvAdjmEntry_Single-LevelCap.OvhdCost"; InvAdjmEntry."Single-Level Cap. Ovhd Cost")
+                {
+                }
+                fieldelement("InvAdjmEntry_Single-LevelMfg.OvhdCost"; InvAdjmEntry."Single-Level Mfg. Ovhd Cost")
+                {
+                }
+                fieldelement(InvAdjmEntry_CompletelyInvoiced; InvAdjmEntry."Completely Invoiced")
+                {
+                }
+                fieldelement(InvAdjmEntry_IsFinished; InvAdjmEntry."Is Finished")
+                {
+                }
+
+                trigger OnPreXmlItem()
+                begin
+                    InvAdjmEntry.SetRange("Item No.", FilteredItem."No.");
+                end;
+            }
         }
     }
 
@@ -2428,7 +2461,7 @@ xmlport 5801 "Export Item Data"
 
     trigger OnPostXmlPort()
     begin
-        Message(ImportTimeMsg, Format(CurrentDateTime - StartTime));
+        Message(ExportTimeMsg, Format(CurrentDateTime - StartTime));
     end;
 
     trigger OnPreXmlPort()
@@ -2441,7 +2474,7 @@ xmlport 5801 "Export Item Data"
         StartTime: DateTime;
         SingleItemExportOnlyErr: Label 'This export is for a sinlge Item only. The filter you have specified (%1) filters to %2 Items.', Comment = '%1 = Item filters; %2 = Item count';
         ItemLedgEntryNoExistErr: Label 'Item Ledger Entry %1 is used in both, Customer and Demo DB.\Please delete all Value Entries, Item Ledger Entries and Item Application Entries in order to have integer data.', Comment = '%1 = Entry No.';
-        ImportTimeMsg: Label 'Import Time %1.', Comment = '%1 = Time';
+        ExportTimeMsg: Label 'Export Time %1.', Comment = '%1 = Time';
 
     procedure CollectItemApplnEntry(ItemLedgEntryNo: Integer)
     var

@@ -182,6 +182,10 @@ codeunit 136500 "UT Time Sheets"
         TimeSheetLine.SetRange("Job Task No.", JobTask."Job Task No.");
         Assert.IsTrue(TimeSheetLine.Count = 1, 'Incorrect number of lines has been created.');
 
+        // TFS ID 351459: An additional time sheet line would not be created from the same Job Planning Line
+        TimeSheetMgt.CreateLinesFromJobPlanning(TimeSheetHeader);
+        Assert.IsTrue(TimeSheetLine.Count() = 1, 'Incorrect number of lines has been created.');
+
         TearDown;
     end;
 

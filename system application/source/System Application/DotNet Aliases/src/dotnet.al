@@ -1757,6 +1757,10 @@ dotnet
         {
         }
 
+        type(System.Drawing.Rectangle; "Rectangle")
+        {
+        }
+
         type("System.Drawing.SolidBrush"; "SolidBrush")
         {
         }

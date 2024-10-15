@@ -5116,22 +5116,16 @@
     local procedure MaxConsumptionValuationDate(ItemLedgerEntry: Record "Item Ledger Entry"): Date
     var
         ValueEntry: Record "Value Entry";
-        ValuationDate: Date;
     begin
         with ValueEntry do begin
-            SetCurrentKey("Order Type", "Order No.");
+            SetCurrentKey("Item Ledger Entry Type", "Order No.", "Valuation Date");
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", ItemLedgerEntry."Order No.");
             SetRange("Order Line No.", ItemLedgerEntry."Order Line No.");
             SetRange("Item Ledger Entry Type", "Item Ledger Entry Type"::Consumption);
-            if FindSet then
-                repeat
-                    if ("Valuation Date" > ValuationDate) and
-                       ("Entry Type" <> "Entry Type"::Revaluation)
-                    then
-                        ValuationDate := "Valuation Date";
-                until Next = 0;
-            exit(ValuationDate);
+            SetFilter("Entry Type", '<>%1', "Entry Type"::Revaluation);
+            if FindLast() then
+                exit("Valuation Date");
         end;
     end;
 

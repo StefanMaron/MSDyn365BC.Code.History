@@ -235,6 +235,94 @@ codeunit 144102 "SCM Inventory reports"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UnpostedTorg16WithItemTrackingLinesApplToEntry()
+    var
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        ItemDocumentHeader: Record "Item Document Header";
+        ItemDocumentLine: Record "Item Document Line";
+        ReservationEntry: Record "Reservation Entry";
+        I: Integer;
+    begin
+        // [FEATURE] [Shipment] [Applies-to Entry] [Item Tracking] [UT]
+        // [SCENARIO 347001] Unposted TORG-16 report fills Invoice Date based on the Item Tracking Lines "Appl.-to Item Entry"
+
+        // [GIVEN] Item Ledger Entry "ILE1" with "Posting Date" = 01.01.2020 and "Document No." = "DOC01"
+        // [GIVEN] Item Ledger Entry "ILE2" with "Posting Date" = 10.01.2020 and "Document No." = "DOC02"
+        for I := 1 to ArrayLen(ItemLedgerEntry) do
+            MockItemLedgerEntry(
+              ItemLedgerEntry[I], LibraryRandom.RandDateFromInRange(WorkDate, 10 * (I - 1), 10 * I),
+              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Item Shipment with an Item Shipment Line
+        MockItemDocHeader(ItemDocumentHeader, ItemDocumentHeader."Document Type"::Shipment);
+        MockItemDocLine(ItemDocumentLine, ItemDocumentHeader);
+
+        // [GIVEN] Item Tracking Line for the Item Shipment Line with "Appl.-to Item Entry" = "ILE1"
+        // [GIVEN] Item Tracking Line for the Item Shipment Line with "Appl.-to Item Entry" = "ILE2"
+        for I := 1 to ArrayLen(ItemLedgerEntry) do
+            MockReservationEntry(ReservationEntry, ItemDocumentLine, ItemLedgerEntry[I]."Entry No.");
+
+        // [WHEN] Run Unposted TORG-16 report for the Item Shipment
+        RunUnpostedTorg16Report(ItemDocumentHeader."No.", '', '', WorkDate, '');
+
+        // [THEN] "DeliveryDate" and "InvoiceDate" = 01.01.2020 and "InvoiceID" = "DOC01" on the first row of the report
+        // [THEN] "DeliveryDate" and "InvoiceDate" = 10.01.2020 and "InvoiceID" = "DOC02" on the second row of the report
+        LibraryReportValidation.OpenExcelFile;
+        for I := 1 to ArrayLen(ItemLedgerEntry) do begin
+            LibraryReportValidation.VerifyCellValue(26 + I - 1, 1, Format(ItemLedgerEntry[I]."Posting Date", 0, 1));
+            LibraryReportValidation.VerifyCellValue(26 + I - 1, 20, ItemLedgerEntry[I]."Document No.");
+            LibraryReportValidation.VerifyCellValue(26 + I - 1, 33, Format(ItemLedgerEntry[I]."Posting Date", 0, 1));
+        end;
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedTorg16WithItemTrackingLinesApplToEntry()
+    var
+        ItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        PostedShipmentItemLedgerEntry: array[2] of Record "Item Ledger Entry";
+        ItemShipmentHeader: Record "Item Shipment Header";
+        ItemShipmentLine: Record "Item Shipment Line";
+        I: Integer;
+    begin
+        // [FEATURE] [Shipment] [Applies-to Entry] [Item Tracking] [UT]
+        // [SCENARIO 347001] Posted TORG-16 report fills Invoice Date based on the Item Tracking Lines "Appl.-to Item Entry"
+
+        // [GIVEN] Item Ledger Entry "ILE1" with "Posting Date" = 01.01.2020 and "Document No." = "DOC01"
+        // [GIVEN] Item Ledger Entry "ILE2" with "Posting Date" = 10.01.2020 and "Document No." = "DOC02"
+        for I := 1 to ArrayLen(ItemLedgerEntry) do
+            MockItemLedgerEntry(
+              ItemLedgerEntry[I], LibraryRandom.RandDateFromInRange(WorkDate, 10 * (I - 1), 10 * I),
+              LibraryUtility.GenerateGUID, 0, LibraryUtility.GenerateGUID);
+
+        // [GIVEN] Item Shipment with an Item Shipment Line
+        MockItemShipHeader(ItemShipmentHeader);
+        MockItemShipLine(ItemShipmentLine, ItemShipmentHeader);
+
+        // [GIVEN] Posted Item Tracking Line for the Posted Item Shipment Line with "Applies-to Entry" = "ILE1"
+        // [GIVEN] Posted Item Tracking Line for the Posted Item Shipment Line with "Applies-to Entry" = "ILE2"
+        for I := 1 to ArrayLen(ItemLedgerEntry) do begin
+            MockItemLedgerEntry(
+              PostedShipmentItemLedgerEntry[I], WorkDate, ItemShipmentHeader."No.",
+              ItemLedgerEntry[I]."Entry No.", ItemLedgerEntry[I]."Lot No.");
+            MockValueEntryWithRelation(ItemShipmentLine, PostedShipmentItemLedgerEntry[I]."Entry No.")
+        end;
+
+        // [WHEN] Run Posted TORG-16 report for the Item Shipment
+        RunPostedTorg16Report(ItemShipmentHeader."No.", '', '', WorkDate, '');
+
+        // [THEN] "DeliveryDate" and "InvoiceDate" = 01.01.2020 and "InvoiceID" = "DOC01" on the first row of the report
+        // [THEN] "DeliveryDate" and "InvoiceDate" = 10.01.2020 and "InvoiceID" = "DOC02" on the second row of the report
+        LibraryReportValidation.OpenExcelFile;
+        for I := 1 to ArrayLen(ItemLedgerEntry) do begin
+            LibraryReportValidation.VerifyCellValue(26 + I - 1, 1, Format(ItemLedgerEntry[I]."Posting Date", 0, 1));
+            LibraryReportValidation.VerifyCellValue(26 + I - 1, 20, ItemLedgerEntry[I]."Document No.");
+            LibraryReportValidation.VerifyCellValue(26 + I - 1, 33, Format(ItemLedgerEntry[I]."Posting Date", 0, 1));
+        end;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -245,7 +333,7 @@ codeunit 144102 "SCM Inventory reports"
             exit;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
 
         IsInitialized := true;
     end;
@@ -387,6 +475,85 @@ codeunit 144102 "SCM Inventory reports"
         end;
     end;
 
+    local procedure MockItemShipHeader(var ItemShipmentHeader: Record "Item Shipment Header")
+    begin
+        with ItemShipmentHeader do begin
+            Init;
+            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Item Shipment Header");
+            Insert;
+        end;
+    end;
+
+    local procedure MockItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; PostingDate: Date; DocumentNo: Code[20]; AppliesToEntry: Integer; LotNo: Code[50])
+    begin
+        with ItemLedgerEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, FieldNo("Entry No."));
+            "Posting Date" := PostingDate;
+            "Document No." := DocumentNo;
+            "Applies-to Entry" := AppliesToEntry;
+            "Lot No." := LotNo;
+            Insert;
+        end;
+    end;
+
+    local procedure MockItemDocLine(var ItemDocumentLine: Record "Item Document Line"; ItemDocumentHeader: Record "Item Document Header")
+    begin
+        with ItemDocumentLine do begin
+            Init;
+            "Document Type" := ItemDocumentHeader."Document Type";
+            "Document No." := ItemDocumentHeader."No.";
+            "Line No." := LibraryUtility.GetNewRecNo(ItemDocumentLine, FieldNo("Line No."));
+            Insert;
+        end;
+    end;
+
+    local procedure MockItemShipLine(var ItemShipmentLine: Record "Item Shipment Line"; ItemShipmentHeader: Record "Item Shipment Header")
+    begin
+        with ItemShipmentLine do begin
+            Init;
+            "Document No." := ItemShipmentHeader."No.";
+            "Line No." := LibraryUtility.GetNewRecNo(ItemShipmentLine, FieldNo("Line No."));
+            Insert;
+        end;
+    end;
+
+    local procedure MockValueEntryWithRelation(ItemShipmentLine: Record "Item Shipment Line"; ItemEntryNo: Integer)
+    var
+        ValueEntry: Record "Value Entry";
+        ValueEntryRelation: Record "Value Entry Relation";
+    begin
+        with ValueEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
+            "Item Ledger Entry Type" := "Item Ledger Entry Type"::"Negative Adjmt.";
+            "Item Ledger Entry No." := ItemEntryNo;
+            "Invoiced Quantity" := LibraryRandom.RandDec(10, 2);
+            Insert;
+        end;
+
+        with ValueEntryRelation do begin
+            Init;
+            "Value Entry No." := ValueEntry."Entry No.";
+            "Source RowId" := ItemShipmentLine.RowID1;
+            Insert;
+        end;
+    end;
+
+    local procedure MockReservationEntry(ReservationEntry: Record "Reservation Entry"; ItemDocumentLine: Record "Item Document Line"; AppliesToEntry: Integer)
+    begin
+        with ReservationEntry do begin
+            Init;
+            "Entry No." := LibraryUtility.GetNewRecNo(ReservationEntry, FieldNo("Entry No."));
+            Positive := (ItemDocumentLine."Document Type" = ItemDocumentLine."Document Type"::Receipt);
+            SetSource(
+              DATABASE::"Item Document Line",
+              ItemDocumentLine."Document Type", ItemDocumentLine."Document No.", ItemDocumentLine."Line No.", '', 0);
+            "Appl.-to Item Entry" := AppliesToEntry;
+            Insert;
+        end;
+    end;
+
     local procedure MockPostedSalesInvHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; IsCorrDoc: Boolean; CorrDocType: Option)
     begin
         with SalesInvoiceHeader do begin
@@ -403,7 +570,7 @@ codeunit 144102 "SCM Inventory reports"
         DocumentPrintBuffer: Record "Document Print Buffer";
     begin
         with DocumentPrintBuffer do begin
-            DeleteAll;
+            DeleteAll();
 
             Init;
             "User ID" := UserId;
@@ -475,7 +642,7 @@ codeunit 144102 "SCM Inventory reports"
         FileName := LibraryReportValidation.GetFileName;
         InsertDocPrintBuffer(TableId, DocumentType, DocumentNo);
 
-        Commit;
+        Commit();
         ReceiptDeviationsTORG2.SetFileNameSilent(FileName);
         ReceiptDeviationsTORG2.UseRequestPage(false);
         ReceiptDeviationsTORG2.Run;
@@ -492,7 +659,7 @@ codeunit 144102 "SCM Inventory reports"
         AddDocSignatureEmployee(ItemDocumentNo, Members, 3, DocSignature."Employee Type"::Member2);
         AddDocSignatureEmployee(ItemDocumentNo, Members, 4, DocSignature."Employee Type"::StoredBy);
 
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         if Employee.Get(CompanyInfo."Director No.") then
             Employee.Get(CompanyInfo."Director No.")
         else begin

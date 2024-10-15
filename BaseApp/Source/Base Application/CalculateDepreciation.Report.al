@@ -98,7 +98,10 @@ report 5692 "Calculate Depreciation"
                         FAJnlSetup.FAJnlName(DeprBook, FAJnlLine, FAJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetFANoSeries(FAJnlLine);
                         if DocumentNo = '' then
-                            DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
+                            if FindLast() then
+                                DocumentNo2 := "Document No."
+                            else
+                                DocumentNo2 := FAJnlSetup.GetFAJnlDocumentNo(FAJnlLine, DeprUntilDate, true)
                         else
                             DocumentNo2 := DocumentNo;
                     end;
@@ -141,7 +144,10 @@ report 5692 "Calculate Depreciation"
                         FAJnlSetup.GenJnlName(DeprBook, GenJnlLine, GenJnlNextLineNo);
                         NoSeries := FAJnlSetup.GetGenNoSeries(GenJnlLine);
                         if DocumentNo = '' then
-                            DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
+                            if FindLast() then
+                                DocumentNo2 := "Document No."
+                            else
+                                DocumentNo2 := FAJnlSetup.GetGenJnlDocumentNo(GenJnlLine, DeprUntilDate, true)
                         else
                             DocumentNo2 := DocumentNo;
                     end;

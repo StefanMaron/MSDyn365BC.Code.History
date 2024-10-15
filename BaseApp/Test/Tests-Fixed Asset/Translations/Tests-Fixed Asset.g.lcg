@@ -1139,6 +1139,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = Fixed Asset No.]D;]A;(LookupHint=Codeunit ERM Fixed Assets Reports - II - NamedType FAPostingDateErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1242095561 - NamedType 3128920879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The depreciation has been calculated.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - II - NamedType CompletionStatsTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3375241914 - NamedType 151931631" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[AccNo_FAPostGrpBuffer1]]></Val>

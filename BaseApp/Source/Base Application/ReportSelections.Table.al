@@ -680,7 +680,12 @@ table 77 "Report Selections"
         FieldRef: FieldRef;
         DocumentNo: Code[20];
         EmailAddress: Text[250];
+        IsHandled: Boolean;
     begin
+        OnBeforeGetEmailAddress(ReportUsage, RecordVariant, TempBodyReportSelections, EmailAddress, IsHandled);
+        if IsHandled then
+            exit(EmailAddress);
+
         RecordRef.GetTable(RecordVariant);
         if not RecordRef.IsEmpty then
             if DataTypeManagement.FindFieldByName(RecordRef, FieldRef, 'No.') then begin
@@ -1441,6 +1446,11 @@ table 77 "Report Selections"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetVendorEmailAddress(BuyFromVendorNo: Code[20]; var ToAddress: Text; ReportUsage: Option; var IsHandled: Boolean; RecVar: Variant)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetEmailAddress(ReportUsage: Option; RecordVariant: Variant; var TempBodyReportSelections: Record "Report Selections" temporary; var EmailAddress: Text[250]; var IsHandled: Boolean)
     begin
     end;
 

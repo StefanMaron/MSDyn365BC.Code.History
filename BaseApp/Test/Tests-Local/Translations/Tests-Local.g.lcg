@@ -2815,7 +2815,7 @@
   </Item>
   <Item ItemId=";Codeunit 2244298819 - NamedType 3055808402" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Qty. to Handle (Base) in Tracking Specification for Item No. %1, Serial No.: %2, Lot No.:  is currently 3. It must be 4.]]></Val>
+      <Val><![CDATA[Qty. to Handle (Base) in the item tracking assigned to the document line for item %1 is currently 3. It must be 4.\\Check the assignment for serial number %2, lot number .]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

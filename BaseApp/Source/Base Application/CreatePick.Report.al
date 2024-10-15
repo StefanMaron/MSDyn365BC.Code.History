@@ -241,9 +241,9 @@ report 5754 "Create Pick"
     var
         DummySalesHeader: Record "Sales Header";
         PickWhseActivHeader: Record "Warehouse Activity Header";
-        PickWhseActivHeaderToPrint: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        WarehouseDocumentPrint: Codeunit "Warehouse Document-Print";
         PickQty: Decimal;
         PickQtyBase: Decimal;
         TempMaxNoOfSourceDoc: Integer;
@@ -358,7 +358,7 @@ report 5754 "Create Pick"
                 PickListReportID := REPORT::"Picking List";
                 OnBeforePrintPickList(PickWhseActivHeader, PickListReportID, IsHandled);
                 if not IsHandled then
-                    REPORT.Run(PickListReportID, false, false, PickWhseActivHeader);
+                    WarehouseDocumentPrint.PrintPickHeader(PickWhseActivHeader);
                 TempMaxNoOfSourceDoc -= 1;
             end;
         until ((PickWhseActivHeader.Next = 0) or (TempMaxNoOfSourceDoc = 0));

@@ -18,10 +18,15 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
         COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
+        QtyErr: Label '%1 is wrong';
+        CancelQtyErr: Label '%1 is wrong after cancel';
         CannotCancelSalesInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted sales invoice because the posting inventory period is already closed.';
         CannotCancelPurchInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted purchase invoice because the posting inventory period is already closed.';
+        SalesBlockedGLAccountErr: Label 'You cannot correct this posted sales invoice because %1 G/L ACCOUNT is blocked.';
+        PurchaseBlockedGLAccountErr: Label 'You cannot correct this posted purchase invoice because %1 G/L ACCOUNT is blocked.';
 
     [Test]
     [Scope('OnPrem')]
@@ -252,6 +257,106 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
           StrSubstNo(COGSAccountEmptyErr, GeneralPostingSetup."Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group"));
 
         RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelMadeFromOrderSalesInvoiceWithOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PstdDocNo: Code[20];
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO] Partially ship and invoice order, then cancel posted invoice
+        Initialize;
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Ship" = 7, "Qty. to Invoice" = 5
+        CreateSalesOrder(SalesHeader, SalesLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PstdDocNo);
+        SalesLine.Find;
+        Assert.AreEqual(4, SalesLine."Qty. to Invoice", StrSubstNo(QtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(5, SalesLine."Quantity Invoiced", StrSubstNo(QtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, SalesLine."Qty. Shipped Not Invoiced", StrSubstNo(QtyErr, SalesLine.FieldName("Qty. Shipped Not Invoiced")));
+        // [WHEN] Cancel posted invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [THEN] "Qty. to Invoice" = 9, "Quantity Invoiced" = 0, "Qty. Shipped Not Invoiced" = 2
+        SalesLine.Find;
+        Assert.AreEqual(9, SalesLine."Qty. to Invoice", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine."Quantity Invoiced", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, SalesLine."Qty. Shipped Not Invoiced", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Qty. Shipped Not Invoiced")));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetShipmentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure CancelMadeFromShipmentSalesInvoiceWithOrder()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PstdDocNo: Code[20];
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO] Partially ship order, create invoice from shipment lines, post it, then cancel posted invoice
+        Initialize;
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Ship" = 7
+        CreateSalesOrder(SalesHeader[1], SalesLine[1]);
+        // [GIVEN] Posted shipment
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+        // [GIVEN] Posted invoice from shipment
+        CreateSalesInvoiceFromShipment(SalesHeader[2], SalesLine[2], SalesHeader[1]."Sell-to Customer No.");
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
+        SalesLine[1].Find;
+        Assert.AreEqual(2, SalesLine[1]."Qty. to Invoice", StrSubstNo(QtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(7, SalesLine[1]."Quantity Invoiced", StrSubstNo(QtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine[1]."Qty. Shipped Not Invoiced", StrSubstNo(QtyErr, SalesLine[1].FieldName("Qty. Shipped Not Invoiced")));
+        // [WHEN] Cancel posted invoice
+        SalesInvoiceHeader.Get(PstdDocNo);
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [THEN] "Qty. to Invoice" = 9, "Quantity Invoiced" = 0, "Qty. Shipped Not Invoiced" = 0
+        SalesLine[1].Find;
+        Assert.AreEqual(9, SalesLine[1]."Qty. to Invoice", StrSubstNo(CancelQtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine[1]."Quantity Invoiced", StrSubstNo(CancelQtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine[1]."Qty. Shipped Not Invoiced", StrSubstNo(CancelQtyErr, SalesLine[1].FieldName("Qty. Shipped Not Invoiced")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelMadeFromOrderPurchaseInvoiceWithOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PstdDocNo: Code[20];
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCANARIO] Partially receive and invoice order, then cancel posted invoice
+        Initialize;
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Receive" = 7, "Qty. to Invoice" = 5
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PstdDocNo);
+        PurchaseLine.Find;
+        Assert.AreEqual(4, PurchaseLine."Qty. to Invoice", StrSubstNo(QtyErr, PurchaseLine.FieldName("Qty. to Invoice")));
+        Assert.AreEqual(5, PurchaseLine."Quantity Invoiced", StrSubstNo(QtyErr, PurchaseLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, PurchaseLine."Qty. Rcd. Not Invoiced", StrSubstNo(QtyErr, PurchaseLine.FieldName("Qty. Rcd. Not Invoiced")));
+        // [WHEN] Cancel posted invoice
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+        // [THEN] "Qty. to Invoice" = 9, "Quantity Invoiced" = 0, "Qty. Rcd. Not Invoiced" = 7
+        PurchaseLine.Find;
+        Assert.AreEqual(9, PurchaseLine."Qty. to Invoice", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. to Invoice")));
+        Assert.AreEqual(0, PurchaseLine."Quantity Invoiced", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, PurchaseLine."Qty. Rcd. Not Invoiced", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. Rcd. Not Invoiced")));
     end;
 
     [Test]
@@ -712,6 +817,322 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithAllDiscountPostingAndWithoutAccountInSetup()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is not set and "Discount Posting" = "All Discounts" in setup
+        Initialize();
+
+        LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"All Discounts");
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+        CleanSalesLineDiscAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        Clear(SalesHeader);
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(SalesReceivablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithAllDiscountPostingAndWithoutAccountInSetup()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is not set and "Discount Posting" = "All Discounts" in setup
+        Initialize();
+
+        LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+        CleanPurchLineDiscAccountOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchInvHeader.Get(DocumentNo);
+
+        Clear(PurchaseHeader);
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeader);
+
+        PurchaseHeader.TestField("Document Type", PurchaseHeader."Document Type"::Invoice);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithLineDiscountPostingAndWithoutAccountInSetup()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is not set and "Discount Posting" = "Line Discounts" in setup
+        Initialize();
+
+        LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"Line Discounts");
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+        CleanSalesLineDiscAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        Clear(SalesHeader);
+        CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+        CorrectPostedSalesInvoice.CancelPostedInvoiceStartNewInvoice(SalesInvoiceHeader, SalesHeader);
+
+        SalesHeader.TestField("Document Type", SalesHeader."Document Type"::Invoice);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(SalesReceivablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithLineDiscountPostingAndWithoutAccountInSetup()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is not set and "Discount Posting" = "Line Discounts" in setup
+        Initialize();
+
+        LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"Line Discounts");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+        CleanPurchLineDiscAccountOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchInvHeader.Get(DocumentNo);
+
+        Clear(PurchaseHeader);
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+        CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeader);
+
+        PurchaseHeader.TestField("Document Type", PurchaseHeader."Document Type"::Invoice);
+
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+        RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithAllDiscountPostingAndWithBlockedAccountInSetup()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can't correct posted sales invoice when "Sales Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        Initialize();
+
+        LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"All Discounts");
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+
+        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+
+        Assert.ExpectedError(StrSubstNo(SalesBlockedGLAccountErr, GeneralPostingSetup."Sales Line Disc. Account"));
+        LibraryNotificationMgt.RecallNotificationsForRecordID(SalesReceivablesSetup.RecordId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithAllDiscountPostingAndWithBlockedAccountInSetup()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        Initialize();
+
+        LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+
+        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchInvHeader.Get(DocumentNo);
+
+        asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+
+        Assert.ExpectedError(StrSubstNo(PurchaseBlockedGLAccountErr, GeneralPostingSetup."Purch. Line Disc. Account"));
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectSalesInvoiceWithLineDiscountPostingAndWithBlockedAccountInSetup()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted sales invoice when "Sales Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        Initialize();
+
+        LibrarySales.SetDiscountPosting(SalesReceivablesSetup."Discount Posting"::"All Discounts");
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(10));
+        SalesLine.Modify(true);
+
+        SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine, GeneralPostingSetup);
+
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        SalesInvoiceHeader.Get(DocumentNo);
+
+        asserterror CorrectPostedSalesInvoice.TestCorrectInvoiceIsAllowed(SalesInvoiceHeader, false);
+
+        Assert.ExpectedError(StrSubstNo(SalesBlockedGLAccountErr, GeneralPostingSetup."Sales Line Disc. Account"));
+        LibraryNotificationMgt.RecallNotificationsForRecordID(SalesReceivablesSetup.RecordId);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CorrectPurchaseInvoiceWithLineDiscountPostingAndWithBlockedAccountInSetup()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice] [Credit Memo]
+        // [SCENARIO 348811] Cassie can correct posted purchase invoice when "Purch. Line Disc. Account" is blocked and "Discount Posting" = "All Discounts" in setup
+        Initialize();
+
+        LibraryPurchase.SetDiscountPosting(PurchasesPayablesSetup."Discount Posting"::"All Discounts");
+
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(10, 20));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(10));
+        PurchaseLine.Modify(true);
+
+        SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine, GeneralPostingSetup);
+
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchInvHeader.Get(DocumentNo);
+
+        asserterror CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, false);
+
+        Assert.ExpectedError(StrSubstNo(PurchaseBlockedGLAccountErr, GeneralPostingSetup."Purch. Line Disc. Account"));
+        LibraryNotificationMgt.RecallNotificationsForRecordID(PurchasesPayablesSetup.RecordId);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch. Correct. Docs");
@@ -736,7 +1157,6 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.CreateGeneralPostingSetupData();
-        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateVATPostingSetup();
@@ -761,7 +1181,7 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
     var
         Item: Record Item;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         LibraryInventory.CreateItem(Item);
         Item.Validate(Type, ItemType);
         Item.Validate("Unit Price", LibraryRandom.RandInt(10));
@@ -775,11 +1195,11 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         with SalesLine do begin
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
             Validate("Unit Price", LibraryRandom.RandIntInRange(20, 40));
             Modify(true);
 
-            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+            LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
             Validate("Unit Price", -LibraryRandom.RandIntInRange(5, 10));
             Modify(true);
         end;
@@ -797,11 +1217,11 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
         with PurchaseLine do begin
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
             Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(20, 40));
             Modify(true);
 
-            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, 1);
+            LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
             Validate("Direct Unit Cost", -LibraryRandom.RandIntInRange(5, 10));
             Modify(true);
         end;
@@ -831,6 +1251,34 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         OldGeneralPostingSetup.Copy(GeneralPostingSetup);
         GeneralPostingSetup.Validate("Purch. Line Disc. Account", '');
         GeneralPostingSetup.Modify(true);
+    end;
+
+    local procedure SetSalesLineDiscAccountBlockedOnGenPostingSetup(SalesLine: Record "Sales Line"; var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        GeneralPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Sales Line Disc. Account", GLAccount."No.");
+        GeneralPostingSetup.Modify(true);
+
+        GLAccount.Validate(Blocked, true);
+        GLAccount.Modify(true);
+    end;
+
+    local procedure SetPurchLineDiscAccountBlockedOnGenPostingSetup(PurchaseLine: Record "Purchase Line"; var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        GeneralPostingSetup.Get(PurchaseLine."Gen. Bus. Posting Group", PurchaseLine."Gen. Prod. Posting Group");
+        GeneralPostingSetup.Validate("Purch. Line Disc. Account", GLAccount."No.");
+        GeneralPostingSetup.Modify(true);
+
+        GLAccount.Validate(Blocked, true);
+        GLAccount.Modify(true);
     end;
 
     local procedure CleanCOGSAccountOnGenPostingSetup(SalesLine: Record "Sales Line"; var OldGeneralPostingSetup: Record "General Posting Setup")
@@ -900,6 +1348,48 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup.Modify();
     end;
 
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        GetSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate(Quantity, 9);
+        SalesLine.Validate("Qty. to Ship", 7);
+        SalesLine.Validate("Qty. to Invoice", 5);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        GetPurchaseLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Quantity, 9);
+        PurchaseLine.Validate("Qty. to Receive", 7);
+        PurchaseLine.Validate("Qty. to Invoice", 5);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrderWithTrackedItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateTrackedItem(), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Validate(Quantity, 9);
+        PurchaseLine.Validate("Qty. to Receive", 7);
+        PurchaseLine.Validate("Qty. to Invoice", 5);
+        PurchaseLine.Modify(true);
+        PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure CreateTrackedItem(): Code[20]
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        exit(Item."No.");
+    end;
+
     local procedure CreateSalesHeaderWithItemAndChargeItem(var SalesHeader: Record "Sales Header")
     var
         SalesLineItem: Record "Sales Line";
@@ -958,6 +1448,28 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         ItemChargeAssignmentPurch.Insert(true);
     end;
 
+    local procedure GetSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+    end;
+
+    local procedure GetPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure CreateSalesInvoiceFromShipment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        LibrarySales.GetShipmentLines(SalesLine);
+    end;
+
     local procedure CreateInventoryPeriod(EndingDate: Date; IsClosed: Boolean)
     var
         InventoryPeriod: Record "Inventory Period";
@@ -966,6 +1478,13 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         InventoryPeriod."Ending Date" := EndingDate;
         InventoryPeriod.Closed := IsClosed;
         InventoryPeriod.Insert(true);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK.Invoke;
     end;
 }
 
