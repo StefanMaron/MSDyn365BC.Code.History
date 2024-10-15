@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -24,11 +24,15 @@ codeunit 744 "VAT Report Validate"
         VATReportLine: Record "VAT Report Line";
         ErrorID: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot release the VAT report because no lines exist.';
         Text001: Label 'Field %1 should be filled in table %2.';
         Text002: Label 'Period from %1 till %2 already exists on VAT Report %3.';
         Text003: Label 'Each cancellation line should have related corrective line.';
         Text004: Label 'The %1 cannot be earlier than the %1 %2 (VAT Report %3).';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure ClearErrorLog()
     begin

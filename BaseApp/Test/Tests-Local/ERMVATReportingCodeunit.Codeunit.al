@@ -332,16 +332,14 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
 
     local procedure CreateVATReportHeaderWithData(var VATReportHeader: Record "VAT Report Header"; TradeType: Option)
     begin
-        with VATReportHeader do begin
-            CreateVATReportHeader(VATReportHeader);
-            "Trade Type" := TradeType;
-            "Report Period Type" := VATReportHeader."Report Period Type"::Month;
-            "Report Period No." := Date2DMY(WorkDate(), 2);
-            "Report Year" := Date2DMY(WorkDate(), 3);
-            "Start Date" := CalcDate('<-CM>', WorkDate());
-            "End Date" := CalcDate('<CM>', WorkDate());
-            Modify();
-        end;
+        CreateVATReportHeader(VATReportHeader);
+        VATReportHeader."Trade Type" := TradeType;
+        VATReportHeader."Report Period Type" := VATReportHeader."Report Period Type"::Month;
+        VATReportHeader."Report Period No." := Date2DMY(WorkDate(), 2);
+        VATReportHeader."Report Year" := Date2DMY(WorkDate(), 3);
+        VATReportHeader."Start Date" := CalcDate('<-CM>', WorkDate());
+        VATReportHeader."End Date" := CalcDate('<CM>', WorkDate());
+        VATReportHeader.Modify();
     end;
 
     local procedure CreateVATReportLinesWithData(VATReportNo: Code[20])
@@ -352,35 +350,29 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         i: Integer;
         NextVATEntryNo: Integer;
     begin
-        with VATReportLine do begin
-            Init();
-            "VAT Report No." := VATReportNo;
-            "Line No." := 10000;
-            Insert();
-        end;
+        VATReportLine.Init();
+        VATReportLine."VAT Report No." := VATReportNo;
+        VATReportLine."Line No." := 10000;
+        VATReportLine.Insert();
 
         NextVATEntryNo := 10000;
         for i := 1 to 300 do begin
-            with VATEntry do begin
-                Init();
-                "Entry No." := NextVATEntryNo;
-                "Posting Date" := WorkDate();
-                "Document No." := VATReportNo;
-                "Document Type" := VATEntry."Document Type"::Invoice;
-                Type := VATEntry.Type::Sale;
-                Base := LibraryRandom.RandInt(1000);
-                Insert();
-            end;
+            VATEntry.Init();
+            VATEntry."Entry No." := NextVATEntryNo;
+            VATEntry."Posting Date" := WorkDate();
+            VATEntry."Document No." := VATReportNo;
+            VATEntry."Document Type" := VATEntry."Document Type"::Invoice;
+            VATEntry.Type := VATEntry.Type::Sale;
+            VATEntry.Base := LibraryRandom.RandInt(1000);
+            VATEntry.Insert();
             NextVATEntryNo := NextVATEntryNo + 1;
 
-            with VATReportLineRelation do begin
-                Init();
-                "VAT Report No." := VATReportNo;
-                "VAT Report Line No." := 10000;
-                "Table No." := DATABASE::"VAT Entry";
-                "Entry No." := VATEntry."Entry No.";
-                Insert();
-            end;
+            VATReportLineRelation.Init();
+            VATReportLineRelation."VAT Report No." := VATReportNo;
+            VATReportLineRelation."VAT Report Line No." := 10000;
+            VATReportLineRelation."Table No." := DATABASE::"VAT Entry";
+            VATReportLineRelation."Entry No." := VATEntry."Entry No.";
+            VATReportLineRelation.Insert();
         end;
     end;
 
@@ -431,17 +423,15 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Invoice, "Account Type"::"G/L Account", GLAccountNo, PayAmount * SignFactor);
-            DocumentNo := "Document No.";
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type", "Account Type", '', BalAccountType, CVNo, PayAmount * SignFactor);
-            "Document No." := DocumentNo;
-            Modify();
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, PayAmount * SignFactor);
+        DocumentNo := GenJournalLine."Document No.";
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type", GenJournalLine."Account Type", '', BalAccountType, CVNo, PayAmount * SignFactor);
+        GenJournalLine."Document No." := DocumentNo;
+        GenJournalLine.Modify();
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -459,12 +449,10 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportNo);
-            SetRange("Country/Region Code", ExpectedCountryCode);
-            SetRange("VAT Registration No.", ExpectedVATRegNo);
-            Assert.IsFalse(IsEmpty, VATReportErr);
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportNo);
+        VATReportLine.SetRange("Country/Region Code", ExpectedCountryCode);
+        VATReportLine.SetRange("VAT Registration No.", ExpectedVATRegNo);
+        Assert.IsFalse(VATReportLine.IsEmpty, VATReportErr);
     end;
 
     [ConfirmHandler]

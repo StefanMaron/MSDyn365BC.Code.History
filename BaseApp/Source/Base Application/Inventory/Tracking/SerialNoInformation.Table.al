@@ -19,6 +19,7 @@ table 6504 "Serial No. Information"
         field(1; "Item No."; Code[20])
         {
             Caption = 'Item No.';
+            OptimizeForTextSearch = true;
             NotBlank = true;
             TableRelation = Item;
         }
@@ -30,12 +31,14 @@ table 6504 "Serial No. Information"
         field(3; "Serial No."; Code[50])
         {
             Caption = 'Serial No.';
+            OptimizeForTextSearch = true;
             ExtendedDatatype = Barcode;
             NotBlank = true;
         }
         field(10; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
         }
         field(13; Blocked; Boolean)
         {

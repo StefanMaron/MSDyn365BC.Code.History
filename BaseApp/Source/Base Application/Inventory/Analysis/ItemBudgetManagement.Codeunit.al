@@ -25,13 +25,17 @@ codeunit 7130 "Item Budget Management"
         GLSetupRead: Boolean;
         GlobalDimType: Enum "Item Budget Dimension Type";
 
+#pragma warning disable AA0074
         Text001: Label 'DEFAULT';
         Text002: Label 'Default budget';
         Text003: Label 'Period';
+#pragma warning disable AA0470
         Text004: Label '%1 is not a valid line definition.';
         Text005: Label '%1 is not a valid column definition.';
+#pragma warning restore AA0470
         Text006: Label 'Do you want to delete the budget entries shown?';
         Text007: Label '<Sign><Integer Thousand><Decimals,2>', Locked = true;
+#pragma warning restore AA0074
 
     procedure BudgetNameSelection(CurrentAnalysisArea: Option; var CurrentItemBudgetName: Code[10]; var ItemBudgetName: Record "Item Budget Name"; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var BudgetDim1Filter: Text; var BudgetDim2Filter: Text; var BudgetDim3Filter: Text)
     begin

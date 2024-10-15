@@ -17,6 +17,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         RuleFoundErr: Label 'Rule missing for %1, expected %2 to be missing from regex %3.';
         FileManagement: Codeunit "File Management";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryNoSeries: Codeunit "Library - No. Series";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
@@ -219,7 +220,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Verify
         TempOfficeAdminCredentials.Find();
         Assert.AreEqual(AdminEmail, TempOfficeAdminCredentials.Email, 'Credential mismatch: Email');
-        Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword(), 'Credential mismatch: Password');
+        AssertSecret(AdminPassword, TempOfficeAdminCredentials.GetPasswordAsSecretText(), 'Credential mismatch: Password');
     end;
 
     [Test]
@@ -242,7 +243,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         // Verify
         TempOfficeAdminCredentials.Find();
         Assert.AreEqual(AdminEmail, TempOfficeAdminCredentials.Email, 'Credential mismatch: Email');
-        Assert.AreEqual(AdminPassword, TempOfficeAdminCredentials.GetPassword(), 'Credential mismatch: Password');
+        AssertSecret(AdminPassword, TempOfficeAdminCredentials.GetPasswordAsSecretText(), 'Credential mismatch: Password');
         Assert.AreEqual(TempOfficeAdminCredentials.DefaultEndpoint(), TempOfficeAdminCredentials.Endpoint, 'Default endpoint not set.');
     end;
 
@@ -720,7 +721,7 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
     begin
         LibraryUtility.CreateNoSeries(NoSeries, true, true, true);
         LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartNo, EndNo);
-        LibraryUtility.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeries.Code, NoSeriesLine."Series Code");
     end;
 
     local procedure Initialize()
@@ -882,6 +883,12 @@ codeunit 139049 "SMB Office Addin Mgmt Test"
         end;
 
         LibraryVariableStorage.Enqueue(true);
+    end;
+
+    [NonDebuggable]
+    local procedure AssertSecret(Expected: Text; Actual: SecretText; Message: Text)
+    begin
+        Assert.AreEqual(Expected, Actual.Unwrap(), Message);
     end;
 
     [Normal]

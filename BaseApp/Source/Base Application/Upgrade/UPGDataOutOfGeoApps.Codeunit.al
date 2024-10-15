@@ -17,7 +17,7 @@ codeunit 14060 "UPG Data Out Of Geo. Apps"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDataOutOfGeoAppUpgradeTag()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDataOutOfGeoAppUpgradeTag()) then
             exit;
 
         InsertDataOutOfGeoApp('d09fa965-9a2a-424d-b704-69f3b54ed0ce'); // Paypal

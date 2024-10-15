@@ -17,6 +17,7 @@ codeunit 5626 "FA General Report"
         DepreciationCalc: Codeunit "Depreciation Calculation";
         ExclReclEntries: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Posting Date Filter';
         Text001: Label 'You must specify the Starting Date and the Ending Date.';
         Text002: Label 'The Starting Date is later than the Ending Date.';
@@ -24,6 +25,7 @@ codeunit 5626 "FA General Report"
         Text004: Label 'You must specify the First Depreciation Date and the Last Depreciation Date.';
         Text005: Label 'The First Depreciation Date is later than the Last Depreciation Date.';
         Text006: Label 'Sorting fixed assets';
+#pragma warning restore AA0074
 
     procedure GetLastDate(FANo: Code[20]; PostingType: Integer; EndingDate: Date; DeprBookCode: Code[10]; GLEntry: Boolean): Date
     var

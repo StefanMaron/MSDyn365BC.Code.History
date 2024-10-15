@@ -32,7 +32,7 @@ table 11004 "Data Export Record Source"
             BlankZero = true;
             Caption = 'Table No.';
             NotBlank = true;
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = const(Table));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Table));
 
             trigger OnValidate()
             var
@@ -49,7 +49,7 @@ table 11004 "Data Export Record Source"
         }
         field(4; "Table Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table No.")));
             Caption = 'Table Name';
             Editable = false;
@@ -70,7 +70,7 @@ table 11004 "Data Export Record Source"
         }
         field(6; "Fields Selected"; Boolean)
         {
-            CalcFormula = exist("Data Export Record Field" WHERE("Data Export Code" = field("Data Export Code"),
+            CalcFormula = exist("Data Export Record Field" where("Data Export Code" = field("Data Export Code"),
                                                                   "Data Exp. Rec. Type Code" = field("Data Exp. Rec. Type Code"),
                                                                   "Table No." = field("Table No.")));
             Caption = 'Fields Selected';
@@ -81,11 +81,11 @@ table 11004 "Data Export Record Source"
         {
             BlankZero = true;
             Caption = 'Relation To Table No.';
-            TableRelation = AllObj."Object ID" WHERE("Object Type" = const(Table));
+            TableRelation = AllObj."Object ID" where("Object Type" = const(Table));
         }
         field(8; "Relation To Table Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Relation To Table No.")));
             Caption = 'Relation To Table Name';
             Editable = false;
@@ -95,7 +95,7 @@ table 11004 "Data Export Record Source"
         {
             BlankZero = true;
             Caption = 'Period Field No.';
-            TableRelation = Field."No." WHERE(TableNo = field("Table No."),
+            TableRelation = Field."No." where(TableNo = field("Table No."),
                                                Type = filter(Date),
                                                Class = const(Normal),
                                                ObsoleteState = filter(<> Removed));
@@ -120,7 +120,7 @@ table 11004 "Data Export Record Source"
         }
         field(10; "Period Field Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = field("Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."),
                                                               "No." = field("Period Field No.")));
             Caption = 'Period Field Name';
             Editable = false;
@@ -128,7 +128,7 @@ table 11004 "Data Export Record Source"
         }
         field(11; "Table Relation Defined"; Boolean)
         {
-            CalcFormula = exist("Data Export Table Relation" WHERE("Data Export Code" = field("Data Export Code"),
+            CalcFormula = exist("Data Export Table Relation" where("Data Export Code" = field("Data Export Code"),
                                                                     "Data Exp. Rec. Type Code" = field("Data Exp. Rec. Type Code"),
                                                                     "To Table No." = field("Table No."),
                                                                     "From Table No." = field("Relation To Table No.")));
@@ -207,7 +207,7 @@ table 11004 "Data Export Record Source"
         field(32; "Date Filter Field No."; Integer)
         {
             Caption = 'Date Filter Field No.';
-            TableRelation = Field."No." WHERE(TableNo = field("Table No."),
+            TableRelation = Field."No." where(TableNo = field("Table No."),
                                                Type = const(Date),
                                                Class = const(FlowFilter),
                                                ObsoleteState = filter(<> Removed));

@@ -1020,12 +1020,18 @@ report 215 "Archived Sales Quote"
         VALExchRate: Text[50];
         OutputNo: Integer;
 
+#pragma warning disable AA0074
         Text004: Label 'Sales - Quote Archived %1', Comment = '%1 = Document No.';
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+#pragma warning restore AA0470
         Text008: Label 'VAT Amount Specification in ';
         Text009: Label 'Local Currency';
+#pragma warning disable AA0470
         Text010: Label 'Exchange rate: %1/%2';
         Text011: Label 'Version %1 of %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompanyInfo__Phone_No__CaptionLbl: Label 'Phone No.';
         CompanyInfo__Fax_No__CaptionLbl: Label 'Fax No.';
         CompanyInfo__VAT_Registration_No__CaptionLbl: Label 'VAT Reg. No.';

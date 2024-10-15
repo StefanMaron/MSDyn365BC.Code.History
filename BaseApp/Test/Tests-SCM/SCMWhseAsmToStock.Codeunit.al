@@ -32,11 +32,8 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         ErrBinMandatory2: Label 'Bin Mandatory must have a value in Location';
         ErrWrongBinType: Label 'You cannot enter a bin code of bin type Receive, Ship, or %1.';
         ErrWrongBinTypeRecShip: Label 'You cannot enter a bin code of bin type Receive or Ship.';
-        ErrWhseClass: Label 'Warehouse Class Code must be equal to ';
-        ErrTypeToBeItem: Label 'Type must be equal to ''Item''  in Assembly Line';
         ErrNothingToRelease: Label 'There is nothing to release for Order ';
         ErrLocationMustBeFilled: Label 'Location Code must have a value in Assembly Line';
-        ErrStatusMustBeOpen: Label 'Status must be equal to ''Open''  in Assembly Header';
         ConfirmUpdateLoc: Label 'Do you want to update the Location Code on the lines?';
         ConfirmItemNoChange: Label 'Changing Item No. will change all the lines. Do you want to change the Item No. from ';
         MessageNothngToCreate: Label 'There is nothing to create.';
@@ -381,7 +378,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ** negative test
         // error expected for non-existing bin
         asserterror AsmHeader.Validate("Bin Code", 'BIN100');
-        Assert.AssertRecordNotFound();
+        Assert.ExpectedErrorCannotFind(Database::Bin, 'BIN100');
 
         // ** positive test
         AsmHeader.Validate("Bin Code", Bin3); // no errors expected
@@ -397,7 +394,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Commit(); // committing as subsequent errors might roll back data creation
         // ** negative test with bin
         asserterror AsmHeader.Validate("Bin Code", Bin1);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrWhseClass) > 0, 'Expected: ' + ErrWhseClass + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Warehouse Class Code"), '''');
         ClearLastError();
 
         // ** positive test with bin
@@ -410,7 +407,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         LibraryWarehouse.CreateBinContent(BinContent, Location.Code, '', Bin1, Item."No.", '', Item."Base Unit of Measure");
         Commit(); // committing as subsequent errors might roll back bin content creation
         asserterror AsmHeader.Validate("Bin Code", Bin1);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrWhseClass) > 0, 'Expected: ' + ErrWhseClass + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Warehouse Class Code"), '''');
         ClearLastError();
 
         // ** positive test with bin content
@@ -444,7 +441,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ** negative test
         AsmLine."Location Code" := Location.Code;
         asserterror AsmLine.Validate("Bin Code", Bin1);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrTypeToBeItem) > 0, 'Expected: ' + ErrTypeToBeItem + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(AsmLine.FieldCaption(Type), Format(AsmLine.Type::Item));
         ClearLastError();
 
         // BIN CODE IS DEFAULTED TO WHEN CHANGES ARE MADE TO ITEM, VARIANT OR LOCATION
@@ -497,7 +494,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ** negative test
         // error expected for non-existing bin
         asserterror AsmLine.Validate("Bin Code", 'BIN100');
-        Assert.AssertRecordNotFound();
+        Assert.ExpectedErrorCannotFind(Database::Bin, 'BIN100');
 
         // ** positive test
         AsmLine.Validate("Bin Code", Bin3); // no errors expected
@@ -515,7 +512,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Commit(); // committing as subsequent errors might roll back data creation
         // ** negative test with bin
         asserterror AsmLine.Validate("Bin Code", Bin3);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrWhseClass) > 0, 'Expected: ' + ErrWhseClass + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(Item.FieldCaption("Warehouse Class Code"), '''');
         ClearLastError();
 
         // ** positive test with bin
@@ -607,8 +604,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         LibraryAssembly.ReleaseAO(AsmHeader);
         // ** negative test - modify assembly header
         asserterror AsmHeader.Validate("Item No.", AsmItem2."No.");
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
-          'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(AsmHeader.FieldCaption(Status), Format(AsmHeader.Status::Open));
         ClearLastError();
 
         // ** positive test
@@ -646,8 +642,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         LibraryAssembly.ReleaseAO(AsmHeader);
         asserterror LibraryAssembly.CreateAssemblyLine(AsmHeader, AsmLine, "BOM Component Type"::Item, CompItem."No.", '', 3, 1, '');
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
-          'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(AsmHeader.FieldCaption(Status), Format(AsmHeader.Status::Open));
         ClearLastError();
 
         // FIELDS ON ASSEMBLY LINE CANNOT BE CHANGED IF STATUS NOT EQUAL Open
@@ -655,8 +650,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         LibraryAssembly.ReleaseAO(AsmHeader);
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         asserterror AsmLine.Validate("Quantity per", 10);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
-          'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(AsmHeader.FieldCaption(Status), Format(AsmHeader.Status::Open));
         ClearLastError();
 
         // ASSEMBLY LINE CANNOT BE DELETED IF STATUS NOT EQUAL Open
@@ -664,8 +658,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         LibraryAssembly.ReleaseAO(AsmHeader);
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         asserterror AsmLine.Delete(true);
-        Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
-          'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
+        Assert.ExpectedTestFieldError(AsmHeader.FieldCaption(Status), Format(AsmHeader.Status::Open));
         ClearLastError();
         NotificationLifecycleMgt.RecallAllNotifications();
     end;

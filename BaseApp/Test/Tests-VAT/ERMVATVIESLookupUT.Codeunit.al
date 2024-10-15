@@ -871,7 +871,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         MockVATRegLog(VATRegistrationLog, VATRegistrationLog."Details Status"::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
         VATRegistrationLog.SetAccountDetails(NameTxt, StreetTxt, CityTxt, PostCodeTxt);
-        VATRegistrationLog.SetResponseMatchDetails(TRUE, false, false, false);
+        VATRegistrationLog.SetResponseMatchDetails(true, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails');
         VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Ignored);
@@ -895,7 +895,7 @@ codeunit 134193 "ERM VAT VIES Lookup UT"
         MockVATRegLog(VATRegistrationLog, VATRegistrationLog."Details Status"::"Not Verified");
         UpdateVATRegLog(VATRegistrationLog, 'GB', VATRegistrationLog."Account Type"::Customer, '10000');
         VATRegistrationLog.SetAccountDetails(NameTxt, StreetTxt, CityTxt, PostCodeTxt);
-        VATRegistrationLog.SetResponseMatchDetails(FALSE, false, false, false);
+        VATRegistrationLog.SetResponseMatchDetails(false, false, false, false);
 
         Assert.AreEqual(true, VATRegistrationLog.LogDetails(), 'VATRegistrationLog.LogDetails');
         VATRegistrationLog.TestField("Details Status", VATRegistrationLog."Details Status"::Ignored);

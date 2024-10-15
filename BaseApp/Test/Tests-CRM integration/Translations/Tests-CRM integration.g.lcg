@@ -590,15 +590,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Int. Tbl. Map Helper Tests - NamedType ContactMissingCompanyErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1239683370 - NamedType 2318685411" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Dataverse Transactioncurrency does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Integration Mapping - NamedType CurrencyDoesNotExistErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1239683370 - NamedType 1183014055" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected record not found.]]></Val>
@@ -624,15 +615,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 - a field name]D;]A;(LookupHint=Codeunit CRM Integration Mapping - NamedType FieldRelationShipErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1239683370 - NamedType 1639417463" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to 'No']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - a field name]D;]A;(LookupHint=Codeunit CRM Integration Mapping - NamedType FieldValueMustBeNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1239683370 - NamedType 1364040855" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -716,15 +698,6 @@
       <Cmt Name="Dev"><![CDATA[%1 = table caption, %2 = primary key value, %3 = CRM Table caption]D;]A;(LookupHint=Codeunit CRM Integration Mgt Test - NamedType RecordMustBeCoupledErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 882869326 - NamedType 86486511" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Status must be equal to 'Active']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Integration Mgt Test - NamedType StatusMustBeActiveErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 882869326 - NamedType 3295349667" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The synchronization has been scheduled.]]></Val>
@@ -743,15 +716,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Integration Mgt Test - NamedType SyncNowSkippedMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3728609003 - NamedType 2530351393" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Currency does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType CurrencyNotExistsErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3728609003 - NamedType 3734168321" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot disable CRM sales order integration when a CRM sales order has the Submitted status.]]></Val>
@@ -761,15 +725,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType DisabledSalesOrderIntSubmittedOrderErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3728609003 - NamedType 1305559362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Error message expected.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType ErrorMessageErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3728609003 - NamedType 2946943764" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value in %2]]></Val>
@@ -777,15 +732,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType FieldMustHaveAValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3728609003 - NamedType 4013585647" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Is CRM Solution Installed must be equal to 'Yes']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit CRM Sales Order Integr. Test - NamedType IsCRMSolutionInstalledYesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3728609003 - NamedType 3853844891" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

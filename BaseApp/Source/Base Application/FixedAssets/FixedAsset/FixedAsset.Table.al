@@ -1,4 +1,4 @@
-﻿namespace Microsoft.FixedAssets.FixedAsset;
+namespace Microsoft.FixedAssets.FixedAsset;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.FixedAssets.Depreciation;
@@ -31,6 +31,7 @@ table 5600 "Fixed Asset"
         field(1; "No."; Code[20])
         {
             Caption = 'No.';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             begin
@@ -44,6 +45,7 @@ table 5600 "Fixed Asset"
         field(2; Description; Text[100])
         {
             Caption = 'Description';
+            OptimizeForTextSearch = true;
 
             trigger OnValidate()
             var
@@ -65,6 +67,7 @@ table 5600 "Fixed Asset"
         field(4; "Description 2"; Text[50])
         {
             Caption = 'Description 2';
+            OptimizeForTextSearch = true;
         }
         field(5; "FA Class Code"; Code[10])
         {
@@ -201,6 +204,7 @@ table 5600 "Fixed Asset"
         field(17; "Serial No."; Text[50])
         {
             Caption = 'Serial No.';
+            OptimizeForTextSearch = true;
         }
         field(18; "Last Date Modified"; Date)
         {
@@ -475,8 +479,12 @@ table 5600 "Fixed Asset"
         NoSeries: Codeunit "No. Series";
         DimMgt: Codeunit DimensionManagement;
 
+#pragma warning disable AA0074
         Text000: Label 'A main asset cannot be deleted.';
+#pragma warning disable AA0470
         Text001: Label 'You cannot delete %1 %2 because it has associated depreciation books.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         UnexpctedSubclassErr: Label 'This fixed asset subclass belongs to a different fixed asset class.';
         DontAskAgainActionTxt: Label 'Don''t ask again';
         NotificationNameTxt: Label 'Fixed Asset Acquisition Wizard';

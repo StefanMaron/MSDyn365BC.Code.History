@@ -317,7 +317,9 @@ table 741 "VAT Report Line"
     var
         VATReportHeader: Record "VAT Report Header";
         LineCannotBeEditedErr: Label 'Cancellation line cannot be changed.';
+#pragma warning disable AA0470
         CorrectionEntryExistsErr: Label 'A correction entry already exists for this entry in report %1.';
+#pragma warning restore AA0470
 
     local procedure TestStatusOpen()
     begin

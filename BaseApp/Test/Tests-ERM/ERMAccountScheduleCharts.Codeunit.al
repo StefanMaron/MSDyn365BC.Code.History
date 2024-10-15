@@ -453,24 +453,22 @@ codeunit 134561 "ERM Account Schedule Charts"
         AccountSchedulesChartSetup: Record "Account Schedules Chart Setup";
         i: Integer;
     begin
-        with AccountSchedulesChartSetup do begin
-            DeleteAll();
+        AccountSchedulesChartSetup.DeleteAll();
 
-            for i := 1 to 3 do begin
-                Init();
-                "User ID" := SetUserId;
-                Name := Format(i);
-                "Last Viewed" := false;
-                Insert();
-            end;
-
-            Init();
-            "User ID" := 'other user';
-            Name := Format(2);
-            Insert();
-
-            exit(Format(2));
+        for i := 1 to 3 do begin
+            AccountSchedulesChartSetup.Init();
+            AccountSchedulesChartSetup."User ID" := SetUserId;
+            AccountSchedulesChartSetup.Name := Format(i);
+            AccountSchedulesChartSetup."Last Viewed" := false;
+            AccountSchedulesChartSetup.Insert();
         end;
+
+        AccountSchedulesChartSetup.Init();
+        AccountSchedulesChartSetup."User ID" := 'other user';
+        AccountSchedulesChartSetup.Name := Format(2);
+        AccountSchedulesChartSetup.Insert();
+
+        exit(Format(2));
     end;
 
     local procedure UpdateBusinessChartBuffer(var BusinessChartBuffer: Record "Business Chart Buffer"; AccountSchName: Code[10]; ColumnLayoutName: Code[10]; var AccountSchedulesChartSetup: Record "Account Schedules Chart Setup")

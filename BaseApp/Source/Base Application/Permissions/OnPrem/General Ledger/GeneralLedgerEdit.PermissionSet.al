@@ -152,6 +152,7 @@ permissionset 6720 "General Ledger - Edit"
                   tabledata "VAT Statement Line" = RIMD,
                   tabledata "VAT Statement Name" = RIMD,
                   tabledata "VAT Statement Template" = RIMD,
+                  tabledata "Alt. Cust. VAT Reg." = R,
                   tabledata Vendor = R,
                   tabledata "Vendor Bank Account" = R,
                   tabledata "Vendor Ledger Entry" = Rmd,

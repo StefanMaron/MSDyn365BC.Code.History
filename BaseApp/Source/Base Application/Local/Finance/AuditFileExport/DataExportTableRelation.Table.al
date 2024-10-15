@@ -35,7 +35,7 @@ table 11006 "Data Export Table Relation"
         }
         field(4; "From Table Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("From Table No.")));
             Caption = 'From Table Name';
             Editable = false;
@@ -77,7 +77,7 @@ table 11006 "Data Export Table Relation"
         }
         field(6; "From Field Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("From Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("From Table No."),
                                                               "No." = field("From Field No.")));
             Caption = 'From Field Name';
             Editable = false;
@@ -92,7 +92,7 @@ table 11006 "Data Export Table Relation"
         }
         field(8; "To Table Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("To Table No.")));
             Caption = 'To Table Name';
             Editable = false;
@@ -134,7 +134,7 @@ table 11006 "Data Export Table Relation"
         }
         field(10; "To Field Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("To Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("To Table No."),
                                                               "No." = field("To Field No.")));
             Caption = 'To Field Name';
             Editable = false;

@@ -299,12 +299,16 @@ report 5630 "Maintenance - Analysis"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Group Total';
         Text001: Label 'Group Totals';
         Text002: Label 'You must specify the starting date and the ending date.';
         Text003: Label 'The starting date is later than the ending date.';
+#pragma warning disable AA0470
         Text004: Label 'The starting date must be specified when you use the option %1.';
         Text005: Label '%1 has been modified in fixed asset %2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -333,8 +337,10 @@ report 5630 "Maintenance - Analysis"
         PrintDetails: Boolean;
         DateSelection: Option "FA Posting Date","Posting Date";
         i: Integer;
+#pragma warning disable AA0074
         Text006: Label 'before Starting Date,Net Change,at Ending Date';
         Text007: Label ' ,FA Class,FA SubClass,FA Location,Main Asset,Global Dimension 1,Global Dimension 2,FA Posting Group';
+#pragma warning restore AA0074
         CurrReportPageNoCaptionLbl: Label 'Page';
         MaintenanceAnalysisCaptionLbl: Label 'Maintenance - Analysis';
         TotalCaptionLbl: Label 'Total';

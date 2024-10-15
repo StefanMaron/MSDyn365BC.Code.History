@@ -94,7 +94,9 @@ table 9186 "Generic Chart Memo Buffer"
     }
 
     var
+#pragma warning disable AA0470
         TextMemoToBeTruncatedMsg: Label 'The length of the text that you entered is %1. The maximum length is %2. The text has been truncated to this length.';
+#pragma warning restore AA0470
 
     procedure GetMemo(CodeIn: Code[10]; LanguageCode: Code[10]): Text
     begin

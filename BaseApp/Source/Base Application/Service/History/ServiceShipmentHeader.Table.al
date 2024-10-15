@@ -21,6 +21,8 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Inventory.Location;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Inventory.Journal;
+using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Pricing;
@@ -876,13 +878,86 @@ table 5990 "Service Shipment Header"
         SetRange("Date Filter", 0D, WorkDate() - 1);
     end;
 
+    procedure OpenStatistics()
+    var
+        StatPageID: Integer;
+    begin
+        StatPageID := Page::"Service Shipment Statistics";
+        OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
+        Page.RunModal(StatPageID, Rec);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceShipmentHeader: Record "Service Shipment Header"; var IsHandled: Boolean)
     begin
     end;
 
+    procedure CopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    begin
+        ItemJournalLine."Document Date" := Rec."Document Date";
+        ItemJournalLine."Order Date" := Rec."Order Date";
+        ItemJournalLine."Country/Region Code" := Rec."VAT Country/Region Code";
+        ItemJournalLine."Source Posting Group" := Rec."Customer Posting Group";
+        ItemJournalLine."Salespers./Purch. Code" := Rec."Salesperson Code";
+        ItemJournalLine."Reason Code" := Rec."Reason Code";
+
+        OnAfterCopyToItemJnlLine(ItemJournalLine, Rec);
+#if not CLEAN25
+        ItemJournalLine.RunOnAfterCopyItemJnlLineFromServShptHeader(ItemJournalLine, Rec);
+#endif
+    end;
+
+    procedure CopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line")
+    begin
+        ResJournalLine."Document Date" := ServShptHeader."Document Date";
+        ResJournalLine."Reason Code" := ServShptHeader."Reason Code";
+        ResJournalLine."Source Type" := ResJournalLine."Source Type"::Customer;
+        ResJournalLine."Source No." := ServShptHeader."Customer No.";
+
+        OnAfterCopyToResJournalLine(ResJournalLine, Rec);
+    end;
+
+    procedure InitCertificateOfSupply(var CertificateOfSupply: Record "Certificate of Supply")
+    begin
+        if not CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Service Shipment", Rec."No.") then begin
+            CertificateOfSupply.Init();
+            CertificateOfSupply."Document Type" := CertificateOfSupply."Document Type"::"Service Shipment";
+            CertificateOfSupply."Document No." := Rec."No.";
+            CertificateOfSupply."Customer/Vendor Name" := Rec."Ship-to Name";
+            CertificateOfSupply."Shipment Method Code" := '';
+            CertificateOfSupply."Shipment/Posting Date" := Rec."Posting Date";
+            CertificateOfSupply."Ship-to Country/Region Code" := Rec."Ship-to Country/Region Code";
+            CertificateOfSupply."Customer/Vendor No." := Rec."Bill-to Customer No.";
+            OnAfterInitCertificateOfSupply(CertificateOfSupply, Rec);
+#if not CLEAN25
+            CertificateOfSupply.RunOnAfterInitFromService(CertificateOfSupply, Rec);
+#endif
+            CertificateOfSupply.Insert(true);
+        end
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line"; ServiceShipmentHeader: Record "Service Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitCertificateOfSupply(var CertificateOfSupply: Record "Certificate of Supply"; ServiceShipmentHeader: Record "Service Shipment Header")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceShipmentHeader: Record "Service Shipment Header"; ShowRequestForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceShipmentHeader: Record "Service Shipment Header"; var StatPageID: Integer);
     begin
     end;
 }

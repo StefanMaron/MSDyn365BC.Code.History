@@ -32,13 +32,11 @@
         MessageDoNotMatchErr: Label 'Error Message must be same.';
         DateCompressUnapplyErr: Label 'The entry cannot be unapplied, because the %1 has been compressed.', Locked = true;
         ApplicationEntryErr: Label '%1 %2 does not have an application entry.', Comment = '%1 = FIELD Caption, %2 = FIELD Value';
-        UnapplyErr: Label '%1 must be equal to ''Application''  in %2: %3=%4. Current value is ''Initial Entry''.', Comment = '%1 = FIELD Caption, %2 = Table Caption,%3 = Field Caption,%4 = Field Value';
         DetailedVendorLedgerErr: Label 'Detailed Vendor Ledger Entry Must Found.';
         GeneralJournalErr: Label 'General Journal Line Must Exist.';
         NegativeAmountErr: Label 'Amount must be positive in General Journal Line.';
         WrongFieldErr: Label 'Wrong value of field %1 in table %2.', Locked = true;
         UnnecessaryVATEntriesFoundErr: Label 'Unnecessary VAT Entries found.';
-        PaymentMethodCodeErr: Label 'Open must be equal to ''Yes''  in Vendor Ledger Entry: Entry No.=%1. Current value is ''No''.', Locked = true;
         NonzeroACYErr: Label 'Non-zero Additional-Currency Amount in G/L Entry.';
         GLEntryCntErr: Label 'Wrong count of created G/L Entries.';
         DimBalanceErr: Label 'Wrong balance by Dimension.';
@@ -555,11 +553,7 @@
         asserterror VendEntryApplyPostedEntries.UnApplyDtldVendLedgEntry(DetailedVendorLedgEntry);
 
         // Verify: Verify error when Unapplying Document from Detailed Vendor Ledger Entry.
-        Assert.AreEqual(
-          StrSubstNo(
-            UnapplyErr, DetailedVendorLedgEntry.FieldCaption("Entry Type"), DetailedVendorLedgEntry.TableCaption(),
-            DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."), GetLastErrorText,
-          MessageDoNotMatchErr);
+        Assert.ExpectedTestFieldError(DetailedVendorLedgEntry.FieldCaption("Entry Type"), Format(DetailedVendorLedgEntry."Entry Type"::Application));
     end;
 
     [Test]
@@ -1584,17 +1578,15 @@
 
     local procedure PostApplyPaymentForeignCurrency(var GenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; CurrencyCode: Code[10]; PaymentAmount: Decimal; AppliedDocumentType: Enum "Gen. Journal Document Type"; AppliedDocumentNo: Code[20])
     begin
-        with GenJournalLine do begin
-            CreateGeneralJournalLine(GenJournalLine, 1, VendorNo, "Document Type"::Payment, 0);
-            Validate("Currency Code", CurrencyCode);
-            Validate(Amount, PaymentAmount);
-            Validate("Applies-to Doc. Type", AppliedDocumentType);
-            Validate("Applies-to Doc. No.", AppliedDocumentNo);
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccountWithCurrency(CurrencyCode));
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        CreateGeneralJournalLine(GenJournalLine, 1, VendorNo, GenJournalLine."Document Type"::Payment, 0);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate(Amount, PaymentAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliedDocumentType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliedDocumentNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccountWithCurrency(CurrencyCode));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure RunRoundingAndBalanceAmountOnApplicationTest(DocumentType: Enum "Gen. Journal Document Type")
@@ -1771,12 +1763,10 @@
         BankAccount.SetRange(Blocked, false);
         BankAccount.SetRange("Currency Code", '');
         BankAccount.FindFirst();
-        with GenJournalLine do begin
-            Validate("Account Type", "Account Type"::"Bank Account");
-            Validate("Account No.", BankAccount."No.");
-            Validate("Bal. Account No.", '');
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
+        GenJournalLine.Validate("Account No.", BankAccount."No.");
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         UnapplyVendLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -1788,29 +1778,25 @@
         VendLedgerEntry: Record "Vendor Ledger Entry";
         i: Integer;
     begin
-        with VendLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            if FindSet() then
-                repeat
-                    i += 1;
-                    Validate("Applying Entry", true);
-                    Validate("Applies-to ID", AppliesToID);
-                    Validate("Amount to Apply", -AmountsToApply[i]);
-                    Modify(true);
-                until Next() = 0;
-        end;
+        VendLedgerEntry.SetRange("Vendor No.", VendorNo);
+        if VendLedgerEntry.FindSet() then
+            repeat
+                i += 1;
+                VendLedgerEntry.Validate("Applying Entry", true);
+                VendLedgerEntry.Validate("Applies-to ID", AppliesToID);
+                VendLedgerEntry.Validate("Amount to Apply", -AmountsToApply[i]);
+                VendLedgerEntry.Modify(true);
+            until VendLedgerEntry.Next() = 0;
     end;
 
     local procedure CalcBalanceByDimension(var GLEntry: Record "G/L Entry"; DimSetID: Integer) Result: Integer
     begin
         Result := 0;
-        with GLEntry do begin
-            SetRange("Dimension Set ID", DimSetID);
-            if FindSet() then
-                repeat
-                    Result += Amount;
-                until Next() = 0;
-        end;
+        GLEntry.SetRange("Dimension Set ID", DimSetID);
+        if GLEntry.FindSet() then
+            repeat
+                Result += GLEntry.Amount;
+            until GLEntry.Next() = 0;
     end;
 
     local procedure CreateGenLineAndApply(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; AppRounding: Decimal; Amount: Decimal)
@@ -1853,12 +1839,10 @@
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        with Currency do begin
-            Validate("Residual Gains Account", "Realized Gains Acc.");
-            Validate("Residual Losses Account", "Realized Losses Acc.");
-            Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
-            Modify(true);
-        end;
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Validate("Appln. Rounding Precision", ApplnRoundingPrecision);
+        Currency.Modify(true);
     end;
 
     local procedure CreatePaymentsJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -1924,12 +1908,10 @@
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::Vendor, VendorNo, Amount);
         LibraryDimension.CreateDimensionValue(DimVal, LibraryERM.GetGlobalDimensionCode(1));
-        with GenJournalLine do begin
-            Validate("Applies-to ID", "Document No.");
-            Validate("Shortcut Dimension 1 Code", DimVal.Code);
-            Modify(true);
-            DimSetID := "Dimension Set ID";
-        end;
+        GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+        GenJournalLine.Validate("Shortcut Dimension 1 Code", DimVal.Code);
+        GenJournalLine.Modify(true);
+        DimSetID := GenJournalLine."Dimension Set ID";
     end;
 
     local procedure CreateGenJnlLinesWithGivenDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DimSetIDs: array[10] of Integer; NoOfLines: Integer; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amounts: array[10] of Decimal)
@@ -1941,14 +1923,12 @@
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
               GenJournalLine."Account Type"::Vendor, VendorNo, Amounts[Counter]);
-            with GenJournalLine do begin
-                Validate("Bal. Account No.", '');
-                Validate("Applies-to ID", "Document No.");
-                Validate("Dimension Set ID", DimSetIDs[Counter]);
-                DimMgt.UpdateGlobalDimFromDimSetID(
-                  "Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-                Modify(true);
-            end;
+            GenJournalLine.Validate("Bal. Account No.", '');
+            GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+            GenJournalLine.Validate("Dimension Set ID", DimSetIDs[Counter]);
+            DimMgt.UpdateGlobalDimFromDimSetID(
+              GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+            GenJournalLine.Modify(true);
         end;
     end;
 
@@ -2013,12 +1993,10 @@
         PurchaseHeader: Record "Purchase Header";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
-        with PurchaseHeader do begin
-            Validate("Vendor Invoice No.", "No.");
-            Validate("Vendor Cr. Memo No.", "No.");
-            Validate("Posting Date", PostingDate);
-            Modify(true);
-        end;
+        PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
         UpdateDirectUnitCostOnPurchaseLine(PurchaseLine, DirectUnitCost);
         PostedDocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2071,14 +2049,12 @@
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
-            Validate("Exchange Rate Amount", Rate);
-            Validate("Adjustment Exch. Rate Amount", Rate);
-            Validate("Relational Exch. Rate Amount", RelationalRate);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
-            Modify(true);
-        end;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreatePostApplyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
@@ -2134,13 +2110,11 @@
         Vendor: Record Vendor;
         LibraryPurchase: Codeunit "Library - Purchase";
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorWithGivenPaymentTerm(var Vendor: Record Vendor; PaymentTermsCode: Code[10])
@@ -2179,11 +2153,9 @@
         VendorNo :=
           CreateVendorWithPostingSetup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        with Vendor do begin
-            Get(VendorNo);
-            Validate("Currency Code", ForeignCurrencyCode);
-            Modify(true);
-        end;
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Currency Code", ForeignCurrencyCode);
+        Vendor.Modify(true);
     end;
 
     local procedure CreatePaymentTermsWithDiscount(var PaymentTerms: Record "Payment Terms")
@@ -2216,11 +2188,9 @@
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Currency Code", CurrencyCode);
-            Modify();
-            exit("No.");
-        end;
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify();
+        exit(BankAccount."No.");
     end;
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -2326,12 +2296,10 @@
 
     local procedure FindClosedInvLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange(Open, false);
-            FindFirst();
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
+        VendorLedgerEntry.SetRange(Open, false);
+        VendorLedgerEntry.FindFirst();
     end;
 
     local procedure GetPaymentTerms(): Code[10]
@@ -2350,40 +2318,34 @@
         Vendor: Record Vendor;
         DiscountAmount: Decimal;
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Posting Date", PostingDate);
-            FindSet();
-            repeat
-                DiscountAmount += "Original Pmt. Disc. Possible";
-            until Next() = 0;
-            Vendor.Get(VendorNo);
-            Vendor.CalcFields("Balance (LCY)");
-            exit(Vendor."Balance (LCY)" + DiscountAmount);
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Posting Date", PostingDate);
+        VendorLedgerEntry.FindSet();
+        repeat
+            DiscountAmount += VendorLedgerEntry."Original Pmt. Disc. Possible";
+        until VendorLedgerEntry.Next() = 0;
+        Vendor.Get(VendorNo);
+        Vendor.CalcFields("Balance (LCY)");
+        exit(Vendor."Balance (LCY)" + DiscountAmount);
     end;
 
     local procedure GetTransactionNoFromUnappliedDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        with DtldVendLedgEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Unapplied, true);
-            FindLast();
-            exit("Transaction No.");
-        end;
+        DtldVendLedgEntry.SetRange("Document Type", DocType);
+        DtldVendLedgEntry.SetRange("Document No.", DocNo);
+        DtldVendLedgEntry.SetRange(Unapplied, true);
+        DtldVendLedgEntry.FindLast();
+        exit(DtldVendLedgEntry."Transaction No.");
     end;
 
     local procedure ModifyGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            Validate("Document No.", IncStr("Document No."));
-            Validate("External Document No.", "Document No.");
-            Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Document No.", IncStr(GenJournalLine."Document No."));
+        GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
+        GenJournalLine.Validate("Posting Date", CalcDate('<1Y>', WorkDate()));
+        GenJournalLine.Modify(true);
     end;
 
     local procedure OpenGeneralJournalPage(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type") Amount: Decimal
@@ -2440,17 +2402,15 @@
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Applying Entry", false);
-            FindSet();
-            repeat
-                Validate("Applies-to ID", DocumentNo);
-                CalcFields("Remaining Amount");
-                Validate("Amount to Apply", "Remaining Amount");
-                Modify(true);
-            until Next() = 0;
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Applying Entry", false);
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendorLedgerEntry.Validate("Applies-to ID", DocumentNo);
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
+            VendorLedgerEntry.Modify(true);
+        until VendorLedgerEntry.Next() = 0;
     end;
 
     local procedure SetPaymentTolerancePct(PaymentTolerance: Decimal)
@@ -2580,8 +2540,7 @@
     begin
         LibraryERM.FindVendorLedgerEntry(VendLedgerEntry, VendLedgerEntry."Document Type"::Invoice, DocumentNo);
         asserterror VendLedgerEntry.Validate("Payment Method Code", '');
-        Assert.ExpectedError(
-          StrSubstNo(PaymentMethodCodeErr, VendLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(VendLedgerEntry.FieldCaption(Open), Format(true));
     end;
 
     local procedure VerifyRemainingAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -2692,49 +2651,43 @@
         Index: Integer;
         "Sum": Decimal;
     begin
-        with GLEntry do begin
-            SetCurrentKey("Transaction No.");
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            SetRange("Transaction No.", "Transaction No.");
-            Assert.RecordCount(GLEntry, DimSetArrLen + 1);
-            FindSet();
-            for Index := 1 to DimSetArrLen do begin
-                Assert.AreEqual(DimSetIDs[1], "Dimension Set ID", FieldCaption("Dimension Set ID"));
-                Assert.AreEqual(Amounts[Index], Amount, FieldCaption(Amount));
-                Sum += Amounts[Index];
-                Next();
-            end;
-            Assert.AreEqual(DimSetIDs[1], "Dimension Set ID", FieldCaption("Dimension Set ID"));
-            Assert.AreEqual(-Sum, Amount, FieldCaption(Amount));
+        GLEntry.SetCurrentKey("Transaction No.");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindLast();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        Assert.RecordCount(GLEntry, DimSetArrLen + 1);
+        GLEntry.FindSet();
+        for Index := 1 to DimSetArrLen do begin
+            Assert.AreEqual(DimSetIDs[1], GLEntry."Dimension Set ID", GLEntry.FieldCaption("Dimension Set ID"));
+            Assert.AreEqual(Amounts[Index], GLEntry.Amount, GLEntry.FieldCaption(Amount));
+            Sum += Amounts[Index];
+            GLEntry.Next();
         end;
+        Assert.AreEqual(DimSetIDs[1], GLEntry."Dimension Set ID", GLEntry.FieldCaption("Dimension Set ID"));
+        Assert.AreEqual(-Sum, GLEntry.Amount, GLEntry.FieldCaption(Amount));
     end;
 
     local procedure VerifyNoVATEntriesOnUnapplication(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
-            Assert.IsTrue(IsEmpty, UnnecessaryVATEntriesFoundErr);
-        end;
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
+        Assert.IsTrue(VATEntry.IsEmpty, UnnecessaryVATEntriesFoundErr);
     end;
 
     local procedure VerifyACYInGLEntriesOnUnapplication(ExpectedACY: Decimal; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
-            FindSet();
-            repeat
-                Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Document Type", DocType);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
+        GLEntry.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedACY, GLEntry."Additional-Currency Amount", NonzeroACYErr);
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyVendorLedgEntryRemAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; RemAmount: Decimal)
@@ -2750,13 +2703,11 @@
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindFirst();
-            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-            TestField("Remaining Amt. (LCY)", Round("Remaining Amount" / "Adjusted Currency Factor", 0.01));
-        end;
+        VendLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendLedgerEntry.SetRange("Document Type", DocumentType);
+        VendLedgerEntry.FindFirst();
+        VendLedgerEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+        VendLedgerEntry.TestField("Remaining Amt. (LCY)", Round(VendLedgerEntry."Remaining Amount" / VendLedgerEntry."Adjusted Currency Factor", 0.01));
     end;
 
     [ConfirmHandler]
@@ -2826,28 +2777,26 @@
         InvoiceAmount: Decimal;
         ExchangeRate: Decimal;
     begin
-        with LibraryVariableStorage do begin
-            Dequeue(QueueValue);
-            PaymentAmount := QueueValue;
-            Dequeue(QueueValue);
-            InvoiceAmount := QueueValue;
-            Dequeue(QueueValue);
-            ExchangeRate := QueueValue;
-        end;
+        LibraryVariableStorage.Dequeue(QueueValue);
+        PaymentAmount := QueueValue;
+        LibraryVariableStorage.Dequeue(QueueValue);
+        InvoiceAmount := QueueValue;
+        LibraryVariableStorage.Dequeue(QueueValue);
+        ExchangeRate := QueueValue;
 
-        with ApplyVendorEntries do begin
-            // verify invoice entry
-            ActionSetAppliesToID.Invoke(); // apply entry
-            AppliedAmount.AssertEquals(Round(-InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
-            ActionSetAppliesToID.Invoke(); // unapply
+        // verify invoice entry
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        // apply entry
+        ApplyVendorEntries.AppliedAmount.AssertEquals(Round(-InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        // unapply
+        // verify cr. memo entry
+        ApplyVendorEntries.Next();
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        // apply next entry
+        ApplyVendorEntries.AppliedAmount.AssertEquals(Round(PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
 
-            // verify cr. memo entry
-            Next();
-            ActionSetAppliesToID.Invoke(); // apply next entry
-            AppliedAmount.AssertEquals(Round(PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
-
-            OK().Invoke();
-        end;
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]

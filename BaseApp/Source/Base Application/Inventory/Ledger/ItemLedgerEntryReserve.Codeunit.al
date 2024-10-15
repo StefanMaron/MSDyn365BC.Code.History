@@ -1,21 +1,15 @@
 ﻿namespace Microsoft.Inventory.Ledger;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Location;
-using Microsoft.Inventory.Planning;
-using Microsoft.Inventory.Requisition;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Inventory.Transfer;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Activity;
 
 codeunit 99000841 "Item Ledger Entry-Reserve"
 {
     Permissions = TableData "Reservation Entry" = rimd;
+
+    var
+        SourceDoc2Txt: Label '%1 %2', Locked = true;
 
     trigger OnRun()
     begin
@@ -39,68 +33,44 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
 
     local procedure DrillDownTotalQuantity(SourceRecordRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservationEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal)
     var
-        PurchaseLine: Record "Purchase Line";
-        CreatePick: Codeunit "Create Pick";
+        IsHandled: Boolean;
+    begin
+        OnDrillDownTotalQuantity(SourceRecordRef, EntrySummary, ReservationEntry, Location, MaxQtyToReserve, IsHandled);
+        if IsHandled then
+            exit;
+
+        OnDrillDownTotalQuantityElseCase(SourceRecordRef, EntrySummary, ReservationEntry, Location, MaxQtyToReserve);
+    end;
+
+    procedure DrillDownTotalQuantity(SourceRecordRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservationEntry: Record "Reservation Entry"; MaxQtyToReserve: Decimal)
+    var
         AvailableItemLedgEntries: Page "Available - Item Ledg. Entries";
     begin
         Clear(AvailableItemLedgEntries);
-        case ReservationEntry."Source Type" of
-            Database::"Sales Line",
-            Database::"Prod. Order Component",
-            Database::"Transfer Line":
-                begin
-                    AvailableItemLedgEntries.SetSource(SourceRecordRef, ReservationEntry, ReservationEntry.GetTransferDirection());
-                    if Location."Bin Mandatory" or Location."Require Pick" then
-                        AvailableItemLedgEntries.SetTotalAvailQty(
-                            EntrySummary."Total Available Quantity" +
-                            CreatePick.CheckOutBound(
-                            ReservationEntry."Source Type", ReservationEntry."Source Subtype",
-                            ReservationEntry."Source ID", ReservationEntry."Source Ref. No.",
-                            ReservationEntry."Source Prod. Order Line"))
-                    else
-                        AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
-                    AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
-                    AvailableItemLedgEntries.RunModal();
-                end;
-            Database::"Purchase Line":
-                begin
-                    AvailableItemLedgEntries.SetSource(SourceRecordRef, ReservationEntry, ReservationEntry.GetTransferDirection());
-                    SourceRecordRef.SetTable(PurchaseLine);
-                    if Location."Bin Mandatory" or Location."Require Pick" and
-                        (PurchaseLine."Document Type" = PurchaseLine."Document Type"::"Return Order")
-                    then
-                        AvailableItemLedgEntries.SetTotalAvailQty(
-                            EntrySummary."Total Available Quantity" +
-                            CreatePick.CheckOutBound(
-                            ReservationEntry."Source Type", ReservationEntry."Source Subtype",
-                            ReservationEntry."Source ID", ReservationEntry."Source Ref. No.",
-                            ReservationEntry."Source Prod. Order Line"))
-                    else
-                        AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
-                    AvailableItemLedgEntries.RunModal();
-                end;
-            Database::"Requisition Line",
-            Database::"Planning Component",
-            Database::"Prod. Order Line":
-                begin
-                    AvailableItemLedgEntries.SetSource(SourceRecordRef, ReservationEntry, ReservationEntry.GetTransferDirection());
-                    AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
-                    AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
-                    AvailableItemLedgEntries.RunModal();
-                end;
-            Database::"Service Line",
-            Database::"Job Planning Line",
-            Database::"Assembly Header",
-            Database::"Assembly Line":
-                begin
-                    AvailableItemLedgEntries.SetSource(SourceRecordRef, ReservationEntry, ReservationEntry.GetTransferDirection());
-                    AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
-                    AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
-                    AvailableItemLedgEntries.RunModal();
-                end;
-            else
-                OnDrillDownTotalQuantityElseCase(SourceRecordRef, EntrySummary, ReservationEntry, Location, MaxQtyToReserve);
-        end;
+        AvailableItemLedgEntries.SetSource(SourceRecordRef, ReservationEntry, ReservationEntry.GetTransferDirection());
+        AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity");
+        AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
+        AvailableItemLedgEntries.RunModal();
+    end;
+
+    procedure DrillDownTotalQuantity(SourceRecordRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservationEntry: Record "Reservation Entry"; MaxQtyToReserve: Decimal; CheckOutbound: Boolean; SetMaxQtyToreserve: Boolean)
+    var
+        CreatePick: Codeunit "Create Pick";
+        AvailableItemLedgEntries: Page "Available - Item Ledg. Entries";
+        TotalOutBoundQty: Decimal;
+    begin
+        Clear(AvailableItemLedgEntries);
+        AvailableItemLedgEntries.SetSource(SourceRecordRef, ReservationEntry, ReservationEntry.GetTransferDirection());
+        if CheckOutbound then
+            TotalOutBoundQty :=
+                CreatePick.CheckOutBound(
+                ReservationEntry."Source Type", ReservationEntry."Source Subtype",
+                ReservationEntry."Source ID", ReservationEntry."Source Ref. No.",
+                ReservationEntry."Source Prod. Order Line");
+        AvailableItemLedgEntries.SetTotalAvailQty(EntrySummary."Total Available Quantity" + TotalOutBoundQty);
+        if SetMaxQtyToreserve then
+            AvailableItemLedgEntries.SetMaxQtyToReserve(MaxQtyToReserve);
+        AvailableItemLedgEntries.RunModal();
     end;
 
     local procedure MatchThisTable(TableID: Integer): Boolean
@@ -127,11 +97,10 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnDrillDownTotalQuantity', '', false, false)]
-    local procedure OnDrillDownTotalQuantity(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal)
+    local procedure ReservationOnDrillDownTotalQuantity(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal)
     begin
         if EntrySummary."Entry No." = 1 then
             DrillDownTotalQuantity(SourceRecRef, EntrySummary, ReservEntry, Location, MaxQtyToReserve);
-
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnLookupDocument', '', false, false)]
@@ -207,9 +176,43 @@ codeunit 99000841 "Item Ledger Entry-Reserve"
             ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnDrillDownTotalQuantity(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnDrillDownTotalQuantityElseCase(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary"; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal)
     begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetItemLedgEntryOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    // codeunit Reservation Engine Mgt. subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnRevertDateToSourceDate', '', false, false)]
+    local procedure OnRevertDateToSourceDate(var ReservEntry: Record "Reservation Entry")
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        if ReservEntry."Source Type" = Database::"Item Ledger Entry" then begin
+            ItemLedgerEntry.Get(ReservEntry."Source Ref. No.");
+            ReservEntry."Expected Receipt Date" := ItemLedgerEntry."Posting Date";
+            ReservEntry."Shipment Date" := 0D;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnCreateText', '', false, false)]
+    local procedure OnAfterCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text[80])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        if ReservationEntry."Source Type" = Database::"Item Ledger Entry" then
+            Description :=
+                StrSubstNo(SourceDoc2Txt, ItemLedgerEntry.TableCaption(), ReservationEntry."Source Ref. No.");
     end;
 }
 

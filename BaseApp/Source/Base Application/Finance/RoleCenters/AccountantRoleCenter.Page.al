@@ -44,9 +44,6 @@ using Microsoft.Intercompany.Dimension;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Intercompany.Partner;
 using Microsoft.Inventory.Costing;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Purchases.Reports;
@@ -94,6 +91,10 @@ page 9027 "Accountant Role Center"
                 ApplicationArea = Intercompany;
             }
             part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Job Queue Tasks Activities"; "Job Queue Tasks Activities")
             {
                 ApplicationArea = Suite;
             }
@@ -318,52 +319,7 @@ page 9027 "Accountant Role Center"
                     RunObject = Report "VAT- VIES Declaration Disk";
                     ToolTip = 'Report your sales to other EU countries or regions to the customs and tax authorities. If the information must be printed out on a printer, you can use the VAT- VIES Declaration Tax Auth report. The information is shown in the same format as in the declaration list from the customs and tax authorities.';
                 }
-#if not CLEAN22
-                action("EC Sales &List")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'EC Sales &List';
-                    Image = "Report";
-                    RunObject = Report "EC Sales List";
-                    ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
-                    Visible = false;
-                    ObsoleteReason = 'Not used in the German version';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
-#if not CLEAN22
-            group(Action60)
-            {
-                Caption = 'Intrastat';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                action("&Intrastat - Checklist")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = '&Intrastat - Checklist';
-                    Image = "Report";
-                    RunObject = Report "Intrastat - Checklist";
-                    ToolTip = 'View a checklist that you can use to find possible errors before printing and also as documentation for what is printed. You can use the report to check the Intrastat journal before you use the Intrastat - Make Disk Tax Auth batch job.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-                action("Intrastat - For&m")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat - For&m';
-                    Image = "Report";
-                    RunObject = Report "Intrastat - Form";
-                    ToolTip = 'View all the information that must be transferred to the printed Intrastat form.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-            }
-#endif
             group("Cost Accounting")
             {
                 Caption = 'Cost Accounting';
@@ -475,19 +431,6 @@ page 9027 "Accountant Role Center"
                 RunObject = Page "Purchase Invoices";
                 ToolTip = 'Create purchase invoices to mirror sales documents that vendors send to you. This enables you to record the cost of purchases and to track accounts payable. Posting purchase invoices dynamically updates inventory levels so that you can minimize inventory costs and provide better customer service. Purchase invoices can be created automatically from PDF or image files from your vendors by using the Incoming Documents feature.';
             }
-#if not CLEAN22
-            action("EC Sales List")
-            {
-                ApplicationArea = VAT;
-                Caption = 'EC Sales List';
-                RunObject = Page "EC Sales List Reports";
-                ToolTip = 'Calculate VAT amounts from sales, and submit the amounts to a tax authority.';
-                Visible = false;
-                ObsoleteReason = 'Not used in the German version';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-            }
-#endif            
             action("VAT Returns")
             {
                 ApplicationArea = VAT;
@@ -510,18 +453,6 @@ page 9027 "Accountant Role Center"
                 RunObject = Page "VAT Statement Names";
                 ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
             }
-#if not CLEAN22
-            action(Intrastat)
-            {
-                ApplicationArea = BasicEU;
-                Caption = 'Intrastat';
-                RunObject = Page "Intrastat Jnl. Batches";
-                ToolTip = 'Report your trade with other EU countries/regions for Intrastat reporting.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-            }
-#endif
         }
         area(sections)
         {
@@ -585,18 +516,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Page "VAT Statement Names";
                     ToolTip = 'View a statement of posted VAT amounts, calculate your VAT settlement amount for a certain period, such as a quarter, and prepare to send the settlement to the tax authorities.';
                 }
-#if not CLEAN22
-                action("Intrastat Journals")
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Journals';
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
                 action("Analysis Views")
                 {
                     ApplicationArea = Basic, Suite;
@@ -721,19 +640,6 @@ page 9027 "Accountant Role Center"
                                         Recurring = const(false));
                     ToolTip = 'Post intercompany transactions. IC general journal lines must contain either an IC partner account or a customer or vendor account that has been assigned an intercompany partner code.';
                 }
-#if not CLEAN22
-                action(Action1102601002)
-                {
-                    ApplicationArea = BasicEU;
-                    Caption = 'Intrastat Journals';
-                    Image = "Report";
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
                 action(PostedGeneralJournals)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1167,19 +1073,6 @@ page 9027 "Accountant Role Center"
                     RunObject = Report "Post Inventory Cost to G/L";
                     ToolTip = 'Record the quantity and value changes to the inventory in the item ledger entries and the value entries when you post inventory transactions, such as sales shipments or purchase receipts.';
                 }
-#if not CLEAN22
-                action("Intrastat &Journal")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Intrastat &Journal';
-                    Image = Journal;
-                    RunObject = Page "Intrastat Jnl. Batches";
-                    ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-                }
-#endif
                 action("Calc. and Pos&t VAT Settlement")
                 {
                     ApplicationArea = VAT;

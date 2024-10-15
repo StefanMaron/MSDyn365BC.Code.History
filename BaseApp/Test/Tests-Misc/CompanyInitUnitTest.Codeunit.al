@@ -21,7 +21,11 @@ codeunit 134163 "Company Init Unit Test"
         InvPCostCodeTxt: Label 'INVTPCOST', Comment = 'Post Inventory to G/L';
         InvPCostValueTxt: Label 'Post Inventory Cost to G/L';
         AdjExchRatesCodeTxt: Label 'EXCHRATADJ', Comment = 'Adjust Exchange Rates';
+#if not CLEAN23
         AdjExchRatesValueTxt: Label 'Adjust Exchange Rates';
+#else
+        AdjExchRatesValueTxt: Label 'Exchange Rates Adjustment';
+#endif
         ClsIncStmtCodeTxt: Label 'CLSINCOME', Comment = 'Close Income Statement';
         ClsIncStmtValueTxt: Label 'Close Income Statement';
         ConsolidationCodeTxt: Label 'CONSOLID', Comment = 'Consolidation';
@@ -186,7 +190,6 @@ codeunit 134163 "Company Init Unit Test"
         DeleteAllDataInSourceCodeTable();
         DeleteAllStandardTexts();
         DeleteReportSelections();
-        DeleteDACHReportSelection();
         DeleteJobWIPMethods();
         DeleteBankExportImportSetup();
         DeleteBankClearingStandard();
@@ -203,7 +206,6 @@ codeunit 134163 "Company Init Unit Test"
         CheckSourceCodeTable();
         CheckStandardTexts();
         CheckReportSelections();
-        CheckDACHReportSelection();
         CheckJobWIPMethods();
         CheckBankExportImportSetup();
         CheckVATRegNrValidation();
@@ -291,13 +293,6 @@ codeunit 134163 "Company Init Unit Test"
         ReportSelections: Record "Report Selections";
     begin
         ReportSelections.DeleteAll();
-    end;
-
-    local procedure DeleteDACHReportSelection()
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        DACHReportSelections.DeleteAll();
     end;
 
     local procedure DeleteJobWIPMethods()
@@ -538,6 +533,7 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract Quote", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Contract", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"SM.Test", '1');
+        CheckReportSelectionEntry(ReportSelections.Usage::"SM.Item Worksheet", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"Asm.Order", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"P.Asm.Order", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Test Prepmt.", '1');
@@ -550,15 +546,6 @@ codeunit 134163 "Company Init Unit Test"
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Arch.Return", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"S.Order Pick Instruction", '1');
         CheckReportSelectionEntry(ReportSelections.Usage::"C.Statement", '1');
-    end;
-
-    local procedure CheckDACHReportSelection()
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        DACHReportSelections.FindFirst();
-        DACHReportSelections.TestField("Report ID");
-        DACHReportSelections.TestField(Sequence);
     end;
 
     local procedure CheckReportSelectionEntry(RecUsage: Enum "Report Selection Usage"; Sequence: Text)

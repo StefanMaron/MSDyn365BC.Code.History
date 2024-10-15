@@ -121,11 +121,6 @@ page 959 "Time Sheet Archive"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                 }
-                field("Service Order No."; Rec."Service Order No.")
-                {
-                    ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the service order number that is associated with an archived time sheet line.';
-                }
                 field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;

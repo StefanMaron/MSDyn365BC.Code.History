@@ -361,11 +361,9 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     var
         IssuedReminderHeader: Record "Issued Reminder Header";
     begin
-        with IssuedReminderHeader do begin
-            SetRange("Customer No.", CustomerNo);
-            FindFirst();
-            exit("No.");
-        end;
+        IssuedReminderHeader.SetRange("Customer No.", CustomerNo);
+        IssuedReminderHeader.FindFirst();
+        exit(IssuedReminderHeader."No.");
     end;
 
     [Scope('OnPrem')]
@@ -373,10 +371,8 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CustomerNo);
-            exit("Country/Region Code");
-        end;
+        Customer.Get(CustomerNo);
+        exit(Customer."Country/Region Code");
     end;
 
     local procedure IssueReminder(DocumentNo: Code[20]): Code[20]
@@ -458,12 +454,10 @@ codeunit 134012 "ERM Reminder Apply Unapply"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", "Document Type"::Reminder);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            TestField("Country/Region Code", ExpectedCountryRegionCode);
-        end;
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Reminder);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("Country/Region Code", ExpectedCountryRegionCode);
     end;
 }
 

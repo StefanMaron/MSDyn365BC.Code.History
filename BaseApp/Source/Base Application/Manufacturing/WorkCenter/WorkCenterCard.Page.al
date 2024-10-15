@@ -97,7 +97,7 @@ page 99000754 "Work Center Card"
                 field("Specific Unit Cost"; Rec."Specific Unit Cost")
                 {
                     ApplicationArea = Manufacturing;
-                    ToolTip = 'Specifies where to define the unit costs.';
+                    ToolTip = 'Specifies where to define the unit costs. If you place a check mark in this field, you can define the unit costs on the routing line. This allows you to have individual costs on every routing line. This is useful for subcontracting operations with varying rates.';
                 }
                 field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {

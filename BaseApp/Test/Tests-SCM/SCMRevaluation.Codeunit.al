@@ -379,12 +379,11 @@ codeunit 137010 "SCM Revaluation"
     var
         Location: Record Location;
         InventoryPostingGroupRec: Record "Inventory Posting Group";
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         LibraryInventory.SetAutomaticCostPosting(true);
         LibraryInventory.SetExpectedCostPosting(false);
         LibraryInventory.SetAutomaticCostAdjmtNever();
-        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+        LibraryInventory.SetAverageCostSetup("Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
 
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
         InventoryPostingGroupRec.FindFirst();

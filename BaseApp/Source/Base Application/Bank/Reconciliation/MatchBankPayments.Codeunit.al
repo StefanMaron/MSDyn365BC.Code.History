@@ -54,9 +54,11 @@ codeunit 1255 "Match Bank Payments"
         BankPmtApplSettings: Record "Bank Pmt. Appl. Settings";
         TempBankPmtApplRule: Record "Bank Pmt. Appl. Rule" temporary;
         TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
+#pragma warning disable AA0470
         TextMapperRulesOverridenTxt: Label '%1 text mapper rules could be applied. They were overridden because a record with the %2 match confidence was found.';
         MultipleEntriesWithSilarConfidenceFoundTxt: Label 'There are %1 ledger entries that this statement line could be applied to with the same confidence.';
         MultipleStatementLinesWithSameConfidenceFoundTxt: Label 'There are %1 alternative statement lines that could be applied to the same ledger entry with the same confidence.';
+#pragma warning restore AA0470
         CannotFindRuleLbl: Label 'Unexpected - could not find the payment application rule, score %1', Locked = true, Comment = '%1 is the score';
         AutomatchEventNameTelemetryTxt: Label 'Automatch', Locked = true;
         TempOneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary;
@@ -68,15 +70,19 @@ codeunit 1255 "Match Bank Payments"
         TempDirectDebitCollectionBuffer: Record "Direct Debit Collection Buffer" temporary;
         BankPmtApplSettingsInitialized: Boolean;
         ApplyEntries: Boolean;
+#pragma warning disable AA0470
         CannotApplyDocumentNoOneToManyApplicationTxt: Label 'Document No. %1 was not applied because the transaction amount was insufficient.';
+#pragma warning restore AA0470
         UsePaymentDiscounts: Boolean;
         MinimumMatchScore: Integer;
         RelatedPartyMatchedInfoText: Text;
         DocumentMatchedInfoText: Text;
         LogInfoText: Boolean;
         MatchSummaryMsg: Label '%1 payment lines out of %2 are applied.\\', Comment = '%1 number of lines that are applied, %2 total number of lines';
+#pragma warning disable AA0470
         MatchingStmtLinesMsg: Label 'The matching of statement lines to open ledger entries is in progress.\\Please wait while the operation is being completed.\\#1####### @2@@@@@@@@@@@@@';
         ProcessedStmtLinesMsg: Label 'Processed %1 out of %2 lines.';
+#pragma warning restore AA0470
         CreatingAppliedEntriesMsg: Label 'The application of statement lines to open ledger entries is in progress. Please wait while the operation is being completed.';
         ProgressBarMsg: Label 'Please wait while the operation is being completed.';
         MustChooseAccountErr: Label 'You must choose an account to transfer the difference to.';
@@ -1101,20 +1107,6 @@ codeunit 1255 "Match Bank Payments"
                 TempDirectDebitCollectionEntryBuffer.Insert();
             until DirectDebitCollectionEntry.Next() = 0;
     end;
-
-#if not CLEAN22
-    [Obsolete('Use the InitializeDirectDebitCollectionEntriesMatchingBuffer method above - it is using a dedicated buffer table', '22.0')]
-    procedure InitializeDirectDebitCollectionEntriesMatchingBuffer(var TempDirectDebitCollectionEntryBuffer: Record "Direct Debit Collection Entry" temporary)
-    var
-        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
-    begin
-        if DirectDebitCollectionEntry.FindSet() then
-            repeat
-                TempDirectDebitCollectionEntryBuffer.TransferFields(DirectDebitCollectionEntry);
-                TempDirectDebitCollectionEntryBuffer.Insert();
-            until DirectDebitCollectionEntry.Next() = 0;
-    end;
-#endif
 
     procedure FindApplicableTextMappings(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var TempTextToAccMapping: Record "Text-to-Account Mapping" temporary): Boolean
     begin

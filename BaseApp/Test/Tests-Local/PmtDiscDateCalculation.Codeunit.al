@@ -67,28 +67,24 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
-            Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
-            Validate("Payment Terms Code", CreatePmtTermsWithDateCalcSetupAndZeroDisc());
-            Validate("Combine Shipments", true);
-            Modify(true);
-            exit("No.");
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostGroupCode);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostGroupCode);
+        Customer.Validate("Payment Terms Code", CreatePmtTermsWithDateCalcSetupAndZeroDisc());
+        Customer.Validate("Combine Shipments", true);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateItem(GenProdPostGroupCode: Code[20]; VATProdPostGroupCode: Code[20]): Code[20]
     var
         Item: Record Item;
     begin
-        with Item do begin
-            LibraryInventory.CreateItem(Item);
-            Validate("Gen. Prod. Posting Group", GenProdPostGroupCode);
-            Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Gen. Prod. Posting Group", GenProdPostGroupCode);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostGroupCode);
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure CreateSalesOrderWithZeroDiscPmtTerms(var SalesHeader: Record "Sales Header")
@@ -116,17 +112,15 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        with PaymentTerms do begin
-            LibraryERM.CreatePaymentTerms(PaymentTerms);
-            Evaluate(
-              "Due Date Calculation", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-            Validate("Due Date Calculation");
-            Evaluate(
-              "Discount Date Calculation", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-            Validate("Discount Date Calculation");
-            Modify(true);
-            exit(Code);
-        end;
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Evaluate(
+          PaymentTerms."Due Date Calculation", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        PaymentTerms.Validate("Due Date Calculation");
+        Evaluate(
+          PaymentTerms."Discount Date Calculation", '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        PaymentTerms.Validate("Discount Date Calculation");
+        PaymentTerms.Modify(true);
+        exit(PaymentTerms.Code);
     end;
 
     local procedure RunCombineShipmentsReport(var SalesHeader: Record "Sales Header")
@@ -145,11 +139,9 @@ codeunit 144002 "Pmt. Disc. Date Calculation"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Shipment No.", DocNo);
-            Assert.IsFalse(IsEmpty, StrSubstNo(InvLineForShptDoesNotExistErr, DocNo));
-        end;
+        SalesLine.SetRange("Document Type", SalesLine."Document Type"::Invoice);
+        SalesLine.SetRange("Shipment No.", DocNo);
+        Assert.IsFalse(SalesLine.IsEmpty, StrSubstNo(InvLineForShptDoesNotExistErr, DocNo));
     end;
 }
 

@@ -400,7 +400,11 @@ report 511 "Complete IC Inbox Action"
         DimMgt: Codeunit DimensionManagement;
         GLSetupFound: Boolean;
         Forward: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 %2 from IC Partner %3 already exists in the %4 window. You have to delete %1 %2 in the %4 window before you complete the line action.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DocPostingDateEditable: Boolean;
         PostingDateEditable: Boolean;
 

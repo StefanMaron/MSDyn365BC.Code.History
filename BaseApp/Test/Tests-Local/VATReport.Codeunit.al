@@ -58,7 +58,6 @@ codeunit 144001 "VAT Report"
         IncorrectAmtInSecondCorrErr: Label 'Amount in the second correction must be initialized with the first correction amount.';
         ReportLineRelationNotFoundErr: Label 'VAT Report Line Relation does not exist.';
         NonEUCountryInReportErr: Label 'VAT entry for non-EU country must not be included in report.';
-        WrongExpectedReportStatusErr: Label 'Status must be equal to ''%1''  in VAT Report Header';
         CorrLinesNotCreatedErr: Label 'Correction lines were not created.';
         ReportLineMustBeDeletedErr: Label 'VAT Report Line must be deleted.';
         VariableStorage: Codeunit "Library - Variable Storage";
@@ -67,12 +66,10 @@ codeunit 144001 "VAT Report"
         FieldMustBeFilledErr: Label 'Field %1 should be filled in table %2.';
         IncorectMsgInErrorLogErr: Label 'Incorrect error message in error log.';
         IncorrectVATEntriesListErr: Label 'Detailed vat entries list is displayed incorrectly.';
-        UnexpectedTableNoInRelationErr: Label 'Table No. must be equal to ''%1''  in VAT Report Line Relation';
         ErrorLogMustBeEmptyErr: Label 'No errors must be logged.';
         IncorrectAmountForExportErr: Label 'Amount for export formatted incorrectly.';
         IncorrectFileNameErr: Label 'Report file name is incorrect.';
         OddNoOfCorrLinesErr: Label 'Each cancellation line should have related corrective line.';
-        OriginalReportNoMustBeEmptyErr: Label 'Original Report No. must be equal to';
         CorrectionEntryAlreadyExistsErr: Label 'A correction entry already exists for this entry in report';
         InvalidCompanyNameTok: Label 'Name - Labé';
         InvalidCompanyAddressTok: Label 'Address - Labé';
@@ -175,8 +172,7 @@ codeunit 144001 "VAT Report"
         VATReportPart: Option Header,Line;
     begin
         Initialize();
-        with VATReportHeader do
-            SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, FieldNo("Report Period Type"), "Report Period Type"::" ");
+        SetIncorrectFieldValue_ValidateReport(VATReportPart::Header, VATReportHeader.FieldNo("Report Period Type"), VATReportHeader."Report Period Type"::" ");
     end;
 
     [Test]
@@ -424,10 +420,8 @@ codeunit 144001 "VAT Report"
         Initialize();
         CreateStandardMonthReport(VATReportHeader);
 
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            DeleteAll(true);
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        VATReportLine.DeleteAll(true);
 
         VATReportLineRelation.SetRange("VAT Report No.", VATReportHeader."No.");
         Assert.IsTrue(VATReportLineRelation.IsEmpty, ReportLineMustBeDeletedErr);
@@ -502,10 +496,9 @@ codeunit 144001 "VAT Report"
 
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
         CreateVATEntries(5, TestPeriodStart, TestPeriodEnd, CountryCode, VATRegNo, false);
-        with VATReportHeader do
-            CreateVATReport(
-              "VAT Report Type"::Standard,
-              "Report Period Type"::Month,
+        CreateVATReport(
+              VATReportHeader."VAT Report Type"::Standard,
+              VATReportHeader."Report Period Type"::Month,
               Date2DMY(TestPeriodStart, 2),
               Date2DMY(TestPeriodStart, 3),
               VATReportHeader);
@@ -532,10 +525,9 @@ codeunit 144001 "VAT Report"
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
 
         CreateVATEntries(1, TestPeriodStart, TestPeriodEnd, CountryRegion.Code, '', false);
-        with VATReportHeader do
-            CreateVATReport(
-              "VAT Report Type"::Standard,
-              "Report Period Type"::Month,
+        CreateVATReport(
+              VATReportHeader."VAT Report Type"::Standard,
+              VATReportHeader."Report Period Type"::Month,
               Date2DMY(TestPeriodStart, 2),
               Date2DMY(TestPeriodStart, 3),
               VATReportHeader);
@@ -1165,7 +1157,7 @@ codeunit 144001 "VAT Report"
         CreateStandardMonthReport(VATReportHeader);
 
         asserterror VATReportMediator.Submit(VATReportHeader);
-        Assert.ExpectedError(StrSubstNo(WrongExpectedReportStatusErr, VATReportHeader.Status::Exported));
+        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption(Status), Format(VATReportHeader.Status::Exported));
     end;
 
     [Test]
@@ -1179,7 +1171,8 @@ codeunit 144001 "VAT Report"
         VATReportMediator.Release(VATReportHeader);
 
         asserterror VATReportMediator.Submit(VATReportHeader);
-        Assert.ExpectedError(StrSubstNo(WrongExpectedReportStatusErr, VATReportHeader.Status::Exported));
+        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption(Status), Format(VATReportHeader.Status::Exported));
+
     end;
 
     [Test]
@@ -1237,13 +1230,11 @@ codeunit 144001 "VAT Report"
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveVATReportHeader(VATReportHeader, CorrVATReportHeader);
 
-        with CorrVATReportHeader do begin
-            RunCorrectVATReportLines("No.");
+        RunCorrectVATReportLines(CorrVATReportHeader."No.");
 
-            Assert.IsTrue(
-              CorrectionLineExists("No.", LineType::Cancellation) and CorrectionLineExists("No.", LineType::Correction),
-              CorrLinesNotCreatedErr);
-        end;
+        Assert.IsTrue(
+          CorrectionLineExists(CorrVATReportHeader."No.", LineType::Cancellation) and CorrectionLineExists(CorrVATReportHeader."No.", LineType::Correction),
+          CorrLinesNotCreatedErr);
 
         Cleanup(VATReportHeader."No.", TestPeriodStart, TestPeriodEnd);
     end;
@@ -1349,10 +1340,8 @@ codeunit 144001 "VAT Report"
         VATReportSubform.Base.SetValue(NewLineAmt);
         VATReportSubform.OK().Invoke();
 
-        with CorrVATReportLine do begin
-            Get("VAT Report No.", "Line No.");
-            Assert.AreEqual(NewLineAmt, Base, NewValueIsNotSetErr);
-        end;
+        CorrVATReportLine.Get(CorrVATReportLine."VAT Report No.", CorrVATReportLine."Line No.");
+        Assert.AreEqual(NewLineAmt, CorrVATReportLine.Base, NewValueIsNotSetErr);
 
         Cleanup(VATReportHeader."No.", TestPeriodStart, TestPeriodEnd);
     end;
@@ -1412,10 +1401,8 @@ codeunit 144001 "VAT Report"
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
 
-        with CorrVATReportHeader do begin
-            asserterror Validate("Report Period Type", "Report Period Type"::Quarter);
-            Assert.ExpectedError(OriginalReportNoMustBeEmptyErr);
-        end;
+        asserterror CorrVATReportHeader.Validate("Report Period Type", CorrVATReportHeader."Report Period Type"::Quarter);
+        Assert.ExpectedTestFieldError(CorrVATReportHeader.FieldCaption("Original Report No."), '');
     end;
 
     [Test]
@@ -1432,12 +1419,10 @@ codeunit 144001 "VAT Report"
         SetupVatReportScenario_SubmitReport(VATReportHeader, TestPeriodStart, TestPeriodEnd);
         CreateCorrectiveReport(VATReportHeader, CorrVATReportHeader);
 
-        with CorrVATReportHeader do begin
-            "Report Period No." := 0;
-            // Default period type for the test report is month, so the number must not exceed 12
-            asserterror Validate("Report Period No.", ("Report Period No." + 1) mod 12);
-            Assert.ExpectedError(OriginalReportNoMustBeEmptyErr);
-        end;
+        CorrVATReportHeader."Report Period No." := 0;
+        // Default period type for the test report is month, so the number must not exceed 12
+        asserterror CorrVATReportHeader.Validate("Report Period No.", (CorrVATReportHeader."Report Period No." + 1) mod 12);
+        Assert.ExpectedTestFieldError(CorrVATReportHeader.FieldCaption("Original Report No."), '');
     end;
 
     [Test]
@@ -1799,10 +1784,9 @@ codeunit 144001 "VAT Report"
         RunCorrectVATReportLines(CorrVATReportHeader."No.");
 
         // [THEN] A cancellation and correction line is added to the report for the customer
-        with CorrVATReportHeader do
-            Assert.IsTrue(
-              CorrectionLineExists("No.", VATReportLine."Line Type"::Cancellation) and
-              CorrectionLineExists("No.", VATReportLine."Line Type"::Correction),
+        Assert.IsTrue(
+              CorrectionLineExists(CorrVATReportHeader."No.", VATReportLine."Line Type"::Cancellation) and
+              CorrectionLineExists(CorrVATReportHeader."No.", VATReportLine."Line Type"::Correction),
               CorrLinesNotCreatedErr);
 
         // [WHEN] Suggest lines is invoked
@@ -1837,10 +1821,9 @@ codeunit 144001 "VAT Report"
         RunCorrectVATReportLines(CorrVATReportHeader."No.");
 
         // [GIVEN] A cancellation and correction line is added to the report for the customer
-        with CorrVATReportHeader do
-            Assert.IsTrue(
-              CorrectionLineExists("No.", VATReportLine."Line Type"::Cancellation) and
-              CorrectionLineExists("No.", VATReportLine."Line Type"::Correction),
+        Assert.IsTrue(
+              CorrectionLineExists(CorrVATReportHeader."No.", VATReportLine."Line Type"::Cancellation) and
+              CorrectionLineExists(CorrVATReportHeader."No.", VATReportLine."Line Type"::Correction),
               CorrLinesNotCreatedErr);
 
         // [WHEN] Suggest lines is invoked
@@ -2391,7 +2374,7 @@ codeunit 144001 "VAT Report"
         VATReportLine.FindFirst();
 
         asserterror VATReportLine.Validate(Amount, LibraryRandom.RandInt(10000));
-        Assert.ExpectedError(StrSubstNo(WrongExpectedReportStatusErr, VATReportHeader.Status::Open));
+        Assert.ExpectedTestFieldError(VATReportHeader.FieldCaption(Status), Format(VATReportHeader.Status::Open));
     end;
 
     [Test]
@@ -2408,13 +2391,11 @@ codeunit 144001 "VAT Report"
           VATReportHeader."Report Period Type"::Year,
           1);
 
-        with VATReportLineRelation do begin
-            Get(VATReportHeader."No.", 1, DATABASE::"VAT Entry", 1);
-            Validate("Table No.", DATABASE::"G/L Entry");
-            asserterror Insert(true);
-        end;
+        VATReportLineRelation.Get(VATReportHeader."No.", 1, DATABASE::"VAT Entry", 1);
+        VATReportLineRelation.Validate("Table No.", DATABASE::"G/L Entry");
+        asserterror VATReportLineRelation.Insert(true);
 
-        Assert.ExpectedError(StrSubstNo(UnexpectedTableNoInRelationErr, DATABASE::"VAT Entry"));
+        Assert.ExpectedTestFieldError(VATReportLineRelation.FieldCaption("Table No."), Format(Database::"VAT Entry"));
     end;
 
     [Test]
@@ -2569,57 +2550,49 @@ codeunit 144001 "VAT Report"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            if not Get() then
-                Insert();
+        if not VATReportSetup.Get() then
+            VATReportSetup.Insert();
 
-            Validate("No. Series", LibraryERM.CreateNoSeriesCode());
-            Validate("Modify Submitted Reports", false);
-            Validate("Source Identifier", LibraryUtility.GenerateRandomCode(FieldNo("Source Identifier"), DATABASE::"VAT Report Setup"));
-            Validate(
-              "Transmission Process ID",
-              LibraryUtility.GenerateRandomCode(FieldNo("Transmission Process ID"), DATABASE::"VAT Report Setup"));
-            Validate("Supplier ID", LibraryUtility.GenerateRandomCode(FieldNo("Supplier ID"), DATABASE::"VAT Report Setup"));
-            Validate("Registration ID", LibraryUtility.GenerateRandomCode(FieldNo("Registration ID"), DATABASE::"VAT Report Setup"));
-            Modify();
-        end;
+        VATReportSetup.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
+        VATReportSetup.Validate("Modify Submitted Reports", false);
+        VATReportSetup.Validate("Source Identifier", LibraryUtility.GenerateRandomCode(VATReportSetup.FieldNo("Source Identifier"), DATABASE::"VAT Report Setup"));
+        VATReportSetup.Validate(
+          "Transmission Process ID",
+          LibraryUtility.GenerateRandomCode(VATReportSetup.FieldNo("Transmission Process ID"), DATABASE::"VAT Report Setup"));
+        VATReportSetup.Validate("Supplier ID", LibraryUtility.GenerateRandomCode(VATReportSetup.FieldNo("Supplier ID"), DATABASE::"VAT Report Setup"));
+        VATReportSetup.Validate("Registration ID", LibraryUtility.GenerateRandomCode(VATReportSetup.FieldNo("Registration ID"), DATABASE::"VAT Report Setup"));
+        VATReportSetup.Modify();
     end;
 
     local procedure UpdateCompanyInformation(CompanyName: Text[100]; CompanyAddress: Text[30]; CompanyCity: Text[30])
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate(Name, CompanyName);
-            Validate(Address, CompanyAddress);
-            Validate(City, CompanyCity);
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate(Name, CompanyName);
+        CompanyInformation.Validate(Address, CompanyAddress);
+        CompanyInformation.Validate(City, CompanyCity);
+        CompanyInformation.Modify();
     end;
 
     local procedure UpdateVATReportSetup(CompanyName: Text[100]; CompanyAddress: Text[30]; CompanyCity: Text[30])
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            Validate("Company Name", CompanyName);
-            Validate("Company Address", CompanyAddress);
-            Validate("Company City", CompanyCity);
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup.Validate("Company Name", CompanyName);
+        VATReportSetup.Validate("Company Address", CompanyAddress);
+        VATReportSetup.Validate("Company City", CompanyCity);
+        VATReportSetup.Modify();
     end;
 
     local procedure SetupExportCancellationLines(ExportCancellationLines: Boolean)
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportSetup do begin
-            Get();
-            Validate("Export Cancellation Lines", ExportCancellationLines);
-            Modify();
-        end;
+        VATReportSetup.Get();
+        VATReportSetup.Validate("Export Cancellation Lines", ExportCancellationLines);
+        VATReportSetup.Modify();
     end;
 
     local procedure ExportCorrectiveVATReportVerifyReportLineTypesAndCount(ExportCancellationLines: Boolean; ExpectedCount: Integer)
@@ -2703,17 +2676,15 @@ codeunit 144001 "VAT Report"
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
         NoOfEntries := LibraryRandom.RandIntInRange(2, 5);
         CreateVATEntries(NoOfEntries, TestPeriodStart, TestPeriodEnd, '', CompanyInformation."VAT Registration No.", true);
-        with VATReportHeader do begin
-            CreateVATReport(
-              "VAT Report Type"::Standard,
-              "Report Period Type"::Month,
-              Date2DMY(TestPeriodStart, 2),
-              Date2DMY(TestPeriodStart, 3),
-              VATReportHeader);
+        CreateVATReport(
+            VATReportHeader."VAT Report Type"::Standard,
+            VATReportHeader."Report Period Type"::Month,
+            Date2DMY(TestPeriodStart, 2),
+            Date2DMY(TestPeriodStart, 3),
+            VATReportHeader);
 
-            SetRange("No.", "No.");
-            FindFirst();
-        end;
+        VATReportHeader.SetRange("No.", VATReportHeader."No.");
+        VATReportHeader.FindFirst();
     end;
 
     local procedure SetupVATReportScenarioZeroBase(var VATReportHeader: Record "VAT Report Header"; var TestPeriodStart: Date; var TestPeriodEnd: Date)
@@ -2766,18 +2737,16 @@ codeunit 144001 "VAT Report"
 
     local procedure CreateAndReleaseVATReport(var VATReportHeader: Record "VAT Report Header"; TestPeriodStart: Date)
     begin
-        with VATReportHeader do begin
-            CreateVATReport(
-              "VAT Report Type"::Standard,
-              "Report Period Type"::Month,
-              Date2DMY(TestPeriodStart, 2),
-              Date2DMY(TestPeriodStart, 3),
-              VATReportHeader);
-            VATReportMediator.Release(VATReportHeader);
+        CreateVATReport(
+            VATReportHeader."VAT Report Type"::Standard,
+            VATReportHeader."Report Period Type"::Month,
+            Date2DMY(TestPeriodStart, 2),
+            Date2DMY(TestPeriodStart, 3),
+            VATReportHeader);
+        VATReportMediator.Release(VATReportHeader);
 
-            SetRange("No.", "No.");
-            FindFirst();
-        end;
+        VATReportHeader.SetRange("No.", VATReportHeader."No.");
+        VATReportHeader.FindFirst();
     end;
 
     local procedure SuggestLines_StandardReport_VerifyFieldGrouping(ChangedFieldNo: Integer)
@@ -2788,13 +2757,12 @@ codeunit 144001 "VAT Report"
     begin
         FindFirstMonthWithoutVATEntries(TestPeriodStart, TestPeriodEnd);
         InitVATEntriesGroupingScenario(LibraryRandom.RandIntInRange(2, 5), ChangedFieldNo, TestPeriodStart, TestPeriodEnd);
-        with VATReportHeader do
-            CreateVATReport(
-              "VAT Report Type"::Standard,
-              "Report Period Type"::Month,
-              Date2DMY(TestPeriodStart, 2),
-              Date2DMY(TestPeriodStart, 3),
-              VATReportHeader);
+        CreateVATReport(
+            VATReportHeader."VAT Report Type"::Standard,
+            VATReportHeader."Report Period Type"::Month,
+            Date2DMY(TestPeriodStart, 2),
+            Date2DMY(TestPeriodStart, 3),
+            VATReportHeader);
 
         VerifyVATReportLines(VATReportHeader."No.", 2);
 
@@ -2816,15 +2784,14 @@ codeunit 144001 "VAT Report"
         CreateVATEntries(NoOfEntries, TestPeriodStart, TestPeriodEnd, CountryCode, VATRegNo, EU3PartyTrade);
 
         // Change the value of the given field
-        with VATReportLine do
-            case VariationFieldNo of
-                FieldNo("Country/Region Code"):
-                    CountryCode := CreateCountryRegion();
-                FieldNo("VAT Registration No."):
-                    VATRegNo := LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"VAT Report Line");
-                FieldNo("EU 3-Party Trade"):
-                    EU3PartyTrade := not EU3PartyTrade;
-            end;
+        case VariationFieldNo of
+            VATReportLine.FieldNo("Country/Region Code"):
+                CountryCode := CreateCountryRegion();
+            VATReportLine.FieldNo("VAT Registration No."):
+                VATRegNo := LibraryUtility.GenerateRandomCode(VATReportLine.FieldNo("VAT Registration No."), DATABASE::"VAT Report Line");
+            VATReportLine.FieldNo("EU 3-Party Trade"):
+                EU3PartyTrade := not EU3PartyTrade;
+        end;
 
         // Create the second group of entries
         CreateVATEntries(NoOfEntries, TestPeriodStart, TestPeriodEnd, CountryCode, VATRegNo, EU3PartyTrade);
@@ -2870,41 +2837,37 @@ codeunit 144001 "VAT Report"
         if VATRegNo = '' then
             VATRegNo := LibraryUtility.GenerateRandomCode(VATEntry.FieldNo("VAT Registration No."), DATABASE::"VAT Entry");
 
-        with VATEntry do begin
-            Validate("Entry No.", EntryNo);
-            Validate("Posting Date", PostingDate);
-            Validate("VAT Reporting Date", PostingDate);
-            if IsPurchase then
-                Validate(Type, Type::Purchase)
-            else
-                Validate(Type, Type::Sale);
-            Validate("Country/Region Code", CountryCode);
-            Validate("VAT Registration No.", VATRegNo);
-            Validate("EU 3-Party Trade", EU3PartyTrade);
-            Validate(Base, LibraryRandom.RandDecInRange(1, 10000, 2));
-            Validate(Amount, LibraryRandom.RandDecInRange(1, 10000, 2));
+        VATEntry.Validate("Entry No.", EntryNo);
+        VATEntry.Validate("Posting Date", PostingDate);
+        VATEntry.Validate("VAT Reporting Date", PostingDate);
+        if IsPurchase then
+            VATEntry.Validate(Type, VATEntry.Type::Purchase)
+        else
+            VATEntry.Validate(Type, VATEntry.Type::Sale);
+        VATEntry.Validate("Country/Region Code", CountryCode);
+        VATEntry.Validate("VAT Registration No.", VATRegNo);
+        VATEntry.Validate("EU 3-Party Trade", EU3PartyTrade);
+        VATEntry.Validate(Base, LibraryRandom.RandDecInRange(1, 10000, 2));
+        VATEntry.Validate(Amount, LibraryRandom.RandDecInRange(1, 10000, 2));
 
-            Insert(true);
-        end;
+        VATEntry.Insert(true);
     end;
 
     local procedure CreateMockVATEntryForSalesDocument(PostingDate: Date; VATBase: Decimal; VATAmount: Integer; CountryCode: Code[10]; VATRegNo: Text[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Validate("Entry No.", GetNextVATEntryNo());
-            Validate("Posting Date", PostingDate);
-            Validate("VAT Reporting Date", PostingDate);
-            Validate(Type, Type::Sale);
-            Validate("Country/Region Code", CountryCode);
-            Validate("VAT Registration No.", VATRegNo);
-            Validate("EU 3-Party Trade", false);
-            Validate(Base, VATBase);
-            Validate(Amount, VATAmount);
+        VATEntry.Validate("Entry No.", GetNextVATEntryNo());
+        VATEntry.Validate("Posting Date", PostingDate);
+        VATEntry.Validate("VAT Reporting Date", PostingDate);
+        VATEntry.Validate(Type, VATEntry.Type::Sale);
+        VATEntry.Validate("Country/Region Code", CountryCode);
+        VATEntry.Validate("VAT Registration No.", VATRegNo);
+        VATEntry.Validate("EU 3-Party Trade", false);
+        VATEntry.Validate(Base, VATBase);
+        VATEntry.Validate(Amount, VATAmount);
 
-            Insert(true);
-        end;
+        VATEntry.Insert(true);
     end;
 
     local procedure CreateMockVATEntriesForSalesDocument(NoOfEntries: Integer; MinDate: Date; MaxDate: Date; VATPercent: Decimal; VATRegNo: Text[20])
@@ -2937,19 +2900,17 @@ codeunit 144001 "VAT Report"
 
     local procedure CreateVATReportHeader(var VATReportHeader: Record "VAT Report Header"; VATReportType: Option Standard,Corrective; ReportPeriodType: Option " ",Month,Quarter; ReportPeriodNo: Integer; ReportYear: Integer)
     begin
-        with VATReportHeader do begin
-            Init();
-            Insert(true);
+        VATReportHeader.Init();
+        VATReportHeader.Insert(true);
 
-            "Report Period No." := 0;
-            Validate("VAT Report Config. Code", "VAT Report Config. Code"::VIES);
-            Validate("VAT Report Type", VATReportType);
-            Validate("Report Period Type", ReportPeriodType);
-            Validate("Report Period No.", ReportPeriodNo);
-            Validate("Report Year", ReportYear);
-            Validate("Processing Date", "End Date");
-            Modify(true);
-        end;
+        VATReportHeader."Report Period No." := 0;
+        VATReportHeader.Validate("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code"::VIES);
+        VATReportHeader.Validate("VAT Report Type", VATReportType);
+        VATReportHeader.Validate("Report Period Type", ReportPeriodType);
+        VATReportHeader.Validate("Report Period No.", ReportPeriodNo);
+        VATReportHeader.Validate("Report Year", ReportYear);
+        VATReportHeader.Validate("Processing Date", VATReportHeader."End Date");
+        VATReportHeader.Modify(true);
     end;
 
     local procedure CreateMockVATReportLine(VATReportNo: Code[20])
@@ -2959,17 +2920,15 @@ codeunit 144001 "VAT Report"
     begin
         LibraryERM.FindCountryRegion(CountryRegion);
 
-        with VATReportLine do begin
-            Init();
-            "VAT Report No." := VATReportNo;
-            "Line No." := 1;
-            "Country/Region Code" := CountryRegion.Code;
-            "VAT Registration No." := LibraryUtility.GenerateRandomCode(FieldNo("VAT Registration No."), DATABASE::"VAT Report Line");
-            Base := LibraryRandom.RandDec(10000, 2);
-            Amount := LibraryRandom.RandDec(10000, 2);
+        VATReportLine.Init();
+        VATReportLine."VAT Report No." := VATReportNo;
+        VATReportLine."Line No." := 1;
+        VATReportLine."Country/Region Code" := CountryRegion.Code;
+        VATReportLine."VAT Registration No." := LibraryUtility.GenerateRandomCode(VATReportLine.FieldNo("VAT Registration No."), DATABASE::"VAT Report Line");
+        VATReportLine.Base := LibraryRandom.RandDec(10000, 2);
+        VATReportLine.Amount := LibraryRandom.RandDec(10000, 2);
 
-            Insert();
-        end;
+        VATReportLine.Insert();
     end;
 
     local procedure CreateMockReportRelationLine(VATReportNo: Code[20])
@@ -2980,29 +2939,25 @@ codeunit 144001 "VAT Report"
         VATReportLine.SetRange("VAT Report No.", VATReportNo);
         if VATReportLine.FindSet() then
             repeat
-                with VATReportLineRelation do begin
-                    Init();
-                    "VAT Report No." := VATReportNo;
-                    "VAT Report Line No." := VATReportLine."Line No.";
-                    "Table No." := DATABASE::"VAT Entry";
-                    "Entry No." := 1;
-                    Insert();
-                end;
+                VATReportLineRelation.Init();
+                VATReportLineRelation."VAT Report No." := VATReportNo;
+                VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
+                VATReportLineRelation."Table No." := DATABASE::"VAT Entry";
+                VATReportLineRelation."Entry No." := 1;
+                VATReportLineRelation.Insert();
             until VATReportLine.Next() = 0;
     end;
 
     local procedure CreateMockVATReportWithLines(var VATReportHeader: Record "VAT Report Header"; ReportType: Option; ReportPeriodType: Option; ReportPeriodNo: Integer)
     begin
-        with VATReportHeader do begin
-            CreateVATReportHeader(
-              VATReportHeader,
-              ReportType,
-              ReportPeriodType,
-              ReportPeriodNo,
-              CurrYear());
-            CreateMockVATReportLine("No.");
-            CreateMockReportRelationLine("No.");
-        end;
+        CreateVATReportHeader(
+            VATReportHeader,
+            ReportType,
+            ReportPeriodType,
+            ReportPeriodNo,
+            CurrYear());
+        CreateMockVATReportLine(VATReportHeader."No.");
+        CreateMockReportRelationLine(VATReportHeader."No.");
     end;
 
     local procedure CreateStandardMonthReport(var VATReportHeader: Record "VAT Report Header")
@@ -3051,14 +3006,12 @@ codeunit 144001 "VAT Report"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
 
-        with CountryRegion do begin
-            Validate(
-              "EU Country/Region Code",
-              LibraryUtility.GenerateRandomCode(FieldNo("EU Country/Region Code"), DATABASE::"Country/Region"));
-            Modify(true);
+        CountryRegion.Validate(
+            "EU Country/Region Code",
+            LibraryUtility.GenerateRandomCode(CountryRegion.FieldNo("EU Country/Region Code"), DATABASE::"Country/Region"));
+        CountryRegion.Modify(true);
 
-            exit(Code);
-        end;
+        exit(CountryRegion.Code);
     end;
 
     local procedure FormatRandomAmountForExport(NoOfDigits: Integer; PositiveAmount: Boolean): Text[20]
@@ -3081,15 +3034,13 @@ codeunit 144001 "VAT Report"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Sale);
-            SetRange("Country/Region Code", CountryCode);
-            SetRange("VAT Registration No.", VATRegNo);
-            SetRange("EU 3-Party Trade", EU3PartyTrade);
+        VATEntry.SetRange(Type, VATEntry.Type::Sale);
+        VATEntry.SetRange("Country/Region Code", CountryCode);
+        VATEntry.SetRange("VAT Registration No.", VATRegNo);
+        VATEntry.SetRange("EU 3-Party Trade", EU3PartyTrade);
 
-            CalcSums(Base);
-            exit(-Round(Base, 1));
-        end;
+        VATEntry.CalcSums(Base);
+        exit(-Round(VATEntry.Base, 1));
     end;
 
     local procedure VerifyVATReportLines(VATReportNo: Code[20]; NoOfLinesExpected: Integer)
@@ -3099,18 +3050,16 @@ codeunit 144001 "VAT Report"
     begin
         VATReportHeader.Get(VATReportNo);
 
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportNo);
-            Assert.AreEqual(NoOfLinesExpected, Count, IncorrectNoOfReportLinesErr);
+        VATReportLine.SetRange("VAT Report No.", VATReportNo);
+        Assert.AreEqual(NoOfLinesExpected, VATReportLine.Count, IncorrectNoOfReportLinesErr);
 
-            if FindSet() then
-                repeat
-                    Assert.AreEqual(
-                      Base,
-                      CalcVATAmount("Country/Region Code", "VAT Registration No.", "EU 3-Party Trade"),
-                      IncorrectVATReportLineAmtErr);
-                until Next() = 0;
-        end;
+        if VATReportLine.FindSet() then
+            repeat
+                Assert.AreEqual(
+                  VATReportLine.Base,
+                  CalcVATAmount(VATReportLine."Country/Region Code", VATReportLine."VAT Registration No.", VATReportLine."EU 3-Party Trade"),
+                  IncorrectVATReportLineAmtErr);
+            until VATReportLine.Next() = 0;
     end;
 
     local procedure CreateVATReportAndSaveIntoBuffer(var ReportBuf: Record "Data Export Buffer" temporary; var VATReportHeader: Record "VAT Report Header"; var TestPeriodStart: Date; var TestPeriodEnd: Date)
@@ -3133,14 +3082,12 @@ codeunit 144001 "VAT Report"
 
     local procedure GetFieldValueFromBuffer(var ReportBuf: Record "Data Export Buffer"; RecordType: Integer; FldNo: Integer): Text[120]
     begin
-        with ReportBuf do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    if Format("Field Value"[1]) = Format(RecordType) then
-                        exit(ExtractFieldValueFromReportLine("Field Value", FldNo));
-                until Next() = 0;
-        end;
+        ReportBuf.Reset();
+        if ReportBuf.FindSet() then
+            repeat
+                if Format(ReportBuf."Field Value"[1]) = Format(RecordType) then
+                    exit(ExtractFieldValueFromReportLine(ReportBuf."Field Value", FldNo));
+            until ReportBuf.Next() = 0;
 
         exit('');
     end;
@@ -3270,13 +3217,12 @@ codeunit 144001 "VAT Report"
 
     local procedure CreateCorrectiveVATReportHeader(OrigVATReportHeader: Record "VAT Report Header"; var CorrVATReportHeader: Record "VAT Report Header")
     begin
-        with OrigVATReportHeader do
-            CreateVATReportHeader(
-              CorrVATReportHeader,
-              "VAT Report Type"::Corrective,
-              "Report Period Type",
-              "Report Period No.",
-              "Report Year");
+        CreateVATReportHeader(
+            CorrVATReportHeader,
+            OrigVATReportHeader."VAT Report Type"::Corrective,
+            OrigVATReportHeader."Report Period Type",
+            OrigVATReportHeader."Report Period No.",
+            OrigVATReportHeader."Report Year");
 
         CorrVATReportHeader.Validate("Original Report No.", OrigVATReportHeader."No.");
         CorrVATReportHeader.Modify(true);
@@ -3290,11 +3236,9 @@ codeunit 144001 "VAT Report"
 
     local procedure SetupCompanyInformationVATRegNo(var CompanyInformation: Record "Company Information")
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate("VAT Registration No.", PadStr("Country/Region Code", 11, Format(LibraryRandom.RandInt(9))));
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate("VAT Registration No.", PadStr(CompanyInformation."Country/Region Code", 11, Format(LibraryRandom.RandInt(9))));
+        CompanyInformation.Modify();
     end;
 
     local procedure CurrYear(): Integer
@@ -3309,14 +3253,12 @@ codeunit 144001 "VAT Report"
     begin
         // Taking a month outside of accounting periods, as it for sure doesn't have posted entries
         AccPeriod.FindFirst();
-        with DateRec do begin
-            SetRange("Period Type", "Period Type"::Month);
-            SetFilter("Period Start", '<%1', AccPeriod."Starting Date");
-            FindLast();
+        DateRec.SetRange("Period Type", DateRec."Period Type"::Month);
+        DateRec.SetFilter("Period Start", '<%1', AccPeriod."Starting Date");
+        DateRec.FindLast();
 
-            TestPeriodStart := "Period Start";
-            TestPeriodEnd := NormalDate("Period End");
-        end;
+        TestPeriodStart := DateRec."Period Start";
+        TestPeriodEnd := NormalDate(DateRec."Period End");
     end;
 
     local procedure VerifyReportRelationLineExistsForEachVATEntry(VATReportNo: Code[20]; TestPeriodStart: Date; TestPeriodEnd: Date; VATRegNo: Text[20]; CountryCode: Code[10])
@@ -3324,17 +3266,15 @@ codeunit 144001 "VAT Report"
         VATReportLineRelation: Record "VAT Report Line Relation";
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("VAT Reporting Date", TestPeriodStart, TestPeriodEnd);
-            SetRange("VAT Registration No.", VATRegNo);
-            SetRange("Country/Region Code", CountryCode);
-            FindSet();
-            repeat
-                VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
-                VATReportLineRelation.SetRange("Entry No.", "Entry No.");
-                Assert.IsFalse(VATReportLineRelation.IsEmpty, ReportLineRelationNotFoundErr);
-            until Next() = 0;
-        end;
+        VATEntry.SetRange("VAT Reporting Date", TestPeriodStart, TestPeriodEnd);
+        VATEntry.SetRange("VAT Registration No.", VATRegNo);
+        VATEntry.SetRange("Country/Region Code", CountryCode);
+        VATEntry.FindSet();
+        repeat
+            VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
+            VATReportLineRelation.SetRange("Entry No.", VATEntry."Entry No.");
+            Assert.IsFalse(VATReportLineRelation.IsEmpty, ReportLineRelationNotFoundErr);
+        until VATEntry.Next() = 0;
     end;
 
     local procedure GetNumberOfVATEntryRelations(VATReportNo: Code[20]; LineNo: Integer): Integer
@@ -3373,40 +3313,32 @@ codeunit 144001 "VAT Report"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportNo);
-            SetRange("Line Type", LineType);
-            exit(not IsEmpty);
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportNo);
+        VATReportLine.SetRange("Line Type", LineType);
+        exit(not VATReportLine.IsEmpty);
     end;
 
     local procedure FindFirstReportLine(VATReportNo: Code[20]; LineType: Option New,Cancellation,Correction; var VATReportLine: Record "VAT Report Line")
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportNo);
-            SetRange("Line Type", LineType);
-            FindFirst();
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportNo);
+        VATReportLine.SetRange("Line Type", LineType);
+        VATReportLine.FindFirst();
     end;
 
     local procedure FindLastReportLine(VATReportNo: Code[20]; LineType: Option New,Cancellation,Correction; var VATReportLine: Record "VAT Report Line")
     begin
-        with VATReportLine do begin
-            SetRange("VAT Report No.", VATReportNo);
-            SetRange("Line Type", LineType);
-            FindLast();
-        end;
+        VATReportLine.SetRange("VAT Report No.", VATReportNo);
+        VATReportLine.SetRange("Line Type", LineType);
+        VATReportLine.FindLast();
     end;
 
     local procedure VerifyOriginalReportPeriodTransferred(var VATReportPage: TestPage "VAT Report"; var VATReportHeader: Record "VAT Report Header")
     begin
-        with VATReportHeader do begin
-            Assert.AreEqual(VATReportPage."Start Date".AsDate(), "Start Date", ReportingPeriodNotTransferredErr);
-            Assert.AreEqual(VATReportPage."End Date".AsDate(), "End Date", ReportingPeriodNotTransferredErr);
-            Assert.AreEqual(VATReportPage."Report Period Type".AsInteger(), "Report Period Type", ReportingPeriodNotTransferredErr);
-            Assert.AreEqual(VATReportPage."Report Period No.".AsInteger(), "Report Period No.", ReportingPeriodNotTransferredErr);
-            Assert.AreEqual(VATReportPage."Report Year".AsInteger(), "Report Year", ReportingPeriodNotTransferredErr);
-        end;
+        Assert.AreEqual(VATReportPage."Start Date".AsDate(), VATReportHeader."Start Date", ReportingPeriodNotTransferredErr);
+        Assert.AreEqual(VATReportPage."End Date".AsDate(), VATReportHeader."End Date", ReportingPeriodNotTransferredErr);
+        Assert.AreEqual(VATReportPage."Report Period Type".AsInteger(), VATReportHeader."Report Period Type", ReportingPeriodNotTransferredErr);
+        Assert.AreEqual(VATReportPage."Report Period No.".AsInteger(), VATReportHeader."Report Period No.", ReportingPeriodNotTransferredErr);
+        Assert.AreEqual(VATReportPage."Report Year".AsInteger(), VATReportHeader."Report Year", ReportingPeriodNotTransferredErr);
     end;
 
     local procedure VerifyCompanyInfoAddressValue(FileName: Text; ExpectedValue: Text)
@@ -3473,10 +3405,8 @@ codeunit 144001 "VAT Report"
 
     local procedure MockVATReportExport(var VATReportHeader: Record "VAT Report Header")
     begin
-        with VATReportHeader do begin
-            Status := Status::Exported;
-            Modify();
-        end;
+        VATReportHeader.Status := VATReportHeader.Status::Exported;
+        VATReportHeader.Modify();
     end;
 
     local procedure SubmitVATReport(var VATReportHeader: Record "VAT Report Header")
@@ -3622,12 +3552,10 @@ codeunit 144001 "VAT Report"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        with VATReportHeader do begin
-            VATReportSetup.Get();
-            Assert.AreEqual(VATReportSetup."Company Name", "Company Name", FieldCaption("Company Name"));
-            Assert.AreEqual(VATReportSetup."Company Address", "Company Address", FieldCaption("Company Name"));
-            Assert.AreEqual(VATReportSetup."Company City", City, FieldCaption(City));
-        end;
+        VATReportSetup.Get();
+        Assert.AreEqual(VATReportSetup."Company Name", VATReportHeader."Company Name", VATReportHeader.FieldCaption("Company Name"));
+        Assert.AreEqual(VATReportSetup."Company Address", VATReportHeader."Company Address", VATReportHeader.FieldCaption("Company Name"));
+        Assert.AreEqual(VATReportSetup."Company City", VATReportHeader.City, VATReportHeader.FieldCaption(City));
     end;
 
     local procedure VerifyBufferLineCount(var DataExportBuffer: Record "Data Export Buffer"; LineType: Text[1]; ExpectedCount: Integer)

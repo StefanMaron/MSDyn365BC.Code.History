@@ -24,13 +24,12 @@ report 5005341 "Issue Delivery Reminder"
                     Mark := false;
                     IssueDeliveryReminder.GetIssDelivReminHeader(IssuedDeliveryReminderHeader);
                     IssuedDeliveryReminderHeader.Mark := true;
-                end else begin
+                end else
                     if IssueDeliveryReminder.Run() then begin
                         IssueDeliveryReminder.GetIssDelivReminHeader(IssuedDeliveryReminderHeader);
                         IssuedDeliveryReminderHeader.Mark := true;
                     end else
                         Mark := true;
-                end;
             end;
 
             trigger OnPreDataItem()

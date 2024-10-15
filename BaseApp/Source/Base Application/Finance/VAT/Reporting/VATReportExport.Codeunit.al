@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -13,8 +13,10 @@ codeunit 743 "VAT Report Export"
 
     var
         VATReportReleaseReopen: Codeunit "VAT Report Release/Reopen";
+#pragma warning disable AA0074
         Text001: Label 'This action will also mark the report as released. Are you sure you want to continue?';
         Text002: Label 'You cannot export already submitted report. Reopen report first.';
+#pragma warning restore AA0074
 
     procedure Export(VATReportHeader: Record "VAT Report Header")
     begin

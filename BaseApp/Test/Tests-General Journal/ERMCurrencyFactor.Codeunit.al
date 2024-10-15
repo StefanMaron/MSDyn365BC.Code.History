@@ -24,7 +24,6 @@ codeunit 134077 "ERM Currency Factor"
         CurrencyFactorError: Label 'Currency Factor must be %1.';
         OutOfBalanceError: Label '%1 %2 is out of balance by %3. Please check that %4, %5, %6 and %7 are correct for each line.';
         UnknownError: Label 'Unknown Error.';
-        CurrencyFactoMustHaveValueErr: Label 'Currency Factor must have a value in %1: Document Type=%2, No.=%3. It cannot be zero or empty.';
 
     [Test]
     [Scope('OnPrem')]
@@ -149,7 +148,7 @@ codeunit 134077 "ERM Currency Factor"
           GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()), LibraryRandom.RandDec(100, 2));
 
         // Exercise: Calculate the Currency Factor for validation.
-        CurrencyExchangeRate.Get(GenJournalLine."Currency Code", LibraryERM.FindEarliestDateForExhRate());
+        GetOrCreateCurrencyExchangeRate(GenJournalLine."Currency Code", CurrencyExchangeRate);
         CurrencyFactor := CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
 
         // Verify: Validate 'Currency factor' and 'Amount(LCY)' on Recurring General Journal.
@@ -164,6 +163,7 @@ codeunit 134077 "ERM Currency Factor"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        GLAccount: Record "G/L Account";
         GeneralJournal: TestPage "General Journal";
         CurrencyFactor: Decimal;
         CurrencyCode: Code[10];
@@ -173,10 +173,15 @@ codeunit 134077 "ERM Currency Factor"
         // Setup: Create a Currency,post an Invoice for new Customer and create a payment in General Journal taking Random values for Amount.
         Initialize();
         CurrencyCode := CreateCurrency();
+        GetOrCreateCurrencyExchangeRate(CurrencyCode, CurrencyExchangeRate);
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindFirst();
         CurrencyFactor := CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
-        SelectGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGLAccount(GLAccount);
+        CreateGeneralJournalBatch(GenJournalBatch);
+        GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+        GenJournalBatch.Validate("Bal. Account No.", GLAccount."No.");
+        GenJournalBatch.Modify();
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           GenJournalLine."Account Type"::Customer, CreateCustomer(CurrencyCode), LibraryRandom.RandDec(100, 2));
@@ -188,6 +193,7 @@ codeunit 134077 "ERM Currency Factor"
 
         // Exercise: Open Apply Customer Entries page from General Journal and Set Applies to ID through page handler.
         GeneralJournal.OpenEdit();
+        GeneralJournal.CurrentJnlBatchName.Value(GenJournalLine."Journal Batch Name");
         GeneralJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
         GeneralJournal."Apply Entries".Invoke();
 
@@ -222,9 +228,7 @@ codeunit 134077 "ERM Currency Factor"
         asserterror LibraryPurchase.CreatePurchaseLine(
             PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
 
-        Assert.ExpectedError(
-          StrSubstNo(CurrencyFactoMustHaveValueErr, PurchaseHeader.TableCaption(), PurchaseHeader."Document Type", PurchaseHeader."No."));
-
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption("Currency Factor"), '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -255,9 +259,7 @@ codeunit 134077 "ERM Currency Factor"
         asserterror LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
 
-        Assert.ExpectedError(
-          StrSubstNo(CurrencyFactoMustHaveValueErr, SalesHeader.TableCaption(), SalesHeader."Document Type", SalesHeader."No."));
-
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("Currency Factor"), '');
         LibraryVariableStorage.AssertEmpty();
     end;
 
@@ -391,13 +393,6 @@ codeunit 134077 "ERM Currency Factor"
           TempGenJournalLine."Account Type"::Customer, CustomerNo, Amount);
     end;
 
-    local procedure SelectGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
-    begin
-        // Select General Journal Batch and clear General Journal Lines to make sure that no line exist before creating General Journal Lines.
-        LibraryERM.SelectGenJnlBatch(GenJournalBatch);
-        LibraryERM.ClearGenJournalLines(GenJournalBatch)
-    end;
-
     local procedure VerifyCurrencyFactorAmountLCY(GenJournalLine: Record "Gen. Journal Line"; CurrencyFactor: Decimal)
     var
         Currency: Record Currency;
@@ -409,6 +404,15 @@ codeunit 134077 "ERM Currency Factor"
         AmountLCY := GenJournalLine.Amount / GenJournalLine."Currency Factor";
         Assert.AreNearlyEqual(
           AmountLCY, GenJournalLine."Amount (LCY)", Currency."Amount Rounding Precision", StrSubstNo(AmountLCYError, AmountLCY));
+    end;
+
+    local procedure GetOrCreateCurrencyExchangeRate(CurrencyCode: Code[10]; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+        if CurrencyExchangeRate.Get(CurrencyCode, LibraryERM.FindEarliestDateForExhRate()) then
+            exit;
+        CurrencyExchangeRate."Currency Code" := CurrencyCode;
+        CurrencyExchangeRate."Starting Date" := LibraryERM.FindEarliestDateForExhRate();
+        CurrencyExchangeRate.Insert();
     end;
 
     [ModalPageHandler]

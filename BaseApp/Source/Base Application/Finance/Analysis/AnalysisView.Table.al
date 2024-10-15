@@ -436,21 +436,31 @@ table 363 "Analysis View"
         Dim: Record Dimension;
         SkipConfirmationDialogue: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1\You cannot use the same dimension twice in the same analysis view.';
         Text001: Label 'The dimension %1 is used in the analysis view %2 %3.';
+#pragma warning restore AA0470
         Text002: Label ' You must therefore retain the dimension to keep consistency between the analysis view and the G/L entries.';
         Text004: Label 'All analysis views must be updated with the latest G/L entries and G/L budget entries.';
         Text005: Label ' Both blocked and unblocked analysis views must be updated.';
         Text007: Label ' Note, you must remove the checkmark in the blocked field before updating the blocked analysis views.\';
+#pragma warning disable AA0470
         Text008: Label 'Currently, %1 analysis views are not updated.';
+#pragma warning restore AA0470
         Text009: Label ' Do you wish to update these analysis views?';
         Text010: Label 'All analysis views must be updated with the latest G/L entries.';
+#pragma warning disable AA0470
         Text011: Label 'If you change the contents of the %1 field, the analysis view entries will be deleted.';
         Text012: Label '\You will have to update again.\\Do you want to enter a new value in the %1 field?';
+#pragma warning restore AA0470
         Text013: Label 'The update has been interrupted in response to the warning.';
+#pragma warning disable AA0470
         Text014: Label 'If you change the contents of the %1 field, the analysis view entries will be changed as well.\\';
         Text015: Label 'Do you want to enter a new value in the %1 field?';
         Text016: Label '%1 is not applicable for source type %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Text017Msg: Label 'Enabling the %1 feature immediately updates the analysis view with the latest entries. Do you want to start using the feature, and update the analysis view now?', Comment = '%1 = The name of the feature that is being enabled';
         Text018Msg: Label 'If you enable the %1 feature it can take significantly more time to post documents, such as sales or purchase orders and invoices. Do you want to continue?', Comment = '%1 = The name of the feature that is being enabled';
         ClearDimTotalingConfirmTxt: Label 'Changing dimension will clear dimension totaling columns of Account Schedule Lines using current Analysis Vew. \Do you want to continue?';

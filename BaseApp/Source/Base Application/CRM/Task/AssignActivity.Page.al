@@ -280,8 +280,10 @@ page 5146 "Assign Activity"
         TeamCodeEditable: Boolean;
         IsOnMobile: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'untitled';
         Text005: Label '(Multiple)';
+#pragma warning restore AA0074
 
     procedure Caption() CaptionStr: Text
     begin

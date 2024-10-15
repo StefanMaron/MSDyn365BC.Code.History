@@ -10,8 +10,8 @@
 
     var
         Assert: Codeunit Assert;
-        ReopenError: Label 'Status should be Open';
-        MissingSetupError: Label 'This is not allowed because of the setup in the %1 window.';
+        StatusOpenErr: Label 'Status should be Open';
+        MissingSetupErr: Label 'This is not allowed because of the setup in the %1 window.', Comment = '%1 - page name';
 
     [Test]
     [Scope('OnPrem')]
@@ -25,7 +25,7 @@
         VATReportHdr.Modify();
         VATReportReleaseReopen.Reopen(VATReportHdr);
 
-        Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, ReopenError);
+        Assert.AreEqual(VATReportHdr.Status::Open, VATReportHdr.Status, StatusOpenErr);
 
         TearDown();
     end;
@@ -47,14 +47,14 @@
         VATReportSetup.Modify();
 
         asserterror VATReportReleaseReopen.Reopen(VATReportHdr);
-        Assert.ExpectedError(StrSubstNo(MissingSetupError, VATReportSetup.TableCaption()));
+        Assert.ExpectedError(StrSubstNo(MissingSetupErr, VATReportSetup.TableCaption()));
 
         TearDown();
     end;
 
     local procedure CreateVATReportHeaderAndLines(var VATReportHdr: Record "VAT Report Header")
     var
-        VatReportLine: Record "VAT Report Line";
+        VATReportLine: Record "VAT Report Line";
         VATReportSetup: Record "VAT Report Setup";
         NoSeries: Record "No. Series";
     begin
@@ -68,27 +68,28 @@
         VATReportHdr.Status := VATReportHdr.Status::Open;
         VATReportHdr.Insert(true);
 
-        VatReportLine.Init();
-        VatReportLine."VAT Report No." := VATReportHdr."No.";
-        VatReportLine."Line No." := 1;
-        VatReportLine.Insert();
+        VATReportLine.Init();
+        VATReportLine."VAT Report No." := VATReportHdr."No.";
+        VATReportLine."Line No." := 1;
+        VATReportLine.Insert();
     end;
 
     local procedure TearDown()
     var
-        VatReportHdr: Record "VAT Report Header";
+        VATReportHdr: Record "VAT Report Header";
         VATReportLine: Record "VAT Report Line";
         VATReportSetup: Record "VAT Report Setup";
     begin
         VATReportLine.SetRange("VAT Report No.", 'Test');
         VATReportLine.DeleteAll();
 
-        VatReportHdr.SetRange("No.", 'Test');
-        VatReportHdr.DeleteAll();
+        VATReportHdr.SetRange("No.", 'Test');
+        VATReportHdr.DeleteAll();
 
         VATReportSetup.Get();
         VATReportSetup."No. Series" := '';
         VATReportSetup.Modify();
     end;
 }
+
 

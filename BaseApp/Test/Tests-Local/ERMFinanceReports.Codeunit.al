@@ -308,7 +308,7 @@ codeunit 144050 "ERM Finance Reports"
         // Setup: Create and post Sales Invoice, Apply the Payment over Invoice.
         Initialize();
         GeneralLedgerSetup.Get();
-        CreateAndUpdateDACHReportSelection();
+        CreateAndUpdateReportSelection();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         SetupForGLVATReconciliation(SalesLine, VATPostingSetup, UnrealizedVAT, UnrealizedVATType);
 
@@ -351,7 +351,7 @@ codeunit 144050 "ERM Finance Reports"
         // Setup: Create and post Sales Invoice with multiple lines, Apply the Payment over Invoice.
         Initialize();
         GeneralLedgerSetup.Get();
-        CreateAndUpdateDACHReportSelection();
+        CreateAndUpdateReportSelection();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         SetupForGLVATReconciliation(SalesLine, VATPostingSetup, UnrealizedVAT, UnrealizedVATType);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
@@ -409,18 +409,18 @@ codeunit 144050 "ERM Finance Reports"
         exit(Customer."No.");
     end;
 
-    local procedure CreateAndUpdateDACHReportSelection()
+    local procedure CreateAndUpdateReportSelection()
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
     begin
-        DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Sales VAT Acc. Proof");
-        if not DACHReportSelections.FindFirst() then begin
-            DACHReportSelections.Init();
-            DACHReportSelections.Validate(Usage, DACHReportSelections.Usage::"Sales VAT Acc. Proof");
-            DACHReportSelections.Validate(Sequence, Format(LibraryRandom.RandInt(10)));
-            DACHReportSelections.Insert(true);
-            DACHReportSelections.Validate("Report ID", REPORT::"G/L - VAT Reconciliation");
-            DACHReportSelections.Modify(true);
+        ReportSelections.SetRange(Usage, ReportSelections.Usage::"Sales VAT Acc. Proof");
+        if not ReportSelections.FindFirst() then begin
+            ReportSelections.Init();
+            ReportSelections.Validate(Usage, ReportSelections.Usage::"Sales VAT Acc. Proof");
+            ReportSelections.Validate(Sequence, Format(LibraryRandom.RandInt(10)));
+            ReportSelections.Insert(true);
+            ReportSelections.Validate("Report ID", REPORT::"G/L - VAT Reconciliation");
+            ReportSelections.Modify(true);
         end;
     end;
 

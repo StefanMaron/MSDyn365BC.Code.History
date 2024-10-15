@@ -212,8 +212,12 @@ page 5129 "Update Opportunity"
         CancelOldTaskEnable: Boolean;
         IsOnMobile: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'untitled';
+#pragma warning disable AA0470
         Text666: Label '%1 is not a valid selection.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         Opportunity: Record Opportunity;

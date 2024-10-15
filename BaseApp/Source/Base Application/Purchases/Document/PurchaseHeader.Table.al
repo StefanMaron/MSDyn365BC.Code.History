@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Document;
+namespace Microsoft.Purchases.Document;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -278,18 +278,14 @@ table 38 "Purchase Header"
                 Validate("Payment Method Code");
                 Validate("Currency Code");
                 Validate("Creditor No.", Vend."Creditor No.");
-#if not CLEAN22
-                OnValidatePurchaseHeaderPayToVendorNo(Vend, Rec);
-#endif
                 OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vend, Rec, xRec, SkipPayToContact);
 
                 if "Document Type" = "Document Type"::Order then
                     Validate("Prepayment %", Vend."Prepayment %");
 
-                if "Pay-to Vendor No." = xRec."Pay-to Vendor No." then begin
+                if "Pay-to Vendor No." = xRec."Pay-to Vendor No." then
                     if ReceivedPurchLinesExist() then
                         TestField("Currency Code", xRec."Currency Code");
-                end;
 
                 CreateDimensionsFromValidatePayToVendorNo();
 
@@ -431,6 +427,7 @@ table 38 "Purchase Header"
                     SetShipToAddress(
                       ShipToAddr.Name, ShipToAddr."Name 2", ShipToAddr.Address, ShipToAddr."Address 2",
                       ShipToAddr.City, ShipToAddr."Post Code", ShipToAddr.County, ShipToAddr."Country/Region Code");
+                    "Ship-to Phone No." := ShipToAddr."Phone No.";
                     "Ship-to Contact" := ShipToAddr.Contact;
                     if ShipToAddr."Shipment Method Code" <> '' then
                         "Shipment Method Code" := ShipToAddr."Shipment Method Code"
@@ -447,6 +444,7 @@ table 38 "Purchase Header"
                     SetShipToAddress(
                       Cust.Name, Cust."Name 2", Cust.Address, Cust."Address 2",
                       Cust.City, Cust."Post Code", Cust.County, Cust."Country/Region Code");
+                    "Ship-to Phone No." := Cust."Phone No.";
                     "Ship-to Contact" := Cust.Contact;
                     "Shipment Method Code" := Cust."Shipment Method Code";
                     if Cust."Location Code" <> '' then
@@ -2118,6 +2116,11 @@ table 38 "Purchase Header"
                     InitVATDate();
             end;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(300; "A. Rcd. Not Inv. Ex. VAT (LCY)"; Decimal)
         {
             CalcFormula = sum("Purchase Line"."A. Rcd. Not Inv. Ex. VAT (LCY)" where("Document Type" = field("Document Type"),
@@ -2642,30 +2645,56 @@ table 38 "Purchase Header"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text003: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'You cannot reset %1 because the document still has one or more lines.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         YouCannotChangeFieldErr: Label 'You cannot change %1 because the order is associated with one or more sales orders.', Comment = '%1 - fieldcaption';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label '%1 is greater than %2 in the %3 table.\';
+#pragma warning restore AA0470
         Text008: Label 'Confirm change?';
         Text009: Label 'Deleting this document will cause a gap in the number series for receipts. An empty receipt %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
         Text012: Label 'Deleting this document will cause a gap in the number series for posted invoices. An empty posted invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
         Text014: Label 'Deleting this document will cause a gap in the number series for posted credit memos. An empty posted credit memo %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
+#pragma warning restore AA0074
         RecreatePurchLinesMsg: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\\Do you want to continue?', Comment = '%1: FieldCaption';
         ResetItemChargeAssignMsg: Label 'If you change %1, the existing purchase lines will be deleted and new purchase lines based on the new information in the header will be created.\The amount of the item charge assignment will be reset to 0.\\Do you want to continue?', Comment = '%1: FieldCaption';
+#pragma warning disable AA0470
         LinesNotUpdatedMsg: Label 'You have changed %1 on the purchase header, but it has not been changed on the existing purchase lines.', Comment = 'You have changed Posting Date on the purchase header, but it has not been changed on the existing purchase lines.';
+#pragma warning restore AA0470
         LinesNotUpdatedDateMsg: Label 'You have changed the %1 on the purchase order, which might affect the prices and discounts on the purchase order lines.', Comment = '%1: OrderDate';
+#pragma warning disable AA0074
         Text020: Label 'You must update the existing purchase lines manually.';
+#pragma warning restore AA0074
         AffectExchangeRateMsg: Label 'The change may affect the exchange rate that is used for price calculation on the purchase lines.';
+#pragma warning disable AA0074
         Text022: Label 'Do you want to update the exchange rate?';
+#pragma warning disable AA0470
         Text023: Label 'You cannot delete this document. Your identification is set up to process from %1 %2 only.';
         Text025: Label 'You have modified the %1 field. Note that the recalculation of VAT may cause penny differences, so you must check the amounts afterwards. ';
         Text027: Label 'Do you want to update the %2 field on the lines to reflect the new value of %1?';
         Text028: Label 'Your identification is set up to process from %1 %2 only.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MaxAllowedValueIs100Err: Label 'The values must be less than or equal 100.';
+#pragma warning disable AA0074
         Text029: Label 'Deleting this document will cause a gap in the number series for return shipments. An empty return shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
+#pragma warning restore AA0074
         DoYouWantToKeepExistingDimensionsQst: Label 'This will change the dimension specified on the document. Do you want to recalculate/update dimensions?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text032: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Currency Factor.\\Do you want to update the lines?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ReviewLinesManuallyMsg: Label 'You should review the lines and manually update prices and discounts if needed.';
         UpdateLinesOrderDateAutomaticallyQst: Label 'Do you want to update the order date for existing lines?';
         GLSetup: Record "General Ledger Setup";
@@ -2704,6 +2733,8 @@ table 38 "Purchase Header"
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
         CurrencyDate: Date;
         Confirmed: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text034: Label 'You cannot change the %1 when the %2 has been filled in.';
         Text037: Label 'Contact %1 %2 is not related to vendor %3.';
         Text038: Label 'Contact %1 %2 is related to a different company than vendor %3.';
@@ -2713,14 +2744,24 @@ table 38 "Purchase Header"
         Text045: Label 'Deleting this document will cause a gap in the number series for prepayment invoices. An empty prepayment invoice %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text046: Label 'Deleting this document will cause a gap in the number series for prepayment credit memos. An empty prepayment credit memo %1 will be created to fill this gap in the number series.\\Do you want to continue?';
         Text049: Label '%1 is set up to process from %2 %3 only.';
+#pragma warning restore AA0470
         Text050: Label 'Reservations exist for this order. These reservations will be canceled if a date conflict is caused by this change.\\Do you want to continue?';
         Text051: Label 'You may have changed a dimension.\\Do you want to update the lines?';
+#pragma warning disable AA0470
         Text052: Label 'The %1 field on the purchase order %2 must be the same as on sales order %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ReplaceDocumentDate: Boolean;
         UpdateDocumentDate: Boolean;
+#pragma warning disable AA0470
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
+#pragma warning restore AA0470
         StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text054: Label 'There are unpaid prepayment invoices that are related to the document of type %1 with the number %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeferralLineQst: Label 'You have changed the %1 on the purchase header, do you want to update the deferral schedules for the lines with this date?', Comment = '%1=The posting date on the document.';
         PostedDocsToPrintCreatedMsg: Label 'One or more related posted documents have been generated during deletion to fill gaps in the posting number series. You can view or print the documents from the respective document archive.';
         BuyFromVendorTxt: Label 'Buy-from Vendor';
@@ -2740,7 +2781,9 @@ table 38 "Purchase Header"
         ShowDocAlreadyExistNotificationNameTxt: Label 'Purchase document with same external document number already exists.';
         ShowDocAlreadyExistNotificationDescriptionTxt: Label 'Warn if purchase document with same external document number already exists.';
         DuplicatedCaptionsNotAllowedErr: Label 'Field captions must not be duplicated when using this method. Use UpdatePurchLinesByFieldNo instead.';
+#pragma warning disable AA0470
         SplitMessageTxt: Label '%1\%2', Comment = 'Some message text 1.\Some message text 2.';
+#pragma warning restore AA0470
         FullPurchaseTypesTxt: Label 'Purchase Quote,Purchase Order,Purchase Invoice,Purchase Credit Memo,Purchase Blanket Order,Purchase Return Order';
         RecreatePurchaseLinesCancelErr: Label 'Change in the existing purchase lines for the field %1 is cancelled by user.', Comment = '%1 - Field Name, Sample:You must delete the existing purchase lines before you can change Currency Code.';
         WarnZeroQuantityPostingTxt: Label 'Warn before posting Purchase lines with 0 quantity';
@@ -2757,6 +2800,9 @@ table 38 "Purchase Header"
         SkipPayToContact: Boolean;
         SkipTaxCalculation: Boolean;
 
+    /// <summary>
+    /// Initializes a new purchase header with a new document number from the number series.
+    /// </summary>
     procedure InitInsert()
     var
         PurchaseHeader2: Record "Purchase Header";
@@ -2794,6 +2840,9 @@ table 38 "Purchase Header"
         InitRecord();
     end;
 
+    /// <summary>
+    /// Initializes a new purchase header with default values. 
+    /// </summary>
     procedure InitRecord()
     var
         IsHandled, SkipInitialization : Boolean;
@@ -2870,6 +2919,9 @@ table 38 "Purchase Header"
         OnAfterInitNoSeries(Rec, xRec);
     end;
 
+    /// <summary>
+    /// Initializes the posting description with formatted document type and number text for the purchase header.
+    /// </summary>
     procedure InitPostingDescription()
     var
         IsHandled: Boolean;
@@ -2887,11 +2939,22 @@ table 38 "Purchase Header"
         "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
     end;
 
+    /// <summary>
+    /// Sets global StandardCodesMgtGlobal codeunit to a new instance.
+    /// </summary>
+    /// <param name="StandardCodesMgtNew">The new codeunit instance to set.</param>
     procedure SetStandardCodesMgt(var StandardCodesMgtNew: Codeunit "Standard Codes Mgt.")
     begin
         StandardCodesMgtGlobal := StandardCodesMgtNew;
     end;
 
+    /// <summary>
+    /// Opens a page to select related number series for the purchase header and updates the document number with the selected number series.
+    /// </summary>
+    /// <param name="OldPurchHeader">
+    /// Purchase header record before the change. The no series code from this record will be highlighted by default on the open page.
+    /// </param>
+    /// <returns>True if the document number has changed, otherwise false.</returns>
     procedure AssistEdit(OldPurchHeader: Record "Purchase Header"): Boolean
     var
         IsHandled: Boolean;
@@ -2909,6 +2972,9 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Checks if the number series for different types of purchase documents are filled in the purchase setup.
+    /// </summary>
     procedure TestNoSeries()
     var
         IsHandled: Boolean;
@@ -2963,6 +3029,10 @@ table 38 "Purchase Header"
         OnAfterTestNoSeries(Rec, PurchSetup);
     end;
 
+    /// <summary>
+    /// Returns the number series code from the purchase setup based on the document type of the purchase header.
+    /// </summary>
+    /// <returns>Number series code.</returns>
     procedure GetNoSeriesCode(): Code[20]
     var
         NoSeriesCode: Code[20];
@@ -3051,6 +3121,13 @@ table 38 "Purchase Header"
         OnAfterGetPrepaymentPostingNoSeriesCode(Rec, PostingNos);
     end;
 
+    /// <summary>
+    /// Checks if the number series has to be assigned chronologically after various documents are already posted.
+    /// </summary>
+    /// <param name="No">Posted document number.</param>
+    /// <param name="NoSeriesCode">Number series code to check.</param>
+    /// <param name="NoCapt">Posted document number field caption.</param>
+    /// <param name="NoSeriesCapt">Number series field caption.</param>
     procedure TestNoSeriesDate(No: Code[20]; NoSeriesCode: Code[20]; NoCapt: Text[1024]; NoSeriesCapt: Text[1024])
     begin
         if (No <> '') and (NoSeriesCode <> '') then begin
@@ -3064,6 +3141,11 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Opens a confirmation dialog to confirm the deletion of the purchase header.
+    /// This check is to confirm with the user that gaps will happen in the posted documents if the document is deleted.
+    /// </summary>
+    /// <returns>True if purchase header should be deleted, otherwise false.</returns>
     procedure ConfirmDeletion() Result: Boolean
     var
         SourceCode: Record "Source Code";
@@ -3112,12 +3194,20 @@ table 38 "Purchase Header"
         OnAfterGetPurchSetup(Rec, PurchSetup, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Updates the global Vend record if it doesn't already match the provided vendor no.
+    /// </summary>
+    /// <param name="VendNo">Vendor number to set.</param>
     procedure GetVend(VendNo: Code[20])
     begin
         if VendNo <> Vend."No." then
             Vend.Get(VendNo);
     end;
 
+    /// <summary>
+    /// Returns document status field style expression based on the status of the purchase header. 
+    /// </summary>
+    /// <returns>Status style expression.</returns>
     procedure GetStatusStyleText() StatusStyleText: Text
     begin
         if Status = Status::Open then
@@ -3128,6 +3218,10 @@ table 38 "Purchase Header"
         OnAfterGetStatusStyleText(Rec, StatusStyleText);
     end;
 
+    /// <summary>
+    /// Checks if the purchase lines exists for purchase header.
+    /// </summary>
+    /// <returns>True if purchase lines exists, otherwise false.</returns>
     procedure PurchLinesExist(): Boolean
     var
         IsHandled, Result : Boolean;
@@ -3207,6 +3301,15 @@ table 38 "Purchase Header"
         BatchProcessingMgt.BatchProcess(PurchaseHeader, Codeunit::"Purchase Manual Reopen", Enum::"Error Handling Options"::"Show Error", NoOfSelected, NoOfSkipped);
     end;
 
+    /// <summary>
+    /// Recreates purchase lines for a purchase document when the provided field in the purchase header is changed.
+    /// </summary>
+    /// <remarks>
+    /// Opens confirmation dialog to confirm the deletion of existing purchase lines 
+    /// and then recreates the purchase lines based on the new information in the purchase header.
+    /// It also handles item charge assignments and extended text lines.
+    /// </remarks>
+    /// <param name="ChangedFieldName">Field that is changed.</param>
     procedure RecreatePurchLines(ChangedFieldName: Text[100])
     var
         TempPurchLine: Record "Purchase Line" temporary;
@@ -3338,6 +3441,10 @@ table 38 "Purchase Header"
         OnAfterRecreatePurchLines(Rec, ChangedFieldName);
     end;
 
+    /// <summary>
+    /// Inserts existing purchase comment lines into a temporary record.
+    /// </summary>
+    /// <param name="TempPurchCommentLine">Return value: Inserted purchase comment lines.</param>
     procedure StorePurchCommentLineToTemp(var TempPurchCommentLine: Record "Purch. Comment Line" temporary)
     var
         PurchCommentLine: Record "Purch. Comment Line";
@@ -3357,6 +3464,12 @@ table 38 "Purchase Header"
             until PurchCommentLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Inserts purchase comment lines for the purchase line of the document from the provided temporary purchase comment line record set.
+    /// </summary>
+    /// <param name="TempPurchCommentLine">Temporary purchase comment line record set to insert.</param>
+    /// <param name="OldDocumentLineNo">Previous purchase line number.</param>
+    /// <param name="NewDocumentLineNo">New purchase line number.</param>
     procedure RestorePurchCommentLine(var TempPurchCommentLine: Record "Purch. Comment Line" temporary; OldDocumentLineNo: Integer; NewDocumentLineNo: Integer)
     var
         PurchCommentLine: Record "Purch. Comment Line";
@@ -3461,6 +3574,12 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates certain fields from a source purchase line to a destination purchase line for a drop shipment scenario. 
+    /// It also updates the corresponding sales order line.
+    /// </summary>
+    /// <param name="DestinationPurchaseLine">Purchase line that will be updated.</param>
+    /// <param name="SourcePurchaseLine">Temporary purchase line before the changes.</param>
     procedure TransferSavedFieldsDropShipment(var DestinationPurchaseLine: Record "Purchase Line"; var SourcePurchaseLine: Record "Purchase Line")
     var
         SalesLine: Record "Sales Line";
@@ -3520,6 +3639,13 @@ table 38 "Purchase Header"
         SalesLine.Modify();
     end;
 
+    /// <summary>
+    /// Displays a message if purchase lines exist for the purchase header and the changed field was not updated on the lines.
+    /// </summary>
+    /// <remarks>
+    /// Message states that the user must update the existing purchase lines manually.
+    /// </remarks>
+    /// <param name="ChangedFieldName">Changed purchase header field caption.</param>
     procedure MessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
         MessageText: Text;
@@ -3537,6 +3663,15 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Displays a message to the user if there are existing purchase lines and a provided field in the purchase header has been changed,
+    /// which might affect the prices and discounts on the purchase lines.
+    /// </summary>
+    /// <remarks>
+    /// The message informs the user that the lines have not been updated and must be updated manually. 
+    /// If the changed field is the order date, it offers to update the order dates of the purchase lines automatically.
+    /// </remarks>
+    /// <param name="ChangedFieldName">Changed purchase header field caption.</param>
     procedure PriceMessageIfPurchLinesExist(ChangedFieldName: Text[100])
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -3562,6 +3697,9 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates currency factor on the purchase header and recreates purchase lines if the currency code has changed.
+    /// </summary>
     procedure UpdateCurrencyFactor()
     begin
         UpdateCurrencyFactor(Rec."Currency Code" <> xRec."Currency Code");
@@ -3598,6 +3736,10 @@ table 38 "Purchase Header"
         OnAfterUpdateCurrencyFactor(Rec, GetHideValidationDialog());
     end;
 
+    /// <summary>
+    /// Updates currency factor on the purchase header if confirmed by the user.
+    /// </summary>
+    /// <returns>True if the currency factor has been updated, otherwise false.</returns>
     procedure ConfirmCurrencyFactorUpdate(): Boolean
     var
         ForceConfirm: Boolean;
@@ -3615,16 +3757,32 @@ table 38 "Purchase Header"
         exit(Confirmed);
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag HideValidationDialog.
+    /// </summary>
+    /// <returns>The value of the global flag HideValidationDialog.</returns>
     procedure GetHideValidationDialog(): Boolean
     begin
         exit(HideValidationDialog);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag HideValidationDialog.
+    /// </summary>
+    /// <remarks>
+    /// Global flag HideValidationDialog is used to hide various confirmation/message/other dialogs.
+    /// </remarks>
+    /// <param name="NewHideValidationDialog">The new value to set.</param>
     procedure SetHideValidationDialog(NewHideValidationDialog: Boolean)
     begin
         HideValidationDialog := NewHideValidationDialog;
     end;
 
+    /// <summary>
+    /// Updates the location code with the specified location code. If it's empty, it takes location code from user setup management.
+    /// Otherwise, validates the location code with the provided value.
+    /// </summary>
+    /// <param name="LocationCode">New location code value.</param>
     procedure UpdateLocationCode(LocationCode: Code[10])
     var
         IsHandled: Boolean;
@@ -3635,6 +3793,13 @@ table 38 "Purchase Header"
             Validate("Location Code", UserSetupMgt.GetLocation(1, LocationCode, "Responsibility Center"));
     end;
 
+    /// <summary>
+    /// Updates purchase lines if the provided field in the purchase header is changed and the confirmation is accepted.
+    /// </summary>
+    /// <param name="ChangedFieldName">Changed purchase header field caption.</param>
+    /// <param name="AskQuestion">
+    /// If true, confirmation message is show to update the lines, otherwise confirmation is not shown.
+    /// </param>
     procedure UpdatePurchLines(ChangedFieldName: Text[100]; AskQuestion: Boolean)
     var
         "Field": Record "Field";
@@ -3675,6 +3840,13 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates purchase lines if the provided field in the purchase header is changed.
+    /// </summary>
+    /// <param name="ChangedFieldNo">Changed purchase header field number.</param>
+    /// <param name="AskQuestion">
+    /// If true, confirmation message is show to update the lines, otherwise confirmation is not shown.
+    /// </param>
     procedure UpdatePurchLinesByFieldNo(ChangedFieldNo: Integer; AskQuestion: Boolean)
     var
         "Field": Record "Field";
@@ -3779,11 +3951,21 @@ table 38 "Purchase Header"
         OnAfterUpdatePurchLinesByFieldNo(Rec, xRec, ChangedFieldNo);
     end;
 
+    /// <summary>
+    /// Checks if reservation entry exists for the purchase header and opens a confirmation dialog if the user wants to continue.
+    /// These reservations will be canceled if a date conflict is caused by the changed field.
+    /// This is an overload that sets ChangedFieldNo to 0.
+    /// </summary>
     procedure ConfirmReservationDateConflict()
     begin
         ConfirmReservationDateConflict(0);
     end;
 
+    /// <summary>
+    /// Checks if reservation entry exists for the purchase header and opens a confirmation dialog if the user wants to continue.
+    /// These reservations will be canceled if a date conflict is caused by the changed field.
+    /// </summary>
+    /// <param name="ChangedFieldNo">Changed purchase header field number.</param>
     procedure ConfirmReservationDateConflict(ChangedFieldNo: Integer)
     var
         ReservationEngineMgt: Codeunit "Reservation Engine Mgt.";
@@ -3800,6 +3982,13 @@ table 38 "Purchase Header"
                 Error('');
     end;
 
+    /// <summary>
+    /// Creates dimensions for the purchase header based on the provided default dimension sources.
+    /// </summary>
+    /// <remarks>
+    /// If purchase lines exist and the dimension set has changed the dimensions are updated on the lines.
+    /// </remarks>
+    /// <param name="DefaultDimSource">The list of default dimension sources.</param>
     procedure CreateDim(DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
     var
         SourceCodeSetup: Record "Source Code Setup";
@@ -3848,6 +4037,10 @@ table 38 "Purchase Header"
         Confirmed := Confirm(DoYouWantToKeepExistingDimensionsQst);
     end;
 
+    /// <summary>
+    /// Determines if the dimensions of a purchase header could be kept the same when certain fields are changed.
+    /// </summary>
+    /// <returns>True if the dimensions could be kept, otherwise false.</returns>
     procedure CouldDimensionsBeKept() Result: Boolean;
     var
         IsHandled: Boolean;
@@ -3874,6 +4067,14 @@ table 38 "Purchase Header"
         OnAfterCouldDimensionsBeKept(Rec, xRec, Result);
     end;
 
+    /// <summary>
+    /// Verifies whether the provided shortcut dimension code and value are valid.
+    /// </summary>
+    /// <remarks>
+    /// If purchase lines exist, the dimensions are updated on the lines.
+    /// </remarks>
+    /// <param name="FieldNumber">Number of the shortcut dimension.</param>
+    /// <param name="ShortcutDimCode">Value of the shortcut dimension.</param>
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     var
         OldDimSetID: Integer;
@@ -3908,6 +4109,10 @@ table 38 "Purchase Header"
         Validate("Document Date", "Posting Date");
     end;
 
+    /// <summary>
+    /// Determines if purchase lines that are already received exist.
+    /// </summary>
+    /// <returns>True if received purchase lines exists, otherwise false.</returns>
     procedure ReceivedPurchLinesExist(): Boolean
     begin
         PurchLine.Reset();
@@ -3918,6 +4123,10 @@ table 38 "Purchase Header"
         exit(not PurchLine.IsEmpty());
     end;
 
+    /// <summary>
+    /// Determines if purchase lines that are already returned exist.
+    /// </summary>
+    /// <returns>True if return shipment exists, otherwise false.</returns>
     procedure ReturnShipmentExist(): Boolean
     begin
         PurchLine.Reset();
@@ -3928,6 +4137,12 @@ table 38 "Purchase Header"
         exit(not PurchLine.IsEmpty());
     end;
 
+    /// <summary>
+    /// Updates the shipping address details of a purchase header based on the location or the company information.
+    /// </summary>
+    /// <remarks>
+    /// If the purchase header is a credit document, the procedure is not executed.
+    /// </remarks>
     procedure UpdateShipToAddress()
     var
         IsHandled: Boolean;
@@ -3946,6 +4161,7 @@ table 38 "Purchase Header"
             SetShipToAddress(
               Location.Name, Location."Name 2", Location.Address, Location."Address 2",
               Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
+            "Ship-to Phone No." := Location."Phone No.";
             "Ship-to Contact" := Location.Contact;
             OnUpdateShipToAddressOnAfterCopyFromLocation(Rec, Location);
         end;
@@ -3957,6 +4173,7 @@ table 38 "Purchase Header"
               CompanyInfo."Ship-to Name", CompanyInfo."Ship-to Name 2", CompanyInfo."Ship-to Address", CompanyInfo."Ship-to Address 2",
               CompanyInfo."Ship-to City", CompanyInfo."Ship-to Post Code", CompanyInfo."Ship-to County",
               CompanyInfo."Ship-to Country/Region Code");
+            "Ship-to Phone No." := CompanyInfo."Ship-to Phone No.";
             "Ship-to Contact" := CompanyInfo."Ship-to Contact";
             OnUpdateShipToAddressOnAfterCopyFromCompany(Rec, CompanyInfo);
         end;
@@ -4108,6 +4325,13 @@ table 38 "Purchase Header"
         TestField("Ship-to Code", ShipToCode);
     end;
 
+    /// <summary>
+    /// Updates the buy-from contact details of a purchase header based on the provided vendor number.
+    /// </summary>
+    /// <remarks>
+    /// If the contact linked to a specific business relation is found, buy-from contact information is updated from the contact.
+    /// </remarks>
+    /// <param name="VendorNo">Vendor number from which details are taken.</param>
     procedure UpdateBuyFromCont(VendorNo: Code[20])
     var
         ContBusRel: Record "Contact Business Relation";
@@ -4251,6 +4475,9 @@ table 38 "Purchase Header"
         Error(Text039, Cont."No.", Cont.Name);
     end;
 
+    /// <summary>
+    /// Creates inventory put-away, pick, or movement documents for a released purchase document.
+    /// </summary>
     procedure CreateInvtPutAwayPick()
     var
         WhseRequest: Record "Warehouse Request";
@@ -4269,6 +4496,10 @@ table 38 "Purchase Header"
         REPORT.RunModal(REPORT::"Create Invt Put-away/Pick/Mvmt", true, false, WhseRequest);
     end;
 
+    /// <summary>
+    /// Opens a page for editing dimensions for the purchase header. 
+    /// If dimensions are changed, they're updated on the purchase lines as well.
+    /// </summary>
     procedure ShowDocDim()
     var
         OldDimSetID: Integer;
@@ -4294,6 +4525,11 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates the dimensions of purchase lines in a purchase document when the dimensions of the purchase header are changed.
+    /// </summary>
+    /// <param name="NewParentDimSetID">New dimension set ID.</param>
+    /// <param name="OldParentDimSetID">Previous dimension set ID.</param>
     procedure UpdateAllLineDim(NewParentDimSetID: Integer; OldParentDimSetID: Integer)
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -4348,6 +4584,15 @@ table 38 "Purchase Header"
                 ReceivedShippedItemLineDimChangeConfirmed := PurchLine.ConfirmReceivedShippedItemDimChange();
     end;
 
+    /// <summary>
+    /// Updates amount to apply value of the vendor ledger entry based on the applies-to document number and the vendor number.
+    /// </summary>
+    /// <remarks>
+    /// Procedure is executed after applies-to document number field is validated
+    /// by selecting a vendor entry from apply vendor entries page.
+    /// </remarks>
+    /// <param name="AppliesToDocNo">Applies-to document no. used in filtering the ledger entry.</param>
+    /// <param name="VendorNo">Vendor no. to filter the ledger entry for.</param>
     procedure SetAmountToApply(AppliesToDocNo: Code[20]; VendorNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
@@ -4370,6 +4615,10 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Updates the ship-to information of a purchase header based on the associated location.
+    /// If location code is not specified in the purchase header, the information is updated from company information.
+    /// </summary>
     procedure SetShipToForSpecOrder()
     begin
         if Location.Get("Location Code") then begin
@@ -4377,6 +4626,7 @@ table 38 "Purchase Header"
             SetShipToAddress(
               Location.Name, Location."Name 2", Location.Address, Location."Address 2",
               Location.City, Location."Post Code", Location.County, Location."Country/Region Code");
+            "Ship-to Phone No." := Location."Phone No.";
             "Ship-to Contact" := Location.Contact;
             "Location Code" := Location.Code;
         end else begin
@@ -4386,6 +4636,7 @@ table 38 "Purchase Header"
               CompanyInfo."Ship-to Name", CompanyInfo."Ship-to Name 2", CompanyInfo."Ship-to Address", CompanyInfo."Ship-to Address 2",
               CompanyInfo."Ship-to City", CompanyInfo."Ship-to Post Code", CompanyInfo."Ship-to County",
               CompanyInfo."Ship-to Country/Region Code");
+            "Ship-to Phone No." := CompanyInfo."Ship-to Phone No.";
             "Ship-to Contact" := CompanyInfo."Ship-to Contact";
             "Location Code" := '';
         end;
@@ -4422,6 +4673,10 @@ table 38 "Purchase Header"
         PurchLine.Modify();
     end;
 
+    /// <summary>
+    /// Opens a page with posted document lines that can be reversed. After the user selects the lines, 
+    /// they're copied to the current document.
+    /// </summary>
     procedure GetPstdDocLinesToReverse()
     var
         PurchPostedDocLines: Page "Posted Purchase Document Lines";
@@ -4436,6 +4691,14 @@ table 38 "Purchase Header"
         Clear(PurchPostedDocLines);
     end;
 
+    /// <summary>
+    /// Filters the purchase header for responsibility center set in the user setup or company information. 
+    /// The filter is set in filter group 2 and is hidden from the user.
+    /// </summary>
+    /// <remarks>
+    /// Responsibility filter is set from user setup purchase responsibility control filter field if this field is filled, 
+    /// otherwise it is set from the company information responsibility center field.
+    /// </remarks>
     procedure SetSecurityFilterOnRespCenter()
     var
         IsHandled: Boolean;
@@ -4452,6 +4715,9 @@ table 38 "Purchase Header"
         OnAfterSetSecurityFilterOnRespCenter(Rec);
     end;
 
+    /// <summary>
+    /// Calculates invoice discount for a purchase header if calculate invoice discount is enabled in the purchase setup.
+    /// </summary>
     procedure CalcInvDiscForHeader()
     var
         PurchaseInvDisc: Codeunit "Purch.-Calc.Discount";
@@ -4467,6 +4733,13 @@ table 38 "Purchase Header"
             PurchaseInvDisc.CalculateIncDiscForHeader(Rec);
     end;
 
+    /// <summary>
+    /// Updates ship-to information of a purchase header based on the provided sales header. 
+    /// If purchase lines exist, it compares the shipping information between the purchase and sales header
+    /// and throws an error in case of a mismatch.
+    /// </summary>
+    /// <param name="SalesHeader">Sales header from which information is updated.</param>
+    /// <param name="ShowError">If true the procedure is executed and errors are shown.</param>
     procedure AddShipToAddress(SalesHeader: Record "Sales Header"; ShowError: Boolean)
     var
         PurchLine2: Record "Purchase Line";
@@ -4492,6 +4765,8 @@ table 38 "Purchase Header"
                     Error(Text052, FieldCaption("Ship-to County"), "No.", SalesHeader."No.");
                 if "Ship-to City" <> SalesHeader."Ship-to City" then
                     Error(Text052, FieldCaption("Ship-to City"), "No.", SalesHeader."No.");
+                if "Ship-to Phone No." <> SalesHeader."Ship-to Phone No." then
+                    Error(Text052, FieldCaption("Ship-to Phone No."), "No.", SalesHeader."No.");
                 if "Ship-to Contact" <> SalesHeader."Ship-to Contact" then
                     Error(Text052, FieldCaption("Ship-to Contact"), "No.", SalesHeader."No.");
             end else begin
@@ -4500,6 +4775,7 @@ table 38 "Purchase Header"
                     SalesHeader."Ship-to Name", SalesHeader."Ship-to Name 2", SalesHeader."Ship-to Address",
                     SalesHeader."Ship-to Address 2", SalesHeader."Ship-to City", SalesHeader."Ship-to Post Code",
                     SalesHeader."Ship-to County", SalesHeader."Ship-to Country/Region Code");
+                "Ship-to Phone No." := SalesHeader."Ship-to Phone No.";
                 "Ship-to Contact" := SalesHeader."Ship-to Contact";
             end;
         end;
@@ -4531,11 +4807,17 @@ table 38 "Purchase Header"
             SetShipToAddress(
                 OrderAddr.Name, OrderAddr."Name 2", OrderAddr.Address, OrderAddr."Address 2",
                 OrderAddr.City, OrderAddr."Post Code", OrderAddr.County, OrderAddr."Country/Region Code");
+            "Ship-to Phone No." := OrderAddr."Phone No.";
             "Ship-to Contact" := OrderAddr.Contact;
         end;
         OnAfterCopyAddressInfoFromOrderAddress(OrderAddr, Rec);
     end;
 
+    /// <summary>
+    /// Determines if the drop shipment order exists.
+    /// </summary>
+    /// <param name="SalesHeader">Sales header record to check.</param>
+    /// <returns>True if drop shipment order exist, otherwise false.</returns>
     procedure DropShptOrderExists(SalesHeader: Record "Sales Header"): Boolean
     var
         SalesLine2: Record "Sales Line";
@@ -4548,6 +4830,11 @@ table 38 "Purchase Header"
         exit(not SalesLine2.IsEmpty());
     end;
 
+    /// <summary>
+    /// Determines if the special order exist.
+    /// </summary>
+    /// <param name="SalesHeader">Sales header record to check.</param>
+    /// <returns>True if special order exist, otherwise false.</returns>
     procedure SpecialOrderExists(SalesHeader: Record "Sales Header"): Boolean
     var
         SalesLine3: Record "Sales Line";
@@ -4575,6 +4862,10 @@ table 38 "Purchase Header"
             Error(YouCannotChangeFieldErr, FieldCaption("Buy-from Vendor No."));
     end;
 
+    /// <summary>
+    /// Determines if there's anything left to receive for the document.
+    /// </summary>
+    /// <returns>True if all lines in a purchase document have quantity to receive 0, otherwise false.</returns>
     procedure QtyToReceiveIsZero(): Boolean
     begin
         PurchLine.Reset();
@@ -4585,6 +4876,11 @@ table 38 "Purchase Header"
         exit(PurchLine.IsEmpty);
     end;
 
+    /// <summary>
+    /// Determines if a purchase document is approved for posting. 
+    /// For orders, it additionally checks if the payment and prepayment conditions are met.
+    /// </summary>
+    /// <returns>True if a purchase document is approved for posting, otherwise false.</returns>
     procedure IsApprovedForPosting() Approved: Boolean
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
@@ -4599,6 +4895,11 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Determines if a purchase document is approved for posting. 
+    /// It checks if the prepayment and payment conditions are met.
+    /// </summary>
+    /// <returns>True if a purchase document is approved for posting, otherwise false.</returns>
     procedure IsApprovedForPostingBatch() Approved: Boolean
     begin
         Approved := ApprovedForPostingBatch();
@@ -4617,6 +4918,14 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Determines if the total amount including VAT of an incoming document matches the total amount including VAT
+    /// of the purchase document.
+    /// </summary>
+    /// <remarks>
+    /// Used to check if the invoice can be posted.
+    /// </remarks>
+    /// <returns>True if the total matches, otherwise false.</returns>
     procedure IsTotalValid(): Boolean
     var
         IncomingDocument: Record "Incoming Document";
@@ -4654,6 +4963,15 @@ table 38 "Purchase Header"
         exit(IncomingDocument."Amount Incl. VAT" = TempTotalPurchaseLine."Amount Including VAT");
     end;
 
+    /// <summary>
+    /// Posts a purchase document by running the provided codeunit if the document is approved for posting.
+    /// </summary>
+    /// <remarks>
+    /// The transaction is committed before the posting codeunit is run.
+    /// After the posting codeunit is executed any errors that occur during the posting operation are shown.
+    /// </remarks>
+    /// <param name="PostingCodeunitID">Posting codeunit id that needs to be executed.</param>
+    /// <returns>True if the document was successfully posted, otherwise false.</returns>
     procedure SendToPosting(PostingCodeunitID: Integer) IsSuccess: Boolean
     var
         ErrorContextElement: Codeunit "Error Context Element";
@@ -4689,6 +5007,9 @@ table 38 "Purchase Header"
             WhseRequest.DeleteAll(true);
     end;
 
+    /// <summary>
+    /// Cancels a background posting job for a purchase document.
+    /// </summary>
     procedure CancelBackgroundPosting()
     var
         PurchasePostViaJobQueue: Codeunit "Purchase Post via Job Queue";
@@ -4696,6 +5017,12 @@ table 38 "Purchase Header"
         PurchasePostViaJobQueue.CancelQueueEntry(Rec);
     end;
 
+    /// <summary>
+    /// Adds the shipping information from a special order. If lines exist, it compares the current shipping information 
+    /// with the information on the special order and throws an error if there's a mismatch.
+    /// </summary>
+    /// <param name="SalesHeader">Sales header to which ship-to information is compared.</param>
+    /// <param name="ShowError">If true the procedure is executed and errors are shown.</param>
     procedure AddSpecialOrderToAddress(var SalesHeader: Record "Sales Header"; ShowError: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
@@ -4722,6 +5049,8 @@ table 38 "Purchase Header"
                     Error(Text052, FieldCaption("Ship-to Post Code"), "No.", SalesHeader."No.");
                 if "Ship-to City" <> PurchaseHeader."Ship-to City" then
                     Error(Text052, FieldCaption("Ship-to City"), "No.", SalesHeader."No.");
+                if "Ship-to Phone No." <> PurchaseHeader."Ship-to Phone No." then
+                    Error(Text052, FieldCaption("Ship-to Phone No."), "No.", SalesHeader."No.");
                 if "Ship-to Contact" <> PurchaseHeader."Ship-to Contact" then
                     Error(Text052, FieldCaption("Ship-to Contact"), "No.", SalesHeader."No.");
             end else
@@ -4730,6 +5059,10 @@ table 38 "Purchase Header"
         OnAfterAddSpecialOrderToAddress(Rec, SalesHeader, ShowError);
     end;
 
+
+    /// <summary>
+    /// Returns true or false whether any line has "Quantity Invoiced" not 0.
+    /// </summary>
     procedure InvoicedLineExists(): Boolean
     var
         PurchLine: Record "Purchase Line";
@@ -4741,6 +5074,9 @@ table 38 "Purchase Header"
         exit(not PurchLine.IsEmpty);
     end;
 
+    /// <summary>
+    /// Creates a dimension set for the purchase lines that have a prepayment amount. 
+    /// </summary>
     procedure CreateDimSetForPrepmtAccDefaultDim()
     var
         PurchaseLine: Record "Purchase Line";
@@ -4829,6 +5165,11 @@ table 38 "Purchase Header"
         TempPurchaseLine.Insert();
     end;
 
+    /// <summary>
+    /// Transfers item charge assignments to the temporary record set and deletes them from the original record.
+    /// </summary>
+    /// <param name="ItemChargeAssgntPurch">Item charge assignment record set to transfer.</param>
+    /// <param name="TempItemChargeAssgntPurch">Return value: Temporary item charge assignment record set to transfer to.</param> 
     procedure TransferItemChargeAssgntPurchToTemp(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     var
         IsHandled: Boolean;
@@ -4849,6 +5190,12 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Open statistics page for purchase orders.
+    /// </summary>
+    /// <remarks>
+    /// Commit is executed before opening the statistics page.
+    /// </remarks>
     procedure OpenPurchaseOrderStatistics()
     var
         IsHandled: Boolean;
@@ -4861,11 +5208,21 @@ table 38 "Purchase Header"
         OpenDocumentStatisticsInternal();
     end;
 
+    /// <summary>
+    /// Open statistics page for purchase documents.
+    /// </summary>
+    /// <remarks>
+    /// Commit is executed before opening the statistics page.
+    /// </remarks>
     procedure OpenDocumentStatistics()
     begin
         OpenDocumentStatisticsInternal();
     end;
 
+    /// <summary>
+    /// Prepares the opening document statistics for a purchase document. It checks the user's permissions, 
+    /// calculates the invoice discount, creates a dimension set for order documents, and commits any changes made.
+    /// </summary>
     procedure PrepareOpeningDocumentStatistics()
     var
         [SecurityFiltering(SecurityFilter::Ignored)]
@@ -4885,6 +5242,10 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+    /// <summary>
+    /// Opens a purchase document statistics page based on the document type. 
+    /// After the page is closed, the recalculate invoice discount field is set to false on all purchase document lines.
+    /// </summary>
     procedure ShowDocumentStatisticsPage()
     var
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
@@ -4937,6 +5298,9 @@ table 38 "Purchase Header"
     begin
     end;
 
+    /// <summary>
+    /// Triggers the OnCheckPurchasePostRestrictions event to check any additional restrictions before releasing a purchase document.
+    /// </summary>
     procedure CheckPurchasePostRestrictions()
     begin
         OnCheckPurchasePostRestrictions();
@@ -4947,6 +5311,9 @@ table 38 "Purchase Header"
     begin
     end;
 
+    /// <summary>
+    /// Checks any restrictions before releasing a purchase document.
+    /// </summary>
     procedure CheckPurchaseReleaseRestrictions()
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -4955,12 +5322,24 @@ table 38 "Purchase Header"
         ApprovalsMgmt.PrePostApprovalCheckPurch(Rec);
     end;
 
+    /// <summary>
+    /// Sets the status of a purchase document.
+    /// </summary>
+    /// <param name="NewStatus">New status to set.</param>
     procedure SetStatus(NewStatus: Option)
     begin
         Status := Enum::"Purchase Document Status".FromInteger(NewStatus);
         Modify();
     end;
 
+    /// <summary>
+    /// Triggers an event after a purchase document is posted.
+    /// </summary>
+    /// <param name="GenJnlPostLine">Gen journal post line codeunit that was used to post the document.</param>
+    /// <param name="PurchRcpHdrNo">Posted purchase receipt document no.</param>
+    /// <param name="RetShptHdrNo">Posted return shipment document no.</param>
+    /// <param name="PurchInvHdrNo">Posted purchase invoice document no.</param>
+    /// <param name="PurchCrMemoHdrNo">Posted purchase credit memo document no.</param>
     procedure TriggerOnAfterPostPurchaseDoc(var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PurchRcpHdrNo: Code[20]; RetShptHdrNo: Code[20]; PurchInvHdrNo: Code[20]; PurchCrMemoHdrNo: Code[20])
     var
         PurchPost: Codeunit "Purch.-Post";
@@ -4968,6 +5347,10 @@ table 38 "Purchase Header"
         PurchPost.OnAfterPostPurchaseDoc(Rec, GenJnlPostLine, PurchRcpHdrNo, RetShptHdrNo, PurchInvHdrNo, PurchCrMemoHdrNo, false);
     end;
 
+    /// <summary>
+    /// Determines if deferral header exists for a purchase document.
+    /// </summary>
+    /// <returns>True if deferral header exists, otherwise false.</returns>
     procedure DeferralHeadersExist(): Boolean
     var
         DeferralHeader: Record "Deferral Header";
@@ -5005,6 +5388,11 @@ table 38 "Purchase Header"
             Result := Confirm(ConfirmChangeQst, false, GetUpdatedFieldCaption(UpdatingFieldNo));
     end;
 
+    /// <summary>
+    /// Returns field caption for the provided field number.
+    /// </summary>
+    /// <param name="UpdatingFieldNo">Field number that was updated.</param>
+    /// <returns>Field caption for the provided UpdatingFieldNo field number.</returns>
     procedure GetUpdatedFieldCaption(UpdatingFieldNo: Integer): Text
     var
         RecRef: RecordRef;
@@ -5022,6 +5410,10 @@ table 38 "Purchase Header"
         exit(FldRef.Caption);
     end;
 
+    /// <summary>
+    /// Determines if the document type is a credit document.
+    /// </summary>
+    /// <returns>True if the document type is return order or credit memo, otherwise false.</returns>
     procedure IsCreditDocType(): Boolean
     var
         CreditDocType: Boolean;
@@ -5031,6 +5423,13 @@ table 38 "Purchase Header"
         exit(CreditDocType);
     end;
 
+    /// <summary>
+    /// Updates the buy-from vendor no. of a purchase header based on a single-value filter applied to the buy-from vendor no. field.
+    /// </summary>
+    /// <remarks>
+    /// Single-value filter is retrieved from the current filter group or filter group 2. 
+    /// If it exists, it's used to update the buy-from vendor no.
+    /// </remarks>
     procedure SetBuyFromVendorFromFilter()
     var
         BuyFromVendorNo: Code[20];
@@ -5049,6 +5448,9 @@ table 38 "Purchase Header"
         OnAfterSetBuyFromVendorFromFilter(Rec);
     end;
 
+    /// <summary>
+    /// Moves the filter on buy-from vendor no. from the current filter group to filter group 2.
+    /// </summary>
     procedure CopyBuyFromVendorFilter()
     var
         BuyFromVendorFilter: Text;
@@ -5068,6 +5470,10 @@ table 38 "Purchase Header"
                 exit(GetRangeMax("Buy-from Vendor No."));
     end;
 
+    /// <summary>
+    /// Determines if purchase header has buy-from information.
+    /// </summary>
+    /// <returns>True if purchase header has buy-from information, otherwise false.</returns>
     procedure HasBuyFromAddress() Result: Boolean
     var
         IsHandled: Boolean;
@@ -5097,6 +5503,10 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if purchase header has ship-to information.
+    /// </summary>
+    /// <returns>True if purchase header has ship-to information, otherwise false.</returns>
     procedure HasShipToAddress() Result: Boolean
     var
         IsHandled: Boolean;
@@ -5119,6 +5529,8 @@ table 38 "Purchase Header"
                 exit(true);
             "Ship-to Post Code" <> '':
                 exit(true);
+            "Ship-to Phone No." <> '':
+                exit(true);
             "Ship-to Contact" <> '':
                 exit(true);
         end;
@@ -5126,6 +5538,10 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if purchase header has pay-to information.
+    /// </summary>
+    /// <returns>True if purchase header has pay-to information, otherwise false.</returns>
     procedure HasPayToAddress() Result: Boolean
     var
         IsHandled: Boolean;
@@ -5155,6 +5571,10 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Determines if the purchase header has any item charge assignments.
+    /// </summary>
+    /// <returns>True if item charge assignments exists, otherwise false.</returns>
     procedure HasItemChargeAssignment(): Boolean
     var
         ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)";
@@ -5187,6 +5607,7 @@ table 38 "Purchase Header"
             "Ship-to Post Code" := BuyFromVendor."Post Code";
             "Ship-to County" := BuyFromVendor.County;
             Validate("Ship-to Country/Region Code", BuyFromVendor."Country/Region Code");
+            "Ship-to Phone No." := BuyFromVendor."Phone No.";
             OnAfterCopyShipToVendorAddressFieldsFromVendor(Rec, BuyFromVendor);
         end;
     end;
@@ -5204,6 +5625,17 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Sets the ship-to information for a purchase document from the provided parameters.
+    /// </summary>
+    /// <param name="ShipToName">Ship-to name to set.</param>
+    /// <param name="ShipToName2">Ship-to name 2 to set.</param>
+    /// <param name="ShipToAddress">Ship-to address to set.</param>
+    /// <param name="ShipToAddress2">Ship-to address 2 to set.</param>
+    /// <param name="ShipToCity">Ship-to city to set.</param>
+    /// <param name="ShipToPostCode">Ship-to post code to set.</param>
+    /// <param name="ShipToCounty">Ship-to county to set.</param>
+    /// <param name="ShipToCountryRegionCode">Ship-to country/region code to set.</param>
     procedure SetShipToAddress(ShipToName: Text[100]; ShipToName2: Text[50]; ShipToAddress: Text[100]; ShipToAddress2: Text[50]; ShipToCity: Text[30]; ShipToPostCode: Code[20]; ShipToCounty: Text[30]; ShipToCountryRegionCode: Code[10])
     begin
         "Ship-to Name" := ShipToName;
@@ -5226,6 +5658,11 @@ table 38 "Purchase Header"
         exit((not HasPayToAddress()) and PayToVendor.HasAddress());
     end;
 
+    /// <summary>
+    /// Determines whether a search for a vendor should be performed by name for the provided vendor no.
+    /// </summary>
+    /// <param name="VendorNo">Vendor number to check.</param>
+    /// <returns>True if vendor should be searched by name, otherwise false.</returns>
     procedure ShouldSearchForVendorByName(VendorNo: Code[20]) Result: Boolean
     var
         Vendor: Record Vendor;
@@ -5259,6 +5696,10 @@ table 38 "Purchase Header"
         exit((xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No."));
     end;
 
+    /// <summary>
+    /// Copies the buy-from information to pay-to information for a purchase document if the pay-to vendor no. 
+    /// is the same as the buy-from vendor no.
+    /// </summary>
     procedure CopyBuyFromAddressToPayToAddress()
     begin
         if "Pay-to Vendor No." = "Buy-from Vendor No." then begin
@@ -5315,6 +5756,10 @@ table 38 "Purchase Header"
             exit(true);
     end;
 
+    /// <summary>
+    /// Raises a dialog to confirm closing a page if unposted lines exist.
+    /// </summary>
+    /// <returns>True if page should be closed, otherwise false.</returns>
     procedure ConfirmCloseUnposted() Result: Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -5331,6 +5776,10 @@ table 38 "Purchase Header"
         exit(true)
     end;
 
+    /// <summary>
+    /// Initializes a purchase header from the provided purchase header.
+    /// </summary>
+    /// <param name="SourcePurchHeader">Purchase header to copy information from.</param>
     procedure InitFromPurchHeader(SourcePurchHeader: Record "Purchase Header")
     begin
         "Document Date" := SourcePurchHeader."Document Date";
@@ -5344,6 +5793,7 @@ table 38 "Purchase Header"
           SourcePurchHeader."Ship-to Name", SourcePurchHeader."Ship-to Name 2", SourcePurchHeader."Ship-to Address",
           SourcePurchHeader."Ship-to Address 2", SourcePurchHeader."Ship-to City", SourcePurchHeader."Ship-to Post Code",
           SourcePurchHeader."Ship-to County", SourcePurchHeader."Ship-to Country/Region Code");
+        "Ship-to Phone No." := SourcePurchHeader."Ship-to Phone No.";
         "Ship-to Contact" := SourcePurchHeader."Ship-to Contact";
 
         OnInitFromPurchHeader(Rec, SourcePurchHeader);
@@ -5394,6 +5844,10 @@ table 38 "Purchase Header"
             if Contact.Get(ContactNo) then;
     end;
 
+    /// <summary>
+    /// Opens a contact lookup page and validates the buy-from contact no. field with the selected contact.
+    /// </summary>
+    /// <returns>True if the contact was validated, otherwise false.</returns>
     procedure BuyfromContactLookup(): Boolean
     var
         Contact: Record Contact;
@@ -5425,6 +5879,14 @@ table 38 "Purchase Header"
         exit(false);
     end;
 
+    /// <summary>
+    /// Sends selected purchase document reports to the vendors. Before this procedure is called, 
+    /// purchase documents are selected on the page and then selection filter is used to filter the selected documents.
+    /// </summary>
+    /// <remarks>
+    /// Checks if the document has mixed drop shipment, selects a report from report selection based on the document type,
+    /// shows profile selection window and then send the selected reports to the vendors.
+    /// </remarks>
     procedure SendRecords()
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -5450,6 +5912,13 @@ table 38 "Purchase Header"
                 FieldNo("Buy-from Vendor No."), FieldNo("No."));
     end;
 
+    /// <summary>
+    /// Prints selected purchase document reports. Before this procedure is called, 
+    /// purchase documents are selected on the page and then selection filter is used to filter the selected documents.
+    /// </summary>
+    /// <param name="ShowRequestForm">
+    /// Request window for the report will be displayed if true, otherwise the default settings are used.
+    /// </param>
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
         DocumentSendingProfile: Record "Document Sending Profile";
@@ -5471,6 +5940,15 @@ table 38 "Purchase Header"
                 DummyReportSelections.Usage::"P.Order".AsInteger(), Rec, FieldNo("Buy-from Vendor No."), ShowRequestForm);
     end;
 
+    /// <summary>
+    /// Sends a purchase order document report with a specified document sending profile.
+    /// </summary>
+    /// <remarks>
+    /// If the document has mixed drop shipments, error message is raised.
+    /// </remarks>
+    /// <param name="DocumentSendingProfile">
+    /// Document sending profile that will be used to send the selected report to the vendor.
+    /// </param>
     procedure SendProfile(var DocumentSendingProfile: Record "Document Sending Profile")
     var
         DummyReportSelections: Record "Report Selections";
@@ -5542,6 +6020,10 @@ table 38 "Purchase Header"
                     Validate("Purchaser Code", UserSetupPurchaserCode);
     end;
 
+    /// <summary>
+    /// Retrieves the salesperson/purchaser code of the current user from the user setup.
+    /// </summary>
+    /// <returns>Salesperson/purchaser code of the current user from the user setup.</returns>
     procedure GetUserSetupPurchaserCode(): Code[20]
     var
         UserSetup: Record "User Setup";
@@ -5685,6 +6167,12 @@ table 38 "Purchase Header"
         Rec.Validate("Ship-to Code", '');
     end;
 
+    /// <summary>
+    /// Removes the filter from buy-from vendor no. if the number has changed.
+    /// Updates remittance address for the record if the default remit address for the vendor exists.
+    /// </summary>
+    /// <param name="PurchaseHeader">Purchase header record after validation.</param>
+    /// <param name="xPurchaseHeader">Purchase header record before validation.</param>
     procedure OnAfterValidateBuyFromVendorNo(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header")
     begin
         if PurchaseHeader.GetFilter("Buy-from Vendor No.") = xPurchaseHeader."Buy-from Vendor No." then
@@ -5694,6 +6182,10 @@ table 38 "Purchase Header"
         SelectDefaultRemitAddress(PurchaseHeader);
     end;
 
+    /// <summary>
+    /// Sets the default remittance address on the provided purchase header.
+    /// </summary>
+    /// <param name="PurchaseHeader">Return value: Purchase header to update.</param>
     procedure SelectDefaultRemitAddress(var PurchaseHeader: Record "Purchase Header")
     var
         RemitAddress: Record "Remit Address";
@@ -5706,33 +6198,15 @@ table 38 "Purchase Header"
         end;
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by BatchConfirmUpdateDeferralDate with VAT Date parameters.', '22.0')]
-    procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date)
-    begin
-        if (not ReplacePostingDate) or (PostingDateReq = "Posting Date") or (BatchConfirm = BatchConfirm::Skip) then
-            exit;
-
-        if not DeferralHeadersExist() then
-            exit;
-
-        "Posting Date" := PostingDateReq;
-        case BatchConfirm of
-            BatchConfirm::" ":
-                begin
-                    ConfirmUpdateDeferralDate();
-                    if Confirmed then
-                        BatchConfirm := BatchConfirm::Update
-                    else
-                        BatchConfirm := BatchConfirm::Skip;
-                end;
-            BatchConfirm::Update:
-                UpdatePurchLinesByFieldNo(PurchLine.FieldNo("Deferral Code"), false);
-        end;
-        Commit();
-    end;
-#endif
-
+    /// <summary>
+    /// Raises a confirmation to update the deferral schedules on the lines to reflect the changed dates.
+    /// If user confirms the update, the purchase lines are updated.
+    /// </summary>
+    /// <param name="BatchConfirm"></param>
+    /// <param name="ReplacePostingDate">If true, the purchase header's posting date will be replaced with the specified PostingDateReq.</param>
+    /// <param name="PostingDateReq">Posting date to replace.</param>
+    /// <param name="ReplaceVATDate"></param>
+    /// <param name="VATDateReq">Vat reporting date to replace.</param>
     procedure BatchConfirmUpdateDeferralDate(var BatchConfirm: Option " ",Skip,Update; ReplacePostingDate: Boolean; PostingDateReq: Date; ReplaceVATDate: Boolean; VATDateReq: Date)
     begin
         if ((not ReplacePostingDate) and (not ReplaceVATDate)) or (BatchConfirm = BatchConfirm::Skip) then
@@ -5784,6 +6258,12 @@ table 38 "Purchase Header"
         Commit();
     end;
 
+    /// <summary>
+    /// Sets the global flag SelectNoSeriesAllowed to true.
+    /// </summary>
+    /// <remarks>
+    /// The global flag is used to determine if the lookup for the number series can been shown.
+    /// </remarks>
     procedure SetAllowSelectNoSeries()
     begin
         SelectNoSeriesAllowed := true;
@@ -5855,6 +6335,13 @@ table 38 "Purchase Header"
         NotificationLifecycleMgt.SendNotification(ModifyVendorAddressNotification, RecordId);
     end;
 
+    /// <summary>
+    /// Recalls a sent notification for the provided notification GUID.
+    /// </summary>
+    /// <remarks>
+    /// If it is a credit document or if notification isn't enabled, it won't recall the notification.
+    /// </remarks>
+    /// <param name="NotificationID">GUID of the notification to recall.</param>
     procedure RecallModifyAddressNotification(NotificationID: Guid)
     var
         MyNotifications: Record "My Notifications";
@@ -5866,31 +6353,60 @@ table 38 "Purchase Header"
         ModifyVendorAddressNotification.Recall();
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns the user if the buy-from address on purchase documents is different 
+    /// from the vendor's existing address.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetModifyVendorAddressNotificationId(): Guid
     begin
         exit('CF3D0CD3-C54A-47D1-8A3F-57A6CCBA8DDE');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns if the pay-to address on purchase documents is different 
+    /// from the vendor's existing address.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetModifyPayToVendorAddressNotificationId(): Guid
     begin
         exit('16E45B3A-CB9F-4B2C-9F08-2BCE39E9E980');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns if purchase document with same external document number already exists.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetShowExternalDocAlreadyExistNotificationId(): Guid
     begin
         exit('D87F624C-D3BE-4E6B-A369-D18AE269181A');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns if the invoice discount amount for the purchase line record has been reset.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetLineInvoiceDiscountResetNotificationId(): Guid
     begin
         exit('3DC9C8BC-0512-4A49-B587-256C308EBCAA');
     end;
 
+    /// <summary>
+    /// Returns a GUID for a notification that warns before posting lines on purchase documents where quantity is 0.
+    /// </summary>
+    /// <returns>Notification GUID.</returns>
     procedure GetWarnWhenZeroQuantityPurchaseLinePosting(): Guid
     begin
         exit('68354b20-7f89-11ec-a8a3-0242ac120002');
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn if the buy-from address on purchase documents is different 
+    /// from the vendor's existing address.
+    /// </summary>
+    /// <remarks>
+    /// Notification is enabled by default.
+    /// </remarks>
     procedure SetModifyVendorAddressNotificationDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -5899,6 +6415,13 @@ table 38 "Purchase Header"
           ModifyBuyFromVendorAddressNotificationNameTxt, ModifyBuyFromVendorAddressNotificationDescriptionTxt, true);
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn if pay-to address on purchase documents is different 
+    /// from the vendor's existing address.
+    /// </summary>
+    /// <remarks>
+    /// Notification is enabled by default.
+    /// </remarks>
     procedure SetModifyPayToVendorAddressNotificationDefaultState()
     var
         MyNotifications: Record "My Notifications";
@@ -5907,6 +6430,10 @@ table 38 "Purchase Header"
           ModifyPayToVendorAddressNotificationNameTxt, ModifyPayToVendorAddressNotificationDescriptionTxt, true);
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn if purchase document with same external document number already exists.
+    /// </summary>
+    /// <param name="DefaultState">If true, the notification is enabled.</param>
     procedure SetShowExternalDocAlreadyExistNotificationDefaultState(DefaultState: Boolean)
     var
         MyNotifications: Record "My Notifications";
@@ -5915,6 +6442,10 @@ table 38 "Purchase Header"
           ShowDocAlreadyExistNotificationNameTxt, ShowDocAlreadyExistNotificationDescriptionTxt, DefaultState);
     end;
 
+    /// <summary>
+    /// Disables a specified notification for the current user.
+    /// </summary>
+    /// <param name="NotificationID">GUID of the notification that needs to be disabled.</param>
     procedure DontNotifyCurrentUserAgain(NotificationID: Guid)
     var
         MyNotifications: Record "My Notifications";
@@ -5954,6 +6485,12 @@ table 38 "Purchase Header"
         OnAfterHasDifferentPayToAddress(Rec, Vendor, Result);
     end;
 
+    /// <summary>
+    /// Inserts the default notification to warn before posting lines on purchase documents where quantity is 0.
+    /// </summary>
+    /// <remarks>
+    /// Notification is enabled by default.
+    /// </remarks>
     procedure SetWarnZeroQuantityPurchasePosting()
     var
         MyNotifications: Record "My Notifications";
@@ -5962,6 +6499,12 @@ table 38 "Purchase Header"
          WarnZeroQuantityPostingTxt, WarnZeroQuantityPostingDescriptionTxt, true);
     end;
 
+    /// <summary>
+    /// Finds a posted purchase document for the provided external document no.
+    /// </summary>
+    /// <param name="VendorLedgerEntry">Return value: Retrieved vendor ledger entry record.</param>
+    /// <param name="ExternalDocumentNo">Document no. to find the posted document for.</param>
+    /// <returns>True if a document exists, otherwise false.</returns>
     procedure FindPostedDocumentWithSameExternalDocNo(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExternalDocumentNo: Code[35]): Boolean
     var
         VendorMgt: Codeunit "Vendor Mgt.";
@@ -5971,6 +6514,12 @@ table 38 "Purchase Header"
         exit(VendorLedgerEntry.FindFirst())
     end;
 
+    /// <summary>
+    /// Applies the filter for the headers that have received lines.
+    /// </summary>
+    /// <remarks>
+    /// The purchase order is marked if it has any lines with a quantity received not equal to zero.
+    /// </remarks>
     procedure FilterPartialReceived()
     var
         PurchaseHeaderOriginal: Record "Purchase Header";
@@ -5996,6 +6545,12 @@ table 38 "Purchase Header"
         MarkedOnly(true);
     end;
 
+    /// <summary>
+    /// Applies the filter for the headers that have partially invoiced lines.
+    /// </summary>
+    /// <remarks>
+    /// The purchase order is marked if it has any lines with a quantity invoiced not equal to zero.
+    /// </remarks>
     procedure FilterPartialInvoiced()
     var
         PurchaseHeaderOriginal: Record "Purchase Header";
@@ -6048,7 +6603,11 @@ table 38 "Purchase Header"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         InstructionMgt: Codeunit "Instruction Mgt.";
         DocAlreadyExistNotification: Notification;
+        MyNotifications: Record "My Notifications";
     begin
+        if not MyNotifications.IsEnabled(GetShowExternalDocAlreadyExistNotificationId()) then
+            exit;
+
         InstructionMgt.CreateMissingMyNotificationsWithDefaultState(GetShowExternalDocAlreadyExistNotificationId());
 
         if not IsDocAlreadyExistNotificationEnabled() then
@@ -6092,6 +6651,11 @@ table 38 "Purchase Header"
           RecordId, GetShowExternalDocAlreadyExistNotificationId(), true);
     end;
 
+    /// <summary>
+    /// Determines if the notification which warns if purchase document with same external document number 
+    /// already exists is enabled.
+    /// </summary>
+    /// <returns>True if the notification is enabled, otherwise false.</returns>
     procedure IsDocAlreadyExistNotificationEnabled(): Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
@@ -6099,6 +6663,11 @@ table 38 "Purchase Header"
         exit(InstructionMgt.IsMyNotificationEnabled(GetShowExternalDocAlreadyExistNotificationId()));
     end;
 
+    /// <summary>
+    /// Determines if the ship-to information in the purchase header record matches the ship-to information 
+    /// in the company information.
+    /// </summary>
+    /// <returns>True if ship-to information is equal, otherwise false.</returns>
     procedure ShipToAddressEqualsCompanyShipToAddress(): Boolean
     var
         CompanyInformation: Record "Company Information";
@@ -6116,11 +6685,16 @@ table 38 "Purchase Header"
           (PurchaseHeader."Ship-to County" = CompanyInformation."Ship-to County") and
           (PurchaseHeader."Ship-to Post Code" = CompanyInformation."Ship-to Post Code") and
           (PurchaseHeader."Ship-to Country/Region Code" = CompanyInformation."Ship-to Country/Region Code") and
-          (PurchaseHeader."Ship-to Name" = CompanyInformation."Ship-to Name");
+          (PurchaseHeader."Ship-to Name" = CompanyInformation."Ship-to Name") and
+          (PurchaseHeader."Ship-to Phone No." = CompanyInformation."Ship-to Phone No.");
 
         OnAfterIsShipToAddressEqualToCompanyShipToAddress(Rec, CompanyInformation, Result);
     end;
 
+    /// <summary>
+    /// Determines if ship-to information is equal to the buy-from information in the purchase header record.
+    /// </summary>
+    /// <returns>True if the information is equal, otherwise false.</returns>
     procedure BuyFromAddressEqualsShipToAddress() Result: Boolean
     begin
         Result :=
@@ -6135,6 +6709,10 @@ table 38 "Purchase Header"
         OnAfterBuyFromAddressEqualsShipToAddress(Rec, Result);
     end;
 
+    /// <summary>
+    /// Determines if buy-from information is equal to the pay-to information in the purchase header record.
+    /// </summary>
+    /// <returns>True if the information is equal, otherwise false.</returns>
     procedure BuyFromAddressEqualsPayToAddress() Result: Boolean
     begin
         Result :=
@@ -6170,6 +6748,12 @@ table 38 "Purchase Header"
             PurchaserCodeToAssign := '';
     end;
 
+    /// <summary>
+    /// Checks if the document can be created/posted depending on the privacy blocked of the purchaser.
+    /// </summary>
+    /// <param name="PurchaseHeader2">Purchase header on which purchaser code has been changed.</param>
+    /// <param name="IsTransaction">Determines if the check is completed during a write transaction.</param>
+    /// <param name="IsPostAction">Determines if the check is completed during the posting.</param>
     procedure ValidatePurchaserOnPurchHeader(PurchaseHeader2: Record "Purchase Header"; IsTransaction: Boolean; IsPostAction: Boolean)
     begin
         if PurchaseHeader2."Purchaser Code" <> '' then
@@ -6210,16 +6794,31 @@ table 38 "Purchase Header"
         ReportSelectionsUsage := Enum::"Report Selection Usage".FromInteger(ReportUsage);
     end;
 
+    /// <summary>
+    /// Returns the value of the global variable SkipTaxCalculation.
+    /// </summary>
+    /// <returns>The value of the global variable SkipTaxCalculation.</returns>
     procedure CanCalculateTax(): Boolean
     begin
         exit(SkipTaxCalculation);
     end;
 
+    /// <summary>
+    /// Sets the value of the global variable SkipTaxCalculation.
+    /// </summary>
+    /// <param name="Skip">The new value to set.</param>
     procedure SetSkipTaxCalulation(Skip: Boolean)
     begin
         SkipTaxCalculation := Skip;
     end;
 
+    /// <summary>
+    /// Resets the sell-to customer to an empty value and updates the location.
+    /// from the global Vend record on the purchase header.
+    /// </summary>
+    /// <remarks>
+    /// Updates the global Vend with buy-from vendor no. of the purchase header. 
+    /// </remarks>
     procedure ValidateEmptySellToCustomerAndLocation()
     var
         IsHandled: Boolean;
@@ -6236,6 +6835,9 @@ table 38 "Purchase Header"
         UpdateLocationCode(Vend."Location Code");
     end;
 
+    /// <summary>
+    /// Checks if there are any blocked items or resources in the purchase lines of the purchase header.
+    /// </summary>
     procedure CheckForBlockedLines()
     var
         CurrentPurchLine: Record "Purchase Line";
@@ -6275,6 +6877,10 @@ table 38 "Purchase Header"
             until CurrentPurchLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Determines if purchase document status is not pending approval.
+    /// </summary>
+    /// <returns>True if status is not pending approval, otherwise false.</returns>
     procedure TestStatusIsNotPendingApproval() NotPending: Boolean;
     begin
         NotPending := Status <> Status::"Pending Approval";
@@ -6282,6 +6888,10 @@ table 38 "Purchase Header"
         OnTestStatusIsNotPendingApproval(Rec, NotPending);
     end;
 
+    /// <summary>
+    /// Determines if purchase document status is not pending prepayment.
+    /// </summary>
+    /// <returns>True if status is not pending prepayment, otherwise false.</returns>
     procedure TestStatusIsNotPendingPrepayment() NotPending: Boolean;
     begin
         NotPending := Status <> Status::"Pending Prepayment";
@@ -6289,6 +6899,10 @@ table 38 "Purchase Header"
         OnTestStatusIsNotPendingPrepayment(Rec, NotPending);
     end;
 
+    /// <summary>
+    /// Determines if purchase document status is not released.
+    /// </summary>
+    /// <returns>True if status is not released, otherwise false.</returns>
     procedure TestStatusIsNotReleased() NotReleased: Boolean;
     begin
         NotReleased := Status <> Status::Released;
@@ -6296,6 +6910,12 @@ table 38 "Purchase Header"
         OnTestStatusIsNotReleased(Rec, NotReleased);
     end;
 
+    /// <summary>
+    /// Checks if purchase document status is open. If it is not, an error is raised.
+    /// </summary>
+    /// <remakrs>
+    /// If global flag StatusCheckSuspended is set to true, the procedure is not executed.
+    /// </remakrs>
     procedure TestStatusOpen()
     begin
         OnBeforeTestStatusOpen(Rec, xRec, CurrFieldNo);
@@ -6308,11 +6928,25 @@ table 38 "Purchase Header"
         OnAfterTestStatusOpen();
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag StatusCheckSuspended.
+    /// </summary>
+    /// <remarks>
+    /// The global flag is used to suspend the check if the document status is open.
+    /// </remarks>
+    /// <param name="Suspend">The new value to set.</param>
     procedure SuspendStatusCheck(Suspend: Boolean)
     begin
         StatusCheckSuspended := Suspend;
     end;
 
+    /// <summary>
+    /// Updates the inbound warehouse handling time of the purchase header.
+    /// </summary>
+    /// <remarks>
+    /// If the purchase header's location code is empty, 
+    /// the inbound warehouse handling time is updated using the handling time from inventory setup.
+    /// </remarks>
     procedure UpdateInboundWhseHandlingTime()
     begin
         if "Location Code" = '' then begin
@@ -6326,6 +6960,10 @@ table 38 "Purchase Header"
         OnAfterUpdateInboundWhseHandlingTime(Rec, CurrFieldNo);
     end;
 
+    /// <summary>
+    /// Returns the document type caption.
+    /// </summary>
+    /// <returns>Full text description of the document type field.</returns>
     procedure GetFullDocTypeTxt() FullDocTypeTxt: Text
     var
         IsHandled: Boolean;
@@ -6347,6 +6985,12 @@ table 38 "Purchase Header"
         OnLookupPostCode(CalledFromFieldNo, xRecPurchaseHeader, Rec);
     end;
 
+    /// <summary>
+    /// Runs the copy purchase document report for the purchase header.
+    /// </summary>
+    /// <remarks>
+    /// The report creates new purchase documents based on the existing one.
+    /// </remarks>
     procedure CopyDocument()
     var
         CopyPurchaseDocument: Report "Copy Purchase Document";
@@ -6390,6 +7034,11 @@ table 38 "Purchase Header"
         Vend.CheckBlockedVendOnDocs(Vend, false);
     end;
 
+    /// <summary>
+    /// Opens vendor lookup page to select a vendor. Buy-from vendor name field is updated with the selected vendor name.
+    /// </summary>
+    /// <param name="VendorName">Return value: Selected vendor name.</param>
+    /// <returns>True if vendor is selected, otherwise false.</returns>
     procedure LookupBuyFromVendorName(var VendorName: Text): Boolean
     var
         Vendor: Record Vendor;
@@ -6413,6 +7062,11 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Opens vendor lookup page to select a vendor. Pay-to name field is updated with the selected vendor name.
+    /// </summary> 
+    /// <param name="VendorName">Return value: Selected vendor name.</param>
+    /// <returns>True if vendor is selected, otherwise false.</returns>
     procedure LookupPayToVendorName(var VendorName: Text): Boolean
     var
         Vendor: Record Vendor;
@@ -6459,6 +7113,13 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Collects all purchase lines of the document into a temporary record set.
+    /// </summary>
+    /// <remarks>
+    /// If the purchase line's nonstock flag is true, it's set to false upon recreation on the actual line.
+    /// </remarks>
+    /// <param name="TempPurchLine">Return value: Created temporary purchase line record set.</param>
     procedure RecreateTempPurchLines(var TempPurchLine: Record "Purchase Line")
     begin
         repeat
@@ -6518,6 +7179,9 @@ table 38 "Purchase Header"
         PurchLine.TestField("Prepmt. Amt. Inv.", 0);
     end;
 
+    /// <summary>
+    /// Deletes all purchase comment lines.
+    /// </summary>
     procedure DeletePurchCommentLines()
     var
         PurchCommentLine: Record "Purch. Comment Line";
@@ -6531,6 +7195,13 @@ table 38 "Purchase Header"
         PurchCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
     end;
 
+    /// <summary>
+    /// Delets all lines in the provided record set.
+    /// </summary>
+    /// <remarks>
+    /// This procedure uses DeleteAll, if the record set is not filtered correctly, all purchase lines will be deleted.
+    /// </remarks>
+    /// <param name="PurchLine">Filtered purchase line record set to delete the lines from.</param>
     procedure DeletePurchLines(var PurchLine: Record "Purchase Line")
     var
         IsHandled: Boolean;
@@ -6543,16 +7214,27 @@ table 38 "Purchase Header"
         PurchLine.DeleteAll(true);
     end;
 
+    /// <summary>
+    /// Returns the value of the global flag CalledFromWhseDoc.
+    /// </summary>
+    /// <returns>The value of the global flag CalledFromWhseDoc.</returns>
     procedure GetCalledFromWhseDoc(): Boolean
     begin
         exit(CalledFromWhseDoc);
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag CalledFromWhseDoc.
+    /// </summary>
+    /// <param name="Suspend">The new value to set.</param>
     procedure SetCalledFromWhseDoc(NewCalledFromWhseDoc: Boolean)
     begin
         CalledFromWhseDoc := NewCalledFromWhseDoc;
     end;
 
+    /// <summary>
+    /// Sets the value of the global flag ReplaceDocumentDate to true.
+    /// </summary>
     procedure SetReplaceDocumentDate()
     begin
         ReplaceDocumentDate := true;
@@ -6571,6 +7253,10 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Returns the posting date from purchase header if it's available, otherwise it returns the current work date.
+    /// </summary>
+    /// <returns>Document's posting date or work date.</returns>
     procedure GetUseDate(): Date
     begin
         if "Posting Date" = 0D then
@@ -6591,6 +7277,10 @@ table 38 "Purchase Header"
         CreateDimFromDefaultDim(Rec.FieldNo("Pay-to Vendor No."));
     end;
 
+    /// <summary>
+    /// Initializes the dimensions for the document from default dimensions for the related entry specified in the field.
+    /// </summary>
+    /// <param name="FieldNo">The field number for which to initialize the dimensions.</param>
     procedure CreateDimFromDefaultDim(FieldNo: Integer)
     var
         DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
@@ -6619,6 +7309,11 @@ table 38 "Purchase Header"
         );
     end;
 
+    /// <summary>
+    /// Determines if the purchase lines of the purchase header are editable 
+    /// based on whether a buy-from vendor no. has been specified.
+    /// </summary>
+    /// <returns>True if purchase lines are editable, otherwise false.</returns>
     procedure PurchaseLinesEditable() IsEditable: Boolean;
     begin
         IsEditable := Rec."Buy-from Vendor No." <> '';
@@ -6649,6 +7344,9 @@ table 38 "Purchase Header"
         end;
     end;
 
+    /// <summary>
+    /// Checks if there are unpaid prepayment invoices for the purchase document and raise an error if there are.
+    /// </summary>
     procedure TestPurchasePrepayment()
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
@@ -6941,14 +7639,6 @@ table 38 "Purchase Header"
     local procedure OnAfterTransferExtendedTextForPurchaseLineRecreation(var PurchLine: Record "Purchase Line"; var TempPurchaseLine: Record "Purchase Line" temporary)
     begin
     end;
-
-#if not CLEAN22
-    [IntegrationEvent(true, false)]
-    [Obsolete('Replaced by OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType', '19.0')]
-    procedure OnValidatePurchaseHeaderPayToVendorNo(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnValidatePurchaseHeaderPayToVendorNoOnBeforeCheckDocType(Vendor: Record Vendor; var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; SkipPayToContact: Boolean)

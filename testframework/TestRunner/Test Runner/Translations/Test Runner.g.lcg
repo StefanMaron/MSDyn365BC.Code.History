@@ -11,7 +11,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Code Coverage Map - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table AL Code Coverage Map - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1628886054 - Field 3320823955 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -20,7 +20,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Code Coverage Map - Field Line No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table AL Code Coverage Map - Field Line No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1628886054 - Field 3711240756 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Code Coverage Map - Field Object ID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table AL Code Coverage Map - Field Object ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1628886054 - Field 1085746399 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Code Coverage Map - Field Object Type - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table AL Code Coverage Map - Field Object Type - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1628886054 - Field 3515289124 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -47,7 +47,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Code Coverage Map - Field Test Codeunit ID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table AL Code Coverage Map - Field Test Codeunit ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1628886054 - Field 3234827043 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -56,7 +56,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Code Coverage Map - Field Test Method - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table AL Code Coverage Map - Field Test Method - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 873180088 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -65,7 +65,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Code Coverage Result - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table Test Code Coverage Result - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 873180088 - Field 2157191323 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -74,7 +74,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Code Coverage Result - Field CC Result - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table Test Code Coverage Result - Field CC Result - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 873180088 - Field 3515289124 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -83,7 +83,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Code Coverage Result - Field Test Codeunit ID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table Test Code Coverage Result - Field Test Codeunit ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 873180088 - Field 3234827043 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -92,7 +92,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Code Coverage Result - Field Test Method - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Table Test Code Coverage Result - Field Test Method - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -101,7 +101,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3520238684 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -110,7 +110,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectIdFilter - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectIdFilter - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3520238684 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -119,7 +119,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectIdFilter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectIdFilter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3904799447 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -128,7 +128,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectTypeFilter - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectTypeFilter - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3904799447 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -137,7 +137,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectTypeFilter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectTypeFilter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 2357961265 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -146,7 +146,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control RequiredCoverage - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control RequiredCoverage - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 2357961265 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -155,7 +155,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control RequiredCoverage - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control RequiredCoverage - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 866387593 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -164,7 +164,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control TotalCoveragePercent - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control TotalCoveragePercent - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 866387593 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -173,7 +173,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control TotalCoveragePercent - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control TotalCoveragePercent - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 153117793 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -182,7 +182,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control TotalNoofLines - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control TotalNoofLines - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 153117793 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -191,7 +191,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control TotalNoofLines - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control TotalNoofLines - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 2123958759 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -200,7 +200,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control Object - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control Object - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3345156549 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -209,7 +209,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control CodeLine - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control CodeLine - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3345156549 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -218,7 +218,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control CodeLine - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control CodeLine - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 1953626415 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -227,7 +227,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control CoveragePercent - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control CoveragePercent - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 1953626415 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -236,7 +236,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control CoveragePercent - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control CoveragePercent - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 1165969121 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -245,7 +245,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LineNo - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LineNo - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 1165969121 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -254,7 +254,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LineNo - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LineNo - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 1123404076 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -263,7 +263,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LinesHit - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LinesHit - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 1123404076 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -272,7 +272,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LinesHit - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LinesHit - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3249524095 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -281,7 +281,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LinesNotHit - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LinesNotHit - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3249524095 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -290,7 +290,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LinesNotHit - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LinesNotHit - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 697060706 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -299,7 +299,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LineType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LineType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 697060706 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -308,7 +308,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control LineType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control LineType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 495416724 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -317,7 +317,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control No. of Hits - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control No. of Hits - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 495416724 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -326,7 +326,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control No. of Hits - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control No. of Hits - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3417397831 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -335,7 +335,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control NoofLines - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control NoofLines - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 3417397831 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -344,7 +344,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control NoofLines - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control NoofLines - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 568116884 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -353,7 +353,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 568116884 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -362,7 +362,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 4766335 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -371,7 +371,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Control 4766335 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -380,7 +380,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Control ObjectType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Control ObjectType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 2026913255 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -389,7 +389,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Refresh - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Refresh - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 2026913255 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -398,7 +398,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Refresh - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Refresh - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 620325036 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -407,7 +407,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Start - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Start - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 620325036 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -416,7 +416,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Start - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Start - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 915332364 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -425,7 +425,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Stop - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Stop - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 915332364 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -434,7 +434,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Stop - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Stop - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 3625068723 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -443,7 +443,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Backup/Restore - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Backup/Restore - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3453384002 - Action 3625068723 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -452,7 +452,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Code Coverage - Action Backup/Restore - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=Page AL Code Coverage - Action Backup/Restore - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";XmlPort 1628886054 - Property 2879900210" ItemType=";XmlPort - XmlPort" PsrId="63" InstFlg="true" Leaf="true">
@@ -461,7 +461,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort AL Code Coverage Map - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=XmlPort AL Code Coverage Map - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";XmlPort 3032005877 - Property 2879900210" ItemType=";XmlPort - XmlPort" PsrId="63" InstFlg="true" Leaf="true">
@@ -470,7 +470,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort Code Coverage Detailed - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=XmlPort Code Coverage Detailed - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";XmlPort 538526507 - Property 2879900210" ItemType=";XmlPort - XmlPort" PsrId="63" InstFlg="true" Leaf="true">
@@ -479,7 +479,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=XmlPort Code Coverage Results - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.CodeCoverage)(LookupHint=XmlPort Code Coverage Results - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -488,7 +488,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 4151209518 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -497,7 +497,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field CC Coverage Map - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field CC Coverage Map - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 4151209518 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -506,7 +506,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field CC Coverage Map - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field CC Coverage Map - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 1068590242 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -515,7 +515,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field CC Exporter ID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field CC Exporter ID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 3048200173 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -524,7 +524,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field CC Track All Sessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field CC Track All Sessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 1545903865 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -533,7 +533,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field CC Tracking Type - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field CC Tracking Type - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 1545903865 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -542,7 +542,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field CC Tracking Type - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field CC Tracking Type - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -551,7 +551,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Description - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Description - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 1600162533 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -560,7 +560,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Failures - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Failures - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 1011026909 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -569,7 +569,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Last Run - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Last Run - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 2961552353 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -578,7 +578,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 3629177835 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -587,7 +587,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Run Type - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Run Type - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 3629177835 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -596,7 +596,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Run Type - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Run Type - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 117215960 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -605,7 +605,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Stability Run - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Stability Run - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 4018684269 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -614,7 +614,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Test Runner Id - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Test Runner Id - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 663496373 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -623,7 +623,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Tests not Executed - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Tests not Executed - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 466518607 - Field 2885114547 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -632,7 +632,196 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table AL Test Suite - Field Tests to Execute - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table AL Test Suite - Field Tests to Execute - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 3004954119 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the code of the test input.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Code - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 3004954119 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Code - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 3461834954 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the description of the test input.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Description - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Description - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 1520980000 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies if the test input is sensitive and should not be shown directly off the page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Sensitive - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 1520980000 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sensitive]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Sensitive - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 2831948500 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the test input.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Test Input - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 2831948500 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Test Input - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 2632799558 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the code for the test input group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Test Input Group Code - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 2831948500 - Field 2632799558 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Input Group Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input - Field Test Input Group Code - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Input Group]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - NamedType 503559995" ItemType=";Table - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Imported from tool]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - NamedType ImportedAutomaticallyTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 3004954119 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the code for the test input group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Code - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 3004954119 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Code - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 3461834954 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the description of the test input group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Description - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 3461834954 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Description]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Description - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 4196669088 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the number of entries in the dataset.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field No. of Entries - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 4196669088 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. of Entries]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field No. of Entries - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 1520980000 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies if the test input is sensitive and should not be shown directly off the page.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Sensitive - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1890310249 - Field 1520980000 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Sensitive]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Input Group - Field Sensitive - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
@@ -641,7 +830,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 3446276168 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -650,7 +839,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Error Call Stack - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Error Call Stack - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 3676003639 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -659,7 +848,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Error Code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Error Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 2852966117 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -668,7 +857,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Error Message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Error Message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 4238234067 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -677,7 +866,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Error Message Preview - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Error Message Preview - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 2147485682 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -686,7 +875,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Finish Time - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Finish Time - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 3951948734 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -695,7 +884,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Function - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Function - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 1789400218 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -704,7 +893,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Level - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Level - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 3320823955 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -713,7 +902,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Line No. - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Line No. - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 158172202 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -722,7 +911,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Line Type - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Line Type - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 158172202 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -731,7 +920,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Line Type - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Line Type - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 2961552353 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -740,7 +929,16 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Name - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1101906057 - Field 4036074297 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No. of Functions]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field No. of Functions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 472338107 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -749,7 +947,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Result - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Result - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 472338107 - Property 62802879" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -758,7 +956,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Result - Property OptionCaption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Result - Property OptionCaption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 3851712227 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -767,7 +965,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Run - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Run - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 2326658492 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -776,7 +974,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Skip Logging Results - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Skip Logging Results - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 2169532623 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -785,7 +983,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Start Time - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Start Time - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 2020439447 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -794,7 +992,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Test Codeunit - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Test Codeunit - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 1101906057 - Field 1008249628 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -803,7 +1001,196 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table Test Method Line - Field Test Suite - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Method Line - Field Test Suite - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Property 2879900210" ItemType=";Table - Table" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 2925265002 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the data input for the test method line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Data Input - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 2925265002 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Data Input - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 3320823955 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the line number of the test method.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Line No. - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 3320823955 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Line No. - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 588697140 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the name of the test method.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Method Name - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 588697140 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Method Name]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Method Name - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 1199075795 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the test output.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Test Output - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 1199075795 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Test Output - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 1008249628 - Property 1295455071" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the test suite code.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Test Suite - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1199075795 - Field 1008249628 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Suite]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Table Test Output - Field Test Suite - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 743896460 - NamedType 2975766532" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DataInput - The element %1 does not exist.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Element name]D;]A;(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Input Json - NamedType ElementDoesNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 743896460 - NamedType 2699478749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DataInput - The element is not an array, use a different method.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Input Json - NamedType TheElementIsNotAnArrayErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3313963396 - NamedType 1723827963" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Choose a file to import]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Inputs Management - NamedType ChooseFileLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3313963396 - NamedType 1949805838" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Could not parse input dataset]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Inputs Management - NamedType CouldNotParseInputErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3313963396 - NamedType 776208850" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Could not parse JSONL input line: %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = JSON Line Content]D;]A;(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Inputs Management - NamedType CouldNotParseJsonlInputErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3313963396 - NamedType 3755293884" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Line type must be Codeunit.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Inputs Management - NamedType LineTypeMustBeCodeunitErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1790304243 - NamedType 2759911107" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[No data outputs were recorded.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Output Json - NamedType NoDataOutputsWereRecordedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1790304243 - NamedType 2699478749" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DataOutput - The element is not an array, use a different method.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Output Json - NamedType TheElementIsNotAnArrayErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1790304243 - NamedType 3745440729" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DataOutput - The element is not an object, use a different method.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Output Json - NamedType TheElementIsNotAnObjectErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1790304243 - NamedType 3769509942" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The data output is not initialized or is of the wrong type. It must be an Json object or array.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Output Json - NamedType WrongTypeOrNotInitializedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3805611020 - NamedType 1402129586" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -812,7 +1199,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Suite Mgt. - NamedType NoTestRunnerSelectedTxt)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Codeunit Test Suite Mgt. - NamedType NoTestRunnerSelectedTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 134090330 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -821,7 +1208,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Suites - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Suites - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 134090330 - Control 3461834954 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -830,7 +1217,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Suites - Control Description - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Suites - Control Description - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 134090330 - Control 1600162533 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -839,7 +1226,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Suites - Control Failures - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Suites - Control Failures - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 134090330 - Control 2961552353 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -848,7 +1235,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Suites - Control Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Suites - Control Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 134090330 - Control 663496373 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -857,7 +1244,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Suites - Control Tests not Executed - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Suites - Control Tests not Executed - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 134090330 - Control 2885114547 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -866,7 +1253,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Suites - Control Tests to Execute - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Suites - Control Tests to Execute - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -875,7 +1262,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - NamedType 2367821945" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -884,7 +1271,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - NamedType DeleteQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - NamedType DeleteQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1637095154 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -893,7 +1280,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Duration - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Duration - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1637095154 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -902,7 +1289,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Duration - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Duration - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 2852966117 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -911,7 +1298,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Error Message - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Error Message - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 2852966117 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -920,7 +1307,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Error Message - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Error Message - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 697060706 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -929,7 +1316,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control LineType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control LineType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 697060706 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -938,7 +1325,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control LineType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control LineType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 2961552353 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -947,7 +1334,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 2961552353 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -956,7 +1343,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 472338107 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -965,7 +1352,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Result - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Result - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 472338107 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -974,7 +1361,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Result - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Result - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 3851712227 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -983,7 +1370,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Run - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Run - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 3851712227 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -992,7 +1379,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control Run - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control Run - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 886819023 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1001,7 +1388,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control TestCodeunit - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control TestCodeunit - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 886819023 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1010,7 +1397,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control TestCodeunit - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control TestCodeunit - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1649497866 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1019,7 +1406,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control FailedTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control FailedTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1649497866 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1028,7 +1415,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control FailedTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control FailedTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 874664053 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1037,7 +1424,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control NotExecutedTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control NotExecutedTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 874664053 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1046,7 +1433,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control NotExecutedTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control NotExecutedTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 3256566943 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1055,7 +1442,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control SkippedTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control SkippedTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 3256566943 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1064,7 +1451,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control SkippedTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control SkippedTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 912582891 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1073,7 +1460,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control SuccessfulTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control SuccessfulTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 912582891 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1082,16 +1469,16 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control SuccessfulTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control SuccessfulTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 3299098061 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Specifies should all seesions be tracked]]></Val>
+      <Val><![CDATA[Specifies should all sessions be tracked]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control CodeCoverageTrackAllSesssions - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control CodeCoverageTrackAllSesssions - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 3299098061 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1100,7 +1487,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control CodeCoverageTrackAllSesssions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control CodeCoverageTrackAllSesssions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1142256824 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1109,7 +1496,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control CodeCoverageTrackingType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control CodeCoverageTrackingType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1142256824 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1118,7 +1505,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control CodeCoverageTrackingType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control CodeCoverageTrackingType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 731153284 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1127,7 +1514,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control CurrentSuiteName - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control CurrentSuiteName - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 731153284 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1136,7 +1523,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control CurrentSuiteName - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control CurrentSuiteName - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1361235378 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1145,7 +1532,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control TestRunner - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control TestRunner - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Control 1361235378 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1154,7 +1541,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Control TestRunner - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Control TestRunner - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 3800498712 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1163,7 +1550,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action Manage Tests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action Manage Tests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 2899503077 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1172,7 +1559,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action CodeCoverage - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action CodeCoverage - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 2899503077 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1181,7 +1568,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action CodeCoverage - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action CodeCoverage - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 4289051840 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1190,7 +1577,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action DeleteLines - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action DeleteLines - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 4289051840 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1199,7 +1586,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action DeleteLines - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action DeleteLines - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 305646876 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1208,7 +1595,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action GetTestCodeunits - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action GetTestCodeunits - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 305646876 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1217,7 +1604,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action GetTestCodeunits - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action GetTestCodeunits - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 3204022129 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1226,7 +1613,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action GetTestsByRange - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action GetTestsByRange - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 3204022129 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1235,7 +1622,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action GetTestsByRange - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action GetTestsByRange - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 3956397309 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1244,7 +1631,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action InvertRun - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action InvertRun - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 3956397309 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1253,7 +1640,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action InvertRun - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action InvertRun - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 1786113712 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1262,7 +1649,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action UpdateTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action UpdateTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 1786113712 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1271,7 +1658,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action UpdateTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action UpdateTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 2238733680 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1280,7 +1667,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action Run Tests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action Run Tests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 772403727 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1289,7 +1676,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action RunSelectedTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action RunSelectedTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 772403727 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1298,7 +1685,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action RunSelectedTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action RunSelectedTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 1070381552 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1307,7 +1694,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action RunTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action RunTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 1070381552 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1316,7 +1703,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action RunTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action RunTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 1008249628 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1325,7 +1712,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action Test Suite - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action Test Suite - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 2974805578 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1334,7 +1721,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action SelectTestRunner - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action SelectTestRunner - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1579170981 - Action 2974805578 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1343,7 +1730,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page AL Test Tool - Action SelectTestRunner - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page AL Test Tool - Action SelectTestRunner - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1352,7 +1739,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4122605658 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1361,7 +1748,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCExporterID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCExporterID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4122605658 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1370,7 +1757,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCExporterID - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCExporterID - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 216804570 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1379,7 +1766,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCInfo - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCInfo - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 216804570 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1388,7 +1775,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCInfo - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCInfo - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 617220784 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1397,7 +1784,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCMap - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCMap - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 617220784 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1406,7 +1793,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCMap - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCMap - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4276191793 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1415,7 +1802,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCMapCSVText - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCMapCSVText - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4276191793 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1424,7 +1811,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCMapCSVText - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCMapCSVText - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2731927499 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1433,7 +1820,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCResultsCSVText - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCResultsCSVText - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2731927499 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1442,7 +1829,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCResultsCSVText - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCResultsCSVText - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 1524157645 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1451,7 +1838,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCTrackAllSessions - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCTrackAllSessions - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 1524157645 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1460,7 +1847,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCTrackAllSessions - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCTrackAllSessions - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 590832353 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1469,7 +1856,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCTrackingType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCTrackingType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 590832353 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1478,7 +1865,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CCTrackingType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CCTrackingType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2763291245 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1487,7 +1874,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control ErrorMessage - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control ErrorMessage - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2763291245 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1496,7 +1883,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control ErrorMessage - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control ErrorMessage - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 1310838978 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1505,7 +1892,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control FinishTime - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control FinishTime - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 1310838978 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1514,7 +1901,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control FinishTime - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control FinishTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 697060706 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1523,7 +1910,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control LineType - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control LineType - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 697060706 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1532,7 +1919,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control LineType - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control LineType - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2961552353 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1541,7 +1928,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2961552353 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1550,7 +1937,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control Name - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control Name - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 472338107 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1559,7 +1946,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control Result - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control Result - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 472338107 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1568,7 +1955,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control Result - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control Result - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 3851712227 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1577,7 +1964,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control Run - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control Run - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 3851712227 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1586,7 +1973,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control Run - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control Run - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 97081137 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1595,7 +1982,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control StackTrace - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control StackTrace - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 97081137 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1604,7 +1991,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control StackTrace - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control StackTrace - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 530928583 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1613,7 +2000,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control StartTime - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control StartTime - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 530928583 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1622,7 +2009,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control StartTime - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control StartTime - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 886819023 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1631,7 +2018,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestCodeunit - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestCodeunit - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 886819023 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1640,7 +2027,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestCodeunit - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestCodeunit - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 731153284 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1649,7 +2036,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CurrentSuiteName - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CurrentSuiteName - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 731153284 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1658,7 +2045,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control CurrentSuiteName - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control CurrentSuiteName - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4037594367 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1667,7 +2054,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control DisableTestMethod - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control DisableTestMethod - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4037594367 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1676,7 +2063,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control DisableTestMethod - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control DisableTestMethod - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2417199384 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1685,7 +2072,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control ExtensionId - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control ExtensionId - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2417199384 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1694,7 +2081,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control ExtensionId - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control ExtensionId - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2310440504 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1703,7 +2090,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control StabilityRun - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control StabilityRun - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2310440504 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1712,7 +2099,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control StabilityRun - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control StabilityRun - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 3456222494 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1721,7 +2108,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestCodeunitRangeFilter - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestCodeunitRangeFilter - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 3456222494 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1730,7 +2117,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestCodeunitRangeFilter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestCodeunitRangeFilter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2972094448 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1739,7 +2126,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestProcedureRangeFilter - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestProcedureRangeFilter - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2972094448 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1748,7 +2135,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestProcedureRangeFilter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestProcedureRangeFilter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2118101425 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1757,7 +2144,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestResultJson - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestResultJson - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 2118101425 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1766,7 +2153,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestResultJson - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestResultJson - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4051482612 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1775,7 +2162,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestRunnerCodeunitId - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestRunnerCodeunitId - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Control 4051482612 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1784,7 +2171,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Control TestRunnerCodeunitId - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Control TestRunnerCodeunitId - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 4065007206 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1793,7 +2180,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action ClearCodeCoverage - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action ClearCodeCoverage - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 4065007206 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1802,7 +2189,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action ClearCodeCoverage - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action ClearCodeCoverage - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 562684735 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1811,7 +2198,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action ClearTestResults - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action ClearTestResults - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 562684735 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1820,7 +2207,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action ClearTestResults - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action ClearTestResults - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 4256570511 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1829,7 +2216,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action GetCodeCoverage - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action GetCodeCoverage - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 4256570511 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1838,7 +2225,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action GetCodeCoverage - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action GetCodeCoverage - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 1911664691 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1847,7 +2234,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action GetCodeCoverageMap - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action GetCodeCoverageMap - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 1911664691 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1856,7 +2243,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action GetCodeCoverageMap - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action GetCodeCoverageMap - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 2740126548 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1865,7 +2252,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action RunNextTest - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action RunNextTest - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 2740126548 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1874,7 +2261,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action RunNextTest - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action RunNextTest - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 772403727 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1883,7 +2270,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action RunSelectedTests - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action RunSelectedTests - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 1018362353 - Action 772403727 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1892,7 +2279,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Command Line Test Tool - Action RunSelectedTests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Command Line Test Tool - Action RunSelectedTests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2957074450 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1901,7 +2288,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select TestRunner - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select TestRunner - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2957074450 - Control 3711240756 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1910,7 +2297,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select TestRunner - Control Object ID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select TestRunner - Control Object ID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2957074450 - Control 1418569422 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1919,7 +2306,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select TestRunner - Control Object Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select TestRunner - Control Object Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3642842519 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1928,7 +2315,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select Tests - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3642842519 - Control 3711240756 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1937,7 +2324,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select Tests - Control Object ID - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests - Control Object ID - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 3642842519 - Control 1418569422 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1946,7 +2333,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select Tests - Control Object Name - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests - Control Object Name - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 625957419 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1955,7 +2342,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select Tests By Range - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests By Range - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 625957419 - Control 1024059636 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1964,7 +2351,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select Tests By Range - Control Selection Filter - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests By Range - Control Selection Filter - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 625957419 - Control 1024059636 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
@@ -1973,7 +2360,133 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Select Tests By Range - Control Selection Filter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Select Tests By Range - Control Selection Filter - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2831948500 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2831948500 - Control 2445482498 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[General]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input - Control General - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2175372352 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Groups - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2175372352 - Action 2726531340 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Import data-driven test inputs from a JSON or JSONL file]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Groups - Action ImportDataInputs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 2175372352 - Action 2726531340 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Import data-driven test inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Groups - Action ImportDataInputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3769155473 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Part - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3769155473 - NamedType 2930824504" ItemType=";Page - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Show data input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Part - NamedType ClickToShowLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3769155473 - Control 925401613 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the data input for the test method line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Part - Control InputTestInputText - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3769155473 - Control 925401613 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Part - Control InputTestInputText - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3769155473 - Action 2726531340 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Import data-driven test inputs from a JSON file]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Part - Action ImportDataInputs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 3769155473 - Action 2726531340 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Import]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Input Part - Action ImportDataInputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1675506558 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Outputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Outputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1675506558 - Control 3250000203 - Property 1295455071" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the test output for the test method line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Outputs - Control TestOutput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1675506558 - Control 3250000203 - Property 2879900210" ItemType=";Page - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Test Output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Outputs - Control TestOutput - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2655277403 - Property 2879900210" ItemType=";Page - Page" PsrId="63" InstFlg="true" Leaf="true">
@@ -1982,7 +2495,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Test Role Center - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Role Center - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2655277403 - Action 1361235378 - Property 1295455071" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -1991,7 +2504,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Test Role Center - Action TestRunner - Property ToolTip)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Role Center - Action TestRunner - Property ToolTip)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Page 2655277403 - Action 1361235378 - Property 2879900210" ItemType=";Page - Action" PsrId="63" InstFlg="true" Leaf="true">
@@ -2000,7 +2513,268 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Page Test Role Center - Action TestRunner - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Page Test Role Center - Action TestRunner - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 4038867584 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[DataDrivenTesting]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataDrivenTesting - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 1309646258 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Clear all data outputs.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ClearDataOutput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 1309646258 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Clear data output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ClearDataOutput - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 1248852815 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[View and manage data inputs.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataInputs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 1248852815 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataInputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 730065713 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Download data output for the current test runs.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataOutput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 730065713 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Download]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataOutput - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 3570798186 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expand the test line with data inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ExpandTestLine - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 3570798186 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expand test line with data inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ExpandTestLine - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 2726531340 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Import data-driven test inputs from a JSON file]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ImportDataInputs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 2726531340 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Import data-driven test inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ImportDataInputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 740772971 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[View data outputs for the current test runs.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ViewDataOutputs - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 740772971 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[View data outputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action ViewDataOutputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 3306267528 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data inputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataDrivenTest - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Action 867858344 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data outputs]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Action DataOutputs - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Control 2925265002 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the data input for the test method line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Control Data Input - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1579170981 - Control 2925265002 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1579170981)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension Data Driven Test Tool - Control Data Input - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Action 553511766 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the action for invoking ClearDataOutput procedure]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Action ClearDataOuput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Action 553511766 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Clear Data Output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Action ClearDataOuput - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Action 1219390819 - Property 1295455071" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the action for invoking GetDataOutput procedure]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Action GetDataOutput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Action 1219390819 - Property 2879900210" ItemType=";PageExtension - Action" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Get Data Output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Action GetDataOutput - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Control 4206597794 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the data input for the test method line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Control DataInput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Control 4206597794 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Control DataInput - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Control 730065713 - Property 1295455071" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the data output for the test method line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Control DataOutput - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Page 1018362353 - Control 730065713 - Property 2879900210" ItemType=";PageExtension - Control" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Output]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Page 1018362353)(Namespace=System.TestTools.TestRunner)(LookupHint=PageExtension DDT Command Line Test Tool - Control DataOutput - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1101906057 - Field 2925265002 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the data input code for the test method line]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 1101906057)(Namespace=System.TestTools.TestRunner)(LookupHint=TableExtension Test Input Method Line - Field Data Input - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1101906057 - Field 2925265002 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Input]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 1101906057)(Namespace=System.TestTools.TestRunner)(LookupHint=TableExtension Test Input Method Line - Field Data Input - Property Caption)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1101906057 - Field 3027051528 - Property 1295455071" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Specifies the code for the data input group.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 1101906057)(Namespace=System.TestTools.TestRunner)(LookupHint=TableExtension Test Input Method Line - Field Data Input Group Code - Property ToolTip)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Table 1101906057 - Field 3027051528 - Property 2879900210" ItemType=";TableExtension - Field" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Data Input Group Code]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(ObjectTarget=Table 1101906057)(Namespace=System.TestTools.TestRunner)(LookupHint=TableExtension Test Input Method Line - Field Data Input Group Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Profile 2123141259 - Property 2879900210" ItemType=";Profile - Profile" PsrId="63" InstFlg="true" Leaf="true">
@@ -2009,7 +2783,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Profile TestRoleCenter - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=Profile TestRoleCenter - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";PermissionSet 1361235378 - Property 2879900210" ItemType=";PermissionSet - PermissionSet" PsrId="63" InstFlg="true" Leaf="true">
@@ -2018,7 +2792,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=PermissionSet TestRunner - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(Namespace=System.TestTools.TestRunner)(LookupHint=PermissionSet TestRunner - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
 </LCX>

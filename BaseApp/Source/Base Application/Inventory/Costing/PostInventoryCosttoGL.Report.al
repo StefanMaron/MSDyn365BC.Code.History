@@ -276,7 +276,7 @@ report 1002 "Post Inventory Cost to G/L"
                         Window.Open(ProcessingItemsTxt);
                         if Post then begin
                             GLEntry.LockTable();
-                            if GLEntry.FindLast() then;
+                            GLEntry.GetLastEntryNo();
                         end;
 
                         OnAfterOnPreDataItem(PostValueEntryToGL, CompanyName());
@@ -714,9 +714,13 @@ report 1002 "Post Inventory Cost to G/L"
         EnterWhenPostingErr: Label 'Please enter a %1 when posting %2.', Comment = '%1 - field caption, %2 - posting type';
         DoNotEnterWhenPostingErr: Label 'Do not enter a %1 when posting %2.', Comment = '%1 - field caption, %2 - posting type';
         PostedPostingTypeTxt: Label 'Posted %1', Comment = '%1 - posting type';
+#pragma warning disable AA0470
         ProcessingItemsTxt: Label 'Processing items  #1##########';
+#pragma warning restore AA0470
         ItemNoLongerExistTxt: Label 'The item no. no longer exists.';
+#pragma warning disable AA0470
         ProcessingProdOrdersTxt: Label 'Processing production order  #1##########';
+#pragma warning restore AA0470
         Item: Record Item;
         GLSetup: Record "General Ledger Setup";
         InvtSetup: Record "Inventory Setup";
@@ -785,7 +789,9 @@ report 1002 "Post Inventory Cost to G/L"
         PrevCapValueEntryOrderNo: Code[20];
         TotalValueEntriesPostedToGL: Integer;
         IsJournalTemplNameMandatory: Boolean;
+#pragma warning disable AA0470
         StatisticsMsg: Label '%1 value entries have been posted to the general ledger.', Comment = '10 value entries have been posted to the general ledger.';
+#pragma warning restore AA0470
         NothingToPostMsg: Label 'There is nothing to post to the general ledger.';
         MissingJournalFieldErr: Label 'Please enter a %1 when posting inventory cost to G/L.', Comment = '%1 - field caption';
 

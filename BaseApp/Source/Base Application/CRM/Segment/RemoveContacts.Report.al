@@ -303,8 +303,10 @@ report 5186 "Remove Contacts"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Reducing Contacts @1@@@@@@@@@@@@@';
         Text001: Label 'Refining Contacts @1@@@@@@@@@@@@@';
+#pragma warning restore AA0074
         TempCont: Record Contact temporary;
         TempCont2: Record Contact temporary;
         TempCheckCont: Record Contact temporary;

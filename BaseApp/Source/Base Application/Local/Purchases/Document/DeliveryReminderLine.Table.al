@@ -32,7 +32,7 @@ table 5005271 "Delivery Reminder Line"
         {
             Caption = 'Order No.';
             Editable = false;
-            TableRelation = "Purchase Header"."No." WHERE("Document Type" = const(Order));
+            TableRelation = "Purchase Header"."No." where("Document Type" = const(Order));
         }
         field(4; "Order Line No."; Integer)
         {

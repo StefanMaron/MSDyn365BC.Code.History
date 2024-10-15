@@ -167,15 +167,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Cost Journal - NamedType BalCCAndCOErrorMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1485102566 - NamedType 2764492843" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Cost Journal - NamedType BlockedErrorMsg)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1485102566 - NamedType 685818202" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot define both cost center and cost object.]]></Val>
@@ -327,24 +318,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Reporting - NamedType ClosedEntryError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 179500298 - NamedType 2235505827" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Cost Budget Register does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Reporting - NamedType CostBudgetRegisterNotExisting)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 179500298 - NamedType 3897098104" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The Cost Register does not exist.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM CA Reporting - NamedType CostRegisterNotExisting)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 179500298 - NamedType 2485468057" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1049,15 +1022,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages - NamedType WrongFlowFilterValueErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 595849924 - NamedType 672887685" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Balance must be equal to '0']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Tables - NamedType BalanceEqualToZero)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 595849924 - NamedType 50463136" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The number of cost allocation targets is incorrect.]]></Val>
@@ -1272,15 +1236,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1=fieldcaption Line Type;%2=tablecaption Cost Center;@3= fieldvalue Line Type;@4=fieldvalue Line Type;@5=Line Type]D;]A;(LookupHint=Codeunit ERM Cost Accounting - Tables - NamedType Text016)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 595849924 - NamedType 557655741" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '%2'  in Cost Type: No.=%3. Current value is '%4'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=fieldcaption Blocked;%2=format(boolean);@3= fieldcaption No.;@4=format(boolean)]D;]A;(LookupHint=Codeunit ERM Cost Accounting - Tables - NamedType Text017)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 595849924 - NamedType 1366197332" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -16,7 +16,8 @@ enum 5768 "Warehouse Activity Source Document"
     value(10; "Outbound Transfer") { Caption = 'Outbound Transfer'; }
     value(11; "Prod. Consumption") { Caption = 'Prod. Consumption'; }
     value(12; "Prod. Output") { Caption = 'Prod. Output'; }
-    value(18; "Service Order") { Caption = 'Service Order'; }
+    // Implemented in enum extension Serv. Whse. Act. Source Doc.
+    // value(18; "Service Order") { Caption = 'Service Order'; }
     value(20; "Assembly Consumption") { Caption = 'Assembly Consumption'; }
     value(21; "Assembly Order") { Caption = 'Assembly Order'; }
     value(22; "Job Usage") { Caption = 'Project Usage'; }

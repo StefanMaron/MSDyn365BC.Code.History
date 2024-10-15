@@ -1,3 +1,8 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
+
 namespace System.IO;
 
 page 1238 "Transformation Rule Card"
@@ -46,18 +51,20 @@ page 1238 "Transformation Rule Card"
                 group(Control19)
                 {
                     ShowCaption = false;
-                    Visible = FindValueVisibleExpr;
+                    Visible = IsFindValueVisible;
+
                     field("Find Value"; Rec."Find Value")
                     {
                         ApplicationArea = Basic, Suite;
-                        ShowMandatory = FindValueVisibleExpr;
+                        ShowMandatory = IsFindValueVisible;
                         ToolTip = 'Specifies in the Transformation Rule table the rules for how text that was imported from an external file is transformed to a supported value that can be mapped to the specified field in Microsoft Dynamics 365.';
                     }
                 }
                 group(Control20)
                 {
                     ShowCaption = false;
-                    Visible = ReplaceValueVisibleExpr;
+                    Visible = IsReplaceValueVisible;
+
                     field("Replace Value"; Rec."Replace Value")
                     {
                         ApplicationArea = Basic, Suite;
@@ -67,7 +74,7 @@ page 1238 "Transformation Rule Card"
                 group(Control21)
                 {
                     ShowCaption = false;
-                    Visible = StartPositionVisibleExpr;
+                    Visible = IsStartPositionVisible;
                     field("Start Position"; Rec."Start Position")
                     {
                         ApplicationArea = Basic, Suite;
@@ -82,7 +89,7 @@ page 1238 "Transformation Rule Card"
                 group(Control22)
                 {
                     ShowCaption = false;
-                    Visible = LengthVisibleExpr;
+                    Visible = IsEndPositionVisible;
                     field(Length; Rec.Length)
                     {
                         ApplicationArea = Basic, Suite;
@@ -97,7 +104,7 @@ page 1238 "Transformation Rule Card"
                 group(Control23)
                 {
                     ShowCaption = false;
-                    Visible = DateFormatVisibleExpr;
+                    Visible = IsDataFormatVisible;
                     field("Data Format"; Rec."Data Format")
                     {
                         ApplicationArea = Basic, Suite;
@@ -107,7 +114,7 @@ page 1238 "Transformation Rule Card"
                 group(Control24)
                 {
                     ShowCaption = false;
-                    Visible = DateFormatVisibleExpr;
+                    Visible = IsDataFormatVisible;
                     field("Data Formatting Culture"; Rec."Data Formatting Culture")
                     {
                         ApplicationArea = Basic, Suite;
@@ -117,7 +124,7 @@ page 1238 "Transformation Rule Card"
                 group(LookupGroup)
                 {
                     Caption = 'Field Lookup Options';
-                    Visible = LookupGroupVisibleExpr;
+                    Visible = IsFieldLookupVisible;
                     field("Table ID"; Rec."Table ID")
                     {
                         ApplicationArea = Basic, Suite;
@@ -154,30 +161,32 @@ page 1238 "Transformation Rule Card"
                         ToolTip = 'Specifies the type of the field lookup. In case of Target the value from the Target Field ID will be taken as is, even if it is blank. In case of Original If Target Is Blank the original value will be taken if target one is blank.';
                     }
                 }
+
                 group(ExtractFromDate)
                 {
                     Caption = 'Extract From Date';
-                    Visible = ExtractFromDateVisibleExpr;
+                    Visible = IsExtractFromDateVisible;
                     field("Extract From Date Type"; Rec."Extract From Date Type")
                     {
                         ApplicationArea = Basic, Suite;
                         ToolTip = 'Specifies what should be extracted from the date.';
                     }
                 }
-            }
-            group(RoundGroup)
-            {
-                Caption = 'Round Options';
-                Visible = RoundGroupVisibleExpr;
-                field(Precision; Rec.Precision)
+                group(RoundGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies rounding precision.';
-                }
-                field(Direction; Rec.Direction)
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies rounding direction.';
+                    Caption = 'Round Options';
+                    Visible = IsRoundVisible;
+
+                    field(Precision; Rec.Precision)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies rounding precision.';
+                    }
+                    field(Direction; Rec.Direction)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies rounding direction.';
+                    }
                 }
             }
             group(Test)
@@ -226,32 +235,34 @@ page 1238 "Transformation Rule Card"
     end;
 
     var
-        FindValueVisibleExpr: Boolean;
-        ReplaceValueVisibleExpr: Boolean;
-        StartPositionVisibleExpr: Boolean;
-        LengthVisibleExpr: Boolean;
-        DateFormatVisibleExpr: Boolean;
-        LookupGroupVisibleExpr: Boolean;
-        RoundGroupVisibleExpr: Boolean;
-        ExtractFromDateVisibleExpr: Boolean;
-        TestText: Text;
-        ResultText: Text;
+        TestText, ResultText : Text;
         UpdateResultLbl: Label 'Update';
 
+    protected var
+        VisibleTransformationRuleGroups: List of [Enum "Transformation Rule Group"];
+        IsDataFormatVisible, IsFindValueVisible, IsReplaceValueVisible, IsStartPositionVisible, IsEndPositionVisible, IsFieldLookupVisible, IsExtractFromDateVisible, IsRoundVisible : Boolean;
+
     local procedure UpdateEnabled()
+    var
+        TransformationRule: Interface "Transformation Rule";
     begin
-        FindValueVisibleExpr :=
-          Rec."Transformation Type" in [Rec."Transformation Type"::Replace, Rec."Transformation Type"::"Regular Expression - Replace",
-                                    Rec."Transformation Type"::"Regular Expression - Match"];
-        ReplaceValueVisibleExpr :=
-          Rec."Transformation Type" in [Rec."Transformation Type"::"Regular Expression - Replace", Rec."Transformation Type"::Replace];
-        StartPositionVisibleExpr :=
-          Rec."Transformation Type" in [Rec."Transformation Type"::Substring];
-        LengthVisibleExpr :=
-          Rec."Transformation Type" in [Rec."Transformation Type"::Substring];
-        DateFormatVisibleExpr := Rec.IsDataFormatUpdateAllowed();
-        LookupGroupVisibleExpr := Rec."Transformation Type" = Rec."Transformation Type"::"Field Lookup";
-        RoundGroupVisibleExpr := Rec."Transformation Type" = Rec."Transformation Type"::Round;
-        ExtractFromDateVisibleExpr := Rec."Transformation Type" = Rec."Transformation Type"::"Extract From Date";
+        IsDataFormatVisible := Rec.IsDataFormatUpdateAllowed();
+
+        TransformationRule := Rec."Transformation Type";
+        TransformationRule.GetVisibleGroups(Rec, VisibleTransformationRuleGroups);
+        IsFindValueVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Find Value");
+        IsReplaceValueVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Replace Value");
+        IsStartPositionVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Start Position");
+        IsEndPositionVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"End Position");
+        IsFieldLookupVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Field Lookup");
+        IsExtractFromDateVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::"Extract from Date");
+        IsRoundVisible := VisibleTransformationRuleGroups.Contains(Enum::"Transformation Rule Group"::Round);
+
+        OnAfterUpdateEnabled(Rec, VisibleTransformationRuleGroups);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateEnabled(TransformationRule: Record "Transformation Rule"; var VisibleTransformationRuleGroups: List of [Enum "Transformation Rule Group"])
+    begin
     end;
 }

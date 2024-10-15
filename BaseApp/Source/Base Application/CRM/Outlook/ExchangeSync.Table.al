@@ -74,6 +74,8 @@ table 6700 "Exchange Sync"
     [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetExchangeAccountPassword(PasswordText: Text)
+    var
+        PasswordSecretText: SecretText;
     begin
         PasswordText := DelChr(PasswordText, '=', ' ');
         if PasswordText <> '' then
@@ -82,7 +84,8 @@ table 6700 "Exchange Sync"
         if IsNullGuid("Exchange Account Password Key") then
             "Exchange Account Password Key" := CreateGuid();
 
-        IsolatedStorageManagement.Set("Exchange Account Password Key", PasswordText, DATASCOPE::Company);
+        PasswordSecretText := PasswordText;
+        IsolatedStorageManagement.Set("Exchange Account Password Key", PasswordSecretText, DATASCOPE::Company);
     end;
 
     procedure GetExchangeEndpoint() Endpoint: Text[250]

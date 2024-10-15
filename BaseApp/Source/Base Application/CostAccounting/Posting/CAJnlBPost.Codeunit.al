@@ -15,9 +15,11 @@ codeunit 1107 "CA Jnl.-B. Post"
 
     var
         CostJnlBatch: Record "Cost Journal Batch";
+#pragma warning disable AA0074
         Text000: Label 'Do you want to post the journals?';
         Text001: Label 'The journals were successfully posted.';
         Text002: Label 'Not all journals were posted. The journals that were not successfully posted are now marked.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

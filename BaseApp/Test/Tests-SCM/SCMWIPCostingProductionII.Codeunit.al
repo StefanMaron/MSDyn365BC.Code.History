@@ -206,86 +206,6 @@ codeunit 137004 "SCM WIP Costing Production-II"
             "Production Order Status"::Released, true, false, false, true, true, false, false, false, false, false);
     end;
 
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure AvgForwardAddCurr()
-    begin
-        // [FEATURE] [Cost Average]
-        // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Forward.
-
-        SCMWIPCostingProductionII(
-            Enum::"Unit Cost Calculation Type"::Time, "Flushing Method"::Forward, DummyFlushingMethod, "Costing Method"::Average,
-            "Production Order Status"::Planned, false, false, true, false, false, false, false, false, false, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure AvgManCapCostDiffAddCurr()
-    begin
-        // [FEATURE] [Cost Average]
-        // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Manual. Output cost, consumption Cost, Run Time and Setup Time is  different from Expected.
-
-        SCMWIPCostingProductionII(
-            Enum::"Unit Cost Calculation Type"::Time, "Flushing Method"::Manual, DummyFlushingMethod, "Costing Method"::Average,
-            "Production Order Status"::Released, false, false, true, false, true, true, false, true, false, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure AvgForwardProdOrderCompAddCurr()
-    begin
-        // [FEATURE] [Cost Average]
-        // [SCENARIO] Test Average Costing for Additional Currency Of Flushing method Forward for Planned Production Order. Delete one Production Component.
-
-        SCMWIPCostingProductionII(
-            Enum::"Unit Cost Calculation Type"::Units, "Flushing Method"::Forward, DummyFlushingMethod, "Costing Method"::Average,
-            "Production Order Status"::Planned, false, true, true, false, false, false, false, false, false, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure AvgManualRoutingDiffAddCurr()
-    begin
-        // [FEATURE] [FIFO]
-        // [SCENARIO] Test Average Costing for Additional Currency of Flushing method - Manual. Update Production order routing.
-
-        SCMWIPCostingProductionII(
-            Enum::"Unit Cost Calculation Type"::Time, "Flushing Method"::Manual, DummyFlushingMethod, "Costing Method"::FIFO,
-            "Production Order Status"::Released, false, false, true, false, false, false, false, false, true, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure AvgSubconBackwardAddCurr()
-    begin
-        // [FEATURE] [Cost Average]
-        // [SCENARIO] Test Average Costing for Additional Currency of Subcontracting Order with Flushing method - Backward. Subcontract Work center as Manual.
-
-        SCMWIPCostingProductionII(
-            Enum::"Unit Cost Calculation Type"::Time, "Flushing Method"::Backward, "Flushing Method"::Manual, "Costing Method"::Average,
-            "Production Order Status"::Released, true, false, true, false, false, false, false, false, false, true);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
-    [Scope('OnPrem')]
-    procedure AvgSubconManCostDiffAddCurr()
-    begin
-        // [FEATURE] [Cost Average]
-        // [SCENARIO] Test Average Costing for Additional Currency of Subcontracting Order with Flushing method - Manual. Subcontract Work center as Backward.Subcontract and Output Cost different from Expected.
-
-        SCMWIPCostingProductionII(
-            Enum::"Unit Cost Calculation Type"::Units, "Flushing Method"::Manual, "Flushing Method"::Backward, "Costing Method"::Average,
-            "Production Order Status"::Released, false, false, true, true, true, false, false, false, false, true);
-    end;
-#endif
-
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -741,7 +661,6 @@ codeunit 137004 "SCM WIP Costing Production-II"
         CurrencyCode: Code[10];
         ProductionOrderNo: Code[20];
         AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type";
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         SetupTime: Decimal;
         RunTime: Decimal;
     begin
@@ -753,7 +672,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         RaiseConfirmHandler();
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
         if AdditionalCurrencyExist then
@@ -1658,31 +1577,27 @@ codeunit 137004 "SCM WIP Costing Production-II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            SetRange("Posting Date", PostingDate);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", CostAmount);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Posting Date", PostingDate);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmount);
     end;
 
     local procedure VerifyValueEntryValuationDate(ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ExpectedValuationDate: Date)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Order Line No.", ProdOrderLine."Line No.");
-            SetRange("Item No.", ItemNo);
-            SetRange("Item Ledger Entry Type", EntryType);
-            SetRange("Posting Date", PostingDate);
-            FindFirst();
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
+        ValueEntry.SetRange("Order Line No.", ProdOrderLine."Line No.");
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", EntryType);
+        ValueEntry.SetRange("Posting Date", PostingDate);
+        ValueEntry.FindFirst();
 
-            TestField("Valuation Date", ExpectedValuationDate);
-        end;
+        ValueEntry.TestField("Valuation Date", ExpectedValuationDate);
     end;
 
     [Normal]

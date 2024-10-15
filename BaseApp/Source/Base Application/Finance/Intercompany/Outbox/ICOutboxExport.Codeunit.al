@@ -43,9 +43,9 @@ codeunit 431 "IC Outbox Export"
         FileMgt: Codeunit "File Management";
         ClientTypeManagement: Codeunit "Client Type Management";
 
-        Text001: Label 'Intercompany transactions from %1.';
-        Text002: Label 'Attached to this mail is an xml file containing one or more intercompany transactions from %1 (%2 %3).';
+#pragma warning disable AA0074
         Text003: Label 'Do you want to complete line actions?';
+#pragma warning restore AA0074
         FolderPathMissingErr: Label 'Folder Path must have a value in IC Partner: Code=%1. It cannot be zero or empty.', Comment = '%1=Intercompany Code';
         EmailAddressMissingErr: Label 'Email Address must have a value in IC Partner: Code=%1. It cannot be zero or empty.', Comment = '%1=Intercompany Code';
 
@@ -108,10 +108,8 @@ codeunit 431 "IC Outbox Export"
 
     procedure SendToExternalPartner(var ICOutboxTrans: Record "IC Outbox Transaction")
     var
-        ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
         EmailItem: Record "Email Item";
-        MailHandler: Codeunit Mail;
         DocumentMailing: Codeunit "Document-Mailing";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         InStream: InStream;
@@ -210,14 +208,6 @@ codeunit 431 "IC Outbox Export"
                               SourceTableIDs,
                               SourceIDs,
                               SourceRelationTypes);
-                        end else begin
-                            ICSetup.Get();
-                            MailHandler.NewMessage(
-                              ToName, CcName, '',
-                              StrSubstNo(Text001, CompanyInfo.Name),
-                              StrSubstNo(
-                                Text002, CompanyInfo.Name, ICSetup.FieldCaption("IC Partner Code"), ICSetup."IC Partner Code"),
-                              FileName, false);
                         end;
                     end;
                     OnSendToExternalPartnerOnAfterDocWasSent(ICPartner, FileName);

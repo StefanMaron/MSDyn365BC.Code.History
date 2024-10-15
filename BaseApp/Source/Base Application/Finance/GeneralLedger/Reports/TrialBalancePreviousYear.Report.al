@@ -214,7 +214,11 @@ report 7 "Trial Balance/Previous Year"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Period: %1..%2 versus %3..%4';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NetChangeIncreasePct: Decimal;
         BalanceIncreasePct: Decimal;
         LongText1: array[4] of Text[132];

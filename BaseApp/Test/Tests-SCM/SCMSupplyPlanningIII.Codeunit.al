@@ -459,7 +459,7 @@
         CreateMQItem(Item, LibraryRandom.RandDec(5, 2) + 100, 0, 0);  // Reorder Point and Order Multiple not required.
 
         // Create Sales Order with two lines. Create second Sales Line with same Sales Qty but with Different Shipment date.
-        SalesQty := LibraryRandom.RandDec(10, 2) + 100;
+        SalesQty := LibraryRandom.RandDecInRange(10, 20, 2) + 100;
         CreateSalesOrder(SalesHeader, Item."No.", SalesQty);
         NewShipmentDate := GetRequiredDate(1, 1, WorkDate());  // Shipment Date relative to Work Date.
         LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", NewShipmentDate, SalesQty);
@@ -488,7 +488,7 @@
         // Setup: Create Maximum Quantity Item with planning parameters.
         Initialize();
         PurchaseQty := LibraryRandom.RandDec(5, 2);
-        CreateMQItem(Item, PurchaseQty + 100, PurchaseQty, PurchaseQty + 10);  // Maximum Inventory, Reorder Point and Order Multiple.
+        CreateMQItem(Item, PurchaseQty * 11, PurchaseQty, PurchaseQty * 7);  // Maximum Inventory, Reorder Point and Order Multiple.
 
         // Create Purchase Order with required quantity.
         CreatePurchaseOrder(Item."No.", PurchaseQty);
@@ -626,17 +626,14 @@
         // Exercise: Calculate regenerative Plan for Planning Worksheet.
         EndDate := GetRequiredDate(10, 20, WorkDate());  // End Date relative to Workdate.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
-
         // Verify: Verify lines in Planning Worksheet.
-        with RequisitionLine do begin
-            VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Transfer, LocationRed.Code, "Action Message"::Cancel, 0, TransferQty, WorkDate());
-            VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Reorder Quantity", 0,
-              SelectDateWithSafetyLeadTime(WorkDate(), 1));
-            VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Safety Stock Quantity", 0, WorkDate());
-        end;
+        VerifyRequisitionLineWithLocationActionAndRefOrderType(
+          Item."No.", RequisitionLine."Ref. Order Type"::Transfer, LocationRed.Code, RequisitionLine."Action Message"::Cancel, 0, TransferQty, WorkDate());
+        VerifyRequisitionLineWithLocationActionAndRefOrderType(
+          Item."No.", RequisitionLine."Ref. Order Type"::Purchase, '', RequisitionLine."Action Message"::New, Item."Reorder Quantity", 0,
+          SelectDateWithSafetyLeadTime(WorkDate(), 1));
+        VerifyRequisitionLineWithLocationActionAndRefOrderType(
+          Item."No.", RequisitionLine."Ref. Order Type"::Purchase, '', RequisitionLine."Action Message"::New, Item."Safety Stock Quantity", 0, WorkDate());
     end;
 
     [Test]
@@ -660,15 +657,12 @@
         // Exercise: Calculate regenerative Plan for Planning Worksheet.
         EndDate := GetRequiredDate(10, 20, WorkDate());  // End Date relative to Workdate.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), EndDate);
-
         // Verify: Verify lines in Planning Worksheet.
-        with RequisitionLine do begin
-            VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Transfer, LocationRed.Code, "Action Message"::Cancel, 0, TransferQty, WorkDate());
-            VerifyRequisitionLineWithLocationActionAndRefOrderType(
-              Item."No.", "Ref. Order Type"::Purchase, '', "Action Message"::New, Item."Maximum Inventory", 0,
-              SelectDateWithSafetyLeadTime(WorkDate(), 1));
-        end;
+        VerifyRequisitionLineWithLocationActionAndRefOrderType(
+          Item."No.", RequisitionLine."Ref. Order Type"::Transfer, LocationRed.Code, RequisitionLine."Action Message"::Cancel, 0, TransferQty, WorkDate());
+        VerifyRequisitionLineWithLocationActionAndRefOrderType(
+          Item."No.", RequisitionLine."Ref. Order Type"::Purchase, '', RequisitionLine."Action Message"::New, Item."Maximum Inventory", 0,
+          SelectDateWithSafetyLeadTime(WorkDate(), 1));
     end;
 
     [Test]
@@ -773,7 +767,7 @@
         SalesQty := LibraryRandom.RandDec(5, 2);
         CreateMQItem(Item, SalesQty + 100, SalesQty, SalesQty + 10);  // Maximum Inventory, Reorder Point and Order Multiple.
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationBlue.Code, Item."No.", '');
-        UpdateItemInventoryOnLocation(Item."No.", LocationBlue.Code);
+        UpdateItemInventoryOnLocation(Item."No.", LocationBlue.Code, SalesQty + 5);
 
         // Create Sales Order on Location.
         CreateSalesOrderWithLocation(Item."No.", SalesQty, LocationBlue.Code);
@@ -813,7 +807,7 @@
         SalesQty := LibraryRandom.RandDec(5, 2);
         CreateItem(Item, Item."Reordering Policy"::Order, Item."Replenishment System"::Purchase);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationBlue.Code, Item."No.", '');
-        UpdateItemInventoryOnLocation(Item."No.", LocationBlue.Code);
+        UpdateItemInventoryOnLocation(Item."No.", LocationBlue.Code, SalesQty / 2);
 
         // Create Sales Order on Location.
         CreateSalesOrderWithLocation(Item."No.", SalesQty, LocationBlue.Code);
@@ -2523,7 +2517,7 @@
         // [GIVEN] Certified Routing for Item "I2" with one line for Work Center (works 0800 - 1600). Run Time is 1 hour, Wait Time is 2 hours.
         CreateProductionItemWithOneLineRouting(ChildItem, 0, 60, 120, 0, 080000T, 160000T);
         UpdateManufacturingPolicyOnItem(ChildItem, "Manufacturing Policy"::"Make-to-Order");
-        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.", 1);
         CreateProductionItemWithOneLineRouting(Item, 0, 420, 0, 0, 080000T, 160000T);
         UpdateManufacturingPolicyOnItem(Item, "Manufacturing Policy"::"Make-to-Order");
         UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
@@ -2688,7 +2682,7 @@
         // [GIVEN] Certified Routing for Item "I2" with one line for Work Center (works 0800 - 1600). Run Time is 1 hour, Wait Time is 2 hours.
         CreateProductionItemWithOneLineRouting(ChildItem, 0, 60, 120, 0, 080000T, 160000T);
         UpdateManufacturingPolicyOnItem(ChildItem, "Manufacturing Policy"::"Make-to-Order");
-        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.", 1);
         CreateProductionItemWithOneLineRouting(Item, 0, 420, 0, 0, 080000T, 160000T);
         UpdateManufacturingPolicyOnItem(Item, "Manufacturing Policy"::"Make-to-Order");
         UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
@@ -3158,11 +3152,9 @@
 
     local procedure CreateMOQItem(var Item: Record Item; MaximumOrderQty: Decimal)
     begin
-        with Item do begin
-            CreateItem(Item, "Reordering Policy"::"Lot-for-Lot", "Replenishment System"::Purchase);
-            Validate("Maximum Order Quantity", MaximumOrderQty);
-            Modify(true);
-        end;
+        CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::Purchase);
+        Item.Validate("Maximum Order Quantity", MaximumOrderQty);
+        Item.Modify(true);
     end;
 
     local procedure CreateOrderItemSetup(var ChildItem: Record Item; var Item: Record Item) QtyPer: Integer
@@ -3404,15 +3396,20 @@
     end;
 
     local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]) QtyPer: Integer
+    begin
+        QtyPer := LibraryRandom.RandInt(5);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ItemNo, QtyPer);
+    end;
+
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo: Code[20]; QtyPer: Integer)
     var
         ProductionBOMLine: Record "Production BOM Line";
         Item: Record Item;
     begin
-        QtyPer := LibraryRandom.RandInt(5);
         Item.Get(ItemNo);
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
         LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QtyPer);
+            ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, Item."No.", QtyPer);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
     end;
@@ -3603,26 +3600,31 @@
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        Quantity := CreateItemJournalLine(ItemJournalLine, ItemNo, EntryType);
+        Quantity := LibraryRandom.RandDec(10, 2);
+        CreateItemJournalLine(ItemJournalLine, ItemNo, EntryType, Quantity);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure UpdateItemInventoryOnLocation(ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure UpdateItemInventoryOnLocation(ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        CreateItemJournalLine(ItemJournalLine, ItemNo, ItemJournalLine."Entry Type"::"Positive Adjmt.");
+        CreateItemJournalLine(ItemJournalLine, ItemNo, ItemJournalLine."Entry Type"::"Positive Adjmt.", Quantity);
         ItemJournalLine.Validate("Location Code", LocationCode);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type") Quantity: Decimal
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type");
+    begin
+        CreateItemJournalLine(ItemJournalLine, ItemNo, EntryType, LibraryRandom.RandDec(10, 2));
+    end;
+
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal);
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        Quantity := LibraryRandom.RandDec(10, 2);
         LibraryInventory.CreateItemJournalLine(
-          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
+            ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
     end;
 
     local procedure CreateAndReleaseSalesOrderAsSpecialOrder(ItemNo: Code[20]; Quantity: Decimal)
@@ -3734,13 +3736,11 @@
 
     local procedure FindSalesLines(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; ItemNo: Code[20])
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindSet();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange(Type, SalesLine.Type::Item);
+        SalesLine.SetRange("No.", ItemNo);
+        SalesLine.FindSet();
     end;
 
     local procedure CreateProductionForecastSetup(ItemNo: Code[20]; MultipleLines: Boolean; var ProductionForecastName: Record "Production Forecast Name") ForecastQty: Integer
@@ -3826,7 +3826,7 @@
         CalcRegenPlanForPlanWkshPage(ItemNo, ItemNo2);
     end;
 
-    local procedure SelectReferenceOrderType(ItemNo: Code[20]) RefOrderType: Integer
+    local procedure SelectReferenceOrderType(ItemNo: Code[20]) RefOrderType: Enum "Requisition Ref. Order Type"
     var
         Item: Record Item;
         RequisitionLine: Record "Requisition Line";
@@ -4049,14 +4049,12 @@
         ItemJournalLine: Record "Item Journal Line";
     begin
         LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
-        with ItemJournalBatch do begin
-            LibraryInventory.CreateItemJournalLine(
-              ItemJournalLine, "Journal Template Name", Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-              ItemNo, AdjustmentQty);
-            ItemJournalLine.Validate("Location Code", LocationCode);
-            ItemJournalLine.Modify(true);
-            LibraryInventory.PostItemJournalLine("Journal Template Name", Name);
-        end;
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          ItemNo, AdjustmentQty);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
     local procedure FilterReservationEntry(var ReservationEntry: Record "Reservation Entry"; ItemNo: Code[20]; LocationCode: Code[10])
@@ -4230,7 +4228,7 @@
         Assert.IsTrue(RequisitionLine.IsEmpty, StrSubstNo(RequisitionLineMustNotExistErr, ItemNo));
     end;
 
-    local procedure VerifyRequisitionLineQty(ItemNo: Code[20]; Quantity: Decimal; RefOrderType: Option)
+    local procedure VerifyRequisitionLineQty(ItemNo: Code[20]; Quantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type")
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4268,7 +4266,7 @@
           RequisitionLine, TempRequisitionLine.Quantity, TempRequisitionLine."Original Quantity", TempRequisitionLine."Ref. Order Type");
     end;
 
-    local procedure VerifyRequisitionLine(RequisitionLine: Record "Requisition Line"; Quantity: Decimal; OriginalQuantity: Decimal; RefOrderType: Option)
+    local procedure VerifyRequisitionLine(RequisitionLine: Record "Requisition Line"; Quantity: Decimal; OriginalQuantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type")
     begin
         RequisitionLine.TestField(Quantity, Quantity);
         RequisitionLine.TestField("Original Quantity", OriginalQuantity);
@@ -4278,7 +4276,7 @@
     local procedure VerifyRequisitionLineWithDueDate(ItemNo: Code[20]; Quantity: Decimal; DueDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
-        RefOrderType: Option;
+        RefOrderType: Enum "Requisition Ref. Order Type";
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
         RefOrderType := SelectReferenceOrderType(ItemNo);
@@ -4287,18 +4285,16 @@
         VerifyRequisitionLine(RequisitionLine, Quantity, 0, RefOrderType);  // Original Qty - Zero.
     end;
 
-    local procedure VerifyRequisitionLineWithLocationActionAndRefOrderType(ItemNo: Code[20]; RefOrderType: Option; LocationCode: Code[10]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; OriginalQuantity: Decimal; DueDate: Date)
+    local procedure VerifyRequisitionLineWithLocationActionAndRefOrderType(ItemNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; LocationCode: Code[10]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; OriginalQuantity: Decimal; DueDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
     begin
         FilterOnRequisitionLine(RequisitionLine, ItemNo);
-        with RequisitionLine do begin
-            SetRange("Location Code", LocationCode);
-            SetRange("Ref. Order Type", RefOrderType);
-            SetRange("Action Message", ActionMessage);
-            SetRange("Due Date", DueDate);
-            FindFirst();
-        end;
+        RequisitionLine.SetRange("Location Code", LocationCode);
+        RequisitionLine.SetRange("Ref. Order Type", RefOrderType);
+        RequisitionLine.SetRange("Action Message", ActionMessage);
+        RequisitionLine.SetRange("Due Date", DueDate);
+        RequisitionLine.FindFirst();
         VerifyRequisitionLine(RequisitionLine, Quantity, OriginalQuantity, RefOrderType);  // Original Qty - Zero.
     end;
 
@@ -4307,19 +4303,17 @@
         SalesLine: Record "Sales Line";
         RequisitionLine: Record "Requisition Line";
     begin
-        with SalesLine do begin
-            FindSalesLines(SalesLine, SalesHeader, ItemNo);
+        FindSalesLines(SalesLine, SalesHeader, ItemNo);
 
-            FilterOnRequisitionLine(RequisitionLine, ItemNo);
-            Assert.RecordCount(RequisitionLine, Count);
+        FilterOnRequisitionLine(RequisitionLine, ItemNo);
+        Assert.RecordCount(RequisitionLine, SalesLine.Count);
 
-            repeat
-                VerifyRequisitionLineWithDueDate("No.", Quantity, "Shipment Date");
-            until Next() = 0;
-        end;
+        repeat
+            VerifyRequisitionLineWithDueDate(SalesLine."No.", SalesLine.Quantity, SalesLine."Shipment Date");
+        until SalesLine.Next() = 0;
     end;
 
-    local procedure VerifyRequisitionLineDates(ItemNo: Code[20]; RefOrderType: Option; ActionMessage: Enum "Action Message Type"; ExpDueDate: Date; ExpStartDate: Date; ExpEndDate: Date)
+    local procedure VerifyRequisitionLineDates(ItemNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; ActionMessage: Enum "Action Message Type"; ExpDueDate: Date; ExpStartDate: Date; ExpEndDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4332,7 +4326,7 @@
         RequisitionLine.TestField("Ending Date", ExpEndDate);
     end;
 
-    local procedure VerifyRequisitionLineStartEndDateTime(ItemNo: Code[20]; RefOrderType: Option; ActionMessage: Enum "Action Message Type"; ExpStartingDateTime: DateTime; ExpEndingDateTime: DateTime)
+    local procedure VerifyRequisitionLineStartEndDateTime(ItemNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; ActionMessage: Enum "Action Message Type"; ExpStartingDateTime: DateTime; ExpEndingDateTime: DateTime)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4414,12 +4408,10 @@
 
     local procedure VerifyGrossReqAndScheduledRecOnBOMTree(var BOMBuffer: Record "BOM Buffer"; ItemNo: Code[20]; ScheduledReceiptsQty: Decimal; GrossRequirementQty: Decimal)
     begin
-        with BOMBuffer do begin
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(ScheduledReceiptsQty, "Scheduled Receipts", '');
-            Assert.AreEqual(GrossRequirementQty, "Gross Requirement", '');
-        end;
+        BOMBuffer.SetRange("No.", ItemNo);
+        BOMBuffer.FindFirst();
+        Assert.AreEqual(ScheduledReceiptsQty, BOMBuffer."Scheduled Receipts", '');
+        Assert.AreEqual(GrossRequirementQty, BOMBuffer."Gross Requirement", '');
     end;
 
     local procedure AreSameMessages(Message: Text[1024]; Message2: Text[1024]): Boolean

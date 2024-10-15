@@ -102,14 +102,20 @@ table 5640 "Main Asset Component"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label '%1 is not a %2.';
         Text002: Label '%1 is a %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         FA: Record "Fixed Asset";
         FADeprBook: Record "FA Depreciation Book";
         MainAssetComp: Record "Main Asset Component";
         DepreciationCalc: Codeunit "Depreciation Calculation";
+#pragma warning disable AA0074
         Text003: Label 'Main Asset,Component';
+#pragma warning restore AA0074
 
     local procedure LockFixedAsset()
     begin

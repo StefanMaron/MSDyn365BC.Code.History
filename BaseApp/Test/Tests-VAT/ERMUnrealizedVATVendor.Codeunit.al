@@ -1221,15 +1221,13 @@
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::Payment, "Account Type"::Vendor, VendorNo, PmtAmount);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", AppliesToInvoiceNo);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo, PmtAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToInvoiceNo);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePostSalesInvoiceForGivenCustomer(VendorNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[10]; DirectUnitCost: Decimal): Code[20]
@@ -1278,12 +1276,10 @@
 
     local procedure FilterVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountFilter: Text)
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Purchase);
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetFilter(Amount, AmountFilter)
-        end;
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetFilter(Amount, AmountFilter)
     end;
 
     local procedure FindPostedInvoiceNo(PreAssignedNo: Code[20]): Code[20]
@@ -1324,29 +1320,23 @@
 
     local procedure FindUnrealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            FilterVATEntry(VATEntry, DocumentType, DocumentNo, '=0');
-            SetRange("Unrealized VAT Entry No.", 0);
-            FindFirst();
-        end;
+        FilterVATEntry(VATEntry, DocumentType, DocumentNo, '=0');
+        VATEntry.SetRange("Unrealized VAT Entry No.", 0);
+        VATEntry.FindFirst();
     end;
 
     local procedure FindPositiveRealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            FilterVATEntry(VATEntry, DocumentType, DocumentNo, '>0');
-            SetFilter("Unrealized VAT Entry No.", '<>%1', 0);
-            FindFirst();
-        end;
+        FilterVATEntry(VATEntry, DocumentType, DocumentNo, '>0');
+        VATEntry.SetFilter("Unrealized VAT Entry No.", '<>%1', 0);
+        VATEntry.FindFirst();
     end;
 
     local procedure FindNegativeRealVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
-        with VATEntry do begin
-            FilterVATEntry(VATEntry, DocumentType, DocumentNo, '<0');
-            SetFilter("Unrealized VAT Entry No.", '<>%1', 0);
-            FindFirst();
-        end;
+        FilterVATEntry(VATEntry, DocumentType, DocumentNo, '<0');
+        VATEntry.SetFilter("Unrealized VAT Entry No.", '<>%1', 0);
+        VATEntry.FindFirst();
     end;
 
     local procedure FindLastVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])
@@ -1402,11 +1392,9 @@
 
     local procedure UpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; UnrealizedVATType: Option)
     begin
-        with VATPostingSetup do begin
-            Validate("Unrealized VAT Type", UnrealizedVATType);
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("Unrealized VAT Type", UnrealizedVATType);
+        VATPostingSetup.Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure UpdateVendorCreditMemoNo(var PurchaseHeader: Record "Purchase Header")
@@ -1495,14 +1483,12 @@
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        with VendorLedgerEntry do begin
-            SetRange("Vendor No.", VendorNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(ExpectedAmount, Amount, FieldCaption(Amount));
-            Assert.AreEqual(ExpectedRemAmount, "Remaining Amount", FieldCaption("Remaining Amount"));
-        end;
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document No.", DocumentNo);
+        VendorLedgerEntry.FindFirst();
+        VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreEqual(ExpectedAmount, VendorLedgerEntry.Amount, VendorLedgerEntry.FieldCaption(Amount));
+        Assert.AreEqual(ExpectedRemAmount, VendorLedgerEntry."Remaining Amount", VendorLedgerEntry.FieldCaption("Remaining Amount"));
     end;
 
     local procedure VerifyPositiveVATEntry(DocumentNo: Code[20]; ExpectedVATBaseAmount: Decimal; ExpectedVATAmount: Decimal)
@@ -1556,18 +1542,16 @@
         VATEntry: Record "VAT Entry";
         i: Integer;
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Purchase);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", InvoiceNo);
-            FindSet();
-            for i := ArrayLen(PurchaseLine) downto 1 do begin
-                VerifyUnrealizedVATEntryAmounts(
-                  VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
-                VATEntryNo[ArrayLen(PurchaseLine) - i + 1] := "Entry No.";
-                Next();
-            end;
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.SetRange("Document No.", InvoiceNo);
+        VATEntry.FindSet();
+        for i := ArrayLen(PurchaseLine) downto 1 do begin
+            VerifyUnrealizedVATEntryAmounts(
+              VATEntry, PurchaseLine[i].Amount, PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount, 0, 0);
+            VATEntryNo[ArrayLen(PurchaseLine) - i + 1] := VATEntry."Entry No.";
+            VATEntry.Next();
         end;
     end;
 
@@ -1576,23 +1560,21 @@
         VATEntry: Record "VAT Entry";
         i: Integer;
     begin
-        with VATEntry do begin
-            SetRange(Type, Type::Purchase);
-            SetRange("Bill-to/Pay-to No.", CVNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            SetRange("Document No.", PaymentNo);
-            FindSet();
-            for i := ArrayLen(PurchaseLine) downto 1 do begin
-                Assert.AreEqual(
-                  UnrealVATEntryNo[ArrayLen(PurchaseLine) - i + 1],
-                  "Unrealized VAT Entry No.",
-                  FieldCaption("Unrealized VAT Entry No."));
-                VerifyRealizedVATEntryAmounts(
-                  VATEntry,
-                  PurchaseLine[i].Amount * VATPart,
-                  (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
-                Next();
-            end;
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
+        VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Payment);
+        VATEntry.SetRange("Document No.", PaymentNo);
+        VATEntry.FindSet();
+        for i := ArrayLen(PurchaseLine) downto 1 do begin
+            Assert.AreEqual(
+              UnrealVATEntryNo[ArrayLen(PurchaseLine) - i + 1],
+              VATEntry."Unrealized VAT Entry No.",
+              VATEntry.FieldCaption("Unrealized VAT Entry No."));
+            VerifyRealizedVATEntryAmounts(
+              VATEntry,
+              PurchaseLine[i].Amount * VATPart,
+              (PurchaseLine[i]."Amount Including VAT" - PurchaseLine[i].Amount) * VATPart);
+            VATEntry.Next();
         end;
     end;
 
@@ -1601,31 +1583,27 @@
         InvoiceVATEntry: Record "VAT Entry";
         CrMemoVATEntry: Record "VAT Entry";
     begin
-        with InvoiceVATEntry do begin
-            FindUnrealVATEntry(InvoiceVATEntry, "Document Type"::Invoice, InvoiceNo);
-            TestField("Remaining Unrealized Base", 0);
-            TestField("Remaining Unrealized Amount", 0);
-        end;
+        FindUnrealVATEntry(InvoiceVATEntry, InvoiceVATEntry."Document Type"::Invoice, InvoiceNo);
+        InvoiceVATEntry.TestField("Remaining Unrealized Base", 0);
+        InvoiceVATEntry.TestField("Remaining Unrealized Amount", 0);
 
-        with CrMemoVATEntry do begin
-            SetRange("Document No.", CrMemoNo);
-            Assert.RecordCount(CrMemoVATEntry, 3);
+        CrMemoVATEntry.SetRange("Document No.", CrMemoNo);
+        Assert.RecordCount(CrMemoVATEntry, 3);
 
-            FindUnrealVATEntry(CrMemoVATEntry, "Document Type"::"Credit Memo", CrMemoNo);
-            TestField("Unrealized Base", -UnrealBase);
-            TestField("Unrealized Amount", -UnrealAmount);
-            TestField("Remaining Unrealized Base", -UnrealBase + RealBase);
-            TestField("Remaining Unrealized Amount", -UnrealAmount + RealAmount);
+        FindUnrealVATEntry(CrMemoVATEntry, CrMemoVATEntry."Document Type"::"Credit Memo", CrMemoNo);
+        CrMemoVATEntry.TestField("Unrealized Base", -UnrealBase);
+        CrMemoVATEntry.TestField("Unrealized Amount", -UnrealAmount);
+        CrMemoVATEntry.TestField("Remaining Unrealized Base", -UnrealBase + RealBase);
+        CrMemoVATEntry.TestField("Remaining Unrealized Amount", -UnrealAmount + RealAmount);
 
-            FindNegativeRealVATEntry(CrMemoVATEntry, "Document Type"::"Credit Memo", CrMemoNo);
-            TestField(Base, -RealBase);
-            TestField(Amount, -RealAmount);
+        FindNegativeRealVATEntry(CrMemoVATEntry, CrMemoVATEntry."Document Type"::"Credit Memo", CrMemoNo);
+        CrMemoVATEntry.TestField(Base, -RealBase);
+        CrMemoVATEntry.TestField(Amount, -RealAmount);
 
-            FindPositiveRealVATEntry(CrMemoVATEntry, "Document Type"::"Credit Memo", CrMemoNo);
-            TestField(Base, RealBase);
-            TestField(Amount, RealAmount);
-            TestField("Unrealized VAT Entry No.", InvoiceVATEntry."Entry No.");
-        end;
+        FindPositiveRealVATEntry(CrMemoVATEntry, CrMemoVATEntry."Document Type"::"Credit Memo", CrMemoNo);
+        CrMemoVATEntry.TestField(Base, RealBase);
+        CrMemoVATEntry.TestField(Amount, RealAmount);
+        CrMemoVATEntry.TestField("Unrealized VAT Entry No.", InvoiceVATEntry."Entry No.");
     end;
 
     local procedure VerifyUnrealizedGainLossesGLEntries(CurrencyCode: Code[10]; PaymentNo: Code[20]; GainLossAmt: Decimal)

@@ -11,7 +11,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Ledger;
 using Microsoft.Projects.Project.Planning;
-using Microsoft.Service.Posting;
 using Microsoft.Utilities;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
@@ -1828,15 +1827,6 @@ codeunit 6516 "Package Management"
                 WarehouseActivityLine."Variant Code", TempWhseActivLine)) < WarehouseActivityLine."Qty. to Handle (Base)"
         then
             Error(InventoryNotAvailableErr, WarehouseActivityLine.FieldCaption("Package No."), ItemTrkgCode);
-    end;
-
-    // ServItemTrackingRsrvMgt.Codeunit.al
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Serv-Item Tracking Rsrv. Mgt.", 'OnAfterCheckTrackingExists', '', false, false)]
-    local procedure ServItemTrackingRsrvMgtOnAfterCheckTrackingExists(var ReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
-    begin
-        ReservEntry.SetFilter("Package No.", '<>%1', '');
-        IsHandled := not ReservEntry.IsEmpty();
     end;
 
     // WMS Management

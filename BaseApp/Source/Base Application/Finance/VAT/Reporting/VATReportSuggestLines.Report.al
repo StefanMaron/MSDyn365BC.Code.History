@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ report 741 "VAT Report Suggest Lines"
     {
         dataitem(VATReportHeader; "VAT Report Header")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
             dataitem(VATEntrySales; "VAT Entry")
             {
                 DataItemTableView = sorting(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") where(Type = const(Sale));
@@ -227,7 +227,7 @@ report 741 "VAT Report Suggest Lines"
                     else
                         SkipLine := true;
 
-                if not SkipLine then begin
+                if not SkipLine then
                     if not GetKeyInReport(TempVATReportLine, VATReportLine2, VATReportHeader."Original Report No.", true) then begin
                         VATReportLine := TempVATReportLine;
                         VATReportLine.Amount := Round(TempVATReportLine.Amount, 1);
@@ -247,7 +247,6 @@ report 741 "VAT Report Suggest Lines"
                         if HaveDifferentRelations(VATReportLine2, TempVATReportLine) then
                             TempVATReportLine.InsertCorrLine(
                               VATReportHeader, VATReportLine2, TempVATReportLine, TempVATReportLineRelation);
-                end;
             until TempVATReportLine.Next() = 0;
     end;
 
@@ -263,9 +262,9 @@ report 741 "VAT Report Suggest Lines"
         ExistingVATReportLine.Reset();
         ExistingVATReportLine.SetRange("VAT Report to Correct", VATReportHeader."Original Report No.");
         ExistingVATReportLine.SetRange("Able to Correct Line", true);
-        if ExistingVATReportLine.FindSet() then begin
+        if ExistingVATReportLine.FindSet() then
             repeat
-                if ExistingVATReportLine.Base <> 0 then begin
+                if ExistingVATReportLine.Base <> 0 then
                     if not GetKeyInReport(ExistingVATReportLine, TempVATReportLine, VATReportHeader."No.", false) then begin
                         SkipLine := false;
 
@@ -288,9 +287,7 @@ report 741 "VAT Report Suggest Lines"
                               VATReportHeader, ExistingVATReportLine, CancelVATReportLine, EmptyVATReportLineRelation);
                         end;
                     end;
-                end;
             until ExistingVATReportLine.Next() = 0;
-        end;
     end;
 
     [Scope('OnPrem')]

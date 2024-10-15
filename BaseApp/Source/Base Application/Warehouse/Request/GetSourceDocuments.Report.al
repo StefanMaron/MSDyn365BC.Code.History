@@ -7,7 +7,6 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Setup;
 
@@ -59,9 +58,9 @@ report 5753 "Get Source Documents"
                                 RequestType::Ship:
                                     if SalesWarehouseMgt.CheckIfFromSalesLine2ShptLine("Sales Line", ReservedFromStock) then begin
                                         IsHandled := false;
-                                        OnSalesLineOnAfterGetRecordOnBeforeCheckCustBlocked(Cust, IsHandled);
+                                        OnSalesLineOnAfterGetRecordOnBeforeCheckCustBlocked(Customer, IsHandled);
                                         if not IsHandled then
-                                            if Cust.Blocked <> Cust.Blocked::" " then begin
+                                            if Customer.Blocked <> Customer.Blocked::" " then begin
                                                 if not SalesHeaderCounted then begin
                                                     SkippedSourceDoc += 1;
                                                     SalesHeaderCounted := true;
@@ -120,9 +119,9 @@ report 5753 "Get Source Documents"
                         CurrReport.Skip();
 
                     TestField("Sell-to Customer No.");
-                    Cust.Get("Sell-to Customer No.");
+                    Customer.Get("Sell-to Customer No.");
                     if not SkipBlockedCustomer then
-                        Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false);
+                        Customer.CheckBlockedCustOnDocs(Customer, "Document Type", false, false);
                     SalesHeaderCounted := false;
 
                     BreakReport := false;
@@ -348,75 +347,6 @@ report 5753 "Get Source Documents"
                     OnAfterOnPreDataItemTransferLine("Transfer Header");
                 end;
             }
-            dataitem("Service Header"; "Service Header")
-            {
-                DataItemLink = "Document Type" = field("Source Subtype"), "No." = field("Source No.");
-                DataItemTableView = sorting("Document Type", "No.");
-                dataitem("Service Line"; "Service Line")
-                {
-                    DataItemLink = "Document Type" = field("Document Type"), "Document No." = field("No.");
-                    DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
-
-                    trigger OnAfterGetRecord()
-                    var
-                        ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
-                        IsHandled: Boolean;
-                    begin
-                        IsHandled := false;
-                        OnBeforeServiceLineOnAfterGetRecord("Service Line", "Warehouse Request", RequestType, IsHandled);
-                        if IsHandled then
-                            CurrReport.Skip();
-
-                        if ("Location Code" = "Warehouse Request"."Location Code") and IsInventoriableItem() then
-                            case RequestType of
-                                RequestType::Ship:
-                                    if ServiceWarehouseMgt.CheckIfFromServiceLine2ShptLine("Service Line", ReservedFromStock) then begin
-                                        if not OneHeaderCreated and not WhseHeaderCreated then
-                                            CreateShptHeader();
-                                        if not ServiceWarehouseMgt.FromServiceLine2ShptLine(WhseShptHeader, "Service Line") then
-                                            ErrorOccured := true;
-                                        LineCreated := true;
-                                    end;
-                            end;
-                    end;
-
-                    trigger OnPreDataItem()
-                    begin
-                        SetRange(Type, Type::Item);
-                        if (("Warehouse Request".Type = "Warehouse Request".Type::Outbound) and
-                            ("Warehouse Request"."Source Document" = "Warehouse Request"."Source Document"::"Service Order"))
-                        then
-                            SetFilter("Outstanding Quantity", '>0')
-                        else
-                            SetFilter("Outstanding Quantity", '<0');
-                        SetRange("Job No.", '');
-
-                        OnAfterServiceLineOnPreDataItem("Service Line", OneHeaderCreated, WhseShptHeader, WhseReceiptHeader);
-                    end;
-
-                    trigger OnPostDataItem()
-                    begin
-                        OnAfterProcessServiceLine(WhseShptHeader, "Warehouse Request", LineCreated, WhseReceiptHeader);
-                    end;
-                }
-
-                trigger OnAfterGetRecord()
-                begin
-                    TestField("Bill-to Customer No.");
-                    Cust.Get("Bill-to Customer No.");
-                    if not SkipBlockedCustomer then
-                        Cust.CheckBlockedCustOnDocs(Cust, "Document Type", false, false)
-                    else
-                        if Cust.Blocked <> Cust.Blocked::" " then
-                            CurrReport.Skip();
-                end;
-
-                trigger OnPreDataItem()
-                begin
-                    if "Warehouse Request"."Source Type" <> Database::"Service Line" then
-                        CurrReport.Break();
-                end;
-            }
 
             trigger OnAfterGetRecord()
             var
@@ -554,13 +484,11 @@ report 5753 "Get Source Documents"
         WhseReceiptLine: Record "Warehouse Receipt Line";
         WhseShptLine: Record "Warehouse Shipment Line";
         Location: Record Location;
-        Cust: Record Customer;
         ActivitiesCreated: Integer;
         Completed: Boolean;
         DoNotFillQtytoHandle: Boolean;
         SalesHeaderCounted: Boolean;
         SkippedSourceDoc: Integer;
-        ErrorOccured: Boolean;
         SuppressCommit: Boolean;
 
         Text000Err: Label 'There are no warehouse receipt lines created.';
@@ -581,8 +509,10 @@ report 5753 "Get Source Documents"
         ShowOpenReceiptLinesTooltipTxt: Label 'Shows open warehouse receipt lines already created for this document.';
 
     protected var
+        Customer: Record Customer;
         WhseReceiptHeader: Record "Warehouse Receipt Header";
         WhseShptHeader: Record "Warehouse Shipment Header";
+        ErrorOccured: Boolean;
         LineCreated: Boolean;
         OneHeaderCreated: Boolean;
         WhseHeaderCreated: Boolean;
@@ -991,11 +921,6 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterProcessServiceLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean; WarehouseReceiptHeader: Record "Warehouse Receipt Header")
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
     local procedure OnAfterSalesHeaderOnAfterGetRecord(SalesHeader: Record "Sales Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
@@ -1017,11 +942,6 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterSalesLineOnPreDataItem(var SalesLine: Record "Sales Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
-    begin
-    end;
-
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterServiceLineOnPreDataItem(var ServiceLine: Record "Service Line"; OneHeaderCreated: Boolean; WhseShptHeader: Record "Warehouse Shipment Header"; WhseReceiptHeader: Record "Warehouse Receipt Header")
     begin
     end;
 
@@ -1082,11 +1002,6 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineOnAfterGetRecord(SalesLine: Record "Sales Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean; SkipBlockedItem: Boolean)
-    begin
-    end;
-
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeServiceLineOnAfterGetRecord(ServiceLine: Record "Service Line"; WarehouseRequest: Record "Warehouse Request"; RequestType: Option; var IsHandled: Boolean)
     begin
     end;
 

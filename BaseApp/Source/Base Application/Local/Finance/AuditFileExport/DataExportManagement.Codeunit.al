@@ -103,15 +103,15 @@ codeunit 11000 "Data Export Management"
             else begin
                 RelDataExportRecordSource.Copy(DataExportRecordSource);
                 if RelDataExportRecordSource.Find('<') then begin
-                    if RelDataExportRecordSource.Indentation >= DataExportRecordSource.Indentation - 1 then begin
+                    if RelDataExportRecordSource.Indentation >= DataExportRecordSource.Indentation - 1 then
                         repeat
                             if RelDataExportRecordSource.Indentation = DataExportRecordSource.Indentation - 1 then begin
                                 FoundRelation := true;
                                 DataExportRecordSource."Relation To Table No." := RelDataExportRecordSource."Table No.";
                                 DataExportRecordSource."Relation To Line No." := RelDataExportRecordSource."Line No.";
                             end;
-                        until (RelDataExportRecordSource.Next(-1) = 0) or FoundRelation;
-                    end else
+                        until (RelDataExportRecordSource.Next(-1) = 0) or FoundRelation
+                    else
                         DataExportRecordSource.Indentation := OldIndentation;
                 end else
                     DataExportRecordSource.Indentation := OldIndentation
@@ -120,9 +120,8 @@ codeunit 11000 "Data Export Management"
 
         if FoundRelation then begin
             RelDataExportRecordSource.Copy(DataExportRecordSource);
-            if RelDataExportRecordSource.Find('>') then begin
-                if OldIndentation < DataExportRecordSource.Indentation then begin
-                    // indent:
+            if RelDataExportRecordSource.Find('>') then
+                if OldIndentation < DataExportRecordSource.Indentation then // indent:
                     repeat
                         Indented := false;
                         if RelDataExportRecordSource.Indentation > OldIndentation then begin
@@ -130,9 +129,8 @@ codeunit 11000 "Data Export Management"
                             Indented := true;
                             RelDataExportRecordSource.Modify();
                         end;
-                    until (not Indented) or (RelDataExportRecordSource.Next() = 0);
-                end else
-                    // unindent:
+                    until (not Indented) or (RelDataExportRecordSource.Next() = 0)
+                else // unindent:
                     repeat
                         Indented := false;
                         if RelDataExportRecordSource.Indentation >= OldIndentation then begin
@@ -145,7 +143,6 @@ codeunit 11000 "Data Export Management"
                             Indented := true;
                         end;
                     until (not Indented) or (RelDataExportRecordSource.Next() = 0);
-            end;
         end;
 
         if FoundRelation then begin

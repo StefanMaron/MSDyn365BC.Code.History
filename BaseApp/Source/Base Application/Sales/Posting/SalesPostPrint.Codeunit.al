@@ -21,10 +21,6 @@ codeunit 82 "Sales-Post + Print"
     end;
 
     var
-#if not CLEAN22    
-        PostAndPrintQst: Label 'Do you want to post and print the %1?', Comment = '%1 = Document Type';
-        PostAndEmailQst: Label 'Do you want to post and email the %1?', Comment = '%1 = Document Type';
-#endif
         SendReportAsEmail: Boolean;
 
     procedure PostAndEmail(var ParmSalesHeader: Record "Sales Header")
@@ -131,17 +127,7 @@ codeunit 82 "Sales-Post + Print"
         exit(true);
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by new implementation in Posting Selection Management codeunit', '22.0')]
-    procedure ConfirmationMessage(): Text
-    begin
-        if SendReportAsEmail then
-            exit(PostAndEmailQst);
-        exit(PostAndPrintQst);
-    end;
-#endif
-
-    procedure PrintReceive(SalesHeader: Record "Sales Header")
+    procedure PrintReceive(var SalesHeader: Record "Sales Header")
     var
         ReturnRcptHeader: Record "Return Receipt Header";
         IsHandled: Boolean;
@@ -161,7 +147,7 @@ codeunit 82 "Sales-Post + Print"
             ReturnRcptHeader.PrintRecords(false);
     end;
 
-    procedure PrintInvoice(SalesHeader: Record "Sales Header")
+    procedure PrintInvoice(var SalesHeader: Record "Sales Header")
     var
         SalesInvHeader: Record "Sales Invoice Header";
         IsHandled: Boolean;
@@ -186,7 +172,7 @@ codeunit 82 "Sales-Post + Print"
             SalesInvHeader.PrintRecords(false);
     end;
 
-    procedure PrintShip(SalesHeader: Record "Sales Header")
+    procedure PrintShip(var SalesHeader: Record "Sales Header")
     var
         SalesShptHeader: Record "Sales Shipment Header";
         IsHandled: Boolean;
@@ -206,7 +192,7 @@ codeunit 82 "Sales-Post + Print"
             SalesShptHeader.PrintRecords(false);
     end;
 
-    procedure PrintCrMemo(SalesHeader: Record "Sales Header")
+    procedure PrintCrMemo(var SalesHeader: Record "Sales Header")
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         IsHandled: Boolean;

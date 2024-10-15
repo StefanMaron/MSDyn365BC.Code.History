@@ -214,10 +214,14 @@ report 1087 "Change Job Dates"
         EndingDate: Date;
         StartingDate2: Date;
         EndingDate2: Date;
+#pragma warning disable AA0074
         Text000: Label 'There is nothing to change.';
+#pragma warning restore AA0074
         ChangePlanningDate: Boolean;
         ChangeCurrencyDate: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'You must specify a Line Type for changing the currency date.';
         Text002: Label 'You must specify a Line Type for changing the planning date.';
+#pragma warning restore AA0074
 }
 

@@ -23,8 +23,6 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         WrongValErr: Label '%1 must be %2 in %3.';
-        ApplnRoundingError: Label '%1 must be equal to ''Application''  in %2: %3=%4. Current value is ''Appln. Rounding''.';
-        ErrorMessage: Label 'Error Message must be same.';
         AppliesToIDIsNotEmptyOnLedgEntryErr: Label 'Applies-to ID is not empty in %1.';
         AmountToApplyErr: Label '"Amount to Apply" should be zero.';
         DimensionUsedErr: Label 'A dimension used in %1 %2, %3, %4 has caused an error.';
@@ -269,9 +267,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         asserterror CustEntryApplyPostedEntries.UnApplyDtldCustLedgEntry(DetailedCustLedgEntry);
 
         // Verify: Verify Error when Unapply Entry of the type Appln. Rounding from Detailed Customer Ledger Entry.
-        Assert.AreEqual(
-          StrSubstNo(ApplnRoundingError, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption(),
-            DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."), GetLastErrorText, ErrorMessage);
+        Assert.ExpectedTestFieldError(DetailedCustLedgEntry.FieldCaption("Entry Type"), Format(DetailedCustLedgEntry."Entry Type"::Application));
     end;
 
     [Test]
@@ -1266,27 +1262,23 @@ codeunit 134000 "ERM Apply Sales/Receivables"
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
-            "Applies-to ID" := AppliesToID;
-            Modify();
-        end;
+        LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, AccType, AccNo, 0);
+        GenJnlLine."Applies-to ID" := AppliesToID;
+        GenJnlLine.Modify();
     end;
 
     local procedure CreateGenJnlLineWithAppliesToDocNo(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; AppliesToDocNo: Code[20])
     var
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
-        with GenJnlLine do begin
-            LibraryERM.SelectGenJnlBatch(GenJnlBatch);
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, "Document Type"::Payment, AccType, AccNo, 0);
-            "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
-            "Applies-to Doc. No." := AppliesToDocNo;
-            Modify();
-        end;
+        LibraryERM.SelectGenJnlBatch(GenJnlBatch);
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name, GenJnlLine."Document Type"::Payment, AccType, AccNo, 0);
+        GenJnlLine."Applies-to Doc. Type" := GenJnlLine."Applies-to Doc. Type"::Invoice;
+        GenJnlLine."Applies-to Doc. No." := AppliesToDocNo;
+        GenJnlLine.Modify();
     end;
 
     local procedure CreateCashReceiptJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20])
@@ -1294,12 +1286,10 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        with GenJournalTemplate do begin
-            LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-            Validate(Type, Type::"Cash Receipts");
-            Modify(true);
-            LibraryERM.CreateGenJournalBatch(GenJournalBatch, Name);
-        end;
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts");
+        GenJournalTemplate.Modify(true);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
 
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
@@ -1341,14 +1331,12 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
     local procedure PostInvoice(var GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do begin
-            CreateGenJnlLine(
-              GenJournalLine, WorkDate(), "Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000),
-              LibrarySales.CreateCustomerNo(), '');
-            Validate("External Document No.", LibraryUtility.GenerateGUID());
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        CreateGenJnlLine(
+            GenJournalLine, WorkDate(), GenJournalLine."Document Type"::Invoice, LibraryRandom.RandIntInRange(1000, 2000),
+            LibrarySales.CreateCustomerNo(), '');
+        GenJournalLine.Validate("External Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure FindDetailedLedgerEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; DocumentNo: Code[20]; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -1360,21 +1348,17 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
     local procedure FindOpenInvCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Applying Entry", false);
-            SetRange(Open, true);
-            FindFirst();
-        end;
+        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
+        CustLedgEntry.SetRange("Applying Entry", false);
+        CustLedgEntry.SetRange(Open, true);
+        CustLedgEntry.FindFirst();
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
     end;
 
     local procedure SetAppliesToIDOnCustLedgEntry(var CustLedgEntry: Record "Cust. Ledger Entry")
@@ -1535,15 +1519,13 @@ codeunit 134000 "ERM Apply Sales/Receivables"
 
     local procedure VerifyExtDocNoAmount(GenJournalLine: Record "Gen. Journal Line"; ExpectedExtDocNo: Code[35]; ExpectedAmount: Decimal)
     begin
-        with GenJournalLine do begin
-            Find();
-            Assert.AreEqual(
-              ExpectedExtDocNo, "Applies-to Ext. Doc. No.",
-              StrSubstNo(WrongValErr, FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, TableCaption));
-            Assert.AreEqual(
-              ExpectedAmount, Amount,
-              StrSubstNo(WrongValErr, FieldCaption(Amount), ExpectedAmount, TableCaption));
-        end;
+        GenJournalLine.Find();
+        Assert.AreEqual(
+          ExpectedExtDocNo, GenJournalLine."Applies-to Ext. Doc. No.",
+          StrSubstNo(WrongValErr, GenJournalLine.FieldCaption("Applies-to Ext. Doc. No."), ExpectedExtDocNo, GenJournalLine.TableCaption));
+        Assert.AreEqual(
+          ExpectedAmount, GenJournalLine.Amount,
+          StrSubstNo(WrongValErr, GenJournalLine.FieldCaption(Amount), ExpectedAmount, GenJournalLine.TableCaption));
     end;
 
     [ModalPageHandler]

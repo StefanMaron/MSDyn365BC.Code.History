@@ -362,9 +362,6 @@ page 6303 "Power BI Report Spinner Part"
                 var
                     PowerBIReportUploads: Record "Power BI Report Uploads";
                     PowerBIReportConfiguration: Record "Power BI Report Configuration";
-#if not CLEAN22
-                    PowerBIServiceStatusSetup: Record "Power BI Service Status Setup";
-#endif
                     PowerBIUserConfiguration: Record "Power BI User Configuration";
                     PowerBICustomerReports: Record "Power BI Customer Reports";
                     PowerBIUserStatus: Record "Power BI User Status";
@@ -377,9 +374,6 @@ page 6303 "Power BI Report Spinner Part"
                     if ChosenOption in [1, 2] then begin // Delete reports only or delete all
                         PowerBIReportConfiguration.DeleteAll();
                         PowerBIUserStatus.DeleteAll();
-#if not CLEAN22
-                        PowerBIServiceStatusSetup.DeleteAll();
-#endif
                         PowerBIUserConfiguration.DeleteAll();
 
                         if ChosenOption = 2 then begin // Delete all
@@ -665,11 +659,11 @@ page 6303 "Power BI Report Spinner Part"
     [NonDebuggable]
     local procedure InitalizeAddIn()
     var
-        LoadReportMessage: Text;
+        LoadReportMessage: SecretText;
     begin
         if not TempPowerBiReportBuffer.IsEmpty() then
             if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
-                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
+                CurrPage.WebReportViewer.PostMessage(LoadReportMessage.Unwrap(), PowerBiEmbedHelper.TargetOrigin(), false)
             else
                 ShowError(GetLastErrorText());
     end;

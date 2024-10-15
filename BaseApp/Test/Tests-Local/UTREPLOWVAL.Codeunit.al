@@ -506,33 +506,29 @@ codeunit 142068 "UT REP LOWVAL"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, "Document Type"::Invoice,
-              "Account Type"::"G/L Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "Gen. Posting Type"::Purchase),
-              InvoiceAmount);
-            Validate("Bal. Account Type", "Bal. Account Type"::Vendor);
-            Validate("Bal. Account No.", VendorNo);
-            Validate("Posting Date", PostingDate);
-            Modify();
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-            exit("Document No.");
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice,
+            GenJournalLine."Account Type"::"G/L Account",
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GenJournalLine."Gen. Posting Type"::Purchase),
+            InvoiceAmount);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::Vendor);
+        GenJournalLine.Validate("Bal. Account No.", VendorNo);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+        exit(GenJournalLine."Document No.");
     end;
 
     local procedure CreatePostPaymentAppliedToInvoice(VendorNo: Code[20]; PostingDate: Date; PaymentAmount: Decimal; InvoiceNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, "Document Type"::Payment,
-              "Account Type"::Vendor, VendorNo, PaymentAmount);
-            Validate("Posting Date", PostingDate);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", InvoiceNo);
-            Modify();
-        end;
+        LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
+          GenJournalLine."Account Type"::Vendor, VendorNo, PaymentAmount);
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Modify();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

@@ -1952,23 +1952,19 @@ codeunit 142006 "Export Business Data"
 
     local procedure FindRecordSource(DataExportRecord: Record "Data Export Record Definition"; TableID: Integer; var DataExportRecordSource: Record "Data Export Record Source")
     begin
-        with DataExportRecordSource do begin
-            SetRange("Data Export Code", DataExportRecord."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-            SetRange("Table No.", TableID);
-            FindFirst();
-        end;
+        DataExportRecordSource.SetRange("Data Export Code", DataExportRecord."Data Export Code");
+        DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
+        DataExportRecordSource.SetRange("Table No.", TableID);
+        DataExportRecordSource.FindFirst();
     end;
 
     local procedure SetKeyNoAsNotPK(DataExportRecord: Record "Data Export Record Definition"; TableID: Integer)
     var
         DataExportRecordSource: Record "Data Export Record Source";
     begin
-        with DataExportRecordSource do begin
-            FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
-            Validate("Key No.", FirstKeyWithCustNo());
-            Modify();
-        end;
+        FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
+        DataExportRecordSource.Validate("Key No.", FirstKeyWithCustNo());
+        DataExportRecordSource.Modify();
     end;
 
     local procedure FirstKeyWithCustNo(): Integer
@@ -1980,12 +1976,10 @@ codeunit 142006 "Export Business Data"
     var
         DataExportRecordSource: Record "Data Export Record Source";
     begin
-        with DataExportRecordSource do begin
-            FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
-            Evaluate("Table Filter", TableFilterText);
-            Validate("Table Filter");
-            Modify();
-        end;
+        FindRecordSource(DataExportRecord, TableID, DataExportRecordSource);
+        Evaluate(DataExportRecordSource."Table Filter", TableFilterText);
+        DataExportRecordSource.Validate("Table Filter");
+        DataExportRecordSource.Modify();
     end;
 
     local procedure FormatCustTableFilter(CustNoFilter: Code[250]): Text
@@ -1993,10 +1987,9 @@ codeunit 142006 "Export Business Data"
         Customer: Record Customer;
         TableFilter: Text;
     begin
-        with Customer do
-            TableFilter := TableName + ': ' +
-              FieldName("Net Change") + '=<>0,' +
-              FieldName("No.") + '=' + CustNoFilter;
+        TableFilter := Customer.TableName + ': ' +
+              Customer.FieldName("Net Change") + '=<>0,' +
+              Customer.FieldName("No.") + '=' + CustNoFilter;
 
         exit(TableFilter);
     end;
@@ -2060,37 +2053,31 @@ codeunit 142006 "Export Business Data"
 
     local procedure CreateRecDefinition(var DataExportRecord: Record "Data Export Record Definition")
     begin
-        with DataExportRecord do begin
-            "Data Export Code" := GetDataExportCode();
-            "Data Exp. Rec. Type Code" := GetExpRecTypeCode();
-            Description := "Data Export Code" + "Data Exp. Rec. Type Code";
-            Insert();
-            CreateDummyDTDFileBlob(DataExportRecord);
-        end;
+        DataExportRecord."Data Export Code" := GetDataExportCode();
+        DataExportRecord."Data Exp. Rec. Type Code" := GetExpRecTypeCode();
+        DataExportRecord.Description := DataExportRecord."Data Export Code" + DataExportRecord."Data Exp. Rec. Type Code";
+        DataExportRecord.Insert();
+        CreateDummyDTDFileBlob(DataExportRecord);
     end;
 
     local procedure GetDataExportCode(): Code[10]
     var
         DataExport: Record "Data Export";
     begin
-        with DataExport do begin
-            Code := LibraryUtility.GenerateGUID();
-            Description := Code;
-            Insert();
-            exit(Code);
-        end;
+        DataExport.Code := LibraryUtility.GenerateGUID();
+        DataExport.Description := DataExport.Code;
+        DataExport.Insert();
+        exit(DataExport.Code);
     end;
 
     local procedure GetExpRecTypeCode(): Code[10]
     var
         DataExportRecType: Record "Data Export Record Type";
     begin
-        with DataExportRecType do begin
-            Code := LibraryUtility.GenerateGUID();
-            Description := Code;
-            Insert();
-            exit(Code);
-        end;
+        DataExportRecType.Code := LibraryUtility.GenerateGUID();
+        DataExportRecType.Description := DataExportRecType.Code;
+        DataExportRecType.Insert();
+        exit(DataExportRecType.Code);
     end;
 
     local procedure AddRecordSourceWithFilters(DataExportRecord: Record "Data Export Record Definition"; TableNo: Integer; FilterText: Text; var DataExportRecordSource: Record "Data Export Record Source")
@@ -2113,14 +2100,12 @@ codeunit 142006 "Export Business Data"
 
     local procedure AddRecordSource(DataExportRecord: Record "Data Export Record Definition"; TableNo: Integer; var DataExportRecordSource: Record "Data Export Record Source")
     begin
-        with DataExportRecordSource do begin
-            Init();
-            "Data Export Code" := DataExportRecord."Data Export Code";
-            "Data Exp. Rec. Type Code" := DataExportRecord."Data Exp. Rec. Type Code";
-            "Line No." := "Line No." + 10000;
-            Validate("Table No.", TableNo);
-            Insert(true);
-        end;
+        DataExportRecordSource.Init();
+        DataExportRecordSource."Data Export Code" := DataExportRecord."Data Export Code";
+        DataExportRecordSource."Data Exp. Rec. Type Code" := DataExportRecord."Data Exp. Rec. Type Code";
+        DataExportRecordSource."Line No." := DataExportRecordSource."Line No." + 10000;
+        DataExportRecordSource.Validate("Table No.", TableNo);
+        DataExportRecordSource.Insert(true);
     end;
 
     local procedure AddRecordSourceWithDateFilterHandling(DataExportRecord: Record "Data Export Record Definition"; TableID: Integer; FieldID: Integer; DateFilterHandling: Option; var DataExportRecordSource: Record "Data Export Record Source")
@@ -2131,34 +2116,31 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource."Date Filter Handling" := DateFilterHandling;
         DataExportRecordSource.Modify();
 
-        with DataExpRecField do begin
-            SetRange("Data Export Code", DataExportRecord."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-            SetRange("Table No.", TableID);
-            SetRange("Field No.", FieldID);
-            SetRange("Source Line No.", DataExportRecordSource."Line No.");
-            FindFirst();
+        DataExpRecField.SetRange("Data Export Code", DataExportRecord."Data Export Code");
+        DataExpRecField.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
+        DataExpRecField.SetRange("Table No.", TableID);
+        DataExpRecField.SetRange("Field No.", FieldID);
+        DataExpRecField.SetRange("Source Line No.", DataExportRecordSource."Line No.");
+        DataExpRecField.FindFirst();
 
-            "Date Filter Handling" := DateFilterHandling;
-            Modify();
-        end;
+        DataExpRecField."Date Filter Handling" := DateFilterHandling;
+        DataExpRecField.Modify();
     end;
 
     local procedure AddSeveralRecordSourceAndIndent(var DataExportRecordSource: Record "Data Export Record Source"; DataExportRecord: Record "Data Export Record Definition"; TableNo: array[10] of Integer; NoOfRecords: Integer; Indent: Boolean)
     var
         Counter: Integer;
     begin
-        for Counter := 1 to NoOfRecords do
-            with DataExportRecordSource do begin
-                Init();
-                "Data Export Code" := DataExportRecord."Data Export Code";
-                "Data Exp. Rec. Type Code" := DataExportRecord."Data Exp. Rec. Type Code";
-                "Line No." := "Line No." + 10000;
-                Validate("Table No.", TableNo[Counter]);
-                Insert(true);
-                if Indent and (Counter <> NoOfRecords) then
-                    Validate(Indentation, Counter - 1);
-            end;
+        for Counter := 1 to NoOfRecords do begin
+            DataExportRecordSource.Init();
+            DataExportRecordSource."Data Export Code" := DataExportRecord."Data Export Code";
+            DataExportRecordSource."Data Exp. Rec. Type Code" := DataExportRecord."Data Exp. Rec. Type Code";
+            DataExportRecordSource."Line No." := DataExportRecordSource."Line No." + 10000;
+            DataExportRecordSource.Validate("Table No.", TableNo[Counter]);
+            DataExportRecordSource.Insert(true);
+            if Indent and (Counter <> NoOfRecords) then
+                DataExportRecordSource.Validate(Indentation, Counter - 1);
+        end;
     end;
 
     local procedure CreateGLAccountDataExport(var DataExportRecordDefinition: Record "Data Export Record Definition"; var DataExportRecordSource: Record "Data Export Record Source"; GLAccount: Record "G/L Account"; DateFilterHandling: Option)
@@ -2178,10 +2160,8 @@ codeunit 142006 "Export Business Data"
 
     local procedure SetPeriodFieldNo(var DataExportRecordSource: Record "Data Export Record Source"; PeriodFieldNo: Integer)
     begin
-        with DataExportRecordSource do begin
-            "Period Field No." := PeriodFieldNo;
-            Modify();
-        end;
+        DataExportRecordSource."Period Field No." := PeriodFieldNo;
+        DataExportRecordSource.Modify();
     end;
 
     local procedure AddCustSameFields(DataExportRecordSource: Record "Data Export Record Source")
@@ -2190,53 +2170,49 @@ codeunit 142006 "Export Business Data"
         Customer: Record Customer;
         DateFilterHandling: Option " ",Period,"End Date Only","Start Date Only";
     begin
-        with DataExportRecField do begin
-            "Data Export Code" := DataExportRecordSource."Data Export Code";
-            "Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
-            "Table No." := DataExportRecordSource."Table No.";
-            "Line No." := 0;
-            "Source Line No." := DataExportRecordSource."Line No.";
+        DataExportRecField."Data Export Code" := DataExportRecordSource."Data Export Code";
+        DataExportRecField."Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
+        DataExportRecField."Table No." := DataExportRecordSource."Table No.";
+        DataExportRecField."Line No." := 0;
+        DataExportRecField."Source Line No." := DataExportRecordSource."Line No.";
 
-            InsertCustFields(DataExportRecField);
-            AddFieldWithDateFilterHandling(DataExportRecField, Customer.FieldNo("Net Change"), DateFilterHandling::"End Date Only");
-        end;
+        InsertCustFields(DataExportRecField);
+        AddFieldWithDateFilterHandling(DataExportRecField, Customer.FieldNo("Net Change"), DateFilterHandling::"End Date Only");
     end;
 
     local procedure AddFields(DataExportRecordSource: Record "Data Export Record Source")
     var
         DataExportRecField: Record "Data Export Record Field";
     begin
-        with DataExportRecField do begin
-            "Data Export Code" := DataExportRecordSource."Data Export Code";
-            "Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
-            Validate("Table No.", DataExportRecordSource."Table No.");
-            "Line No." := 0;
-            "Source Line No." := DataExportRecordSource."Line No.";
+        DataExportRecField."Data Export Code" := DataExportRecordSource."Data Export Code";
+        DataExportRecField."Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
+        DataExportRecField.Validate("Table No.", DataExportRecordSource."Table No.");
+        DataExportRecField."Line No." := 0;
+        DataExportRecField."Source Line No." := DataExportRecordSource."Line No.";
 
-            case "Table No." of
-                ParentTableNo():
-                    InsertCVLedgEntryBufFields(DataExportRecField);
-                ChildTableNo():
-                    InsertDtldCVLedgEntryBufFields(DataExportRecField);
-                CustomerTableNo():
-                    InsertCustFields(DataExportRecField);
-                VendorTableNo():
-                    InsertVendFields(DataExportRecField);
-                ItemTableNo():
-                    InsertItemFields(DataExportRecField);
-                GLAccTableNo():
-                    InsertGLAccFields(DataExportRecField);
-                CustLedgEntryTableNo():
-                    InsertCustLedgEntryFields(DataExportRecField);
-                VendLedgEntryTableNo():
-                    InsertVendLedgEntryFields(DataExportRecField);
-                ItemLedgEntryTableNo():
-                    InsertItemLedgEntryFields(DataExportRecField);
-                GLEntryTableNo():
-                    InsertGLEntryFields(DataExportRecField);
-                CompanyInfoTableNo():
-                    InsertCompanyInformationFields(DataExportRecField)
-            end;
+        case DataExportRecField."Table No." of
+            ParentTableNo():
+                InsertCVLedgEntryBufFields(DataExportRecField);
+            ChildTableNo():
+                InsertDtldCVLedgEntryBufFields(DataExportRecField);
+            CustomerTableNo():
+                InsertCustFields(DataExportRecField);
+            VendorTableNo():
+                InsertVendFields(DataExportRecField);
+            ItemTableNo():
+                InsertItemFields(DataExportRecField);
+            GLAccTableNo():
+                InsertGLAccFields(DataExportRecField);
+            CustLedgEntryTableNo():
+                InsertCustLedgEntryFields(DataExportRecField);
+            VendLedgEntryTableNo():
+                InsertVendLedgEntryFields(DataExportRecField);
+            ItemLedgEntryTableNo():
+                InsertItemLedgEntryFields(DataExportRecField);
+            GLEntryTableNo():
+                InsertGLEntryFields(DataExportRecField);
+            CompanyInfoTableNo():
+                InsertCompanyInformationFields(DataExportRecField)
         end;
     end;
 
@@ -2386,15 +2362,13 @@ codeunit 142006 "Export Business Data"
         GLEntry: Record "G/L Entry";
         RecRef: RecordRef;
     begin
-        with GLEntry do begin
-            Init();
-            RecRef.GetTable(GLEntry);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "G/L Account No." := AccountNo;
-            "Posting Date" := PostingDate;
-            Amount := GLAmount;
-            Insert();
-        end;
+        GLEntry.Init();
+        RecRef.GetTable(GLEntry);
+        GLEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, GLEntry.FieldNo("Entry No."));
+        GLEntry."G/L Account No." := AccountNo;
+        GLEntry."Posting Date" := PostingDate;
+        GLEntry.Amount := GLAmount;
+        GLEntry.Insert();
     end;
 
     local procedure PrepareObjectsForExport()
@@ -2418,23 +2392,19 @@ codeunit 142006 "Export Business Data"
         DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         RecRef: RecordRef;
     begin
-        with CVLedgEntryBuffer do begin
-            RecRef.GetTable(CVLedgEntryBuffer);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Document Type" := "Document Type"::Invoice;
-            "CV No." := VendorNo;
-            Insert();
-        end;
-        with DtldCVLedgEntryBuffer do begin
-            RecRef.GetTable(DtldCVLedgEntryBuffer);
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "CV Ledger Entry No." := CVLedgEntryBuffer."Entry No.";
-            "Posting Date" := WorkDate();
-            "Entry Type" := "Detailed CV Ledger Entry Type".FromInteger("Entry Type".AsInteger() + 1);
-            "CV No." := VendorNo;
-            Insert();
-        end;
+        RecRef.GetTable(CVLedgEntryBuffer);
+        CVLedgEntryBuffer."Entry No." := LibraryUtility.GetNewLineNo(RecRef, CVLedgEntryBuffer.FieldNo("Entry No."));
+        CVLedgEntryBuffer."Posting Date" := WorkDate();
+        CVLedgEntryBuffer."Document Type" := CVLedgEntryBuffer."Document Type"::Invoice;
+        CVLedgEntryBuffer."CV No." := VendorNo;
+        CVLedgEntryBuffer.Insert();
+        RecRef.GetTable(DtldCVLedgEntryBuffer);
+        DtldCVLedgEntryBuffer."Entry No." := LibraryUtility.GetNewLineNo(RecRef, DtldCVLedgEntryBuffer.FieldNo("Entry No."));
+        DtldCVLedgEntryBuffer."CV Ledger Entry No." := CVLedgEntryBuffer."Entry No.";
+        DtldCVLedgEntryBuffer."Posting Date" := WorkDate();
+        DtldCVLedgEntryBuffer."Entry Type" := "Detailed CV Ledger Entry Type".FromInteger(DtldCVLedgEntryBuffer."Entry Type".AsInteger() + 1);
+        DtldCVLedgEntryBuffer."CV No." := VendorNo;
+        DtldCVLedgEntryBuffer.Insert();
     end;
 
     local procedure PrepareDataExportRecordDefinition(var DataExportRecordDefinition: Record "Data Export Record Definition")
@@ -2473,13 +2443,11 @@ codeunit 142006 "Export Business Data"
 
     local procedure GetDataExportRecordSourceAndAddFields(var DataExportRecordSource: Record "Data Export Record Source"; DataExpCode: Code[10]; DataExpRecTypeCode: Code[10]; TableNo: Integer)
     begin
-        with DataExportRecordSource do begin
-            SetRange("Data Export Code", DataExpCode);
-            SetRange("Data Exp. Rec. Type Code", DataExpRecTypeCode);
-            SetRange("Table No.", TableNo);
-            FindFirst();
-            AddFields(DataExportRecordSource);
-        end;
+        DataExportRecordSource.SetRange("Data Export Code", DataExpCode);
+        DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExpRecTypeCode);
+        DataExportRecordSource.SetRange("Table No.", TableNo);
+        DataExportRecordSource.FindFirst();
+        AddFields(DataExportRecordSource);
     end;
 
     local procedure IndentAndMakeRelation(ParentDataExportRecordSource: Record "Data Export Record Source"; DataExportRecordDefinition: Record "Data Export Record Definition"; TableNo: Integer; ParentFieldNo: Integer; ChildFieldNo: Integer)
@@ -2497,10 +2465,8 @@ codeunit 142006 "Export Business Data"
 
     local procedure DeleteRecordSource(var DataExportRecordSource: Record "Data Export Record Source")
     begin
-        with DataExportRecordSource do begin
-            Find();
-            Delete(true);
-        end;
+        DataExportRecordSource.Find();
+        DataExportRecordSource.Delete(true);
     end;
 
     local procedure DeleteDataExportRecord(DataExportCode: Code[10]; DataExportRecTypeCode: Code[10])
@@ -2523,28 +2489,24 @@ codeunit 142006 "Export Business Data"
 
     local procedure AddFieldWithDateFilterHandling(var DataExportRecField: Record "Data Export Record Field"; FieldID: Integer; DateFilterHandling: Option)
     begin
-        with DataExportRecField do begin
-            "Line No." := "Line No." + 10000;
-            Validate("Field No.", FieldID);
-            "Export Field Name" := 'F' + Format("Field No.");
-            "Date Filter Handling" := DateFilterHandling;
-            Insert(true);
-        end;
+        DataExportRecField."Line No." := DataExportRecField."Line No." + 10000;
+        DataExportRecField.Validate("Field No.", FieldID);
+        DataExportRecField."Export Field Name" := 'F' + Format(DataExportRecField."Field No.");
+        DataExportRecField."Date Filter Handling" := DateFilterHandling;
+        DataExportRecField.Insert(true);
     end;
 
     local procedure MakeRelation(var DataExportRecordSource: Record "Data Export Record Source"; ChildFieldNo: Integer; ParentDataExportRecordSource: Record "Data Export Record Source"; ParentFieldNo: Integer)
     var
         DataExpTableRelation: Record "Data Export Table Relation";
     begin
-        with DataExpTableRelation do begin
-            "Data Export Code" := DataExportRecordSource."Data Export Code";
-            "Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
-            "From Table No." := ParentDataExportRecordSource."Table No.";
-            "From Field No." := ParentFieldNo;
-            "To Table No." := DataExportRecordSource."Table No.";
-            "To Field No." := ChildFieldNo;
-            Insert();
-        end;
+        DataExpTableRelation."Data Export Code" := DataExportRecordSource."Data Export Code";
+        DataExpTableRelation."Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
+        DataExpTableRelation."From Table No." := ParentDataExportRecordSource."Table No.";
+        DataExpTableRelation."From Field No." := ParentFieldNo;
+        DataExpTableRelation."To Table No." := DataExportRecordSource."Table No.";
+        DataExpTableRelation."To Field No." := ChildFieldNo;
+        DataExpTableRelation.Insert();
     end;
 
     local procedure Indent(var DataExportRecordSource: Record "Data Export Record Source"; ParentDataExportRecordSource: Record "Data Export Record Source")
@@ -2572,14 +2534,12 @@ codeunit 142006 "Export Business Data"
     begin
         DummyEntryFound := CVLedgEntryBuffer.FindLast();
         LastEntryNo := CVLedgEntryBuffer."Entry No.";
-        with CVLedgEntryBuffer do begin
-            "Entry No." := LastEntryNo + 1;
-            "Posting Date" := WorkDate();
-            "Document Type" := "Document Type"::Invoice;
-            Insert();
+        CVLedgEntryBuffer."Entry No." := LastEntryNo + 1;
+        CVLedgEntryBuffer."Posting Date" := WorkDate();
+        CVLedgEntryBuffer."Document Type" := CVLedgEntryBuffer."Document Type"::Invoice;
+        CVLedgEntryBuffer.Insert();
 
-            exit("Entry No.");
-        end;
+        exit(CVLedgEntryBuffer."Entry No.");
     end;
 
     local procedure InsertChildEntries(NoOfEntries: Integer): Integer
@@ -2594,17 +2554,15 @@ codeunit 142006 "Export Business Data"
 
         DummyEntryFound := DtldCVLedgEntryBuffer.FindLast();
         LastEntryNo := DtldCVLedgEntryBuffer."Entry No.";
-        with DtldCVLedgEntryBuffer do begin
-            for i := 1 to NoOfEntries do begin
-                "Entry No." := LastEntryNo + i;
-                "CV Ledger Entry No." := ParentEntryNo;
-                "Posting Date" := WorkDate();
-                "Entry Type" := "Detailed CV Ledger Entry Type".FromInteger(i);
-                Insert();
-            end;
-
-            exit("Entry No.");
+        for i := 1 to NoOfEntries do begin
+            DtldCVLedgEntryBuffer."Entry No." := LastEntryNo + i;
+            DtldCVLedgEntryBuffer."CV Ledger Entry No." := ParentEntryNo;
+            DtldCVLedgEntryBuffer."Posting Date" := WorkDate();
+            DtldCVLedgEntryBuffer."Entry Type" := "Detailed CV Ledger Entry Type".FromInteger(i);
+            DtldCVLedgEntryBuffer.Insert();
         end;
+
+        exit(DtldCVLedgEntryBuffer."Entry No.");
     end;
 
     local procedure DuplicateParentChildEntries()
@@ -2662,14 +2620,12 @@ codeunit 142006 "Export Business Data"
 
     local procedure FindChildEntriesToExport(var DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var TempEntryNo: Record "Integer" temporary)
     begin
-        with DtldCVLedgEntryBuffer do begin
-            SetRange("Posting Date", WorkDate());
-            if FindSet() then
-                repeat
-                    TempEntryNo.Number := "Entry No.";
-                    TempEntryNo.Insert();
-                until Next() = 0;
-        end;
+        DtldCVLedgEntryBuffer.SetRange("Posting Date", WorkDate());
+        if DtldCVLedgEntryBuffer.FindSet() then
+            repeat
+                TempEntryNo.Number := DtldCVLedgEntryBuffer."Entry No.";
+                TempEntryNo.Insert();
+            until DtldCVLedgEntryBuffer.Next() = 0;
     end;
 
     local procedure CreateCustWithGlobalDimCode(): Code[20]
@@ -2683,15 +2639,13 @@ codeunit 142006 "Export Business Data"
     begin
         GLSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GLSetup."Global Dimension 1 Code");
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
-            Validate("Global Dimension 1 Code", DimensionValue.Code);
-            Modify(true);
-            LibraryJournals.CreateGenJournalLineWithBatch(
-              GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, "No.",
-              LibraryRandom.RandInt(100));
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Global Dimension 1 Code", DimensionValue.Code);
+        Customer.Modify(true);
+        LibraryJournals.CreateGenJournalLineWithBatch(
+          GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, Customer."No.",
+          LibraryRandom.RandInt(100));
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(Customer."Global Dimension 1 Code");
     end;
 
@@ -2700,13 +2654,11 @@ codeunit 142006 "Export Business Data"
         AccountingPeriod: Record "Accounting Period";
         DataRangeTxt: Text;
     begin
-        with AccountingPeriod do begin
-            FindFirst();
-            DataRangeTxt := Format("Starting Date") + '..';
-            FindLast();
-            DataRangeTxt += Format("Starting Date");
-            exit(DataRangeTxt);
-        end;
+        AccountingPeriod.FindFirst();
+        DataRangeTxt := Format(AccountingPeriod."Starting Date") + '..';
+        AccountingPeriod.FindLast();
+        DataRangeTxt += Format(AccountingPeriod."Starting Date");
+        exit(DataRangeTxt);
     end;
 
     local procedure VerifyFileNames(ExportZipPath: Text; ExportedFileName: array[6] of Text)
@@ -2922,22 +2874,20 @@ codeunit 142006 "Export Business Data"
         DataExpRecField: Record "Data Export Record Field";
         Index: Integer;
     begin
-        with DataExpRecField do begin
-            Clear(Name);
-            Index := 0;
-            SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
-            SetRange("Table No.", DataExportRecordSource."Table No.");
-            FindSet();
-            repeat
-                Index += 1;
-                if FieldIndexNo = Index then begin
-                    CalcFields("Field Name");
-                    Name[1] := "Field Name";
-                    Name[2] := "Export Field Name";
-                end;
-            until Next() = 0;
-        end;
+        Clear(Name);
+        Index := 0;
+        DataExpRecField.SetRange("Data Export Code", DataExportRecordSource."Data Export Code");
+        DataExpRecField.SetRange("Data Exp. Rec. Type Code", DataExportRecordSource."Data Exp. Rec. Type Code");
+        DataExpRecField.SetRange("Table No.", DataExportRecordSource."Table No.");
+        DataExpRecField.FindSet();
+        repeat
+            Index += 1;
+            if FieldIndexNo = Index then begin
+                DataExpRecField.CalcFields("Field Name");
+                Name[1] := DataExpRecField."Field Name";
+                Name[2] := DataExpRecField."Export Field Name";
+            end;
+        until DataExpRecField.Next() = 0;
     end;
 
     local procedure PrepareEmptyBusinessDataToExport(var DataExportRecord: Record "Data Export Record Definition")
@@ -3069,33 +3019,29 @@ codeunit 142006 "Export Business Data"
         DetCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         NextEntryNo: Integer;
     begin
-        with CustLedgEntry do begin
-            if FindLast() then
-                NextEntryNo := "Entry No." + 1
-            else
-                NextEntryNo := 1;
+        if CustLedgEntry.FindLast() then
+            NextEntryNo := CustLedgEntry."Entry No." + 1
+        else
+            NextEntryNo := 1;
 
-            Init();
-            "Entry No." := NextEntryNo;
-            "Customer No." := CustNo;
-            "Posting Date" := PostingDate;
-            Insert();
-        end;
+        CustLedgEntry.Init();
+        CustLedgEntry."Entry No." := NextEntryNo;
+        CustLedgEntry."Customer No." := CustNo;
+        CustLedgEntry."Posting Date" := PostingDate;
+        CustLedgEntry.Insert();
 
-        with DetCustLedgEntry do begin
-            if FindLast() then
-                NextEntryNo := "Entry No." + 1
-            else
-                NextEntryNo := 1;
+        if DetCustLedgEntry.FindLast() then
+            NextEntryNo := DetCustLedgEntry."Entry No." + 1
+        else
+            NextEntryNo := 1;
 
-            Init();
-            "Entry No." := NextEntryNo;
-            "Customer No." := CustNo;
-            "Posting Date" := PostingDate;
-            Amount := LibraryRandom.RandDec(10000, 2);
-            "Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
-            Insert();
-        end;
+        DetCustLedgEntry.Init();
+        DetCustLedgEntry."Entry No." := NextEntryNo;
+        DetCustLedgEntry."Customer No." := CustNo;
+        DetCustLedgEntry."Posting Date" := PostingDate;
+        DetCustLedgEntry.Amount := LibraryRandom.RandDec(10000, 2);
+        DetCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
+        DetCustLedgEntry.Insert();
     end;
 
     local procedure ReadCustomersFromDataFile(ZipFilePath: Text; ExportedFileName: Text; var Customer: Record Customer temporary)
@@ -3166,51 +3112,45 @@ codeunit 142006 "Export Business Data"
     var
         CompanyInformation2: Record "Company Information";
     begin
-        with CompanyInformation2 do begin
-            Get();
-            Name := CompanyInformation.Name;
-            "Name 2" := CompanyInformation."Name 2";
-            Address := CompanyInformation.Address;
-            "Address 2" := CompanyInformation."Address 2";
-            "Bank Name" := CompanyInformation."Bank Name";
-            "Ship-to Name" := CompanyInformation."Ship-to Name";
-            "Ship-to Name 2" := CompanyInformation."Ship-to Name 2";
-            "Ship-to Address" := CompanyInformation."Ship-to Address";
-            "Ship-to Address 2" := CompanyInformation."Ship-to Address 2";
-            "Ship-to Contact" := CompanyInformation."Ship-to Contact";
-            "Custom System Indicator Text" := CompanyInformation."Custom System Indicator Text";
-            "Tax Office Name" := CompanyInformation."Tax Office Name";
-            "Tax Office Name 2" := CompanyInformation."Tax Office Name 2";
-            Modify();
-        end;
+        CompanyInformation2.Get();
+        CompanyInformation2.Name := CompanyInformation.Name;
+        CompanyInformation2."Name 2" := CompanyInformation."Name 2";
+        CompanyInformation2.Address := CompanyInformation.Address;
+        CompanyInformation2."Address 2" := CompanyInformation."Address 2";
+        CompanyInformation2."Bank Name" := CompanyInformation."Bank Name";
+        CompanyInformation2."Ship-to Name" := CompanyInformation."Ship-to Name";
+        CompanyInformation2."Ship-to Name 2" := CompanyInformation."Ship-to Name 2";
+        CompanyInformation2."Ship-to Address" := CompanyInformation."Ship-to Address";
+        CompanyInformation2."Ship-to Address 2" := CompanyInformation."Ship-to Address 2";
+        CompanyInformation2."Ship-to Contact" := CompanyInformation."Ship-to Contact";
+        CompanyInformation2."Custom System Indicator Text" := CompanyInformation."Custom System Indicator Text";
+        CompanyInformation2."Tax Office Name" := CompanyInformation."Tax Office Name";
+        CompanyInformation2."Tax Office Name 2" := CompanyInformation."Tax Office Name 2";
+        CompanyInformation2.Modify();
     end;
 
     local procedure CalcNetChangeWithDim(var Customer: Record Customer): Decimal
     var
         DetailledCustLedgEnrty: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailledCustLedgEnrty do begin
-            SetRange("Posting Date", Customer.GetRangeMin("Date Filter"), Customer.GetRangeMax("Date Filter"));
-            SetRange("Customer No.", Customer."No.");
-            SetRange("Initial Entry Global Dim. 1", Customer."Global Dimension 1 Code");
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        DetailledCustLedgEnrty.SetRange("Posting Date", Customer.GetRangeMin("Date Filter"), Customer.GetRangeMax("Date Filter"));
+        DetailledCustLedgEnrty.SetRange("Customer No.", Customer."No.");
+        DetailledCustLedgEnrty.SetRange("Initial Entry Global Dim. 1", Customer."Global Dimension 1 Code");
+        DetailledCustLedgEnrty.CalcSums(Amount);
+        exit(DetailledCustLedgEnrty.Amount);
     end;
 
     local procedure CalcNetChange(var Customer: Record Customer): Decimal
     var
         DetailledCustLedgEnrty: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailledCustLedgEnrty do begin
-            if StrPos(Customer.GetFilter("Date Filter"), '..') = 1 then
-                SetRange("Posting Date", 0D, Customer.GetRangeMax("Date Filter"))
-            else
-                SetRange("Posting Date", Customer.GetRangeMin("Date Filter"), Customer.GetRangeMax("Date Filter"));
-            SetRange("Customer No.", Customer."No.");
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        if StrPos(Customer.GetFilter("Date Filter"), '..') = 1 then
+            DetailledCustLedgEnrty.SetRange("Posting Date", 0D, Customer.GetRangeMax("Date Filter"))
+        else
+            DetailledCustLedgEnrty.SetRange("Posting Date", Customer.GetRangeMin("Date Filter"), Customer.GetRangeMax("Date Filter"));
+        DetailledCustLedgEnrty.SetRange("Customer No.", Customer."No.");
+        DetailledCustLedgEnrty.CalcSums(Amount);
+        exit(DetailledCustLedgEnrty.Amount);
     end;
 
     local procedure CheckBuffValues(var Customer: Record Customer; TableNo: Integer; FieldNo: Integer)
@@ -3427,12 +3367,10 @@ codeunit 142006 "Export Business Data"
     var
         DataExportRecField: Record "Data Export Record Field";
     begin
-        with DataExportRecField do begin
-            SetRange("Data Export Code", DataExportRecord."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-            SetRange("Table No.", TableNo);
-            Assert.IsTrue(IsEmpty, NotAllRecFieldsDeletedErr);
-        end;
+        DataExportRecField.SetRange("Data Export Code", DataExportRecord."Data Export Code");
+        DataExportRecField.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
+        DataExportRecField.SetRange("Table No.", TableNo);
+        Assert.IsTrue(DataExportRecField.IsEmpty, NotAllRecFieldsDeletedErr);
     end;
 
     local procedure VerifyRelatedTablesDeleted(var DataExportRecord: Record "Data Export Record Definition"; ParentTableNo: Integer; ParentSourceLineNo: Integer)
@@ -3440,40 +3378,34 @@ codeunit 142006 "Export Business Data"
         DataExportRecordSource: Record "Data Export Record Source";
         DataExportTableRelation: Record "Data Export Table Relation";
     begin
-        with DataExportRecordSource do begin
-            SetRange("Data Export Code", DataExportRecord."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-            SetRange("Relation To Line No.", ParentSourceLineNo);
-            Assert.IsTrue(IsEmpty, NotAllReleatedTablesDeletedErr);
-        end;
+        DataExportRecordSource.SetRange("Data Export Code", DataExportRecord."Data Export Code");
+        DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
+        DataExportRecordSource.SetRange("Relation To Line No.", ParentSourceLineNo);
+        Assert.IsTrue(DataExportRecordSource.IsEmpty, NotAllReleatedTablesDeletedErr);
 
-        with DataExportTableRelation do begin
-            SetRange("Data Export Code", DataExportRecord."Data Export Code");
-            SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
-            SetRange("From Table No.", ParentTableNo);
-            Assert.IsTrue(IsEmpty, NotAllReleatedTablesDeletedErr);
-        end;
+        DataExportTableRelation.SetRange("Data Export Code", DataExportRecord."Data Export Code");
+        DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", DataExportRecord."Data Exp. Rec. Type Code");
+        DataExportTableRelation.SetRange("From Table No.", ParentTableNo);
+        Assert.IsTrue(DataExportTableRelation.IsEmpty, NotAllReleatedTablesDeletedErr);
     end;
 
     local procedure UpdateValuesInCompanyInformation(var CompanyInformation: Record "Company Information")
     begin
-        with CompanyInformation do begin
-            Get();
-            Name := GenerateRandomCode(50);
-            "Name 2" := GenerateRandomCode(50);
-            Address := GenerateRandomCode(50);
-            "Address 2" := GenerateRandomCode(50);
-            "Bank Name" := GenerateRandomCode(50);
-            "Ship-to Name" := GenerateRandomCode(50);
-            "Ship-to Name 2" := GenerateRandomCode(50);
-            "Ship-to Address" := GenerateRandomCode(50);
-            "Ship-to Address 2" := GenerateRandomCode(50);
-            "Ship-to Contact" := GenerateRandomCode(50);
-            "Custom System Indicator Text" := GenerateRandomCode(240);
-            "Tax Office Name" := GenerateRandomCode(50);
-            "Tax Office Name 2" := GenerateRandomCode(50);
-            Modify();
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Name := GenerateRandomCode(50);
+        CompanyInformation."Name 2" := GenerateRandomCode(50);
+        CompanyInformation.Address := GenerateRandomCode(50);
+        CompanyInformation."Address 2" := GenerateRandomCode(50);
+        CompanyInformation."Bank Name" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Name" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Name 2" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Address" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Address 2" := GenerateRandomCode(50);
+        CompanyInformation."Ship-to Contact" := GenerateRandomCode(50);
+        CompanyInformation."Custom System Indicator Text" := GenerateRandomCode(240);
+        CompanyInformation."Tax Office Name" := GenerateRandomCode(50);
+        CompanyInformation."Tax Office Name 2" := GenerateRandomCode(50);
+        CompanyInformation.Modify();
     end;
 
     local procedure ParentTableNo(): Integer
@@ -3543,10 +3475,8 @@ codeunit 142006 "Export Business Data"
 
     local procedure CreateDummyDTDFileBlob(var DataExportRecord: Record "Data Export Record Definition")
     begin
-        with DataExportRecord do begin
-            "DTD File Name" := DefaultDTDFileTxt;
-            Modify();
-        end;
+        DataExportRecord."DTD File Name" := DefaultDTDFileTxt;
+        DataExportRecord.Modify();
     end;
 
     local procedure CreateDataExportOfCompanyInformation(var DataExportRecordDefinition: Record "Data Export Record Definition"): Text
@@ -3570,16 +3500,14 @@ codeunit 142006 "Export Business Data"
     var
         DataExportRecField: Record "Data Export Record Field";
     begin
-        with DataExportRecField do begin
-            "Data Export Code" := DataExportRecordSource."Data Export Code";
-            "Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
-            "Table No." := DataExportRecordSource."Table No.";
-            "Source Line No." := DataExportRecordSource."Line No.";
-            "Line No." := "Line No." + 10000;
-            "Field No." := FieldId;
-            "Export Field Name" := 'F' + Format("Field No.");
-            Insert();
-        end;
+        DataExportRecField."Data Export Code" := DataExportRecordSource."Data Export Code";
+        DataExportRecField."Data Exp. Rec. Type Code" := DataExportRecordSource."Data Exp. Rec. Type Code";
+        DataExportRecField."Table No." := DataExportRecordSource."Table No.";
+        DataExportRecField."Source Line No." := DataExportRecordSource."Line No.";
+        DataExportRecField."Line No." := DataExportRecField."Line No." + 10000;
+        DataExportRecField."Field No." := FieldId;
+        DataExportRecField."Export Field Name" := 'F' + Format(DataExportRecField."Field No.");
+        DataExportRecField.Insert();
     end;
 
     local procedure ValidateExportedDataFromFileFile(ZipFilePath: Text; FileName: Text; Value: Text)

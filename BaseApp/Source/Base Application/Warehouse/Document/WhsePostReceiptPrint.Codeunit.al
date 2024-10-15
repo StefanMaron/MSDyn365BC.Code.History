@@ -19,7 +19,11 @@ codeunit 5762 "Whse.-Post Receipt + Print"
         WhseReceiptLine: Record "Warehouse Receipt Line";
         PrintedDocuments: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Number of put-away activities printed: %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

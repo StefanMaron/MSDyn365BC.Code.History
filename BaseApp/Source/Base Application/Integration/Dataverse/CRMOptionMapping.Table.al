@@ -40,12 +40,14 @@ table 5334 "CRM Option Mapping"
         {
             Caption = 'Option Value Caption';
         }
+#pragma warning disable AS0044	
         field(7; "Last Synch. Result"; Option)
         {
             Caption = 'Last Synch. Result';
-            OptionCaption = ',Success,Failure';
-            OptionMembers = ,Success,Failure;
+            OptionCaption = ' ,Success,Failure';
+            OptionMembers = " ",Success,Failure;
         }
+#pragma warning restore AS0044
         field(8; Skipped; Boolean)
         {
             Caption = 'Skipped';
@@ -54,12 +56,14 @@ table 5334 "CRM Option Mapping"
         {
             Caption = 'Last Synch. Job ID';
         }
+#pragma warning disable AS0044
         field(10; "Last Synch. CRM Result"; Option)
         {
             Caption = 'Last Synch. CRM Result';
-            OptionCaption = ',Success,Failure';
-            OptionMembers = ,Success,Failure;
+            OptionCaption = ' ,Success,Failure';
+            OptionMembers = " ",Success,Failure;
         }
+#pragma warning restore AS0044
         field(11; "Last Synch. CRM Job ID"; Guid)
         {
             Caption = 'Last Synch. CRM Job ID';

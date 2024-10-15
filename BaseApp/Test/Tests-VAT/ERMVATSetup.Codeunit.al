@@ -1159,35 +1159,29 @@ codeunit 134047 "ERM VAT Setup"
 
     local procedure CreateContact(var Contact: Record Contact)
     begin
-        with Contact do begin
-            Init();
-            Validate("No.", LibraryUtility.GenerateGUID());
-            Type := Type::Company;
-            "Company No." := "No.";
-            Validate("Country/Region Code", 'DK');
-            Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Insert();
-        end;
+        Contact.Init();
+        Contact.Validate("No.", LibraryUtility.GenerateGUID());
+        Contact.Type := Contact.Type::Company;
+        Contact."Company No." := Contact."No.";
+        Contact.Validate("Country/Region Code", 'DK');
+        Contact.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
+        Contact.Insert();
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Country/Region Code", 'DK');
-            Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify();
-        end;
+        Customer.Validate("Country/Region Code", 'DK');
+        Customer.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
+        Customer.Modify();
     end;
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Country/Region Code", 'DK');
-            Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
-            Modify();
-        end;
+        Vendor.Validate("Country/Region Code", 'DK');
+        Vendor.Validate("VAT Registration No.", Format(LibraryRandom.RandIntInRange(10000000, 99999999)));
+        Vendor.Modify();
     end;
 
     local procedure VerifyVATRegistrationLogEntryExists(AccountType: Enum "VAT Registration Log Account Type"; AccountNo: Code[20])

@@ -33,7 +33,11 @@ codeunit 5932 "Service-Get Shipment"
         ServiceShptLine: Record "Service Shipment Line";
         GetServiceShipments: Page "Get Service Shipment Lines";
         LineListHasAttachments: Dictionary of [Code[20], Boolean];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateInvLines(var ServiceShptLine2: Record "Service Shipment Line")
     var

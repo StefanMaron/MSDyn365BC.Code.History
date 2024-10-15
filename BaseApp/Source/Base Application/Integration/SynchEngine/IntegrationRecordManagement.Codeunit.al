@@ -13,7 +13,9 @@ codeunit 5338 "Integration Record Management"
     end;
 
     var
+#pragma warning disable AA0470
         UnsupportedTableConnectionTypeErr: Label '%1 is not a supported table connection type.';
+#pragma warning restore AA0470
 
     procedure FindRecordIdByIntegrationTableUid(IntegrationTableConnectionType: TableConnectionType; IntegrationTableUid: Variant; DestinationTableId: Integer; var DestinationRecordId: RecordID): Boolean
     var

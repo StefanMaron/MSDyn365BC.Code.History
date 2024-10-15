@@ -15,12 +15,12 @@ codeunit 142066 "UT PAG VATSTAT"
     [Scope('OnPrem')]
     procedure SetUsageFilterVATStatement()
     var
-        DACHReportSelections: Record "DACH Report Selections";
-        ReportUsage: Option "VAT Statement","G/L - VAT Reconciliation","VAT Statement Schedule";
+        ReportSelections: Record "Report Selections";
     begin
-        // Purpose of the test is to validate SetUsageFilter function of Page ID 26101 Report Selection - VAT.
+        // Purpose of the test is to validate SetUsageFilter function of Page Report Selection - VAT Stmt.
         // Setup.
-        SetUsageFilter(DACHReportSelections.Usage::"VAT Statement", ReportUsage::"VAT Statement", REPORT::"VAT Statement Germany");
+        SetUsageFilter(
+            ReportSelections.Usage::"VAT Statement", "Report Selection Usage VAT"::"VAT Statement", REPORT::"VAT Statement Germany");
     end;
 
     [Test]
@@ -28,13 +28,12 @@ codeunit 142066 "UT PAG VATSTAT"
     [Scope('OnPrem')]
     procedure SetUsageFilterGLVATReconciliation()
     var
-        DACHReportSelections: Record "DACH Report Selections";
-        ReportUsage: Option "VAT Statement","G/L - VAT Reconciliation","VAT Statement Schedule";
+        ReportSelections: Record "Report Selections";
     begin
         // Purpose of the test is to validate SetUsageFilter function of Page ID 26101 Report Selection - VAT.
         // Setup.
-        SetUsageFilter(DACHReportSelections.Usage::"Sales VAT Acc. Proof",
-          ReportUsage::"G/L - VAT Reconciliation", REPORT::"G/L - VAT Reconciliation");
+        SetUsageFilter(
+            ReportSelections.Usage::"Sales VAT Acc. Proof", "Report Selection Usage VAT"::"Sales VAT Adv. Not. Acc", REPORT::"G/L - VAT Reconciliation");
     end;
 
     [Test]
@@ -42,30 +41,30 @@ codeunit 142066 "UT PAG VATSTAT"
     [Scope('OnPrem')]
     procedure SetUsageFilterSalesVATStatementSchedule()
     var
-        DACHReportSelections: Record "DACH Report Selections";
-        ReportUsage: Option "VAT Statement","G/L - VAT Reconciliation","VAT Statement Schedule";
+        ReportSelections: Record "Report Selections";
     begin
         // Purpose of the test is to validate SetUsageFilter function of Page ID 26101 Report Selection - VAT.
         // Setup.
-        SetUsageFilter(DACHReportSelections.Usage::"VAT Statement Schedule", ReportUsage::"VAT Statement Schedule", REPORT::"VAT Statement Schedule");
+        SetUsageFilter(
+            ReportSelections.Usage::"VAT Statement Schedule", "Report Selection Usage VAT"::"VAT Statement Schedule", REPORT::"VAT Statement Schedule");
     end;
 
-    local procedure SetUsageFilter(Usage: Option; ReportUsage: Option; ReportID: Integer)
+    local procedure SetUsageFilter(Usage: Enum "Report Selection Usage"; ReportUsage: Enum "Report Selection Usage VAT"; ReportID: Integer)
     var
-        DACHReportSelections: Record "DACH Report Selections";
-        ReportSelectionVAT: TestPage "Report Selection - VAT";
+        ReportSelections: Record "Report Selections";
+        ReportSelectionVATStmt: TestPage "Report Selection - VAT Stmt.";
     begin
         // Create DACH Report Selections for different Usage.
-        CreateDACHReportSelections(DACHReportSelections, Usage, ReportID);
-        ReportSelectionVAT.OpenEdit();
+        CreateReportSelections(ReportSelections, Usage, ReportID);
+        ReportSelectionVATStmt.OpenEdit();
 
         // Exercise: Report Selection VAT Page for different ReportUsage2.
-        ReportSelectionVAT.ReportUsage2.SetValue(ReportUsage);
-        ReportSelectionVAT.FILTER.SetFilter(Sequence, DACHReportSelections.Sequence);
+        ReportSelectionVATStmt.ReportUsage2.SetValue(ReportUsage);
+        ReportSelectionVATStmt.FILTER.SetFilter(Sequence, ReportSelections.Sequence);
 
         // Verify: Verify Report ID is updated on Page Report Selection - VAT for different Usages.
-        ReportSelectionVAT."Report ID".AssertEquals(DACHReportSelections."Report ID");
-        ReportSelectionVAT.Close();
+        ReportSelectionVATStmt."Report ID".AssertEquals(ReportSelections."Report ID");
+        ReportSelectionVATStmt.Close();
     end;
 
     [Test]
@@ -94,14 +93,14 @@ codeunit 142066 "UT PAG VATSTAT"
     [Scope('OnPrem')]
     procedure GLVATReconciliationVATStatement()
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
         VATStatementAction: Option GLVATReconciliation,VATStatementSchedule;
     begin
         // Purpose of the test is to validate GLVATReconciliation Action of Page 317 - VAT Statement.
 
         // Setup: Opens Report - G/L - VAT Reconciliation handled in GLVATReconciliationRequestPageHandler.
-        VATStatementForDACHReportSelections(DACHReportSelections.Usage::"Sales VAT Acc. Proof",
-          VATStatementAction::GLVATReconciliation, REPORT::"G/L - VAT Reconciliation");
+        VATStatementForReportSelections(
+            ReportSelections.Usage::"Sales VAT Acc. Proof", VATStatementAction::GLVATReconciliation, REPORT::"G/L - VAT Reconciliation");
     end;
 
     [Test]
@@ -110,23 +109,23 @@ codeunit 142066 "UT PAG VATSTAT"
     [Scope('OnPrem')]
     procedure VATStatementScheduleFromVATStatement()
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
         VATStatementAction: Option GLVATReconciliation,VATStatementSchedule;
     begin
         // Purpose of the test is to validate VATStatementSchedule Action of Page 317 - VAT Statement.
 
         // Setup: Opens Report - VAT Statement Schedule handled in VATStatementScheduleRequestPageHandler.
-        VATStatementForDACHReportSelections(DACHReportSelections.Usage::"VAT Statement Schedule", VATStatementAction::VATStatementSchedule, REPORT::"VAT Statement Schedule");
+        VATStatementForReportSelections(ReportSelections.Usage::"VAT Statement Schedule", VATStatementAction::VATStatementSchedule, REPORT::"VAT Statement Schedule");
     end;
 
-    local procedure VATStatementForDACHReportSelections(Usage: Option; VATStatementAction: Option; ReportID: Integer)
+    local procedure VATStatementForReportSelections(Usage: Enum "Report Selection Usage"; VATStatementAction: Option; ReportID: Integer)
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
         VATStatementName: Record "VAT Statement Name";
         VATStatement: TestPage "VAT Statement";
     begin
         // Open VAT Statement Page.
-        CreateDACHReportSelections(DACHReportSelections, Usage, ReportID);
+        CreateReportSelections(ReportSelections, Usage, ReportID);
         VATStatementName.FindFirst();
         VATStatement.OpenEdit();
         VATStatement.CurrentStmtName.SetValue(VATStatementName.Name);
@@ -135,12 +134,12 @@ codeunit 142066 "UT PAG VATSTAT"
         InvokeVATStatementAction(VATStatement, VATStatementAction);
     end;
 
-    local procedure CreateDACHReportSelections(var DACHReportSelections: Record "DACH Report Selections"; Usage: Option; ReportID: Integer)
+    local procedure CreateReportSelections(var ReportSelections: Record "Report Selections"; Usage: Enum "Report Selection Usage"; ReportID: Integer)
     begin
-        DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
-        DACHReportSelections."Report ID" := ReportID;
-        DACHReportSelections.Insert();
+        ReportSelections.Usage := Usage;
+        ReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
+        ReportSelections."Report ID" := ReportID;
+        ReportSelections.Insert();
     end;
 
     local procedure InvokeVATStatementAction(VATStatement: TestPage "VAT Statement"; "Action": Option)

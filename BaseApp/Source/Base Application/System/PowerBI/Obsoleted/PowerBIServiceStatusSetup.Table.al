@@ -9,13 +9,8 @@ table 6309 "Power BI Service Status Setup"
     DataPerCompany = false;
     ReplicateData = false;
     ObsoleteReason = 'Power BI service status is no longer cached.';
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif
     DataClassification = CustomerContent;
 
     fields

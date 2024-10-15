@@ -22,7 +22,6 @@ codeunit 134303 "Workflow Event Response Tests"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         VendorNo: Code[20];
-        ReleasedErr: Label 'Status must be equal to ''%1''';
         UserEmailAddressTxt: Label 'test@contoso.com';
         GeneralJnlTemplateCode: Code[10];
         GeneralJnlBatchCode: Code[10];
@@ -260,7 +259,7 @@ codeunit 134303 "Workflow Event Response Tests"
         asserterror ApprovalsMgmt.OnSendPurchaseDocForApproval(PurchaseHeader);
 
         // Verify.
-        Assert.ExpectedError(StrSubstNo(ReleasedErr, PurchaseHeader.Status::Released));
+        Assert.ExpectedTestFieldError(PurchaseHeader.FieldCaption(Status), Format(PurchaseHeader.Status::Released));
     end;
 
     [Test]

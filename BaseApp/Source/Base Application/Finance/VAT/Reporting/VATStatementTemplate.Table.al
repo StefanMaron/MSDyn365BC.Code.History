@@ -35,10 +35,10 @@ table 255 "VAT Statement Template"
                 if "Page ID" = 0 then
                     "Page ID" := PAGE::"VAT Statement";
                 "VAT Statement Report ID" := REPORT::"VAT Statement";
-                DACHReportSelection.SetRange(Usage, DACHReportSelection.Usage::"VAT Statement");
-                DACHReportSelection.SetFilter("Report ID", '<>0');
-                if DACHReportSelection.Find('-') then
-                    "VAT Statement Report ID" := DACHReportSelection."Report ID";
+                ReportSelections.SetRange(Usage, ReportSelections.Usage::"VAT Statement");
+                ReportSelections.SetFilter("Report ID", '<>0');
+                if ReportSelections.Find('-') then
+                    "VAT Statement Report ID" := ReportSelections."Report ID";
             end;
         }
         field(7; "VAT Statement Report ID"; Integer)
@@ -92,6 +92,6 @@ table 255 "VAT Statement Template"
     var
         VATStmtName: Record "VAT Statement Name";
         VATStmtLine: Record "VAT Statement Line";
-        DACHReportSelection: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
 }
 

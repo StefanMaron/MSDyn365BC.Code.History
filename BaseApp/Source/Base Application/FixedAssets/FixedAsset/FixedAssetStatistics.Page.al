@@ -11,6 +11,8 @@ page 5602 "Fixed Asset Statistics"
     PageType = Card;
     RefreshOnActivate = true;
     SourceTable = "FA Depreciation Book";
+    AboutTitle = 'About Fixed Asset Statistics';
+    AboutText = 'Here you overview the total acquisition cost, depreciation, and book value for the asset.';
 
     layout
     {

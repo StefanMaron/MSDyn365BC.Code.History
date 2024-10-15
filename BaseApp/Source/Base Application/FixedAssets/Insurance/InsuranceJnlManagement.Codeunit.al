@@ -12,10 +12,12 @@ codeunit 5656 InsuranceJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'INSURANCE';
         Text001: Label 'Insurance Journal';
         Text002: Label 'DEFAULT';
         Text003: Label 'Default Journal';
+#pragma warning restore AA0074
         OldInsuranceNo: Code[20];
         OldFANo: Code[20];
         OpenFromBatch: Boolean;

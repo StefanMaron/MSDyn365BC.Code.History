@@ -26,9 +26,6 @@ using Microsoft.Sales.FinanceCharge;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Reports;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
-using Microsoft.Service.Reports;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.History;
 using Microsoft.Warehouse.Reports;
@@ -137,15 +134,6 @@ codeunit 1901 "Report Selection Mgt."
     procedure InitReportSelectionServ()
     begin
         OnBeforeInitReportSelectionServ();
-
-        InitReportSelection("Report Selection Usage"::"SM.Quote");
-        InitReportSelection("Report Selection Usage"::"SM.Order");
-        InitReportSelection("Report Selection Usage"::"SM.Invoice");
-        InitReportSelection("Report Selection Usage"::"SM.Credit Memo");
-        InitReportSelection("Report Selection Usage"::"SM.Shipment");
-        InitReportSelection("Report Selection Usage"::"SM.Contract Quote");
-        InitReportSelection("Report Selection Usage"::"SM.Contract");
-        InitReportSelection("Report Selection Usage"::"SM.Test");
 
         OnAfterInitReportSelectionServ();
     end;
@@ -272,22 +260,6 @@ codeunit 1901 "Report Selection Mgt."
                 InsertRepSelection("Report Selection Usage"::M2, '1', REPORT::"Prod. Order - Mat. Requisition");
             "Report Selection Usage"::M3:
                 InsertRepSelection("Report Selection Usage"::M3, '1', REPORT::"Prod. Order - Shortage List");
-            "Report Selection Usage"::"SM.Quote":
-                InsertRepSelection("Report Selection Usage"::"SM.Quote", '1', REPORT::"Service Quote");
-            "Report Selection Usage"::"SM.Order":
-                InsertRepSelection("Report Selection Usage"::"SM.Order", '1', REPORT::"Service Order");
-            "Report Selection Usage"::"SM.Invoice":
-                InsertRepSelection("Report Selection Usage"::"SM.Invoice", '1', REPORT::"Service - Invoice");
-            "Report Selection Usage"::"SM.Credit Memo":
-                InsertRepSelection("Report Selection Usage"::"SM.Credit Memo", '1', REPORT::"Service - Credit Memo");
-            "Report Selection Usage"::"SM.Shipment":
-                InsertRepSelection("Report Selection Usage"::"SM.Shipment", '1', REPORT::"Service - Shipment");
-            "Report Selection Usage"::"SM.Contract Quote":
-                InsertRepSelection("Report Selection Usage"::"SM.Contract Quote", '1', REPORT::"Service Contract Quote");
-            "Report Selection Usage"::"SM.Contract":
-                InsertRepSelection("Report Selection Usage"::"SM.Contract", '1', REPORT::"Service Contract");
-            "Report Selection Usage"::"SM.Test":
-                InsertRepSelection("Report Selection Usage"::"SM.Test", '1', REPORT::"Service Document - Test");
             "Report Selection Usage"::"Asm.Order":
                 InsertRepSelection("Report Selection Usage"::"Asm.Order", '1', REPORT::"Assembly Order");
             "Report Selection Usage"::"P.Asm.Order":
@@ -357,21 +329,13 @@ codeunit 1901 "Report Selection Mgt."
 
     procedure InitDACHReportSelection()
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
     begin
-        if not DACHReportSelections.FindFirst() then begin
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Sales VAT Acc. Proof", '1', REPORT::"G/L - VAT Reconciliation");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"VAT Statement Schedule", '1', REPORT::"VAT Statement Schedule");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Delivery Reminder Test", '1', REPORT::"Delivery Reminder - Test");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Issued Delivery Reminder", '1', REPORT::"Issued Delivery Reminder");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"VAT Statement", '1', REPORT::"VAT Statement Germany");
-#if not CLEAN22
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Form", '1', REPORT::"Intrastat - Form DE");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Disk", '1', REPORT::"Intrastat - Disk Tax Auth DE");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Checklist", '1', REPORT::"Intrastat - Checklist DE");
-            InsertDACHRepSelection(DACHReportSelections.Usage::"Intrastat Disklabel", '1', REPORT::"Intrastat  Disk (Labels)");
-#endif
-        end;
+        InsertRepSelection(ReportSelections.Usage::"Sales VAT Acc. Proof", '1', REPORT::"G/L - VAT Reconciliation");
+        InsertRepSelection(ReportSelections.Usage::"VAT Statement Schedule", '1', REPORT::"VAT Statement Schedule");
+        InsertRepSelection(ReportSelections.Usage::"Delivery Reminder Test", '1', REPORT::"Delivery Reminder - Test");
+        InsertRepSelection(ReportSelections.Usage::"Issued Delivery Reminder", '1', REPORT::"Issued Delivery Reminder");
+        InsertRepSelection(ReportSelections.Usage::"VAT Statement", '1', REPORT::"VAT Statement Germany");
     end;
 
     local procedure InsertRepSelection(ReportUsage: Enum "Report Selection Usage"; Sequence: Code[10]; ReportID: Integer)
@@ -398,17 +362,6 @@ codeunit 1901 "Report Selection Mgt."
             ReportSelectionWhse."Report ID" := ReportID;
             ReportSelectionWhse.Insert();
         end;
-    end;
-
-    local procedure InsertDACHRepSelection(ReportUsage: Integer; Sequence: Code[10]; ReportID: Integer)
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        DACHReportSelections.Init();
-        DACHReportSelections.Usage := ReportUsage;
-        DACHReportSelections.Sequence := Sequence;
-        DACHReportSelections."Report ID" := ReportID;
-        DACHReportSelections.Insert();
     end;
 
     [IntegrationEvent(false, false)]

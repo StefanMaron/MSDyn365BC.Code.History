@@ -343,6 +343,13 @@ codeunit 1297 "Http Web Request Mgt."
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure AddHeader("Key": Text; Value: SecretText)
+    begin
+        HttpWebRequest.Headers.Add(Key, Value.Unwrap());
+    end;
+
+    [Scope('OnPrem')]
     procedure AddBody(BodyFilePath: Text)
     var
         FileManagement: Codeunit "File Management";
@@ -374,16 +381,28 @@ codeunit 1297 "Http Web Request Mgt."
         RequestStr.Close();
         RequestStr.Dispose();
     end;
+#if not CLEAN25
 
     [NonDebuggable]
+    [Obsolete('Replaced by AddBasicAuthentication(BasicUserId: Text; BasicUserPassword: SecretText)', '25.0')]
     procedure AddBasicAuthentication(BasicUserId: Text; BasicUserPassword: Text)
+    var
+        BasicUserPasswordAsSecretText: SecretText;
+    begin
+        BasicUserPasswordAsSecretText := BasicUserPassword;
+        AddBasicAuthentication(BasicUserId, BasicUserPasswordAsSecretText);
+    end;
+#endif
+
+    [NonDebuggable]
+    procedure AddBasicAuthentication(BasicUserId: Text; BasicUserPassword: SecretText)
     var
         Credential: DotNet NetworkCredential;
     begin
         HttpWebRequest.UseDefaultCredentials(false);
         Credential := Credential.NetworkCredential();
         Credential.UserName := BasicUserId;
-        Credential.Password := BasicUserPassword;
+        Credential.Password := BasicUserPassword.Unwrap();
         HttpWebRequest.Credentials := Credential;
     end;
 

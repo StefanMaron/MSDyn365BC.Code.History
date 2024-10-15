@@ -20,12 +20,12 @@ codeunit 142067 "UT COD VATSTAT"
     procedure PrintGLVATReconciliationDocumentPrint()
     var
         VATStatementName: Record "VAT Statement Name";
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
         DocumentPrint: Codeunit "Document-Print";
     begin
         // Purpose of the test is to validate Method PrintGLVATReconciliation for Codeunit 229 - Document-Print.
         // Setup.
-        CreateDACHReportSelections(DACHReportSelections.Usage::"Sales VAT Acc. Proof", REPORT::"G/L - VAT Reconciliation");
+        CreateReportSelections(ReportSelections.Usage::"Sales VAT Acc. Proof", REPORT::"G/L - VAT Reconciliation");
 
         // Exercise and Verify: Print G/L - VAT Reconciliation. Added Request Page Handler - GLVATReconciliationRequestPageHandler.
         DocumentPrint.PrintSalesVATAdvNotAccProof(VATStatementName);
@@ -38,12 +38,12 @@ codeunit 142067 "UT COD VATSTAT"
     procedure PrintVATStatementScheduleDocumentPrint()
     var
         VATStatementName: Record "VAT Statement Name";
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
         DocumentPrint: Codeunit "Document-Print";
     begin
         // Purpose of the test is to validate Method PrintVATStatementSchedule for Codeunit 229 - Document-Print.
         // Setup.
-        CreateDACHReportSelections(DACHReportSelections.Usage::"VAT Statement Schedule", REPORT::"VAT Statement Schedule");
+        CreateReportSelections(ReportSelections.Usage::"VAT Statement Schedule", REPORT::"VAT Statement Schedule");
 
         // Exercise and Verify: Print VAT Statement Schedule. Added Request Page Handler - VATStatementScheduleRequestPageHandler.
         DocumentPrint.PrintVATStatementSchedule(VATStatementName);
@@ -131,14 +131,14 @@ codeunit 142067 "UT COD VATSTAT"
         VerifyVATStatementLine(VATStatementTemplate.Name);
     end;
 
-    local procedure CreateDACHReportSelections(Usage: Option; ReportID: Integer)
+    local procedure CreateReportSelections(Usage: Enum "Report Selection Usage"; ReportID: Integer)
     var
-        DACHReportSelections: Record "DACH Report Selections";
+        ReportSelections: Record "Report Selections";
     begin
-        DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
-        DACHReportSelections."Report ID" := ReportID;
-        DACHReportSelections.Insert();
+        ReportSelections.Usage := Usage;
+        ReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
+        ReportSelections."Report ID" := ReportID;
+        ReportSelections.Insert();
     end;
 
     local procedure CreateVATStatementTemplate(var VATStatementTemplate: Record "VAT Statement Template")

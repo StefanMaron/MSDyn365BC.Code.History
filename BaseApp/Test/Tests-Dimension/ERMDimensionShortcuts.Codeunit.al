@@ -6190,9 +6190,8 @@ codeunit 134485 "ERM Dimension Shortcuts"
     var
         i: Integer;
     begin
-        for i := 1 to 6 do begin
+        for i := 1 to 6 do
             LibraryDimension.CreateDimWithDimValue(DimensionValue[i]);
-        end;
     end;
 
     local procedure CreateDimSet(DimensionValue: array[6] of Record "Dimension Value"): Integer
@@ -6252,7 +6251,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
 
         GLSetup.Get();
         for i := 1 to 6 do
-            if ShortcutDimNo[i] then begin
+            if ShortcutDimNo[i] then
                 case i of
                     1:
                         GLSetup.Validate("Shortcut Dimension 3 Code", DimensionValue[1]."Dimension Code");
@@ -6267,7 +6266,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
                     6:
                         GLSetup.Validate("Shortcut Dimension 8 Code", DimensionValue[6]."Dimension Code");
                 end;
-            end;
         GLSetup.Modify();
     end;
 

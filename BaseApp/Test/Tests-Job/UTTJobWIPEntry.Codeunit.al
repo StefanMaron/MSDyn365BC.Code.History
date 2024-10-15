@@ -169,19 +169,17 @@ codeunit 136356 "UT T Job WIP Entry"
         JobLedgerEntry: Record "Job Ledger Entry";
         RecRef: RecordRef;
     begin
-        with JobLedgerEntry do begin
-            RecRef.GetTable(JobLedgerEntry);
-            Init();
-            "Entry No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Entry No."));
-            "Posting Date" := WorkDate();
-            "Job No." := JobTask."Job No.";
-            "Job Task No." := JobTask."Job Task No.";
-            "Entry Type" := EntryType;
-            "Line Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
-            "Total Cost (LCY)" := "Line Amount (LCY)";
-            Insert();
-            exit("Total Cost (LCY)");
-        end;
+        RecRef.GetTable(JobLedgerEntry);
+        JobLedgerEntry.Init();
+        JobLedgerEntry."Entry No." := LibraryUtility.GetNewLineNo(RecRef, JobLedgerEntry.FieldNo("Entry No."));
+        JobLedgerEntry."Posting Date" := WorkDate();
+        JobLedgerEntry."Job No." := JobTask."Job No.";
+        JobLedgerEntry."Job Task No." := JobTask."Job Task No.";
+        JobLedgerEntry."Entry Type" := EntryType;
+        JobLedgerEntry."Line Amount (LCY)" := -LibraryRandom.RandDec(100, 2);
+        JobLedgerEntry."Total Cost (LCY)" := JobLedgerEntry."Line Amount (LCY)";
+        JobLedgerEntry.Insert();
+        exit(JobLedgerEntry."Total Cost (LCY)");
     end;
 
     local procedure UpdateJobPostingGroup(JobPostingGroupCode: Code[20])
@@ -190,24 +188,20 @@ codeunit 136356 "UT T Job WIP Entry"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with JobPostingGroup do begin
-            Get(JobPostingGroupCode);
-            Validate("WIP Invoiced Sales Account", GLAccount."No.");
-            Validate("Job Sales Applied Account", GLAccount."No.");
-            Modify(true);
-        end;
+        JobPostingGroup.Get(JobPostingGroupCode);
+        JobPostingGroup.Validate("WIP Invoiced Sales Account", GLAccount."No.");
+        JobPostingGroup.Validate("Job Sales Applied Account", GLAccount."No.");
+        JobPostingGroup.Modify(true);
     end;
 
     local procedure VerifyJobWIPEntryAmount(JobNo: Code[20]; ExpectedType: Enum "Job WIP Buffer Type"; ExpectedAmount: Decimal)
     var
         JobWIPEntry: Record "Job WIP Entry";
     begin
-        with JobWIPEntry do begin
-            SetRange("Job No.", JobNo);
-            SetRange(Type, ExpectedType);
-            CalcSums("WIP Entry Amount");
-            Assert.AreEqual(ExpectedAmount, "WIP Entry Amount", IncorrectWIPEntryAmountErr);
-        end;
+        JobWIPEntry.SetRange("Job No.", JobNo);
+        JobWIPEntry.SetRange(Type, ExpectedType);
+        JobWIPEntry.CalcSums("WIP Entry Amount");
+        Assert.AreEqual(ExpectedAmount, JobWIPEntry."WIP Entry Amount", IncorrectWIPEntryAmountErr);
     end;
 
     [MessageHandler]

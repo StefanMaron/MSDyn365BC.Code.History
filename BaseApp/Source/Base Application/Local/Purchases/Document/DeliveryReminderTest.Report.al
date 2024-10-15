@@ -229,10 +229,9 @@ report 5005272 "Delivery Reminder - Test"
                         if Type = Type::" " then begin
                             if Quantity <> 0 then
                                 AddError(StrSubstNo(Text1140007, FieldCaption(Quantity)));
-                        end else begin
+                        end else
                             if not PurchLine.Get(PurchLine."Document Type"::Order, "Order No.", "Order Line No.") then
                                 AddError(Text1140008);
-                        end;
                     end;
 
                     trigger OnPreDataItem()
@@ -281,7 +280,7 @@ report 5005272 "Delivery Reminder - Test"
             begin
                 if "Vendor No." = '' then
                     AddError(StrSubstNo(Text1140000, FieldCaption("Vendor No.")))
-                else begin
+                else
                     if Vend.Get("Vendor No.") then begin
                         if Vend."Currency Code" <> "Currency Code" then
                             AddError(
@@ -293,7 +292,6 @@ report 5005272 "Delivery Reminder - Test"
                           StrSubstNo(
                             Text1140003,
                             Vend.TableCaption(), "Vendor No."));
-                end;
 
                 GLSetup.Get();
 

@@ -52,7 +52,7 @@ table 737 "VAT Return Period"
         }
         field(21; "VAT Return Status"; Option)
         {
-            CalcFormula = Lookup("VAT Report Header".Status where("No." = field("VAT Return No.")));
+            CalcFormula = lookup("VAT Report Header".Status where("No." = field("VAT Return No.")));
             Caption = 'VAT Return Status';
             Editable = false;
             FieldClass = FlowField;

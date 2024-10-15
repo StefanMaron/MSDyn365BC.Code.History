@@ -137,6 +137,8 @@ report 313 "Vendor/Item Purchases"
 
     requestpage
     {
+        AboutTitle = 'About Vendor/Item Purchases';
+        AboutText = 'Analyse your item purchases per vendor to manage inventory procurement and improve supply chain processes. Assess the relationship between discounts, cost amount with volume of item purchases for each vendor/item combination in the given period.';
         SaveValues = true;
 
         layout

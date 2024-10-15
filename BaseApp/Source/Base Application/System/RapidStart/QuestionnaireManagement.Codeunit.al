@@ -13,29 +13,39 @@ codeunit 8610 "Questionnaire Management"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The value of the key field %1 has not been filled in for questionnaire %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         OpenXMLManagement: Codeunit "OpenXML Management";
         XMLDOMMgt: Codeunit "XML DOM Management";
         ConfigPackageMgt: Codeunit "Config. Package Management";
         ConfigProgressBar: Codeunit "Config. Progress Bar";
         ConfigValidateMgt: Codeunit "Config. Validate Management";
         FileMgt: Codeunit "File Management";
+#pragma warning disable AA0074
         Text001: Label 'Exporting questionnaire';
         Text002: Label 'Importing questionnaire';
         Text005: Label 'Could not create the XML schema.';
         Text007: Label 'Applying answers';
         Text008: Label 'Updating questionnaire';
+#pragma warning restore AA0074
         TypeHelper: Codeunit "Type Helper";
         WrkBkWriter: DotNet WorkbookWriter;
         FieldNameCaptionList: Text;
         ExportToExcel: Boolean;
+#pragma warning disable AA0074
         Text022: Label 'Creating Excel worksheet';
         Text024: Label 'Download';
         Text025: Label '*.*|*.*';
         Text026: Label 'Default';
+#pragma warning restore AA0074
         CalledFromCode: Boolean;
+#pragma warning disable AA0074
         Text028: Label 'Import File';
         Text029: Label 'XML file (*.xml)|*.xml', Comment = 'Only translate ''XML Files'' {Split=r"[\|\(]\*\.[^ |)]*[|) ]?"}';
+#pragma warning restore AA0074
         CreateWrkBkFailedErr: Label 'Could not create the Excel workbook.';
 
     procedure UpdateQuestions(ConfigQuestionArea: Record "Config. Question Area")

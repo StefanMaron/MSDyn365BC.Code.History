@@ -533,8 +533,12 @@ page 5098 "Task Card"
 
     var
         Contact: Record Contact;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 will always have either the %2 or %3 assigned.';
         Text002: Label 'The %1 of the %2 type must always have the %3 assigned.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CannotSelectAttendeesErr: Label 'You cannot select attendees for a task of the ''%1'' type.', Comment = '%1 = Task Type';
         MakePhoneCallIsNotAvailableErr: Label 'The Make Phone Call function for this task is available only in the Attendee Scheduling window.';
         MustAssignContactErr: Label 'You must assign a contact to this task before you can use the Make Phone Call function.';

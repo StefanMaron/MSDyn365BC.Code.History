@@ -1975,7 +1975,7 @@ codeunit 136900 "Service Reports"
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
-        TestReportPrint: Codeunit "Test Report-Print";
+        ServTestReportPrint: Codeunit "Serv. Test Report Print";
         DiscountPct: Decimal;
         ExpectedInvDiscAmount: Decimal;
         ServiceItemLineNo: Integer;
@@ -1994,7 +1994,7 @@ codeunit 136900 "Service Reports"
         Commit();
 
         // [WHEN] Print "Service Document - Test" report
-        TestReportPrint.PrintServiceHeader(ServiceHeader);
+        ServTestReportPrint.PrintServiceHeader(ServiceHeader);
 
         // [THEN] Invoice Discount Amount is printed and value = "X"
         LibraryReportDataset.LoadDataSetFile();
@@ -2009,7 +2009,7 @@ codeunit 136900 "Service Reports"
     procedure SellToAddrInTestReport()
     var
         ServiceHeader: Record "Service Header";
-        TestReportPrint: Codeunit "Test Report-Print";
+        ServTestReportPrint: Codeunit "Serv. Test Report Print";
     begin
         // [SCENARIO 375362] Section "Customer" of Test Report should contain Sell-to address from Service Order header
         Initialize();
@@ -2020,7 +2020,7 @@ codeunit 136900 "Service Reports"
         Commit();
 
         // [WHEN] Print "Service Document - Test" report
-        TestReportPrint.PrintServiceHeader(ServiceHeader);
+        ServTestReportPrint.PrintServiceHeader(ServiceHeader);
 
         // [THEN] Report should contain correct Sell-to address
         VerifyCustomerAddressInTestReport(ServiceHeader);
@@ -2350,46 +2350,42 @@ codeunit 136900 "Service Reports"
         CountryRegion: Record "Country/Region";
         Option: Option Capitalized,"Literal and Capitalized";
     begin
-        with ServiceHeader do begin
-            LibraryService.CreateServiceHeader(ServiceHeader, "Document Type"::Order, LibrarySales.CreateCustomerNo());
-            Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Name), Option::Capitalized), 1, MaxStrLen(Name));
-            "Name 2" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Name 2"), Option::Capitalized), 1, MaxStrLen("Name 2"));
-            "Contact Name" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Contact Name"), Option::Capitalized),
-                1, MaxStrLen("Contact Name"));
-            Address := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(Address), Option::Capitalized), 1, MaxStrLen(Address));
-            "Address 2" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Address 2"), Option::Capitalized), 1, MaxStrLen("Address 2"));
-            City := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(City), Option::Capitalized), 1, MaxStrLen(City));
-            "Post Code" :=
-              CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen("Post Code"), Option::Capitalized), 1, MaxStrLen("Post Code"));
-            County := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(County), Option::Capitalized), 1, MaxStrLen(County));
-            LibraryERM.CreateCountryRegion(CountryRegion);
-            CountryRegion.Validate(Name,
-              CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion.Name)), MaxStrLen(CountryRegion.Name)));
-            "Country/Region Code" := CountryRegion.Code;
-            Modify();
-        end;
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        ServiceHeader.Name := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader.Name), Option::Capitalized), 1, MaxStrLen(ServiceHeader.Name));
+        ServiceHeader."Name 2" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader."Name 2"), Option::Capitalized), 1, MaxStrLen(ServiceHeader."Name 2"));
+        ServiceHeader."Contact Name" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader."Contact Name"), Option::Capitalized),
+            1, MaxStrLen(ServiceHeader."Contact Name"));
+        ServiceHeader.Address := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader.Address), Option::Capitalized), 1, MaxStrLen(ServiceHeader.Address));
+        ServiceHeader."Address 2" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader."Address 2"), Option::Capitalized), 1, MaxStrLen(ServiceHeader."Address 2"));
+        ServiceHeader.City := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader.City), Option::Capitalized), 1, MaxStrLen(ServiceHeader.City));
+        ServiceHeader."Post Code" :=
+          CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader."Post Code"), Option::Capitalized), 1, MaxStrLen(ServiceHeader."Post Code"));
+        ServiceHeader.County := CopyStr(LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(ServiceHeader.County), Option::Capitalized), 1, MaxStrLen(ServiceHeader.County));
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate(Name,
+          CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(CountryRegion.Name)), MaxStrLen(CountryRegion.Name)));
+        ServiceHeader."Country/Region Code" := CountryRegion.Code;
+        ServiceHeader.Modify();
     end;
 
     local procedure FillServiceOrderShiptoAddressValuesAreNotSameSellto(var ServiceHeader: Record "Service Header")
     var
         CountryRegion: Record "Country/Region";
     begin
-        with ServiceHeader do begin
-            "Ship-to Name" := CopyStr(Name, 2);
-            "Ship-to Name 2" := CopyStr("Name 2", 2);
-            "Ship-to Contact" := CopyStr("Contact Name", 2);
-            "Ship-to Address" := CopyStr(Address, 2);
-            "Ship-to Address 2" := CopyStr("Address 2", 2);
-            "Ship-to City" := CopyStr(City, 2);
-            "Ship-to Post Code" := CopyStr("Post Code", 2);
-            "Ship-to County" := CopyStr(County, 2);
-            LibraryERM.CreateCountryRegion(CountryRegion);
-            "Ship-to Country/Region Code" := CountryRegion.Code;
-            Modify();
-        end;
+        ServiceHeader."Ship-to Name" := CopyStr(ServiceHeader.Name, 2);
+        ServiceHeader."Ship-to Name 2" := CopyStr(ServiceHeader."Name 2", 2);
+        ServiceHeader."Ship-to Contact" := CopyStr(ServiceHeader."Contact Name", 2);
+        ServiceHeader."Ship-to Address" := CopyStr(ServiceHeader.Address, 2);
+        ServiceHeader."Ship-to Address 2" := CopyStr(ServiceHeader."Address 2", 2);
+        ServiceHeader."Ship-to City" := CopyStr(ServiceHeader.City, 2);
+        ServiceHeader."Ship-to Post Code" := CopyStr(ServiceHeader."Post Code", 2);
+        ServiceHeader."Ship-to County" := CopyStr(ServiceHeader.County, 2);
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        ServiceHeader."Ship-to Country/Region Code" := CountryRegion.Code;
+        ServiceHeader.Modify();
     end;
 
     local procedure CreateServiceOrderWithDimensions(var ServiceHeader: Record "Service Header") DimText: Text

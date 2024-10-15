@@ -28,7 +28,9 @@ codeunit 1704 "Exp. Pre-Mapping Det Pos. Pay"
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Preprocessing line no. #1######.';
+#pragma warning restore AA0470
 
     local procedure PreparePosPayDetails(var CheckLedgerEntry: Record "Check Ledger Entry"; DataExchangeEntryNo: Integer; var LineNo: Integer)
     var

@@ -11,7 +11,9 @@ codeunit 99000777 "Check Prod. Order Status"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'The update has been interrupted to respect the warning.';
+#pragma warning restore AA0074
 
     procedure SalesLineCheck(SalesLine: Record "Sales Line")
     var

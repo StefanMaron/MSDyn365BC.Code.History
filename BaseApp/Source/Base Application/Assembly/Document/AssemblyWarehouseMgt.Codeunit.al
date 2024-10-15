@@ -4,6 +4,8 @@ using Microsoft.Inventory.Location;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Structure;
+using Microsoft.Warehouse.Worksheet;
 
 codeunit 5997 "Assembly Warehouse Mgt."
 {
@@ -11,6 +13,7 @@ codeunit 5997 "Assembly Warehouse Mgt."
 #if not CLEAN23
         WMSManagement: Codeunit "WMS Management";
 #endif
+        WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"WMS Management", 'OnShowSourceDocLine', '', false, false)]
@@ -128,5 +131,85 @@ codeunit 5997 "Assembly Warehouse Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnAfterAssemblyLineDelete(var AssemblyLine: Record "Assembly Line")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSrcDocLineQtyOutstanding', '', false, false)]
+    local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseOutstanding: Decimal; var QtyOutstanding: Decimal)
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        if SourceType = Database::"Assembly Line" then
+            if AssemblyLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
+                QtyOutstanding := AssemblyLine."Remaining Quantity";
+                QtyBaseOutstanding := AssemblyLine."Remaining Quantity (Base)";
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', false, false)]
+    local procedure WhseManagementGetSourceDocumentType(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        case SourceType of
+            Database::"Assembly Line":
+                begin
+                    SourceDocument := "Warehouse Journal Source Document"::"Assembly Consumption";
+                    IsHandled := true;
+                end;
+            Database::"Assembly Header":
+                begin
+                    SourceDocument := "Warehouse Journal Source Document"::"Assembly Order";
+                    IsHandled := true;
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetJournalSourceDocument', '', false, false)]
+    local procedure WhseManagementGetJournalSourceDocument(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        case SourceType of
+            Database::"Assembly Line":
+                begin
+                    SourceDocument := SourceDocument::"Assembly Consumption";
+                    IsHandled := true;
+                end;
+            Database::"Assembly Header":
+                begin
+                    SourceDocument := SourceDocument::"Assembly Order";
+                    IsHandled := true;
+                end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnBeforeGetSourceType', '', false, false)]
+    local procedure WhseManagementOnBeforeGetSourceType(WhseWorksheetLine: Record "Whse. Worksheet Line"; var SourceType: Integer; var IsHandled: Boolean)
+    begin
+        if WhseWorksheetLine."Whse. Document Type" = WhseWorksheetLine."Whse. Document Type"::Assembly then begin
+            SourceType := Database::"Assembly Line";
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', false, false)]
+    local procedure CreatePickOnCheckSourceDocument(var PickWhseWkshLine: Record "Whse. Worksheet Line")
+    var
+        AssemblyLine: Record "Assembly Line";
+    begin
+        if PickWhseWkshLine."Source Type" = Database::"Assembly Line" then begin
+            AssemblyLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
+            AssemblyLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+            AssemblyLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+            if AssemblyLine.IsEmpty() then
+                Error(WhseManagement.GetSourceDocumentDoesNotExistErr(), AssemblyLine.TableCaption(), AssemblyLine.GetFilters());
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Integration Management", 'OnCheckBinTypeAndCode', '', false, false)]
+    local procedure OnCheckBinTypeAndCode(BinType: Record "Bin Type"; AdditionalIdentifier: Option; SourceTable: Integer)
+    begin
+        case SourceTable of
+            Database::"Assembly Header":
+                BinType.AllowPutawayPickOrQCBinsOnly();
+            Database::"Assembly Line":
+                BinType.AllowPutawayOrQCBinsOnly();
+        end;
     end;
 }

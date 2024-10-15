@@ -96,8 +96,12 @@ report 5184 "Apply Mailing Group"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Specify a Mailing Group Code.';
+#pragma warning disable AA0470
         Text001: Label '%1 %2 is now applied to Segment %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeleteOld: Boolean;
         MailingGroupCode: Code[10];
 

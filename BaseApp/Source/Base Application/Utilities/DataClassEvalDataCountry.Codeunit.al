@@ -13,13 +13,12 @@ using System.Privacy;
 using Microsoft.Inventory.Intrastat;
 using Microsoft.Finance.AuditFileExport;
 using Microsoft.Finance.GeneralLedger.Reports;
+#if not CLEAN25
 using Microsoft.Foundation.Reporting;
+#endif
 using Microsoft.Purchases.Document;
 #if not CLEAN24
 using Microsoft.Inventory.Counting;
-#endif
-#if not CLEAN22
-using Microsoft;
 #endif
 
 codeunit 1752 "Data Class. Eval. Data Country"
@@ -53,12 +52,11 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Export Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Data Exp. Primary Key Buffer");
-#if not CLEAN22
-        DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::Certificate);
-#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Key Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Number Series Buffer");
+#if not CLEAN25
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"DACH Report Selections");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Delivery Reminder Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Issued Deliv. Reminder Header");

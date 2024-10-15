@@ -6,9 +6,6 @@ namespace Microsoft.Finance.VAT.Reporting;
 
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.VAT.Ledger;
-#if not CLEAN22
-using Microsoft.Foundation.Enums;
-#endif
 
 #pragma warning disable AS0106 // Protected variable VATDateType was removed before AS0106 was introduced.
 page 475 "VAT Statement Preview Line"
@@ -164,7 +161,11 @@ page 475 "VAT Statement Preview Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Drilldown is not possible when %1 is %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         GLEntry: Record "G/L Entry";
@@ -178,9 +179,6 @@ page 475 "VAT Statement Preview Line"
         TotalBase: Decimal;
         TotalUnrealizedAmount: Decimal;
         TotalUnrealizedBase: Decimal;
-#if not CLEAN22
-        VATDateType: Enum "VAT Date Type";
-#endif
 
     local procedure SetKeyForVATEntry(var VATEntryLocal: Record "VAT Entry")
     begin
@@ -207,25 +205,6 @@ page 475 "VAT Statement Preview Line"
 
         VATStatementGermany.CalcLineTotal(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase, Level);
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by UpdateForm without VAT Date', '22.0')]
-    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
-    begin
-        Rec.SetRange("Statement Template Name", VATStmtName."Statement Template Name");
-        Rec.SetRange("Statement Name", VATStmtName.Name);
-        VATStmtName.CopyFilter("Date Filter", Rec."Date Filter");
-        Selection := NewSelection;
-        PeriodSelection := NewPeriodSelection;
-        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
-        VATDateType := NewVATDateType;
-        VATStatementGermany.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, NewVATDateType, false, UseAmtsInAddCurr);
-        OnUpdateFormOnBeforePageUpdate2(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, NewVATDateType);
-        CurrPage.Update();
-
-        OnAfterUpdateForm();
-    end;
-#endif
 
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean)
     begin
@@ -301,14 +280,6 @@ page 475 "VAT Statement Preview Line"
     local procedure OnUpdateFormOnBeforePageUpdate(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
     end;
-
-#if not CLEAN22
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced by OnUpdateFormOnBeforePageUpdate', '22.0')]
-    local procedure OnUpdateFormOnBeforePageUpdate2(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateForm()

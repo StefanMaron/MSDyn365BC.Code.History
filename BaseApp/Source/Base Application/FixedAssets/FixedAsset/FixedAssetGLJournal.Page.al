@@ -23,6 +23,8 @@ page 5628 "Fixed Asset G/L Journal"
     SaveValues = true;
     SourceTable = "Gen. Journal Line";
     UsageCategory = Tasks;
+    AboutTitle = 'About Fixed Asset G/L Journals';
+    AboutText = 'With the **Fixed Asset G/L Journals**, all entries are posted to the fixed asset ledger and the general ledger such as acquisition, depreciation, disposal, write-down, appreciation and maintenance.';
 
     layout
     {
@@ -112,6 +114,8 @@ page 5628 "Fixed Asset G/L Journal"
                 field("FA Posting Type"; Rec."FA Posting Type")
                 {
                     ApplicationArea = FixedAssets;
+                    AboutTitle = 'Manage FA posting type';
+                    AboutText = 'Specify the FA posting type for the fixed asset transactions such as acquisition, depreciation, disposal, write-down, appreciation and maintenance.';
                     ToolTip = 'Specifies the posting type, if Account Type field contains Fixed Asset.';
                 }
                 field(AddCurrCode; GetACYCode())
@@ -742,6 +746,8 @@ page 5628 "Fixed Asset G/L Journal"
                     ApplicationArea = FixedAssets;
                     Caption = 'Insert FA &Bal. Account';
                     Image = InsertBalanceAccount;
+                    AboutTitle = 'Insert FA Bal. Account';
+                    AboutText = 'Insert the FA balance account as per the configuration done in the FA posting groups.';
                     ToolTip = 'Insert the balancing account(s), on new journal lines, for the main account(s) on the journal line(s). This requires that balancing accounts are set up in the FA Posting Groups window for the related fixed asset transaction, such as acquisition cost, depreciation, write-down, or maintenance.';
 
                     trigger OnAction()

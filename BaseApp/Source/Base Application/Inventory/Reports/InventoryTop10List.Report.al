@@ -205,6 +205,8 @@ report 711 "Inventory - Top 10 List"
 
     requestpage
     {
+        AboutTitle = 'About Inventory Top 10 List';
+        AboutText = 'Review a summary of items with the highest or lowest sales or Inventory within a selected period to assist with purchase planning. You can choose to display more than 10 Items';
         SaveValues = true;
 
         layout

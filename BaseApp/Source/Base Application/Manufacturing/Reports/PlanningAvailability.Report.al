@@ -10,7 +10,6 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using System.Utilities;
 
 report 99001048 "Planning Availability"
@@ -86,38 +85,6 @@ report 99001048 "Planning Availability"
                 SetRange(Type, Type::Item);
             end;
         }
-        dataitem("Service Line"; "Service Line")
-        {
-            DataItemTableView = sorting("Document Type", "Document No.", "Line No.");
-
-            trigger OnAfterGetRecord()
-            begin
-                if Selection then begin
-                    NewRecordWithDetails("Needed by Date", "No.", Description);
-                    TempPlanningBuffer."Document Type" := TempPlanningBuffer."Document Type"::"Service Order";
-                    TempPlanningBuffer."Document No." := "Document No.";
-                    TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                    TempPlanningBuffer.Insert();
-                end else begin
-                    TempPlanningBuffer.SetRange("Item No.", "No.");
-                    TempPlanningBuffer.SetRange(Date, "Needed by Date");
-                    if TempPlanningBuffer.Find('-') then begin
-                        TempPlanningBuffer."Gross Requirement" := TempPlanningBuffer."Gross Requirement" + "Outstanding Qty. (Base)";
-                        TempPlanningBuffer.Modify();
-                    end else begin
-                        NewRecordWithDetails("Posting Date", "No.", Description);
-                        TempPlanningBuffer."Gross Requirement" := "Outstanding Qty. (Base)";
-                        TempPlanningBuffer.Insert();
-                    end;
-                end;
-            end;
-
-            trigger OnPreDataItem()
-            begin
-                SetRange("Document Type", "Document Type"::Order);
-                SetRange(Type, Type::Item);
-            end;
-        }
         dataitem("Job Planning Line"; "Job Planning Line")
         {
             DataItemTableView = sorting("Job No.", "Job Task No.", "Line No.");
@@ -147,7 +114,7 @@ report 99001048 "Planning Availability"
             trigger OnPreDataItem()
             begin
                 SetRange(Status, Status::Order);
-                SetRange(Type, "Service Line".Type::Item);
+                SetRange(Type, Type::Item);
             end;
         }
         dataitem("Purchase Line"; "Purchase Line")
@@ -606,6 +573,8 @@ report 99001048 "Planning Availability"
     trigger OnPreReport()
     begin
         PlanningFilter := "Planning Buffer".GetFilters();
+
+        CollectData();
     end;
 
     var
@@ -632,6 +601,11 @@ report 99001048 "Planning Availability"
         AvailableInventoryCaptionLbl: Label 'Available Inventory';
         DateCaptionLbl: Label 'Date';
 
+    local procedure CollectData();
+    begin
+        OnCollectData(TempPlanningBuffer, Selection);
+    end;
+
     local procedure NewRecord()
     begin
         TempPlanningBuffer.SetRange("Item No.");
@@ -646,7 +620,7 @@ report 99001048 "Planning Availability"
         TempPlanningBuffer."Buffer No." := BufferCounter;
     end;
 
-    local procedure NewRecordWithDetails(NewDate: Date; NewItemNo: Code[20]; NewDescription: Text[100])
+    procedure NewRecordWithDetails(NewDate: Date; NewItemNo: Code[20]; NewDescription: Text[100])
     begin
         NewRecord();
         TempPlanningBuffer.Date := NewDate;
@@ -680,6 +654,11 @@ report 99001048 "Planning Availability"
             TempForecastPlanningBuffer."Gross Requirement" -= Quantity;
             TempForecastPlanningBuffer.Modify();
         end;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCollectData(var TempPlanningBuffer: Record "Planning Buffer" temporary; Selection: Boolean)
+    begin
     end;
 }
 

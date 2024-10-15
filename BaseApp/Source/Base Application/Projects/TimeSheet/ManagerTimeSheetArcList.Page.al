@@ -125,18 +125,7 @@ page 962 "Manager Time Sheet Arc. List"
         TimeSheetMgt: Codeunit "Time Sheet Management";
 
     local procedure EditTimeSheet()
-#if not CLEAN22
-    var
-        TimeSheetLineArchive: Record "Time Sheet Line Archive";
-#endif
     begin
-#if not CLEAN22
-        if not TimeSheetMgt.TimeSheetV2Enabled() then begin
-            TimeSheetMgt.SetTimeSheetArchiveNo(Rec."No.", TimeSheetLineArchive);
-            Page.Run(Page::"Manager Time Sheet Archive", TimeSheetLineArchive);
-            exit;
-        end;
-#endif
         Page.Run(Page::"Time Sheet Archive Card", Rec)
     end;
 

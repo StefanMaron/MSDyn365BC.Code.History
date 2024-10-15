@@ -132,13 +132,6 @@ page 952 "Manager Time Sheet"
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                     Visible = false;
                 }
-                field("Service Order No."; Rec."Service Order No.")
-                {
-                    ApplicationArea = Jobs;
-                    Editable = false;
-                    ToolTip = 'Specifies the service order number that is associated with the time sheet line.';
-                    Visible = false;
-                }
                 field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;

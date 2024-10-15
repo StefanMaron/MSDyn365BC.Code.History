@@ -43,8 +43,8 @@ codeunit 144051 "ERM Reports DE"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         IsInitialized: Boolean;
-        RowNotFound: Label 'There is no dataset row corresponding to Element Name %1 with value %2', Comment = '%1=Field Caption;%2=Field Value';
-        ValueMustBeEqual: Label 'The value of %1 must be Equal to %2.', Comment = '%1 Field Caption %2 Field Value';
+        RowNotFoundErr: Label 'There is no dataset row corresponding to Element Name %1 with value %2', Locked = true;
+        ValueMustBeEqualErr: Label 'The value of %1 must be Equal to %2.', Locked = true;
         FileVersionNotDefinedErr: Label 'You must specify file version.';
         FileVersionElsterOnlineNotDefinedErr: Label 'You must specify file version (Elster online).';
 
@@ -384,9 +384,7 @@ codeunit 144051 "ERM Reports DE"
         // Request Page handled by VATVIESDeclarationDiskRequestPageHandler
 
         // [THEN] Error pops up: Country/Region Code must have a value in Customer: No.=%1. It cannot be zero or empty.
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(
-            'Country/Region Code must have a value in Customer: No.=%1. It cannot be zero or empty.', Customer."No."));
+        Assert.ExpectedTestFieldError(Customer.FieldCaption("Country/Region Code"), '');
     end;
 
     [Test]
@@ -425,9 +423,7 @@ codeunit 144051 "ERM Reports DE"
         // Request Page handled by VATVIESDeclarationDiskRequestPageHandler
 
         // [THEN] Error pops up: VAT Registration No. must have a value in Customer: No.=%1. It cannot be zero or empty.
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(StrSubstNo(
-            'VAT Registration No. must have a value in Customer: No.=%1. It cannot be zero or empty.', Customer."No."));
+        Assert.ExpectedTestFieldError(Customer.FieldCaption("VAT Registration No."), '');
     end;
 
     local procedure Initialize()
@@ -538,26 +534,6 @@ codeunit 144051 "ERM Reports DE"
         exit(CountryRegion.Code);
     end;
 
-    local procedure CreateCountryRegion(): Code[10]
-    var
-        CountryRegion: Record "Country/Region";
-    begin
-        LibraryERM.CreateCountryRegion(CountryRegion);
-        CountryRegion.Validate("Intrastat Code", CountryRegion.Code);
-        CountryRegion.Modify(true);
-        exit(CountryRegion.Code);
-    end;
-
-    local procedure CreateDACHReportSelections(Usage: Option; ReportID: Integer)
-    var
-        DACHReportSelections: Record "DACH Report Selections";
-    begin
-        DACHReportSelections.Usage := Usage;
-        DACHReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
-        DACHReportSelections."Report ID" := ReportID;
-        DACHReportSelections.Insert();
-    end;
-
     local procedure CreateItemsWithCostingMethodAndInvtPostingGroup(var Item: Record Item; var Item2: Record Item)
     begin
         CreateItemWithCostingMethod(Item, Item."Costing Method"::LIFO);
@@ -581,17 +557,15 @@ codeunit 144051 "ERM Reports DE"
 
     local procedure CreateVATEntryForCustomer(Customer: Record Customer; var VATEntry: Record "VAT Entry")
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            Type := Type::Sale;
-            "Posting Date" := WorkDate();
-            "Bill-to/Pay-to No." := Customer."No.";
-            "VAT Registration No." := Customer."VAT Registration No.";
-            "Country/Region Code" := Customer."Country/Region Code";
-            Base := LibraryRandom.RandDecInRange(10, 20, 2);
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."Bill-to/Pay-to No." := Customer."No.";
+        VATEntry."VAT Registration No." := Customer."VAT Registration No.";
+        VATEntry."Country/Region Code" := Customer."Country/Region Code";
+        VATEntry.Base := LibraryRandom.RandDecInRange(10, 20, 2);
+        VATEntry.Insert();
     end;
 
     local procedure CreateSalesLineWithUnitPrice(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; Quantity: Decimal)
@@ -694,7 +668,7 @@ codeunit 144051 "ERM Reports DE"
     begin
         LibraryReportDataset.SetRange('PostingGroupCode', Item."Inventory Posting Group");
         if not LibraryReportDataset.GetNextRow() then
-            Error(RowNotFound, 'PostingGroupCode', Item."Inventory Posting Group");
+            Error(RowNotFoundErr, 'PostingGroupCode', Item."Inventory Posting Group");
         LibraryReportDataset.AssertCurrentRowValueEquals(
           'PostingGroupInvValuationTotal', CalculateInventoryValuationTotal(Item."No."));
     end;
@@ -742,10 +716,10 @@ codeunit 144051 "ERM Reports DE"
         ValueEntry.FindFirst();
         Assert.AreNearlyEqual(
           CostAmountExpected, ValueEntry."Cost Amount (Expected)", LibraryERM.GetAmountRoundingPrecision(),
-          StrSubstNo(ValueMustBeEqual, ValueEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected));
+          StrSubstNo(ValueMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Expected)"), CostAmountExpected));
         Assert.AreNearlyEqual(
           CostAmountActual, ValueEntry."Cost Amount (Actual)", LibraryERM.GetAmountRoundingPrecision(),
-          StrSubstNo(ValueMustBeEqual, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
+          StrSubstNo(ValueMustBeEqualErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), CostAmountActual));
     end;
 
     [RequestPageHandler]
@@ -759,18 +733,6 @@ codeunit 144051 "ERM Reports DE"
         InventoryValue.StatusDate.SetValue(WorkDate());
         InventoryValue.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
-
-#if not CLEAN22
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-#pragma warning disable AS0072
-    [Obsolete('Intrastat related functionalities are moved to Intrastat extensions.', '22.0')]
-#pragma warning restore AS0072
-    procedure IntrastatFormDERequestHandler(var IntrastatFormDE: TestRequestPage "Intrastat - Form DE")
-    begin
-        IntrastatFormDE.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

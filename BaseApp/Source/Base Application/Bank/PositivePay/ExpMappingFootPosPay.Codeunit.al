@@ -42,6 +42,8 @@ codeunit 1707 "Exp. Mapping Foot Pos. Pay"
     end;
 
     var
+#pragma warning disable AA0470
         ProgressMsg: Label 'Processing line no. #1######.';
+#pragma warning restore AA0470
 }
 

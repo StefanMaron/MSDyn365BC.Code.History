@@ -157,8 +157,12 @@ report 1090 "Job Calc. Remaining Usage"
         BatchName: Code[10];
         TemplateName3: Code[10];
         BatchName3: Code[10];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You must specify %1.';
         Text001: Label '%1 %2 must be %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure SetBatch(TemplateName2: Code[10]; BatchName2: Code[10])
     begin

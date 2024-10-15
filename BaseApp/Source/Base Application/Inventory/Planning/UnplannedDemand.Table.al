@@ -5,17 +5,18 @@ using Microsoft.Inventory.Item;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Structure;
 
 table 5520 "Unplanned Demand"
 {
     Caption = 'Unplanned Demand';
     Permissions = TableData "Sales Header" = r,
+#if not CLEAN25
+                  TableData Microsoft.Service.Document."Service Header" = r,
+#endif
                   TableData Job = r,
                   TableData "Assembly Header" = r,
-                  TableData "Production Order" = r,
-                  TableData "Service Header" = r;
+                  TableData "Production Order" = r;
     DataClassification = CustomerContent;
 
     fields
@@ -38,12 +39,6 @@ table 5520 "Unplanned Demand"
             Editable = false;
 
             trigger OnValidate()
-            var
-                SalesHeader: Record "Sales Header";
-                ProdOrder: Record "Production Order";
-                ServHeader: Record "Service Header";
-                Job: Record Job;
-                AsmHeader: Record "Assembly Header";
             begin
                 "Sell-to Customer No." := '';
                 Description := '';
@@ -51,36 +46,8 @@ table 5520 "Unplanned Demand"
                 if "Demand Order No." = '' then
                     exit;
 
-                case "Demand Type" of
-                    "Demand Type"::Sales:
-                        begin
-                            SalesHeader.Get("Demand SubType", "Demand Order No.");
-                            "Sell-to Customer No." := SalesHeader."Sell-to Customer No.";
-                            Description := SalesHeader."Sell-to Customer Name";
-                        end;
-                    "Demand Type"::Production:
-                        begin
-                            ProdOrder.Get("Demand SubType", "Demand Order No.");
-                            Description := ProdOrder.Description;
-                        end;
-                    "Demand Type"::Assembly:
-                        begin
-                            AsmHeader.Get("Demand SubType", "Demand Order No.");
-                            Description := AsmHeader.Description;
-                        end;
-                    "Demand Type"::Service:
-                        begin
-                            ServHeader.Get("Demand SubType", "Demand Order No.");
-                            "Sell-to Customer No." := ServHeader."Customer No.";
-                            Description := ServHeader.Name;
-                        end;
-                    "Demand Type"::Job:
-                        begin
-                            Job.Get("Demand Order No.");
-                            "Sell-to Customer No." := Job."Bill-to Customer No.";
-                            Description := Job.Description;
-                        end;
-                end;
+                OnValidateDemandOrderNoOnGetSourceFields(Rec);
+
                 "Demand Line No." := 0;
                 "Demand Ref. No." := 0;
             end;
@@ -207,6 +174,11 @@ table 5520 "Unplanned Demand"
         if "Demand Date" = 0D then
             "Demand Date" := WorkDate();
         Level := 1;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDemandOrderNoOnGetSourceFields(var UnplannedDemand: Record "Unplanned Demand")
+    begin
     end;
 }
 

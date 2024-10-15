@@ -27,13 +27,10 @@
         TotalAmountErr: Label 'Total Amount must be %1 in %2 table for %3 field : %4.', Locked = true;
         UnappliedErr: Label '%1 %2 field must be true after Unapply entries.', Locked = true;
         ApplicationEntryErr: Label '%1 No. %2 does not have an application entry.', Locked = true;
-        UnapplyErr: Label '%1 must be equal to ''Application''  in %2: %3=%4. Current value is ''Initial Entry''.', Locked = true;
-        UnapplyErrorDetailedEntryErr: Label 'Unapplied must be equal to ''No''  in %1: %2=%3. Current value is ''Yes''.', Locked = true;
         AmountErr: Label '%1 must be %2 in %3.', Locked = true;
         UapplyExchangeRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.', Locked = true;
         WrongFieldErr: Label 'Wrong value of field %1 in table %2.', Locked = true;
         UnnecessaryVATEntriesFoundErr: Label 'Unnecessary VAT Entries found.', Locked = true;
-        PaymentMethodCodeErr: Label 'Open must be equal to ''Yes''  in Cust. Ledger Entry: Entry No.=%1. Current value is ''No''.', Locked = true;
         NonzeroACYErr: Label 'Non-zero Additional Currency Amount in G/L Entry.', Locked = true;
         GLEntryCntErr: Label 'Wrong count of created G/L Entries.';
         DimBalanceErr: Label 'Wrong balance by Dimension.';
@@ -279,10 +276,7 @@
         asserterror CustEntryApplyPostedEntries.UnApplyDtldCustLedgEntry(DetailedCustLedgEntry);
 
         // Verify: verify error message on Detailed Customer Ledger Entry.
-        Assert.ExpectedError(
-          StrSubstNo(
-            UnapplyErr, DetailedCustLedgEntry.FieldCaption("Entry Type"), DetailedCustLedgEntry.TableCaption(),
-            DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
+        Assert.ExpectedTestFieldError(DetailedCustLedgEntry.FieldCaption("Entry Type"), Format(DetailedCustLedgEntry."Entry Type"::Application));
     end;
 
     [Test]
@@ -412,10 +406,7 @@
         asserterror CustEntryApplyPostedEntries.UnApplyDtldCustLedgEntry(DetailedCustLedgEntry);
 
         // Verify: Verify Unapply Error on Detailed Customer Ledger Entry.
-        Assert.ExpectedError(
-          StrSubstNo(
-            UnapplyErrorDetailedEntryErr, DetailedCustLedgEntry.TableCaption(), DetailedCustLedgEntry.FieldCaption("Entry No."),
-            DetailedCustLedgEntry."Entry No."));
+        Assert.ExpectedTestFieldError(DetailedCustLedgEntry.FieldCaption(Unapplied), Format(false));
     end;
 
     [Test]
@@ -2493,27 +2484,23 @@
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        with Currency do begin
-            Validate("Residual Gains Account", "Realized Gains Acc.");
-            Validate("Residual Losses Account", "Realized Losses Acc.");
-            Modify(true);
-            CreateExchangeRate(Code, Rate, RelationalRate, FromDate);
-            exit(Code);
-        end;
+        Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
+        Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
+        Currency.Modify(true);
+        CreateExchangeRate(Currency.Code, Rate, RelationalRate, FromDate);
+        exit(Currency.Code);
     end;
 
     local procedure CreateExchangeRate(CurrencyCode: Code[10]; Rate: Decimal; RelationalRate: Decimal; FromDate: Date)
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        with CurrencyExchangeRate do begin
-            LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
-            Validate("Exchange Rate Amount", Rate);
-            Validate("Adjustment Exch. Rate Amount", Rate);
-            Validate("Relational Exch. Rate Amount", RelationalRate);
-            Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
-            Modify(true);
-        end;
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, FromDate);
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", Rate);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelationalRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelationalRate);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -2530,13 +2517,11 @@
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            LibrarySales.CreateCustomer(Customer);
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroupCode);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithCurrency(CurrencyCode: Code[10]): Code[20]
@@ -2554,11 +2539,9 @@
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Currency Code", CurrencyCode);
-            Modify();
-            exit("No.");
-        end;
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify();
+        exit(BankAccount."No.");
     end;
 
     local procedure CreateCustomerWithPaymentTerm(var Customer: Record Customer)
@@ -2721,11 +2704,9 @@
         CustomerNo :=
           CreateCustomerWithPostingSetup(
             GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        with Customer do begin
-            Get(CustomerNo);
-            Validate("Currency Code", ForeignCurrencyCode);
-            Modify(true);
-        end;
+        Customer.Get(CustomerNo);
+        Customer.Validate("Currency Code", ForeignCurrencyCode);
+        Customer.Modify(true);
     end;
 
     local procedure SetupSpecificExchRates(var ForeignCurrencyCode: Code[10]; var AdditionalCurrencyCode: Code[10]; var DocumentDate: Date)
@@ -2758,18 +2739,16 @@
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            SetRange("VAT %", 0);
-            SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Normal VAT");
-            FindFirst();
-            if "Sales VAT Account" = '' then
-                Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
-            if "Purchase VAT Account" = '' then
-                Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-            exit("VAT Prod. Posting Group");
-        end;
+        VATPostingSetup.SetRange("VAT %", 0);
+        VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroup);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.FindFirst();
+        if VATPostingSetup."Sales VAT Account" = '' then
+            VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
+        if VATPostingSetup."Purchase VAT Account" = '' then
+            VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Modify(true);
+        exit(VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure FindPaymentMethodWithBalanceAccount(): Code[10]
@@ -2830,18 +2809,16 @@
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         SelectGenJournalBatch(GenJournalBatch, false);
-        with GenJournalLine do begin
-            CreateGeneralJournalLines(
-              GenJournalLine, GenJournalBatch, 1, CustomerNo, "Document Type"::Payment, 0);
-            Validate("Currency Code", CurrencyCode);
-            Validate(Amount, PaymentAmount);
-            Validate("Applies-to Doc. Type", AppliedDocumentType);
-            Validate("Applies-to Doc. No.", AppliedDocumentNo);
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", CreateBankAccountWithCurrency(CurrencyCode));
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        CreateGeneralJournalLines(
+          GenJournalLine, GenJournalBatch, 1, CustomerNo, GenJournalLine."Document Type"::Payment, 0);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate(Amount, PaymentAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", AppliedDocumentType);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliedDocumentNo);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", CreateBankAccountWithCurrency(CurrencyCode));
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure RunCustomerLedgerEntries(CustomerNo: Code[20]; DocumentNo: Code[20])
@@ -2903,13 +2880,11 @@
     local procedure CalcBalanceByDimension(var GLEntry: Record "G/L Entry"; DimSetID: Integer) Result: Integer
     begin
         Result := 0;
-        with GLEntry do begin
-            SetRange("Dimension Set ID", DimSetID);
-            if FindSet() then
-                repeat
-                    Result += Amount;
-                until Next() = 0;
-        end;
+        GLEntry.SetRange("Dimension Set ID", DimSetID);
+        if GLEntry.FindSet() then
+            repeat
+                Result += GLEntry.Amount;
+            until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyAmountToApplyOnCustomerLedgerEntries(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
@@ -2938,8 +2913,7 @@
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
         asserterror CustLedgerEntry.Validate("Payment Method Code", '');
-        Assert.ExpectedError(
-          StrSubstNo(PaymentMethodCodeErr, CustLedgerEntry."Entry No."));
+        Assert.ExpectedTestFieldError(CustLedgerEntry.FieldCaption(Open), Format(true));
     end;
 
     local procedure VerifyInvDetailedLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; EntryType: Enum "Detailed CV Ledger Entry Type")
@@ -3003,13 +2977,11 @@
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgerEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            FindFirst();
-            CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-            TestField("Remaining Amt. (LCY)", Round("Remaining Amount" / "Adjusted Currency Factor", 0.01));
-        end;
+        CustLedgerEntry.SetRange("Document No.", DocumentNo);
+        CustLedgerEntry.SetRange("Document Type", DocumentType);
+        CustLedgerEntry.FindFirst();
+        CustLedgerEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
+        CustLedgerEntry.TestField("Remaining Amt. (LCY)", Round(CustLedgerEntry."Remaining Amount" / CustLedgerEntry."Adjusted Currency Factor", 0.01));
     end;
 
     local procedure VerifyGLEntries(DocumentNo: Code[20])
@@ -3058,27 +3030,23 @@
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
-            Assert.IsTrue(IsEmpty, UnnecessaryVATEntriesFoundErr);
-        end;
+        VATEntry.SetRange("Document Type", DocType);
+        VATEntry.SetRange("Document No.", DocNo);
+        VATEntry.SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
+        Assert.IsTrue(VATEntry.IsEmpty, UnnecessaryVATEntriesFoundErr);
     end;
 
     local procedure VerifyACYInGLEntriesOnUnapplication(ExpectedACY: Decimal; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
-            FindSet();
-            repeat
-                Assert.AreEqual(ExpectedACY, "Additional-Currency Amount", NonzeroACYErr);
-            until Next() = 0;
-        end;
+        GLEntry.SetRange("Document Type", DocType);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("Transaction No.", GetTransactionNoFromUnappliedDtldEntry(DocType, DocNo));
+        GLEntry.FindSet();
+        repeat
+            Assert.AreEqual(ExpectedACY, GLEntry."Additional-Currency Amount", NonzeroACYErr);
+        until GLEntry.Next() = 0;
     end;
 
     local procedure VerifyTempCustLedgerEntry(var TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -3146,12 +3114,10 @@
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::Customer, CustomerNo, Amount);
         LibraryDimension.CreateDimensionValue(DimVal, LibraryERM.GetGlobalDimensionCode(1));
-        with GenJournalLine do begin
-            Validate("Applies-to ID", "Document No.");
-            Validate("Shortcut Dimension 1 Code", DimVal.Code);
-            Modify(true);
-            DimSetID := "Dimension Set ID";
-        end;
+        GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+        GenJournalLine.Validate("Shortcut Dimension 1 Code", DimVal.Code);
+        GenJournalLine.Modify(true);
+        DimSetID := GenJournalLine."Dimension Set ID";
     end;
 
     local procedure CreateGenJnlLinesWithGivenDimSetIDs(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DimSetIDs: array[10] of Integer; NoOfLines: Integer; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amounts: array[10] of Decimal)
@@ -3163,14 +3129,12 @@
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
               GenJournalLine."Account Type"::Customer, CustomerNo, -Amounts[Counter]);
-            with GenJournalLine do begin
-                Validate("Bal. Account No.", '');
-                Validate("Applies-to ID", "Document No.");
-                Validate("Dimension Set ID", DimSetIDs[Counter]);
-                DimMgt.UpdateGlobalDimFromDimSetID(
-                  "Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-                Modify(true);
-            end;
+            GenJournalLine.Validate("Bal. Account No.", '');
+            GenJournalLine.Validate("Applies-to ID", GenJournalLine."Document No.");
+            GenJournalLine.Validate("Dimension Set ID", DimSetIDs[Counter]);
+            DimMgt.UpdateGlobalDimFromDimSetID(
+              GenJournalLine."Dimension Set ID", GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+            GenJournalLine.Modify(true);
         end;
     end;
 
@@ -3180,14 +3144,12 @@
     begin
         SelectGenJournalBatch(GenJournalBatch, false);
         CreateGeneralJournalLines(GenJnlLine, GenJournalBatch, 1, VendorNo, DocumentType, Amount);
-        with GenJnlLine do begin
-            Validate("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::Sale);
-            Validate("Bal. Gen. Bus. Posting Group", SalesLine."Gen. Bus. Posting Group");
-            Validate("Bal. Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
-            Validate("Bal. VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group");
-            Validate("Bal. VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
-            Modify(true);
-        end;
+        GenJnlLine.Validate("Bal. Gen. Posting Type", GenJnlLine."Bal. Gen. Posting Type"::Sale);
+        GenJnlLine.Validate("Bal. Gen. Bus. Posting Group", SalesLine."Gen. Bus. Posting Group");
+        GenJnlLine.Validate("Bal. Gen. Prod. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        GenJnlLine.Validate("Bal. VAT Bus. Posting Group", SalesLine."VAT Bus. Posting Group");
+        GenJnlLine.Validate("Bal. VAT Prod. Posting Group", SalesLine."VAT Prod. Posting Group");
+        GenJnlLine.Modify(true);
     end;
 
     local procedure ApplyCustLedgerEntriesToID(CustomerNo: Code[20]; AppliesToID: Code[50]; AmountsToApply: array[10] of Decimal)
@@ -3195,17 +3157,15 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         i: Integer;
     begin
-        with CustLedgerEntry do begin
-            SetRange("Customer No.", CustomerNo);
-            if FindSet() then
-                repeat
-                    i += 1;
-                    Validate("Applying Entry", true);
-                    Validate("Applies-to ID", AppliesToID);
-                    Validate("Amount to Apply", AmountsToApply[i]);
-                    Modify(true);
-                until Next() = 0;
-        end;
+        CustLedgerEntry.SetRange("Customer No.", CustomerNo);
+        if CustLedgerEntry.FindSet() then
+            repeat
+                i += 1;
+                CustLedgerEntry.Validate("Applying Entry", true);
+                CustLedgerEntry.Validate("Applies-to ID", AppliesToID);
+                CustLedgerEntry.Validate("Amount to Apply", AmountsToApply[i]);
+                CustLedgerEntry.Modify(true);
+            until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure CreatePaymentTermsWithDiscount(DiscountPercent: Decimal): Code[10]
@@ -3231,35 +3191,31 @@
         Index: Integer;
         TotalAmount: Decimal;
     begin
-        with GLEntry do begin
-            SetCurrentKey("Transaction No.");
-            SetRange("Document No.", DocumentNo);
-            FindLast();
-            SetRange("Transaction No.", "Transaction No.");
-            Assert.RecordCount(GLEntry, DimSetArrLen + 1);
-            FindSet();
-            for Index := 1 to DimSetArrLen do begin
-                TestField("Dimension Set ID", DimSetIDs[1]);
-                TestField(Amount, -Amounts[Index]);
-                TotalAmount += Amounts[Index];
-                Next();
-            end;
-            TestField("Dimension Set ID", DimSetIDs[1]);
-            TestField(Amount, TotalAmount);
+        GLEntry.SetCurrentKey("Transaction No.");
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindLast();
+        GLEntry.SetRange("Transaction No.", GLEntry."Transaction No.");
+        Assert.RecordCount(GLEntry, DimSetArrLen + 1);
+        GLEntry.FindSet();
+        for Index := 1 to DimSetArrLen do begin
+            GLEntry.TestField("Dimension Set ID", DimSetIDs[1]);
+            GLEntry.TestField(Amount, -Amounts[Index]);
+            TotalAmount += Amounts[Index];
+            GLEntry.Next();
         end;
+        GLEntry.TestField("Dimension Set ID", DimSetIDs[1]);
+        GLEntry.TestField(Amount, TotalAmount);
     end;
 
     local procedure GetTransactionNoFromUnappliedDtldEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]): Integer
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DtldCustLedgEntry do begin
-            SetRange("Document Type", DocType);
-            SetRange("Document No.", DocNo);
-            SetRange(Unapplied, true);
-            FindLast();
-            exit("Transaction No.");
-        end;
+        DtldCustLedgEntry.SetRange("Document Type", DocType);
+        DtldCustLedgEntry.SetRange("Document No.", DocNo);
+        DtldCustLedgEntry.SetRange(Unapplied, true);
+        DtldCustLedgEntry.FindLast();
+        exit(DtldCustLedgEntry."Transaction No.");
     end;
 
     local procedure ApplyUnapplyWithDimSetIDs(NoOfLines: Integer; CustomerNo: Code[20]; var DimSetIDs: array[10] of Integer; Amounts: array[10] of Decimal; DiscountedAmounts: array[10] of Decimal): Code[20]
@@ -3288,12 +3244,10 @@
           GenJournalLine."Document Type"::Payment, TotalDiscountedAmount);
         BankAccount.SetRange(Blocked, false);
         BankAccount.FindFirst();
-        with GenJournalLine do begin
-            Validate("Account Type", "Account Type"::"Bank Account");
-            Validate("Account No.", BankAccount."No.");
-            Validate("Bal. Account No.", '');
-            Modify(true);
-        end;
+        GenJournalLine.Validate("Account Type", GenJournalLine."Account Type"::"Bank Account");
+        GenJournalLine.Validate("Account No.", BankAccount."No.");
+        GenJournalLine.Validate("Bal. Account No.", '');
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -3323,28 +3277,26 @@
         InvoiceAmount: Decimal;
         ExchangeRate: Decimal;
     begin
-        with LibraryVariableStorage do begin
-            Dequeue(QueueValue);
-            PaymentAmount := QueueValue;
-            Dequeue(QueueValue);
-            InvoiceAmount := QueueValue;
-            Dequeue(QueueValue);
-            ExchangeRate := QueueValue;
-        end;
+        LibraryVariableStorage.Dequeue(QueueValue);
+        PaymentAmount := QueueValue;
+        LibraryVariableStorage.Dequeue(QueueValue);
+        InvoiceAmount := QueueValue;
+        LibraryVariableStorage.Dequeue(QueueValue);
+        ExchangeRate := QueueValue;
 
-        with ApplyCustomerEntries do begin
-            // verify cr. memo entry
-            "Set Applies-to ID".Invoke(); // apply entry
-            AppliedAmount.AssertEquals(Round(-PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
-            "Set Applies-to ID".Invoke(); // unapply
+        // verify cr. memo entry
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        // apply entry
+        ApplyCustomerEntries.AppliedAmount.AssertEquals(Round(-PaymentAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        // unapply
+        // verify invoice entry
+        ApplyCustomerEntries.Next();
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        // apply next entry
+        ApplyCustomerEntries.AppliedAmount.AssertEquals(Round(InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
 
-            // verify invoice entry
-            Next();
-            "Set Applies-to ID".Invoke(); // apply next entry
-            AppliedAmount.AssertEquals(Round(InvoiceAmount * ExchangeRate, LibraryERM.GetAmountRoundingPrecision()));
-
-            OK().Invoke();
-        end;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]

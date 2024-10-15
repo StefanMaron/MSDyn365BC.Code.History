@@ -68,15 +68,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Currency Factor - NamedType AmountLCYError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2137651644 - NamedType 221122293" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Currency Factor must have a value in %1: Document Type=%2, No.=%3. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Currency Factor - NamedType CurrencyFactoMustHaveValueErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2137651644 - NamedType 2951672686" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Currency Factor must be %1.]]></Val>
@@ -221,15 +212,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Gen. Lines for Vendor - NamedType GenJournalTemplateError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 124567486 - NamedType 472730699" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Gen. Posting Type must not be]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Gen. Lines for Vendor - NamedType GenPostingTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 124567486 - NamedType 2656937860" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Computational complexity must be linear]]></Val>
@@ -273,15 +255,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType CannotBeSpecifiedForRecurrJnlErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1464927296 - NamedType 3994216169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Check Printed must be equal to 'No']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM General Journal UT - NamedType CheckPrintedIsTrueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1464927296 - NamedType 2306536960" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -473,24 +446,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Posted Gen. Journal Line - NamedType ReverseDateCalcRecurringTypeErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1230493293 - NamedType 345083800" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Account Type must be equal to 'Posting'  in G/L Account:]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType AccTypeErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1230493293 - NamedType 3621259247" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No'  in G/L Account: No.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType BlockedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1230493293 - NamedType 1860561083" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Account No. in journal line is incorrect.]]></Val>
@@ -570,15 +525,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM TestMultipleGenJnlLines - NamedType OutOfBalanceErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 619305359 - NamedType 1614581102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Posting No. Series must be equal to '']]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM TestMultipleGenJnlLines - NamedType PostingNoSeriesMustBeEmptyErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 619305359 - NamedType 3711287129" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -761,13 +707,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 682591466 - NamedType 2571027736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 682591466 - NamedType 3152627868" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of stored file names.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Incom. Doc. Attach. FactBox - NamedType UnexpecteFileNameNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Incom. Doc. Attach. FactBox - NamedType UnexpectedFileNameNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3832870962 - NamedType 1109901106" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

@@ -513,7 +513,7 @@ codeunit 137402 "SCM Costing Batch"
           GetNumberOfStandardCostWorksheetLines(StandardCostWorksheetName) > CountRowsBeforeRollup, StandardCostWorksheetMustExist);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestItemPriceOnWorksheetWithSalesTypeCustomer()
@@ -747,7 +747,7 @@ codeunit 137402 "SCM Costing Batch"
         VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName2, StandardCostWorksheet.Type::"Machine Center", MachineCenter."No.");
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure SuggestSalesPriceOnWorksheetWithSalesTypeCustomer()
@@ -1252,7 +1252,7 @@ codeunit 137402 "SCM Costing Batch"
         RoutingHeader.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateSalesPrice(Item: Record Item; SalesType: Enum "Sales Price Type"; SalesCode: Code[20])
     var
         SalesPrice: Record "Sales Price";
@@ -1324,7 +1324,7 @@ codeunit 137402 "SCM Costing Batch"
         RoundingMethodCode := RoundingMethod; // This variable is made Global as it is used in the handler.
     end;
 
-    local procedure FindStandardCostWorksheet(var StandardCostWorksheet: Record "Standard Cost Worksheet"; StandardCostWorksheetName: Code[10]; Type: Option; No: Code[20])
+    local procedure FindStandardCostWorksheet(var StandardCostWorksheet: Record "Standard Cost Worksheet"; StandardCostWorksheetName: Code[10]; Type: Enum "Standard Cost Source Type"; No: Code[20])
     begin
         StandardCostWorksheet.SetRange("Standard Cost Worksheet Name", StandardCostWorksheetName);
         StandardCostWorksheet.SetRange(Type, Type);
@@ -1425,7 +1425,7 @@ codeunit 137402 "SCM Costing Batch"
         AdjustItemCostsPrices.Run();
     end;
 
-    local procedure RunImplementStandardCostChange(StandardCostWorksheetName: Code[10]; Type: Option; No: Code[20])
+    local procedure RunImplementStandardCostChange(StandardCostWorksheetName: Code[10]; Type: Enum "Standard Cost Source Type"; No: Code[20])
     var
         StandardCostWorksheet: Record "Standard Cost Worksheet";
         ImplementStandardCostChange: Report "Implement Standard Cost Change";
@@ -1507,7 +1507,7 @@ codeunit 137402 "SCM Costing Batch"
         AverageCostCalcOverview.Quantity.AssertEquals(Quantity);
     end;
 
-    local procedure VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName: Code[10]; Type: Option; No: Code[20])
+    local procedure VerifyCopyStandardCostWorkSheet(StandardCostWorksheetName: Code[10]; Type: Enum "Standard Cost Source Type"; No: Code[20])
     var
         StandardCostWorksheet: Record "Standard Cost Worksheet";
     begin
@@ -1614,7 +1614,7 @@ codeunit 137402 "SCM Costing Batch"
           StrSubstNo(ValidationError, Item.FieldCaption("Sales (LCY)"), SalesLCY));
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure VerifySalesPriceWorksheet(SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; CurrencyCode: Code[10]; ItemNo: Code[20])
     var
         SalesPriceWorksheet: Record "Sales Price Worksheet";
@@ -1627,7 +1627,7 @@ codeunit 137402 "SCM Costing Batch"
     end;
 #endif
 
-    local procedure VerifyStandardCostWorksheet(StandardCostWorksheetName: Code[10]; Type: Option; No: Code[20])
+    local procedure VerifyStandardCostWorksheet(StandardCostWorksheetName: Code[10]; Type: Enum "Standard Cost Source Type"; No: Code[20])
     var
         StandardCostWorksheet: Record "Standard Cost Worksheet";
     begin
@@ -1647,12 +1647,10 @@ codeunit 137402 "SCM Costing Batch"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderNo);
-            SetFilter("Cost Posted to G/L", '<>%1', CostAmount);
-            Assert.RecordIsEmpty(ValueEntry);
-        end;
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProdOrderNo);
+        ValueEntry.SetFilter("Cost Posted to G/L", '<>%1', CostAmount);
+        Assert.RecordIsEmpty(ValueEntry);
     end;
 
     local procedure VerifyUnitCostInProductionOrderLine(ProductionOrder: Record "Production Order"; UnitCost: Decimal)

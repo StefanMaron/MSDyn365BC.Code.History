@@ -149,9 +149,11 @@ report 5685 "Copy Fixed Asset"
         UseFANoSeries: Boolean;
         NumberofCopies: Integer;
         I: Integer;
+#pragma warning disable AA0074
         Text000: Label 'You must specify a number in the Copy from %1 %2 field.', Comment = '%1: TABLECAPTION(Fixed Asset); %2: Field(No.)';
         Text001: Label 'You must specify a number in First FA No. field or use the FA No. Series.';
         Text002: Label 'You must include a number in the First FA %1 %2 field.', Comment = '%1: TABLECAPTION(Fixed Asset); %2: Field(No.)';
+#pragma warning restore AA0074
 
     procedure SetFANo(NewFANo: Code[20])
     begin

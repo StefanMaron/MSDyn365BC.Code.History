@@ -82,7 +82,9 @@ report 900 "Batch Post Assembly Orders"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Enter the posting date.';
+#pragma warning restore AA0074
         PostingDateReq: Date;
         ReplacePostingDate: Boolean;
 

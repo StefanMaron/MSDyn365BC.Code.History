@@ -116,18 +116,6 @@ page 321 "ECSL Report"
                         ECSLVATReportLine.ClearLines(Rec);
                     end;
                 }
-#if not CLEAN22
-                field("Date Type"; Rec."Date Type")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Type of date used to filter selected period.';
-                    ObsoleteReason = 'Selected VAT Date type no longer supported';
-#pragma warning disable AS0072
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-#pragma warning restore AS0072
-                }
-#endif
                 field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = BasicEU;
@@ -315,15 +303,6 @@ page 321 "ECSL Report"
                 actionref("Cancel Submission_Promoted"; "Cancel Submission")
                 {
                 }
-#if not CLEAN22
-                actionref(Print_Promoted; Print)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
             }
         }
     }

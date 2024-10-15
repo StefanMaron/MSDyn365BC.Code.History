@@ -12,13 +12,8 @@ table 11014 Certificate
 {
     Caption = 'Certificate';
     ObsoleteReason = 'The Certificate table is deprecated.';
-#if not CLEAN22
-    ObsoleteState = Pending;
-    ObsoleteTag = '15.0';
-#else
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
