@@ -239,6 +239,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType AmountToApplyIsChangedQst)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 757409969 - NamedType 2123238148" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Select a Dimension Value Code for the Dimension Code %1 for Customer %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cash Bank Giro Journal - NamedType SelectDimensionCodeErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 450493964 - NamedType 1578357169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[MEI 12APRIL 13, SP 888298+]]></Val>
