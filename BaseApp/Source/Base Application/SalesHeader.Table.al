@@ -2302,6 +2302,7 @@
 
             trigger OnValidate()
             begin
+                UpdateSalesLinesByFieldNo(FieldNo("Campaign No."), CurrFieldNo <> 0);
                 CreateDimFromDefaultDim(Rec.FieldNo("Campaign No."));
             end;
         }
@@ -3130,7 +3131,9 @@
 
     procedure InitRecord()
     var
+        ShipToAddress: Record "Ship-to Address";
         ArchiveManagement: Codeunit ArchiveManagement;
+        LocationCode: Code[10];
         IsHandled: Boolean;
     begin
         GetSalesSetup();
@@ -3151,11 +3154,16 @@
         if "Document Type" = "Document Type"::Quote then
             CalcQuoteValidUntilDate();
 
-        if "Location Code" = '' then begin
-            if "Sell-to Customer No." <> '' then
-                GetCust("Sell-to Customer No.");
-            UpdateLocationCode(Customer."Location Code");
+        if "Sell-to Customer No." <> '' then
+            GetCust("Sell-to Customer No.");
+        LocationCode := Customer."Location Code";
+        if "Ship-to Code" <> '' then begin
+            ShipToAddress.SetLoadFields("Location Code");
+            if ShipToAddress.Get("Sell-to Customer No.", "Ship-to Code") then
+                if ShipToAddress."Location Code" <> '' then
+                    LocationCode := ShipToAddress."Location Code";
         end;
+        UpdateLocationCode(LocationCode);
 
         if IsCreditDocType() then begin
             GLSetup.Get();
@@ -3914,6 +3922,7 @@
     var
         "Field": Record "Field";
         JobTransferLine: Codeunit "Job Transfer Line";
+        JobPostLine: Codeunit "Job Post-Line";
         Question: Text[250];
         IsHandled: Boolean;
         ShouldConfirmReservationDateConflict: Boolean;
@@ -4018,6 +4027,12 @@
                         SalesLine.FieldNo("Deferral Code"):
                             if SalesLine."No." <> '' then
                                 SalesLine.Validate("Deferral Code");
+                        FieldNo("Campaign No."):
+                            if SalesLine."No." <> '' then begin
+                                if SalesLine."Job No." <> '' then
+                                    JobPostLine.TestSalesLine(SalesLine);
+                                SalesLine.UpdateUnitPrice(0);
+                            end;
                         else
                             OnUpdateSalesLineByChangedFieldName(Rec, SalesLine, Field.FieldName, ChangedFieldNo, xRec);
                     end;
@@ -4480,7 +4495,7 @@
         end else
             if Cust.Get(CustomerNo) then begin
                 if Cust."Primary Contact No." <> '' then
-                    Validate("Sell-to Contact No.", Cust."Primary Contact No.")
+                    "Sell-to Contact No." := Cust."Primary Contact No."
                 else begin
                     ContBusRel.Reset();
                     ContBusRel.SetCurrentKey("Link to Table", "No.");

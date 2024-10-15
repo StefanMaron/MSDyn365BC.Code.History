@@ -52,7 +52,7 @@ codeunit 137072 "SCM Production Orders II"
         RequisitionLineMustNotExist: Label 'Requisition Line must not exist for Item %1.';
         ItemFilter: Label '%1|%2';
         DeleteItemTrackingQst: Label 'has item reservation. Do you want to delete it anyway?';
-        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Update Quantity";
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Update Quantity","Manual Lot No.";
         ProdOrderRtngLineNotUpdatedMsg: Label 'Prod. Order Routing Line is not updated.';
         TotalDurationExceedsAvailTimeErr: Label 'The sum of setup, move and wait time exceeds the available time in the period.';
         CancelReservationTxt: Label 'Cancel reservation';
@@ -3735,6 +3735,209 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderLine[1].TestField("Ending Date", CalcDate('<-3D>', ProdOrderLine[1]."Due Date"));
     end;
 
+    [Test]
+    procedure VerifyRefreshFirmPlannedProductionOrderForAddtionalItemUoMWithRoudingPrecision()
+    var
+        CompItem, ProdItem : Record Item;
+        CompItemUnitOfMeasure, ProdItemUnitOfMeasure : Record "Item Unit of Measure";
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        ProductionOrder: Record "Production Order";
+        ProdItemQtyPer, RoundPrecision, ProdItemUoMQty, ProdBOMQtyPer : Decimal;
+    begin
+        // [SCENARIO 463487] Verify Refresh Firm Planned Production Order for Additional Item UoM with Rouding Precision
+        Initialize();
+
+        ProdItemQtyPer := 310;
+        ProdItemUoMQty := 155;
+        ProdBOMQtyPer := 18.5;
+        RoundPrecision := 0.0001;
+
+        // [GIVEN] Create Component Item
+        CreateProductionItem(CompItem, '');
+        CompItem.Validate("Replenishment System", CompItem."Replenishment System"::Purchase);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Manual);
+        CompItem.Validate("Purch. Unit of Measure", CompItem."Base Unit of Measure");
+        CompItem.Validate("Rounding Precision", RoundPrecision);
+        CompItem.Modify(true);
+
+        // [GIVEN] Update Rounding Precision on Item Unit of Measure
+        CompItemUnitOfMeasure.Get(CompItem."No.", CompItem."Base Unit of Measure");
+        CompItemUnitOfMeasure.Validate("Qty. Rounding Precision", RoundPrecision);
+        CompItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create Producition Item
+        CreateProductionItem(ProdItem, '');
+        ProdItem.Validate("Manufacturing Policy", ProdItem."Manufacturing Policy"::"Make-to-Stock");
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Flushing Method", ProdItem."Flushing Method"::Manual);
+        ProdItem.Validate("Rounding Precision", 0.00001);
+        ProdItem.Modify(true);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ProdItemUnitOfMeasure, ProdItem."No.", ProdItemUoMQty);
+        ProdItemUnitOfMeasure.Validate(Weight, ProdItemUoMQty);
+        ProdItemUnitOfMeasure.Modify(true);
+
+        // [GIVEN] Create and cerfity production BOM.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProdItemUnitOfMeasure.Code);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, CompItem."No.", ProdBOMQtyPer);
+        ProductionBOMLine.Validate("Unit of Measure Code", CompItemUnitOfMeasure.Code);
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Assign Prod. BOM No. to Production Item
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [THEN] Verify refresh production order without error
+        CreateAndRefreshProductionOrder(ProductionOrder, ProductionOrder.Status::"Firm Planned", ProdItem."No.", ProdItemQtyPer, '', '');
+    end;
+
+    [Test]
+    [HandlerFunctions('ItemTrackingPageHandler')]
+    procedure S463293_VerifyWarehousePickFromProductionOrderForItemWithFEFO_WithEarlierLotAlreadyPickedForAnotherProdOrder()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        ComponentItem: array[2] of Record Item;
+        ProducedItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        Location: Record Location;
+        Bin: array[4] of Record Bin;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ProductionOrder: array[2] of Record "Production Order";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: array[4] of Code[20];
+        QuantityToUse: Decimal;
+        ExpirationDate: array[2] of Date;
+    begin
+        // [FEATURE] [Item Tracking] [Lot Warehouse Tracking] [Use Expiration Dates] [Production BOM] [Released Production Order] [Warehpuse Pick]
+        // [SCENARIO 463293] Create Warehouse Pick from Production Order for Item with FEFO Picking when earlier Lots are already picked for another Production Order.
+        Initialize();
+
+        QuantityToUse := 10;
+        ExpirationDate[1] := WorkDate() - 20;
+        ExpirationDate[2] := WorkDate() - 10;
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, false);
+        ItemTrackingCode.Validate("Lot Specific Tracking", true);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Validate("Use Expiration Dates", true);
+        ItemTrackingCode.Validate("Man. Expir. Date Entry Reqd.", true);
+        ItemTrackingCode.Modify(true);
+
+        // [GIVEN] Create Component Item [1] with "Item Tracking Code".
+        LibraryInventory.CreateItem(ComponentItem[1]);
+        ComponentItem[1].Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ComponentItem[1].Modify(true);
+
+        // [GIVEN] Create Component Item [2] with "Item Tracking Code".
+        LibraryInventory.CreateItem(ComponentItem[2]);
+        ComponentItem[2].Validate("Item Tracking Code", ItemTrackingCode.Code);
+        ComponentItem[2].Modify(true);
+
+        // [GIVEN] Create Producition Item.
+        LibraryInventory.CreateItem(ProducedItem);
+        ProducedItem.Validate("Replenishment System", ProducedItem."Replenishment System"::"Prod. Order");
+        ProducedItem.Modify(true);
+
+        // [GIVEN] Create and cerfity production BOM with Component Item [1] and Component Item [2] in lines.
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, ProducedItem."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem[1]."No.", 1);
+        ProductionBOMLine.Validate("Unit of Measure Code", ComponentItem[1]."Base Unit of Measure");
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ComponentItem[2]."No.", 1);
+        ProductionBOMLine.Validate("Unit of Measure Code", ComponentItem[2]."Base Unit of Measure");
+        ProductionBOMLine.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [GIVEN] Assign Prod. BOM No. to Produced Item.
+        ProducedItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProducedItem.Modify(true);
+
+        // [GIVEN] Create and setup Location.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+
+        // [GIVEN] Create Bin "B1" and set it as "Shipment Bin Code" at Location.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", Bin[1].Code);
+
+        // [GIVEN] Create Bin "B2" and set it as "To-Production Bin Code" at Location.
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("To-Production Bin Code", Bin[2].Code);
+
+        // [GIVEN] Create Bin "B3" and set it as "From-Production Bin Code" at Location.
+        LibraryWarehouse.CreateBin(Bin[3], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("From-Production Bin Code", Bin[3].Code);
+
+        // [GIVEN] Set "Pick According to FEFO" at Location.
+        Location.Validate("Pick According to FEFO", true);
+        Location.Modify(true);
+
+        // [GIVEN] Set Warehouse Employee for Location as default.
+        WarehouseEmployee.SetRange("User ID", UserId());
+        WarehouseEmployee.DeleteAll();
+        WarehouseEmployee.Reset();
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Create Bin "B4" at Location for Stock.
+        LibraryWarehouse.CreateBin(Bin[4], Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Put "Lot1" on stock.
+        LotNo[1] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[1]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[1], ExpirationDate[1]);
+
+        // [GIVEN] Put "Lot2" on stock.
+        LotNo[2] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[2]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[2], ExpirationDate[1]);
+
+        // [GIVEN] Put "Lot3" on stock.
+        LotNo[3] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[1]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[3], ExpirationDate[2]);
+
+        // [GIVEN] Put "Lot4" on stock.
+        LotNo[4] := LibraryUtility.GenerateGUID();
+        PostPositiveAdjustmentWithLotNo(ComponentItem[2]."No.", Location.Code, Bin[4].Code, QuantityToUse, LotNo[4], ExpirationDate[2]);
+
+        // [GIVEN] Create and Refresh Released Production Order 1 for Produced Item.
+        CreateAndRefreshProductionOrder(ProductionOrder[1], ProductionOrder[1].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
+
+        // [GIVEN] Create Warehouse Pick for Released Production Order 1.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[1]);
+
+        // [GIVEN] Register Warehouse Pick.
+        RegisterWarehouseActivity(ProductionOrder[1]."No.", WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Create and Refresh Released Production Order 2 for Produced Item.
+        CreateAndRefreshProductionOrder(ProductionOrder[2], ProductionOrder[2].Status::Released, ProducedItem."No.", QuantityToUse, Location.Code, Location."To-Production Bin Code");
+
+        // [WHEN] Create Warehouse Pick for Released Production Order 2.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder[2]);
+
+        // [THEN] Verify lines of created Warehouse Pick.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Item No.", ComponentItem[1]."No.");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.SetRange("Source No.", ProductionOrder[2]."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, QuantityToUse);
+        WarehouseActivityLine.TestField("Lot No.", LotNo[3]);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate[2]);
+
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.SetRange("Item No.", ComponentItem[2]."No.");
+        WarehouseActivityLine.SetRange("Location Code", Location.Code);
+        WarehouseActivityLine.SetRange("Source No.", ProductionOrder[2]."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.TestField(Quantity, QuantityToUse);
+        WarehouseActivityLine.TestField("Lot No.", LotNo[4]);
+        WarehouseActivityLine.TestField("Expiration Date", ExpirationDate[2]);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5300,6 +5503,43 @@ codeunit 137072 "SCM Production Orders II"
         ProdOrderLine.TestField(Quantity, Quantity);
     end;
 
+    local procedure PostPositiveAdjustmentWithLotNo(ItemNo: Code[20]; LocationCode: Code[10]; BinCode: Code[20]; PositiveAdjustmentQuantity: Decimal; LotNo: Code[20]; ExpirationDate: Date)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, LocationCode, BinCode, PositiveAdjustmentQuantity);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Manual Lot No."); // Enqueue value for ItemTrackingPageHandler.
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(PositiveAdjustmentQuantity);
+        ItemJournalLine.OpenItemTrackingLines(false);
+
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Batch Name", ItemJournalLine."Journal Batch Name");
+        ReservationEntry.FindFirst();
+        ReservationEntry.Validate("Expiration Date", ExpirationDate);
+        ReservationEntry.Modify(true);
+
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure RegisterWarehouseActivity(SourceNo: Code[20]; Type: Enum "Warehouse Activity Type")
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, Type);
+        WarehouseActivityHeader.Get(Type, WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+    end;
+
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
+    begin
+        WarehouseActivityLine.SetRange("Source No.", SourceNo);
+        WarehouseActivityLine.SetRange("Activity Type", ActivityType);
+        WarehouseActivityLine.FindFirst();
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -5330,6 +5570,13 @@ codeunit 137072 "SCM Production Orders II"
                 ItemTrackingLines."Select Entries".Invoke;
             ItemTrackingMode::"Update Quantity":
                 begin
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
+                end;
+            ItemTrackingMode::"Manual Lot No.":
+                begin
+                    LibraryVariableStorage.Dequeue(DequeueVariable);
+                    ItemTrackingLines."Lot No.".SetValue(DequeueVariable);
                     LibraryVariableStorage.Dequeue(DequeueVariable);
                     ItemTrackingLines."Quantity (Base)".SetValue(DequeueVariable);
                 end;

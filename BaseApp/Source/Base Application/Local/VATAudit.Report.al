@@ -254,15 +254,16 @@ report 10512 "VAT Audit"
         }
         dataitem("VAT Entry"; "VAT Entry")
         {
-            DataItemTableView = SORTING("Document No.", "Posting Date");
-            RequestFilterFields = "Posting Date";
+            DataItemTableView = SORTING("Document No.", "VAT Reporting Date");
+            RequestFilterFields = "VAT Reporting Date", "Posting Date";
 
             trigger OnAfterGetRecord()
             begin
                 VATEntryFile.Write(
                   StrSubstNo(
-                    TenDelimitedValuesTxt,
+                    ElevenDelimitedValuesTxt,
                     "Posting Date",
+                    "VAT Reporting Date",
                     "Document No.",
                     Format("Document Type"),
                     Base,
@@ -297,8 +298,9 @@ report 10512 "VAT Audit"
                 VATEntryFile.Create(VATEntryFileName);
                 VATEntryFile.Write(
                   StrSubstNo(
-                    TenDelimitedValuesTxt,
+                    ElevenDelimitedValuesTxt,
                     FieldCaption("Posting Date"),
+                    FieldCaption("VAT Reporting Date"),
                     FieldCaption("Document No."),
                     FieldCaption("Document Type"),
                     FieldCaption(Base),
@@ -523,6 +525,6 @@ report 10512 "VAT Audit"
         VATEntryFileNameCtrlVisible: Boolean;
         SevenDelimitedValuesTxt: Label '"%1","%2","%3","%4","%5","%6","%7"', Locked = true;
         EightDelimitedValuesTxt: Label '"%1","%2","%3","%4","%5","%6","%7","%8"', Locked = true;
-        TenDelimitedValuesTxt: Label '"%1","%2","%3","%4","%5","%6","%7","%8","%9","%10"', Locked = true;
+        ElevenDelimitedValuesTxt: Label '"%1","%2","%3","%4","%5","%6","%7","%8","%9","%10","%11"', Locked = true;
 }
 

@@ -87,6 +87,7 @@ codeunit 137069 "SCM Production Orders"
         EditableErr: Label 'The value must not be editable.';
         FlowFieldErr: Label 'Quantities are not correctly calculated from the flow fields in demand forecast matrix.';
         ItemShouldExistErr: Label 'Item %1 should exist in Production Forecast Matrix';
+        NonEditableErr: Label 'The value must be editable.';
 
     [Test]
     [HandlerFunctions('MessageHandlerSimple')]
@@ -4432,6 +4433,44 @@ codeunit 137069 "SCM Production Orders"
 
         // [THEN] The total amount is equal to 2200 = 1100 [run time] * 2.00 [unit cost]
         VerifyCapacityAmountOnValueEntries(ProductionOrder."No.", CapacityLedgerEntry.Quantity * WorkCenter."Unit Cost");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NewDemandForecastMatrixPageShouldNotEditable()
+    var
+        Item: Record Item;
+        ProductionForecastName: Record "Production Forecast Name";
+        DemandForecastCard: TestPage "Demand Forecast Card";
+    begin
+        // [SCENARIO 468058] New Demand forecast page is still editable after opening page in read-only mode.
+        Initialize();
+
+        // [GIVEN] Create Item, and a Demand Forecast
+        LibraryInventory.CreateItem(Item);
+        CreateDemandForecastCard(DemandForecastCard);
+
+        // [WHEN] The items are filtered to the created item using Demand Forecast Matrix "Item No" column.
+        DemandForecastCard.Matrix.First();
+        DemandForecastCard.Matrix.Filter.SetFilter("No.", Item."No.");
+
+        // [THEN] Field in the Subform Matrix should be editable
+        Assert.IsTrue(DemandForecastCard.Matrix.Field1.Editable(), NonEditableErr);
+
+        // [GIVEN] Get the Production Forecast Name Record and close the Demand Forecast Card page
+        ProductionForecastName.Get(DemandForecastCard.Name.Value);
+        DemandForecastCard.Close();
+
+        // [WHEN] Open Demand Forecast Page in view only mode
+        DemandForecastCard.OpenView();
+        DemandForecastCard.GoToRecord(ProductionForecastName);
+
+        // [WHEN] The items are filtered to the created item using Demand Forecast Matrix "Item No" column.
+        DemandForecastCard.Matrix.First();
+        DemandForecastCard.Matrix.Filter.SetFilter("No.", Item."No.");
+
+        // [VERIFY] Verify: Field in the Subform Matrix should not be editable
+        Assert.IsFalse(DemandForecastCard.Matrix.Field1.Editable(), EditableErr);
     end;
 
     local procedure Initialize()
