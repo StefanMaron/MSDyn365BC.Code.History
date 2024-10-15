@@ -27,12 +27,21 @@ page 9042 "Team Member Activities"
                         var
                             TimeSheetHeader: Record "Time Sheet Header";
                             TimeSheetCard: Page "Time Sheet Card";
+                            TimeSheetList: Page "Time Sheet List";
                         begin
                             TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
                             TimeSheetCard.SetTableView(TimeSheetHeader);
-                            if TimeSheetHeader.Get(TimeSheetHeader.FindCurrentTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"))) then
+                            if TimeSheetHeader.Get(TimeSheetHeader.FindCurrentTimeSheetNo(TimeSheetHeader.FieldNo("Owner User ID"))) then begin
                                 TimeSheetCard.SetRecord(TimeSheetHeader);
-                            TimeSheetCard.Run();
+                                TimeSheetCard.Run();
+                            end else begin
+                                TimeSheetHeader.Reset();
+                                TimeSheetManagement.FilterTimeSheets(TimeSheetHeader, TimeSheetHeader.FieldNo("Owner User ID"));
+                                TimeSheetList.SetTableView(TimeSheetHeader);
+                                TimeSheetList.SetRecord(TimeSheetHeader);
+                                TimeSheetList.Run();
+                            end;
+
                         end;
                     }
                 }

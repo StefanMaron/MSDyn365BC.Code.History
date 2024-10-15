@@ -835,7 +835,7 @@
         field(43; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             var
@@ -2271,6 +2271,7 @@
                     UpdateSellToCust("Sell-to Contact No.");
                 UpdateSellToCustTemplateCode();
                 UpdateShipToContact();
+                GetShippingTime(FieldNo("Sell-to Contact No."));
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])
