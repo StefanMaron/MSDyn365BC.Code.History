@@ -230,7 +230,7 @@ codeunit 9200 "Matrix Management"
                     RecRef.SetPosition(RecordPosition);
                     RecRef.Get(RecRef.RecordId);
                     Steps := RecRef.Next(-MaximumSetLength);
-                    if not (Steps in [-MaximumSetLength, 0]) then
+                    if not (Steps in [-MaximumSetLength .. 0]) then
                         Error(Text001);
                 end;
             "Matrix Page Step Type"::Same:
@@ -323,7 +323,7 @@ codeunit 9200 "Matrix Management"
                     Calendar.SetPosition(RecordPosition);
                     FindDate('=', Calendar, PeriodType, true);
                     Steps := PeriodPageMgt.NextDate(-MaximumSetLength, Calendar, PeriodType);
-                    if not (Steps in [-MaximumSetLength, 0]) then
+                    if not (Steps in [-MaximumSetLength .. 0]) then
                         Error(Text001);
                 end;
             "Matrix Page Step Type"::PreviousColumn:

@@ -163,7 +163,7 @@ codeunit 79 "Sales-Post and Send"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforePostSalesHeader(SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; HideDialog: Boolean; var IsHandled: Boolean)
+    local procedure OnCodeOnBeforePostSalesHeader(var SalesHeader: Record "Sales Header"; var TempDocumentSendingProfile: Record "Document Sending Profile" temporary; HideDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

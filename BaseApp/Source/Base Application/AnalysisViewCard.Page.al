@@ -78,7 +78,7 @@ page 555 "Analysis View Card"
                 {
                     ApplicationArea = Suite;
                     Editable = false;
-                    ToolTip = 'Specifies the number of the last item ledger entry you posted, prior to updating the analysis view.';
+                    ToolTip = 'Specifies the number of the last general ledger entry you posted, prior to updating the analysis view.';
                 }
                 field("Last Budget Entry No."; "Last Budget Entry No.")
                 {
@@ -89,7 +89,7 @@ page 555 "Analysis View Card"
                 field("Update on Posting"; "Update on Posting")
                 {
                     ApplicationArea = Suite;
-                    ToolTip = 'Specifies if the analysis view is updated every time that you post an item ledger entry.';
+                    ToolTip = 'Specifies if the analysis view is updated every time that you post a general ledger entry.';
                 }
                 field("Include Budgets"; "Include Budgets")
                 {
