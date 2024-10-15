@@ -289,6 +289,7 @@
         SATCountryCode: Record "SAT Country Code";
         SATTaxScheme: Record "SAT Tax Scheme";
         SATPaymentTerm: Record "SAT Payment Term";
+        CFDICancellationReason: Record "CFDI Cancellation Reason";
         MediaResources: Record "Media Resources";
         SATFederalMotorTransport: Record "SAT Federal Motor Transport";
         SATTrailerType: Record "SAT Trailer Type";
@@ -308,6 +309,7 @@
         SATPaymentMethodPort: XMLport "SAT Payment Method";
         SATTaxSchemePort: XMLport "SAT Tax Scheme";
         SATPaymentTermPort: XMLport "SAT Payment Term";
+        CFDICancellationReasonPort: XMLport "CFDI Cancellation Reason";
         SATFederalMotorTransportPort: XMLport "SAT Federal Motor Transport";
         SATTrailerTypePort: XMLport "SAT Trailer Type";
         SATPermissionTypePort: XMLport "SAT Permission Type";
@@ -382,6 +384,14 @@
             MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
             SATPaymentMethodPort.SetSource(IStr);
             SATPaymentMethodPort.Import;
+        end;
+
+        if CFDICancellationReason.IsEmpty() then begin
+            MediaResources.Get('CFDICancellationReasons.xml');
+            MediaResources.CalcFields(Blob);
+            MediaResources.Blob.CreateInStream(IStr, TEXTENCODING::UTF16);
+            CFDICancellationReasonPort.SetSource(IStr);
+            CFDICancellationReasonPort.Import();
         end;
 
         if SATFederalMotorTransport.IsEmpty() then
