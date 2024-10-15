@@ -27,7 +27,7 @@ page 5005272 "Delivery Reminder List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the vendor who you want to post a delivery reminder for.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the vendor who the delivery reminder is for.';

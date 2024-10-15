@@ -32,38 +32,6 @@ codeunit 144004 "SCM Replenish. System Mapping"
 
     [Test]
     [Scope('OnPrem')]
-    procedure UTItemGetReplenishmentSystemForSKU_Purchase()
-    begin
-        VerifyGetReplenishmentSystem(
-          StockkeepingUnitRef."Replenishment System"::Purchase, ItemRef."Replenishment System"::Purchase);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UTItemGetReplenishmentSystemForSKU_PrOrder()
-    begin
-        VerifyGetReplenishmentSystem(
-          StockkeepingUnitRef."Replenishment System"::"Prod. Order", ItemRef."Replenishment System"::"Prod. Order");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UTItemGetReplenishmentSystemForSKU_None()
-    begin
-        VerifyGetReplenishmentSystem(
-          StockkeepingUnitRef."Replenishment System"::" ", ItemRef."Replenishment System"::" ");
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure UTItemGetReplenishmentSystemForSKU_Assembly()
-    begin
-        VerifyGetReplenishmentSystem(
-          StockkeepingUnitRef."Replenishment System"::Assembly, ItemRef."Replenishment System"::Assembly);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure ValidateItemRequisiionLineWithReplenishmentSystem_Purchase()
     begin
         CheckValidateRequsitionLine(
@@ -158,14 +126,6 @@ codeunit 144004 "SCM Replenish. System Mapping"
     begin
         CheckCreateStokkeepingUnit(
           ItemRef."Replenishment System"::Assembly, StockkeepingUnitRef."Replenishment System"::Assembly);
-    end;
-
-    local procedure VerifyGetReplenishmentSystem(SKURepSystem: Option; ItemRepSystem: Option)
-    var
-        Item: Record Item;
-    begin
-        Item."Replenishment System" := ItemRepSystem;
-        Assert.AreEqual(SKURepSystem, Item.GetReplenishmentSystemForSKU, ReplSysIsIncorrectErr);
     end;
 
     local procedure CheckValidateRequsitionLine(ItemReplenishmentSystem: Option; ExpectedReqLineReplenishmentSystem: Option)

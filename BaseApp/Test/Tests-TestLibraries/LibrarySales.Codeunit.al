@@ -154,6 +154,16 @@ codeunit 130509 "Library - Sales"
         CustomerPostingGroup.Insert(true);
     end;
 
+    procedure CreateAltCustomerPostingGroup(ParentCode: Code[10]; AltCode: Code[10])
+    var
+        AltCustomerPostingGroup: Record "Alt. Customer Posting Group";
+    begin
+        AltCustomerPostingGroup.Init();
+        AltCustomerPostingGroup."Customer Posting Group" := ParentCode;
+        AltCustomerPostingGroup."Alt. Customer Posting Group" := AltCode;
+        AltCustomerPostingGroup.Insert();
+    end;
+
     procedure CreateCustomerPriceGroup(var CustomerPriceGroup: Record "Customer Price Group")
     begin
         CustomerPriceGroup.Init();
@@ -405,11 +415,16 @@ codeunit 130509 "Library - Sales"
     end;
 
     procedure CreateSalesOrder(var SalesHeader: Record "Sales Header")
+    begin
+        CreateSalesOrderForCustomerNo(SalesHeader, CreateCustomerNo());
+    end;
+
+    procedure CreateSalesOrderForCustomerNo(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
-        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomerNo);
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
           Item, LibraryRandom.RandDecInRange(1, 100, 2), LibraryRandom.RandDecInRange(1, 100, 2));
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(100));
@@ -516,7 +531,7 @@ codeunit 130509 "Library - Sales"
         SalesCommentLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     procedure CreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Enum "Sales Price Type"; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin
         Clear(SalesPrice);
@@ -1298,7 +1313,7 @@ codeunit 130509 "Library - Sales"
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesPrice(var SalesPrice: Record "Sales Price"; ItemNo: Code[20]; SalesType: Option; SalesCode: Code[20]; StartingDate: Date; CurrencyCode: Code[10]; VariantCode: Code[10]; UOMCode: Code[10]; MinQty: Decimal; UnitPrice: Decimal)
     begin

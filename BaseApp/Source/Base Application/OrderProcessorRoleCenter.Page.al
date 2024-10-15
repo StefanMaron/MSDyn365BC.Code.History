@@ -16,6 +16,10 @@ page 9006 "Order Processor Role Center"
                 AccessByPermission = TableData "Sales Shipment Header" = R;
                 ApplicationArea = Basic, Suite;
             }
+            part("Intercompany Activities"; "Intercompany Activities")
+            {
+                ApplicationArea = Intercompany;
+            }
             part("User Tasks Activities"; "User Tasks Activities")
             {
                 ApplicationArea = Suite;

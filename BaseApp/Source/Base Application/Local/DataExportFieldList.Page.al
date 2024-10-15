@@ -28,7 +28,7 @@ page 11009 "Data Export Field List"
                     StyleExpr = ClassColumnStyle;
                     ToolTip = 'Specifies the name of field that holds the data to be exported.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Type';

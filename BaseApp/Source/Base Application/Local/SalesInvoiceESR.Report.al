@@ -692,7 +692,7 @@ report 3010532 "Sales Invoice ESR"
     [Scope('OnPrem')]
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(4) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Inv.") <> '';
     end;
 }
 

@@ -132,31 +132,10 @@ report 11104 "Intrastat - Form AT"
                     then
                         CurrReport.Skip();
 
-#if CLEAN19
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form AT", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Form AT", true)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        TestField("Total Weight");
-                        if Companyinfo."Check Transport Method" then
-                            TestField("Transport Method");
-                        if Companyinfo."Check Transaction Specific." then
-                            TestField("Transaction Specification");
-                        if "Supplementary Units" then
-                            TestField(Quantity)
-                    end;
-#endif
-#if CLEAN19
                     if IntraJnlManagement.IsAdvancedChecklistReportField(
                         Report::"Intrastat - Form AT", "Intrastat Jnl. Line".FieldNo("Transaction Specification"), '')
                     then
-#else
-                    if Companyinfo."Check Transaction Specific." then
-#endif
                         if StrLen("Transaction Specification") <> 5 then
                             Error(Text002, "Transaction Specification");
                     if not "Supplementary Units" then
@@ -219,9 +198,6 @@ report 11104 "Intrastat - Form AT"
 
         Companyinfo.Get();
         Companyinfo."VAT Registration No." := ConvertStr(Companyinfo."VAT Registration No.", Text001, '    ');
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
     end;
 
     var
@@ -231,9 +207,6 @@ report 11104 "Intrastat - Form AT"
         Companyinfo: Record "Company Information";
         Country: Record "Country/Region";
         CountryOfOrigin: Record "Country/Region";
-#if not CLEAN19
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         CountryOfOriginCode: Code[2];
         RecCount: Integer;

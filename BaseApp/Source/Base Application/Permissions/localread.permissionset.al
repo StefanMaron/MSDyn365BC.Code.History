@@ -5,7 +5,9 @@ permissionset 1002 "LOCAL READ"
     Caption = 'Country/region-specific read only access.';
 
     Permissions = tabledata "Bank Directory" = R,
+#if not CLEAN22
                   tabledata Certificate = R,
+#endif
                   tabledata "DACH Report Selections" = R,
                   tabledata "Data Exp. Primary Key Buffer" = R,
                   tabledata "Data Export" = R,

@@ -35,6 +35,7 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Gen. Journal Template" = r,
                   tabledata "Gen. Product Posting Group" = R,
                   tabledata "General Posting Setup" = r,
+                  tabledata "IC Bank Account" = r,
                   tabledata "IC G/L Account" = Rm,
                   tabledata "IC Partner" = r,
                   tabledata "Inventory Posting Setup" = r,

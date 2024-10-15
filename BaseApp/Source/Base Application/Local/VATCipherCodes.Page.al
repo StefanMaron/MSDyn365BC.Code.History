@@ -17,7 +17,7 @@ page 11023 "VAT Cipher Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT cipher code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the VAT cipher code.';

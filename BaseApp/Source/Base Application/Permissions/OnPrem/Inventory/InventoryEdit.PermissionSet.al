@@ -35,9 +35,6 @@ permissionset 8562 "Inventory - Edit"
                   tabledata "Item Category" = R,
                   tabledata "Item Charge Assignment (Purch)" = r,
                   tabledata "Item Charge Assignment (Sales)" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Identifier" = RD,
                   tabledata "Item Journal Line" = Rm,
@@ -57,6 +54,7 @@ permissionset 8562 "Inventory - Edit"
                   tabledata Loaner = r,
                   tabledata Location = R,
                   tabledata "Lot No. Information" = RIMD,
+                  tabledata "Marketing Text Attributes" = RIMD,
                   tabledata "Nonstock Item" = RIMD,
                   tabledata "Package No. Information" = RIMD,
                   tabledata "Phys. Inventory Ledger Entry" = Rm,

@@ -5,7 +5,9 @@ permissionset 1001 "LOCAL"
     Caption = 'Country/region-specific func.';
 
     Permissions = tabledata "Bank Directory" = RIMD,
+#if not CLEAN22
                   tabledata Certificate = RIMD,
+#endif
                   tabledata "DACH Report Selections" = RIMD,
                   tabledata "Data Exp. Primary Key Buffer" = RIMD,
                   tabledata "Data Export" = RIMD,

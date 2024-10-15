@@ -413,7 +413,7 @@
         Assert.ExpectedError(ExpectedReceiptDateErr);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure PurchasePriceNegativeQuantityError()
@@ -1860,6 +1860,7 @@
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure QtyToShipOnSalesOrderNonInventoriableWhenShipmentRequired()
     var
@@ -1887,6 +1888,7 @@
     end;
 
     [Test]
+    [HandlerFunctions('YesConfirmHandler')]
     [Scope('OnPrem')]
     procedure QtyToReceiveOnPurchOrderNonInventoriableWhenReceiveRequired()
     var
@@ -3835,7 +3837,7 @@
         SalesLine.Modify(true);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateVendorAndOpenPurchaseLineDiscountsPageFromVendorCard(var PurchaseLineDiscounts: TestPage "Purchase Line Discounts")
     var
         Vendor: Record Vendor;

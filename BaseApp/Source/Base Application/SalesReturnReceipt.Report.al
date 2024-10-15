@@ -589,7 +589,7 @@ report 6646 "Sales - Return Receipt"
 
     procedure InitLogInteraction()
     begin
-        LogInteraction := SegManagement.FindInteractTmplCode(20) <> '';
+        LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Return Receipt") <> '';
     end;
 
     local procedure IsReportInPreviewMode(): Boolean

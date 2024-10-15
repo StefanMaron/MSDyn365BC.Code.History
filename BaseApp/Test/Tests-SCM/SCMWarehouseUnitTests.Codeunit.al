@@ -791,6 +791,351 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         WarehouseActivityLine.TestField("Shelf No.", SKU."Shelf No.");
     end;
 
+    [Test]
+    procedure AutofillLotTrackingOnNextPlaceLine()
+    var
+        Location: Record Location;
+        Bins: array[3] of Record Bin;
+        Item: Record Item;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        xWarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Pick]
+        // [SCENARIO 459864] Automatically copy Lot No. from Take line to the next Place line in warehouse pick.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with warehouse tracking.
+        CreateLocationForWhsePick(Location, Bins);
+        Item.Get(CreateItemWithLotTracking());
+
+        // [GIVEN] Post lot "L1" to bin "B1" and lot "L2" to bin "B2" using item journal.
+        CreateAndPostItemJournalLineWithTracking(Bins[1], Item."No.", '', LotNos[1], 0D, Qty);
+        CreateAndPostItemJournalLineWithTracking(Bins[2], Item."No.", '', LotNos[2], 0D, Qty);
+
+        // [GIVEN] Sales order, release, create warehouse shipment and pick.
+        CreateSalesOrderWithPick(WarehouseActivityHeader, Item."No.", Location.Code, 2 * Qty);
+
+        // [GIVEN] The pick contains the following lines:
+        // [GIVEN] 10000: TAKE from "B1"
+        // [GIVEN] 20000: PLACE to ship bin
+        // [GIVEN] 30000: TAKE from "B2"
+        // [GIVEN] 40000: PLACE to ship bin
+        FindTakeAndPlaceWarehouseActivityLines(TakeWarehouseActivityLine, PlaceWarehouseActivityLine, WarehouseActivityHeader);
+
+        // [WHEN] Select lot "L2" on Take line 30000.
+        // [THEN] The lot no. is filled in automatically on Place line 40000.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[2];
+        TakeWarehouseActivityLine[2]."Lot No." := LotNos[2];
+        TakeWarehouseActivityLine[2].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[2].FieldNo("Lot No."));
+        PlaceWarehouseActivityLine[2].Find();
+        PlaceWarehouseActivityLine[2].TestField("Lot No.", LotNos[2]);
+
+        // [WHEN] Select lot "L1" on Take line 10000.
+        // [THEN] The lot no. is filled in automatically on Place line 20000.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[1];
+        TakeWarehouseActivityLine[1]."Lot No." := LotNos[1];
+        TakeWarehouseActivityLine[1].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[1].FieldNo("Lot No."));
+        PlaceWarehouseActivityLine[1].Find();
+        PlaceWarehouseActivityLine[1].TestField("Lot No.", LotNos[1]);
+    end;
+
+    [Test]
+    procedure AutofillSerialLotPackageTrackingOnNextPlaceLine()
+    var
+        Location: Record Location;
+        Bins: array[3] of Record Bin;
+        Item: Record Item;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        xWarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNos: array[2] of Code[50];
+        LotNos: array[2] of Code[50];
+        PackageNos: array[2] of Code[50];
+        ExpirationDates: array[2] of Date;
+        i: Integer;
+    begin
+        // [FEATURE] [Item Tracking] [Pick]
+        // [SCENARIO 459864] Automatically copy Serial No., Lot No., Package No. and Expiration Date from Take line to the next Place line in warehouse pick.
+        Initialize();
+        for i := 1 to ArrayLen(SerialNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            SerialNos[i] := LibraryUtility.GenerateGUID();
+            PackageNos[i] := LibraryUtility.GenerateGUID();
+            ExpirationDates[i] := LibraryRandom.RandDate(60);
+        end;
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with warehouse tracking.
+        CreateLocationForWhsePick(Location, Bins);
+        Item.Get(CreateItemWithSerialLotPackageTracking());
+
+        // [GIVEN] Post serial no. "S1", lot "L1", package "P1", expiration date "D1" to bin "B1".
+        // [GIVEN] Post serial no. "S2", lot "L2", package "P2", expiration date "D2" to bin "B2".
+        CreateAndPostItemJournalLineWithTracking(Bins[1], Item."No.", SerialNos[1], LotNos[1], PackageNos[1], ExpirationDates[1], 1);
+        CreateAndPostItemJournalLineWithTracking(Bins[2], Item."No.", SerialNos[2], LotNos[2], PackageNos[2], ExpirationDates[2], 1);
+
+        // [GIVEN] Sales order, release, create warehouse shipment and pick.
+        CreateSalesOrderWithPick(WarehouseActivityHeader, Item."No.", Location.Code, 2);
+
+        // [GIVEN] The pick contains the following lines:
+        // [GIVEN] 10000: TAKE from "B1"
+        // [GIVEN] 20000: PLACE to ship bin
+        // [GIVEN] 30000: TAKE from "B2"
+        // [GIVEN] 40000: PLACE to ship bin
+        FindTakeAndPlaceWarehouseActivityLines(TakeWarehouseActivityLine, PlaceWarehouseActivityLine, WarehouseActivityHeader);
+
+        // [WHEN] Select serial no. "S1" on Take line 10000.
+        // [THEN] The serial no., lot no., package no., and expiration date are filled in automatically on Place line 20000.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[1];
+        TakeWarehouseActivityLine[1].Validate("Serial No.", SerialNos[1]);
+        TakeWarehouseActivityLine[1].UpdateExpirationDate(TakeWarehouseActivityLine[1].FieldNo("Serial No."));
+        TakeWarehouseActivityLine[1].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[1].FieldNo("Serial No."));
+        PlaceWarehouseActivityLine[1].Find();
+        PlaceWarehouseActivityLine[1].TestField("Serial No.", SerialNos[1]);
+        PlaceWarehouseActivityLine[1].TestField("Lot No.", LotNos[1]);
+        PlaceWarehouseActivityLine[1].TestField("Package No.", PackageNos[1]);
+        PlaceWarehouseActivityLine[1].TestField("Expiration Date", ExpirationDates[1]);
+    end;
+
+    [Test]
+    procedure AutofillTrackingOnPreviousPlaceLine()
+    var
+        Location: Record Location;
+        Bins: array[3] of Record Bin;
+        Item: Record Item;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        xWarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Pick]
+        // [SCENARIO 459864] Automatically copy Lot No. from Take line to the previous Place line in warehouse pick.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with warehouse tracking.
+        CreateLocationForWhsePick(Location, Bins);
+        Item.Get(CreateItemWithLotTracking());
+
+        // [GIVEN] Post lot "L1" to bin "B1" and lot "L2" to bin "B2" using item journal.
+        CreateAndPostItemJournalLineWithTracking(Bins[1], Item."No.", '', LotNos[1], 0D, Qty);
+        CreateAndPostItemJournalLineWithTracking(Bins[2], Item."No.", '', LotNos[2], 0D, Qty);
+
+        // [GIVEN] Sales order, release, create warehouse shipment and pick.
+        CreateSalesOrderWithPick(WarehouseActivityHeader, Item."No.", Location.Code, 2 * Qty);
+
+        // [GIVEN] The pick contains the following lines:
+        // [GIVEN] 10000: TAKE from "B1"
+        // [GIVEN] 20000: PLACE to ship bin
+        // [GIVEN] 30000: TAKE from "B2"
+        // [GIVEN] 40000: PLACE to ship bin
+        FindTakeAndPlaceWarehouseActivityLines(TakeWarehouseActivityLine, PlaceWarehouseActivityLine, WarehouseActivityHeader);
+
+        // [GIVEN] Select lot "L1" on Take line 10000 and on Place line 40000.
+        TakeWarehouseActivityLine[1]."Lot No." := LotNos[1];
+        TakeWarehouseActivityLine[1].Modify();
+        PlaceWarehouseActivityLine[2]."Lot No." := LotNos[1];
+        PlaceWarehouseActivityLine[2].Modify();
+
+        // [WHEN] Select lot "L2" on Take line 30000.
+        // [THEN] The lot no. is filled in automatically on Place line 20000.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[2];
+        TakeWarehouseActivityLine[2]."Lot No." := LotNos[2];
+        TakeWarehouseActivityLine[2].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[2].FieldNo("Lot No."));
+        PlaceWarehouseActivityLine[1].Find();
+        PlaceWarehouseActivityLine[1].TestField("Lot No.", LotNos[2]);
+    end;
+
+    [Test]
+    procedure DeleteTrackingOnNextPlaceLine()
+    var
+        Location: Record Location;
+        Bins: array[3] of Record Bin;
+        Item: Record Item;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        xWarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Pick]
+        // [SCENARIO 459864] Automatically delete Lot No. on Place line after user deletes it on the related Take line.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with warehouse tracking.
+        CreateLocationForWhsePick(Location, Bins);
+        Item.Get(CreateItemWithLotTracking());
+
+        // [GIVEN] Post lot "L1" to bin "B1" and lot "L2" to bin "B2" using item journal.
+        CreateAndPostItemJournalLineWithTracking(Bins[1], Item."No.", '', LotNos[1], 0D, Qty);
+        CreateAndPostItemJournalLineWithTracking(Bins[2], Item."No.", '', LotNos[2], 0D, Qty);
+
+        // [GIVEN] Sales order, release, create warehouse shipment and pick.
+        CreateSalesOrderWithPick(WarehouseActivityHeader, Item."No.", Location.Code, 2 * Qty);
+
+        // [GIVEN] The pick contains the following lines:
+        // [GIVEN] 10000: TAKE from "B1"
+        // [GIVEN] 20000: PLACE to ship bin
+        // [GIVEN] 30000: TAKE from "B2"
+        // [GIVEN] 40000: PLACE to ship bin
+        FindTakeAndPlaceWarehouseActivityLines(TakeWarehouseActivityLine, PlaceWarehouseActivityLine, WarehouseActivityHeader);
+
+        // [GIVEN] Select lot "L1" on Take line 10000 and on Place line 40000.
+        TakeWarehouseActivityLine[1]."Lot No." := LotNos[1];
+        TakeWarehouseActivityLine[1].Modify();
+        PlaceWarehouseActivityLine[2]."Lot No." := LotNos[1];
+        PlaceWarehouseActivityLine[2].Modify();
+
+        // [WHEN] Delete lot no. on Take line 10000.
+        // [THEN] The lot no. is deleled in automatically on Place line 40000.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[1];
+        TakeWarehouseActivityLine[1]."Lot No." := '';
+        TakeWarehouseActivityLine[1].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[1].FieldNo("Lot No."));
+        PlaceWarehouseActivityLine[2].Find();
+        PlaceWarehouseActivityLine[2].TestField("Lot No.", '');
+    end;
+
+    [Test]
+    procedure DoNotAutofillTrackingOnPlaceLineForAnotherSource()
+    var
+        Location: Record Location;
+        Bins: array[3] of Record Bin;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        xWarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Pick]
+        // [SCENARIO 459864] Do not copy Lot No. from Take line to the Place line for another source.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with warehouse tracking.
+        CreateLocationForWhsePick(Location, Bins);
+        Item.Get(CreateItemWithLotTracking());
+
+        // [GIVEN] Post lot "L1" to bin "B1" and lot "L2" to bin "B2" using item journal.
+        CreateAndPostItemJournalLineWithTracking(Bins[1], Item."No.", '', LotNos[1], 0D, Qty);
+        CreateAndPostItemJournalLineWithTracking(Bins[2], Item."No.", '', LotNos[2], 0D, Qty);
+
+        // [GIVEN] Sales order, release, create warehouse shipment and pick.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", Qty);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.SetRange("Location Code", Location.Code);
+        WarehouseShipmentHeader.FindFirst();
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+        WarehouseActivityHeader.SetRange("Location Code", Location.Code);
+        WarehouseActivityHeader.FindFirst();
+
+        // [GIVEN] The pick contains the following lines:
+        // [GIVEN] 10000: TAKE from "B1"
+        // [GIVEN] 20000: PLACE to ship bin
+        // [GIVEN] 30000: TAKE from "B2"
+        // [GIVEN] 40000: PLACE to ship bin
+        FindTakeAndPlaceWarehouseActivityLines(TakeWarehouseActivityLine, PlaceWarehouseActivityLine, WarehouseActivityHeader);
+
+        // [GIVEN] Select lot "L1" on Take line 10000 and on Place line 40000.
+        TakeWarehouseActivityLine[1]."Lot No." := LotNos[1];
+        TakeWarehouseActivityLine[1].Modify();
+        PlaceWarehouseActivityLine[2]."Lot No." := LotNos[1];
+        PlaceWarehouseActivityLine[2].Modify();
+
+        // [WHEN] Select lot "L2" on Take line 30000.
+        // [THEN] The lot no. is not copied to Place line 20000 because it has different source document line.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[2];
+        TakeWarehouseActivityLine[2]."Lot No." := LotNos[2];
+        TakeWarehouseActivityLine[2].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[2].FieldNo("Lot No."));
+        PlaceWarehouseActivityLine[1].Find();
+        PlaceWarehouseActivityLine[1].TestField("Lot No.", '');
+    end;
+
+    [Test]
+    procedure DoNotAutofillTrackingOnPlaceLineWithDifferentQuantity()
+    var
+        Location: Record Location;
+        Bins: array[3] of Record Bin;
+        Item: Record Item;
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+        xWarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [Pick]
+        // [SCENARIO 459864] Do not copy Lot No. from Take line to the Place line with different quantity in warehouse pick.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with warehouse tracking.
+        CreateLocationForWhsePick(Location, Bins);
+        Item.Get(CreateItemWithLotTracking());
+
+        // [GIVEN] Post lot "L1" to bin "B1" and lot "L2" to bin "B2" using item journal.
+        CreateAndPostItemJournalLineWithTracking(Bins[1], Item."No.", '', LotNos[1], 0D, Qty);
+        CreateAndPostItemJournalLineWithTracking(Bins[2], Item."No.", '', LotNos[2], 0D, 2 * Qty);
+
+        // [GIVEN] Sales order, release, create warehouse shipment and pick.
+        CreateSalesOrderWithPick(WarehouseActivityHeader, Item."No.", Location.Code, 3 * Qty);
+
+        // [GIVEN] The pick contains the following lines:
+        // [GIVEN] 10000: TAKE from "B1"
+        // [GIVEN] 20000: PLACE to ship bin
+        // [GIVEN] 30000: TAKE from "B2"
+        // [GIVEN] 40000: PLACE to ship bin
+        FindTakeAndPlaceWarehouseActivityLines(TakeWarehouseActivityLine, PlaceWarehouseActivityLine, WarehouseActivityHeader);
+
+        // [GIVEN] Select lot "L1" on Take line 10000 and on Place line 40000.
+        TakeWarehouseActivityLine[1]."Lot No." := LotNos[1];
+        TakeWarehouseActivityLine[1].Modify();
+        PlaceWarehouseActivityLine[2]."Lot No." := LotNos[1];
+        PlaceWarehouseActivityLine[2].Modify();
+
+        // [WHEN] Select lot "L2" on Take line 30000.
+        // [THEN] The lot no. is not copied to Place line 20000 because it has different quantity.
+        xWarehouseActivityLine := TakeWarehouseActivityLine[2];
+        TakeWarehouseActivityLine[2]."Lot No." := LotNos[2];
+        TakeWarehouseActivityLine[2].CopyItemTrackingToRelatedLine(xWarehouseActivityLine, TakeWarehouseActivityLine[2].FieldNo("Lot No."));
+        PlaceWarehouseActivityLine[1].Find();
+        PlaceWarehouseActivityLine[1].TestField("Lot No.", '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Warehouse Unit Tests");
@@ -811,6 +1156,104 @@ codeunit 137504 "SCM Warehouse Unit Tests"
         Item."Item Tracking Code" := ItemTrackingCode.Code;
         Item.Modify();
         exit(Item."No.");
+    end;
+
+    local procedure CreateItemWithSerialLotPackageTracking(): Code[20]
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItem(Item);
+        ItemTrackingCode.Init();
+        ItemTrackingCode.Code := LibraryUtility.GenerateGUID();
+        ItemTrackingCode."SN Specific Tracking" := true;
+        ItemTrackingCode."SN Warehouse Tracking" := true;
+        ItemTrackingCode."Lot Specific Tracking" := true;
+        ItemTrackingCode."Lot Warehouse Tracking" := true;
+        ItemTrackingCode."Package Specific Tracking" := true;
+        ItemTrackingCode."Package Warehouse Tracking" := true;
+        ItemTrackingCode."Use Expiration Dates" := true;
+        ItemTrackingCode.Insert();
+        Item."Item Tracking Code" := ItemTrackingCode.Code;
+        Item.Modify();
+        exit(Item."No.");
+    end;
+
+    local procedure CreateLocationForWhsePick(var Location: Record Location; var Bins: array[3] of Record Bin)
+    var
+        WarehouseEmployee: Record "Warehouse Employee";
+    begin
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, false);
+        LibraryWarehouse.CreateBin(Bins[1], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[2], Location.Code, '', '', '');
+        LibraryWarehouse.CreateBin(Bins[3], Location.Code, '', '', '');
+        Location.Validate("Shipment Bin Code", Bins[3].Code);
+        Location.Modify(true);
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithTracking(Bin: Record Bin; ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; ExpirationDate: Date; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Bin."Location Code", Bin.Code, Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, SerialNo, LotNo, ItemJournalLine.Quantity);
+        ReservationEntry.Validate("Expiration Date", ExpirationDate);
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateAndPostItemJournalLineWithTracking(Bin: Record Bin; ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50]; ExpirationDate: Date; Qty: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+    begin
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, ItemNo, Bin."Location Code", Bin.Code, Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, SerialNo, LotNo, PackageNo, ItemJournalLine.Quantity);
+        ReservationEntry.Validate("Expiration Date", ExpirationDate);
+        ReservationEntry.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure CreateSalesOrderWithPick(var WarehouseActivityHeader: Record "Warehouse Activity Header"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ItemNo, Qty, LocationCode, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+        WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
+        WarehouseShipmentHeader.FindFirst();
+        LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
+
+        WarehouseActivityHeader.SetRange("Location Code", LocationCode);
+        WarehouseActivityHeader.FindFirst();
+    end;
+
+    local procedure FindTakeAndPlaceWarehouseActivityLines(var TakeWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+                                                           var PlaceWarehouseActivityLine: array[2] of Record "Warehouse Activity Line";
+                                                           WarehouseActivityHeader: Record "Warehouse Activity Header")
+    var
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Take);
+        WarehouseActivityLine.FindFirst();
+        TakeWarehouseActivityLine[1] := WarehouseActivityLine;
+        WarehouseActivityLine.Next();
+        TakeWarehouseActivityLine[2] := WarehouseActivityLine;
+
+        WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
+        WarehouseActivityLine.FindFirst();
+        PlaceWarehouseActivityLine[1] := WarehouseActivityLine;
+        WarehouseActivityLine.Next();
+        PlaceWarehouseActivityLine[2] := WarehouseActivityLine;
     end;
 
     local procedure CreateInventory(var ItemLedgerEntry: Record "Item Ledger Entry"; BinCodeToStore: Code[10]; DPPLocation: Boolean)
@@ -2146,11 +2589,18 @@ codeunit 137504 "SCM Warehouse Unit Tests"
     var
         WarehouseEntry: Record "Warehouse Entry";
         WarehouseEntry2: Record "Warehouse Entry";
+        Bin: Record Bin;
         BinContent: Record "Bin Content";
     begin
         MockILENo(ItemNo, LocationCode, Qty);
 
         BinCode := LibraryUtility.GenerateGUID();
+
+        Bin.Init();
+        Bin."Location Code" := LocationCode;
+        Bin.Code := BinCode;
+        Bin.Default := Default;
+        Bin.Insert();
 
         BinContent.Init();
         BinContent.Default := Default;

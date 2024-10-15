@@ -36,6 +36,7 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Gen. Journal Batch" = r,
                   tabledata "Gen. Journal Line" = r,
                   tabledata "Gen. Journal Template" = r,
+                  tabledata "IC Bank Account" = Rm,
                   tabledata "IC Partner" = Rm,
                   tabledata Insurance = r,
                   tabledata "Interaction Log Entry" = R,
@@ -43,9 +44,6 @@ permissionset 7371 "Vendor - Edit"
                   tabledata "Item Analysis View Budg. Entry" = r,
                   tabledata "Item Analysis View Entry" = rid,
                   tabledata "Item Budget Entry" = r,
-#if not CLEAN19
-                  tabledata "Item Cross Reference" = RIMD,
-#endif
                   tabledata "Item Journal Line" = r,
                   tabledata "Item Ledger Entry" = rm,
                   tabledata "Item Reference" = RIMD,

@@ -1,4 +1,4 @@
-﻿table 60 "Document Sending Profile"
+table 60 "Document Sending Profile"
 {
     Caption = 'Document Sending Profile';
     LookupPageID = "Document Sending Profiles";
@@ -460,7 +460,7 @@
             "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, true);
         SendToDisk("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToCust);
 
-        OnAfterSend(ReportUsage, RecordVariant, DocNo, ToCust, DocName, CustomerFieldNo, DocumentNoFieldNo);
+        OnAfterSend(ReportUsage, RecordVariant, DocNo, ToCust, DocName, CustomerFieldNo, DocumentNoFieldNo, Rec);
         Commit();
     end;
 
@@ -483,7 +483,7 @@
         SendToDiskVendor("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToVendor);
 
         OnAfterSendVendor(
-            ReportUsage, RecordVariant, DocNo, ToVendor, DocName, VendorNoFieldNo, DocumentNoFieldNo);
+            ReportUsage, RecordVariant, DocNo, ToVendor, DocName, VendorNoFieldNo, DocumentNoFieldNo, Rec);
         Commit();
     end;
 
@@ -541,7 +541,7 @@
             "Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocumentNoFieldNo, DocName, CustomerFieldNo, IsCustomer);
     end;
 
-    local procedure TrySendToEMailGroupedMultipleSelection(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerVendorFieldNo: Integer; IsCustomer: Boolean)
+    procedure TrySendToEMailGroupedMultipleSelection(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerVendorFieldNo: Integer; IsCustomer: Boolean)
     var
         ReportDistributionMgt: Codeunit "Report Distribution Management";
         RecRef: RecordRef;
@@ -645,7 +645,7 @@
         SendToDisk("Report Selection Usage".FromInteger(ReportUsage), RecordVariant, DocNo, DocName, ToCust);
     end;
 
-    local procedure SendToVAN(RecordVariant: Variant)
+    procedure SendToVAN(RecordVariant: Variant)
     var
         ReportDistributionManagement: Codeunit "Report Distribution Management";
     begin
@@ -655,7 +655,7 @@
         ReportDistributionManagement.VANDocumentReport(RecordVariant, Rec);
     end;
 
-    local procedure SendToPrinter(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustomerNoFieldNo: Integer)
+    procedure SendToPrinter(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; CustomerNoFieldNo: Integer)
     var
         ReportSelections: Record "Report Selections";
         ShowRequestForm: Boolean;
@@ -806,7 +806,7 @@
         OnAfterSendToEmailVendor(Rec, ReportUsage, RecordVariant, DocNo, DocName, ToVendor, VendorNoFieldNo, ShowDialog);
     end;
 
-    local procedure SendToDisk(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20])
+    procedure SendToDisk(ReportUsage: Enum "Report Selection Usage"; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20])
     var
         ReportSelections: Record "Report Selections";
         ElectronicDocumentFormat: Record "Electronic Document Format";
@@ -955,7 +955,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterSend(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer)
+    local procedure OnAfterSend(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer; DocumentSendingProfile: Record "Document Sending Profile")
     begin
     end;
 
@@ -965,7 +965,7 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterSendVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToVendor: Code[20]; DocName: Text[150]; VendorNoFieldNo: Integer; DocumentNoFieldNo: Integer)
+    local procedure OnAfterSendVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToVendor: Code[20]; DocName: Text[150]; VendorNoFieldNo: Integer; DocumentNoFieldNo: Integer; DocumentSendingProfile: Record "Document Sending Profile")
     begin
     end;
 
@@ -1035,7 +1035,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; ShowDialog: Boolean; var Handled: Boolean; var IsCustomer: Boolean)
+    local procedure OnBeforeTrySendToEMail(ReportUsage: Integer; RecordVariant: Variant; DocumentNoFieldNo: Integer; DocName: Text[150]; CustomerFieldNo: Integer; var ShowDialog: Boolean; var Handled: Boolean; var IsCustomer: Boolean)
     begin
     end;
 

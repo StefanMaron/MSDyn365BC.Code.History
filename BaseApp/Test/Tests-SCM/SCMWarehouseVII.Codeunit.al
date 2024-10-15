@@ -2356,7 +2356,7 @@ codeunit 137159 "SCM Warehouse VII"
         SalesOrder.SalesLines."No.".SetValue(ItemNo);
         SalesOrder.SalesLines."Location Code".SetValue(LocationCode);
         SalesOrder.SalesLines.Quantity.SetValue(Quantity);
-        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.");
+        SalesHeader.Get(SalesHeader."Document Type"::Order, SalesOrder."No.".Value);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 

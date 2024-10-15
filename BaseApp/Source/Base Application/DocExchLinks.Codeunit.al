@@ -1,7 +1,7 @@
 codeunit 1411 "Doc. Exch. Links"
 {
-    Permissions = TableData "Sales Invoice Header" = m,
-                  TableData "Sales Cr.Memo Header" = m;
+    Permissions = TableData "Sales Invoice Header" = rm,
+                  TableData "Sales Cr.Memo Header" = rm;
 
     trigger OnRun()
     begin

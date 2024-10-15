@@ -446,12 +446,8 @@ report 11004 "Vendor Total-Balance"
         StartBalance: Decimal;
         PeriodDebitAmount: Decimal;
         PeriodCreditAmount: Decimal;
-        PeriodEndBalance: Decimal;
-        PeriodEndBalanceType: Option " ",Debit,Credit;
         YearDebitAmount: Decimal;
         YearCreditAmount: Decimal;
-        EndBalanceType: Option " ",Debit,Credit;
-        EndBalance: Decimal;
         AdjPeriodAmount: Decimal;
         AdjYearAmount: Decimal;
         AdjustAmounts: Boolean;
@@ -470,6 +466,12 @@ report 11004 "Vendor Total-Balance"
         Debit__CreditCaption_Control1140027Lbl: Label 'Debit/ Credit';
         Starting_BalanceCaptionLbl: Label 'Starting Balance';
         TotalCaptionLbl: Label 'Total';
+
+    protected var
+        EndBalance: Decimal;
+        EndBalanceType: Option " ",Debit,Credit;
+        PeriodEndBalance: Decimal;
+        PeriodEndBalanceType: Option " ",Debit,Credit;
 
     [Scope('OnPrem')]
     procedure GetAdjAmount(VendorLedgEntryEntryNo: Integer): Decimal

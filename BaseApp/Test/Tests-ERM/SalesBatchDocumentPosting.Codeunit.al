@@ -48,7 +48,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesInvoiceList.Trap;
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
 
         VerifyTwoOfThreeDocumentsUnposted(SalesHeaderUI, SalesHeader);
@@ -80,7 +80,7 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesCreditMemos.Trap;
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
 
         VerifyTwoOfThreeDocumentsUnposted(SalesHeaderUI, SalesHeader);
@@ -310,7 +310,7 @@ codeunit 134891 "Sales Batch Document Posting"
         PAGE.Run(PAGE::"Sales Invoice List", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
         ErrorMessagesPage.Trap;
         InvokePostSelectedInvoices(SalesInvoiceList, SalesHeader[2]);
 
@@ -342,7 +342,7 @@ codeunit 134891 "Sales Batch Document Posting"
         PAGE.Run(PAGE::"Sales Credit Memos", SalesHeaderUI);
 
         LibraryVariableStorage.Enqueue(ConfirmZeroQuantityPostingMsg);
-        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, Format(SalesHeader[1]."Document Type")));
+        LibraryVariableStorage.Enqueue(StrSubstNo(DoYouWantToPostQst, LowerCase(Format(SalesHeader[1]."Document Type"))));
         ErrorMessagesPage.Trap;
         InvokePostSelectedCreditMemos(SalesCreditMemos, SalesHeader[2]);
 
@@ -547,14 +547,14 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected invoice from Sales Invoice List page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
-        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain unreleased
-        // [THEN] Order "Y" is released
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects invoice "Y" on Sales Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 invoices
+        // [THEN] Invoices "X" and "Z" remain unreleased
+        // [THEN] Invoice "Y" is released
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
@@ -576,15 +576,15 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         SalesInvoiceList: TestPage "Sales Invoice List";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected invoice from Sales Invoice List page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
-        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain released
-        // [THEN] Order "Y" is reopened
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Invoices "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects invoice "Y" on Sales Invoice List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 invoices
+        // [THEN] Invoices "X" and "Z" remain released
+        // [THEN] Invoice "Y" is reopened
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::Invoice, LibraryRandom.RandIntInRange(10, 20));
 
@@ -610,14 +610,14 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected credit memo from Sales Credit Memos page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
-        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain unreleased
-        // [THEN] Order "Y" is released
+        // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects credit memo "Y" on Sales Credit Memos page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 credit memos
+        // [THEN] Credit Memos "X" and "Z" remain unreleased
+        // [THEN] Credit Memo "Y" is released
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
@@ -639,15 +639,15 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         SalesCreditMemos: TestPage "Sales Credit Memos";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected credit memo from Sales Credit Memos page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
-        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain released
-        // [THEN] Order "Y" is reopened
+        // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Credit Memos "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Credit Memos page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 credit memos
+        // [THEN] Credit Memos "X" and "Z" remain released
+        // [THEN] Credit Memo "Y" is reopened
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Credit Memo", LibraryRandom.RandIntInRange(10, 20));
 
@@ -673,14 +673,14 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         SalesReturnOrderList: TestPage "Sales Return Order List";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected return order from Sales Return Order List page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
-        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain unreleased
-        // [THEN] Order "Y" is released
+        // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects return order "Y" on Sales Return Order List page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 return orders
+        // [THEN] Return Orders "X" and "Z" remain unreleased
+        // [THEN] Return Order "Y" is released
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
@@ -702,15 +702,15 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         SalesReturnOrderList: TestPage "Sales Return Order List";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected return order from Sales Return Order List page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
-        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain released
-        // [THEN] Order "Y" is reopened
+        // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Return Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects order "Y" on Sales Return Order List page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 return orders
+        // [THEN] Return Orders "X" and "Z" remain released
+        // [THEN] Return Order "Y" is reopened
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Return Order", LibraryRandom.RandIntInRange(10, 20));
 
@@ -736,14 +736,14 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         BlanketSalesOrders: TestPage "Blanket Sales Orders";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected blanket order from Blanket Sales Orders page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Release" action
-        // [WHEN] Cassie confirms she wants to release 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain unreleased
-        // [THEN] Order "Y" is released
+        // [GIVEN] Blanket Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Cassie selects blanket order "Y" on Blanket Sales Orders page and calls "Release" action
+        // [WHEN] Cassie confirms she wants to release 1 out 3 blanket orders
+        // [THEN] Blanket Orders "X" and "Z" remain unreleased
+        // [THEN] Blanket Order "Y" is released
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
 
@@ -765,15 +765,15 @@ codeunit 134891 "Sales Batch Document Posting"
         SalesHeaderUI: Record "Sales Header";
         BlanketSalesOrders: TestPage "Blanket Sales Orders";
     begin
-        // [SCENARIO] Cassie can release selected order from Sales Order List page
+        // [SCENARIO] Cassie can release selected blanket order from Blanket Sales Orders page
         Initialize();
 
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
-        // [GIVEN] Orders "X", "Y" and "Z" for Customer "C" with are all released
-        // [GIVEN] Cassie selects order "Y" on Sales Order List page and calls "Reopen" action
-        // [WHEN] Cassie confirms she wants to reopen 1 out 3 orders
-        // [THEN] Orders "X" and "Z" remain released
-        // [THEN] Order "Y" is reopened
+        // [GIVEN] Blanket Orders "X", "Y" and "Z" for Customer "C" with Amount = 100 each
+        // [GIVEN] Blanket Orders "X", "Y" and "Z" for Customer "C" with are all released
+        // [GIVEN] Cassie selects blanket order "Y" on Blanket Sales Orders page and calls "Reopen" action
+        // [WHEN] Cassie confirms she wants to reopen 1 out 3 blanket  orders
+        // [THEN] Blanket Orders "X" and "Z" remain released
+        // [THEN] Blanket Order "Y" is reopened
         CreateThreeDocuments(
           SalesHeader, SalesHeaderUI, SalesHeader[1]."Document Type"::"Blanket Order", LibraryRandom.RandIntInRange(10, 20));
 

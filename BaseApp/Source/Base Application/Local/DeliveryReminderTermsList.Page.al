@@ -17,7 +17,7 @@ page 5005280 "Delivery Reminder Terms List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code to identify this set of delivery reminder terms.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the delivery reminder terms.';

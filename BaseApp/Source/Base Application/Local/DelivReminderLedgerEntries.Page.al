@@ -48,7 +48,7 @@ page 5005276 "Deliv. Reminder Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the reminded purchase order line.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry type.';
@@ -58,7 +58,7 @@ page 5005276 "Deliv. Reminder Ledger Entries"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the item, or a number that identifies the G/L account, used when posting the line.';
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reminded quantity.';

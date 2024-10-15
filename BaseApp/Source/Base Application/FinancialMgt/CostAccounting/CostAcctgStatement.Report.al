@@ -1,0 +1,158 @@
+report 1126 "Cost Acctg. Statement"
+{
+    DefaultLayout = RDLC;
+    RDLCLayout = './FinancialMgt/CostAccounting/CostAcctgStatement.rdlc';
+    ApplicationArea = CostAccounting;
+    Caption = 'Cost Acctg. Statement';
+    UsageCategory = ReportsAndAnalysis;
+
+    dataset
+    {
+        dataitem("Cost Type"; "Cost Type")
+        {
+            DataItemTableView = SORTING("No.");
+            RequestFilterFields = "No.", "Cost Classification", Type, "Date Filter", "Cost Center Filter", "Cost Object Filter";
+            column(StrsubstnodatePeriodtxt; StrSubstNo(Text000, PeriodTxt))
+            {
+            }
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
+            {
+            }
+            column(CostTypeTableCaptFilter; TableCaption + ': ' + CostTypeFilter)
+            {
+            }
+            column(NetChange; -"Net Change")
+            {
+            }
+            column(NetChange_CostType; "Net Change")
+            {
+            }
+            column(PadstrIndentation2Name; PadStr('', Indentation * 2) + Name)
+            {
+            }
+            column(No_CostType; "No.")
+            {
+            }
+            column(LineType; LineType)
+            {
+            }
+            column(BlankLine; "Blank Line")
+            {
+            }
+            column(PageGroupNo; PageGroupNo)
+            {
+            }
+            column(AddCurrNetChange_CostType; "Add. Currency Net Change")
+            {
+            }
+            column(ShowAddCurr; ShowAddCurr)
+            {
+            }
+            column(AddCurrencyNetChange; -"Add. Currency Net Change")
+            {
+            }
+            column(AddRepCurr_GLSetup; GLSetup."Additional Reporting Currency")
+            {
+            }
+            column(LcyCode_GLSetup; GLSetup."LCY Code")
+            {
+            }
+            column(AllAmountAre; AllAmountAreLbl)
+            {
+            }
+            column(CAProfitLossStatementCaption; CAProfitLossStatementCaptionLbl)
+            {
+            }
+            column(CurrReportPageNoCaption; CurrReportPageNoCaptionLbl)
+            {
+            }
+            column(NetChangeCaption; NetChangeCaptionLbl)
+            {
+            }
+            column(CostTypeNetChangeCaption; CostTypeNetChangeCaptionLbl)
+            {
+            }
+            column(PADSTRIndentation2NameCaption; PADSTRIndentation2NameCaptionLbl)
+            {
+            }
+            column(CostTypeNoCaption; CostTypeNoCaptionLbl)
+            {
+            }
+
+            trigger OnAfterGetRecord()
+            begin
+                CalcFields("Net Change");
+                CalcFields("Add. Currency Net Change");
+
+                if NewPage then begin
+                    PageGroupNo := PageGroupNo + 1;
+                    NewPage := false;
+                end;
+                NewPage := "New Page";
+
+                LineType := Type.AsInteger();
+            end;
+
+            trigger OnPreDataItem()
+            begin
+                GLSetup.Get();
+                PageGroupNo := 1;
+                NewPage := false;
+            end;
+        }
+    }
+
+    requestpage
+    {
+
+        layout
+        {
+            area(content)
+            {
+                group(Control2)
+                {
+                    ShowCaption = false;
+                    field(ShowAmountsInAddRepCurrency; ShowAddCurr)
+                    {
+                        ApplicationArea = CostAccounting;
+                        Caption = 'Show Amounts in Additional Currency';
+                        ToolTip = 'Specifies that you want to display amounts in additional currency.';
+                    }
+                }
+            }
+        }
+
+        actions
+        {
+        }
+    }
+
+    labels
+    {
+    }
+
+    trigger OnPreReport()
+    begin
+        CostTypeFilter := "Cost Type".GetFilters();
+        PeriodTxt := "Cost Type".GetFilter("Date Filter");
+    end;
+
+    var
+        GLSetup: Record "General Ledger Setup";
+        CostTypeFilter: Text;
+        PeriodTxt: Text;
+        PageGroupNo: Integer;
+        NewPage: Boolean;
+        LineType: Integer;
+        ShowAddCurr: Boolean;
+
+        Text000: Label 'Date Filter: %1';
+        AllAmountAreLbl: Label 'All amounts are in';
+        CAProfitLossStatementCaptionLbl: Label 'Cost Acctg. Statement';
+        CurrReportPageNoCaptionLbl: Label 'Page';
+        NetChangeCaptionLbl: Label 'Net Change Credit';
+        CostTypeNetChangeCaptionLbl: Label 'Net Change Debit';
+        PADSTRIndentation2NameCaptionLbl: Label 'Name';
+        CostTypeNoCaptionLbl: Label 'Cost Type';
+}
+

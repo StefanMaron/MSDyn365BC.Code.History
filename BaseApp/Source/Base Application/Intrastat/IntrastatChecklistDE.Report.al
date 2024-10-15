@@ -295,32 +295,7 @@ report 11013 "Intrastat - Checklist DE"
 
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
-#if CLEAN19
                     IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist DE", true);
-#else
-                    if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Checklist DE", true)
-                    else begin
-                        TestField("Tariff No.");
-                        TestField("Country/Region Code");
-                        TestField("Transaction Type");
-                        if CompanyInfo."Check Transport Method" then
-                            TestField("Transport Method");
-                        TestField(Area);
-                        if CompanyInfo."Check Transaction Specific." then
-                            TestField("Transaction Specification");
-                        if Type = Type::Receipt then
-                            TestField("Country/Region of Origin Code")
-                        else begin
-                            if CompanyInfo."Check for Partner VAT ID" then
-                                TestField("Partner VAT ID");
-                            if CompanyInfo."Check for Country of Origin" then
-                                TestField("Country/Region of Origin Code");
-                        end;
-                        if "Supplementary Units" then
-                            TestField(Quantity);
-                    end;
-#endif
                     OriginCountryIntrastatCode := '';
                     if Type = Type::Receipt then
                         OriginCountryIntrastatCode := IntrastatExportMgtDACH.GetOriginCountryCode("Country/Region of Origin Code")
@@ -427,9 +402,6 @@ report 11013 "Intrastat - Checklist DE"
     begin
         CompanyInfo.Get();
         VATIDNo := CopyStr(DelChr(UpperCase(CompanyInfo."Registration No."), '=', Text1140000), 1, 11);
-#if not CLEAN19
-        if IntrastatSetup.Get() then;
-#endif
     end;
 
     var
@@ -440,9 +412,6 @@ report 11013 "Intrastat - Checklist DE"
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
         IntrastatJnlLine1: Record "Intrastat Jnl. Line";
-#if not CLEAN19
-        IntrastatSetup: Record "Intrastat Setup";
-#endif
         IntraJnlManagement: Codeunit IntraJnlManagement;
         IntrastatExportMgtDACH: Codeunit "Intrastat - Export Mgt. DACH";
         NoOfRecords: Integer;

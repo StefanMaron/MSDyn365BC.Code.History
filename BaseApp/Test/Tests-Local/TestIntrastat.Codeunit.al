@@ -78,11 +78,7 @@ codeunit 134153 "Test Intrastat"
         asserterror RunIntrastatMakeDiskTaxAuth(Filename);
 
         // Verify
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
-#else
-        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
-#endif
+        VerifyAdvanvedChecklistError(IntrastatJnlLine, IntrastatJnlLine.FieldName("Transaction Type"));
     end;
 
     [Test]
@@ -317,8 +313,6 @@ codeunit 134153 "Test Intrastat"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
-        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
-        SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;

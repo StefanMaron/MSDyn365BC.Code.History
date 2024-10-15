@@ -25,7 +25,7 @@ page 5005273 "Issued Delivery Reminder"
                     Importance = Promoted;
                     ToolTip = 'Specifies the number of the vendor who you want to post a delivery reminder for.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value of the same field in the original delivery reminder.';

@@ -32,7 +32,7 @@ page 3010835 "LSV Journal Line List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the total amount for the entries for the collection.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the customer that the LSV journal line applies to.';

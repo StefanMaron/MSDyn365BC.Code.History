@@ -18,7 +18,7 @@ page 11501 "Bank Directory"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the clearing number and therefore identifies the bank.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the bank.';

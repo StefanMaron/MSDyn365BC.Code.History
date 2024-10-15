@@ -889,7 +889,7 @@ report 26100 "Swiss VAT Statement"
                         EndDate := DMY2Date(31, 12, 9999)
                     else
                         EndDate := EndDateReq;
-                    GLAcc.SetRange("Date Filter", StartDate, EndDate);
+                    GLAcc.SetRange("VAT Reporting Date Filter", StartDate, EndDate);
                     Amount := 0;
                     if GLAcc.FindSet() and (VATStmtLine2."Account Totaling" <> '') then
                         repeat
@@ -1015,21 +1015,21 @@ report 26100 "Swiss VAT Statement"
     procedure CalcVATEntryAmount(VatStmtLineEntrAmt: Record "VAT Statement Line")
     begin
         VATEntry.Reset();
-        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date")
+        if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date")
         then begin
             VATEntry.SetRange("VAT Bus. Posting Group", VatStmtLineEntrAmt."VAT Bus. Posting Group");
             VATEntry.SetRange("VAT Prod. Posting Group", VatStmtLineEntrAmt."VAT Prod. Posting Group");
         end else begin
-            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "Posting Date");
+            VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
             VATEntry.SetRange("Tax Jurisdiction Code", VatStmtLineEntrAmt."Tax Jurisdiction Code");
             VATEntry.SetRange("Use Tax", VatStmtLineEntrAmt."Use Tax");
         end;
         VATEntry.SetRange(Type, VatStmtLineEntrAmt."Gen. Posting Type");
         if (EndDateReq <> 0D) or (StartDate <> 0D) then
             if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                VATEntry.SetRange("Posting Date", 0D, EndDate)
+                VATEntry.SetRange("VAT Reporting Date", 0D, EndDate)
             else
-                VATEntry.SetRange("Posting Date", StartDate, EndDate);
+                VATEntry.SetRange("VAT Reporting Date", StartDate, EndDate);
         case Selection of
             Selection::Open:
                 VATEntry.SetRange(Closed, false);
