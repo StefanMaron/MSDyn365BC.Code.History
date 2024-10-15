@@ -463,6 +463,7 @@ permissionset 732 "D365 BASIC ISV"
 #if not CLEAN19
                   tabledata "Item Cross Reference" = RIMD,
 #endif
+                  tabledata "Item Reference" = RIMD,
                   tabledata "Item Discount Group" = RIMD,
                   tabledata "Item Entry Relation" = RIMD,
                   tabledata "Item Journal Batch" = RIMD,

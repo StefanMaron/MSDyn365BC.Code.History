@@ -555,6 +555,7 @@ table 290 "VAT Amount Line"
                             begin
                                 "VAT Base" :=
                                   Round(CalcLineAmount / (1 + "VAT %" / 100), Currency."Amount Rounding Precision") - "VAT Difference";
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                   "VAT Difference" +
                                   Round(
@@ -607,6 +608,7 @@ table 290 "VAT Amount Line"
                         "VAT Calculation Type"::"Reverse Charge VAT":
                             begin
                                 "VAT Base" := CalcLineAmount;
+                                OnUpdateLinesOnAfterCalcVATBase(Rec, Currency, PricesIncludingVAT);
                                 "VAT Amount" :=
                                   "VAT Difference" +
                                   Round(
@@ -637,6 +639,7 @@ table 290 "VAT Amount Line"
                             begin
                                 OnUpdateLinesOnBeforeCalcSalesTaxVatBase(Rec);
                                 "VAT Base" := CalcLineAmount;
+                                OnUpdateLinesOnAfterCalcVATBaseSalesTax(Rec, Currency, PricesIncludingVAT);
                                 if "Use Tax" then
                                     "VAT Amount" := 0
                                 else
@@ -885,6 +888,16 @@ table 290 "VAT Amount Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateLinesOnBeforeCalcSalesTaxVatBase(var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATBase(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateLinesOnAfterCalcVATBaseSalesTax(var VATAmountLine: Record "VAT Amount Line"; Currency: Record Currency; PricesIncludingVAT: Boolean)
     begin
     end;
 

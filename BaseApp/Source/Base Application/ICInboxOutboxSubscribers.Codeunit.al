@@ -14,6 +14,13 @@ codeunit 790 "IC Inbox Outbox Subscribers"
     var
         ICOutboxExport: Codeunit "IC Outbox Export";
 
+    local procedure IsICInboxTransactionReturnedByPartner(TransactionSource: Option): Boolean
+    var
+        ICInboxTransaction: Record "IC Inbox Transaction";
+    begin
+        exit(TransactionSource = ICInboxTransaction."Transaction Source"::"Returned by Partner");
+    end;
+
     [EventSubscriber(ObjectType::Report, Report::"Move IC Trans. to Partner Comp", 'OnICInboxTransactionCreated', '', false, false)]
     local procedure AcceptOnAfterInsertICInboxTransaction(var Sender: Report "Move IC Trans. to Partner Comp"; var ICInboxTransaction: Record "IC Inbox Transaction"; PartnerCompanyName: Text)
     var
@@ -27,8 +34,9 @@ codeunit 790 "IC Inbox Outbox Subscribers"
             exit;
 
         if ICPartner."Auto. Accept Transactions" then
-            TASKSCHEDULER.CreateTask(CODEUNIT::"IC Inbox Outbox Subscribers", 0,
-              true, PartnerCompanyName, 0DT, ICInboxTransaction.RecordId);
+            if not IsICInboxTransactionReturnedByPartner(ICInboxTransaction."Transaction Source") then
+                TaskScheduler.CreateTask(Codeunit::"IC Inbox Outbox Subscribers", 0,
+                    true, PartnerCompanyName, 0DT, ICInboxTransaction.RecordId);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"ICInboxOutboxMgt", 'OnInsertICOutboxPurchDocTransaction', '', false, false)]

@@ -224,7 +224,14 @@ codeunit 7313 "Create Put-away"
     end;
 
     local procedure CreateBreakPackageLines(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateBreakPackageLines(PostedWhseReceiptLine, TempWhseActivLine, LineNo, BreakbulkNo, RemQtyToPutAwayBase, IsHandled);
+        if IsHandled then
+            exit;
+
         with PostedWhseRcptLine do begin
             LineNo := LineNo + 10000;
             BreakbulkNo := BreakbulkNo + 1;
@@ -1013,6 +1020,11 @@ codeunit 7313 "Create Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewWhseActivity(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var WhseActivLine: Record "Warehouse Activity Line"; var WhseActivHeader: Record "Warehouse Activity Header"; var Location: Record Location; InsertHeader: Boolean; Bin: Record Bin; ActionType: Option ,Take,Place; var LineNo: Integer; BreakbulkNo: Integer; BreakbulkFilter: Boolean; QtyToHandleBase: Decimal; BreakPackage: Boolean; var EmptyZoneBin: Boolean; Breakbulk: Boolean; CrossDockInfo: Option; PutAwayItemUOM: Record "Item Unit of Measure"; DoNotFillQtytoHandle: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateBreakPackageLines(PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; var TempWhseActivLine: Record "Warehouse Activity Line"; var LineNo: Integer; var BreakbulkNo: Integer; var RemQtyToPutAwayBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

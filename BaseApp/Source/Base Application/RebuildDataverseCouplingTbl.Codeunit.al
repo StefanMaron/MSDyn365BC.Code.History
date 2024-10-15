@@ -14,12 +14,11 @@ codeunit 5362 "Rebuild Dataverse Coupling Tbl"
         if CRMIntegrationRecord.FindSet() then
             repeat
                 if IntegrationRecord.Get(CRMIntegrationRecord."Integration ID") then
-                    if IntegrationRecord."Table ID" <> 0 then
-                        if RecRef.Get(IntegrationRecord."Record ID") then begin
-                            SysIdAfterMigration := RecRef.Field(RecRef.SystemIdNo()).Value();
-                            if CRMIntegrationRecord."Integration ID" <> SysIdAfterMigration then
-                                CRMIntegrationRecordCorrectionDictionary.Add(CRMIntegrationRecord.SystemId, SysIdAfterMigration);
-                        end;
+                    if RecRef.Get(IntegrationRecord."Record ID") then begin
+                        SysIdAfterMigration := RecRef.Field(RecRef.SystemIdNo()).Value();
+                        if CRMIntegrationRecord."Integration ID" <> SysIdAfterMigration then
+                            CRMIntegrationRecordCorrectionDictionary.Add(CRMIntegrationRecord.SystemId, SysIdAfterMigration);
+                    end;
             until CRMIntegrationRecord.Next() = 0;
 
         // loop through the correction dictionary and rename the CRM Integration Record records with new values
@@ -28,6 +27,8 @@ codeunit 5362 "Rebuild Dataverse Coupling Tbl"
             CRMIntegrationRecordCorrectionDictionary.Get(CRMIntegrationRecordSysId, SysIdAfterMigration);
             CRMIntegrationRecord.GetBySystemId(CRMIntegrationRecordSysId);
             CRMIntegrationRecord.Rename(CRMIntegrationRecord."CRM ID", SysIdAfterMigration);
+            if CRMIntegrationRecord."Table ID" = 0 then
+                CRMIntegrationRecord.GetTableID();
             if CommitCounter = 1000 then begin
                 Commit();
                 CommitCounter := 0;

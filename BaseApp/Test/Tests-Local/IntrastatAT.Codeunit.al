@@ -519,6 +519,18 @@ codeunit 144061 "Intrastat AT"
         VerifyCNT19Section(FilenamePurchase, Format(QtyOfSupplementaryItems[1] + QtyOfSupplementaryItems[2]));
     end;
 
+    [Test]
+    procedure TotalWeightRounding()
+    var
+        IntraJnlManagement: Codeunit IntraJnlManagement;
+    begin
+        // [FEATURE] [Intrastat] [Export] [UT]
+        // [SCENARIO 390312] Total Weight is rounded to 3 decimal places
+        Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1), '');
+        Assert.AreEqual(1.123, IntraJnlManagement.RoundTotalWeight(1.1234), '');
+        Assert.AreEqual(1.679, IntraJnlManagement.RoundTotalWeight(1.6789), '');
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
