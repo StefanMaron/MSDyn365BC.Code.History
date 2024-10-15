@@ -17,6 +17,8 @@ permissionset 30102 "Shpfy - Edit"
         tabledata "Shpfy Customer Address" = IMD,
         tabledata "Shpfy Customer Template" = IMD,
         tabledata "Shpfy Data Capture" = IMD,
+        tabledata "Shpfy FulFillment Order Header" = IMD,
+        tabledata "Shpfy FulFillment Order Line" = IMD,
         tabledata "Shpfy Gift Card" = IMD,
         tabledata "Shpfy Initial Import Line" = imd,
         tabledata "Shpfy Inventory Item" = IMD,
