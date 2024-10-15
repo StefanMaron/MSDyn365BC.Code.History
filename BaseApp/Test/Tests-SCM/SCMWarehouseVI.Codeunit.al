@@ -3726,6 +3726,63 @@ codeunit 137408 "SCM Warehouse VI"
         WarehouseActivityLine.TestField("Qty. (Base)", SalesLine."Quantity (Base)");
     end;
 
+    [Test]
+    procedure ExcludeShipmentBinFromPickingByFEFOAtNonDPnPLocation()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        PickBin: Record Bin;
+        ShipBin: Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNos: array[2] of Code[50];
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Item Tracking] [FEFO] [Pick]
+        // [SCENARIO 450116] Picking by FEFO at non-directed put-away and pick location must exclude Shipment Bin Code.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+        LotNos[1] := LibraryUtility.GenerateGUID();
+        LotNos[2] := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with required shipment and pick.
+        // [GIVEN] Bin "A" is set up as a shipment bin.
+        // [GIVEN] Bin "B" is just an ordinary bin.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        UpdateParametersOnLocation(Location, true, false);
+        LibraryWarehouse.CreateBin(PickBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        LibraryWarehouse.CreateBin(ShipBin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+        Location.Validate("Shipment Bin Code", ShipBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Lot-tracked item.
+        // [GIVEN] Post 1 pc of lot "L1" to bin "A"
+        // [GIVEN] Post 1 pc of lot "L2" to bin "B" using item journal.
+        CreateItemWithItemTrackingCodeForLot(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, ShipBin.Code, Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[1], ItemJournalLine.Quantity);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, PickBin.Code, Qty);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, '', LotNos[2], ItemJournalLine.Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create sales order for 1 pc, release.
+        CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", Qty, Location.Code);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [WHEN] Create warehouse shipment and pick.
+        CreatePickFromSalesHeader(SalesHeader);
+
+        // [THEN] Lot "L2" from bin "B" has been picked.
+        FindWarehouseActivityLine2(
+          WarehouseActivityLine, WarehouseActivityLine."Activity Type"::Pick, WarehouseActivityLine."Action Type"::Take,
+          Item."No.");
+        WarehouseActivityLine.TestField("Lot No.", LotNos[2]);
+        WarehouseActivityLine.TestField("Bin Code", PickBin.Code);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

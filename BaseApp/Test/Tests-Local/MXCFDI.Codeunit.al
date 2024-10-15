@@ -37,7 +37,7 @@
         OptionNotSupportedErr: Label 'Option not supported by test function.';
         ErrorCodeTxt: Label '302';
         ErrorDescriptionTxt: Label 'Sello del Emisor No Valido';
-        StatusOption: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error";
+        StatusOption: Option " ","Stamp Received",Sent,Canceled,"Stamp Request Error","Cancel Error","Cancel In Progress";
         DigitalStampTxt: Label 'WDTveFcG+ANYGdjrNrDcpYGdz4p0XsH5C0UTsqcMM/dSe4MGGnsacrJ75DAT5B5KqZWSefkGeg/sG7i6K3+lZTEuxje+rBDAp/4fMfYeL2TTMLpkU6Oy1zl/N6ywt38Z2+WTwcBIuIkEY54e+mW+zkyJLAxkeDGJHAwEBdf2nu0=';
         MissingSalesPaymentMethodCodeExceptionErr: Label 'Payment Method Code must have a value in Sales Header';
         MissingServicePaymentMethodCodeExceptionErr: Label 'Payment Method Code must have a value in Service Header';
@@ -60,6 +60,7 @@
         NoElectronicDocumentSentErr: Label 'There is no electronic Document sent yet';
         NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
         SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
+        CancelOption: Option ,CancelRequest,GetResponse,MarkAsCanceled;
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
@@ -529,7 +530,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure SalesShipmentCancel()
     begin
@@ -538,7 +539,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure TransferShipmentCancel()
     begin
@@ -547,7 +548,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('StrMenuHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure CustomerPaymentCancel()
     var
@@ -564,11 +565,12 @@
           CustLedgerEntry.FieldNo("Electronic Document Status"), CustLedgerEntry."Electronic Document Status"::"Stamp Received");
 
         // [WHEN] Cancel customer payment
-        LibraryVariableStorage.Enqueue(true);
         Cancel(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success);
 
         // [THEN] Payment has been canceled with MotivoCancelacion
         Verify(DATABASE::"Cust. Ledger Entry", PaymentNo, StatusOption::Canceled, 0);
+
+        CancelTearDown(DATABASE::"Cust. Ledger Entry", PaymentNo);
     end;
 
     [Test]
@@ -614,14 +616,190 @@
 
         // Exercise
         RequestStamp(TableNo, PostedDocumentNo, ResponseOption::Success, ActionOption::"Request Stamp");
-        LibraryVariableStorage.Enqueue(true);
         Cancel(TableNo, PostedDocumentNo, Response);
 
         // Verify
         if Response = ResponseOption::Success then
-            Verify(TableNo, PostedDocumentNo, StatusOption::Canceled, 0)
+            Verify(TableNo, PostedDocumentNo, StatusOption::"Cancel In Progress", 0)
         else
             Verify(TableNo, PostedDocumentNo, StatusOption::"Cancel Error", 0);
+
+        CancelTearDown(TableNo, PostedDocumentNo);
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelRequestMenuHandler')]
+    [Scope('OnPrem')]
+    procedure CancelGetResponseInProgress()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        RecordRef: RecordRef;
+    begin
+        // [FEATURE] [Cancel]
+        // [SCENARIO 430138] Process response 'EnProceso' during the cancellation request
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Cancel In Progress status
+        SalesInvoiceHeader.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader);
+
+        // [WHEN] Request returns status 'EnProceso'
+        MockCancelResponseInProgress(TempBlob);
+        RecordRef.GetTable(SalesInvoiceHeader);
+        TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader.FieldNo("Signed Document XML"));
+        RecordRef.SetTable(SalesInvoiceHeader);
+        SalesInvoiceHeader.Modify(true);
+        LibraryVariableStorage.Enqueue(CancelOption::GetResponse);
+        SalesInvoiceHeader.CancelEDocument();
+
+        // [THEN] 'Electronic Document Status' set to "Cancel In Progress"
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::"Cancel In Progress");
+        SalesInvoiceHeader.TestField("Error Description");
+
+        CancelTearDown(DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelRequestMenuHandler')]
+    [Scope('OnPrem')]
+    procedure CancelGetResponseRejected()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        RecordRef: RecordRef;
+    begin
+        // [FEATURE] [Cancel]
+        // [SCENARIO 430138] Process response 'Rechazado' during the cancellation request
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Cancel In Progress status
+        SalesInvoiceHeader.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader);
+
+        // [WHEN] Request returns status 'Rechazado'
+        MockCancelResponseRejected(TempBlob);
+        RecordRef.GetTable(SalesInvoiceHeader);
+        TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader.FieldNo("Signed Document XML"));
+        RecordRef.SetTable(SalesInvoiceHeader);
+        SalesInvoiceHeader.Modify(true);
+        LibraryVariableStorage.Enqueue(CancelOption::GetResponse);
+        SalesInvoiceHeader.CancelEDocument();
+
+        // [THEN] 'Electronic Document Status' set to "Cancel Error"
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::"Cancel Error");
+        SalesInvoiceHeader.TestField("Error Description");
+
+        CancelTearDown(DATABASE::"Sales Invoice Header", SalesInvoiceHeader."No.");
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelRequestMenuHandler')]
+    [Scope('OnPrem')]
+    procedure CancelGetResponseCancelled()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        RecordRef: RecordRef;
+    begin
+        // [FEATURE] [Cancel]
+        // [SCENARIO 430138] Process response 'Cancelado' during the cancellation request
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Cancel In Progress status
+        SalesInvoiceHeader.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader);
+
+        // [WHEN] Request returns status 'Cancelado'
+        MockCancelResponseCanceled(TempBlob);
+        RecordRef.GetTable(SalesInvoiceHeader);
+        TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader.FieldNo("Signed Document XML"));
+        RecordRef.SetTable(SalesInvoiceHeader);
+        SalesInvoiceHeader.Modify(true);
+        LibraryVariableStorage.Enqueue(CancelOption::GetResponse);
+        SalesInvoiceHeader.CancelEDocument();
+
+        // [THEN] 'Electronic Document Status' set to "Cancel Error", 'Error Description' = ''
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::Canceled);
+        SalesInvoiceHeader.TestField("Error Description", '');
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelRequestMenuHandler,ConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure CancelDocumentManual()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        // [FEATURE] [Cancel]
+        // [SCENARIO 430138] Cancel invoice manually
+        Initialize();
+
+        // [GIVEN] Sales Invoice with Cancel In Progress status
+        SalesInvoiceHeader.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader);
+
+        // [WHEN] Run Cancel document with Mark as Canceled option
+        LibraryVariableStorage.Enqueue(CancelOption::MarkAsCanceled);
+        LibraryVariableStorage.Enqueue(true);
+        SalesInvoiceHeader.CancelEDocument();
+
+        // [THEN] 'Electronic Document Status' set to "Cancel Error", 'Error Description' = '', 'Marked as Canceled' = 'Yes'
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader.TestField("Electronic Document Status", SalesInvoiceHeader."Electronic Document Status"::Canceled);
+        SalesInvoiceHeader.TestField("Error Description", '');
+        SalesInvoiceHeader.TestField("Marked as Canceled", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelRequestStatusBatch()
+    var
+        SalesInvoiceHeader1: Record "Sales Invoice Header";
+        SalesInvoiceHeader2: Record "Sales Invoice Header";
+        TempBlob: Codeunit "Temp Blob";
+        RecordRef: RecordRef;
+    begin
+        // [FEATURE] [Cancel]
+        // [SCENARIO 430138] Run request cancellation batch for two invoices
+        Initialize();
+
+        SalesInvoiceHeader1.SetFilter("CFDI Cancellation ID", '<>%1', '');
+        SalesInvoiceHeader1.ModifyAll("Electronic Document Status", SalesInvoiceHeader1."Electronic Document Status"::Canceled);
+        SalesInvoiceHeader1.SetRange("CFDI Cancellation ID");
+
+        // [GIVEN] Two sales invoices with Cancel In Progress status
+        SalesInvoiceHeader1.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader1);
+        MockCancelResponseCanceled(TempBlob);
+        RecordRef.GetTable(SalesInvoiceHeader1);
+        TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader1.FieldNo("Signed Document XML"));
+        RecordRef.SetTable(SalesInvoiceHeader1);
+        SalesInvoiceHeader1.Modify(true);
+
+        SalesInvoiceHeader2.Get(CreateAndPostDoc(DATABASE::"Sales Invoice Header", CreatePaymentMethodForSAT()));
+        UpdateSalesInvoiceCancellation(SalesInvoiceHeader2);
+        Clear(TempBlob);
+        MockCancelResponseCanceled(TempBlob);
+        RecordRef.GetTable(SalesInvoiceHeader2);
+        TempBlob.ToRecordRef(RecordRef, SalesInvoiceHeader2.FieldNo("Signed Document XML"));
+        RecordRef.SetTable(SalesInvoiceHeader2);
+        SalesInvoiceHeader2.Modify(true);
+
+        // [WHEN] Run codeunit for cancel request batch processing
+        CODEUNIT.Run(CODEUNIT::"E-Invoice Cancel Request Batch");
+
+        // [THEN] 'Electronic Document Status' set to "Canceled" for both invoices
+        SalesInvoiceHeader1.Find();
+        SalesInvoiceHeader1.TestField("Electronic Document Status", SalesInvoiceHeader1."Electronic Document Status"::Canceled);
+        SalesInvoiceHeader1.TestField("Error Description", '');
+        SalesInvoiceHeader2.Find();
+        SalesInvoiceHeader2.TestField("Electronic Document Status", SalesInvoiceHeader2."Electronic Document Status"::Canceled);
+        SalesInvoiceHeader2.TestField("Error Description", '');
     end;
 
     [Test]
@@ -3480,7 +3658,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TimeZoneCancelInvoiceShipTo()
     var
@@ -3506,7 +3684,6 @@
           SalesInvoiceHeader.FieldNo("Ship-to City"), SalesInvoiceHeader.FieldNo("Ship-to Post Code"), TimeZoneID);
 
         // [WHEN] Cancel Sales Invoice
-        LibraryVariableStorage.Enqueue(true);
         Cancel(TableNo, DocumentNo, ResponseOption::Success);
 
         // [THEN] Sales Invoice has 'Date/Time Sent' with offset 2h from current time
@@ -3516,7 +3693,7 @@
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandler')]
+    [HandlerFunctions('ConfirmHandler,StrMenuHandler')]
     [Scope('OnPrem')]
     procedure TimeZoneCancelPayment()
     var
@@ -3547,7 +3724,6 @@
           CustLedgerEntry.FieldNo("Electronic Document Status"), CustLedgerEntry."Electronic Document Status"::"Stamp Received");
 
         // [WHEN] Cancel payment
-        LibraryVariableStorage.Enqueue(true);
         Cancel(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success);
 
         // [THEN] Customer Ledger Entry has 'Date/Time Canceled' with offset 2h from current time
@@ -3608,12 +3784,12 @@
         // [SCENARIO 323132]  Error Log for Company Information
         Initialize();
 
-        // [GIVEN] Company Information has blank fields Name, Address, E-Mail, "RFC No.", "SAT Tax Regime Classification", "SAT Postal Code"
+        // [GIVEN] Company Information has blank fields Name, Address, E-Mail, "RFC Number", "SAT Tax Regime Classification", "SAT Postal Code"
         CompanyInformation.Get();
         CompanyInformation.Name := '';
         CompanyInformation.Address := '';
         CompanyInformation."E-Mail" := '';
-        CompanyInformation."RFC No." := '';
+        CompanyInformation."RFC Number" := '';
         CompanyInformation."SAT Tax Regime Classification" := '';
         CompanyInformation."SAT Postal Code" := '';
         CompanyInformation.Modify();
@@ -3637,7 +3813,7 @@
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("E-Mail"), CompanyInformation.RecordId));
         ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
-          StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("RFC No."), CompanyInformation.RecordId));
+          StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("RFC Number"), CompanyInformation.RecordId));
         ErrorMessages.Next();
         ErrorMessages.Description.AssertEquals(
           StrSubstNo(IfEmptyErr, CompanyInformation.FieldCaption("SAT Tax Regime Classification"), CompanyInformation.RecordId));
@@ -5417,8 +5593,8 @@
         // [THEN] Carta Porte XML is created for the document
         VerifyCartaPorteXMLValues(
           OriginalStr, TransferShipmentHeader."Transit Distance", TransferShipmentHeader."Vehicle Code", 28);
-        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', CompanyInformation."RFC No.");
-        Assert.AreEqual(CompanyInformation."RFC No.", SelectStr(14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
+        LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'Rfc', CompanyInformation."RFC Number");
+        Assert.AreEqual(CompanyInformation."RFC Number", SelectStr(14, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Rfc', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'DomicilioFiscalReceptor', Location.GetSATPostalCode());
         Assert.AreEqual(Location.GetSATPostalCode(), SelectStr(16, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'DomicilioFiscalReceptor', OriginalStr));
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:Receptor', 'RegimenFiscalReceptor', CompanyInformation."SAT Tax Regime Classification");
@@ -5541,6 +5717,8 @@
         RecordRef: RecordRef;
     begin
         MockCancel(Response, TempBlob);
+        LibraryVariableStorage.Enqueue(0);
+        LibraryVariableStorage.Enqueue(true);
         case TableNo of
             DATABASE::"Sales Invoice Header":
                 begin
@@ -5611,6 +5789,62 @@
                     TransferShipmentHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
                     TransferShipmentHeader.Modify(true);
                     TransferShipmentHeader.CancelEDocument;
+                end;
+        end;
+    end;
+
+    local procedure CancelTearDown(TableNo: Integer; PostedDocumentNo: Code[20])
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceInvoiceHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        TransferShipmentHeader: Record "Transfer Shipment Header";
+    begin
+        case TableNo of
+            DATABASE::"Sales Invoice Header":
+                begin
+                    SalesInvoiceHeader.Get(PostedDocumentNo);
+                    SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::" ";
+                    SalesInvoiceHeader.Modify();
+                end;
+            DATABASE::"Sales Cr.Memo Header":
+                begin
+                    SalesCrMemoHeader.Get(PostedDocumentNo);
+                    SalesCrMemoHeader."Electronic Document Status" := SalesCrMemoHeader."Electronic Document Status"::" ";
+                    SalesCrMemoHeader.Modify();
+                end;
+            DATABASE::"Service Invoice Header":
+                begin
+                    ServiceInvoiceHeader.Get(PostedDocumentNo);
+                    ServiceInvoiceHeader."Electronic Document Status" := ServiceInvoiceHeader."Electronic Document Status"::" ";
+                    ServiceInvoiceHeader.Modify();
+                end;
+            DATABASE::"Service Cr.Memo Header":
+                begin
+                    ServiceCrMemoHeader.Get(PostedDocumentNo);
+                    ServiceCrMemoHeader."Electronic Document Status" := ServiceCrMemoHeader."Electronic Document Status"::" ";
+                    ServiceCrMemoHeader.Modify();
+                end;
+            DATABASE::"Cust. Ledger Entry":
+                begin
+                    LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PostedDocumentNo);
+                    CustLedgerEntry."Electronic Document Status" := CustLedgerEntry."Electronic Document Status"::" ";
+                    CustLedgerEntry.Modify();
+                end;
+            DATABASE::"Sales Shipment Header":
+                begin
+                    SalesShipmentHeader.Get(PostedDocumentNo);
+                    SalesShipmentHeader."Electronic Document Status" := SalesShipmentHeader."Electronic Document Status"::" ";
+                    SalesShipmentHeader.Modify();
+                end;
+            DATABASE::"Transfer Shipment Header":
+                begin
+                    TransferShipmentHeader.Get(PostedDocumentNo);
+                    TransferShipmentHeader."Electronic Document Status" := TransferShipmentHeader."Electronic Document Status"::" ";
+                    TransferShipmentHeader.Modify();
                 end;
         end;
     end;
@@ -6293,7 +6527,8 @@
         RecordRef: RecordRef;
     begin
         MockRequestStamp(Response, TempBlob, NamespaceCFD4Txt, SchemaLocationCFD4Txt);
-        LibraryVariableStorage.Enqueue(Action);
+        if not (TableNo in [DATABASE::"Sales Shipment Header", DATABASE::"Transfer Shipment Header"]) then
+            LibraryVariableStorage.Enqueue(Action);
         case TableNo of
             DATABASE::"Sales Invoice Header":
                 begin
@@ -6371,7 +6606,7 @@
         PostCode.FindFirst();
 
         CompanyInformation.Get();
-        CompanyInformation.Validate("RFC No.", GenerateString(12));
+        CompanyInformation.Validate("RFC Number", GenerateString(12));
         CompanyInformation.Validate("Country/Region Code", PostCode."Country/Region Code");
         CompanyInformation.Validate(City, PostCode.City);
         CompanyInformation.Validate("Post Code", PostCode.Code);
@@ -6578,6 +6813,7 @@
         ExpectedErrorCode: Code[10];
         ExpectedErrorDesc: Text[250];
         ExpectedDigitalStamp: Text[250];
+        ExpectedCancellationIDEmpty: Boolean;
     begin
         GLSetup.Get();
         ExpectedPACCode := GLSetup."PAC Code";
@@ -6589,6 +6825,7 @@
         ExpectedDateTimeSentEmpty := true;
         ExpectedDateTimeCanceledEmpty := true;
         ExpectedDigitalStamp := DigitalStampTxt;
+        ExpectedCancellationIDEmpty := true;
 
         case ExpectedStatus of
             StatusOption::"Stamp Request Error":
@@ -6605,11 +6842,19 @@
                     ExpectedDateTimeSentEmpty := false;
                 end;
             StatusOption::Canceled:
-                ExpectedDateTimeCanceledEmpty := false;
+                begin
+                    ExpectedDateTimeCanceledEmpty := false;
+                    ExpectedCancellationIDEmpty := false;
+                end;
             StatusOption::"Cancel Error":
                 begin
                     ExpectedErrorCode := ErrorCodeTxt;
                     ExpectedErrorDesc := ErrorDescriptionTxt;
+                end;
+            StatusOption::"Cancel In Progress":
+                begin
+                    ExpectedDateTimeCanceledEmpty := false;
+                    ExpectedCancellationIDEmpty := false;
                 end;
         end;
 
@@ -6623,6 +6868,8 @@
                       StrSubstNo(ValueErr, FieldName("Date/Time Sent")));
                     Assert.AreEqual(ExpectedDateTimeCanceledEmpty, "Date/Time Canceled" = '',
                       StrSubstNo(ValueErr, FieldName("Date/Time Canceled")));
+                    Assert.AreEqual(ExpectedCancellationIDEmpty, "CFDI Cancellation ID" = '',
+                      StrSubstNo(ValueErr, FieldName("CFDI Cancellation ID")));
                     TestField("Date/Time Stamped", ExpectedDateTimeStamped);
                     TestField("PAC Web Service Name", ExpectedPACCode);
                     TestField("Fiscal Invoice Number PAC", ExpectedInvoiceNoPAC);
@@ -6886,7 +7133,8 @@
     begin
         Clear(TempBlob);
         TempBlob.CreateOutStream(OutStream);
-        OutStream.WriteText('<Resultado Descripcion="Ok" IdRespuesta="1">');
+        OutStream.WriteText('<Resultado Descripcion="Ok" IdRespuesta="1"');
+        OutStream.WriteText(' ConsultaCancelacionId="014bc324-995f-4c2e-84ee-da7eed0e11f5" Estatus="Cancelado">');
         OutStream.WriteText(' <Acuse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ' +
           'xmlns:xsd="http://www.w3.org/2001/XMLSchema"');
         OutStream.WriteText(' RfcEmisor="CST081210DN2" Fecha="2011-08-04T12:55:17.6925706"> ' +
@@ -6911,6 +7159,36 @@
         OutStream.WriteText('mZuoxhz4yEM=</Modulus> <Exponent>AQAB</Exponent> </RSAKeyValue> </KeyValue> </KeyInfo> </Signature>');
         OutStream.WriteText('</Acuse>');
         OutStream.WriteText('</Resultado>');
+    end;
+
+    local procedure MockCancelResponseCanceled(var TempBlob: Codeunit "Temp Blob")
+    var
+        OutStream: OutStream;
+    begin
+        Clear(TempBlob);
+        TempBlob.CreateOutStream(OutStream);
+        OutStream.WriteText('<Resultado Descripcion="OK" IdRespuesta="1" ConsultaCancelacionId="08fcbcd8-0493-46d5-946b-94ea0f6acd8b" ');
+        OutStream.WriteText('Estatus="Cancelado" Resultado="El documento fue cancelado exitosamente en el SAT"></Resultado>');
+    end;
+
+    local procedure MockCancelResponseRejected(var TempBlob: Codeunit "Temp Blob")
+    var
+        OutStream: OutStream;
+    begin
+        Clear(TempBlob);
+        TempBlob.CreateOutStream(OutStream);
+        OutStream.WriteText('<Resultado Descripcion="OK" IdRespuesta="1" ConsultaCancelacionId="08fcbcd8-0493-46d5-946b-94ea0f6acd8b" ');
+        OutStream.WriteText('Estatus="Rechazado" Resultado="El documento ha sido rechazado para su cancelacion"></Resultado>');
+    end;
+
+    local procedure MockCancelResponseInProgress(var TempBlob: Codeunit "Temp Blob")
+    var
+        OutStream: OutStream;
+    begin
+        Clear(TempBlob);
+        TempBlob.CreateOutStream(OutStream);
+        OutStream.WriteText('<Resultado Descripcion="OK" IdRespuesta="1" ConsultaCancelacionId="08fcbcd8-0493-46d5-946b-94ea0f6acd8b" ');
+        OutStream.WriteText('Estatus="EnProceso" Resultado="El documento aun esta en proceso de cancelacion"></Resultado>');
     end;
 
     local procedure MockFADisposalEntry(FANo: Code[20])
@@ -7273,6 +7551,15 @@
           TableID, FieldNoDocumentNo, DocumentNo, FieldNoCity, FieldNoPostCode, PostCode.City, PostCode.Code);
     end;
 
+    local procedure UpdateSalesInvoiceCancellation(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."Electronic Document Status" := SalesInvoiceHeader."Electronic Document Status"::"Cancel In Progress";
+        SalesInvoiceHeader."CFDI Cancellation ID" := LibraryUtility.GenerateGUID;
+        SalesInvoiceHeader."CFDI Cancellation Reason Code" := FindCancellationReasonCode(false);
+        SalesInvoiceHeader.Modify;
+    end;
+
     local procedure UpdateSalesShipmentForCartaPorte(var SalesShipmentHeader: Record "Sales Shipment Header")
     var
         Location: Record Location;
@@ -7362,7 +7649,7 @@
         Assert.AreEqual('4.0', SelectStr(3, OriginalString), StrSubstNo(IncorrectSchemaVersionErr, OriginalString));
 
         Assert.AreEqual(
-          CompanyInformation."RFC No.",
+          CompanyInformation."RFC Number",
           SelectStr(13 + RelationIdx, OriginalString),
           StrSubstNo(IncorrectOriginalStrValueErr, RFCNoFieldTxt, OriginalString));
         Assert.AreEqual(
@@ -7866,9 +8153,9 @@
         CompanyInformation.Get;
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/cartaporte:CartaPorte/cartaporte:Ubicaciones/cartaporte:Ubicacion',
-          'RFCRemitenteDestinatario', CompanyInformation."RFC No.");
+          'RFCRemitenteDestinatario', CompanyInformation."RFC Number");
         Assert.AreEqual(
-          CompanyInformation."RFC No.", SelectStr(StartPosition + 4, OriginalStr),
+          CompanyInformation."RFC Number", SelectStr(StartPosition + 4, OriginalStr),
           StrSubstNo(IncorrectOriginalStrValueErr, 'RFCRemitenteDestinatario', OriginalStr));
 
         LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
@@ -8021,6 +8308,25 @@
             ActionOption::Send:
                 Choice := 2;
             ActionOption::"Request Stamp and Send":
+                Choice := 3;
+            else
+                Error(OptionNotSupportedErr);
+        end;
+    end;
+
+    [StrMenuHandler]
+    [Scope('OnPrem')]
+    procedure CancelRequestMenuHandler(Options: Text[1024]; var Choice: Integer; Instructions: Text[1024])
+    var
+        Value: Variant;
+        "Action": Option;
+    begin
+        LibraryVariableStorage.Dequeue(Value);
+        Action := Value;
+        case Action of
+            CancelOption::GetResponse:
+                Choice := 2;
+            CancelOption::MarkAsCanceled:
                 Choice := 3;
             else
                 Error(OptionNotSupportedErr);

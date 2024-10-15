@@ -233,7 +233,7 @@ report 10477 "Elec. Sales Invoice MX"
                     column(DocumentText; DocumentText)
                     {
                     }
-                    column(CompanyInformation__RFC_No__; CompanyInformation."RFC No.")
+                    column(CompanyInformation__RFC_No__; CompanyInformation."RFC Number")
                     {
                     }
                     column(FolioText; "Sales Invoice Header"."Fiscal Invoice Number PAC")
