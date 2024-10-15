@@ -6082,7 +6082,10 @@
         if not SkipSellToContact then
             "Sell-to Contact" := SellToCustomer.Contact;
         "Gen. Bus. Posting Group" := SellToCustomer."Gen. Bus. Posting Group";
-        "VAT Bus. Posting Group" := SellToCustomer."VAT Bus. Posting Group";
+        if "VAT Bus. Posting Group" = '' then
+            "VAT Bus. Posting Group" := SellToCustomer."VAT Bus. Posting Group"
+        else
+            Validate("VAT Bus. Posting Group", SellToCustomer."VAT Bus. Posting Group");
         "Tax Area Code" := SellToCustomer."Tax Area Code";
         "Tax Liable" := SellToCustomer."Tax Liable";
         "VAT Registration No." := SellToCustomer."VAT Registration No.";
@@ -6213,7 +6216,10 @@
 
         GLSetup.Get();
         if GLSetup."Bill-to/Sell-to VAT Calc." = GLSetup."Bill-to/Sell-to VAT Calc."::"Bill-to/Pay-to No." then begin
-            "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
+            if ("VAT Bus. Posting Group" <> '') and ("VAT Bus. Posting Group" <> BillToCustomer."VAT Bus. Posting Group") then
+                Validate("VAT Bus. Posting Group", BillToCustomer."VAT Bus. Posting Group")
+            else
+                "VAT Bus. Posting Group" := BillToCustomer."VAT Bus. Posting Group";
             "VAT Country/Region Code" := BillToCustomer."Country/Region Code";
             "VAT Registration No." := BillToCustomer."VAT Registration No.";
             "Gen. Bus. Posting Group" := BillToCustomer."Gen. Bus. Posting Group";
