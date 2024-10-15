@@ -286,6 +286,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             CustLedgEntry.Modify();
             OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
             Insert;
+            OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(NewCustLedgEntry, CustLedgEntry, GenJnlPostLine);
 
             if NextDtldCustLedgEntryEntryNo = 0 then begin
                 DtldCustLedgEntry.FindLast;
@@ -365,6 +366,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
             VendLedgEntry.Modify();
             OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(NewVendLedgEntry, VendLedgEntry, GenJnlPostLine);
             Insert;
+            OnReverseVendLedgEntryOnAfterInsertVendLedgEntry(NewVendLedgEntry);
 
             if NextDtldVendLedgEntryEntryNo = 0 then begin
                 DtldVendLedgEntry.FindLast;
@@ -572,6 +574,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         CustLedgEntry."Closed by Currency Amount" := -CustLedgEntry2."Remaining Amount";
         CustLedgEntry.Open := false;
         CustLedgEntry.Modify();
+        OnApplyCustLedgEntryByReversalOnAfterCustLedgEntryModify(CustLedgEntry);
 
         NewDtldCustLedgEntry := DtldCustLedgEntry2;
         NewDtldCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntry."Entry No.";
@@ -601,6 +604,7 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
         VendLedgEntry."Closed by Currency Amount" := -VendLedgEntry2."Remaining Amount";
         VendLedgEntry.Open := false;
         VendLedgEntry.Modify();
+        OnApplyVendLedgEntryByReversalOnAfterVendLedgEntryModify(VendLedgEntry);
 
         NewDtldVendLedgEntry := DtldVendLedgEntry2;
         NewDtldVendLedgEntry."Vendor Ledger Entry No." := VendLedgEntry."Entry No.";
@@ -857,6 +861,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnReverseCustLedgEntryOnAfterInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnReverseCustLedgEntryOnBeforeInsertCustLedgEntry(var NewCustLedgerEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
@@ -868,6 +877,11 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
 
     [IntegrationEvent(false, false)]
     local procedure OnReverseVendLedgEntryOnBeforeInsertVendLedgEntry(var NewVendLedgEntry: Record "Vendor Ledger Entry"; VendLedgEntry: Record "Vendor Ledger Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnReverseVendLedgEntryOnAfterInsertVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 
@@ -917,7 +931,17 @@ codeunit 17 "Gen. Jnl.-Post Reverse"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyCustLedgEntryByReversalOnAfterCustLedgEntryModify(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyVendLedgEntryByReversalOnBeforeInsertDtldVendLedgEntry(var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyVendLedgEntryByReversalOnAfterVendLedgEntryModify(VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

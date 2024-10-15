@@ -215,7 +215,14 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
     end;
 
     procedure SetPrice(AmountType: Enum "Price Amount Type"; PriceListLine: Record "Price List Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetPrice(JobJournalLine, PriceListLine, AmountType, IsHandled);
+        if IsHandled then
+            exit;
+
         if AmountType = AmountType::Discount then
             JobJournalLine."Line Discount %" := PriceListLine."Line Discount %"
         else
@@ -290,6 +297,11 @@ codeunit 7023 "Job Journal Line - Price" implements "Line With Price"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddSources(var PriceSourceList: Codeunit "Price Source List"; JobJournalLine: Record "Job Journal Line"; CurrPriceType: Enum "Price Type"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetPrice(var JobJournalLine: Record "Job Journal Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; var IsHandled: Boolean)
     begin
     end;
 }

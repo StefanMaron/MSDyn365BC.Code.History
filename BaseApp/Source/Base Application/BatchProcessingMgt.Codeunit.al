@@ -47,19 +47,17 @@ codeunit 1380 "Batch Processing Mgt."
 
             FindSet();
 
-            if GuiAllowed then begin
+            if GuiAllowed() then
                 Window.Open(PostingTemplateMsg);
-                CounterTotal := Count;
-            end;
+            CounterTotal := Count();
 
             if ErrorMessageMgt.Activate(ErrorMessageHandler) then
                 ErrorMessageMgt.PushContext(ErrorContextElement, Number, 0, StrSubstNo(BatchProcessingTxt, Caption));
             if not BatchShouldBeProcessedInBackground(RecRef, FullBatchProcessed) then
                 repeat
-                    if GuiAllowed then begin
-                        CounterToPost += 1;
+                    CounterToPost += 1;
+                    if GuiAllowed() then
                         Window.Update(1, Round(CounterToPost / CounterTotal * 10000, 1));
-                    end;
 
                     if CanProcessRecord(RecRef) then
                         if ProcessRecord(RecRef, BatchConfirm) then

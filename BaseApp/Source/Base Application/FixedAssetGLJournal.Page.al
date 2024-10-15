@@ -550,7 +550,7 @@ page 5628 "Fixed Asset G/L Journal"
                     group(Control1902759701)
                     {
                         Caption = 'Balance';
-                        field(Balance; Balance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(Balance; Balance)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
@@ -563,7 +563,7 @@ page 5628 "Fixed Asset G/L Journal"
                     group("Total Balance")
                     {
                         Caption = 'Total Balance';
-                        field(TotalBalance; TotalBalance + "Balance (LCY)" - xRec."Balance (LCY)")
+                        field(TotalBalance; TotalBalance)
                         {
                             ApplicationArea = All;
                             AutoFormatType = 1;
