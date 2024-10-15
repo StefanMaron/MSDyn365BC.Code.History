@@ -5852,7 +5852,9 @@
 
     local procedure ShouldCopyAddressFromBillToCustomer(BillToCustomer: Record Customer): Boolean
     begin
-        exit((not HasBillToAddress) and BillToCustomer.HasAddress);
+        exit(((not HasBillToAddress) and BillToCustomer.HasAddress) or
+            ((xRec."Bill-to Customer No." <> Rec."Bill-to Customer No.") and
+            (xRec."Bill-to Contact No." <> BillToCustomer."Primary Contact No.")));
     end;
 
     local procedure SellToCustomerIsReplaced(): Boolean

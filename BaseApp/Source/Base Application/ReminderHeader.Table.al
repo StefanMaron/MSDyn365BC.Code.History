@@ -944,7 +944,7 @@
     var
         TotalAmountInclVAT: Decimal;
     begin
-        GetCurrency(ReminderHeader);
+        GetCurrency();
         if Currency."Invoice Rounding Precision" = 0 then
             exit(0);
 
@@ -996,15 +996,14 @@
         end;
     end;
 
-    local procedure GetCurrency(ReminderHeader: Record "Reminder Header")
+    local procedure GetCurrency()
     begin
-        with ReminderHeader do
-            if "Currency Code" = '' then
-                Currency.InitRoundingPrecision
-            else begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
+        if "Currency Code" = '' then
+            Currency.InitRoundingPrecision
+        else begin
+            Currency.Get("Currency Code");
+            Currency.TestField("Amount Rounding Precision");
+        end;
     end;
 
     procedure UpdateReminderRounding(ReminderHeader: Record "Reminder Header")
