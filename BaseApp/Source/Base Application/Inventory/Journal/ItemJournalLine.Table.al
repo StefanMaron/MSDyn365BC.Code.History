@@ -4752,7 +4752,14 @@ table 83 "Item Journal Line"
     end;
 
     local procedure CheckSerialNoQty()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSerialNoQty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Serial No." = '') and ("New Serial No." = '') then
             exit;
         if not ("Quantity (Base)" in [-1, 0, 1]) then
@@ -5516,6 +5523,11 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateGlobalDimFromDimSetID(var ItemJournalLine: Record "Item Journal Line"; xItemJournalLine: Record "Item Journal Line"; CurrentFieldNo: Integer; OldDimSetID: Integer; DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; InheritFromDimSetID: Integer; InheritFromTableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSerialNoQty(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

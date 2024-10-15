@@ -1945,12 +1945,15 @@
     procedure VerifyPurchaseOrderDimensionNotDeletedWhenShippingOptionChange()
     var
         PurchaseHeader: Record "Purchase Header";
+        ModifiedPurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        Location: Record Location;
         Dimension: array[3] of Record Dimension;
         DimensionValue: array[3] of Record "Dimension Value";
         PurchaseOrder: TestPage "Purchase Order";
         ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
         VendNo: Code[20];
+        ExpectedDimID: Integer;
     begin
         // [SCENARIO 490897] Dimensions are being deleted from Purchase Order headers when changing the “Ship-to” field.
         Initialize();
@@ -1961,6 +1964,7 @@
 
         // [THEN] Create a Purchase Order.
         LibraryPurchase.CreatePurchaseOrderForVendorNo(PurchaseHeader, VendNo);
+        ExpectedDimID := PurchaseHeader."Dimension Set ID";
 
         // [GIVEN] Add New Dimension on Purchase Header and Purchase Line.
         CreateDimensionSetEntryHeader(PurchaseHeader, Dimension[3].Code);
@@ -1971,10 +1975,15 @@
         OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
 
         // [VERIFY] Verify: Dimensions On Purchase Order When Ship to Option "Location".
-        VerifyDimensionOnPurchaseOrder(PurchaseHeader, PurchaseOrder, ShipToOptions::Location);
+        LibraryWarehouse.CreateLocationWithAddress(Location);
+        UpdateShipToOption(PurchaseOrder, ShipToOptions::Location, Location.Code);
+        ModifiedPurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseOrder."No.".Value);
+        Assert.AreEqual(PurchaseHeader."Dimension Set ID", ModifiedPurchaseHeader."Dimension Set ID", DimensionSetIDErr);
 
         // [VERIFY] Verify: Dimensions On Purchase Order When Ship to Option "Default (Company Address)".
-        VerifyDimensionOnPurchaseOrder(PurchaseHeader, PurchaseOrder, ShipToOptions::"Default (Company Address)");
+        UpdateShipToOption(PurchaseOrder, ShipToOptions::"Default (Company Address)", '');
+        ModifiedPurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseOrder."No.".Value);
+        Assert.AreEqual(ExpectedDimID, ModifiedPurchaseHeader."Dimension Set ID", DimensionSetIDErr);
     end;
 
     [Test]
@@ -2008,6 +2017,60 @@
         // [VERIFY] Verify: Correct Dimension Flowed on newly Posted Purchase Invoice
         VerifyPostedPurchaseInvoiceLineContainsNewDimensionValue(PostedInvoiceNo, Item."No.", DimensionValue.Code);
         VerifyPostedGLEntryContainsNewDimensionValue(PostedInvoiceNo, DimensionValue.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    procedure PurchaseOrderDimensionNotDeletedWhenShippingOptionChangeFromLocationToOther()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        ModifiedPurchaseHeader: Record "Purchase Header";
+        Dimension: array[3] of Record Dimension;
+        DimensionValues: array[3] of Record "Dimension Value";
+        DimensionValue: Record "Dimension Value";
+        Location: Record Location;
+        PurchaseOrder: TestPage "Purchase Order";
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+        VendNo: Code[20];
+        ExpectedDimID: Integer;
+    begin
+        // [SCENARIO 498578] Dimensions are being deleted from Purchase Order headers when changing the “Ship-to” field
+        Initialize();
+
+        // [GIVEN] Create Multiple Dimensions, it's Dimension Values, and Vendor
+        CreateDimensionValues(Dimension, DimensionValues);
+        VendNo := CreateVendorWithPurchaserAndDefDim(Dimension, DimensionValues);
+
+        // [GIVEN] Create Dimension Value for Global Dimension 1
+        LibraryDimension.CreateDimensionValue(DimensionValue, LibraryERM.GetGlobalDimensionCode(1));
+
+        // [GIVEN] Create Location with default dimension
+        CreateLocationWithDefaultDimension(Location, DimensionValue);
+
+        // [THEN] Create a Purchase Order.
+        LibraryPurchase.CreatePurchaseOrderForVendorNo(PurchaseHeader, VendNo);
+        ExpectedDimID := PurchaseHeader."Dimension Set ID";
+
+        // [GIVEN] Add New Dimension on Purchase Header and Purchase Line.
+        CreateDimensionSetEntryHeader(PurchaseHeader, Dimension[3].Code);
+
+        // [GIVEN] Open Purchase Order.
+        OpenPurchaseOrder(PurchaseHeader, PurchaseOrder);
+
+        // [VERIFY] Verify: Dimensions On Purchase Order When Ship to Option "Location".
+        UpdateShipToOption(PurchaseOrder, ShipToOptions::Location, Location.Code);
+        ModifiedPurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseOrder."No.".Value);
+        Assert.AreNotEqual(PurchaseHeader."Dimension Set ID", ModifiedPurchaseHeader."Dimension Set ID", DimensionSetIDErr);
+
+        // [VERIFY] Verify: Dimensions On Purchase Order When Ship to Option "Default (Company Address)".
+        UpdateShipToOption(PurchaseOrder, ShipToOptions::"Default (Company Address)", '');
+        ModifiedPurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseOrder."No.".Value);
+        Assert.AreEqual(ExpectedDimID, ModifiedPurchaseHeader."Dimension Set ID", DimensionSetIDErr);
+
+        // [VERIFY] Verify: Dimensions On Purchase Order When Ship to Option "Default (Company Address)".
+        UpdateShipToOption(PurchaseOrder, ShipToOptions::"Custom Address", '');
+        ModifiedPurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseOrder."No.".Value);
+        Assert.AreEqual(ExpectedDimID, ModifiedPurchaseHeader."Dimension Set ID", DimensionSetIDErr);
     end;
 
     local procedure Initialize()
@@ -3081,20 +3144,16 @@
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
     end;
 
-    local procedure VerifyDimensionOnPurchaseOrder(
-        PurchHeader: Record "Purchase Header";
+    local procedure UpdateShipToOption(
         PurchaseOrder: TestPage "Purchase Order";
-        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address")
-    var
-        Location: Record Location;
-        PurchaseHeader: Record "Purchase Header";
+        ShipToOptions: Option "Default (Company Address)",Location,"Customer Address","Custom Address";
+        LocationCode: Code[10])
     begin
         PurchaseOrder.ShippingOptionWithLocation.SetValue(ShipToOptions);
         if ShipToOptions = ShipToOptions::Location then
-            PurchaseOrder."Location Code".SetValue(LibraryWarehouse.CreateLocationWithAddress(Location));
-
-        PurchaseHeader.Get(PurchHeader."Document Type"::Order, PurchHeader."No.");
-        Assert.AreEqual(PurchHeader."Dimension Set ID", PurchaseHeader."Dimension Set ID", DimensionSetIDErr);
+            PurchaseOrder."Location Code".SetValue(LocationCode)
+        else
+            PurchaseOrder."Location Code".SetValue('');
     end;
 
     local procedure CreateDimensionAndRunChangeGlobalDimension(var Dimension: Record Dimension; var DimensionValue: Record "Dimension Value")

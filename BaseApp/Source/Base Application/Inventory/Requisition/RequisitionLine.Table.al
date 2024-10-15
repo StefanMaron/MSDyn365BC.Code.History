@@ -123,6 +123,8 @@ table 246 "Requisition Line"
                         CopyFromItem();
                 end;
 
+                OnValidateNoOnAfterAssignFieldsForNo(Rec, xRec);
+
                 ShouldValidateUnitofMeasureCode := "Planning Line Origin" <> "Planning Line Origin"::"Order Planning";
                 OnValidateNoOfAfterCalcShouldValidateUnitofMeasureCode(Rec, xRec, Item, ShouldValidateUnitofMeasureCode);
                 if ShouldValidateUnitofMeasureCode then
@@ -4543,6 +4545,11 @@ table 246 "Requisition Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateCurrencyFactorOnBeforeUpdateDirectUnitCost(var RequisitionLine: Record "Requisition Line"; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterAssignFieldsForNo(var RequisitionLine: Record "Requisition Line"; xRequisitionLine: Record "Requisition Line")
     begin
     end;
 }

@@ -25,6 +25,7 @@ codeunit 134043 "ERM Additional Currency"
         FiscalPostingDateTok: Label 'C%1', Locked = true;
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
         AdjustExchRateDefaultDescTxt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Locked = true;
+        BankExchRateAdjustedErr: Label 'Bank Exch Rate should be Adjusted for %1', Comment = '%1 = Bank Account No.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1117,6 +1118,39 @@ codeunit 134043 "ERM Additional Currency"
         VerifyGLEntryForACY(GenJournalLine, AddnlReportingCurrencyAmount);
     end;
 
+    [Test]
+    [HandlerFunctions('StatisticsMessageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustExchangeRateForSpecificBankAcountACY()
+    var
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        CurrencyExchangeRate: array[2] of Record "Currency Exchange Rate";
+        CurrencyFCY: Code[10];
+        CurrencyACY: Code[10];
+        BankAccountNo: array[2] of Code[20];
+        AddnlReportingCurrencyAmount: array[2] of Decimal;
+    begin
+        // [SCENARIO 498473] After Enabling the use of new extensible exchange rate adjustment Feature, Bank Account Filter not working on Adjust Exchange Rate report
+        Initialize();
+
+        // [GIVEN] Setup: Create Currencies and Bank Accounts
+        CreateCurrencies(CurrencyACY, CurrencyFCY);
+        BankAccountNo[1] := CreateBankAccountWithCurrency(CurrencyFCY);
+        BankAccountNo[2] := CreateBankAccountWithCurrency(CurrencyFCY);
+
+        // [GIVEN] Update Additional Currency in General Ledger Setup. Run Additional Currency Reporting Report.
+        UpdateRunAddnReportingCurrency(CurrencyACY, CurrencyACY);
+
+        // [THEN] Create and Post General Journal Line with Random Values.
+        CreateAndPostJournalLineForBank(GenJournalLine, CurrencyExchangeRate, AddnlReportingCurrencyAmount, BankAccountNo, CurrencyFCY, CurrencyACY);
+
+        // [THEN] Modify Exchange Rate for Additional Reporting Currency and Run Adjust Exchange Rate Batch for Bank Account 1
+        UpdateRunAdjustExchangeRates(CurrencyExchangeRate[1], CurrencyFCY, BankAccountNo[1]);
+
+        // [VERIFY]: Verify Entries for Bank Account Ledger Entry Adjusted For Specific Bank
+        VerifyAdjExchEntryExistsOnlyForSpecificBank(BankAccountNo);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1876,6 +1910,37 @@ codeunit 134043 "ERM Additional Currency"
         ExchRateAdjustment.UseRequestPage(false);
         ExchRateAdjustment.Run();
 #endif
+    end;
+
+    local procedure CreateAndPostJournalLineForBank(
+        var GenJournalLine: array[2] of Record "Gen. Journal Line";
+        var CurrencyExchangeRate: array[2] of Record "Currency Exchange Rate";
+        var AddnlReportingCurrencyAmount: array[2] of Decimal;
+        BankAccountNo: array[2] of Code[20];
+        CurrencyFCY: Code[10];
+        CurrencyACY: Code[10])
+    var
+        Index: Integer;
+    begin
+        for Index := 1 to ArrayLen(BankAccountNo) do begin
+            CreateJournalLineForInvoice(
+            GenJournalLine[Index], GenJournalLine[Index]."Account Type"::"Bank Account",
+            BankAccountNo[Index], LibraryRandom.RandDec(100, 2) + 100);
+            ModifyGeneralJournalLine(GenJournalLine[Index], GenJournalLine[Index]."Bal. Gen. Posting Type"::Purchase, CurrencyFCY);
+            LibraryERM.PostGeneralJnlLine(GenJournalLine[Index]);
+            AddnlReportingCurrencyAmount[Index] := CalculateAdditionalAmount(CurrencyExchangeRate[Index], CurrencyACY, GenJournalLine[Index]."Amount (LCY)");
+            ModifyCurrencyExchangeRate(CurrencyExchangeRate[Index]);
+        end;
+    end;
+
+    local procedure VerifyAdjExchEntryExistsOnlyForSpecificBank(BankAccountNo: array[2] of Code[20])
+    var
+        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+    begin
+        BankAccountLedgerEntry.SetRange("Document No.", BankAccountNo[1]);
+        Assert.IsTrue(BankAccountLedgerEntry.Count > 1, StrSubstNo(BankExchRateAdjustedErr, BankAccountNo[1]));
+        BankAccountLedgerEntry.SetRange("Document No.", BankAccountNo[2]);
+        Assert.IsFalse(BankAccountLedgerEntry.Count > 1, StrSubstNo(BankExchRateAdjustedErr, BankAccountNo[2]));
     end;
 
     [ModalPageHandler]

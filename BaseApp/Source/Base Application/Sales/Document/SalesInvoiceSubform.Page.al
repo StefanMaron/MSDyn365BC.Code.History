@@ -285,9 +285,8 @@ page 47 "Sales Invoice Subform"
 
                     trigger OnValidate()
                     begin
-                        ValidateAutoReserve();
+                        QuantityOnAfterValidate();
                         UpdateSplitVATLinesPage(CopyStr(Rec.FieldCaption(Quantity), 1, 100));
-                        DeltaUpdateTotals();
                         if SalesSetup."Calc. Inv. Discount" and (Rec.Quantity = 0) then
                             CurrPage.Update(false);
                     end;
@@ -1447,6 +1446,16 @@ page 47 "Sales Invoice Subform"
         CurrPage.Update(false);
     end;
 
+    protected procedure QuantityOnAfterValidate()
+    begin
+        OnBeforeQuantityOnAfterValidate(Rec, xRec);
+
+        ValidateAutoReserve();
+        DeltaUpdateTotals();
+
+        OnAfterQuantityOnAfterValidate(Rec, xRec);
+    end;
+
     procedure CalcInvDisc()
     var
         SalesCalcDiscount: Codeunit "Sales-Calc. Discount";
@@ -1726,6 +1735,16 @@ page 47 "Sales Invoice Subform"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeOnDeleteRecord(var SalesLine: Record "Sales Line"; var DocumentTotals: Codeunit "Document Totals"; var Result: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterQuantityOnAfterValidate(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
     begin
     end;
 }

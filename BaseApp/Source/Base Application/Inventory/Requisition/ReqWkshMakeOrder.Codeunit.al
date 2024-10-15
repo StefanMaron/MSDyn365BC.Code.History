@@ -1288,7 +1288,13 @@ codeunit 333 "Req. Wksh.-Make Order"
     local procedure CheckLocation(RequisitionLine: Record "Requisition Line")
     var
         InventorySetup: Record "Inventory Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckLocation(RequisitionLine, IsHandled);
+        if IsHandled then
+            exit;
+
         InventorySetup.Get();
         if InventorySetup."Location Mandatory" then
             RequisitionLine.TestField("Location Code");
@@ -1815,6 +1821,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTryCarryOutReqLineAction(var RequisitionLine: Record "Requisition Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckLocation(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1141,7 +1141,7 @@ table 5406 "Prod. Order Line"
                 "Production BOM No." := Item."Production BOM No.";
             end;
         end;
-        OnAfterGetUpdateFromSKU(Rec);
+        OnAfterGetUpdateFromSKU(Rec, Item, SKU);
     end;
 
     local procedure ValidateUnitofMeasureCodeFromItem()
@@ -1595,7 +1595,7 @@ table 5406 "Prod. Order Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetUpdateFromSKU(var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnAfterGetUpdateFromSKU(var ProdOrderLine: Record "Prod. Order Line"; var Item: Record Item; var StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 

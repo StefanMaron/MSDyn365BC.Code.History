@@ -154,8 +154,9 @@ page 12100 "VAT Exemptions"
     [Scope('OnPrem')]
     procedure UpdateForm()
     begin
-        VATExemptNoVisible := Rec.GetRangeMin(Rec.Type) <> Rec.Type::Vendor;
-        VATExemptDateVisible := Rec.GetRangeMin(Rec.Type) <> Rec.Type::Vendor;
+        if Rec.GetFilter(Type) <> '' then begin
+            VATExemptNoVisible := Rec.GetRangeMin(Rec.Type) <> Rec.Type::Vendor;
+            VATExemptDateVisible := Rec.GetRangeMin(Rec.Type) <> Rec.Type::Vendor;
+        end;
     end;
 }
-

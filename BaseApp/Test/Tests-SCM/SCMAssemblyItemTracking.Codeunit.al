@@ -393,6 +393,69 @@ codeunit 137926 "SCM Assembly Item Tracking"
         ValidateItemTracingLine(ItemTracingPage, LotNo, AsmItem, CompItem, Qty, QtyPer);
     end;
 
+    [Test]
+    procedure SerialTrackedOnItemLedgerEntryForAssemblyOrder()
+    var
+        CompItem: Record Item;
+        AsmItem: Record Item;
+        BOMComponent: Record "BOM Component";
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        SerialNo: Code[20];
+    begin
+        // [SCENARIO 496681] Serial Tracked component on Assembly Order where full Quantity to Assemble is Picked and 
+        // partial quantity is posted gives the proper serial number on Item Ledger Entry 
+        Initialize();
+
+        // [GIVEN] Create Serial No.
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Create Component Item with serial Number
+        LibraryItemTracking.CreateSerialItem(CompItem);
+
+        // [GIVEN] Create Assembled Item
+        LibraryInventory.CreateItem(AsmItem);
+
+        // [GIVEN] Update Replenishment System as Assembly.
+        AsmItem.Validate("Replenishment System", AsmItem."Replenishment System"::Assembly);
+        AsmItem.Modify(true);
+
+        // [GIVEN] Create Assembly BOM of assembled Item
+        LibraryManufacturing.CreateBOMComponent(
+          BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
+
+        // [GIVEN] Create Inventory of Componenty Item with Serial Number
+        LibraryInventory.CreateItemJournalLineInItemTemplate(
+          ItemJournalLine, CompItem."No.", '', '', 1);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(
+          ReservationEntry, ItemJournalLine, SerialNo, '', ItemJournalLine.Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create Assembly Order 
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, LibraryRandom.RandDate(30), AsmItem."No.", '', 1, '');
+
+        // [GIVEN] Create Assembly Line
+        AssemblyLine.SetRange("Document Type", AssemblyHeader."Document Type");
+        AssemblyLine.SetRange("Document No.", AssemblyHeader."No.");
+        AssemblyLine.FindFirst();
+
+        // [GIVEN] Create Item Tracking of Assembly Line
+        LibraryItemTracking.CreateAssemblyLineItemTracking(ReservationEntry, AssemblyLine, SerialNo, '', 1);
+
+        // [WHEN] Post the Assembly Order
+        LibraryAssembly.PostAssemblyHeader(AssemblyHeader, '');
+
+        // [THEN] Filter the posted Item Ledger Entry
+        ItemLedgerEntry.SetRange("Item No.", CompItem."No.");
+        ItemLedgerEntry.FindLast();
+
+        // [VERIFY] Serial No. should be same as assigned earlier on Item Tracking
+        Assert.AreEqual(SerialNo, ItemLedgerEntry."Serial No.", '');
+    end;
+
     local procedure ValidateItemTracingLine(var ItemTracingPage: TestPage "Item Tracing"; LNParent: Code[50]; ItemParent: Record Item; ItemChild: Record Item; Quantity: Decimal; QtyPer: Decimal)
     begin
         ItemTracingPage.Expand(true);

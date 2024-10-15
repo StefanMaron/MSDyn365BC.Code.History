@@ -393,6 +393,7 @@ codeunit 7314 "Warehouse Availability Mgt."
     procedure CalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
     var
         WhseEntry: Record "Warehouse Entry";
+        QtyOnDedicatedBin: Decimal;
     begin
         WhseEntry.SetCurrentKey("Item No.", "Bin Code", "Location Code", "Variant Code",
           "Unit of Measure Code", "Lot No.", "Serial No.", "Entry Type");
@@ -402,7 +403,10 @@ codeunit 7314 "Warehouse Availability Mgt."
         WhseEntry.SetRange(Dedicated, true);
         WhseEntry.SetTrackingFilterFromItemTrackingSetupIfNotBlank(WhseItemTrackingSetup);
         WhseEntry.CalcSums(WhseEntry."Qty. (Base)");
-        exit(WhseEntry."Qty. (Base)");
+        QtyOnDedicatedBin := WhseEntry."Qty. (Base)";
+
+        OnAfterCalcQtyOnDedicatedBins(LocationCode, ItemNo, VariantCode, WhseEntry, WhseItemTrackingSetup, QtyOnDedicatedBin);
+        exit(QtyOnDedicatedBin);
     end;
 
     procedure CalcQtyOnBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"): Decimal
@@ -963,6 +967,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcQtyOnBlockedITOrOnBlockedOutbndBinsOnBeforeNext(var BinContent: Record "Bin Content"; WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyBlocked: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyOnDedicatedBins(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var WarehouseEntry: Record "Warehouse Entry"; TempWhseItemTrackingSetup: Record "Item Tracking Setup" temporary; var QtyOnDedicatedBin: Decimal)
     begin
     end;
 }
