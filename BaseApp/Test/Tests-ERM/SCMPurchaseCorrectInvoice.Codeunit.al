@@ -30,6 +30,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         AmountPurchInvErr: Label 'Amount must have a value in Purch. Inv. Header';
         CannotAssignNumbersAutoErr: Label 'It is not possible to assign numbers automatically. If you want the program to assign numbers automatically, please activate Default Nos.';
         CorrectPostedInvoiceFromSingleOrderQst: Label 'The invoice was posted from an order. The invoice will be cancelled, and the order will open so that you can make the correction.\ \Do you want to continue?';
+        CommentCountErr: Label 'Wrong Purchase Line Count';
 
     [Test]
     [Scope('OnPrem')]
@@ -973,6 +974,60 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure NoDuplicateCommentLineWhenUsingCorrectiveCreditMemoOnPostedPurchInv()
+    var
+        PurchaseHeaderOrder: Record "Purchase Header";
+        PurchaseHeaderInvoice: Record "Purchase Header";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        PurchaseLine: Record "Purchase Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchHeader: Record "Purchase Header";
+        PurchGetReceipt: Codeunit "Purch.-Get Receipt";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PurchaseOrderPage: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 456470] Duplicate comment lines in Sales/Purchase Credit Memo when created by Corrective Credit Memo
+        Initialize();
+
+        // [GIVEN] Create a Item with a Price
+        CreateItemWithCost(Item, LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Create a Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create a Purchase Order
+        CreatePurchaseOrderForItem(Vendor, Item, 1, PurchaseHeaderOrder, PurchaseLine);
+
+        // [GIVEN] Post a Purchase Order
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeaderOrder, true, false);
+
+        // [GIVEN] Select a Purchase Receipt Lines
+        PurchRcptLine.SetRange("Order No.", PurchaseLine."Document No.");
+        PurchRcptLine.SetRange("Order Line No.", PurchaseLine."Line No.");
+        PurchRcptLine.FindFirst();
+
+        // [GIVEN] Create a Purchase Invoice for selected Purchase Receipt Line
+        LibraryPurchase.CreatePurchHeader(PurchaseHeaderInvoice, PurchaseHeaderInvoice."Document Type"::Invoice, Vendor."No.");
+        PurchGetReceipt.SetPurchHeader(PurchaseHeaderInvoice);
+        PurchGetReceipt.CreateInvLines(PurchRcptLine);
+
+        // [GIVEN] Post the Purchase Invoice 
+        PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeaderInvoice, true, true));
+        //Commit();
+
+        // [WHEN] Correct the Posted Purchase Invoice 
+        LibraryVariableStorage.Enqueue(CorrectPostedInvoiceFromSingleOrderQst);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseOrderPage.Trap();
+        CorrectPostedPurchInvoice.CreateCreditMemoCopyDocument(PurchInvHeader, PurchHeader);
+
+        // [THEN] Two Comments Lines should be created in the Purchase Line.
+        CheckCommentsOnCreditLine(PurchHeader);
+    end;
+
     local procedure Initialize()
     var
         PurchasesSetup: Record "Purchases & Payables Setup";
@@ -1270,6 +1325,18 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryInventory.VerifyReservationEntryWithLotExists(
           DATABASE::"Purchase Line", PurchHeader."Document Type".AsInteger(), PurchHeader."No.",
           PurchLine."Line No.", PurchLine."No.", PurchLine.Quantity);
+    end;
+
+    local procedure CheckCommentsOnCreditLine(PurchHeader: Record "Purchase Header")
+    var
+        PurcLine: Record "Purchase Line";
+        PurchLineCount: Integer;
+    begin
+        PurcLine.SetRange("Document Type", PurcLine."Document Type"::"Credit Memo");
+        PurcLine.SetRange("Document No.", PurchHeader."No.");
+        PurcLine.SetFilter(Type, '%1', PurcLine.Type::" ");
+        PurchLineCount := PurcLine.Count();
+        Assert.AreEqual(2, PurchLineCount, CommentCountErr);
     end;
 
     [ConfirmHandler]
