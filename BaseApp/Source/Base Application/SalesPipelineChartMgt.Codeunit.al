@@ -13,6 +13,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
             SalesCycleStage.Next(BusinessChartBuffer."Drill-Down X Index");
             OppEntry.SetRange("Sales Cycle Code", SalesCycleStage."Sales Cycle Code");
             OppEntry.SetRange("Sales Cycle Stage", SalesCycleStage.Stage);
+            OnBeforeDrillDown(OppEntry);
             PAGE.Run(PAGE::"Opportunity Entries", OppEntry);
         end;
     end;
@@ -23,6 +24,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
     begin
         OppEntry.SetRange("Sales Cycle Code", SalesCycleCode);
         OppEntry.SetRange("Sales Cycle Stage", SalesCycleStage);
+        OnGetOppEntryCountOnBeforeCount(OppEntry);
         exit(OppEntry.Count);
     end;
 
@@ -43,6 +45,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
 
     procedure SetDefaultSalesCycle(var SalesCycle: Record "Sales Cycle"; var NextSalesCycleAvailable: Boolean; var PrevSalesCycleAvailable: Boolean): Boolean
     begin
+        OnBeforeSetDefaultSalesCycle(SalesCycle);
         if not SalesCycle.FindFirst then
             exit(false);
 
@@ -63,6 +66,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
         NextSalesCycle: Record "Sales Cycle";
     begin
         NextSalesCycle := CurrentSalesCycle;
+        OnTryNextSalesCycleOnBeforeNextSalesCycleFind(NextSalesCycle);
         NextSalesCycle.Find('=><');
         exit(NextSalesCycle.Next <> 0);
     end;
@@ -72,6 +76,7 @@ codeunit 781 "Sales Pipeline Chart Mgt."
         PrevSalesCycle: Record "Sales Cycle";
     begin
         PrevSalesCycle := CurrentSalesCycle;
+        OnTryPrevSalesCycleOnBeforePrevSalesCycleFind(PrevSalesCycle);
         PrevSalesCycle.Find('=><');
         exit(PrevSalesCycle.Next(-1) <> 0);
     end;
@@ -94,6 +99,31 @@ codeunit 781 "Sales Pipeline Chart Mgt."
                 until TempSalesCycleStage.Next() = 0;
             end;
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDrillDown(var OppEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultSalesCycle(var SalesCycle: Record "Sales Cycle")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetOppEntryCountOnBeforeCount(var OppEntry: Record "Opportunity Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryNextSalesCycleOnBeforeNextSalesCycleFind(var NextSalesCycle: Record "Sales Cycle")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryPrevSalesCycleOnBeforePrevSalesCycleFind(var PrevSalesCycle: Record "Sales Cycle")
+    begin
     end;
 }
 

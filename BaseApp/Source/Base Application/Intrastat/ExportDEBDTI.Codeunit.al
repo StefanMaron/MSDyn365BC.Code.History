@@ -97,7 +97,13 @@ codeunit 10821 "Export DEB DTI"
     var
         Type: Integer;
         FlowCode: Text[1];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertTempJnlLines(IntrastatJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         Type := -1;
         IntrastatJnlLine.SetCurrentKey(Type);
         if IntrastatJnlLine.FindSet() then
@@ -345,6 +351,11 @@ codeunit 10821 "Export DEB DTI"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeAddItems(var XMLNode: DotNet XmlNode; var TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTempJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -428,7 +428,6 @@ table 5611 "Depreciation Book"
         Text000: Label 'The book cannot be deleted because it is in use.';
         Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
         FASetup: Record "FA Setup";
-        FAPostingTypeSetup: Record "FA Posting Type Setup";
         FAJnlSetup: Record "FA Journal Setup";
         GLIntegration: array[13] of Boolean;
         Text10800: Label 'The depreciation book %1 is an accounting book and cannot be set up as a derogatory depreciation book.';
@@ -436,6 +435,9 @@ table 5611 "Depreciation Book"
         Text10802: Label 'The depreciation book %1 is already set up in combination with derogatory depreciation book %2.';
         Text10803: Label 'Derogatory depreciation books cannot be integrated with the general ledger. Please make sure that none of the fields on the Integration tab are checked.';
         Text10804: Label 'The depreciation book %1 is a derogatory depreciation book.';
+
+    protected var
+        FAPostingTypeSetup: Record "FA Posting Type Setup";
 
     procedure IndexGLIntegration(var GLIntegration: array[13] of Boolean)
     begin

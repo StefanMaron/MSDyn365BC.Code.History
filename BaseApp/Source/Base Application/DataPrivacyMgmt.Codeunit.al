@@ -426,6 +426,8 @@ codeunit 1180 "Data Privacy Mgmt"
                 if ContactPerson.Get(Format(FieldValue, 20)) then // FieldValue is the EntityNo for this method
                     if ContactCompany.Get(ContactPerson."Company No.") then
                         FieldValue := FieldValue + ' | ' + ContactCompany."No.";
+            else
+                OnGetPackageFilterTableNoCaseElse(TableNo, FieldValue);
         end;
 
         exit(FieldValue);
@@ -591,6 +593,11 @@ codeunit 1180 "Data Privacy Mgmt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateData(EntityTypeTableNo: Integer; EntityNo: Code[50]; var PackageCode: Code[20]; ActionType: Option "Export a data subject's data","Create a data privacy configuration package"; DataSensitivityOption: Option Sensitive,Personal,"Company Confidential",Normal,Unclassified)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetPackageFilterTableNoCaseElse(TableNo: Integer; var FieldValue: Text[250])
     begin
     end;
 

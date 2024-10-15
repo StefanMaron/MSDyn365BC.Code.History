@@ -173,7 +173,7 @@ table 7317 "Warehouse Receipt Line"
                 "Qty. to Receive" := UOMMgt.RoundAndValidateQty("Qty. to Receive", "Qty. Rounding Precision", FieldCaption("Qty. to Receive"));
                 "Qty. to Receive (Base)" := MaxQtyToReceiveBase(CalcBaseQty("Qty. to Receive", FieldCaption("Qty. to Receive"), FieldCaption("Qty. to Receive (Base)")));
 
-                UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Qty. Received", "Qty. Received (Base)");
+                ValidateQuantityIsBalanced();
 
                 Item.CheckSerialNoQty("Item No.", FieldCaption("Qty. to Receive (Base)"), "Qty. to Receive (Base)");
             end;
@@ -710,6 +710,8 @@ table 7317 "Warehouse Receipt Line"
         "Variant Code" := VariantCode;
         "Unit of Measure Code" := UoMCode;
         "Qty. per Unit of Measure" := QtyPerUoM;
+
+        OnAfterSetItemData(Rec);
     end;
 
     procedure SetItemData(ItemNo: Code[20]; ItemDescription: Text[100]; ItemDescription2: Text[50]; LocationCode: Code[10]; VariantCode: Code[10]; UoMCode: Code[10]; QtyPerUoM: Decimal; QtyRndPrec: Decimal; QtyRndPrecBase: Decimal)
@@ -754,6 +756,18 @@ table 7317 "Warehouse Receipt Line"
         exit(true);
     end;
 
+    local procedure ValidateQuantityIsBalanced()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnValidateQtyToReceiveOnBeforeUOMMgtValidateQtyIsBalanced(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+            
+        UOMMgt.ValidateQtyIsBalanced(Quantity, "Qty. (Base)", "Qty. to Receive", "Qty. to Receive (Base)", "Qty. Received", "Qty. Received (Base)");
+    end;
+
     local procedure MaxQtyToReceiveBase(QtyToReceiveBase: Decimal): Decimal
     begin
         if Abs(QtyToReceiveBase) > Abs("Qty. Outstanding (Base)") then
@@ -770,6 +784,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterOpenItemTrackingLines(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SecondSourceQtyArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetItemData(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 
@@ -835,6 +854,11 @@ table 7317 "Warehouse Receipt Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetWhseRcptLineOnAfterSetFilters(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; ReceiptNo: Code[20]; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToReceiveOnBeforeUOMMgtValidateQtyIsBalanced(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; xWarehouseReceiptLine: Record "Warehouse Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 }

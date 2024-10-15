@@ -1583,7 +1583,7 @@
         ResultFilter: Text[1024];
         DimValTotaling: Boolean;
     begin
-        if CostAccSetup.Get then;
+        GetCostAccSetup(CostAccSetup);
         if DimTotaling = '' then
             exit(DimTotaling);
 
@@ -1628,6 +1628,18 @@
             exit(ResultFilter);
 
         exit(DimTotaling);
+    end;
+
+    local procedure GetCostAccSetup(var CostAccSetup: Record "Cost Accounting Setup")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetCostAccSetup(CostAccSetup, IsHandled);
+        if IsHandled then
+            exit;
+
+        if CostAccSetup.Get then;
     end;
 
     local procedure CalcCostType(var CostType: Record "Cost Type"; var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean) ColValue: Decimal
@@ -2344,6 +2356,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeEvaluateExpression(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; var MaxLevel: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCostAccSetup(var CostAccSetup: Record "Cost Accounting Setup"; var IsHandled: Boolean)
     begin
     end;
 

@@ -101,6 +101,7 @@ page 6569 "Posted Invt. Receipts"
 
                 trigger OnAction()
                 begin
+                    InvtRcptHeader := Rec;
                     CurrPage.SetSelectionFilter(InvtRcptHeader);
                     InvtRcptHeader.PrintRecords(true);
                 end;
