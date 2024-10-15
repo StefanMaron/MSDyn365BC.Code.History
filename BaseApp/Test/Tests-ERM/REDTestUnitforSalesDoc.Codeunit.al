@@ -422,7 +422,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesLineDest.FindFirst;
         SalesLineDest.TestField("Deferral Code", DeferralTemplateCode);
         SalesLineDest.TestField("Returns Deferral Start Date", 0D);
-        asserterror VerifyDeferralsAreEqual(SalesLine, SalesLineDest);
+        VerifyDeferralsAreEqual(SalesLine, SalesLineDest);
 
         // Clean-up
         SetupStockWarning(StockWarningSetup);

@@ -418,8 +418,8 @@ report 12120 "VAT Register - Print"
                             UpdateBuffer;
                             if not HasBeenMarked then
                                 HasBeenMarked := true;
-                            "Printing Date" := Today;
-                            Modify;
+                            VATBookEntry."Printing Date" := Today;
+                            VATBookEntry.Modify();
                         end;
 
                         if OldDocumentNo <> "Document No." then

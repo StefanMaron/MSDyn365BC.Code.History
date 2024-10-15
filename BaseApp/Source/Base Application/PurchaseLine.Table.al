@@ -442,7 +442,7 @@
             trigger OnValidate()
             var
                 IsHandled: Boolean;
-                WarehouseReceiptLine: Record "Warehouse Receipt Line";
+                DoInitOutstanding: Boolean;
             begin
                 TestStatusOpen;
                 IsHandled := false;
@@ -489,9 +489,9 @@
                     if "Return Shipment No." <> '' then
                         CheckRetShptRelation;
 
-                if (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") or
-                   ("No." = xRec."No.")
-                then begin
+                DoInitOutstanding := (xRec.Quantity <> Quantity) or (xRec."Quantity (Base)" <> "Quantity (Base)") or ("No." = xRec."No.");
+                OnValidateQuantityOnAfterCalcDoInitOutstanding(Rec, xRec, CurrFieldNo, DoInitOutstanding);
+                if DoInitOutstanding then begin
                     InitOutstanding;
                     if IsCreditDocType then
                         InitQtyToShip
@@ -534,6 +534,7 @@
                     "VAT Base Amount" := 0;
                 end;
 
+                UpdateDirectUnitCostByField(FieldNo(Quantity));
                 UpdatePrePaymentAmounts;
 
                 if "Job Planning Line No." <> 0 then
@@ -549,8 +550,6 @@
                 ValidateIncludeInDT;
 
                 CheckWMS;
-
-                UpdateDirectUnitCostByField(FieldNo(Quantity))
             end;
         }
         field(16; "Outstanding Quantity"; Decimal)
@@ -616,6 +615,7 @@
                 end else begin
                     "Qty. to Receive (Base)" :=
                         UOMMgt.CalcBaseQty("No.", "Variant Code", "Unit of Measure Code", "Qty. to Receive", "Qty. per Unit of Measure");
+                    OnValidateQtyToReceiveOnAfterCalcQtyToReceiveBase(Rec, CurrFieldNo);
                     InitQtyToInvoice;
                 end;
 
@@ -1541,7 +1541,7 @@
             begin
                 TestField(Type);
                 TestField(Quantity);
-                TestField("Direct Unit Cost");
+                CheckDirectUnitCost();
 
                 GetPurchHeader;
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
@@ -2338,6 +2338,8 @@
                     if Type = Type::Item then
                         UpdateItemReference;
 
+                OnValidateVariantCodeOnAfterUpdateItemReference(Rec, CurrFieldNo);
+
                 if JobTaskIsSet then begin
                     CreateTempJobJnlLine(true);
                     UpdateJobPrices;
@@ -2386,9 +2388,7 @@
                 end;
 
                 if "Drop Shipment" then
-                    Error(
-                      Text001,
-                      FieldCaption("Bin Code"), "Sales Order No.");
+                    ShowBinCodeCannotBeChangedError();
 
                 TestField(Type, Type::Item);
                 TestField("Location Code");
@@ -2465,7 +2465,7 @@
                         Type::Item:
                             begin
                                 GetItem(Item);
-                                "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+                                CalcQtyPerUnitOfMeasure(Item);
                                 "Gross Weight" := Item."Gross Weight" * "Qty. per Unit of Measure";
                                 "Net Weight" := Item."Net Weight" * "Qty. per Unit of Measure";
                                 "Unit Volume" := Item."Unit Volume" * "Qty. per Unit of Measure";
@@ -2986,9 +2986,7 @@
                    ("Order Date" < WorkDate) and
                    ("Order Date" <> 0D)
                 then
-                    Message(
-                      Text018,
-                      FieldCaption("Order Date"), "Order Date", WorkDate);
+                    ShowEarlyOrderDateMessage();
 
                 if "Order Date" <> 0D then begin
                     CustomCalendarChange[1].SetSource(CalChange."Source Type"::Vendor, "Buy-from Vendor No.", '', '');
@@ -4140,6 +4138,12 @@
         OnAfterCalcLineAmount(Rec, LineAmount);
     end;
 
+    local procedure CalcQtyPerUnitOfMeasure(Item: Record Item)
+    begin
+        "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
+        OnAfterCalcQtyPerUnitOfMeasure(Rec, Item, CurrfieldNo);
+    end;
+
     local procedure CopyFromStandardText()
     var
         StandardText: Record "Standard Text";
@@ -4357,7 +4361,7 @@
         RemainingQtyBase := "Outstanding Qty. (Base)" - Abs("Reserved Qty. (Base)");
     end;
 
-    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal): Decimal
+    procedure GetReservationQty(var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal) Result: Decimal
     begin
         CalcFields("Reserved Quantity", "Reserved Qty. (Base)");
         if "Document Type" = "Document Type"::"Return Order" then begin
@@ -4368,7 +4372,8 @@
         QtyReservedBase := "Reserved Qty. (Base)";
         QtyToReserve := "Outstanding Quantity";
         QtyToReserveBase := "Outstanding Qty. (Base)";
-        exit("Qty. per Unit of Measure");
+        Result := "Qty. per Unit of Measure";
+        OnAfterGetReservationQty(Rec, QtyReserved, QtyReservedBase, QtyToReserve, QtyToReserveBase, Result);
     end;
 
     procedure GetSourceCaption(): Text
@@ -4448,19 +4453,24 @@
         then
             exit;
 
-        if Type in [Type::Item, Type::Resource] then begin
-            GetPurchHeader;
-            IsHandled := false;
-            OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
-            if not IsHandled then begin
-                GetPriceCalculationHandler(PurchHeader, PriceCalculation);
-                if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
-                    PriceCalculation.ApplyPrice(CalledByFieldNo);
-                    PriceCalculation.ApplyDiscount();
+        case Type of
+            Type::"G/L Account",
+            Type::Item,
+            Type::Resource:
+                begin
+                    GetPurchHeader;
+                    IsHandled := false;
+                    OnUpdateDirectUnitCostOnBeforeFindPrice(PurchHeader, Rec, CalledByFieldNo, CurrFieldNo, IsHandled);
+                    if not IsHandled then begin
+                        GetPriceCalculationHandler(PurchHeader, PriceCalculation);
+                        if not ("Copied From Posted Doc." and IsCreditDocType()) then begin
+                            PriceCalculation.ApplyPrice(CalledByFieldNo);
+                            PriceCalculation.ApplyDiscount();
+                        end;
+                        GetLineWithCalculatedPrice(PriceCalculation);
+                    end;
+                    Validate("Direct Unit Cost");
                 end;
-                GetLineWithCalculatedPrice(PriceCalculation);
-            end;
-            Validate("Direct Unit Cost");
         end;
 
         OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(Rec);
@@ -4906,6 +4916,11 @@
         SalesOrderLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnUpdateSalesCostOnBeforeGetSalesOrderLine(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         case true of
             "Sales Order Line No." <> 0:
                 // Drop Shipment
@@ -5096,6 +5111,28 @@
             PAGE.RunModal(PAGE::"Reservation Entries", ReservEntry)
         else
             PAGE.Run(PAGE::"Reservation Entries", ReservEntry);
+    end;
+
+    local procedure ShowBinCodeCannotBeChangedError()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowBinCodeCannotBeChangedError(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Error(Text001, FieldCaption("Bin Code"), "Sales Order No.");
+    end;
+
+    local procedure ShowEarlyOrderDateMessage()
+    var
+        ShowMessage: Boolean;
+    begin
+        ShowMessage := false;
+        OnShowEarlyOrderDateMessageOnAfterCalcShowMessage(Rec, ShowMessage);
+        if ShowMessage then
+            Message(Text018, FieldCaption("Order Date"), "Order Date", WorkDate);
     end;
 
     procedure GetDate(): Date
@@ -5406,6 +5443,7 @@
         ItemChargeAssgnts.RunModal;
 
         CalcFields("Qty. to Assign");
+        OnAfterShowItemChargeAssgnt(Rec, ItemChargeAssgntPurch);
     end;
 
     procedure UpdateItemChargeAssgnt()
@@ -5687,7 +5725,9 @@
             LockTable();
             if FindSet then
                 repeat
-                    if not ZeroAmountLine(QtyType) then begin
+                    if not ZeroAmountLine(QtyType) and
+                       ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
+                    then begin
                         DeferralAmount := GetDeferralAmount;
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0);
                         if VATAmountLine.Modified then begin
@@ -7415,7 +7455,13 @@
     var
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         NotificationToSend: Notification;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendLineInvoiceDiscountResetNotification(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Inv. Discount Amount" = 0) and (xRec."Inv. Discount Amount" <> 0) and ("Line Amount" <> 0) then begin
             NotificationToSend.Id := PurchHeader.GetLineInvoiceDiscountResetNotificationId;
             NotificationToSend.Message := StrSubstNo(LineInvoiceDiscountAmountResetTok, RecordId);
@@ -7473,12 +7519,6 @@
         Amount := NewAmount;
         "Amount Including VAT" := NewAmountIncludingVAT;
         "VAT Base Amount" := NewVATBaseAmount;
-        if not PurchHeader."Prices Including VAT" and (Amount > 0) and (Amount < "Prepmt. Line Amount") then
-            "Prepmt. Line Amount" := Amount;
-        if PurchHeader."Prices Including VAT" and ("Amount Including VAT" > 0) and ("Amount Including VAT" < "Prepmt. Line Amount") then
-            "Prepmt. Line Amount" := "Amount Including VAT";
-        if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and ("Inv. Discount Amount" <> 0) then
-            Error(InvDiscForPrepmtExceededErr, "Document No.");
 
         OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo, NewAmount, NewAmountIncludingVAT, NewVATBaseAmount);
     end;
@@ -7487,8 +7527,11 @@
     begin
         if PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice then begin
             "Prepayment VAT Difference" := 0;
-            if not PrePaymentLineAmountEntered then
+            if not PrePaymentLineAmountEntered then begin
                 "Prepmt. Line Amount" := Round("Line Amount" * "Prepayment %" / 100, Currency."Amount Rounding Precision");
+                if abs("Inv. Discount Amount" + "Prepmt. Line Amount") > abs("Line Amount") THEN
+                    "Prepmt. Line Amount" := "Line Amount" - "Inv. Discount Amount";
+            end;
             PrePaymentLineAmountEntered := false;
         end;
 
@@ -7510,6 +7553,8 @@
             if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
                 if IsServiceCharge() then
                     Error(CannotChangePrepaidServiceChargeErr);
+                if "Inv. Discount Amount" <> 0 then
+                    Error(InvDiscForPrepmtExceededErr, "Document No.");
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text037, "Prepmt. Amt. Inv."));
             end;
             if "Prepmt. Line Amount" <> 0 then begin
@@ -7535,10 +7580,16 @@
         exit(IsHandled);
     end;
 
-    local procedure OverReceiptProcessing(): Boolean
+    local procedure OverReceiptProcessing() Result: Boolean
     var
         OverReceiptMgt: Codeunit "Over-Receipt Mgt.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOverReceiptProcessing(Rec, xRec, CurrFieldNo, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not OverReceiptMgt.IsOverReceiptAllowed() or (CurrFieldNo <> FieldNo("Qty. to Receive")) or (Abs("Qty. to Receive") <= Abs("Outstanding Quantity")) then
             exit(false);
 
@@ -7640,6 +7691,18 @@
             Error(Text001, FieldCaption("Prod. Order No."), "Sales Order No.");
     end;
 
+    local procedure CheckDirectUnitCost()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckDirectUnitCost(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Direct Unit Cost");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterAddItem(var PurchaseLine: Record "Purchase Line"; LastPurchaseLine: Record "Purchase Line")
     begin
@@ -7727,6 +7790,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetReservationQty(var PurchLine: Record "Purchase Line"; var QtyReserved: Decimal; var QtyReservedBase: Decimal; var QtyToReserve: Decimal; var QtyToReserveBase: Decimal; var Result: Decimal)
     begin
     end;
 
@@ -7821,6 +7889,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcQtyPerUnitOfMeasure(var PurchaseLine: Record "Purchase Line"; Item: Record Item; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckReceiptRelation(PurchaseLine: Record "Purchase Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
     end;
@@ -7872,6 +7945,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShowDimensions(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowItemChargeAssgnt(var PurchaseLine: Record "Purchase Line"; var ItemChargeAssgnmtPurch: Record "Item Charge Assignment (Purch)")
     begin
     end;
 
@@ -8006,6 +8084,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDirectUnitCost(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempJobJnlLine(var TempJobJournalLine: Record "Job Journal Line" temporary; PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; GetPrices: Boolean; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8126,6 +8209,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowBinCodeCannotBeChangedError(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowEarlyOrderDateMessageOnAfterCalcShowMessage(PurchaseLine: Record "Purchase Line"; var ShowMessage: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
@@ -8172,6 +8265,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesCost(var PurchaseLine: Record "Purchase Line"; var SalesOrderLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateSalesCostOnBeforeGetSalesOrderLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8271,7 +8369,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckWarehouseOnBeforeShowDialog(PurchLine: Record "Purchase Line"; Location2: Record Location; var ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
+    local procedure OnCheckWarehouseOnBeforeShowDialog(var PurchLine: Record "Purchase Line"; Location2: Record Location; var ShowDialog: Option " ",Message,Error; var DialogText: Text[50])
     begin
     end;
 
@@ -8307,6 +8405,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnBeforeTestStatusOpen(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendLineInvoiceDiscountResetNotification(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -8451,6 +8554,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQtyToReceiveOnAfterCalcQtyToReceiveBase(var PurchaseLine: Record "Purchase Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeDropShptCheck(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
@@ -8585,6 +8693,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnValidateQuantityOnAfterCalcDoInitOutstanding(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CallingFieldNo: Integer; var DoInitOutstanding: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnValidateQuantityOnBeforeCheckRcptRetShptRelation(var PurchaseLine: Record "Purchase Line")
     begin
     end;
@@ -8611,6 +8724,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVariantCodeOnAfterUpdateItemReference(var PurchaseLine: Record "Purchase Line"; CallingFeildNo: Integer)
     begin
     end;
 
@@ -8651,6 +8769,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateDirectUnitCostByFieldOnBeforeUpdateItemReference(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOverReceiptProcessing(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; CurrFieldNo: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

@@ -183,8 +183,8 @@ report 295 "Combine Shipments"
                 if GetFilter("Operation Type") <> '' then
                     Error(MissingFilterErr, FieldName("Operation Type"));
                 SetCurrentKey(
-		            "Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "Payment Terms Code",
-		            "Payment Method Code", "Salesperson Code", "EU 3-Party Trade");
+                    "Sell-to Customer No.", "Bill-to Customer No.", "Currency Code", "Payment Terms Code",
+                    "Payment Method Code", "Salesperson Code", "EU 3-Party Trade");
                 SetRange("Operation Type", OperationType.Code);
 
                 if OperationDateFrom = 0D then
@@ -415,6 +415,8 @@ report 295 "Combine Shipments"
             Validate("Payment Method Code", SalesOrderHeader."Payment Method Code");
             Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
             Validate("Salesperson Code", SalesOrderHeader."Salesperson Code");
+            Validate("Fattura Project Code", SalesOrderHeader."Fattura Project Code");
+            Validate("Fattura Tender Code", SalesOrderHeader."Fattura Tender Code");
             "Salesperson Code" := SalesOrderHeader."Salesperson Code";
             "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
             "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
@@ -455,7 +457,9 @@ report 295 "Combine Shipments"
           (SalesOrderHeader."Payment Terms Code" <> SalesHeader."Payment Terms Code") or
           (SalesOrderHeader."Payment Method Code" <> SalesHeader."Payment Method Code") or
           (SalesOrderHeader."Activity Code" <> SalesHeader."Activity Code") or
-          (SalesOrderHeader."Bank Account" <> SalesHeader."Bank Account");
+          (SalesOrderHeader."Bank Account" <> SalesHeader."Bank Account") or
+          (SalesOrderHeader."Fattura Project Code" <> SalesHeader."Fattura Project Code") or
+          (SalesOrderHeader."Fattura Tender Code" <> SalesHeader."Fattura Tender Code");
 
         OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, SalesShipmentLine);
         exit(Finalize);

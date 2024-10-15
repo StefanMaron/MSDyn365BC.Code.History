@@ -108,20 +108,7 @@ codeunit 21 "Item Jnl.-Check Line"
             end;
 
             if not "Phys. Inventory" then begin
-                if ("Quantity (Base)" = 0) and ("Invoiced Qty. (Base)" = 0) and
-                   (("Entry Type" = "Entry Type"::Output) and
-                   ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0) and
-                   (not "WIP Item") and
-                   TimeIsEmpty)
-                then
-                    Error(Text007);
-                if ("Entry Type" = "Entry Type"::Output) and
-                   ("WIP Quantity" <> 0) and
-                   (not "WIP Item") and
-                   TimeIsEmpty
-                then
-                    Error(Text1130000);
-
+                CheckEmptyQuantity(ItemJnlLine);
                 TestField("Qty. (Calculated)", 0);
                 TestField("Qty. (Phys. Inventory)", 0);
             end else
@@ -188,6 +175,32 @@ codeunit 21 "Item Jnl.-Check Line"
         end;
 
         OnAfterCheckItemJnlLine(ItemJnlLine, CalledFromInvtPutawayPick, CalledFromAdjustment);
+    end;
+
+    local procedure CheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckEmptyQuantity(ItemJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ItemJnlLine do begin
+            if ("Quantity (Base)" = 0) and ("Invoiced Qty. (Base)" = 0) and
+               (("Entry Type" = "Entry Type"::Output) and
+               ("Output Quantity (Base)" = 0) and ("Scrap Quantity (Base)" = 0) and
+               (not "WIP Item") and
+               TimeIsEmpty())
+            then
+                Error(Text007);
+            if ("Entry Type" = "Entry Type"::Output) and
+               ("WIP Quantity" <> 0) and
+               (not "WIP Item") and
+               TimeIsEmpty()
+            then
+                Error(Text1130000);
+        end;
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -556,6 +569,11 @@ codeunit 21 "Item Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPhysInventory(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmptyQuantity(ItemJnlLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

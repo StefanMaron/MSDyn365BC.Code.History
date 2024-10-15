@@ -134,7 +134,7 @@ table 9063 "Relationship Mgmt. Cue"
         field(25; "CDS Integration Errors"; Integer)
         {
             CalcFormula = Count("Integration Synch. Job Errors");
-            Caption = 'Common Data Service Integration Errors';
+            Caption = 'Dataverse Integration Errors';
             FieldClass = FlowField;
         }
     }

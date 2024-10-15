@@ -42,7 +42,7 @@ page 6033 "Service Invoice Statistics"
                     ApplicationArea = Service;
                     AutoFormatExpression = "Currency Code";
                     AutoFormatType = 1;
-                    CaptionClass = Format(VATAmountText);
+                    CaptionClass = '3,' + Format(VATAmountText);
                     Caption = 'VAT Amount';
                     ToolTip = 'Specifies the total VAT amount on the posted service invoice.';
                 }

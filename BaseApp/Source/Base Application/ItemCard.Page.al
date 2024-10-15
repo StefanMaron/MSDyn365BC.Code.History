@@ -1583,9 +1583,14 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Templates';
                     Image = Template;
-                    RunObject = Page "Config Templates";
-                    RunPageLink = "Table ID" = CONST(27);
                     ToolTip = 'View or edit item templates.';
+
+                    trigger OnAction()
+                    var
+                        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+                    begin
+                        ItemTemplMgt.ShowTemplates();
+                    end;
                 }
                 action(CopyItem)
                 {
@@ -1631,9 +1636,9 @@
 
                     trigger OnAction()
                     var
-                        TempItemTemplate: Record "Item Template" temporary;
+                        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
-                        TempItemTemplate.SaveAsTemplate(Rec);
+                        ItemTemplMgt.SaveAsTemplate(Rec);
                     end;
                 }
             }
@@ -2515,6 +2520,9 @@
 
         EnableShowShowEnforcePositivInventory;
 
+        if CurrentClientType = ClientType::ODataV4 then
+            EnableControls();
+
         OnAfterOnOpenPage();
     end;
 
@@ -2610,7 +2618,7 @@
         IsService := IsServiceType;
         IsNonInventoriable := IsNonInventoriableType;
         IsInventoriable := IsInventoriableType;
-
+        
         if IsNonInventoriable then
             "Stockout Warning" := "Stockout Warning"::No;
 

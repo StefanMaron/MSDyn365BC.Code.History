@@ -894,7 +894,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; IsHandled: Boolean)
+    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -85,6 +85,7 @@ codeunit 12179 "Export FatturaPA Document"
         // update Buffer
         TempXMLBuffer.FindFirst;
         TempXMLBuffer.Save(FileName);
+        OnAfterCreateXML(TempXMLBuffer);
 
         Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
         exit(CopyStr(FileName, 1, 250))
@@ -645,6 +646,11 @@ codeunit 12179 "Export FatturaPA Document"
     local procedure SubstituteInvalidCharactersOnNormalizeElementValue(var ElementValue: Text)
     begin
         SubstituteInvalidCharacters(ElementValue);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateXML(var TempXMLBuffer: Record "XML Buffer" temporary)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

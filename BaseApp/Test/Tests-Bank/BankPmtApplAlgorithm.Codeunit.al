@@ -1478,7 +1478,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('TextMapperModalPageHandler')]
+    [HandlerFunctions('TextMapperModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestCustRerunOnlyTextMapper()
     begin
@@ -1486,7 +1486,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,TextMapperModalPageHandler')]
+    [HandlerFunctions('MessageHandler,TextMapperModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestCustRunAndRerunTextMapper()
     begin
@@ -4127,7 +4127,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('TextMapperModalPageHandler')]
+    [HandlerFunctions('TextMapperModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestVendRerunOnlyTextMapper()
     begin
@@ -4135,7 +4135,7 @@ codeunit 134261 "Bank Pmt. Appl. Algorithm"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,TextMapperModalPageHandler')]
+    [HandlerFunctions('MessageHandler,TextMapperModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure TestVendRunAndRerunTextMapper()
     begin

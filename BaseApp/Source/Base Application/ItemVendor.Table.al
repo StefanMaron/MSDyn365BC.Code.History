@@ -168,7 +168,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateItemCrossReference(Rec, IsHandled);
+        OnBeforeUpdateItemCrossReference(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -207,8 +207,32 @@
         PriceUXManagement.ShowPriceListLines(PriceSource, PriceAsset, PriceAmountType);
     end;
 
+    procedure FindLeadTimeCalculation(Item: Record Item; var SKU: Record "Stockkeeping Unit"; LocationCode: Code[10])
+    var
+        GetPlanningParameters: Codeunit "Planning-Get Parameters";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindLeadTimeCalculation(Rec, Item, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Format("Lead Time Calculation") = '' then begin
+            GetPlanningParameters.AtSKU(SKU, Item."No.", "Variant Code", LocationCode);
+            "Lead Time Calculation" := SKU."Lead Time Calculation";
+            if Format("Lead Time Calculation") = '' then
+                if Vend.Get("Vendor No.") then
+                    "Lead Time Calculation" := Vend."Lead Time Calculation";
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateItemCrossReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean)
+    local procedure OnBeforeFindLeadTimeCalculation(var ItemVendor: Record "Item Vendor"; Item: Record Item; LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateItemCrossReference(var ItemVendor: Record "Item Vendor"; var IsHandled: Boolean; var xItemVendor: Record "Item Vendor")
     begin
     end;
 }

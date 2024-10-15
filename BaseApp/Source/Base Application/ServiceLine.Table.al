@@ -289,6 +289,7 @@
 
                 if xRec.Quantity <> Quantity then
                     PlanPriceCalcByField(FieldNo(Quantity));
+
                 if Type = Type::Item then begin
                     WhseValidateSourceLine.ServiceLineVerifyChange(Rec, xRec);
                     UpdateReservation(FieldNo(Quantity));
