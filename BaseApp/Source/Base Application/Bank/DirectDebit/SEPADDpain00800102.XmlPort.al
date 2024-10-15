@@ -89,8 +89,14 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                             {
                                 textelement(Othr)
                                 {
-                                    fieldelement(Id; CompanyInformation."VAT Registration No.")
+                                    textelement(OrganizationID)
                                     {
+                                        XmlName = 'Id';
+
+                                        trigger OnBeforePassVariable()
+                                        begin
+                                            OrganizationID := paymentexportdatagroup.GetOrganizationID();
+                                        end;
                                     }
                                 }
                             }

@@ -932,6 +932,7 @@ table 5050 Contact
         }
         key(Key3; "Company Name", "Company No.", Type, Name)
         {
+            IncludedFields = "Phone No.", "Territory Code", "Salesperson Code", "E-Mail";
         }
         key(Key4; "Company No.")
         {
@@ -966,14 +967,9 @@ table 5050 Contact
         key(Key14; SystemModifiedAt)
         {
         }
-#if not CLEAN23
-        key(Key15; "Coupled to CRM")
+        key(Key15; "Contact Business Relation")
         {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Replaced by flow field Coupled to Dataverse';
-            ObsoleteTag = '23.0';
         }
-#endif
     }
 
     fieldgroups

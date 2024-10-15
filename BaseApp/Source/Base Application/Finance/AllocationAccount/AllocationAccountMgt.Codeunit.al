@@ -31,6 +31,7 @@ codeunit 2675 "Allocation Account Mgt."
         AmountDistributions: Dictionary of [Guid, Decimal];
     begin
         VariableAllocationMgt.CalculateAmountDistributions(AllocationAccount, AmountToDistribute, AmountDistributions, ShareDistributions, PostingDate, CurrencyCode);
+
         AllocAccountDistribution.ReadIsolation := IsolationLevel::ReadCommitted;
         AllocAccountDistribution.SetRange("Allocation Account No.", AllocationAccount."No.");
         if not AllocAccountDistribution.FindSet() then
@@ -53,27 +54,22 @@ codeunit 2675 "Allocation Account Mgt."
             CombineDimensionSetIds(ExistingDimensionSetId, AllocationLine);
 
             AllocationLine.Insert();
+            OnGenerateVariableAllocationLinesOnAfterInsertAllocationLine(AllocationLine, AllocAccountDistribution);
         until AllocAccountDistribution.Next() = 0;
     end;
 
     internal procedure GenerateFixedAllocationLines(var AllocationAccount: Record "Allocation Account"; var AllocationLine: Record "Allocation Line"; AmountToDistribute: Decimal; ExistingDimensionSetId: Integer; CurrencyCode: Code[10])
     var
         AllocAccountDistribution: Record "Alloc. Account Distribution";
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        Currency: Record Currency;
         AllocatedAmount: Decimal;
-        AmountRoundingPercision: Decimal;
+        AmountRoundingPrecision: Decimal;
     begin
         AllocAccountDistribution.ReadIsolation := IsolationLevel::ReadCommitted;
         AllocAccountDistribution.SetRange("Allocation Account No.", AllocationAccount."No.");
         if not AllocAccountDistribution.FindSet() then
             exit;
 
-        GeneralLedgerSetup.Get();
-        AmountRoundingPercision := GeneralLedgerSetup."Amount Rounding Precision";
-        if CurrencyCode <> '' then
-            if Currency.Get(CurrencyCode) then
-                AmountRoundingPercision := Currency."Amount Rounding Precision";
+        AmountRoundingPrecision := GetCurrencyRoundingPrecision(CurrencyCode);
 
         repeat
             AllocationLine."Allocation Account No." := AllocAccountDistribution."Allocation Account No.";
@@ -82,7 +78,7 @@ codeunit 2675 "Allocation Account Mgt."
             AllocationLine."Destination Account Number" := AllocAccountDistribution."Destination Account Number";
             AllocationLine."Destination Account Name" := AllocAccountDistribution.LookupDistributionAccountName();
             AllocationLine.Percentage := AllocAccountDistribution.Percent;
-            AllocationLine.Amount := Round(AllocationLine.Percentage * AmountToDistribute / 100, AmountRoundingPercision);
+            AllocationLine.Amount := Round(AllocationLine.Percentage * AmountToDistribute / 100, AmountRoundingPrecision);
             AllocatedAmount += AllocationLine.Amount;
             AllocationLine."Dimension Set ID" := AllocAccountDistribution."Dimension Set ID";
             AllocationLine."Global Dimension 1 Code" := AllocAccountDistribution."Global Dimension 1 Code";
@@ -90,6 +86,7 @@ codeunit 2675 "Allocation Account Mgt."
             CombineDimensionSetIds(ExistingDimensionSetId, AllocationLine);
 
             AllocationLine.Insert();
+            OnGenerateFixedAllocationLinesOnAfterInsertAllocationLine(AllocationLine, AllocAccountDistribution);
         until AllocAccountDistribution.Next() = 0;
 
         if AllocatedAmount = AmountToDistribute then
@@ -138,6 +135,54 @@ codeunit 2675 "Allocation Account Mgt."
             DimensionSetIDArr, AllocationLine."Global Dimension 1 Code", AllocationLine."Global Dimension 2 Code");
     end;
 
+    internal procedure GetCurrencyRoundingPrecision(CurrencyCode: Code[10]): Decimal
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+        AmountRoundingPrecision: Decimal;
+    begin
+        GeneralLedgerSetup.Get();
+        AmountRoundingPrecision := GeneralLedgerSetup."Amount Rounding Precision";
+        if CurrencyCode <> '' then
+            if Currency.Get(CurrencyCode) then
+                AmountRoundingPrecision := Currency."Amount Rounding Precision";
+
+        exit(AmountRoundingPrecision);
+    end;
+
+    internal procedure SplitQuantitiesIfNeeded(OriginalQuantity: Decimal; var AllocationLine: Record "Allocation Line"; var AllocationAccount: Record "Allocation Account")
+    var
+        QuantityAssigned: Decimal;
+    begin
+        if AllocationAccount."Document Lines Split" <> AllocationAccount."Document Lines Split"::"Split Quantity" then
+            exit;
+
+        AllocationLine.ReadIsolation := IsolationLevel::ReadCommitted;
+        if not AllocationLine.FindSet() then
+            exit;
+
+        repeat
+            AllocationLine.Quantity := Round(OriginalQuantity * AllocationLine.Percentage / 100, AllocationLine.GetQuantityPercision());
+            QuantityAssigned += AllocationLine.Quantity;
+            AllocationLine.Modify();
+        until AllocationLine.Next() = 0;
+
+        if ((OriginalQuantity - QuantityAssigned) <> 0) then begin
+            AllocationLine.Quantity += OriginalQuantity - QuantityAssigned;
+            AllocationLine.Modify();
+        end;
+    end;
+
     var
         CannotEnterAccountNumberIfInheritFromParentErr: Label 'To use an Allocation Account with "Inherit from parent" you must set Account Type to G/L Account or Bank Account. To set the allocation account use the Allocation Account No. field on the line.';
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateFixedAllocationLinesOnAfterInsertAllocationLine(var AllocationLine: Record "Allocation Line"; var AllocAccountDistibution: Record "Alloc. Account Distribution")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGenerateVariableAllocationLinesOnAfterInsertAllocationLine(var AllocationLine: Record "Allocation Line"; var AllocAccountDistibution: Record "Alloc. Account Distribution")
+    begin
+    end;
 }

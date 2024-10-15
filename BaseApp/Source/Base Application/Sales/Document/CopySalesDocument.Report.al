@@ -440,7 +440,7 @@ report 292 "Copy Sales Document"
 
     local procedure LookupSalesDoc()
     begin
-        OnBeforeLookupSalesDoc(FromSalesHeader, SalesHeader);
+        OnBeforeLookupSalesDoc(FromSalesHeader, SalesHeader, FromDocType);
 
         FromSalesHeader.FilterGroup := 0;
         FromSalesHeader.SetRange("Document Type", CopyDocMgt.GetSalesDocumentType(FromDocType));
@@ -461,7 +461,7 @@ report 292 "Copy Sales Document"
     local procedure LookupSalesArchive()
     begin
         FromSalesHeaderArchive.Reset();
-        OnLookupSalesArchiveOnBeforeSetFilters(FromSalesHeaderArchive, SalesHeader);
+        OnLookupSalesArchiveOnBeforeSetFilters(FromSalesHeaderArchive, SalesHeader, FromDocType);
         FromSalesHeaderArchive.FilterGroup := 0;
         FromSalesHeaderArchive.SetRange("Document Type", CopyDocMgt.GetSalesDocumentType(FromDocType));
         FromSalesHeaderArchive.FilterGroup := 2;
@@ -593,7 +593,7 @@ report 292 "Copy Sales Document"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeLookupSalesDoc(var FromSalesHeader: Record "Sales Header"; var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeLookupSalesDoc(var FromSalesHeader: Record "Sales Header"; var SalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
     begin
     end;
 
@@ -629,7 +629,7 @@ report 292 "Copy Sales Document"
 
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookupSalesArchiveOnBeforeSetFilters(var FromSalesHeaderArchive: Record "Sales Header Archive"; var SalesHeader: Record "Sales Header")
+    local procedure OnLookupSalesArchiveOnBeforeSetFilters(var FromSalesHeaderArchive: Record "Sales Header Archive"; var SalesHeader: Record "Sales Header"; FromDocType: Enum "Sales Document Type From")
     begin
     end;
 
