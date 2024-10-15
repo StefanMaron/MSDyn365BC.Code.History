@@ -3968,6 +3968,108 @@ codeunit 137079 "SCM Production Order III"
         ProdOrderRoutingLine.TestField("Routing Status", ProdOrderRoutingLine."Routing Status"::Finished);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalPageHandler')]
+    procedure ItemRdngPrecisionIsIgnoredOnCalcConsumptionAfterPickInProductionJnl()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        DummyItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Consumption] [Pick] [Production Journal]
+        // [SCENARIO 387690] Production journal shows picked quantity of a component even if is less than "Rounding Precision" value on the item.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Component item "C" with "Rounding Precision" = 100.
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Rounding Precision", Qty);
+        CompItem.Modify(true);
+
+        // [GIVEN] Production item "P" with component "C".
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem, 1);
+        CreateProductionItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Post 100 pcs of "C" to inventory to directed put-away and pick location.
+        UpdateInventoryWithWhseItemJournal(CompItem, LocationWhite, Qty);
+
+        // [GIVEN] Released production order for 100 pcs of "P".
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", Qty, LocationWhite.Code, '');
+
+        // [GIVEN] Create warehouse pick.
+        // [GIVEN] Set "Qty. to Handle" = 75 on pick lines and register.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", Qty * 3 / 4);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Open production journal.
+        // [THEN] The consumption line for component "C" in the production journal shows quantity = 75.
+        OpenProductionJournalPage(
+          ProductionOrder, CompItem."No.", ProdItem."No.", Qty * 3 / 4, DummyItemJournalLine."Entry Type"::Consumption);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    procedure ItemRdngPrecisionIsIgnoredOnCalcConsumptionAfterPickInConsumptionJnl()
+    var
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        ItemJournalLine: Record "Item Journal Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Consumption] [Pick] [Consumption Journal]
+        // [SCENARIO 387690] Consumption journal shows picked quantity of a component even if is less than "Rounding Precision" value on the item.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(100, 200);
+
+        // [GIVEN] Component item "C" with "Rounding Precision" = 100.
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Rounding Precision", Qty);
+        CompItem.Modify(true);
+
+        // [GIVEN] Production item "P" with component "C".
+        CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem, 1);
+        CreateProductionItem(ProdItem, ProductionBOMHeader."No.");
+
+        // [GIVEN] Post 100 pcs of "C" to inventory to directed put-away and pick location.
+        UpdateInventoryWithWhseItemJournal(CompItem, LocationWhite, Qty);
+
+        // [GIVEN] Released production order for 100 pcs of "P".
+        CreateAndRefreshReleasedProductionOrder(ProductionOrder, ProdItem."No.", Qty, LocationWhite.Code, '');
+
+        // [GIVEN] Create warehouse pick.
+        // [GIVEN] Set "Qty. to Handle" = 75 on pick lines and register.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        WarehouseActivityLine.SetRange("Item No.", CompItem."No.");
+        WarehouseActivityLine.FindFirst();
+        WarehouseActivityLine.ModifyAll("Qty. to Handle", Qty / 2);
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [WHEN] Calculate consumption in consumption journal.
+        LibraryInventory.ClearItemJournal(ConsumptionItemJournalTemplate, ConsumptionItemJournalBatch);
+        LibraryManufacturing.CalculateConsumption(
+          ProductionOrder."No.", ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+
+        // [THEN] A consumption journal line for 75 pcs of item "C" is created.
+        SelectItemJournalLine(ItemJournalLine, ConsumptionItemJournalTemplate.Name, ConsumptionItemJournalBatch.Name);
+        ItemJournalLine.TestField("Item No.", CompItem."No.");
+        ItemJournalLine.TestField(Quantity, Qty / 2);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

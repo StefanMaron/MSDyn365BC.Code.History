@@ -56,12 +56,9 @@ codeunit 139006 "Test My Settings"
     var
         MySettings: TestPage "My Settings";
     begin
-        // [WHEN] The user changes the Role Center in "My Settings" window
-        Initialize;
-
+        // [WHEN] The user changes the Role Center in "My Settings" window, and chooses OK
         MySettings.OpenEdit;
         MySettings.UserRoleCenter.AssistEdit;
-
         // [THEN] The Blank Role Center is Hidden
         // Verify in AvailableRoleCentersHandlerBlankProfileIsHidden
     end;

@@ -666,6 +666,21 @@ codeunit 147557 "SII Invoice Amount Treshold"
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesTok, 'sii:Macrodato', 'S');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure InvoiceAmountThresholdIs100MillionInSIISetup()
+    var
+        SIISetup: Record "SII Setup";
+    begin
+        // [FEATURE] [DEMO]
+        // [SCENARIO 391659] "Invoice Amount Threshold" is 100.000.000 in SII Setup
+
+        Initialize();
+        SIISetup.DeleteAll();
+        SIISetup.Insert();
+        SIISetup.TestField("Invoice Amount Threshold", 100000000);
+    end;
+
     local procedure Initialize()
     begin
         if IsInitialized then

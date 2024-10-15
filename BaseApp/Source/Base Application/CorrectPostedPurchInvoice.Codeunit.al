@@ -691,15 +691,23 @@ codeunit 1313 "Correct Posted Purch. Invoice"
 
     local procedure UpdatePurchaseOrderLinesFromCancelledInvoice(PurchInvHeaderNo: Code[20])
     var
+        TempItemLedgerEntry: Record "Item Ledger Entry" temporary;
         PurchaseLine: Record "Purchase Line";
         PurchInvLine: Record "Purch. Inv. Line";
+        UndoPostingManagement: Codeunit "Undo Posting Management";
     begin
         PurchInvLine.SetRange("Document No.", PurchInvHeaderNo);
-        if PurchInvLine.FindSet() then
+        if PurchInvLine.FindSet() then begin
+            FindItemLedgEntries(TempItemLedgerEntry, PurchInvHeaderNo);
             repeat
-                if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then
+                if PurchaseLine.Get(PurchaseLine."Document Type"::Order, PurchInvLine."Order No.", PurchInvLine."Order Line No.") then begin
                     UpdatePurchaseOrderLineInvoicedQuantity(PurchaseLine, PurchInvLine.Quantity, PurchInvLine."Quantity (Base)");
+                    TempItemLedgerEntry.SetRange("Document Line No.", PurchInvLine."Line No.");
+                    TempItemLedgerEntry.SetFilter("Item Tracking", '<>%1', TempItemLedgerEntry."Item Tracking"::None.AsInteger());
+                    UndoPostingManagement.RevertPostedItemTracking(TempItemLedgerEntry, PurchaseLine."Expected Receipt Date", true);
+                end;
             until PurchInvLine.Next() = 0;
+        end;
     end;
 
     local procedure UpdatePurchaseOrderLineInvoicedQuantity(var PurchaseLine: Record "Purchase Line"; CancelledQuantity: Decimal; CancelledQtyBase: Decimal)

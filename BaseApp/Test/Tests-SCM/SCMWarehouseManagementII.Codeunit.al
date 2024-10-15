@@ -2320,6 +2320,66 @@ codeunit 137154 "SCM Warehouse Management II"
         Assert.RecordCount(WarehouseReceiptLine, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure CalculatingAvailQtyToPickWithAnotherPickedShipmentDeleted()
+    var
+        Item: Record Item;
+        Bin: Record Bin;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Shipment] [Pick] [Available Quantity to Pick]
+        // [SCENARIO 391098] Calculating available quantity to pick when there was another warehouse shipment that was picked but deleted before posting.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Item "I". Post 10 pcs to location "White".
+        LibraryInventory.CreateItem(Item);
+        FindBin(Bin, LocationWhite.Code);
+        UpdateInventoryUsingWarehouseJournal(Bin, Item, '', Item."Base Unit of Measure", Qty);
+
+        // [GIVEN] Create sales order "SO1" for 6 pcs.
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item."No.", LocationWhite.Code, Qty / 2);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment "WS1" from the sales order "SO1".
+        // [GIVEN] Create and register warehouse pick.
+        CreatePickFromWarehouseShipment(WarehouseShipmentHeader, SalesHeader);
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+
+        // [GIVEN] Delete warehouse shipment "WS1".
+        LibraryVariableStorage.Enqueue(PickedConfirmMessage);
+        ReopenAndDeleteWarehouseShipment(WarehouseShipmentHeader);
+
+        // [GIVEN] Create sales order "SO2" for 4 pcs.
+        CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Item."No.", LocationWhite.Code, Qty / 2);
+        LibrarySales.AutoReserveSalesLine(SalesLine);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+
+        // [GIVEN] Create warehouse shipment "WS2" from the sales order "SO2".
+        CreateWarehouseShipment(SalesHeader);
+
+        // [WHEN] Create pick.
+        CreatePick(WarehouseShipmentHeader, SalesHeader."No.");
+
+        // [THEN] A warehouse pick has been created and can be registered.
+        RegisterWarehouseActivity(
+          WarehouseActivityLine, WarehouseActivityLine."Source Document"::"Sales Order", SalesHeader."No.",
+          WarehouseActivityLine."Activity Type"::Pick);
+
+        // [THEN] The warehouse shipment "WS2" can be posted.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

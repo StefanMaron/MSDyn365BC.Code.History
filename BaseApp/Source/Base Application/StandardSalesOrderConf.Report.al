@@ -790,6 +790,8 @@ report 1305 "Standard Sales - Order Conf."
                 }
                 column(Amount_ReportTotalsLine; Amount)
                 {
+                    AutoFormatExpression = Header."Currency Code";
+                    AutoFormatType = 1;
                 }
                 column(AmountFormatted_ReportTotalsLine; "Amount Formatted")
                 {
@@ -840,7 +842,7 @@ report 1305 "Standard Sales - Order Conf."
                 column(TotalVATBaseLCY; TotalVATBaseLCY)
                 {
                 }
-                column(TotalAmountIncludingVAT; TotalAmountInclVAT)
+                column(TotalAmountIncludingVAT; Format(TotalAmountInclVAT))
                 {
                     AutoFormatExpression = Header."Currency Code";
                     AutoFormatType = 1;
@@ -1145,7 +1147,7 @@ report 1305 "Standard Sales - Order Conf."
         NoFilterSetErr: Label 'You must specify one or more filters to avoid accidently printing all documents.';
         GreetingLbl: Label 'Hello';
         ClosingLbl: Label 'Sincerely';
-        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a 2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
+        PmtDiscTxt: Label 'If we receive the payment before %1, you are eligible for a %2% payment discount.', Comment = '%1 Discount Due Date %2 = value of Payment Discount % ';
         BodyLbl: Label 'Thank you for your business. Your order confirmation is attached to this message.';
         SellToContactPhoneNoLbl: Label 'Sell-to Contact Phone No.';
         SellToContactMobilePhoneNoLbl: Label 'Sell-to Contact Mobile Phone No.';
