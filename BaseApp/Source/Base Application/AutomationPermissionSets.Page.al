@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 5445 "Automation Permission Sets"
 {
     APIGroup = 'automation';
@@ -11,6 +12,9 @@ page 5445 "Automation Permission Sets"
     ModifyAllowed = false;
     PageType = API;
     SourceTable = "Aggregate Permission Set";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -59,4 +63,4 @@ page 5445 "Automation Permission Sets"
     var
         AutomationAPIManagement: Codeunit "Automation - API Management";
 }
-
+#endif

@@ -12,6 +12,9 @@ page 31 "Item List"
     SourceTable = Item;
     UsageCategory = Lists;
 
+    AboutTitle = 'About items';
+    AboutText = 'Items represent the products and services you buy and sell. For each item, you can manage the default sales and purchase prices used when creating documents, as well as track inventory numbers. With item templates you can quickly create new items having common details defined by the template.';
+
     layout
     {
         area(content)
@@ -260,6 +263,12 @@ page 31 "Item List"
                     Caption = 'Default Deferral Template';
                     Importance = Additional;
                     ToolTip = 'Specifies the default template that governs how to defer revenues and expenses to the periods when they occurred.';
+                }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the item is coupled to a product in Dynamics 365 Sales.';
+                    Visible = CRMIntegrationEnabled;
                 }
             }
         }
@@ -515,11 +524,12 @@ page 31 "Item List"
                     RunPageLink = "Item No." = FIELD("No.");
                     Scope = Repeater;
                     ToolTip = 'Set up a customer''s or vendor''s own identification of the selected item. Cross-references to the customer''s item number means that the item number is automatically shown on sales documents instead of the number that you use.';
+                    Visible = false;
                 }
 #endif
                 action("Item Refe&rences")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     Caption = 'Item References';
                     Visible = ItemReferenceVisible;
                     Image = Change;
@@ -702,6 +712,7 @@ page 31 "Item List"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
+#if not CLEAN19
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -776,6 +787,7 @@ page 31 "Item List"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action(SalesPriceLists)
                 {
                     AccessByPermission = TableData "Sales Price Access" = R;
@@ -820,6 +832,7 @@ page 31 "Item List"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
+#if not CLEAN19
                 action("Set Special Prices")
                 {
                     ApplicationArea = Suite;
@@ -872,6 +885,7 @@ page 31 "Item List"
                         PurchasesPriceAndLineDisc.RunModal;
                     end;
                 }
+#endif
                 action(PurchPriceLists)
                 {
                     AccessByPermission = TableData "Purchase Price Access" = R;
@@ -1130,12 +1144,8 @@ page 31 "Item List"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Apply Template';
-                Ellipsis = true;
                 Image = ApplyTemplate;
                 ToolTip = 'Apply a template to update one or more entities with your standard settings for a certain type of entity.';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This functionality will be replaced by other templates.';
-                ObsoleteTag = '16.0';
 
                 trigger OnAction()
                 var
@@ -1290,6 +1300,7 @@ page 31 "Item List"
                     RunObject = Report "Item Substitutions";
                     ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
+#if not CLEAN19
                 action("Price List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1300,7 +1311,11 @@ page 31 "Item List"
                     PromotedCategory = Category9;
                     RunObject = Report "Price List";
                     ToolTip = 'View, print, or save a list of your items and their prices, for example, to send to customers. You can create the list for specific customers, campaigns, currencies, or other criteria.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '19.0';
+                    ObsoleteReason = 'Replaced by the Item Price List report';
                 }
+#endif
                 action("Item Price List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1721,6 +1736,25 @@ page 31 "Item List"
                             CRMIntegrationManagement.DefineCoupling(RecordId);
                         end;
                     }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledItem;
+                        ToolTip = 'Couple items to products in Dynamics 365 Sales based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Item: Record Item;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Item);
+                            RecRef.GetTable(Item);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
+                        end;
+                    }
                     action(DeleteCRMCoupling)
                     {
                         AccessByPermission = TableData "CRM Integration Record" = D;
@@ -1950,6 +1984,7 @@ page 31 "Item List"
             {
                 Caption = 'S&ales';
                 Image = Sales;
+#if not CLEAN19
                 action(Sales_Prices)
                 {
                     ApplicationArea = Suite;
@@ -1982,6 +2017,7 @@ page 31 "Item List"
                         ShowLineDiscounts();
                     end;
                 }
+#endif
                 action("Prepa&yment Percentages")
                 {
                     ApplicationArea = Prepayments;
@@ -2028,6 +2064,7 @@ page 31 "Item List"
                     RunPageView = SORTING("Item No.");
                     ToolTip = 'View the list of vendors who can supply the item, and at which lead time.';
                 }
+#if not CLEAN19
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -2056,6 +2093,7 @@ page 31 "Item List"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '18.0';
                 }
+#endif
                 action(Action125)
                 {
                     ApplicationArea = Prepayments;
@@ -2430,6 +2468,7 @@ page 31 "Item List"
             until TempItemFilteredFromPickItem.Next() = 0;
     end;
 
+#if not CLEAN19
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var
@@ -2450,5 +2489,6 @@ page 31 "Item List"
         SalesPrice.SetRange("Item No.", "No.");
         Page.Run(Page::"Sales Prices", SalesPrice);
     end;
+#endif
 }
 

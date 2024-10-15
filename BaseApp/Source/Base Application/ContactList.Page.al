@@ -32,10 +32,24 @@ page 5052 "Contact List"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the name of the contact. If the contact is a person, you can click the field to see the Name Details window.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies an additional part of the name.';
+                    Visible = false;
+                }
                 field("Company Name"; "Company Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the company. If the contact is a person, Specifies the name of the company for which this contact works. This field is not editable.';
+                }
+                field("Job Title"; "Job Title")
+                {
+                    ApplicationArea = All;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the contact''s job title.';
+                    Visible = false;
                 }
                 field("Business Relation"; Rec."Contact Business Relation")
                 {
@@ -125,6 +139,12 @@ page 5052 "Contact List"
                     Importance = Additional;
                     ToolTip = 'Specifies that a parent or guardian of the minor has provided their consent to allow the minor to use this service. When this check box is selected, data for the minor can be processed.';
                     Visible = false;
+                }
+                field("Coupled to CRM"; "Coupled to CRM")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies that the contact is coupled to a contact in Dataverse.';
+                    Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 }
             }
         }
@@ -269,13 +289,17 @@ page 5052 "Contact List"
                         ToolTip = 'Specify date ranges that apply to the contact''s alternate address.';
                     }
                 }
+#if not CLEAN19
                 action(SentEmails)
                 {
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action SentEmails moved under history';
+                    ObsoleteTag = '19.0';
                     ApplicationArea = Basic, Suite;
                     Caption = 'Sent Emails';
                     Image = ShowList;
                     ToolTip = 'View a list of emails that you have sent to this contact.';
-                    Visible = EmailImprovementFeatureEnabled;
+                    Visible = false;
 
                     trigger OnAction()
                     var
@@ -284,6 +308,7 @@ page 5052 "Contact List"
                         Email.OpenSentEmails(Database::Contact, Rec.SystemId);
                     end;
                 }
+#endif
             }
             group(ActionGroupCRM)
             {
@@ -349,6 +374,25 @@ page 5052 "Contact List"
                             CRMIntegrationManagement: Codeunit "CRM Integration Management";
                         begin
                             CRMIntegrationManagement.DefineCoupling(RecordId);
+                        end;
+                    }
+                    action(MatchBasedCoupling)
+                    {
+                        AccessByPermission = TableData "CRM Integration Record" = IM;
+                        ApplicationArea = Suite;
+                        Caption = 'Match-Based Coupling';
+                        Image = CoupledContactPerson;
+                        ToolTip = 'Couple contacts to contacts in Dataverse based on criteria.';
+
+                        trigger OnAction()
+                        var
+                            Contact: Record Contact;
+                            CRMIntegrationManagement: Codeunit "CRM Integration Management";
+                            RecRef: RecordRef;
+                        begin
+                            CurrPage.SetSelectionFilter(Contact);
+                            RecRef.GetTable(Contact);
+                            CRMIntegrationManagement.MatchBasedCoupling(RecRef);
                         end;
                     }
                     action(DeleteCRMCoupling)
@@ -729,6 +773,21 @@ page 5052 "Contact List"
                     ShortCutKey = 'F7';
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
                 }
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this contact.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::Contact, Rec.SystemId);
+                    end;
+                }
             }
         }
         area(processing)
@@ -933,7 +992,7 @@ page 5052 "Contact List"
             action(WordTemplate)
             {
                 ApplicationArea = All;
-                Caption = 'Word Template';
+                Caption = 'Apply Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
 
@@ -953,13 +1012,19 @@ page 5052 "Contact List"
                 Caption = 'Send Email';
                 Image = Email;
                 ToolTip = 'Send an email to this contact.';
+                Promoted = true;
+                PromotedCategory = Process;
+                Enabled = CanSendEmail;
 
                 trigger OnAction()
                 var
-                    EmailMgt: Codeunit "Mail Management";
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
                 begin
-                    EmailMgt.AddSource(Database::Contact, Rec.SystemId);
-                    EmailMgt.Run();
+                    TempEmailItem.AddSourceDocument(Database::Contact, Rec.SystemId);
+                    TempEmailItem.AddRelatedSourceDocuments(Database::Contact, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."E-Mail";
+                    TempEmailItem.Send(false, EmailScenario::Default);
                 end;
             }
             action(SyncWithExchange)
@@ -1036,11 +1101,16 @@ page 5052 "Contact List"
     }
 
     trigger OnAfterGetCurrRecord()
+    var
+        Contact: Record Contact;
     begin
         EnableFields;
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             CRMIsCoupledToRecord := CRMCouplingManagement.IsRecordCoupledToCRM(RecordId);
         SetEnabledRelatedActions();
+
+        CurrPage.SetSelectionFilter(Contact);
+        CanSendEmail := Contact.Count() = 1;
     end;
 
     trigger OnAfterGetRecord()
@@ -1083,8 +1153,9 @@ page 5052 "Contact List"
         CRMCouplingManagement: Codeunit "CRM Coupling Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         [InDataSet]
+        CanSendEmail: Boolean;
+        [InDataSet]
         StyleIsStrong: Boolean;
-        EmailImprovementFeatureEnabled: Boolean;
         CompanyGroupEnabled: Boolean;
         PersonGroupEnabled: Boolean;
         ExtendedPriceEnabled: Boolean;
@@ -1096,6 +1167,7 @@ page 5052 "Contact List"
         RelatedBankEnabled: Boolean;
         RelatedEmployeeEnabled: Boolean;
         ExportContactEnabled: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure EnableFields()
     begin

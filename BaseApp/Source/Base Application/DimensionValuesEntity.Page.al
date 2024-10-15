@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5488 "Dimension Values Entity"
 {
     Caption = 'dimensionValues', Locked = true;
@@ -49,3 +50,4 @@ page 5488 "Dimension Values Entity"
     {
     }
 }
+#endif

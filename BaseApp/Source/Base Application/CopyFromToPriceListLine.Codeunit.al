@@ -1,13 +1,11 @@
 Codeunit 7009 CopyFromToPriceListLine
 {
-    ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
-    ObsoleteTag = '16.0';
-
     var
         GenerateHeader: Boolean;
         UseDefaultPriceLists: Boolean;
+#if not CLEAN19
         NotMatchSalesLineDiscTypeErr: Label 'does not match sales line discount type.';
+#endif
         PlaceHolderBracketTok: Label ' (%1)', Locked = true;
         PlaceHolderTok: Label ' %1', Locked = true;
         PlaceHolderRangeTok: Label ', %1 - %2', Locked = true;
@@ -23,6 +21,7 @@ Codeunit 7009 CopyFromToPriceListLine
         UseDefaultPriceLists := UseDefault;
     end;
 
+#if not CLEAN19
     procedure CopyFrom(var SalesPrice: Record "Sales Price"; var PriceListLine: Record "Price List Line")
     var
         OrigSalesPrice: Record "Sales Price";
@@ -816,6 +815,7 @@ Codeunit 7009 CopyFromToPriceListLine
         InitLineNo(PriceListLine);
         PriceListLine.Insert(true);
     end;
+#endif
 
     procedure InitLineNo(var PriceListLine: Record "Price List Line")
     begin
@@ -899,6 +899,7 @@ Codeunit 7009 CopyFromToPriceListLine
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromPurchLineDiscount(PurchaseLineDiscount: Record "Purchase Line Discount"; var PriceListLine: Record "Price List Line")
     begin
@@ -953,5 +954,5 @@ Codeunit 7009 CopyFromToPriceListLine
     local procedure OnCopyToSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; var PriceListLine: Record "Price List Line")
     begin
     end;
-
+#endif
 }

@@ -1,4 +1,4 @@
-table 311 "Sales & Receivables Setup"
+﻿table 311 "Sales & Receivables Setup"
 {
     Caption = 'Sales & Receivables Setup';
     DrillDownPageID = "Sales & Receivables Setup";
@@ -290,6 +290,10 @@ table 311 "Sales & Receivables Setup"
                         TestField("Report Output Type", "Report Output Type"::PDF);
             end;
         }
+        field(49; "Document Default Line Type"; Enum "Sales Line Type")
+        {
+            Caption = 'Document Default Line Type';
+        }
         field(50; "Default Item Quantity"; Boolean)
         {
             Caption = 'Default Item Quantity';
@@ -408,6 +412,22 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Canceled Issued Fin. Charge Memo Nos.';
             DataClassification = CustomerContent;
             TableRelation = "No. Series";
+        }
+        field(810; "Invoice Posting Setup"; Enum "Sales Invoice Posting")
+        {
+            Caption = 'Invoice Posting Setup';
+
+            trigger OnValidate()
+            var
+                AllObjWithCaption: Record AllObjWithCaption;
+                InvoicePostingInterface: Interface "Invoice Posting";
+            begin
+                if "Invoice Posting Setup" <> "Sales Invoice Posting"::"Invoice Posting (Default)" then begin
+                    AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Codeunit, "Invoice Posting Setup".AsInteger());
+                    InvoicePostingInterface := "Invoice Posting Setup";
+                    InvoicePostingInterface.Check(Database::"Sales Header");
+                end;
+            end;
         }
         field(5329; "Write-in Product Type"; Option)
         {
@@ -544,31 +564,31 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Block ship. when neg. invent.';
             ObsoleteReason = 'Replaced by W1 feature';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(5005130; "Arch. Orders and Ret. Orders"; Boolean)
         {
             Caption = 'Arch. Orders and Ret. Orders';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(5005132; "Archiving Sales Quote"; Option)
         {
             Caption = 'Archiving Sales Quote';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Never,Question,Always';
             OptionMembers = Never,Question,Always;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '19.0';
         }
         field(5005133; "Archiving Blanket Sales Order"; Boolean)
         {
             Caption = 'Archiving Blanket Sales Order';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
         field(5005134; "Batch Archiving Sales Quote"; Boolean)
         {
@@ -576,8 +596,8 @@ table 311 "Sales & Receivables Setup"
             Editable = false;
             InitValue = false;
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '19.0';
         }
     }
 

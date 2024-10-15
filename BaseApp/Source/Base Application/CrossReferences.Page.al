@@ -1,4 +1,4 @@
-#if not CLEAN16
+#if not CLEAN19
 page 5723 "Cross References"
 {
     Caption = 'Item Cross References';

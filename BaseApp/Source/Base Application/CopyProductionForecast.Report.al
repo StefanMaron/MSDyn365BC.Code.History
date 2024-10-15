@@ -22,6 +22,8 @@ report 99003803 "Copy Production Forecast"
                     ProdForecastEntry2."Item No." := ToProdForecastEntry."Item No.";
                 if ToProdForecastEntry."Location Code" <> '' then
                     ProdForecastEntry2."Location Code" := ToProdForecastEntry."Location Code";
+                if ToProdForecastEntry."Variant Code" <> '' then
+                    ProdForecastEntry2."Variant Code" := ToProdForecastEntry."Variant Code";
                 ProdForecastEntry2."Component Forecast" := ToProdForecastEntry."Component Forecast";
                 if Format(ChangeDateExpression) <> '' then
                     ProdForecastEntry2."Forecast Date" := CalcDate(ChangeDateExpression, "Forecast Date");
@@ -79,6 +81,34 @@ report 99003803 "Copy Production Forecast"
                             Caption = 'Item No.';
                             TableRelation = Item;
                             ToolTip = 'Specifies the number of the item to which you want to copy the entries. To see the existing item numbers, click the field.';
+
+                            trigger OnValidate()
+                            begin
+                                ToProdForecastEntry."Variant Code" := '';
+                            end;
+                        }
+                        field(VariantCode; ToProdForecastEntry."Variant Code")
+                        {
+                            ApplicationArea = Planning;
+                            Caption = 'Variant Code';
+                            ToolTip = 'Specifies a item variants for the demand forecast to which you are copying entries.';
+
+                            trigger OnLookup(var Text: Text): Boolean
+                            var
+                                ItemVariant: record "Item Variant";
+                                ItemVariants: Page "Item Variants";
+                            begin
+                                ItemVariant.SetRange("Item No.", ToProdForecastEntry."Item No.");
+                                ItemVariants.LookupMode := true;
+                                ItemVariants.SetTableView(ItemVariant);
+                                if ItemVariants.RunModal() <> ACTION::LookupOK then
+                                    exit;
+
+                                ItemVariants.GetRecord(ItemVariant);
+                                ToProdForecastEntry.Validate("Variant Code", ItemVariant.Code);
+                                Text := ItemVariant.Code;
+                                exit(false);
+                            end;
                         }
                         field(LocationCode; ToProdForecastEntry."Location Code")
                         {

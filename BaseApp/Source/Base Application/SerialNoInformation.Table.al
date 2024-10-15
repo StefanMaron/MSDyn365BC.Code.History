@@ -33,7 +33,7 @@ table 6504 "Serial No. Information"
         }
         field(14; Comment; Boolean)
         {
-            CalcFormula = Exist ("Item Tracking Comment" WHERE(Type = CONST("Serial No."),
+            CalcFormula = Exist("Item Tracking Comment" WHERE(Type = CONST("Serial No."),
                                                                "Item No." = FIELD("Item No."),
                                                                "Variant Code" = FIELD("Variant Code"),
                                                                "Serial/Lot No." = FIELD("Serial No.")));
@@ -43,7 +43,7 @@ table 6504 "Serial No. Information"
         }
         field(20; Inventory; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No."),
+            CalcFormula = Sum("Item Ledger Entry".Quantity WHERE("Item No." = FIELD("Item No."),
                                                                   "Variant Code" = FIELD("Variant Code"),
                                                                   "Serial No." = FIELD("Serial No."),
                                                                   "Location Code" = FIELD("Location Filter")));
@@ -71,7 +71,7 @@ table 6504 "Serial No. Information"
         }
         field(24; "Expired Inventory"; Decimal)
         {
-            CalcFormula = Sum ("Item Ledger Entry"."Remaining Quantity" WHERE("Item No." = FIELD("Item No."),
+            CalcFormula = Sum("Item Ledger Entry"."Remaining Quantity" WHERE("Item No." = FIELD("Item No."),
                                                                               "Variant Code" = FIELD("Variant Code"),
                                                                               "Serial No." = FIELD("Serial No."),
                                                                               "Location Code" = FIELD("Location Filter"),
@@ -99,6 +99,9 @@ table 6504 "Serial No. Information"
 
     fieldgroups
     {
+        fieldgroup(Dropdown; "Item No.", "Variant Code", "Serial No.")
+        {
+        }
     }
 
     trigger OnDelete()

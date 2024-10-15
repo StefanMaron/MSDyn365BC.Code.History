@@ -14,7 +14,7 @@ table 700 "Error Message"
         field(2; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -60,7 +60,7 @@ table 700 "Error Message"
         field(10; "Context Record ID"; RecordID)
         {
             Caption = 'Context Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin
@@ -125,6 +125,11 @@ table 700 "Error Message"
         field(20; Duplicate; Boolean)
         {
             Caption = 'Duplicate';
+            DataClassification = SystemMetadata;
+        }
+        field(21; "Error Call Stack"; BLOB)
+        {
+            Caption = 'Error Call Stack';
             DataClassification = SystemMetadata;
         }
     }
@@ -325,6 +330,11 @@ table 700 "Error Message"
     end;
 
     procedure LogSimpleMessage(MessageType: Option; NewDescription: Text): Integer
+    begin
+        exit(LogSimpleMessage(MessageType, NewDescription, ''));
+    end;
+
+    procedure LogSimpleMessage(MessageType: Option; NewDescription: Text; ErrorCallStack: Text): Integer
     var
         IsHandled: Boolean;
     begin
@@ -335,7 +345,7 @@ table 700 "Error Message"
 
         AssertRecordTemporaryOrInContext;
 
-        ID := FindLastMessageID + 1;
+        ID := FindLastMessageID() + 1;
 
         Init;
         Validate("Message Type", MessageType);
@@ -343,6 +353,11 @@ table 700 "Error Message"
         Validate("Context Record ID", ContextErrorMessage."Context Record ID");
         Validate("Context Field Number", ContextErrorMessage."Context Field Number");
         Validate("Additional Information", ContextErrorMessage."Additional Information");
+        if ErrorCallStack <> '' then
+            SetErrorCallStack(ErrorCallStack)
+        else
+            if "Message Type" = "Message Type"::Error then
+                SetErrorCallStack(ErrorMessageMgt.GetCurrCallStack());
         Insert(true);
 
         exit(ID);
@@ -394,9 +409,23 @@ table 700 "Error Message"
 
     procedure LogLastError()
     begin
+        LogLastError(true);
+    end;
+
+    internal procedure LogLastError(ClearError: Boolean)
+    begin
         if (GetLastErrorCode <> '') and (GetLastErrorText <> '') then begin
-            LogSimpleMessage("Message Type"::Error, GetLastErrorText);
-            ClearLastError;
+            if ErrorMessageMgt.GetLastContext(Rec) then begin
+                ID := FindLastMessageID() + 1;
+                Validate("Message Type", "Message Type"::Error);
+                Validate(Description, CopyStr(GetLastErrorText(), 1, MaxStrLen(Description)));
+                SetErrorCallStack(GetLastErrorCallStack());
+                Insert(true);
+            end else
+                LogSimpleMessage("Message Type"::Error, GetLastErrorText, GetLastErrorCallStack());
+
+            if ClearError then
+                ClearLastError();
         end;
     end;
 
@@ -533,7 +562,6 @@ table 700 "Error Message"
         if IsEmpty() then
             Error(GetLastErrorText);
 
-        SetRange(Context, false);
         if GuiAllowed then begin
             ErrorMessages.SetRecords(Rec);
             ErrorMessages.Run;
@@ -721,6 +749,35 @@ table 700 "Error Message"
     begin
         DataTypeManagement.GetRecordRef(RecordVariant, RecordRef);
         SetRange("Record ID", RecordRef.RecordId);
+    end;
+
+    procedure GetErrorCallStack(): Text
+    var
+        TypeHelper: Codeunit "Type Helper";
+        InStream: InStream;
+    begin
+        if not "Error Call Stack".HasValue() then
+            exit('');
+        CalcFields("Error Call Stack");
+        "Error Call Stack".CreateInStream(InStream, TEXTENCODING::Windows);
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+    end;
+
+    procedure SetErrorCallStack(NewCallStack: Text)
+    var
+        OutStream: OutStream;
+    begin
+        "Error Call Stack".CreateOutStream(OutStream, TEXTENCODING::Windows);
+        OutStream.Write(NewCallStack);
+    end;
+
+    procedure ShowErrorCallStack()
+    var
+        CallStack: Text;
+    begin
+        CallStack := GetErrorCallStack();
+        if CallStack <> '' then
+            Message(CallStack);
     end;
 
     [IntegrationEvent(false, false)]

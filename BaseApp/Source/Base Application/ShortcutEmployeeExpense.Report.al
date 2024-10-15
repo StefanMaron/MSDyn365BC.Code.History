@@ -6,14 +6,9 @@ report 1187 "Shortcut Employee Expense"
     Caption = 'Employee Expense';
     UsageCategory = Tasks;
     UseRequestPage = false;
-#if not CLEAN18
     ObsoleteState = Pending;
     ObsoleteTag = '18.0';
     ObsoleteReason = 'This report will be deprecated the search word will be added to page Employee Ledger Entries';
-#else
-    ObsoleteState = Removed;
-    ObsoleteTag = '21.0';
-#endif
 
     dataset
     {

@@ -1781,7 +1781,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         BankAccRecon.Modify();
     end;
 
-    local procedure FilterPmtDiscToleranceDtldCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryType: Option; DocNo: Code[20]; CustomerNo: Code[20])
+    local procedure FilterPmtDiscToleranceDtldCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocNo: Code[20]; CustomerNo: Code[20])
     begin
         DetailedCustLedgEntry.SetRange("Entry Type", EntryType);
         DetailedCustLedgEntry.SetRange("Document Type", DetailedCustLedgEntry."Document Type"::Payment);
@@ -1789,7 +1789,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         DetailedCustLedgEntry.SetRange("Customer No.", CustomerNo);
     end;
 
-    local procedure FilterPmtDiscToleranceDtldVendLedgEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryType: Option; DocNo: Code[20]; VendorNo: Code[20])
+    local procedure FilterPmtDiscToleranceDtldVendLedgEntry(var DetailedVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryType: Enum "Detailed CV Ledger Entry Type"; DocNo: Code[20]; VendorNo: Code[20])
     begin
         DetailedVendLedgEntry.SetRange("Entry Type", EntryType);
         DetailedVendLedgEntry.SetRange("Document Type", DetailedVendLedgEntry."Document Type"::Payment);

@@ -2,6 +2,7 @@ page 740 "VAT Report"
 {
     Caption = 'VAT Report';
     PageType = Document;
+    PromotedActionCategories = 'New,Process,Report,VAT Settlement';
     SourceTable = "VAT Report Header";
     SourceTableView = WHERE("VAT Report Config. Code" = CONST(VIES));
 

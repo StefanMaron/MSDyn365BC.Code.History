@@ -23,6 +23,7 @@
             Editable = true;
             OptionCaption = ' ,VIES';
             OptionMembers = " ",VIES;
+            TableRelation = "VAT Reports Configuration"."VAT Report Type";
 
             trigger OnValidate()
             begin

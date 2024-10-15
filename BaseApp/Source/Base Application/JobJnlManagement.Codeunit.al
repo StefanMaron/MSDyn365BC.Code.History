@@ -81,6 +81,8 @@ codeunit 1020 JobJnlManagement
 
     procedure OpenJnl(var CurrentJnlBatchName: Code[10]; var JobJnlLine: Record "Job Journal Line")
     begin
+        OnBeforeOpenJnl(CurrentJnlBatchName, JobJnlLine);
+
         CheckTemplateName(JobJnlLine.GetRangeMax("Journal Template Name"), CurrentJnlBatchName);
         JobJnlLine.FilterGroup := 2;
         JobJnlLine.SetRange("Journal Batch Name", CurrentJnlBatchName);
@@ -237,6 +239,11 @@ codeunit 1020 JobJnlManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnLookupNameOnAfterSetFilters(var JobJournalBatch: Record "Job Journal Batch")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenJnl(var CurrentJnlBatchName: Code[10]; var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 }

@@ -90,9 +90,6 @@ codeunit 6704 "Booking Customer Sync."
         ContactBusinessRelation: Record "Contact Business Relation";
         ExchangeSync: Record "Exchange Sync";
         Contact: Record Contact;
-#if not CLEAN18
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-#endif
     begin
         ExchangeSync.Get(UserId);
 
@@ -115,12 +112,7 @@ codeunit 6704 "Booking Customer Sync."
                     Contact.TypeChange;
                     Contact.Modify(true);
                     Contact.SetHideValidationDialog(true);
-#if not CLEAN18
-                    if not CustomerTemplMgt.IsEnabled() then
-                        Contact.CreateCustomer(BookingSync."Customer Template Code")
-                    else
-#endif
-                        Contact.CreateCustomerFromTemplate(BookingSync."Customer Templ. Code");
+                    Contact.CreateCustomerFromTemplate(BookingSync."Customer Templ. Code");
                 end;
 
             until (LocalContact.Next() = 0)

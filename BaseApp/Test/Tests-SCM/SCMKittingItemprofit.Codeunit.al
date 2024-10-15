@@ -332,7 +332,7 @@ codeunit 137312 "SCM Kitting - Item profit"
             Item.Validate("Unit Cost", UnitCost);
             Item.Modify(true);
             AddComponentToAssemblyList(
-              BOMComponent, BOMComponent.Type::Item, Item."No.", ParentItem."No.", '',
+              BOMComponent, "BOM Component Type"::Item, Item."No.", ParentItem."No.", '',
               BOMComponent."Resource Usage Type"::Direct, Item."Base Unit of Measure", QtyPer);
         end;
 
@@ -350,7 +350,7 @@ codeunit 137312 "SCM Kitting - Item profit"
               BOMComponent."Resource Usage Type"::Direct, '', QtyPer);
     end;
 
-    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Option; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
+    local procedure AddComponentToAssemblyList(var BOMComponent: Record "BOM Component"; ComponentType: Enum "BOM Component Type"; ComponentNo: Code[20]; ParentItemNo: Code[20]; VariantCode: Code[10]; ResourceUsage: Option; UOM: Code[10]; QuantityPer: Decimal)
     begin
         LibraryManufacturing.CreateBOMComponent(BOMComponent, ParentItemNo, ComponentType, ComponentNo, QuantityPer, UOM);
         if ComponentType = BOMComponent.Type::Resource then

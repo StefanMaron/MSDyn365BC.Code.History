@@ -14,6 +14,7 @@ codeunit 136403 "Resource Journal"
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryPriceCalculation: Codeunit "Library - Price Calculation";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryResource: Codeunit "Library - Resource";
@@ -224,8 +225,12 @@ codeunit 136403 "Resource Journal"
         PriceListLine: Record "Price List Line";
         Resource: Record Resource;
         ResJournalTemplate: Record "Res. Journal Template";
+#if not CLEAN19
         ResourcePrice: Record "Resource Price";
         ResourcePrice2: Record "Resource Price";
+#else
+        PriceListLine2: Record "Price List Line";
+#endif
         ResJournalBatch: Record "Res. Journal Batch";
         WorkType: Record "Work Type";
         ResourceJournal: TestPage "Resource Journal";
@@ -241,9 +246,21 @@ codeunit 136403 "Resource Journal"
 
         Resource.Get(CreateResource);
         LibraryResource.CreateWorkType(WorkType);
+#if not CLEAN19
         CreateResourcePrice(ResourcePrice, ResourcePrice.Type::Resource, Resource."No.", '', '');
         CreateResourcePrice(ResourcePrice2, ResourcePrice.Type::Resource, Resource."No.", WorkType.Code, '');
         CopyFromToPriceListLine.CopyFrom(ResourcePrice, PriceListLine);
+#else
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine, '', "Price Source Type"::"All Jobs", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine.Status := PriceListLine2.Status::Active;
+        PriceListLine.Modify(true);
+        LibraryPriceCalculation.CreateSalesPriceLine(
+            PriceListLine2, '', "Price Source Type"::"All Jobs", '', "Price Asset Type"::Resource, Resource."No.");
+        PriceListLine2.Validate("Work Type Code", WorkType.Code);
+        PriceListLine2.Status := PriceListLine2.Status::Active;
+        PriceListLine2.Modify(true);
+#endif
 
         // 2. Exercise: Create Resource Journal Lines without and with Work Type with same Document No.
         ResourceJournal.OpenEdit;
@@ -253,10 +270,16 @@ codeunit 136403 "Resource Journal"
         ResourceJournal.OK.Invoke;
 
         // 3. Verify: Check Unit Price of Resource Journal Lines.
+#if not CLEAN19
         VerifyResourceJournalLineUnitPrice(Resource."No.", '', ResourcePrice."Unit Price", ResJournalBatch.Name);
         VerifyResourceJournalLineUnitPrice(Resource."No.", WorkType.Code, ResourcePrice2."Unit Price", ResJournalBatch.Name);
+#else
+        VerifyResourceJournalLineUnitPrice(Resource."No.", '', PriceListLine."Unit Price", ResJournalBatch.Name);
+        VerifyResourceJournalLineUnitPrice(Resource."No.", WorkType.Code, PriceListLine2."Unit Price", ResJournalBatch.Name);
+#endif
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -306,6 +329,7 @@ codeunit 136403 "Resource Journal"
         VerifyResourcePrice(Resource."No.", '', UnitPrice);
         VerifyResourcePrice(Resource."No.", WorkType.Code, UnitPrice2);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('MessageHandler,ConfirmHandlerTrue')]
@@ -443,12 +467,14 @@ codeunit 136403 "Resource Journal"
         exit(LibraryResource.CreateResourceNo);
     end;
 
+#if not CLEAN19
     local procedure CreateResourcePrice(var ResourcePrice: Record "Resource Price"; Type: Option; ResourceNo: Code[20]; WorkTypeCode: Code[10]; CurrencyCode: Code[10])
     begin
         LibraryResource.CreateResourcePrice(ResourcePrice, Type, ResourceNo, WorkTypeCode, CurrencyCode);
         ResourcePrice.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         ResourcePrice.Modify(true);
     end;
+#endif
 
     local procedure CreateRecurringJournalTemplate(): Code[10]
     var
@@ -517,6 +543,7 @@ codeunit 136403 "Resource Journal"
         exit(UnitOfMeasure.Code);
     end;
 
+#if not CLEAN19
     local procedure GetResourcePrice(ResourceNo: Code[20]; WorkTypeCode: Code[10]): Decimal
     var
         ResourcePriceChange: Record "Resource Price Change";
@@ -526,6 +553,7 @@ codeunit 136403 "Resource Journal"
         ResourcePriceChange.FindFirst;
         exit(ResourcePriceChange."New Unit Price");
     end;
+#endif
 
     local procedure InsertValuesOnResourceCard(Resource: Record Resource)
     var
@@ -579,6 +607,7 @@ codeunit 136403 "Resource Journal"
         LibraryResource.FindResJournalBatch(ResJournalBatch, ResJournalTemplate.Name);
     end;
 
+#if not CLEAN19
     local procedure RunImplementResPriceChangeBatchJob(ResourceNo: Code[20])
     var
         ResourcePriceChange: Record "Resource Price Change";
@@ -620,6 +649,7 @@ codeunit 136403 "Resource Journal"
         SuggestResPriceChgPrice.UseRequestPage(false);
         SuggestResPriceChgPrice.Run;
     end;
+#endif
 
     local procedure UpdateDescriptionOnResourceJournalLine(ResJournalLine: Record "Res. Journal Line"; Description: Text[50])
     begin
@@ -668,6 +698,7 @@ codeunit 136403 "Resource Journal"
         ResLedgerEntry.TestField("Direct Unit Cost", ResJournalLine."Direct Unit Cost");
     end;
 
+#if not CLEAN19
     local procedure VerifyResourcePrice(ResourceNo: Code[20]; WorkTypeCode: Code[10]; UnitPrice: Decimal)
     var
         ResourcePrice: Record "Resource Price";
@@ -678,6 +709,7 @@ codeunit 136403 "Resource Journal"
         ResourcePrice.FindFirst;
         Assert.AreEqual(UnitPrice, ResourcePrice."Unit Price", UnitPriceError);
     end;
+#endif
 
     local procedure VerifyRecurringJournalLine(TempResJournalLine: Record "Res. Journal Line" temporary)
     var

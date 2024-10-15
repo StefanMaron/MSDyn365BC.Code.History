@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5441 "Automation Extensions Entity"
 {
     APIGroup = 'automation';
@@ -19,7 +20,7 @@ page 5441 "Automation Extensions Entity"
     ObsoleteState = Pending;
     ObsoleteReason = 'API version beta will be deprecated.';
     ObsoleteTag = '18.0';
-                            
+
 
     layout
     {
@@ -56,15 +57,6 @@ page 5441 "Automation Extensions Entity"
                 {
                     ApplicationArea = All;
                     Caption = 'versionMinor', Locked = true;
-                }
-                field(scope; GetExtensionScope())
-                {
-                    ApplicationArea = All;
-                    Caption = 'scope', Locked = true;
-                    Editable = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'The scope of the extension has been replaced by the publishedAs property.';
-                    ObsoleteTag = '16.0';
                 }
                 field(isInstalled; Isinstalled)
                 {
@@ -144,13 +136,5 @@ page 5441 "Automation Extensions Entity"
         ODataActionManagement.AddKey(FieldNo("Package ID"), "Package ID");
         ODataActionManagement.SetUpdatedPageResponse(ActionContext, PAGE::"Automation Extensions Entity");
     end;
-
-    local procedure GetExtensionScope(): Integer
-    begin
-        if (Rec."Published As" = Rec."Published As"::Global) then
-            exit(0)
-        else
-            exit(1);
-    end;
 }
-
+#endif

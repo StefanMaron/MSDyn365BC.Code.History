@@ -262,8 +262,10 @@ table 11021 "Sales VAT Advance Notif."
         MustSpecStartingDateErr: Label 'You must specify a beginning of a month as starting date of the statement period.';
         StartingDateErr: Label 'The starting date is not the first date of a quarter.';
         DeleteXMLFileQst: Label 'Do you want to delete the XML-File for the %1?';
+#if not CLEAN17
         FilePathNotExistErr: Label 'The file or path %1 does not exist.';
         FileExistsMsg: Label 'File already exists. Overwrite?';
+#endif
         CreateXMLBeforeShowErr: Label 'You must create the XML-File before it can be shown.';
         CannotChangeXMLFileErr: Label 'You cannot change the value of this field anymore after the XML-File for the %1 has been created.';
         XmlFilterTxt: Label 'XML File(*.xml)|*.xml', Locked = true;

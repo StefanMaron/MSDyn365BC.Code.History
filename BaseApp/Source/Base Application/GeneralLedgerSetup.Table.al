@@ -579,6 +579,11 @@
             Caption = 'Tax Invoice Renaming Threshold';
             DataClassification = SystemMetadata;
         }
+        field(130; "Req.Country/Reg. Code in Addr."; Boolean)
+        {
+            Caption = 'Require Country/Region Code in Address';
+            DataClassification = SystemMetadata;
+        }
         field(150; "Print VAT specification in LCY"; Boolean)
         {
             Caption = 'Print VAT specification in LCY';
@@ -652,6 +657,10 @@
             Caption = 'Show Amounts';
             OptionCaption = 'Amount Only,Debit/Credit Only,All Amounts';
             OptionMembers = "Amount Only","Debit/Credit Only","All Amounts";
+        }
+        field(169; "Posting Preview Type"; Enum "Posting Preview Type")
+        {
+            Caption = 'Posting Preview Type';
         }
         field(170; "SEPA Non-Euro Export"; Boolean)
         {

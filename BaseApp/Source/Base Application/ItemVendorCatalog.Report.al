@@ -62,6 +62,7 @@ report 720 "Item/Vendor Catalog"
             column(ExtendedPriceFeatureEnabled; ExtendedPriceEnabled)
             {
             }
+#if not CLEAN19
             dataitem("Purchase Price"; "Purchase Price")
             {
                 DataItemLink = "Item No." = FIELD("No.");
@@ -101,6 +102,7 @@ report 720 "Item/Vendor Catalog"
                     InitGlobals("Vendor No.", "Item No.", "Variant Code");
                 end;
             }
+#endif
             dataitem(PriceListLine; "Price List Line")
             {
                 DataItemLink = "Asset No." = FIELD("No.");

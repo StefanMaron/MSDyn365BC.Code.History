@@ -35,6 +35,7 @@ codeunit 7313 "Create Put-away"
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
         PutAwayItemUOM: Record "Item Unit of Measure";
+        BasePutAwayItemUOM: Record "Item Unit of Measure";
         WMSMgt: Codeunit "WMS Management";
         UOMMgt: Codeunit "Unit of Measure Management";
         BinTypeFilter: Text[250];
@@ -206,7 +207,7 @@ codeunit 7313 "Create Put-away"
                         BreakPackage := true;
                 end;
                 CreateNewWhseActivity(
-                  PostedWhseRcptLine, WhseActivLine, 1, TakeLineNo, 0, QtyToPickBase, false, BreakPackage, false, Breakbulk);
+                  PostedWhseRcptLine, WhseActivLine, "Warehouse Action Type"::Take, TakeLineNo, 0, QtyToPickBase, false, BreakPackage, false, Breakbulk);
 
                 OnCodeOnAfterCreateNewWhseActivity(WhseActivLine);
 
@@ -228,11 +229,11 @@ codeunit 7313 "Create Put-away"
             LineNo := LineNo + 10000;
             BreakbulkNo := BreakbulkNo + 1;
             CreateNewWhseActivity(
-              PostedWhseReceiptLine, TempWhseActivLine, 1, LineNo,
+              PostedWhseReceiptLine, TempWhseActivLine, "Warehouse Action Type"::Take, LineNo,
               BreakbulkNo, "Qty. (Base)", false, true, false, false);
             LineNo := LineNo + 10000;
             CreateNewWhseActivity(
-              PostedWhseReceiptLine, TempWhseActivLine, 2, LineNo,
+              PostedWhseReceiptLine, TempWhseActivLine, "Warehouse Action Type"::Place, LineNo,
               BreakbulkNo, RemQtyToPutAwayBase, false, false, false, true);
         end;
     end;
@@ -256,13 +257,13 @@ codeunit 7313 "Create Put-away"
         end
     end;
 
-    local procedure CreateNewWhseActivity(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var WhseActivLine: Record "Warehouse Activity Line"; ActionType: Option ,Take,Place; LineNo: Integer; BreakbulkNo: Integer; QtyToHandleBase: Decimal; InsertHeader: Boolean; BreakPackage: Boolean; EmptyZoneBin: Boolean; Breakbulk: Boolean)
+    local procedure CreateNewWhseActivity(PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var WhseActivLine: Record "Warehouse Activity Line"; ActionType: Enum "Warehouse Action Type"; LineNo: Integer; BreakbulkNo: Integer; QtyToHandleBase: Decimal; InsertHeader: Boolean; BreakPackage: Boolean; EmptyZoneBin: Boolean; Breakbulk: Boolean)
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
         OnBeforeCreateNewWhseActivity(
-          PostedWhseRcptLine, WhseActivLine, WhseActivHeader, Location, InsertHeader, Bin, ActionType, LineNo,
+          PostedWhseRcptLine, WhseActivLine, WhseActivHeader, Location, InsertHeader, Bin, ActionType.AsInteger(), LineNo,
           BreakbulkNo, BreakbulkFilter, QtyToHandleBase, BreakPackage, EmptyZoneBin, Breakbulk, CrossDockInfo, PutAwayItemUOM,
           DoNotFillQtytoHandle, IsHandled);
         if IsHandled then
@@ -326,17 +327,21 @@ codeunit 7313 "Create Put-away"
             WhseActivLine.Description := Description;
             WhseActivLine."Description 2" := "Description 2";
             WhseActivLine."Cross-Dock Information" := CrossDockInfo;
-            if BreakPackage or (ActionType = 0) or
+            if BreakPackage or (ActionType = ActionType::" ") or
                not Location."Directed Put-away and Pick"
             then begin
                 WhseActivLine."Unit of Measure Code" := "Unit of Measure Code";
                 WhseActivLine."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
+                WhseActivLine."Qty. Rounding Precision" := "Qty. Rounding Precision";
+                WhseActivLine."Qty. Rounding Precision (Base)" := "Qty. Rounding Precision (Base)";
             end else begin
                 WhseActivLine."Unit of Measure Code" := PutAwayItemUOM.Code;
                 WhseActivLine."Qty. per Unit of Measure" := PutAwayItemUOM."Qty. per Unit of Measure";
+                WhseActivLine."Qty. Rounding Precision" := PutAwayItemUOM."Qty. Rounding Precision";
+                WhseActivLine."Qty. Rounding Precision (Base)" := BasePutAwayItemUOM."Qty. Rounding Precision";
             end;
             WhseActivLine.Validate(
-              Quantity, Round(QtyToHandleBase / WhseActivLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+              Quantity, UOMMgt.RoundQty(QtyToHandleBase / WhseActivLine."Qty. per Unit of Measure", WhseActivLine."Qty. Rounding Precision"));
             if QtyToHandleBase <> 0 then begin
                 WhseActivLine."Qty. (Base)" := QtyToHandleBase;
                 WhseActivLine."Qty. to Handle (Base)" := QtyToHandleBase;
@@ -349,7 +354,8 @@ codeunit 7313 "Create Put-away"
                 WhseActivLine.Weight := 0;
             end;
             if "Serial No." <> '' then
-                WhseActivLine.TestField("Qty. per Unit of Measure", 1);
+                WhseActivLine.ValidateQtyWhenSNDefined();
+
             WhseActivLine.CopyTrackingFromPostedWhseRcptLine(PostedWhseRcptLine);
             WhseActivLine."Warranty Date" := "Warranty Date";
             WhseActivLine."Expiration Date" := "Expiration Date";
@@ -485,7 +491,7 @@ codeunit 7313 "Create Put-away"
 
     local procedure CalcQtyToPutAway(EmptyZoneBin: Boolean; NewBinContent: Boolean)
     var
-        ActionType: Option ,Take,Place;
+        ActionType: Enum "Warehouse Action Type";
     begin
         if Location."Bin Mandatory" then begin
             ActionType := ActionType::Place;
@@ -656,6 +662,8 @@ codeunit 7313 "Create Put-away"
         if not Location."Directed Put-away and Pick" then begin
             PutAwayItemUOM.Code := PostedWhseRcptLine."Unit of Measure Code";
             PutAwayItemUOM."Qty. per Unit of Measure" := PostedWhseRcptLine."Qty. per Unit of Measure";
+            PutAwayItemUOM."Qty. Rounding Precision" := PostedWhseRcptLine."Qty. Rounding Precision";
+            BasePutAwayItemUOM."Qty. Rounding Precision" := PostedWhseRcptLine."Qty. Rounding Precision (Base)";
             exit;
         end;
         if (PutAwayItemUOM."Item No." <> '') and (PutAwayItemUOM.Code <> '') and
@@ -676,7 +684,9 @@ codeunit 7313 "Create Put-away"
                (Item."Put-away Unit of Measure Code" <> PutAwayItemUOM.Code)
             then
                 if not PutAwayItemUOM.Get(Item."No.", Item."Put-away Unit of Measure Code") then
-                    PutAwayItemUOM.Get(Item."No.", PostedWhseRcptLine."Unit of Measure Code")
+                    PutAwayItemUOM.Get(Item."No.", PostedWhseRcptLine."Unit of Measure Code");
+
+        BasePutAwayItemUOM.Get(Item."No.", Item."Base Unit of Measure");
     end;
 
     local procedure GetPutAwayTemplate()
@@ -880,7 +890,7 @@ codeunit 7313 "Create Put-away"
         WarehouseActivityLine.SetRange("Action Type", WarehouseActivityLine."Action Type"::Place);
         if WarehouseActivityLine.FindSet then
             repeat
-                WarehouseActivityLine.DeleteBinContent(WarehouseActivityLine."Action Type"::Place);
+                WarehouseActivityLine.DeleteBinContent(WarehouseActivityLine."Action Type"::Place.AsInteger());
             until WarehouseActivityLine.Next() = 0;
     end;
 

@@ -55,7 +55,7 @@ page 5373 "CRM Synch. Job Queue"
     trigger OnOpenPage()
     begin
         SetRange(Status, Status::Error);
-        SetFilter("Object ID to Run", '%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner");
+        SetFilter("Object ID to Run", '%1|%2|%3', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner", Codeunit::"Int. Coupling Job Runner");
     end;
 
     var

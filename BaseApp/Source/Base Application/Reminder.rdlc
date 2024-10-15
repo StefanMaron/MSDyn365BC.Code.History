@@ -5034,7 +5034,6 @@ Cstr(Fields!PageCaption.Value)
                                               <PaddingRight>5pt</PaddingRight>
                                             </Style>
                                           </Textbox>
-                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                     </TablixCells>
@@ -5050,6 +5049,9 @@ Cstr(Fields!PageCaption.Value)
                                 <TablixMembers>
                                   <TablixMember>
                                     <Group Name="Details1" />
+                                    <Visibility>
+                                      <Hidden>=iif(Fields!Type_IssuedReminderLine.Value = "0",FALSE,TRUE)</Hidden>
+                                    </Visibility>
                                   </TablixMember>
                                 </TablixMembers>
                               </TablixRowHierarchy>

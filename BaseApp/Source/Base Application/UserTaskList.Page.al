@@ -20,64 +20,64 @@ page 1170 "User Task List"
         {
             repeater(Group)
             {
-                field(Title; Title)
+                field(Title; Rec.Title)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the title of the task.';
                 }
-                field("Due DateTime"; "Due DateTime")
+                field("Due DateTime"; Rec."Due DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies when the task must be completed.';
                 }
-                field(Priority; Priority)
+                field(Priority; Rec.Priority)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the priority of the task.';
                 }
-                field("Percent Complete"; "Percent Complete")
+                field("Percent Complete"; Rec."Percent Complete")
                 {
                     ApplicationArea = Basic, Suite;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies the progress of the task.';
                 }
-                field("Assigned To User Name"; "Assigned To User Name")
+                field("Assigned To User Name"; Rec."Assigned To User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies who the task is assigned to.';
                 }
-                field("User Task Group Assigned To"; "User Task Group Assigned To")
+                field("User Task Group Assigned To"; Rec."User Task Group Assigned To")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'User Task Group';
                     ToolTip = 'Specifies the group if the task has been assigned to a group of people.';
                 }
-                field("Created DateTime"; "Created DateTime")
+                field("Created DateTime"; Rec."Created DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the task was created.';
                     Visible = false;
                 }
-                field("Completed DateTime"; "Completed DateTime")
+                field("Completed DateTime"; Rec."Completed DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the task was completed.';
                     Visible = false;
                 }
-                field("Start DateTime"; "Start DateTime")
+                field("Start DateTime"; Rec."Start DateTime")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the task must start.';
                     Visible = false;
                 }
-                field("Created By User Name"; "Created By User Name")
+                field("Created By User Name"; Rec."Created By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies who created the task.';
                     Visible = false;
                 }
-                field("Completed By User Name"; "Completed By User Name")
+                field("Completed By User Name"; Rec."Completed By User Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies who completed the task.';
@@ -136,7 +136,7 @@ page 1170 "User Task List"
 
                 trigger OnAction()
                 begin
-                    RunReportOrPageLink;
+                    Rec.RunReportOrPageLink();
                 end;
             }
         }
@@ -155,19 +155,19 @@ page 1170 "User Task List"
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := Rec.SetStyle();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        FilterUserTasks;
-        exit(Find(Which));
+        FilterUserTasks();
+        exit(Rec.Find(Which));
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        FilterUserTasks;
-        exit(Next(Steps));
+        FilterUserTasks();
+        exit(Rec.Next(Steps));
     end;
 
     trigger OnOpenPage()
@@ -184,23 +184,11 @@ page 1170 "User Task List"
         StyleTxt: Text;
         IsShowingMyPendingTasks: Boolean;
 
-    local procedure RunReportOrPageLink()
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        if ("Object Type" = 0) or ("Object ID" = 0) then
-            exit;
-        if "Object Type" = AllObjWithCaption."Object Type"::Page then
-            PAGE.Run("Object ID")
-        else
-            REPORT.Run("Object ID");
-    end;
-
     [ServiceEnabled]
     procedure SetComplete()
     begin
-        SetCompleted;
-        Modify;
+        Rec.SetCompleted();
+        Rec.Modify();
     end;
 
     local procedure FilterUserTasks()

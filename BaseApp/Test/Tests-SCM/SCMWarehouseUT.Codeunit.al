@@ -989,7 +989,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with WarehouseActivityLine do begin
             MockWhseActivityLine(
               WarehouseActivityLine, "Activity Type"::"Put-away", "Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
-            DeleteBinContent("Action Type"::Place);
+            DeleteBinContent("Action Type"::Place.AsInteger());
         end;
 
         BinContent.SetRecFilter;
@@ -1017,7 +1017,7 @@ codeunit 137831 "SCM - Warehouse UT"
         with WarehouseActivityLine do begin
             MockWhseActivityLine(
               WarehouseActivityLine, "Activity Type"::"Put-away", "Action Type"::Place, LocationCode, BinCode, BinContent."Item No.");
-            DeleteBinContent("Action Type"::Place);
+            DeleteBinContent("Action Type"::Place.AsInteger());
         end;
 
         BinContent.SetRecFilter;
@@ -1363,6 +1363,7 @@ codeunit 137831 "SCM - Warehouse UT"
             "Item No." := CreateItemWithSNWhseTracking;
             "Serial No." := LibraryUtility.GenerateGUID;
             "Variant Code" := LibraryUtility.GenerateGUID;
+            "Qty. (Base)" := LibraryRandom.RandInt(10);
             Insert;
         end;
 
@@ -1753,16 +1754,20 @@ codeunit 137831 "SCM - Warehouse UT"
 
     local procedure CreateWarehousePickFromShipment(WarehouseShipmentLine: Record "Warehouse Shipment Line") WhsePickNo: Code[20]
     var
+        CreatePickParameters: Record "Create Pick Parameters";
         WhseWkshLine: Record "Whse. Worksheet Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         CreatePick: Codeunit "Create Pick";
         FirstWhseDocNo: Code[20];
     begin
         with WarehouseShipmentLine do begin
-            ItemTrackingMgt.InitItemTrkgForTempWkshLine(
+            ItemTrackingMgt.InitItemTrackingForTempWhseWorksheetLine(
               WhseWkshLine."Whse. Document Type"::Shipment, "No.", "Line No.",
               "Source Type", "Source Subtype", "Source No.", "Source Line No.", 0);
-            CreatePick.SetValues('', 1, "Whse. Activity Sorting Method"::None, 1, 0, 0, false, false, false, false);
+
+            CreatePickParameters."Whse. Document" := CreatePickParameters."Whse. Document"::Shipment;
+            CreatePickParameters."Whse. Document Type" := CreatePickParameters."Whse. Document Type"::Pick;
+            CreatePick.SetParameters(CreatePickParameters);
             CreatePick.SetWhseShipment(WarehouseShipmentLine, 1, '', '', '');
             CreatePick.SetTempWhseItemTrkgLine("No.", DATABASE::"Warehouse Shipment Line", '', 0, "Line No.", "Location Code");
             CreatePick.CreateTempLine("Location Code", "Item No.", '', '', '', "Bin Code", 1, Quantity, "Qty. (Base)");
@@ -1856,7 +1861,7 @@ codeunit 137831 "SCM - Warehouse UT"
         end;
     end;
 
-    local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; ActionType: Option; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
+    local procedure MockWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActionType: Enum "Warehouse Action Type"; LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20])
     begin
         with WarehouseActivityLine do begin
             Init;
@@ -1945,7 +1950,7 @@ codeunit 137831 "SCM - Warehouse UT"
         exit(WarehouseShipmentLine."Bin Code")
     end;
 
-    local procedure MockWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Option; WhseDocNo: Code[20]; BinCode: Code[20]; Qty: Decimal)
+    local procedure MockWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; SourceType: Integer; SourceNo: Code[20]; WhseDocType: Enum "Warehouse Journal Document Type"; WhseDocNo: Code[20]; BinCode: Code[20]; Qty: Decimal)
     begin
         with WarehouseEntry do begin
             Init;

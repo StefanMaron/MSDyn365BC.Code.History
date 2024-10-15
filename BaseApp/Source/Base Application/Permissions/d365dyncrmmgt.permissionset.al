@@ -55,7 +55,10 @@ permissionset 617 "D365 DYN CRM MGT"
                   tabledata "CRM Transactioncurrency" = RIMD,
                   tabledata "CRM Uom" = RIMD,
                   tabledata "CRM Uomschedule" = RIMD,
+                  tabledata "Customer Templ." = Rimd,
+#if not CLEAN18
                   tabledata "Customer Template" = Rimd,
+#endif
                   tabledata "Integration Field Mapping" = RIMD,
                   tabledata "Integration Synch. Job" = RIMD,
                   tabledata "Integration Synch. Job Errors" = RIMD,
