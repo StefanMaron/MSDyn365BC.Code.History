@@ -1,4 +1,4 @@
-codeunit 5836 "Cost Calculation Management"
+﻿codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,
@@ -283,6 +283,7 @@ codeunit 5836 "Cost Calculation Management"
                         Clear(WorkCenter);
                     if WorkCenter."Subcontractor No." = '' then begin
                         ExpectedCapNeed += ProdOrderRtngLine."Expected Capacity Need";
+                        OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine, WorkCenter, ExpectedCapNeed);
                         ProdOrderRtngLine.Mark(true);
                     end;
                 until ProdOrderRtngLine.Next() = 0;
@@ -601,6 +602,7 @@ codeunit 5836 "Cost Calculation Management"
         RecFound := false;
         RoutingLine.SetRange("Routing No.", RoutingNo);
         RoutingLine.SetRange("Version Code", VersionMgt.GetRtngVersion(RoutingNo, CalculationDate, true));
+        OnFindRountingLineOnAfterRoutingLineSetFilters(RoutingLine, ProdBOMLine, CalculationDate, RoutingNo);
         if not RoutingLine.IsEmpty() then begin
             if ProdBOMLine."Routing Link Code" <> '' then
                 RoutingLine.SetRange("Routing Link Code", ProdBOMLine."Routing Link Code");
@@ -1338,6 +1340,16 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdOrderExpCapNeedOnAfterProdOrderCapNeedSetFilters(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ProdOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderExpCapNeedOnBeforeMarkNotFinishedProdOrderRtngLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; WorkCenter: Record "Work Center"; var ExpectedCapNeed: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindRountingLineOnAfterRoutingLineSetFilters(var RoutingLine: Record "Routing Line"; ProdBOMLine: Record "Production BOM Line"; CalculationDate: Date; RoutingNo: Code[20])
     begin
     end;
 }

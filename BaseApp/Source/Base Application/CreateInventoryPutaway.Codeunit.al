@@ -181,7 +181,6 @@ codeunit 7321 "Create Inventory Put-away"
         PurchLine: Record "Purchase Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
         with PurchLine do begin
@@ -203,10 +202,7 @@ codeunit 7321 "Create Inventory Put-away"
                         else
                             RemQtyToPutAway := -"Return Qty. to Ship";
 
-                        ItemTrackingMgt.GetWhseItemTrkgSetup("No.", WhseItemTrackingSetup);
-                        if WhseItemTrackingSetup.TrackingRequired() then
-                            ReservationFound :=
-                              FindReservationEntry(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", WhseItemTrackingSetup);
+                        FindReservationFromPurchaseLine(PurchLine, WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
@@ -235,14 +231,31 @@ codeunit 7321 "Create Inventory Put-away"
                             OnBeforeNewWhseActivLineInsertFromPurchase(NewWhseActivLine, PurchLine);
                             if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
-                                    NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
+                                    InsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next() = 0;
+        end;
+    end;
+
+    local procedure FindReservationFromPurchaseLine(var PurchLine: Record "Purchase Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindReservationFromPurchaseLine(PurchLine, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+        if IsHandled then
+            exit;
+
+        with PurchLine do begin
+            ItemTrackingMgt.GetWhseItemTrkgSetup("No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup.TrackingRequired() then
+                ReservationFound :=
+                  FindReservationEntry(DATABASE::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", WhseItemTrackingSetup);
         end;
     end;
 
@@ -270,7 +283,6 @@ codeunit 7321 "Create Inventory Put-away"
         SalesLine: Record "Sales Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
         with SalesLine do begin
@@ -292,10 +304,7 @@ codeunit 7321 "Create Inventory Put-away"
                         else
                             RemQtyToPutAway := "Return Qty. to Receive";
 
-                        ItemTrackingMgt.GetWhseItemTrkgSetup("No.", WhseItemTrackingSetup);
-                        if WhseItemTrackingSetup.TrackingRequired() then
-                            ReservationFound :=
-                              FindReservationEntry(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", WhseItemTrackingSetup);
+                        FindReservationFromSalesLine(SalesLine, WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
@@ -324,14 +333,31 @@ codeunit 7321 "Create Inventory Put-away"
                             OnBeforeNewWhseActivLineInsertFromSales(NewWhseActivLine, SalesLine);
                             if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
-                                    NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
+                                    InsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next() = 0;
+        end;
+    end;
+
+    local procedure FindReservationFromSalesLine(var SalesLine: Record "Sales Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindReservationFromSalesLine(SalesLine, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+        if IsHandled then
+            exit;
+
+        with SalesLine do begin
+            ItemTrackingMgt.GetWhseItemTrkgSetup("No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup.TrackingRequired() then
+                ReservationFound :=
+                  FindReservationEntry(DATABASE::"Sales Line", "Document Type".AsInteger(), "Document No.", "Line No.", WhseItemTrackingSetup);
         end;
     end;
 
@@ -359,7 +385,6 @@ codeunit 7321 "Create Inventory Put-away"
         TransferLine: Record "Transfer Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
         with TransferLine do begin
@@ -378,10 +403,7 @@ codeunit 7321 "Create Inventory Put-away"
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", 0, 0) then begin
                         RemQtyToPutAway := "Qty. to Receive";
 
-                        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
-                        if WhseItemTrackingSetup.TrackingRequired() then
-                            ReservationFound :=
-                              FindReservationEntry(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", WhseItemTrackingSetup);
+                        FindReservationFromTransferLine(TransferLine, WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
@@ -407,14 +429,31 @@ codeunit 7321 "Create Inventory Put-away"
                             OnBeforeNewWhseActivLineInsertFromTransfer(NewWhseActivLine, TransferLine);
                             if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
-                                    NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
+                                    InsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next() = 0;
+        end;
+    end;
+
+    local procedure FindReservationFromTransferLine(var TransferLine: Record "Transfer Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindReservationFromTransferLine(TransferLine, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+        if IsHandled then
+            exit;
+
+        with TransferLine do begin
+            ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup.TrackingRequired() then
+                ReservationFound :=
+                  FindReservationEntry(DATABASE::"Transfer Line", 1, "Document No.", "Line No.", WhseItemTrackingSetup);
         end;
     end;
 
@@ -436,7 +475,6 @@ codeunit 7321 "Create Inventory Put-away"
         ProdOrderLine: Record "Prod. Order Line";
         NewWhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
         with ProdOrderLine do begin
@@ -455,10 +493,7 @@ codeunit 7321 "Create Inventory Put-away"
                     if not NewWhseActivLine.ActivityExists(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", 0, 0) then begin
                         RemQtyToPutAway := "Remaining Quantity";
 
-                        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
-                        if WhseItemTrackingSetup.TrackingRequired() then
-                            ReservationFound :=
-                              FindReservationEntry(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", WhseItemTrackingSetup);
+                        FindReservationFromProdOrderLine(ProdOrderLine, WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
@@ -484,14 +519,31 @@ codeunit 7321 "Create Inventory Put-away"
                             OnBeforeNewWhseActivLineInsertFromProd(NewWhseActivLine, ProdOrderLine);
                             if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
-                                    NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
+                                    InsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next() = 0;
+        end;
+    end;
+
+    local procedure FindReservationFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindReservationFromProdOrderLine(ProdOrderLine, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ProdOrderLine do begin
+            ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup.TrackingRequired() then
+                ReservationFound :=
+                  FindReservationEntry(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", "Line No.", WhseItemTrackingSetup);
         end;
     end;
 
@@ -513,7 +565,6 @@ codeunit 7321 "Create Inventory Put-away"
         ProdOrderComp: Record "Prod. Order Component";
         NewWhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         IsHandled: Boolean;
     begin
         with ProdOrderComp do begin
@@ -535,10 +586,7 @@ codeunit 7321 "Create Inventory Put-away"
                     then begin
                         RemQtyToPutAway := -"Remaining Quantity";
 
-                        ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
-                        if WhseItemTrackingSetup.TrackingRequired() then
-                            ReservationFound :=
-                              FindReservationEntry(DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Line No.", WhseItemTrackingSetup);
+                        FindReservationFromProdOrderComponent(ProdOrderComp, WhseItemTrackingSetup);
 
                         repeat
                             NewWhseActivLine.Init();
@@ -563,14 +611,31 @@ codeunit 7321 "Create Inventory Put-away"
                             OnBeforeNewWhseActivLineInsertFromComp(NewWhseActivLine, ProdOrderComp);
                             if not ReservationFound and WhseItemTrackingSetup."Serial No. Required" then
                                 repeat
-                                    NewWhseActivLine."Line No." := NextLineNo;
-                                    InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
+                                    InsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup);
                                 until RemQtyToPutAway <= 0
                             else
                                 InsertWhseActivLine(NewWhseActivLine, RemQtyToPutAway, WhseItemTrackingSetup);
                         until RemQtyToPutAway <= 0;
                     end;
             until Next() = 0;
+        end;
+    end;
+
+    local procedure FindReservationFromProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; var WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFindReservationFromProdOrderComponent(ProdOrderComponent, WhseItemTrackingSetup, ItemTrackingMgt, ReservationFound, IsHandled);
+        if IsHandled then
+            exit;
+
+        with ProdOrderComponent do begin
+            ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+            if WhseItemTrackingSetup.TrackingRequired() then
+                ReservationFound :=
+                  FindReservationEntry(DATABASE::"Prod. Order Component", Status.AsInteger(), "Prod. Order No.", "Line No.", WhseItemTrackingSetup);
         end;
     end;
 
@@ -619,6 +684,19 @@ codeunit 7321 "Create Inventory Put-away"
                 if ItemTrackMgt.SumUpItemTracking(ReservEntry, TempTrackingSpecification, true, true) then
                     exit(true);
         end;
+    end;
+
+    local procedure InsertSNWhseActivLine(var NewWhseActivLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertSNWhseActivLine(NewWhseActivLine, WhseItemTrackingSetup, NextLineNo, ReservationFound, IsHandled);
+        if IsHandled then
+            exit;
+
+        NewWhseActivLine."Line No." := NextLineNo;
+        InsertWhseActivLine(NewWhseActivLine, 1, WhseItemTrackingSetup);
     end;
 
     local procedure InsertWhseActivLine(var NewWhseActivLine: Record "Warehouse Activity Line"; PutAwayQty: Decimal; WhseItemTrackingSetup: Record "Item Tracking Setup")
@@ -873,6 +951,11 @@ codeunit 7321 "Create Inventory Put-away"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertSNWhseActivLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingSetup: Record "Item Tracking Setup"; NextLineNo: Integer; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSourceDoc(WarehouseRequest: Record "Warehouse Request"; var IsFound: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -904,6 +987,31 @@ codeunit 7321 "Create Inventory Put-away"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreatePutAwayLinesFromTransferLoop(var WarehouseActivityHeader: Record "Warehouse Activity Header"; TransferHeader: Record "Transfer Header"; var IsHandled: Boolean; TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReservationFromPurchaseLine(var PurchLine: Record "Purchase Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReservationFromSalesLine(var SalesLine: Record "Sales Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReservationFromTransferLine(var TransferLine: Record "Transfer Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReservationFromProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindReservationFromProdOrderComponent(var ProdOrderComp: Record "Prod. Order Component"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var ItemTrackingMgt: Codeunit "Item Tracking Management"; var ReservationFound: Boolean; var IsHandled: Boolean)
     begin
     end;
 

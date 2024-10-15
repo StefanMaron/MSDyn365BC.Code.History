@@ -76,7 +76,7 @@ codeunit 132215 "Library - Error Message"
         "Field": Record "Field";
     begin
         Field.SetRange(TableNo, TableNo);
-        Field.SetRange(FieldName, FieldName);
+        Field.SetRange("Field Caption", FieldName);
         if Field.FindFirst then
             exit(Field."No.");
     end;

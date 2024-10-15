@@ -1733,9 +1733,12 @@ codeunit 139182 "CRM Coupling Test"
         SalespersonPurchaserCard.GotoRecord(SalespersonPurchaser);
         SalespersonPurchaserCard.ManageCRMCoupling.Invoke;
 
-        // [THEN] "Couple" and "Create Salesperson" controls are not VISIBLE
+        // [THEN] "Couple" and "Uncouple" controls are not VISIBLE
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Couple control should not be visible');
-        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Create Salesperson control should not be visible');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Uncouple control should not be visible');
+
+        // [THEN] "Create Salesperson" control is VISIBLE
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Create Salesperson control should be visible');
 
         // [THEN] Salesperson/Purchaser Code column field should be disabled
         Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Salesperson/Purchaser Code column field should be disabled');
@@ -2528,6 +2531,7 @@ codeunit 139182 "CRM Coupling Test"
     procedure CRMSystemuserCouplingControlModalPageHandler(var CRMSystemuserList: TestPage "CRM Systemuser List")
     begin
         LibraryVariableStorage.Enqueue(CRMSystemuserList.Couple.Visible);
+        LibraryVariableStorage.Enqueue(CRMSystemuserList.DeleteCDSCoupling.Visible);
         LibraryVariableStorage.Enqueue(CRMSystemuserList.CreateFromCRM.Visible);
         LibraryVariableStorage.Enqueue(CRMSystemuserList.SalespersonPurchaserCode.Editable);
     end;
