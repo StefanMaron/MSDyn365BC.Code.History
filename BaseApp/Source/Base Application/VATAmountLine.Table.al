@@ -186,6 +186,8 @@ table 290 "VAT Amount Line"
                       Text005, FieldCaption("VAT Difference"),
                       GLSetup.FieldCaption("Max. VAT Difference Allowed"), GLSetup."Max. VAT Difference Allowed");
             end;
+
+        OnAfterCheckVATDifference(Rec, NewCurrencyCode, NewAllowVATDifference);
     end;
 
     local procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean)
@@ -198,15 +200,16 @@ table 290 "VAT Amount Line"
         GlobalsInitialized := true;
     end;
 
-    procedure InsertLine(): Boolean
+    procedure InsertLine() Result: Boolean
     var
         VATAmountLine: Record "VAT Amount Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnInsertLine(Rec, IsHandled);
+        Result := true;
+        OnInsertLine(Rec, IsHandled, Result);
         if IsHandled then
-            exit(true);
+            exit(Result);
 
         if not (("VAT Base" <> 0) or ("Amount Including VAT" <> 0)) then
             exit(false);
@@ -826,6 +829,11 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckVATDifference(VATAmountLine: Record "VAT Amount Line"; NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromPurchInvLine(var VATAmountLine: Record "VAT Amount Line"; PurchInvLine: Record "Purch. Inv. Line")
     begin
     end;
@@ -891,7 +899,7 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean)
+    local procedure OnInsertLine(var VATAmountLine: Record "VAT Amount Line"; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
 

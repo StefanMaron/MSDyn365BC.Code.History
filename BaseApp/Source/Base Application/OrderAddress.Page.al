@@ -42,15 +42,25 @@ page 368 "Order Address"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the city of the address for the order.';
                 }
-                field(County; County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the county of the address for the order.';
+                    ShowCaption = false;
+                    Visible = IsCountyVisible;
+                    field(County; County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the county of the address.';
+                    }
                 }
                 field("Country/Region Code"; "Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the customer''s country/region code. To see the country/region codes in the Country/Region table, click the field.';
+                    ToolTip = 'Specifies the country/region of the address.';
+
+                    trigger OnValidate()
+                    begin
+                        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                    end;
                 }
                 field(Contact; Contact)
                 {
@@ -131,5 +141,14 @@ page 368 "Order Address"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+    end;
+
+    var
+        FormatAddress: Codeunit "Format Address";
+        IsCountyVisible: Boolean;
 }
 

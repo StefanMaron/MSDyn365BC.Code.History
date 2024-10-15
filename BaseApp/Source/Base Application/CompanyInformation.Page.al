@@ -63,11 +63,15 @@ Page 1 "Company Information"
                     ShowMandatory = true;
                     ToolTip = 'Specifies the company''s city.';
                 }
-                field(County; County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the state, province or county of the company''s address.';
+                    ShowCaption = false;
                     Visible = CountyVisible;
+                    field(County; County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the state, province or county of the company''s address.';
+                    }
                 }
                 field("Post Code"; "Post Code")
                 {
@@ -92,6 +96,7 @@ Page 1 "Company Information"
 
                     trigger OnValidate()
                     begin
+                        CountyVisible := FormatAddress.UseCounty("Country/Region Code");
                         HandleAddressLookupVisibility;
                     end;
                 }

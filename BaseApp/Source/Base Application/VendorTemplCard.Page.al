@@ -84,6 +84,11 @@ page 1386 "Vendor Templ. Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
+
+                    trigger OnValidate()
+                    begin
+                        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+                    end;
                 }
                 field(City; City)
                 {
@@ -95,10 +100,15 @@ page 1386 "Vendor Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field(County; County)
+                group(CountyGroup)
                 {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the state, province or county as a part of the address.';
+                    ShowCaption = false;
+                    Visible = IsCountyVisible;
+                    field(County; County)
+                    {
+                        ApplicationArea = Basic, Suite;
+                        ToolTip = 'Specifies the state, province or county as a part of the address.';
+                    }
                 }
                 field("Phone No."; "Phone No.")
                 {
@@ -396,4 +406,13 @@ page 1386 "Vendor Templ. Card"
             }
         }
     }
+
+    trigger OnOpenPage()
+    begin
+        IsCountyVisible := FormatAddress.UseCounty("Country/Region Code");
+    end;
+
+    var
+        FormatAddress: Codeunit "Format Address";
+        IsCountyVisible: Boolean;
 }

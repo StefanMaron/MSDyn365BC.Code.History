@@ -269,6 +269,13 @@ page 1384 "Item Templ. Card"
             group(Replenishment)
             {
                 Caption = 'Replenishment';
+                field("Replenishment System"; "Replenishment System")
+                {
+                    ApplicationArea = Assembly, Planning;
+                    Caption = 'Replenishment System';
+                    Importance = Promoted;
+                    ToolTip = 'Specifies the type of supply order created by the planning system when the item needs to be replenished.';
+                }
                 field("Lead Time Calculation"; "Lead Time Calculation")
                 {
                     ApplicationArea = Assembly, Planning;
@@ -307,6 +314,12 @@ page 1384 "Item Templ. Card"
                     {
                         ApplicationArea = Manufacturing;
                         ToolTip = 'Specifies the number of the production BOM that the item represents.';
+                        Visible = false;
+                    }
+                    field("Rounding Precision"; "Rounding Precision")
+                    {
+                        ApplicationArea = Manufacturing;
+                        ToolTip = 'Specifies how calculated consumption quantities are rounded when entered on consumption journal lines.';
                         Visible = false;
                     }
                     field("Flushing Method"; "Flushing Method")

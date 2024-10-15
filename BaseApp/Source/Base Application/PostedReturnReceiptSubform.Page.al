@@ -37,9 +37,9 @@ page 6661 "Posted Return Receipt Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -248,12 +248,7 @@ page 6661 "Posted Return Receipt Subform"
 
     trigger OnOpenPage()
     begin
-        SetItemReferenceVisibility();
     end;
-
-    var
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     local procedure UndoReturnReceipt()
     var
@@ -277,13 +272,6 @@ page 6661 "Posted Return Receipt Subform"
         Clear(DocumentLineTracking);
         DocumentLineTracking.SetDoc(12, "Document No.", "Line No.", "Return Order No.", "Return Order Line No.", '', 0);
         DocumentLineTracking.RunModal;
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 }
 
