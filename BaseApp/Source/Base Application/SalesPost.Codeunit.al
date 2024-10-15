@@ -6411,10 +6411,18 @@
         end;
 
         if SalesHeader.IsCreditDocType() then begin
-            if (SalesHeader."Ship-to Country/Region Code" <> '') then
-                exit(SalesHeader."Ship-to Country/Region Code")
-            else
-                exit(SalesHeader."Sell-to Country/Region Code");
+            if not SalesHeader.Receive then begin
+                if (SalesHeader."Ship-to Country/Region Code" <> '') then
+                    exit(SalesHeader."Ship-to Country/Region Code")
+                else
+                    exit(SalesHeader."Sell-to Country/Region Code");
+            end else begin
+                if (SalesHeader."Ship-to Country/Region Code" = '') and (SalesHeader."Rcvd-from Country/Region Code" = '') then
+                    exit(SalesHeader."Sell-to Country/Region Code");
+                if SalesHeader."Rcvd-from Country/Region Code" <> '' then
+                    exit(SalesHeader."Rcvd-from Country/Region Code");
+                exit(SalesHeader."Ship-to Country/Region Code");
+            end;
         end else begin
             CountryRegionCode := SalesHeader."Ship-to Country/Region Code";
 
