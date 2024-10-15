@@ -83,7 +83,6 @@ table 372 "Payment Buffer"
         {
             Caption = 'Payment Reference';
             DataClassification = SystemMetadata;
-            Numeric = true;
             TableRelation = "Vendor Ledger Entry"."Payment Reference" WHERE("Entry No." = FIELD("Vendor Ledg. Entry No."));
         }
         field(172; "Payment Method Code"; Code[10])

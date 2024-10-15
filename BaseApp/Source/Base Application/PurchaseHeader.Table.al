@@ -1978,7 +1978,6 @@
         field(171; "Payment Reference"; Code[50])
         {
             Caption = 'Payment Reference';
-            Numeric = true;
         }
         field(178; "Journal Templ. Name"; Code[10])
         {
@@ -3789,13 +3788,16 @@
         IsHandled := false;
         OnBeforeCouldDimensionsBeKept(Rec, xRec, Result, IsHandled);
         if not IsHandled then begin
+            if CurrFieldNo = 0 then
+                exit(false);
             if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> Rec."Buy-from Vendor No.") then
                 exit(false);
             if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
                 exit(false);
             if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
                 exit(true);
-            if xRec."Location Code" <> Rec."Location Code" then
+            if (xRec."location Code" <> Rec."Location Code") and ((CurrFieldNo = Rec.FieldNo("Location Code"))
+                or ((Rec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No."))) then
                 exit(true);
             if (xRec."Purchaser Code" <> '') and (xRec."Purchaser Code" <> Rec."Purchaser Code") then
                 exit(true);
@@ -6036,11 +6038,9 @@
 
         Validate("Sell-to Customer No.", '');
 
-        if "Location Code" = '' then begin
-            if "Buy-from Vendor No." <> '' then
-                GetVend("Buy-from Vendor No.");
-            UpdateLocationCode(Vend."Location Code");
-        end;
+        if "Buy-from Vendor No." <> '' then
+            GetVend("Buy-from Vendor No.");
+        UpdateLocationCode(Vend."Location Code");
     end;
 
     procedure CheckForBlockedLines()

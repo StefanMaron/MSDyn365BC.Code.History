@@ -18,6 +18,7 @@ codeunit 136308 "Job Order Tracking"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryJob: Codeunit "Library - Job";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
@@ -374,6 +375,52 @@ codeunit 136308 "Job Order Tracking"
         VerifyDefaultDimensionOnRequisitionLine(Job."No.", DefaultDimension);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderPlanningForJobWithDefaultAndJobTaskDimension()
+    var
+        Location: Record Location;
+        JobPlanningLine: Record "Job Planning Line";
+        Job: Record Job;
+        JobTask: Record "Job Task";
+        RequisitionLine: Record "Requisition Line";
+        DefaultDimension: Record "Default Dimension";
+        JobTaskDim: Record "Job Task Dimension";
+        LibraryPlanning: Codeunit "Library - Planning";
+    begin
+        // [SCENARIO 464809] Job Task Dimensions are not passed on to Supply documents when using Order Planning
+
+        // [GIVEN] Setup: Create Job Planning Line with Item having Zero inventory.
+        Initialize();
+
+        // [GIVEN] Create Job
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create Default Job Dimension
+        CreateDefaultDimForJob(Job."No.", DefaultDimension);
+
+        // [GIVEN] Create Job Task
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        // [GIVEN] Create Default Job Task Dimension
+        CreateJobTaskDim(JobTaskDim, JobTask);
+
+        // [GIVEN] Creaet Job Planning Line
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ItemType, JobTask, JobPlanningLine);
+
+        // [GIVEN] Update Quantity, Item, Planning Date and Location on Job Planning Line
+        ModifyJobPlanningLine(
+          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(),
+          LibraryJob.FindLocation(Location));  // Taking random value for Quantity.
+
+        // [WHEN] Exercise: Run Calculate Plan from Order Planning Worksheet.
+        LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
+
+        // [VERIFY] Verify: Verify that Job Task Dimension including Default Dimension passed to Requisition Line
+        VerifyDefaultDimensionOnRequisitionLine(Job."No.", DefaultDimension);
+        VerifyJobTaskDimensionOnRequisitionLine(Job."No.", JobTaskDim);
+    end;
+
     local procedure CreateItemWithVendorNo(): Code[20]
     var
         Item: Record Item;
@@ -561,7 +608,6 @@ codeunit 136308 "Job Order Tracking"
     var
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
-        LibraryDimension: Codeunit "Library - Dimension";
     begin
         LibraryDimension.FindDimension(Dimension);
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
@@ -585,6 +631,42 @@ codeunit 136308 "Job Order Tracking"
         Assert.AreEqual(DefaultDimension."Dimension Code", DimensionSetEntry."Dimension Code", '');
         Assert.AreEqual(DefaultDimension."Dimension Value Code", DimensionSetEntry."Dimension Value Code", '');
     end;
+
+    local procedure CreateJobTaskDim(var JobTaskDim: Record "Job Task Dimension"; JobTask: Record "Job Task")
+    var
+        Dimension: Record Dimension;
+        DimValue: Record "Dimension Value";
+    begin
+        LibraryDimension.CreateDimension(Dimension);
+        LibraryDimension.CreateDimensionValue(DimValue, Dimension.Code);
+        InsertJobTaskDim(JobTaskDim, JobTask, DimValue);
+    end;
+
+    local procedure InsertJobTaskDim(var JobTaskDim: Record "Job Task Dimension"; JobTask: Record "Job Task"; DimValue: Record "Dimension Value")
+    begin
+        JobTaskDim.Init();
+        JobTaskDim.Validate("Job No.", JobTask."Job No.");
+        JobTaskDim.Validate("Job Task No.", JobTask."Job Task No.");
+        JobTaskDim.Validate("Dimension Code", DimValue."Dimension Code");
+        JobTaskDim.Validate("Dimension Value Code", DimValue.Code);
+        JobTaskDim.Insert(true);
+    end;
+
+    local procedure VerifyJobTaskDimensionOnRequisitionLine(JobNo: Code[20]; JobTaskDimension: Record "Job Task Dimension")
+    var
+        JobPlanningLine: Record "Job Planning Line";
+        RequisitionLine: Record "Requisition Line";
+        DimensionSetEntry: Record "Dimension Set Entry";
+    begin
+        JobPlanningLine.SetRange("Job No.", JobNo);
+        JobPlanningLine.FindFirst();
+        FindRequisitionLine(RequisitionLine, JobPlanningLine."Job No.", JobPlanningLine."No.", JobPlanningLine."Location Code");
+        DimensionSetEntry.SetRange("Dimension Set ID", RequisitionLine."Dimension Set ID");
+        DimensionSetEntry.FindLast();
+        Assert.AreEqual(JobTaskDimension."Dimension Code", DimensionSetEntry."Dimension Code", '');
+        Assert.AreEqual(JobTaskDimension."Dimension Value Code", DimensionSetEntry."Dimension Value Code", '');
+    end;
+
 
     [MessageHandler]
     [Scope('OnPrem')]

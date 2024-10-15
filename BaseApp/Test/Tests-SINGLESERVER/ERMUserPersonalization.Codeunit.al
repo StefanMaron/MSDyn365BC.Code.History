@@ -1033,7 +1033,8 @@ codeunit 134912 "ERM User Personalization"
         UserGroups.YourProfileID.Lookup();
 
         // [THEN] User's Personalization change for new profile
-        VerifyUserPersonalization(User."User Security ID", PersonalizationProfileID1);
+        UserGroup.Get(UserGroup.Code);
+        VerifyUserPersonalizationFromUserGroup(User."User Security ID", UserGroup);
         LibraryVariableStorage.AssertEmpty;
 
         // Cleanup
@@ -1423,6 +1424,16 @@ codeunit 134912 "ERM User Personalization"
     begin
         UserPersonalization.Get(UserSecurityID);
         UserPersonalization.TestField("Profile ID", ProfileID);
+    end;
+
+    local procedure VerifyUserPersonalizationFromUserGroup(UserSecurityID: Guid; UserGroup: Record "User Group")
+    var
+        UserPersonalization: Record "User Personalization";
+    begin
+        UserPersonalization.Get(UserSecurityID);
+        UserPersonalization.TestField("Profile ID", UserGroup."Default Profile ID");
+        UserPersonalization.TestField("App ID", UserGroup."Default Profile App ID");
+        UserPersonalization.TestField(Scope, UserGroup."Default Profile Scope");
     end;
 
     local procedure AddProfileIDToUserGroup(ProfileID: Code[30]; UserGroupCode: Code[20])

@@ -368,9 +368,9 @@ report 11005 "VAT Statement Germany"
                     else
                         EndDate := EndDateReq;
                     if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                        GLAcc.SetRange("Date Filter", 0D, EndDate)
+                        GLAcc.SetRange("VAT Reporting Date Filter", 0D, EndDate)
                     else
-                        GLAcc.SetRange("Date Filter", StartDate, EndDate);
+                        GLAcc.SetRange("VAT Reporting Date Filter", StartDate, EndDate);
                     Amount := 0;
                     if GLAcc.FindSet() and (VATStmtLine2."Account Totaling" <> '') then
                         repeat

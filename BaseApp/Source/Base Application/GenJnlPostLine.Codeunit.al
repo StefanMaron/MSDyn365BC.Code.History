@@ -152,6 +152,14 @@
                 exit;
             end;
 
+            if "VAT Reporting Date" = 0D then begin
+                GLSetup.Get();
+                if ("Document Date" = 0D) and (GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Document Date") then
+                    "VAT Reporting Date" := "Posting Date"
+                else
+                    "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
+            end;
+
             CheckGenJnlLine(GenJnlLine, CheckLine);
 
             AmountRoundingPrecision := InitAmounts(GenJnlLine);
@@ -167,8 +175,6 @@
                 "Document Date" := "Posting Date";
             if "Due Date" = 0D then
                 "Due Date" := "Posting Date";
-            if "VAT Reporting Date" = 0D then
-                "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
 
             FindJobLineSign(GenJnlLine);
 
