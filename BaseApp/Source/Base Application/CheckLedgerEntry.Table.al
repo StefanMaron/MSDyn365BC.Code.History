@@ -335,6 +335,22 @@ table 272 "Check Ledger Entry"
         SetRange(Open, true);
     end;
 
+    procedure ResetStatementFields(BankAccountNo: Code[20]; StatementNo: Code[20])
+    begin
+        Reset();
+        SetRange("Bank Account No.", BankAccountNo);
+        SetRange("Statement No.", StatementNo);
+        if FindSet() then
+            repeat
+                "Statement Line No." := 0;
+                "Statement No." := '';
+                "Statement Status" := "Statement Status"::Open;
+                Open := true;
+                Modify();
+            until Next() = 0;
+    end;
+
+
     [IntegrationEvent(false, false)]
     procedure OnAfterCopyFromBankAccLedgEntry(var CheckLedgerEntry: Record "Check Ledger Entry"; BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin

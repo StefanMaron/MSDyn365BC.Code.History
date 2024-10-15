@@ -248,7 +248,7 @@ page 9060 "SO Processor Activities"
         SetRespCenterFilter;
         SetRange("Date Filter", 0D, WorkDate - 1);
         SetFilter("Date Filter2", '>=%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
 
         RoleCenterNotificationMgt.ShowNotifications;
         ConfPersonalizationMgt.RaiseOnOpenRoleCenterEvent;

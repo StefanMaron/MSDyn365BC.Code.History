@@ -5085,7 +5085,7 @@ table 36 "Sales Header"
                 end;
                 SalesLine."Purchase Order No." := TempSalesLine."Purchase Order No.";
                 SalesLine."Purch. Order Line No." := TempSalesLine."Purch. Order Line No.";
-                SalesLine."Drop Shipment" := SalesLine."Purch. Order Line No." <> 0;
+                SalesLine."Drop Shipment" := TempSalesLine."Drop Shipment";
             end;
             SalesLine.Validate("Shipment Date", TempSalesLine."Shipment Date");
         end;

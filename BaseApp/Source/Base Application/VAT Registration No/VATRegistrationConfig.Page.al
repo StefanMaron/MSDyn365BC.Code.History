@@ -54,6 +54,12 @@ page 248 "VAT Registration Config"
                         HyperLink(VATRegistrationLogMgt.GetServiceDisclaimerUR);
                     end;
                 }
+                field(DefaultTemplate; Rec."Default Template Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Enabled = Enabled;
+                    ToolTip = 'Specifies the default template for validation of additional company information.';
+                }
             }
         }
     }
@@ -95,9 +101,13 @@ page 248 "VAT Registration Config"
     }
 
     trigger OnOpenPage()
+    var
+        VATRegNoSrvTemplate: Record "VAT Reg. No. Srv. Template";
     begin
-        if not Get then
-            InitVATRegNrValidationSetup
+        if not Get() then
+            InitVATRegNrValidationSetup();
+
+        VATRegNoSrvTemplate.CheckInitDefaultTemplate(Rec);
     end;
 
     var

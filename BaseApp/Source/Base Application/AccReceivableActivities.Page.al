@@ -124,7 +124,7 @@ page 9034 "Acc. Receivable Activities"
         end;
 
         SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var
