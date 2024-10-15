@@ -129,6 +129,22 @@ report 5196 "Remove Contacts - Refine"
 
     trigger OnPreReport()
     begin
+        SetSegmentView();
+    end;
+
+    var
+        ReduceRefineSegment: Report "Remove Contacts";
+        EntireCompanies: Boolean;
+
+    local procedure SetSegmentView()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetSegmentView(ReduceRefineSegment, IsHandled);
+        if IsHandled then
+            exit;
+
         Clear(ReduceRefineSegment);
         ReduceRefineSegment.SetTableView("Segment Header");
         ReduceRefineSegment.SetTableView(Contact);
@@ -143,8 +159,9 @@ report 5196 "Remove Contacts - Refine"
         ReduceRefineSegment.RunModal();
     end;
 
-    var
-        ReduceRefineSegment: Report "Remove Contacts";
-        EntireCompanies: Boolean;
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetSegmentView(var RemoveContacts: Report "Remove Contacts"; var IsHandled: Boolean)
+    begin
+    end;
 }
 

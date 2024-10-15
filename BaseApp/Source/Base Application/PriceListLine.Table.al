@@ -1016,10 +1016,13 @@ table 7001 "Price List Line"
     procedure UseCustomizedLookup(): Boolean
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
-        PriceListManagement: Codeunit "Price List Management";
+        PriceListLineSync: Codeunit "Price List Line Sync";
     begin
-        if not PriceListManagement.IsPriceListLineSynchronized() then
+        if not PriceListLineSync.IsPriceListLineSynchronized() then begin
+            if GuiAllowed() then
+                PriceListLineSync.SendOutOfSyncNotification();
             exit(true);
+        end;
         SalesReceivablesSetup.Get();
         exit(SalesReceivablesSetup."Use Customized Lookup");
     end;

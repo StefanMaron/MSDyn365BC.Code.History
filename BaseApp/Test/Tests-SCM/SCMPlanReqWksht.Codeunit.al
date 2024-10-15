@@ -1,4 +1,4 @@
-codeunit 137067 "SCM Plan-Req. Wksht"
+﻿codeunit 137067 "SCM Plan-Req. Wksht"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -3225,6 +3225,48 @@ codeunit 137067 "SCM Plan-Req. Wksht"
 
     [Test]
     [Scope('OnPrem')]
+    procedure RequisitionLineCanChangeQuantityForSpecialOrder()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        Purchasing: Record Purchasing;
+        NewQuantity: Decimal;
+    begin
+        // [FEATURE] [Get Sales Orders] [Special Order]
+        // [SCENARIO 445763] "Get Sales Orders" allows creation of Requisition Line for special order and change of quantity
+        Initialize();
+
+        // [GIVEN] Item "I" with "Vendor No." = "V1"
+        LibraryInventory.CreateItem(Item);
+        LibraryPurchase.CreateVendor(Vendor);
+        UpdateItemVendorNo(Item, Vendor."No.");
+
+        // [GIVEN] Sales order "SO" with Special Order purchasing code for "I"
+        LibraryPurchase.CreateSpecialOrderPurchasingCode(Purchasing);
+        CreateSalesOrderWithPurchasingCode(SalesLine, '', Item."No.", '', Purchasing.Code, LibraryRandom.RandInt(10));
+
+        // [WHEN] Get sales order to Requisition Line "R"
+        CreateRequisitionLine(RequisitionLine);
+        LibraryPlanning.GetSpecialOrder(RequisitionLine, Item."No.");
+
+        // [THEN] Requisition Line created for the Special Order "SO" and increase Quantity
+        FindRequisitionLineForItem(RequisitionLine, Item."No.");
+        NewQuantity := RequisitionLine.Quantity * 2;
+        RequisitionLine.Validate(Quantity, NewQuantity);
+        RequisitionLine.Modify();
+
+        // [THEN] Can run Carry Out Action Msg. action for changed quantity
+        RequisitionLine.TestField(Quantity, NewQuantity);
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] Requisition Line processed and deleted
+        asserterror FindRequisitionLineForItem(RequisitionLine, Item."No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure ErrorThrownWhenQtyIsRoundedTo0OnRequisitionLine()
     var
         Item: Record Item;
@@ -3771,6 +3813,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
 
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.CreateVATData();
         NoSeriesSetup();
         ItemJournalSetup;
