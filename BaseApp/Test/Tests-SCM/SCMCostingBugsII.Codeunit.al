@@ -2193,6 +2193,55 @@ codeunit 137621 "SCM Costing Bugs II"
         ValueEntry.TestField("Cost Posted to G/L", -UnitCost);
     end;
 
+    [Test]
+    procedure NonInventoriableValueEntryHasValuedByAverageCostFalseAfterUnapply()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineCharge: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        InboundItemLedgerEntry: Record "Item Ledger Entry";
+        OutboundItemLedgerEntry: Record "Item Ledger Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        // [FEATURE] [Item Application] [Average Cost] [Item Charge]
+        // [SCENARIO 427700] For an item with average costing method, "Valued by Average Cost" = FALSE on non-inventoriable value entries for outbound item entry when removing application to an inbound entry.
+        Initialize();
+
+        // [GIVEN] Item with average costing method.
+        LibraryInventory.CreateItemWithUnitPriceAndUnitCost(
+          Item, LibraryRandom.RandDecInRange(20, 40, 2), LibraryRandom.RandDecInRange(10, 20, 2));
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify(true);
+
+        // [GIVEN] Post positive adjustment, note the inbound item entry "I".
+        PostPositiveAdjustment(Item, '', 1, Item."Unit Cost", 0);
+        FindItemLedgerEntry(InboundItemLedgerEntry, Item."No.", InboundItemLedgerEntry."Entry Type"::"Positive Adjmt.", '', true);
+
+        // [GIVEN] Post sales order with an item line and an item charge line, note the outbound item entry "O".
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLineItem, SalesHeader."Document Type"::Order, '', Item."No.", 1, '', WorkDate());
+        LibrarySales.CreateSalesLine(
+          SalesLineCharge, SalesHeader, SalesLineCharge.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo(), 1);
+        SalesLineCharge.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
+        SalesLineCharge.Modify(true);
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineCharge, SalesLineItem."Document Type",
+          SalesLineItem."Document No.", SalesLineItem."Line No.", Item."No.");
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        FindItemLedgerEntry(OutboundItemLedgerEntry, Item."No.", OutboundItemLedgerEntry."Entry Type"::Sale, '', false);
+
+        // [WHEN] Unapply item entries "I" and "O".
+        UnapplyItemLedgerEntries(InboundItemLedgerEntry."Entry No.", OutboundItemLedgerEntry."Entry No.", false);
+
+        // [THEN] "Valued by Average Cost" = False on the non-inventoriable value entry for item charge.
+        ValueEntry.SetRange("Item Ledger Entry No.", OutboundItemLedgerEntry."Entry No.");
+        ValueEntry.SetRange("Item Charge No.", SalesLineCharge."No.");
+        ValueEntry.FindFirst();
+        ValueEntry.TestField("Valued By Average Cost", false);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

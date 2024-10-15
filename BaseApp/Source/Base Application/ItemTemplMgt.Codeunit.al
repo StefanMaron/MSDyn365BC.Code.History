@@ -46,6 +46,8 @@ codeunit 1336 "Item Templ. Mgt."
 
     local procedure ApplyTemplate(var Item: Record Item; ItemTempl: Record "Item Templ."; UpdateExistingValues: Boolean)
     var
+        TempItem: Record Item temporary;
+        InventorySetup: Record "Inventory Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         ItemRecRef: RecordRef;
@@ -60,8 +62,10 @@ codeunit 1336 "Item Templ. Mgt."
         FieldExclusionList: List of [Integer];
     begin
         ItemRecRef.GetTable(Item);
-        EmptyItemRecRef.Open(Database::Item);
-        EmptyItemRecRef.Init();
+        InventorySetup.Get();
+        TempItem.Init();
+        TempItem."Costing Method" := InventorySetup."Default Costing Method";
+        EmptyItemRecRef.GetTable(TempItem);
         ItemTemplRecRef.GetTable(ItemTempl);
         EmptyItemTemplRecRef.Open(Database::"Item Templ.");
         EmptyItemTemplRecRef.Init();
