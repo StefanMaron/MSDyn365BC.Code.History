@@ -18,6 +18,7 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         FormatTypeGlb: Option ASCII,XML;
@@ -1399,7 +1400,6 @@ codeunit 142086 "Intrastat XML Export DACH"
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line";
-        IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
         TempBlob: Codeunit "Temp Blob";
         ZipFileName: Text;
     begin
@@ -1407,13 +1407,8 @@ codeunit 142086 "Intrastat XML Export DACH"
         Initialize();
 
         // [GIVEN] Two identical Intrastat journal lines, one has Partner VAT ID = "A", another = "B"
-        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
-        CreateIntrastatJnlBatch(IntrastatJnlBatch);
-        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID());
-        CreateIntrastatJnlLine(IntrastatJnlLine[1], IntrastatJnlLineSpec, IntrastatJnlBatch);
-        CreateIntrastatJnlLine(IntrastatJnlLine[2], IntrastatJnlLineSpec, IntrastatJnlBatch);
-        IntrastatJnlLine[2].Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
-        IntrastatJnlLine[2].Modify(true);
+        PrepareTwoIdenticalLinesDiffersOnlyByPartnerVATID(IntrastatJnlLine);
+        IntrastatJnlBatch.Get(IntrastatJnlLine[1]."Journal Template Name", IntrastatJnlLine[1]."Journal Batch Name");
 
         // [WHEN] Run report "Intrastat - Disk Tax Auth DE"
         ZipFileName := RunReport(IntrastatJnlBatch, FormatTypeGlb::XML, false);
@@ -1429,6 +1424,50 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('IntrastatChecklistDE_RPH')]
+    procedure ChecklistTwoIdenticalLinesDiffersOnlyByPartnerVATID()
+    var
+        IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 414226] Checklist report two identical Intrastat journal lines which differs only by Partner VAT ID
+        Initialize();
+
+        // [GIVEN] Two identical Intrastat journal lines, one has Partner VAT ID = "A", another = "B"
+        PrepareTwoIdenticalLinesDiffersOnlyByPartnerVATID(IntrastatJnlLine);
+
+        // [WHEN] Run report 11013 "Intrastat - Checklist DE"
+        RunChecklistReport(IntrastatJnlLine[1]);
+
+        // [THEN] Report has been printed with two lines: one with Partner VAT ID = "A", another with "B"
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), '');
+        VerifyChecklistReport(IntrastatJnlLine[1], 1);
+        VerifyChecklistReport(IntrastatJnlLine[2], 2);
+    end;
+
+    [Test]
+    [HandlerFunctions('IntrastatFormDE_RPH')]
+    procedure PrintFormTwoIdenticalLinesDiffersOnlyByPartnerVATID()
+    var
+        IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 414226] Print Form report two identical Intrastat journal lines which differs only by Partner VAT ID
+        Initialize();
+
+        // [GIVEN] Two identical Intrastat journal lines, one has Partner VAT ID = "A", another = "B"
+        PrepareTwoIdenticalLinesDiffersOnlyByPartnerVATID(IntrastatJnlLine);
+
+        // [WHEN] Run report 11012 "Intrastat - Form DE"
+        RunIntrastatForm(IntrastatJnlLine[1]);
+
+        // [THEN] Report has been printed with two lines: one with Partner VAT ID = "A", another with "B"
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(2, LibraryReportDataset.RowCount(), '');
+        VerifyPrintFormReport(IntrastatJnlLine[1], 1);
+        VerifyPrintFormReport(IntrastatJnlLine[2], 2);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -1442,6 +1481,20 @@ codeunit 142086 "Intrastat XML Export DACH"
         LibrarySetupStorage.Save(Database::"Company Information");
         LibrarySetupStorage.Save(Database::"Intrastat Setup");
         Commit();
+    end;
+
+    local procedure PrepareTwoIdenticalLinesDiffersOnlyByPartnerVATID(var IntrastatJnlLine: array[2] of Record "Intrastat Jnl. Line")
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLineSpec: Record "Intrastat Jnl. Line";
+    begin
+        UpdateReceiptsShipmentsOnIntrastatSetup(true, true);
+        CreateIntrastatJnlBatch(IntrastatJnlBatch);
+        CreateItemSpecification(IntrastatJnlLineSpec, IntrastatJnlLineSpec.Type::Shipment, false, LibraryUtility.GenerateGUID());
+        CreateIntrastatJnlLine(IntrastatJnlLine[1], IntrastatJnlLineSpec, IntrastatJnlBatch);
+        CreateIntrastatJnlLine(IntrastatJnlLine[2], IntrastatJnlLineSpec, IntrastatJnlBatch);
+        IntrastatJnlLine[2].Validate("Partner VAT ID", LibraryUtility.GenerateGUID());
+        IntrastatJnlLine[2].Modify(true);
     end;
 
     local procedure CreateCountryRegionCode(): Code[10]
@@ -1715,6 +1768,28 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatDiskTaxAuthDE.RunModal;
     end;
 
+    local procedure RunChecklistReport(IntrastatJnlLine: Record "Intrastat Jnl. Line");
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        IntrastatJnlBatch.SetRecFilter();
+        Commit();
+        Report.Run(Report::"Intrastat - Checklist DE", true, false, IntrastatJnlBatch);
+    end;
+
+    local procedure RunIntrastatForm(IntrastatJnlLine: Record "Intrastat Jnl. Line");
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        IntrastatJnlBatch.SetRecFilter();
+        Commit();
+        Report.Run(Report::"Intrastat - Form DE", true, false, IntrastatJnlBatch);
+    end;
+
     local procedure UpdateCompanyInformation()
     var
         CompanyInformation: Record "Company Information";
@@ -1983,6 +2058,24 @@ codeunit 142086 "Intrastat XML Export DACH"
           RootPath + 'NatureOfTransaction/natureOfTransactionBCode', Format(TransactionCode[2]), NodeIndex);
     end;
 
+    local procedure VerifyChecklistReport(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ExpectedNoOfRecords: Integer);
+    begin
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'Intrastat_Jnl_Line_Partner_VAT_ID', IntrastatJnlLine."Partner VAT ID");
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'Intrastat_Jnl__Line__Total_Weight__Control1140053', Round(IntrastatJnlLine."Total Weight", 1));
+        LibraryReportDataset.AssertCurrentRowValueEquals('NoOfRecords_Control1140075', ExpectedNoOfRecords);
+    end;
+
+    local procedure VerifyPrintFormReport(IntrastatJnlLine: Record "Intrastat Jnl. Line"; ExpectedNoOfRecords: Integer);
+    begin
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.AssertCurrentRowValueEquals(
+          'Intrastat_Jnl__Line__Total_Weight_', IntrastatJnlLine."Total Weight");
+        LibraryReportDataset.AssertCurrentRowValueEquals('NoOfRecords', ExpectedNoOfRecords);
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IntrastatDiskTaxAuthDE_RPH(var IntrastatDiskTaxAuthDE: TestRequestPage "Intrastat - Disk Tax Auth DE")
@@ -1990,6 +2083,21 @@ codeunit 142086 "Intrastat XML Export DACH"
         IntrastatDiskTaxAuthDE."Format Type".SetValue(LibraryVariableStorage.DequeueInteger);
         IntrastatDiskTaxAuthDE."Test Submission".SetValue(LibraryVariableStorage.DequeueBoolean);
         IntrastatDiskTaxAuthDE.OK.Invoke;
+    end;
+
+    [RequestPageHandler]
+    procedure IntrastatChecklistDE_RPH(var IntrastatChecklistDE: TestRequestPage "Intrastat - Checklist DE");
+    begin
+        IntrastatChecklistDE.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
+    end;
+
+    [RequestPageHandler]
+    procedure IntrastatFormDE_RPH(var IntrastatFormDE: TestRequestPage "Intrastat - Form DE");
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+    begin
+        IntrastatFormDE."Intrastat Jnl. Line".SetFilter(Type, Format(IntrastatJnlLine.Type::Shipment));
+        IntrastatFormDE.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 
