@@ -220,7 +220,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Parameters!StrtTm_ProdOrderRtngLineCaption.Value</Value>
+                                  <Value>=Fields!ProdOrderRtngLnStrtTimeCapt.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -280,7 +280,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Parameters!EndTime_ProdOrderRtngLineCaption.Value</Value>
+                                  <Value>=Fields!ProdOrderRtngLnEndTimeCapt.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -2337,29 +2337,11 @@
       </DefaultValue>
       <Prompt>InptQty_ProdOrderRtngLineCaption</Prompt>
     </ReportParameter>
-    <ReportParameter Name="StrtTm_ProdOrderRtngLineCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>StrtTm_ProdOrderRtngLineCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>StrtTm_ProdOrderRtngLineCaption</Prompt>
-    </ReportParameter>
-    <ReportParameter Name="EndTime_ProdOrderRtngLineCaption">
-      <DataType>String</DataType>
-      <DefaultValue>
-        <Values>
-          <Value>EndTime_ProdOrderRtngLineCaption</Value>
-        </Values>
-      </DefaultValue>
-      <Prompt>EndTime_ProdOrderRtngLineCaption</Prompt>
-    </ReportParameter>
   </ReportParameters>
   <ReportParametersLayout>
     <GridLayoutDefinition>
       <NumberOfColumns>1</NumberOfColumns>
-      <NumberOfRows>7</NumberOfRows>
+      <NumberOfRows>5</NumberOfRows>
       <CellDefinitions>
         <CellDefinition>
           <ColumnIndex>0</ColumnIndex>
@@ -2385,16 +2367,6 @@
           <ColumnIndex>0</ColumnIndex>
           <RowIndex>4</RowIndex>
           <ParameterName>InptQty_ProdOrderRtngLineCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>5</RowIndex>
-          <ParameterName>StrtTm_ProdOrderRtngLineCaption</ParameterName>
-        </CellDefinition>
-        <CellDefinition>
-          <ColumnIndex>0</ColumnIndex>
-          <RowIndex>6</RowIndex>
-          <ParameterName>EndTime_ProdOrderRtngLineCaption</ParameterName>
         </CellDefinition>
       </CellDefinitions>
     </GridLayoutDefinition>
@@ -2500,6 +2472,12 @@ End Function
         </Field>
         <Field Name="ProdOrderRtngLnEndDtCapt">
           <DataField>ProdOrderRtngLnEndDtCapt</DataField>
+        </Field>
+        <Field Name="ProdOrderRtngLnStrtTimeCapt">
+          <DataField>ProdOrderRtngLnStrtTimeCapt</DataField>
+        </Field>
+        <Field Name="ProdOrderRtngLnEndTimeCapt">
+          <DataField>ProdOrderRtngLnEndTimeCapt</DataField>
         </Field>
       </Fields>
       <Query>

@@ -56,6 +56,9 @@ page 10129 "Posted Bank Rec. List"
         {
             action("Bank Reconciliation")
             {
+                ObsoleteReason = 'Use the reports for W1 Bank Reconciliation instead. For example: Test Report, or Bank Statement Report';
+                ObsoleteState = Pending;
+                ObsoleteTag = '20.0';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Bank Reconciliation';
                 Image = Worksheet;

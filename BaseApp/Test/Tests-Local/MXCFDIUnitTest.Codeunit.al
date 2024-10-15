@@ -2038,6 +2038,90 @@ codeunit 144000 "MX CFDI Unit Test"
         VerifyCopyOfRetentionLines(SalesHeader, SalesLineRetention1."Retention VAT %", SalesLineRetention2."Retention VAT %");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FixedAssetGetSATClassification()
+    var
+        FixedAsset: Record "Fixed Asset";
+        SATUtilities: Codeunit "SAT Utilities";
+    begin
+        // [SCENARIO 433795] SATUtilities.GetSATItemClassification returns a value from Fixed Asset Card
+        FixedAsset.Init();
+        FixedAsset."No." := LibraryUtility.GenerateGUID();
+        FixedAsset."SAT Classification Code" := LibraryUtility.GenerateGUID();
+        FixedAsset.Insert();
+        Assert.AreEqual(
+          FixedAsset."SAT Classification Code", SATUtilities.GetSATItemClassification(4, FixedAsset."No."), ExpectedError);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FixedAssetCardSATClassification()
+    var
+        FixedAssetCard: TestPage "Fixed Asset Card";
+    begin
+        // [SCENARIO 433795] SAT Classification Code is enabled on Fixed Asset Card
+        UpdateGLSetupPACEnvironment(true);
+
+        FixedAssetCard.OpenEdit();
+        Assert.IsTrue(FixedAssetCard."SAT Classification Code".Enabled, '');
+        Assert.IsTrue(FixedAssetCard."SAT Classification Code".Editable, '');
+        FixedAssetCard.Close();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ItemChargesSATClassification()
+    var
+        ItemCharges: TestPage "Item Charges";
+    begin
+        // [SCENARIO 437233] SAT Classification Code is enabled on Item Charges Card
+        UpdateGLSetupPACEnvironment(true);
+
+        ItemCharges.OpenEdit();
+        Assert.IsTrue(ItemCharges."SAT Classification Code".Enabled, '');
+        Assert.IsTrue(ItemCharges."SAT Classification Code".Editable, '');
+        ItemCharges.Close();
+    end;
+
+    procedure CustomerCardCFDIFields()
+    var
+        CustomerCard: TestPage "Customer Card";
+    begin
+        // [SCENARIO 437108] CFDI General Public field is enabled on Customer Card
+        UpdateGLSetupPACEnvironment(true);
+
+        CustomerCard.OpenEdit();
+        Assert.IsTrue(CustomerCard."CFDI General Public".Enabled, '');
+        Assert.IsTrue(CustomerCard."CFDI General Public".Editable, '');
+        CustomerCard.Close();
+    end;
+
+    [Test]
+    [HandlerFunctions('RequestStampMenuHandler')]
+    [Scope('OnPrem')]
+    procedure RequestStampPaymentCustomerError()
+    var
+        Customer: Record Customer;
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+    begin
+        // [SCENARIO 437903] Customer should have a Payment Method Code when request payment stamp
+        Initialize();
+        UpdateGLSetupSAT();
+        CreateCustomerWithCFDIFields(Customer);
+        Customer."Payment Method Code" := '';
+        Customer.Modify();
+        CustLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FIELDNO("Entry No."));
+        CustLedgerEntry."Document Type" := CustLedgerEntry."Document Type"::Payment;
+        CustLedgerEntry."Customer No." := Customer."No.";
+        CustLedgerEntry.Insert();
+
+        asserterror CustLedgerEntry.RequestStampEDocument();
+
+        Assert.ExpectedErrorCode('TestField');
+        Assert.ExpectedError(StrSubstNo(MustHaveValueErr, Customer.FieldCaption("Payment Method Code")));
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

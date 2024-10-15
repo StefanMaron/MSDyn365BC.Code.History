@@ -1,4 +1,4 @@
-report 2 "General Journal - Test"
+﻿report 2 "General Journal - Test"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './GeneralJournalTest.rdlc';
@@ -1142,6 +1142,7 @@ report 2 "General Journal - Test"
         DimMgt: Codeunit DimensionManagement;
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        SkipCheck: Boolean;
     begin
         with GenJournalLine do begin
             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
@@ -1157,10 +1158,11 @@ report 2 "General Journal - Test"
             No[4] := "Salespers./Purch. Code";
             TableID[5] := DATABASE::Campaign;
             No[5] := "Campaign No.";
-            OnAfterAssignDimTableID(GenJournalLine, TableID, No);
-
-            if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                AddError(DimMgt.GetDimValuePostingErr);
+            SkipCheck := false;
+            OnAfterAssignDimTableID(GenJournalLine, TableID, No, SkipCheck);
+            if not SkipCheck then
+                if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
+                    AddError(DimMgt.GetDimValuePostingErr);
         end;
     end;
 
@@ -2153,7 +2155,7 @@ report 2 "General Journal - Test"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssignDimTableID(GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20])
+    local procedure OnAfterAssignDimTableID(GenJournalLine: Record "Gen. Journal Line"; var TableID: array[10] of Integer; var No: array[10] of Code[20]; var SkipCheck: Boolean)
     begin
     end;
 
@@ -2202,7 +2204,7 @@ report 2 "General Journal - Test"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnReconcileGLAccNoOnBeforeGLAccNetChangeInsert(GLAccNo: Code[20]; ReconcileAmount: Decimal; var GLAccNetChange: Record "G/L Account Net Change")
     begin
     end;

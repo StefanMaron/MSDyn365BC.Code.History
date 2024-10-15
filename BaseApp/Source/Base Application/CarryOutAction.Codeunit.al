@@ -930,7 +930,7 @@ codeunit 99000813 "Carry Out Action"
         if ReqLine.Reserve then
             ReserveBindingOrderToTrans(TransLine, ReqLine);
 
-        OnAfterInsertTransLine(TransHeader);
+        OnAfterInsertTransLine(TransHeader, ReqLine, TransLine, NextLineNo);
     end;
 
     procedure PrintTransferOrders()
@@ -954,6 +954,7 @@ codeunit 99000813 "Carry Out Action"
         if PrintOrder then begin
             TransHeader2 := TransHeader;
             TransHeader2.SetRecFilter();
+            OnPrintTransferOrderOnBeforePrintWithDialogWithCheckForCust(ReportSelections);
             ReportSelections.PrintWithDialogWithCheckForCust("Report Selection Usage"::Inv1, TransHeader2, false, 0);
         end;
     end;
@@ -1038,7 +1039,13 @@ codeunit 99000813 "Carry Out Action"
     var
         ReportSelection: Record "Report Selections";
         ProdOrder2: Record "Production Order";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFinalizeOrderHeader(ProdOrder, PrintOrder, IsHandled);
+        if IsHandled then
+            exit;
+
         if PrintOrder and (ProdOrder."No." <> '') then begin
             ProdOrder2 := ProdOrder;
             ProdOrder2.SetRecFilter();
@@ -1560,7 +1567,7 @@ codeunit 99000813 "Carry Out Action"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransLine(var TransHeader: Record "Transfer Header");
+    local procedure OnAfterInsertTransLine(var TransHeader: Record "Transfer Header"; var ReqLine: Record "Requisition Line"; var TransLine: Record "Transfer Line"; var NextLineNo: Integer);
     begin
     end;
 
@@ -1626,6 +1633,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteTransferLines(RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFinalizeOrderHeader(ProdOrder: Record "Production Order"; PrintOrder: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -1796,6 +1808,11 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertAsmHeaderOnAfterAsmHeaderInsert(var AsmHeader: Record "Assembly Header"; ReqLine: Record "Requisition Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintTransferOrderOnBeforePrintWithDialogWithCheckForCust(var ReportSelections: Record "Report Selections")
     begin
     end;
 }

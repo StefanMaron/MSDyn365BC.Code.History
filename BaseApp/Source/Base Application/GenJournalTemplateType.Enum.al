@@ -39,6 +39,7 @@ enum 89 "Gen. Journal Template Type"
     {
         Caption = 'Payroll Accrual';
     }
+#if not CLEAN20
     value(9; Deposits)
     {
         Caption = 'Deposits';
@@ -46,6 +47,7 @@ enum 89 "Gen. Journal Template Type"
         ObsoleteState = Pending;
         ObsoleteTag = '20.0';
     }
+#endif
     value(10; "Sales Tax")
     {
         Caption = 'Sales Tax';

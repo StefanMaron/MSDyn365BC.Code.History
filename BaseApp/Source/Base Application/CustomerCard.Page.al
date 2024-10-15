@@ -203,6 +203,11 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the tax scheme required for reporting to the Mexican tax authorities (SAT).';
                 }
+                field("CFDI General Public"; Rec."CFDI General Public")
+                {
+                    ApplicationArea = BasicMX;
+                    ToolTip = 'Specifies that the customer is considered a client that reports general public information according to the Mexican tax authorities (SAT).';
+                }
                 field("Last Date Modified"; "Last Date Modified")
                 {
                     ApplicationArea = Basic, Suite;
@@ -515,6 +520,12 @@
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies for direct debit collections if the customer that the payment is collected from is a person or a company.';
+                }
+                field("Intrastat Partner Type"; Rec."Intrastat Partner Type")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies for Intrastat reporting if the customer is a person or a company.';
                 }
                 field("Payment Terms Code"; "Payment Terms Code")
                 {
@@ -2781,7 +2792,8 @@
             CurrPage.Update();
         end else
             if CustomerTemplMgt.TemplatesAreNotEmpty() then
-                CurrPage.Close;
+                if not CustomerTemplMgt.IsOpenBlankCardConfirmed() then
+                    CurrPage.Close;
     end;
 
     local procedure VerifyVatRegNo(var Customer: Record Customer)

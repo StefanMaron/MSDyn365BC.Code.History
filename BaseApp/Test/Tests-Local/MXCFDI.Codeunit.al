@@ -5260,6 +5260,7 @@ codeunit 144001 "MX CFDI"
         ReportSelections.Validate(Usage, UsageOption);
         ReportSelections.Validate(Sequence, '1');
         ReportSelections.Validate("Report ID", ReportID);
+        ReportSelections.Validate("Use for Email Attachment", true);
         ReportSelections.Insert(true);
     end;
 

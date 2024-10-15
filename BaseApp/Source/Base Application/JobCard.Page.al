@@ -52,8 +52,6 @@ page 88 "Job Card"
                     Importance = Promoted;
                     NotBlank = true;
                     ShowMandatory = true;
-                    AboutTitle = 'Who you are selling to';
-                    AboutText = 'TODO';
                     ToolTip = 'Specifies the name of the customer who will receive the products and be billed by default.';
 
                     trigger OnValidate()

@@ -1,7 +1,11 @@
+#if not CLEAN20
 codeunit 142052 "ERM Payables/Receivables"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'These tests are for bank reconciliation and deposits features for NA. Both are deprecated for the Bank Deposits extension, and W1s Bank reconciliation. There are sets of tests for both these features.';
+    ObsoleteTag = '20.0';
+    ObsoleteState = Pending;
 
     trigger OnRun()
     begin
@@ -1544,3 +1548,4 @@ codeunit 142052 "ERM Payables/Receivables"
     end;
 }
 
+#endif

@@ -1,4 +1,4 @@
-report 121 "Customer - Balance to Date"
+﻿report 121 "Customer - Balance to Date"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerBalancetoDate.rdlc';
@@ -131,6 +131,8 @@ report 121 "Customer - Balance to Date"
                             Amt := Amount;
                             CurrencyCode := "Currency Code";
                         end;
+                        OnAfterDetailedCustLedgEntryOnAfterCalcAmt("Detailed Cust. Ledg. Entry", PrintAmountInLCY, Amt, CurrencyCode, MaxDate);
+
                         if Amt = 0 then
                             CurrReport.Skip();
 
@@ -158,7 +160,7 @@ report 121 "Customer - Balance to Date"
                         CurrencyCode := "Currency Code";
                     end;
 
-                    OnAfterCustLedgEntry3OnAfterGetRecord(CustLedgEntry3, PrintAmountInLCY, OriginalAmt, RemainingAmt, CurrencyCode);
+                    OnAfterCustLedgEntry3OnAfterGetRecord(CustLedgEntry3, PrintAmountInLCY, OriginalAmt, RemainingAmt, CurrencyCode, MaxDate);
                 end;
 
                 trigger OnPreDataItem()
@@ -473,7 +475,12 @@ report 121 "Customer - Balance to Date"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCustLedgEntry3OnAfterGetRecord(CustLedgerEntry: Record "Cust. Ledger Entry"; PrintAmountInLCY: Boolean; var OriginalAmt: Decimal; var RemainingAmt: Decimal; var CurrencyCode: Code[10])
+    local procedure OnAfterCustLedgEntry3OnAfterGetRecord(var CustLedgerEntry: Record "Cust. Ledger Entry"; PrintAmountInLCY: Boolean; var OriginalAmt: Decimal; var RemainingAmt: Decimal; var CurrencyCode: Code[10]; MaxDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterDetailedCustLedgEntryOnAfterCalcAmt(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; PrintAmountInLCY: Boolean; var Amt: Decimal; var CurrencyCode: Code[10]; MaxDate: Date)
     begin
     end;
 }

@@ -1138,6 +1138,10 @@
         {
             Caption = 'Partner Type';
         }
+        field(133; "Intrastat Partner Type"; Enum "Partner Type")
+        {
+            Caption = 'Intrastat Partner Type';
+        }
         field(140; Image; Media)
         {
             Caption = 'Image';
@@ -1704,6 +1708,11 @@
             Caption = 'CFDI Export Code';
             TableRelation = "CFDI Export Code";
         }
+        field(27005; "CFDI General Public"; Boolean)
+        {
+            Caption = 'CFDI General Public';
+        }
+
     }
 
     keys
@@ -1940,7 +1949,14 @@
     end;
 
     trigger OnRename()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRename(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         ApprovalsMgmt.OnRenameRecordInApprovalRequest(xRec.RecordId, RecordId);
         DimMgt.RenameDefaultDim(DATABASE::Customer, xRec."No.", "No.");
         CommentLine.RenameCommentLine(CommentLine."Table Name"::Customer, xRec."No.", "No.");
@@ -2338,6 +2354,13 @@
         exit(CustomerSalesYTD."Sales (LCY)");
     end;
 
+    procedure GetTopCustomerHeadlineQueryDocumentTypeFilter() DocumentTypeFilter: Text
+    begin
+        DocumentTypeFilter := '';
+
+        OnAfterGetTopCustomerHeadlineQueryDocumentTypeFilter(DocumentTypeFilter);
+    end;
+
     procedure CalcAvailableCredit(): Decimal
     begin
         exit(CalcAvailableCreditCommon(false));
@@ -2524,24 +2547,15 @@
         exit("No.");
     end;
 
-    procedure HasAddressIgnoreCountryCode(): Boolean
+    procedure HasAddressIgnoreCountryCode() Result: Boolean
     begin
-        case true of
-            Address <> '':
-                exit(true);
-            "Address 2" <> '':
-                exit(true);
-            City <> '':
-                exit(true);
-            County <> '':
-                exit(true);
-            "Post Code" <> '':
-                exit(true);
-            Contact <> '':
-                exit(true);
-        end;
-
-        exit(false);
+        Result := (Address <> '') or
+                  ("Address 2" <> '') or
+                  (City <> '') or
+                  (County <> '') or
+                  ("Post Code" <> '') or
+                  (Contact <> '');
+        OnAfterHasAddressIgnoreCountryCode(Rec, Result);
     end;
 
     procedure HasAddress(): Boolean
@@ -2549,24 +2563,15 @@
         exit(HasAddressIgnoreCountryCode or ("Country/Region Code" <> ''));
     end;
 
-    procedure HasDifferentAddress(OtherCustomer: Record Customer): Boolean
+    procedure HasDifferentAddress(OtherCustomer: Record Customer) Result: Boolean
     begin
-        case true of
-            Address <> OtherCustomer.Address:
-                exit(true);
-            "Address 2" <> OtherCustomer."Address 2":
-                exit(true);
-            City <> OtherCustomer.City:
-                exit(true);
-            County <> OtherCustomer.County:
-                exit(true);
-            "Post Code" <> OtherCustomer."Post Code":
-                exit(true);
-            "Country/Region Code" <> OtherCustomer."Country/Region Code":
-                exit(true);
-        end;
-
-        exit(false);
+        Result := (Address <> OtherCustomer.Address) or
+                  ("Address 2" <> OtherCustomer."Address 2") or
+                  (City <> OtherCustomer.City) or
+                  (County <> OtherCustomer.County) or
+                  ("Post Code" <> OtherCustomer."Post Code") or
+                  ("Country/Region Code" <> OtherCustomer."Country/Region Code");
+        OnAfterHasDifferentAddress(Rec, OtherCustomer, Result)
     end;
 
     procedure GetBalanceAsVendor(var LinkedVendorNo: Code[20]) BalanceAsVendor: Decimal;
@@ -3380,7 +3385,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTopCustomerHeadlineQueryDocumentTypeFilter(var DocumentTypeFilter: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterHasAnyOpenOrPostedDocuments(var Customer: Record Customer; var HasAnyDocs: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasAddressIgnoreCountryCode(Customer: Record Customer; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterHasDifferentAddress(Customer: Record Customer; OtherCustomer: Record Customer; var Result: Boolean)
     begin
     end;
 
@@ -3506,6 +3526,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(var Customer: Record Customer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRename(var Customer: Record Customer; xCustomer: Record Customer; var IsHandled: Boolean)
     begin
     end;
 

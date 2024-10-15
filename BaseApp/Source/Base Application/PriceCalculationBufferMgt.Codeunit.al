@@ -82,6 +82,7 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     procedure Set(NewPriceCalculationBuffer: Record "Price Calculation Buffer"; var PriceSourceList: Codeunit "Price Source List")
     begin
+        OnBeforeSet(NewPriceCalculationBuffer);
         PriceCalculationBuffer := NewPriceCalculationBuffer;
         CalcUnitAmountRoundingPrecision();
 
@@ -300,6 +301,11 @@ codeunit 7008 "Price Calculation Buffer Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsInMinQty(PriceListLine: Record "Price List Line"; PriceCalculationBuffer: Record "Price Calculation Buffer"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSet(var PriceCalculationBuffer: Record "Price Calculation Buffer")
     begin
     end;
 

@@ -157,6 +157,7 @@ codeunit 99000831 "Reservation Engine Mgt."
         if ReservEntry."Reservation Status" <> ReservEntry."Reservation Status"::Surplus then begin
             GetItem(ReservEntry."Item No.");
             ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive);
+            OnCloseReservEntryOnAfterReservEntry2Get(ReservEntry2, ReservEntry);
             OriginalReservEntry2 := ReservEntry2;
             if (Item."Order Tracking Policy" = Item."Order Tracking Policy"::None) and
                (not TransferLineWithItemTracking(ReservEntry2)) and
@@ -1336,7 +1337,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCloseReservEntry(var ReservEntry: Record "Reservation Entry"; ReTrack: Boolean; DeleteAll: Boolean)
+    local procedure OnBeforeCloseReservEntry(var ReservEntry: Record "Reservation Entry"; var ReTrack: Boolean; DeleteAll: Boolean)
     begin
     end;
 
@@ -1392,6 +1393,11 @@ codeunit 99000831 "Reservation Engine Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCloseReservEntry(var ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCloseReservEntryOnAfterReservEntry2Get(var ReservEntry2: Record "Reservation Entry"; var ReservEntry: Record "Reservation Entry")
     begin
     end;
 

@@ -543,6 +543,7 @@ codeunit 7312 "Create Pick"
 
         if TotalQtytoPickBase > 0 then begin
             ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+            OnCalcPickBinOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
             FindPickBin(
                 LocationCode, ItemNo, VariantCode, UnitofMeasureCode,
                 ToBinCode, QtyRoundingPrecision, QtyRoundingPrecisionBase, TempWhseActivLine, TotalQtytoPick, TempWhseItemTrackingLine, CrossDock, TotalQtytoPickBase, WhseItemTrackingSetup);
@@ -1358,6 +1359,7 @@ codeunit 7312 "Create Pick"
             LineNo := 0;
 
         ItemTrackingMgt.GetWhseItemTrkgSetup(TempWhseActivLine."Item No.", WhseItemTrackingSetup);
+        OnCreateWhseDocLineOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, TempWhseActivLine);
 
         LineNo := LineNo + 10000;
         WhseActivLine.Init();
@@ -2353,6 +2355,7 @@ codeunit 7312 "Create Pick"
         GetLocation(LocationCode);
 
         ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        OnCalcTotalAvailQtyToPickOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
         WhseItemTrackingSetup.CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine);
 
         ReservedQtyOnInventory :=
@@ -2520,6 +2523,7 @@ codeunit 7312 "Create Pick"
         QtyOnOutboundBins: Decimal;
     begin
         ItemTrackingMgt.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
+        OnCalcQtyCanBePickedOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
         WhseItemTrackingSetup.CopyTrackingFromEntrySummary(EntrySummary);
 
         GetLocation(LocationCode);
@@ -3980,6 +3984,26 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcTotalAvailQtyToPickOnBeforeCalcSubTotal(var QtyInWhse: Decimal; var QtyOnPickBins: Decimal; var QtyOnPutAwayBins: Decimal; var QtyOnOutboundBins: Decimal; var QtyOnDedicatedBins: Decimal; var QtyBlocked: Decimal; var QtyOnReceiveBins: Decimal; var ReservedQtyOnInventory: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcTotalAvailQtyToPickOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyCanBePickedOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateWhseDocLineOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcPickBinOnAfterGetWhseItemTrkgSetup(var WhseItemTrackingSetup: Record "Item Tracking Setup"; LocationCode: Code[10])
     begin
     end;
 
