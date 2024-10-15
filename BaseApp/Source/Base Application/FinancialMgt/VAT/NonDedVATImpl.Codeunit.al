@@ -888,22 +888,22 @@ codeunit 6201 "Non-Ded. VAT Impl."
         NonDeductibleBaseAmount := 0;
         NonDeductibleVATAmtPerUnit := 0;
         NonDeductibleVATAmtPerUnitLCY := 0;
-        if PurchaseLine."VAT Calculation Type" = "Tax Calculation Type"::"Reverse Charge VAT" then
+        if PurchaseLine."VAT Calculation Type" = PurchaseLine."VAT Calculation Type"::"Reverse Charge VAT" then
             VATAmount := CalcRevChargeVATAmountInPurchLine(PurchaseLine)
         else
             VATAmount := PurchaseLine."Amount Including VAT" - PurchaseLine.Amount;
         BaseAmount := PurchaseLine.Amount;
         GeneralLedgerSetup.Get();
         AdjustVATAmountsWithNonDeductibleVATPct(VATAmount, BaseAmount, NonDeductibleVATAmount, NonDeductibleBaseAmount, PurchaseLine."Non-Deductible VAT %", GeneralLedgerSetup."Amount Rounding Precision", NDVATAmountRounding, NDVATBaseRounding);
-        NonDeductibleVATAmtPerUnit := NonDeductibleVATAmount / PurchaseLine.Quantity;
+        NonDeductibleVATAmtPerUnitLCY := NonDeductibleVATAmount / PurchaseLine.Quantity;
         if PurchaseLine."Currency Code" = '' then
-            NonDeductibleVATAmtPerUnitLCY := NonDeductibleVATAmtPerUnit
+            NonDeductibleVATAmtPerUnit := NonDeductibleVATAmtPerUnitLCY
         else
-            NonDeductibleVATAmtPerUnitLCY :=
-                CurrencyExchangeRate.ExchangeAmtFCYToLCY(
+            NonDeductibleVATAmtPerUnit :=
+                CurrencyExchangeRate.ExchangeAmtLCYToFCY(
                     PurchaseHeader."Posting Date",
                     PurchaseLine."Currency Code",
-                    NonDeductibleVATAmtPerUnit,
+                    NonDeductibleVATAmtPerUnitLCY,
                     PurchaseHeader."Currency Factor");
     end;
 

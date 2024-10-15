@@ -3444,6 +3444,66 @@
         VerifyTransLineUnshipped(TransferLine, 1);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure AdjustCostOfUndoneTransferShipment()
+    var
+        Item: Record Item;
+        InTransitLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryNo: Integer;
+        LocationFromCode, LocationTOCode : Code[10];
+        OldCost, NewCost : Decimal;
+    begin
+        // [FEATURE] [Transfer] [Undo Shipment] [Costing] [Adjust Cost - Item Entries]
+        // [SCENARIO 496575] Item ledger entry for undone transfer shipment is adjusted with the correct cost.
+        Initialize();
+        OldCost := LibraryRandom.RandDec(100, 2);
+        NewCost := LibraryRandom.RandDecInDecimalRange(101, 200, 2);
+
+        // [GIVEN] Item "I".
+        // [GIVEN] Locations "From" and "To".
+        LibraryInventory.CreateItem(Item);
+        CreateLocations(LocationFromCode, LocationToCode);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Post inventory adjustment of "I" to location "From". Unit Cost = 10.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", 1, OldCost, LocationFromCode, '');
+        ItemLedgerEntryNo := FindLastILENo(Item."No.");
+
+        // [GIVEN] Create transfer order from "From" to "To".
+        // [GIVEN] Ship the transfer order.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Revaluate the item entry for the inventory adjustment, new cost = 12.
+        CreateAndPostRevaluationJournal(Item."No.", ItemLedgerEntryNo, 1, NewCost);
+
+        // [GIVEN] Adjust cost.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [WHEN] Undo the transfer shipment and run the cost adjustment.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Unit cost of "I" = 12.
+        Item.Find();
+        Item.TestField("Unit Cost", NewCost);
+
+        // [THEN] Item ledger entry for the undone transfer shipment is adjusted. Unit Cost = 12.
+        ItemLedgerEntry.Get(FindLastILENo(Item."No."));
+        ItemLedgerEntry.TestField("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.TestField("Location Code", LocationFromCode);
+        ItemLedgerEntry.TestField(Positive, true);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", NewCost);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3554,6 +3614,26 @@
 
         UpdateLocation(LocationCode[1], false, HandlingTime, HandlingTime2);
         UpdateLocation(LocationCode[5], true, HandlingTime2, HandlingTime2);
+    end;
+
+    local procedure CreateAndPostRevaluationJournal(ItemNo: Code[20]; AppliesToEntry: Integer; InventoryValueRevalued: Decimal; UnitCostRevalued: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::" ", ItemNo, 0);
+        ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
+        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
+        ItemJournalLine.Validate("Inventory Value (Revalued)", InventoryValueRevalued);
+        ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
     local procedure PostTransferShipmentPartiallyWithBlockedItem(DirectTransfer: Boolean)
