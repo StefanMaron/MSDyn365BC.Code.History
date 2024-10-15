@@ -101,8 +101,6 @@ codeunit 1690 "Bank Deposit-Post"
 
         if GenJournalLine.Count() = 0 then
             Error(EmptyDepositErr);
-        if Rec."Post as Lump Sum" and (GenJournalLine.Count() = 1) then
-            Rec."Post as Lump Sum" := false;
 
         TotalAmountLCY := ModifyGenJournalLinesForBankDepositPosting(Rec, GenJournalTemplate."Force Doc. Balance");
         if Rec."Post as Lump Sum" then

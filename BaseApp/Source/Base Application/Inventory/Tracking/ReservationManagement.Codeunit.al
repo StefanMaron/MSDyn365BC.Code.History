@@ -1443,6 +1443,8 @@ codeunit 99000845 "Reservation Management"
                             end else begin
                                 ReservEntry.Validate("Quantity (Base)", ReservEntry."Quantity (Base)" - QtyToRelease);
                                 ReservEntry.Modify();
+                                OnDeleteReservEntriesOnAfterModifyReservEntryReservationStatusSurplus(ReservEntry, QtyToRelease);
+
                                 SaveTrackingSpecification(ReservEntry, QtyToRelease);
                                 ModifyActionMessage(ReservEntry."Entry No.", QtyToRelease, false); // Modify action messages
                                 QtyToRelease := 0;
@@ -2917,7 +2919,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetAvailabilityFilter2(var ReservationEntry: Record "Reservation Entry"; AvailabilityDate: Date; SearchForSupply: Boolean; Result: Text[80])
+    local procedure OnAfterGetAvailabilityFilter2(var ReservationEntry: Record "Reservation Entry"; AvailabilityDate: Date; SearchForSupply: Boolean; var Result: Text[80])
     begin
     end;
 
@@ -3331,6 +3333,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnMakeConnectionOnBeforeCreateReservEntry(var FromReservationEntry: Record "Reservation Entry"; var ToReservationEntry: Record "Reservation Entry"; var Quantity: Decimal; ReservationStatus: Enum "Reservation Status"; var AvailabilityDate: Date; ReservationBinding: Enum "Reservation Binding"; var FromTrackingSpecification: Record "Tracking Specification"; var Sign: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteReservEntriesOnAfterModifyReservEntryReservationStatusSurplus(var ReservationEntry: Record "Reservation Entry"; QtyToRelease: Decimal)
     begin
     end;
 }
