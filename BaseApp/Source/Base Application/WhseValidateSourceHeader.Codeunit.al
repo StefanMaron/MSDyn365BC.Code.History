@@ -8,7 +8,13 @@ codeunit 5781 "Whse. Validate Source Header"
     procedure SalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesHeaderVerifyChange(NewSalesHeader, OldSalesHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with NewSalesHeader do begin
             if "Shipping Advice" = OldSalesHeader."Shipping Advice" then
                 exit;
@@ -84,6 +90,11 @@ codeunit 5781 "Whse. Validate Source Header"
         WhseWkshLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
         if not WhseWkshLine.IsEmpty() then
             WhseWkshLine.ModifyAll("Shipping Advice", ShipAdvice);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesHeaderVerifyChange(var NewSalesHeader: Record "Sales Header"; var OldSalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
     end;
 }
 

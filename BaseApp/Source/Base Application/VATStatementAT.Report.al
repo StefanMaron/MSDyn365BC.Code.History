@@ -1,4 +1,4 @@
-report 11110 "VAT Statement AT"
+﻿report 11110 "VAT Statement AT"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'VAT Statement Austria';
@@ -282,6 +282,11 @@ report 11110 "VAT Statement AT"
     {
     }
 
+    trigger OnInitReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HK7', ATVATTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
     trigger OnPostReport()
     var
         DataCompression: Codeunit "Data Compression";
@@ -297,6 +302,7 @@ report 11110 "VAT Statement AT"
         ToFile: Text;
         PdfFileName: Text;
     begin
+        FeatureTelemetry.LogUptake('1000HK8', ATVATTok, Enum::"Feature Uptake Status"::"Used");
         if TestFdfFileName = '' then begin
             PdfFileName := FileManagement.ServerTempFileName('pdf');
             if not Upload('', '', PDFFormatTxt, '', PdfFileName) then
@@ -321,7 +327,8 @@ report 11110 "VAT Statement AT"
         end else begin
             FileManagement.CopyServerFile(FDFFileName, TestFdfFileName, true);
             FileManagement.CopyServerFile(XMLFileName, TestXmlFileName, true);
-        end
+        end;
+        FeatureTelemetry.LogUsage('1000HK9', ATVATTok, 'AT VAT Report Printed');
     end;
 
     trigger OnPreReport()
@@ -339,6 +346,7 @@ report 11110 "VAT Statement AT"
         Companyinfo: Record "Company Information";
         GLAcc: Record "G/L Account";
         VATEntries: Record "VAT Entry";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         FileManagement: Codeunit "File Management";
         XMLFile: File;
         FDFFile: File;
@@ -367,6 +375,7 @@ report 11110 "VAT Statement AT"
         TestXmlFileName: Text;
         UseARE: Boolean;
         UseREPO: Boolean;
+        ATVATTok: Label 'AT VAT Statement', Locked = true;
         TaxRevMustBeEnteredErr: Label 'A taxable revenue (KZ 000) must be entered. The value Zero is not allowed.\KZ 000 must exist.';
         TaxFreeBiggerErr: Label 'The total of taxfree revenues is bigger than the total of taxable revenues.\KZ 011+012+015+016+017+018+019+020 > KZ 000+001-021.';
         TotalTaxedRevDiffersErr: Label 'The total of taxable revenues reduced by the total of taxfree revenues differs from the total of to be taxed revenues.\KZ 022+006+029+037+007+052 <> (KZ 000+001-021) - (KZ 011+012+015+016+017+018+019+020).';
@@ -871,4 +880,3 @@ report 11110 "VAT Statement AT"
         TestXmlFileName := NewTestXmlFileName;
     end;
 }
-

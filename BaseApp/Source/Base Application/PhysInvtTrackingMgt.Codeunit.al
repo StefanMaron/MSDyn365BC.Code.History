@@ -10,44 +10,43 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
     var
         CreateReservEntry: Codeunit "Create Reserv. Entry";
 
-    procedure SuggestUseTrackingLines(Item: Record Item): Boolean
+    procedure SuggestUseTrackingLines(Item: Record Item) Result: Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         if Item."Item Tracking Code" = '' then
-            exit(false);
+            Result := false
+        else begin
 
-        ItemTrackingCode.Get(Item."Item Tracking Code");
+            ItemTrackingCode.Get(Item."Item Tracking Code");
 
-        exit(
-          ItemTrackingCode."SN Specific Tracking" or
-          ItemTrackingCode."SN Pos. Adjmt. Inb. Tracking" or
-          ItemTrackingCode."SN Pos. Adjmt. Outb. Tracking" or
-          ItemTrackingCode."SN Neg. Adjmt. Inb. Tracking" or
-          ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking" or
-          ItemTrackingCode."Lot Specific Tracking" or
-          ItemTrackingCode."Lot Pos. Adjmt. Inb. Tracking" or
-          ItemTrackingCode."Lot Pos. Adjmt. Outb. Tracking" or
-          ItemTrackingCode."Lot Neg. Adjmt. Inb. Tracking" or
-          ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking"
-          );
+            Result := ItemTrackingCode."SN Specific Tracking" or
+                      ItemTrackingCode."SN Pos. Adjmt. Inb. Tracking" or
+                      ItemTrackingCode."SN Pos. Adjmt. Outb. Tracking" or
+                      ItemTrackingCode."SN Neg. Adjmt. Inb. Tracking" or
+                      ItemTrackingCode."SN Neg. Adjmt. Outb. Tracking" or
+                      ItemTrackingCode."Lot Specific Tracking" or
+                      ItemTrackingCode."Lot Pos. Adjmt. Inb. Tracking" or
+                      ItemTrackingCode."Lot Pos. Adjmt. Outb. Tracking" or
+                      ItemTrackingCode."Lot Neg. Adjmt. Inb. Tracking" or
+                      ItemTrackingCode."Lot Neg. Adjmt. Outb. Tracking";
+        end;
+        OnAfterSuggestUseTrackingLines(Item, ItemTrackingCode, Result);
     end;
 
-    procedure GetTrackingNosFromWhse(Item: Record Item): Boolean
+    procedure GetTrackingNosFromWhse(Item: Record Item) Result: Boolean
     var
         ItemTrackingCode: Record "Item Tracking Code";
     begin
         if Item."Item Tracking Code" = '' then
-            exit(false);
+            Result := false
+        else begin
+            ItemTrackingCode.Get(Item."Item Tracking Code");
 
-        ItemTrackingCode.Get(Item."Item Tracking Code");
-
-        if (ItemTrackingCode."SN Specific Tracking" and ItemTrackingCode."SN Warehouse Tracking") or
-           (ItemTrackingCode."Lot Specific Tracking" and ItemTrackingCode."Lot Warehouse Tracking")
-        then
-            exit(true);
-
-        exit(false);
+            Result := (ItemTrackingCode."SN Specific Tracking" and ItemTrackingCode."SN Warehouse Tracking") or
+                      (ItemTrackingCode."Lot Specific Tracking" and ItemTrackingCode."Lot Warehouse Tracking");
+        end;
+        OnAfterGetTrackingNosFromWhse(Item, ItemTrackingCode, Result);
     end;
 
     procedure LocationIsBinMandatory(LocationCode: Code[20]): Boolean
@@ -110,6 +109,16 @@ codeunit 5889 "Phys. Invt. Tracking Mgt."
                     ReservEntry,
                     Qty);
             until (ReservEntry.Next() = 0) or (Qty = 0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetTrackingNosFromWhse(Item: Record Item; ItemTrackingCode: Record "Item Tracking Code"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSuggestUseTrackingLines(Item: Record Item; ItemTrackingCode: Record "Item Tracking Code"; var Result: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

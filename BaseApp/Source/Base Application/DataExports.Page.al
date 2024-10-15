@@ -54,9 +54,13 @@ page 11002 "Data Exports"
     trigger OnOpenPage()
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
+        DataExportManagement: Codeunit "Data Export Management";
         DataTok: Label 'DACH Data Export', Locked = true;
     begin
         FeatureTelemetry.LogUptake('0001Q0M', DataTok, Enum::"Feature Uptake Status"::Discovered);
+        DataExportManagement.CreateDataExportForPersonalAndGLAccounting();
+        DataExportManagement.CreateDataExportForFAAccounting();
+        DataExportManagement.CreateDataExportForInvoiceAndItemAccounting();
     end;
 }
 

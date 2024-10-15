@@ -31,7 +31,7 @@ table 11005 "Data Export Record Field"
         }
         field(4; "Table Name"; Text[80])
         {
-            CalcFormula = Lookup (AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObjWithCaption."Object Caption" WHERE("Object Type" = CONST(Table),
                                                                            "Object ID" = FIELD("Table No.")));
             Caption = 'Table Name';
             Editable = false;
@@ -48,11 +48,12 @@ table 11005 "Data Export Record Field"
 
             trigger OnValidate()
             var
+                Field: Record Field;
                 DataExportManagement: Codeunit "Data Export Management";
             begin
-                CalcFields("Field Name");
+                Field.Get("Table No.", "Field No.");
                 if "Export Field Name" = '' then
-                    "Export Field Name" := DataExportManagement.FormatForIndexXML("Field Name");
+                    "Export Field Name" := DataExportManagement.FormatForIndexXML(Field.FieldName);
 
                 TestField("Export Field Name");
                 UpdateFieldProperties;
@@ -60,7 +61,7 @@ table 11005 "Data Export Record Field"
         }
         field(6; "Field Name"; Text[80])
         {
-            CalcFormula = Lookup (Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
+            CalcFormula = Lookup(Field."Field Caption" WHERE(TableNo = FIELD("Table No."),
                                                               "No." = FIELD("Field No.")));
             Caption = 'Field Name';
             Editable = false;

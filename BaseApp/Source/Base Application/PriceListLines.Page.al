@@ -19,7 +19,7 @@ page 7001 "Price List Lines"
                 {
                     ApplicationArea = All;
                     Caption = 'Assign-to Type';
-                    Visible = not IsJobGroup and AllowUpdatingDefaults;
+                    Visible = SourceTypeVisible;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
@@ -31,7 +31,7 @@ page 7001 "Price List Lines"
                 {
                     ApplicationArea = All;
                     Caption = 'Assign-to Type';
-                    Visible = IsJobGroup and AllowUpdatingDefaults;
+                    Visible = JobSourceTypeVisible;
                     ToolTip = 'Specifies the type of entity to which the price list is assigned. The options are relevant to the entity you are currently viewing.';
 
                     trigger OnValidate()
@@ -45,7 +45,7 @@ page 7001 "Price List Lines"
                     Caption = 'Assign-to Job No.';
                     Importance = Promoted;
                     Editable = IsParentAllowed;
-                    Visible = IsJobGroup and AllowUpdatingDefaults and UseCustomLookup;
+                    Visible = ParentSourceNoVisible;
                     ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(AssignToParentNo; Rec."Assign-to Parent No.")
@@ -55,7 +55,7 @@ page 7001 "Price List Lines"
                     Importance = Promoted;
                     Editable = IsParentAllowed;
                     ShowMandatory = IsParentAllowed;
-                    Visible = IsJobGroup and AllowUpdatingDefaults and not UseCustomLookup;
+                    Visible = AssignToParentNoVisible;
                     ToolTip = 'Specifies the job to which the prices are assigned. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(SourceNo; Rec."Source No.")
@@ -64,7 +64,7 @@ page 7001 "Price List Lines"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     ShowMandatory = SourceNoEnabled;
-                    Visible = AllowUpdatingDefaults and UseCustomLookup;
+                    Visible = SourceNoVisible;
                     ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(AssignToNo; Rec."Assign-to No.")
@@ -73,7 +73,7 @@ page 7001 "Price List Lines"
                     Importance = Promoted;
                     Enabled = SourceNoEnabled;
                     ShowMandatory = SourceNoEnabled;
-                    Visible = AllowUpdatingDefaults and not UseCustomLookup;
+                    Visible = AssignToNoVisible;
                     ToolTip = 'Specifies the entity to which the prices are assigned. The options depend on the selection in the Assign-to Type field. If you choose an entity, the price list will be used only for that entity.';
                 }
                 field(CurrencyCode; Rec."Currency Code")
@@ -211,7 +211,7 @@ page 7001 "Price List Lines"
                     ApplicationArea = All;
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
-                    Visible = IsJobGroup and PriceVisible;
+                    Visible = CostFactorVisible;
                     StyleExpr = PriceStyle;
                     ToolTip = 'Specifies the unit cost factor for job-related prices, if you have agreed with your customer that he should pay certain item usage by cost value plus a certain percent value to cover your overhead expenses.';
                 }
@@ -356,15 +356,29 @@ page 7001 "Price List Lines"
         [InDataSet]
         PriceMandatory: Boolean;
         [InDataSet]
+        AssignToNoVisible: Boolean;
+        [InDataSet]
+        AssignToParentNoVisible: Boolean;
+        [InDataSet]
+        JobSourceTypeVisible: Boolean;
+        [InDataSet]
+        SourceTypeVisible: Boolean;
+        [InDataSet]
+        SourceNoVisible: Boolean;
+        [InDataSet]
         PriceVisible: Boolean;
         [InDataSet]
         ResourceAsset: Boolean;
         [InDataSet]
         SourceNoEnabled: Boolean;
         [InDataSet]
+        ParentSourceNoVisible: Boolean;
+        [InDataSet]
         LineToVerify: Boolean;
         [InDataSet]
         UOMEditable: Boolean;
+        [InDataSet]
+        CostFactorVisible: Boolean;
         [InDataSet]
         UseCustomLookup: Boolean;
 
@@ -400,6 +414,13 @@ page 7001 "Price List Lines"
         AmountTypeIsVisible := ViewAmountType = ViewAmountType::Any;
         DiscountVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Discount];
         PriceVisible := ViewAmountType in [ViewAmountType::Any, ViewAmountType::Price];
+        CostFactorVisible := IsJobGroup and PriceVisible;
+        AssignToNoVisible := AllowUpdatingDefaults and not UseCustomLookup;
+        AssignToParentNoVisible := IsJobGroup and AssignToNoVisible;
+        SourceNoVisible := AllowUpdatingDefaults and UseCustomLookup;
+        ParentSourceNoVisible := IsJobGroup and SourceNoVisible;
+        JobSourceTypeVisible := IsJobGroup and AllowUpdatingDefaults;
+        SourceTypeVisible := not IsJobGroup and AllowUpdatingDefaults;
     end;
 
     procedure SetHeader(NewPriceListHeader: Record "Price List Header")

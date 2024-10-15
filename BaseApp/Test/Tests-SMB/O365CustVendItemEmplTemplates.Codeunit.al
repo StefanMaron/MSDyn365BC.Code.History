@@ -1985,7 +1985,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
         // [GIVEN] Template with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
         // [GIVEN] Nonstock item
         CreateNonstockItem(NonstockItem, ItemTempl.Code);
 
@@ -1995,6 +1995,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item inserted with data from template
         Item.Get(NonstockItem."Vendor Item No.");
         VerifyItem(Item, ItemTempl);
+        VerifyDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
     end;
 
     [Test]
@@ -2014,7 +2015,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         CustVendItemEmplTemplates.SetItemTemplateFeatureEnabled(true);
 
         // [GIVEN] Template with data and dimensions
-        LibraryTemplates.CreateItemTemplateWithDataAndDimensions(ItemTempl);
+        CreateItemTemplateWithDataAndDimensions(ItemTempl);
         ItemTempl.Validate("Reordering Policy", ItemTempl."Reordering Policy"::Order);
         ItemTempl.Modify(true);
         // [GIVEN] Nonstock item
@@ -2026,6 +2027,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         // [THEN] Item inserted with data from template
         Item.Get(NonstockItem."Vendor Item No.");
         VerifyItem(Item, ItemTempl);
+        VerifyDimensions(Database::Item, Item."No.", Database::"Item Templ.", ItemTempl.Code);
         // [THEN] Item "Reordering Policy" = item template "Reordering Policy"
         Item.TestField("Reordering Policy", ItemTempl."Reordering Policy");
     end;

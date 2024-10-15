@@ -67,6 +67,7 @@
                                             WhseEntry.SetRange("Bin Code", WhseEntry."Bin Code");
                                             if not ItemBinLocationIsCalculated(WhseEntry."Bin Code") then begin
                                                 WhseEntry.CalcSums("Qty. (Base)");
+                                                OnItemLedgerEntryOnAfterGetRecordOnBeforeUpdateBuffer(WhseEntry);
                                                 UpdateBuffer(WhseEntry."Bin Code", WhseEntry."Qty. (Base)", false);
                                             end;
                                             WhseEntry.Find('+');
@@ -100,6 +101,7 @@
                             then begin
                                 Clear(QuantityOnHandBuffer);
                                 QuantityOnHandBuffer."Item No." := Item."No.";
+                                OnItemLedgerEntryOnPreDataItemOnBeforeInsertQuantityOnHandBuffer(QuantityOnHandBuffer, Item);
                                 QuantityOnHandBuffer.Insert();
                             end;
                         end;
@@ -775,7 +777,6 @@
         SKU.SetRange("Item No.", Item."No.");
         Item.CopyFilter("Variant Filter", SKU."Variant Code");
         Item.CopyFilter("Location Filter", SKU."Location Code");
-
         if SKU.Find('-') then begin
             QuantityOnHandBuffer.Reset();
             QuantityOnHandBuffer.SetRange("Item No.", Item."No.");
@@ -787,6 +788,7 @@
                     QuantityOnHandBuffer."Item No." := SKU."Item No.";
                     QuantityOnHandBuffer."Variant Code" := SKU."Variant Code";
                     QuantityOnHandBuffer."Location Code" := SKU."Location Code";
+                    OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(QuantityOnHandBuffer, SKU, Item);
                     QuantityOnHandBuffer.Insert();
                 end;
             until SKU.Next() = 0;
@@ -935,6 +937,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnItemLedgerEntryOnAfterGetRecordOnBeforeUpdateBuffer(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertItemJnlLineOnBeforeInit(var ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -946,6 +953,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertItemJnlLineOnAfterValidateLocationCode(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddZeroQtySKUOnBeforeInsertQuantityOnHandBuffer(var TempInventoryBuffer: Record "Inventory Buffer" temporary; StockkeepingUnit: Record "Stockkeeping Unit"; Item: Record Item)
     begin
     end;
 
@@ -971,6 +983,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterFunctionInsertItemJnlLine(ItemNo: Code[20]; VariantCode2: Code[10]; DimEntryNo2: Integer; BinCode2: Code[20]; Quantity2: Decimal; PhysInvQuantity: Decimal; var ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemLedgerEntryOnPreDataItemOnBeforeInsertQuantityOnHandBuffer(var TempInventoryBuffer: Record "Inventory Buffer" temporary; Item: Record Item)
     begin
     end;
 

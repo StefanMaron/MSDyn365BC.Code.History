@@ -157,6 +157,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
         trigger OnOpenPage()
         begin
+            ExportFormat := ExportFormat::"2022";
             FilterSourceLinesByIntrastatSetupExportTypes();
         end;
     }
@@ -376,6 +377,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         OK: Boolean;
         NoOfEntries: Text[3];
     begin
+        OnBeforeWriteGroupTotalsToFile2021(IntrastatJnlLine);
         OK := CopyStr(IntrastatJnlLine."Internal Ref. No.", 8, 3) = '001';
         if OK then begin
             IntrastatJnlLine3.SetCurrentKey("Internal Ref. No.");
@@ -421,6 +423,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         sep: Text[1];
         QuantityText: Text;
     begin
+        OnBeforeWriteGroupTotalsToFile2022(IntrastatJnlLine);
         CountryRegion.Get(IntrastatJnlLine."Country/Region Code");
         CountryRegion.TestField("Intrastat Code");
 
@@ -444,6 +447,16 @@ report 593 "Intrastat - Make Disk Tax Auth"
             TextZeroFormat(DecimalFormat(Round(IntrastatJnlLine.Amount), '<Integer><Decimals,3><Comma,,>'), 13) + sep +
             TextZeroFormat(DecimalFormat(Round(IntrastatJnlLine."Statistical Value"), '<Integer><Decimals,3><Comma,,>'), 13) + sep +
             CopyStr(DelChr(IntrastatJnlLine."Partner VAT ID"), 1, 14));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteGroupTotalsToFile2021(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteGroupTotalsToFile2022(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
     end;
 }
 

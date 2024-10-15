@@ -123,7 +123,6 @@ table 79 "Company Information"
 
             trigger OnValidate()
             var
-                FeatureTelemetry: Codeunit "Feature Telemetry";
                 RegTok: Label 'DACH Include Company Reg. Number On Reports', Locked = true;
             begin
                 FeatureTelemetry.LogUptake('0001Q0V', RegTok, Enum::"Feature Uptake Status"::"Set up");
@@ -644,6 +643,11 @@ table 79 "Company Information"
         field(11020; "House Number"; Text[9])
         {
             Caption = 'House Number';
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUptake('1000HK6', ATVATTok, Enum::"Feature Uptake Status"::"Set up");
+            end;
         }
         field(11021; "Floor Number"; Text[8])
         {
@@ -730,6 +734,8 @@ table 79 "Company Information"
 
     var
         PostCode: Record "Post Code";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ATVATTok: Label 'AT VAT Statement', Locked = true;
         NotValidIBANErr: Label 'The number %1 that you entered may not be a valid International Bank Account Number (IBAN). Do you want to continue?', Comment = '%1 - an actual IBAN';
         Text002: Label 'Before you can use Online Map, you must fill in the Online Map Setup window.\See Setting Up Online Map in Help.';
         NoPaymentInfoQst: Label 'No payment information is provided in %1. Do you want to update it now?', Comment = '%1 = Company Information';
@@ -1072,4 +1078,3 @@ table 79 "Company Information"
     begin
     end;
 }
-
