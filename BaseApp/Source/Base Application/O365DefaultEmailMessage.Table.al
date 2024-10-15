@@ -2,6 +2,14 @@ table 2170 "O365 Default Email Message"
 {
     Caption = 'O365 Default Email Message';
     ReplicateData = false;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+#if CLEAN21
+    ObsoleteState = Removed;
+    ObsoleteTag = '24.0';
+#else
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
+#endif
 
     fields
     {
@@ -28,7 +36,7 @@ table 2170 "O365 Default Email Message"
     fieldgroups
     {
     }
-
+#if not CLEAN21
     var
         GreetingTxt: Label 'Hello <%1>,', Comment = '%1 - customer name';
         InvoiceEmailBodyTxt: Label 'Thank you for your business. Your invoice is attached to this message.';
@@ -59,17 +67,19 @@ table 2170 "O365 Default Email Message"
         end;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetMessage(Type: Option): Text
     begin
         SetFilter("Document Type", '%1', Type);
         if not FindFirst() then begin
-            CreateMissingDefaultMessages;
+            CreateMissingDefaultMessages();
             SetFilter("Document Type", '%1', Type);
-            FindFirst
+            FindFirst();
         end;
-        exit(ReadMessage);
+        exit(ReadMessage());
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure ReadMessage(): Text
     var
         TypeHelper: Codeunit "Type Helper";
@@ -77,9 +87,10 @@ table 2170 "O365 Default Email Message"
     begin
         CalcFields(Value);
         Value.CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure SetMessage(NewMessage: Text)
     var
         OutStr: OutStream;
@@ -90,6 +101,7 @@ table 2170 "O365 Default Email Message"
         Modify(true);
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure ReportUsageToDocumentType(var DocumentType: Option; ReportUsage: Integer)
     var
         ReportSelections: Record "Report Selections";
@@ -105,6 +117,7 @@ table 2170 "O365 Default Email Message"
         end;
     end;
 
+    [Obsolete('Microsoft Invoicing has been discontinued.', '21.0')]
     procedure GetTestInvoiceMessage(): Text
     var
         CR: Text[1];
@@ -117,5 +130,6 @@ table 2170 "O365 Default Email Message"
 
         exit(EmailBodyTxt)
     end;
+#endif
 }
 

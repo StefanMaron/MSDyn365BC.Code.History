@@ -36,4 +36,3 @@ codeunit 5855 "Release Invt. Document"
         InvtDocHeader.Modify();
     end;
 }
-

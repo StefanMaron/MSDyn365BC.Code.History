@@ -14,7 +14,7 @@ codeunit 99000855 "Planning-Get Parameters"
 
     procedure AtSKU(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
     begin
-        GetMfgSetUp;
+        GetMfgSetUp();
         with GlobalSKU do begin
             if (ItemNo <> "Item No.") or
                (VariantCode <> "Variant Code") or
@@ -56,12 +56,11 @@ codeunit 99000855 "Planning-Get Parameters"
                         "Overflow Level" := 0;
                     end;
                 end;
-                if "Components at Location" = '' then begin
+                if "Components at Location" = '' then
                     if MfgSetup."Components at Location" <> '' then
                         "Components at Location" := MfgSetup."Components at Location"
                     else
                         "Components at Location" := LocationCode;
-                end;
             end;
             if Format("Safety Lead Time") = '' then
                 if Format(MfgSetup."Default Safety Lead Time") <> '' then
@@ -298,7 +297,7 @@ codeunit 99000855 "Planning-Get Parameters"
     procedure CalcDampenerDays(SKU: Record "Stockkeeping Unit") DampenerDays: Integer
     begin
         if Format(SKU."Dampener Period") = '' then begin
-            GetMfgSetUp;
+            GetMfgSetUp();
             DampenerDays := CalcDate(MfgSetup."Default Dampener Period") - Today;
         end else
             DampenerDays := CalcDate(SKU."Dampener Period") - Today;
@@ -314,7 +313,7 @@ codeunit 99000855 "Planning-Get Parameters"
     begin
         if SKU."Reordering Policy" <> SKU."Reordering Policy"::Order then
             if SKU."Dampener Quantity" = 0 then begin
-                GetMfgSetUp;
+                GetMfgSetUp();
                 DampenerQty := SKU."Lot Size" * MfgSetup."Default Dampener %" / 100;
             end else
                 DampenerQty := SKU."Dampener Quantity"
@@ -327,7 +326,7 @@ codeunit 99000855 "Planning-Get Parameters"
         if SKU."Overflow Level" <> 0 then
             WarningLevel := SKU."Overflow Level"
         else begin
-            GetMfgSetUp;
+            GetMfgSetUp();
             if MfgSetup."Blank Overflow Level" = MfgSetup."Blank Overflow Level"::"Allow Default Calculation" then begin
                 case SKU."Reordering Policy" of
                     SKU."Reordering Policy"::"Maximum Qty.":

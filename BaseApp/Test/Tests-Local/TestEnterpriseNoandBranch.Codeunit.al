@@ -1000,7 +1000,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         IssuedReminderHeader.Modify();
 
         // [WHEN] Reminder is being printed
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
 
@@ -1027,7 +1027,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         IssuedReminderHeader.Modify();
 
         // [WHEN] Reminder is being printed
-        IssuedReminderHeader.SetRecFilter;
+        IssuedReminderHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::Reminder, true, false, IssuedReminderHeader);
 
@@ -1054,7 +1054,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         IssuedFinanceChargeMemoHeader.Modify();
 
         // [WHEN] Finance Charge Memo is being printed
-        IssuedFinanceChargeMemoHeader.SetRecFilter;
+        IssuedFinanceChargeMemoHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Finance Charge Memo", true, false, IssuedFinanceChargeMemoHeader);
 
@@ -1082,7 +1082,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         IssuedFinanceChargeMemoHeader.Modify();
 
         // [WHEN] Finance Charge Memo is being printed
-        IssuedFinanceChargeMemoHeader.SetRecFilter;
+        IssuedFinanceChargeMemoHeader.SetRecFilter();
         Commit();
         REPORT.Run(REPORT::"Finance Charge Memo", true, false, IssuedFinanceChargeMemoHeader);
 
@@ -1202,10 +1202,12 @@ codeunit 144025 "Test Enterprise No and Branch"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
     begin
         // [FEATURE] [Report] [Reverse Charge VAT] [VAT Registration No.]
         // [SCENARIO 363740] The "Sales Document Test" report runs without errors with "Reverse Charge VAT" and "Bill-to Country/Region Code" specified
         Initialize();
+        VATEntry.DeleteAll();
 
         // [GIVEN] Set up CountryRegion, GLAccount and VATPostingSetup
         LibraryERM.CreateCountryRegion(CountryRegion);
@@ -1243,10 +1245,12 @@ codeunit 144025 "Test Enterprise No and Branch"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        VATEntry: Record "VAT Entry";
     begin
         // [FEATURE] [Report] [Reverse Charge VAT] [VAT Registration No.]
         // [SCENARIO 363740] The "Sales Document Test" report runs without errors with "Reverse Charge VAT" and no "Bill-to Country/Region Code" specified
         Initialize();
+        VATEntry.DeleteAll();
 
         // [GIVEN] Set up GLAccount and VATPostingSetup
         GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
@@ -1382,7 +1386,7 @@ codeunit 144025 "Test Enterprise No and Branch"
     local procedure UpdateCompanyInfo(var CompanyInformation: Record "Company Information"; EnterpriseNo: Text[50]; VATRegNo: Text[20]; GLNNo: Text[13])
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("Enterprise No.", EnterpriseNo);
             "VAT Registration No." := VATRegNo;
             Validate(GLN, GLNNo);
@@ -1395,7 +1399,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             Validate("SWIFT Code", Format(LibraryRandom.RandIntInRange(1000000, 9999999)));
             Modify(true);
         end;
@@ -1541,7 +1545,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         ServerFileName: Text[250];
         ClientFileName: Text[250];
     begin
-        SalesInvoiceHeader.SetRecFilter;
+        SalesInvoiceHeader.SetRecFilter();
         ElectronicDocumentFormat.SendElectronically(ServerFileName, ClientFileName, SalesInvoiceHeader, FormatCode);
         exit(ServerFileName);
     end;

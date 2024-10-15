@@ -1,7 +1,7 @@
 page 327 "Intrastat Jnl. Batches"
 {
     Caption = 'Intrastat Jnl. Batches';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "Intrastat Jnl. Batch";
 
@@ -22,28 +22,28 @@ page 327 "Intrastat Jnl. Batches"
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies some information about the Intrastat journal.';
                 }
-                field("Statistics Period"; "Statistics Period")
+                field("Statistics Period"; Rec."Statistics Period")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the month to report data for. Enter the period as a four-digit number, with no spaces or symbols. Depending on your country, enter either the month first and then the year, or vice versa. For example, enter either 1706 or 0617 for June, 2017.';
                 }
-                field("Currency Identifier"; "Currency Identifier")
+                field("Currency Identifier"; Rec."Currency Identifier")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies a code that identifies the currency of the Intrastat report.';
                 }
-                field("Amounts in Add. Currency"; "Amounts in Add. Currency")
+                field("Amounts in Add. Currency"; Rec."Amounts in Add. Currency")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies that you use an additional reporting currency in the general ledger and that you want to report Intrastat in this currency.';
                     Visible = false;
                 }
-                field("System 19 reported"; "System 19 reported")
+                field("System 19 reported"; Rec."System 19 reported")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the entry has already been reported to the tax authorities via system 19 (receipt).';
                 }
-                field("System 29 reported"; "System 29 reported")
+                field("System 29 reported"; Rec."System 29 reported")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the entry has already been reported to the tax authorities via system 29 (shipment).';
@@ -74,9 +74,6 @@ page 327 "Intrastat Jnl. Batches"
                 ApplicationArea = BasicEU;
                 Caption = 'Edit Journal';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open a journal based on the journal batch.';
 
@@ -84,6 +81,17 @@ page 327 "Intrastat Jnl. Batches"
                 begin
                     IntraJnlManagement.TemplateSelectionFromBatch(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(EditJournal_Promoted; EditJournal)
+                {
+                }
             }
         }
     }

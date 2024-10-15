@@ -66,7 +66,7 @@ codeunit 143002 "Library - Payment Journal BE"
     procedure CreateDomLine(var DomiciliationJournalLine: Record "Domiciliation Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10])
     begin
         with DomiciliationJournalLine do begin
-            Init;
+            Init();
             "Journal Template Name" := JournalTemplateName;
             "Journal Batch Name" := JournalBatchName;
             "Line No." := LibraryUtility.GetNewRecNo(DomiciliationJournalLine, FieldNo("Line No."));
@@ -91,7 +91,7 @@ codeunit 143002 "Library - Payment Journal BE"
         CustLedgEntry.Init();
         CustLedgEntry."Entry No." += 1;
         CustLedgEntry."Customer No." := Customer."No.";
-        CustLedgEntry."Posting Date" := WorkDate;
+        CustLedgEntry."Posting Date" := WorkDate();
         CustLedgEntry."Document Type" := CustLedgEntry."Document Type"::Invoice;
         CustLedgEntry."Document No." := Customer."No.";
         CustLedgEntry."Currency Code" := CurrencyCode;
@@ -110,7 +110,7 @@ codeunit 143002 "Library - Payment Journal BE"
         VendLedgEntry.Init();
         VendLedgEntry."Entry No." += 1;
         VendLedgEntry."Vendor No." := Vendor."No.";
-        VendLedgEntry."Posting Date" := WorkDate;
+        VendLedgEntry."Posting Date" := WorkDate();
         VendLedgEntry."Document Type" := VendLedgEntry."Document Type"::Invoice;
         VendLedgEntry."Document No." := Vendor."No.";
         VendLedgEntry."Currency Code" := CurrencyCode;

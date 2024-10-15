@@ -15,7 +15,7 @@
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text003_SELECTSTR_PostMethod___1_Text005__; StrSubstNo(PostedPostingTypeTxt, SelectStr(PostMethod + 1, PostingTypeTxt)))
@@ -241,7 +241,7 @@
                         if Number = 1 then
                             Find('-')
                         else
-                            Next;
+                            Next();
 
                         AccName := '';
 
@@ -252,16 +252,15 @@
                             Clear(ItemValueEntry);
 
                         if CheckPostingSetup(TempInvtPostToGLTestBuf) and not WrongEntryTypeComb then begin
-                            if "Account No." = '' then begin
+                            if "Account No." = '' then
                                 if "Invt. Posting Group Code" <> '' then
                                     AddError(
                                       StrSubstNo(
-                                        Text012, GetAccountName, InvtPostSetup.TableCaption, "Location Code", "Invt. Posting Group Code"))
+                                        Text012, GetAccountName(), InvtPostSetup.TableCaption(), "Location Code", "Invt. Posting Group Code"))
                                 else
                                     AddError(
                                       StrSubstNo(
-                                        Text012, GetAccountName, GenPostSetup.TableCaption, "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
-                            end;
+                                        Text012, GetAccountName(), GenPostSetup.TableCaption(), "Gen. Bus. Posting Group", "Gen. Prod. Posting Group"));
 
                             if not UserSetupManagement.TestAllowedPostingDate("Posting Date", TempErrorText) then
                                 AddError(TempErrorText);
@@ -270,7 +269,7 @@
                                 CheckGLAcc(TempInvtPostToGLTestBuf);
 
                             if not DimMgt.CheckDimIDComb("Dimension Set ID") then
-                                AddError(DimMgt.GetDimCombErr);
+                                AddError(DimMgt.GetDimCombErr());
 
                             TableID[1] := DimMgt.TypeToTableID1(0);
                             No[1] := "Account No.";
@@ -283,7 +282,7 @@
                             TableID[5] := DATABASE::Campaign;
                             No[5] := '';
                             if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
-                                AddError(DimMgt.GetDimValuePostingErr);
+                                AddError(DimMgt.GetDimValuePostingErr());
                         end;
                     end;
 
@@ -300,7 +299,7 @@
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get();
+                GLSetup.GetRecordOnce();
                 if not GLSetup."Journal Templ. Name Mandatory" then
                     case PostMethod of
                         PostMethod::"per Posting Group":
@@ -415,7 +414,7 @@
     begin
         OnBeforePreReport(PostValueEntryToGL, ItemValueEntry);
 
-        GLSetup.Get();
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
                 Error(MissingJournalFieldErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
@@ -429,7 +428,7 @@
             DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", 0D, true);
         end;
 
-        ValueEntryFilter := PostValueEntryToGL.GetFilters;
+        ValueEntryFilter := PostValueEntryToGL.GetFilters();
     end;
 
     var
@@ -499,7 +498,7 @@
                 exit;
 
             if PostMethod = PostMethod::"per Entry" then begin
-                GLSetup.Get();
+                GLSetup.GetRecordOnce();
                 if GLSetup."Journal Templ. Name Mandatory" then
                     InvtPostToGL.SetGenJnlBatch(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                 InvtPostToGL.PostInvtPostBufPerEntry(ValueEntry);
@@ -586,13 +585,13 @@
                     AddError(
                       StrSubstNo(
                         MustBeForErr,
-                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Account No."));
                 if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
                     GLAcc."Account Type" := GLAcc."Account Type"::Posting;
                     AddError(
                       StrSubstNo(
                         MustBeForErr,
-                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption(), "Account No."));
                 end;
             end;
     end;
@@ -612,7 +611,7 @@
                     AddError(
                       StrSubstNo(
                         Text011,
-                        InvtPostSetup.TableCaption,
+                        InvtPostSetup.TableCaption(),
                         FieldCaption("Location Code"), "Location Code",
                         FieldCaption("Invt. Posting Group Code"), "Invt. Posting Group Code"));
                     exit(false);
@@ -622,7 +621,7 @@
                     AddError(
                       StrSubstNo(
                         Text011,
-                        GenPostSetup.TableCaption,
+                        GenPostSetup.TableCaption(),
                         FieldCaption("Gen. Bus. Posting Group"), "Gen. Bus. Posting Group",
                         FieldCaption("Gen. Prod. Posting Group"), "Gen. Prod. Posting Group"));
                     exit(false);
@@ -631,7 +630,7 @@
                     AddError(
                       StrSubstNo(
                         SetupBlockedErr,
-                        GenPostSetup.TableCaption,
+                        GenPostSetup.TableCaption(),
                         FieldCaption("Gen. Bus. Posting Group"), "Gen. Bus. Posting Group",
                         FieldCaption("Gen. Prod. Posting Group"), "Gen. Prod. Posting Group"));
                     exit(false);
@@ -688,18 +687,6 @@
         OnAfterGetAccountName(TempInvtPostToGLTestBuf, InvtPostSetup, GenPostSetup, AccountName);
         exit(AccountName);
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by W1 InitializeRequest() and SetGenJnlBatch().', '18.0')]
-    procedure InitializeRequest(NewPostMethod: Option; NewShowDim: Boolean; NewShowOnlyWarnings: Boolean; NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10])
-    begin
-        PostMethod := NewPostMethod;
-        ShowDim := NewShowDim;
-        ShowOnlyWarnings := NewShowOnlyWarnings;
-        GenJnlLineReq."Journal Template Name" := NewJnlTemplName;
-        GenJnlLineReq."Journal Batch Name" := NewJnlBatchName;
-    end;
-#endif
 
     procedure InitializeRequest(NewPostMethod: Option; NewDocNo: Code[20]; NewShowDim: Boolean; NewShowOnlyWarnings: Boolean)
     begin

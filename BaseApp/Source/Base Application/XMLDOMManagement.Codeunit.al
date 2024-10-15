@@ -467,7 +467,7 @@ codeunit 6224 "XML DOM Management"
         XMLDocument: DotNet XmlDocument;
         XMLNode: DotNet XmlNode;
     begin
-        XMLDocument := XMLDocument.XmlDocument;
+        XMLDocument := XMLDocument.XmlDocument();
         XMLNode := XMLDocument.CreateElement('XMLEscape');
 
         XMLNode.InnerText(Text);
@@ -480,7 +480,7 @@ codeunit 6224 "XML DOM Management"
     var
         XmlReaderSettings: DotNet XmlReaderSettings;
     begin
-        LoadXmlDocFromText(XmlText, XmlDocument, XmlReaderSettings.XmlReaderSettings);
+        LoadXmlDocFromText(XmlText, XmlDocument, XmlReaderSettings.XmlReaderSettings());
     end;
 
     [Scope('OnPrem')]
@@ -489,7 +489,7 @@ codeunit 6224 "XML DOM Management"
         XmlDocument: DotNet XmlDocument;
         XmlReaderSettings: DotNet XmlReaderSettings;
     begin
-        LoadXmlDocFromText(XmlText, XmlDocument, XmlReaderSettings.XmlReaderSettings);
+        LoadXmlDocFromText(XmlText, XmlDocument, XmlReaderSettings.XmlReaderSettings());
         XmlNode := XmlDocument.DocumentElement;
     end;
 
@@ -497,7 +497,7 @@ codeunit 6224 "XML DOM Management"
     [Scope('OnPrem')]
     procedure LoadXMLDocumentFromInStream(InStream: InStream; var XmlDocument: DotNet XmlDocument)
     begin
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
         XmlDocument.Load(InStream);
     end;
 
@@ -514,7 +514,7 @@ codeunit 6224 "XML DOM Management"
     [Scope('OnPrem')]
     procedure LoadXMLDocumentFromOutStream(OutStream: OutStream; var XmlDocument: DotNet XmlDocument)
     begin
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
         XmlDocument.Load(OutStream);
     end;
 
@@ -559,7 +559,7 @@ codeunit 6224 "XML DOM Management"
         StringReader: DotNet StringReader;
         XmlTextReader: DotNet XmlTextReader;
     begin
-        XmlDocument := XmlDocument.XmlDocument;
+        XmlDocument := XmlDocument.XmlDocument();
 
         if XmlText = '' then
             exit;
@@ -568,8 +568,8 @@ codeunit 6224 "XML DOM Management"
         StringReader := StringReader.StringReader(XmlText);
         XmlTextReader := XmlTextReader.Create(StringReader, XmlReaderSettings);
         XmlDocument.Load(XmlTextReader);
-        XmlTextReader.Close;
-        StringReader.Close;
+        XmlTextReader.Close();
+        StringReader.Close();
     end;
 
     [Scope('OnPrem')]
@@ -587,7 +587,7 @@ codeunit 6224 "XML DOM Management"
         WebClient: DotNet WebClient;
         XmlText: Text;
     begin
-        WebClient := WebClient.WebClient;
+        WebClient := WebClient.WebClient();
         XmlText := WebClient.DownloadString(Uri);
         LoadXMLNodeFromText(XmlText, XMLRootNode);
     end;
@@ -597,8 +597,8 @@ codeunit 6224 "XML DOM Management"
         UTF8Encoding: DotNet UTF8Encoding;
         ByteOrderMarkUtf8: Text;
     begin
-        UTF8Encoding := UTF8Encoding.UTF8Encoding;
-        ByteOrderMarkUtf8 := UTF8Encoding.GetString(UTF8Encoding.GetPreamble);
+        UTF8Encoding := UTF8Encoding.UTF8Encoding();
+        ByteOrderMarkUtf8 := UTF8Encoding.GetString(UTF8Encoding.GetPreamble());
         if StrPos(XmlText, ByteOrderMarkUtf8) = 1 then
             XmlText := DelStr(XmlText, 1, StrLen(ByteOrderMarkUtf8));
     end;
@@ -682,24 +682,24 @@ codeunit 6224 "XML DOM Management"
         XMLTextReader: DotNet XmlTextReader;
         StringReader: DotNet StringReader;
     begin
-        XmlIn := XmlIn.XmlDocument;
+        XmlIn := XmlIn.XmlDocument();
         XmlIn.PreserveWhitespace(false);
 
         CreateXMLReaderFromInStream(XmlInStream, XmlReader);
         XmlIn.Load(XmlReader);
 
         CreateXMLReaderFromInStream(XslInStream, XslReader);
-        XslCompiledTransform := XslCompiledTransform.XslCompiledTransform;
+        XslCompiledTransform := XslCompiledTransform.XslCompiledTransform();
         XslCompiledTransform.Load(XslReader);
 
         XmlWriter := XmlWriter.Create(XmlOutStream);
         XMLTextReader := XMLTextReader.XmlTextReader(StringReader.StringReader(XmlIn.DocumentElement.OuterXml));
         XslCompiledTransform.Transform(XMLTextReader, XmlWriter);
-        XmlWriter.Flush;
+        XmlWriter.Flush();
 
-        XmlReader.Close;
-        XslReader.Close;
-        XmlWriter.Close;
+        XmlReader.Close();
+        XslReader.Close();
+        XmlWriter.Close();
     end;
 
     procedure TransformXMLText(XmlInText: Text; XslInText: Text): Text
@@ -738,10 +738,10 @@ codeunit 6224 "XML DOM Management"
     begin
         if InStream.EOS then
             Error(EmptyStreamErr);
-        DotNet_XmlDocument.InitXmlDocument;
+        DotNet_XmlDocument.InitXmlDocument();
         DotNet_XmlDocument.PreserveWhitespace(false);
         DotNet_XmlDocument.Load(InStream);
-        Xml := DotNet_XmlDocument.OuterXml;
+        Xml := DotNet_XmlDocument.OuterXml();
     end;
 
     local procedure CreateXMLReaderFromInStream(var XmlInStream: InStream; var XmlReader: DotNet XmlReader)
@@ -749,7 +749,7 @@ codeunit 6224 "XML DOM Management"
         XmlReaderSettings: DotNet XmlReaderSettings;
         DtdProcessing: DotNet DtdProcessing;
     begin
-        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings;
+        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings();
         XmlReaderSettings.DtdProcessing := DtdProcessing.Ignore;
         XmlReader := XmlReader.Create(XmlInStream, XmlReaderSettings);
     end;
@@ -762,12 +762,12 @@ codeunit 6224 "XML DOM Management"
     begin
         XDocument := XDocument.Parse(XMLText);
         FormattedXMLText :=
-          XDocument.Declaration.ToString + SystemEnvironment.NewLine + XDocument.ToString;
+          XDocument.Declaration.ToString() + SystemEnvironment.NewLine + XDocument.ToString();
     end;
 
     procedure RemoveNamespaces(XMLText: Text): Text
     begin
-        exit(TransformXMLText(XMLText, GetRemoveNamespacesXSLTText));
+        exit(TransformXMLText(XMLText, GetRemoveNamespacesXSLTText()));
     end;
 
     local procedure GetRemoveNamespacesXSLTText(): Text
@@ -801,8 +801,8 @@ codeunit 6224 "XML DOM Management"
         TransformStream: InStream;
     begin
         TempBlob.CreateInStream(TransformStream);
-        DotNet_XslCompiledTransform.XslCompiledTransform;
-        DotNet_XmlDocument.InitXmlDocument;
+        DotNet_XslCompiledTransform.XslCompiledTransform();
+        DotNet_XmlDocument.InitXmlDocument();
         DotNet_XmlDocument.Load(TransformStream);
         DotNet_XslCompiledTransform.Load(DotNet_XmlDocument);
     end;
@@ -820,7 +820,7 @@ codeunit 6224 "XML DOM Management"
         DotNet_XmlDocument: Codeunit DotNet_XmlDocument;
         DotNet_XsltArgumentList: Codeunit DotNet_XsltArgumentList;
     begin
-        DotNet_XmlDocument.InitXmlDocument;
+        DotNet_XmlDocument.InitXmlDocument();
         DotNet_XmlDocument.Load(SourceXmlStream);
         DotNet_XslCompiledTransform.Transform(DotNet_XmlDocument, DotNet_XsltArgumentList, DestinationStream);
     end;

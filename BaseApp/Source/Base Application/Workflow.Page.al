@@ -2,7 +2,6 @@ page 1501 Workflow
 {
     Caption = 'Workflow';
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Power Automate';
     SourceTable = Workflow;
 
     layout
@@ -90,9 +89,6 @@ page 1501 Workflow
                 Caption = 'Import from File';
                 Enabled = Code <> '';
                 Image = Import;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Import an existing workflow from an XML file.';
                 Visible = IsNotTemplate;
 
@@ -106,7 +102,7 @@ page 1501 Workflow
                         exit;
 
                     WorkflowImpExpMgt.ReplaceWorkflow(Rec, TempBlob);
-                    CurrPage.WorkflowSubpage.PAGE.RefreshBuffer;
+                    CurrPage.WorkflowSubpage.PAGE.RefreshBuffer();
                 end;
             }
             action(ExportWorkflow)
@@ -115,9 +111,6 @@ page 1501 Workflow
                 Caption = 'Export to File';
                 Enabled = Code <> '';
                 Image = Export;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Export the workflow to a file that can be imported in another Dynamics 365 database.';
                 Visible = IsNotTemplate;
 
@@ -141,9 +134,6 @@ page 1501 Workflow
                     ApplicationArea = Basic, Suite;
                     Caption = 'View';
                     Image = Flow;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'View flow definition';
                     Visible = HasWebhookClientLink;
 
@@ -165,9 +155,6 @@ page 1501 Workflow
                 Caption = 'Workflow Step Instances';
                 Enabled = InstancesExist;
                 Image = List;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Show all instances of workflow steps in current workflows.';
                 Visible = IsNotTemplate;
 
@@ -185,9 +172,6 @@ page 1501 Workflow
                 Caption = 'Archived Workflow Step Instances';
                 Enabled = ArchiveExists;
                 Image = ListPage;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View all instances of workflow steps that are no longer used, either because they are completed or because they were manually archived.';
                 Visible = IsNotTemplate;
 
@@ -200,6 +184,38 @@ page 1501 Workflow
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ImportWorkflow_Promoted; ImportWorkflow)
+                {
+                }
+                actionref(ExportWorkflow_Promoted; ExportWorkflow)
+                {
+                }
+                actionref(WorkflowStepInstances_Promoted; WorkflowStepInstances)
+                {
+                }
+                actionref(ArchivedWorkflowStepInstances_Promoted; ArchivedWorkflowStepInstances)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Power Automate', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(WebhookClientLink_Promoted; WebhookClientLink)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -207,7 +223,7 @@ page 1501 Workflow
         if OpenNew then
             Clear(Rec);
 
-        CurrPage.WorkflowResponses.PAGE.UpdateData;
+        CurrPage.WorkflowResponses.PAGE.UpdateData();
 
         if not TemplateValueSet then begin
             TemplateValueSet := True;
@@ -223,17 +239,17 @@ page 1501 Workflow
         IsNotTemplate := not Template;
 
         WorkflowStepInstance.SetRange("Workflow Code", Code);
-        InstancesExist := not WorkflowStepInstance.IsEmpty;
+        InstancesExist := not WorkflowStepInstance.IsEmpty();
 
         WorkflowStepInstanceArchive.SetRange("Workflow Code", Code);
-        ArchiveExists := not WorkflowStepInstanceArchive.IsEmpty;
+        ArchiveExists := not WorkflowStepInstanceArchive.IsEmpty();
     end;
 
     trigger OnClosePage()
     var
         Workflow: Record Workflow;
     begin
-        if Workflow.Get then
+        if Workflow.Get() then
             Workflow.Delete();
     end;
 
@@ -247,7 +263,7 @@ page 1501 Workflow
         InstancesExist := false;
         ArchiveExists := false;
 
-        if OpenView or ApplicationAreaMgmtFacade.IsBasicOnlyEnabled then
+        if OpenView or ApplicationAreaMgmtFacade.IsBasicOnlyEnabled() then
             CurrPage.Editable := false;
 
         // Load webhook subscription link when page opens

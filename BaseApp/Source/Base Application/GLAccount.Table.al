@@ -111,7 +111,7 @@ table 15 "G/L Account"
                 if "Account Category" <> xRec."Account Category" then
                     "Account Subcategory Entry No." := 0;
 
-                UpdateAccountCategoryOfSubAccounts;
+                UpdateAccountCategoryOfSubAccounts();
             end;
         }
         field(9; "Income/Balance"; Option)
@@ -266,7 +266,7 @@ table 15 "G/L Account"
 
             trigger OnValidate()
             begin
-                if not IsTotaling then
+                if not IsTotaling() then
                     FieldError("Account Type");
                 CalcFields(Balance);
             end;
@@ -319,11 +319,11 @@ table 15 "G/L Account"
                 if TranslationMethodConflict(ConflictGLAcc) then
                     if ConflictGLAcc.GetFilter("Consol. Debit Acc.") <> '' then
                         Message(
-                          Text002, ConflictGLAcc.TableCaption, ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Debit Acc."),
+                          Text002, ConflictGLAcc.TableCaption(), ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Debit Acc."),
                           ConflictGLAcc.FieldCaption("Consol. Translation Method"), ConflictGLAcc."Consol. Translation Method")
                     else
                         Message(
-                          Text002, ConflictGLAcc.TableCaption, ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Credit Acc."),
+                          Text002, ConflictGLAcc.TableCaption(), ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Credit Acc."),
                           ConflictGLAcc.FieldCaption("Consol. Translation Method"), ConflictGLAcc."Consol. Translation Method");
             end;
         }
@@ -338,7 +338,7 @@ table 15 "G/L Account"
             begin
                 if TranslationMethodConflict(ConflictGLAcc) then
                     Message(
-                      Text002, ConflictGLAcc.TableCaption, ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Debit Acc."),
+                      Text002, ConflictGLAcc.TableCaption(), ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Debit Acc."),
                       ConflictGLAcc.FieldCaption("Consol. Translation Method"), ConflictGLAcc."Consol. Translation Method");
             end;
         }
@@ -353,7 +353,7 @@ table 15 "G/L Account"
             begin
                 if TranslationMethodConflict(ConflictGLAcc) then
                     Message(
-                      Text002, ConflictGLAcc.TableCaption, ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Credit Acc."),
+                      Text002, ConflictGLAcc.TableCaption(), ConflictGLAcc."No.", ConflictGLAcc.FieldCaption("Consol. Credit Acc."),
                       ConflictGLAcc.FieldCaption("Consol. Translation Method"), ConflictGLAcc."Consol. Translation Method");
             end;
         }
@@ -743,9 +743,9 @@ table 15 "G/L Account"
         DimMgt.UpdateDefaultDim(DATABASE::"G/L Account", "No.",
           "Global Dimension 1 Code", "Global Dimension 2 Code");
 
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
 
-        if CostAccSetup.Get then
+        if CostAccSetup.Get() then
             CostAccMgt.UpdateCostTypeFromGLAcc(Rec, xRec, 0);
 
         if Indentation < 0 then
@@ -754,14 +754,13 @@ table 15 "G/L Account"
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
 
-        if CostAccSetup.Get then begin
+        if CostAccSetup.Get() then
             if CurrFieldNo <> 0 then
                 CostAccMgt.UpdateCostTypeFromGLAcc(Rec, xRec, 1)
             else
                 CostAccMgt.UpdateCostTypeFromGLAcc(Rec, xRec, 0);
-        end;
 
         if Indentation < 0 then
             Indentation := 0;
@@ -784,14 +783,15 @@ table 15 "G/L Account"
     end;
 
     var
-        Text000: Label 'You cannot change %1 because there are one or more ledger entries associated with this account.';
-        Text001: Label 'You cannot change %1 because this account is part of one or more budgets.';
         GLSetup: Record "General Ledger Setup";
         CostAccSetup: Record "Cost Accounting Setup";
         CommentLine: Record "Comment Line";
         DimMgt: Codeunit DimensionManagement;
         CostAccMgt: Codeunit "Cost Account Mgt";
         GLSetupRead: Boolean;
+
+        Text000: Label 'You cannot change %1 because there are one or more ledger entries associated with this account.';
+        Text001: Label 'You cannot change %1 because this account is part of one or more budgets.';
         Text002: Label 'There is another %1: %2; which refers to the same %3, but with a different %4: %5.';
         NoAccountCategoryMatchErr: Label 'There is no subcategory description for %1 that matches ''%2''.', Comment = '%1=account category value, %2=the user input.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
@@ -872,7 +872,7 @@ table 15 "G/L Account"
             GLAccountCategory.SetRange("Account Category", "Account Category");
         GLAccountCategories.SetTableView(GLAccountCategory);
         GLAccountCategories.LookupMode(true);
-        if GLAccountCategories.RunModal = ACTION::LookupOK then begin
+        if GLAccountCategories.RunModal() = ACTION::LookupOK then begin
             GLAccountCategories.GetRecord(GLAccountCategory);
             Validate("Account Category", GLAccountCategory."Account Category");
             "Account Subcategory Entry No." := GLAccountCategory."Entry No.";
@@ -902,7 +902,7 @@ table 15 "G/L Account"
                 exit;
 
             GLAccountSubAccount.Validate("Account Category", "Account Category");
-            GLAccountSubAccount.Modify
+            GLAccountSubAccount.Modify();
         until GLAccountSubAccount.Next() = 0;
     end;
 
@@ -922,7 +922,7 @@ table 15 "G/L Account"
         DimMgt.ValidateDimValueCode(FieldNumber, ShortcutDimCode);
         if not IsTemporary then begin
             DimMgt.SaveDefaultDim(DATABASE::"G/L Account", "No.", FieldNumber, ShortcutDimCode);
-            Modify;
+            Modify();
         end;
 
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);

@@ -496,11 +496,9 @@ table 123 "Purch. Inv. Line"
         {
             Caption = 'FA Posting Date';
         }
-        field(5601; "FA Posting Type"; Option)
+        field(5601; "FA Posting Type"; Enum "Purchase FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = ' ,Acquisition Cost,Maintenance,,Appreciation';
-            OptionMembers = " ","Acquisition Cost",Maintenance,,Appreciation;
         }
         field(5602; "Depreciation Book Code"; Code[10])
         {
@@ -760,14 +758,14 @@ table 123 "Purch. Inv. Line"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowItemTrackingLines()
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1);
+        ItemTrackingDocMgt.ShowItemTrackingForInvoiceLine(RowID1());
     end;
 
     procedure CalcVATAmountLines(PurchInvHeader: Record "Purch. Inv. Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
@@ -778,7 +776,7 @@ table 123 "Purch. Inv. Line"
             repeat
                 TempVATAmountLine.Init();
                 TempVATAmountLine.CopyFromPurchInvLine(Rec);
-                TempVATAmountLine.InsertLine;
+                TempVATAmountLine.InsertLine();
             until Next() = 0;
     end;
 
@@ -877,7 +875,7 @@ table 123 "Purch. Inv. Line"
     begin
         if "Qty. per Unit of Measure" = 0 then
             exit(QtyBase);
-        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(QtyBase / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     procedure GetItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SetQuantity: Boolean)
@@ -944,7 +942,7 @@ table 123 "Purch. Inv. Line"
 
     procedure InitFromPurchLine(PurchInvHeader: Record "Purch. Inv. Header"; PurchLine: Record "Purchase Line")
     begin
-        Init;
+        Init();
         TransferFields(PurchLine);
         if ("No." = '') and HasTypeToFillMandatoryFields() then
             Type := Type::" ";
@@ -960,7 +958,7 @@ table 123 "Purch. Inv. Line"
     begin
         DeferralUtilities.OpenLineScheduleView(
             "Deferral Code", "Deferral Document Type"::Purchase.AsInteger(), '', '',
-            GetDocumentType, "Document No.", "Line No.");
+            GetDocumentType(), "Document No.", "Line No.");
     end;
 
     procedure GetDeductibleVATAmount(): Decimal
@@ -1016,7 +1014,7 @@ table 123 "Purch. Inv. Line"
         PurchaseLine: Record "Purchase Line";
     begin
         if Type = Type::" " then
-            exit(PurchaseLine.FormatType);
+            exit(PurchaseLine.FormatType());
 
         exit(Format(Type));
     end;

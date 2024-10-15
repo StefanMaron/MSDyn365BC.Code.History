@@ -1,4 +1,4 @@
-codeunit 137302 "SCM Inventory Reports - II"
+﻿codeunit 137302 "SCM Inventory Reports - II"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -364,8 +364,8 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // 2. Exercise: Generate the Inventory Valuation WIP report.
         Commit();
-        LibraryVariableStorage.Enqueue(WorkDate);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
 
         // 3. Verify: Check the value of Source No. and Consumption.
@@ -380,7 +380,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         repeat
             ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
             CostAmountActual += ItemLedgerEntry."Cost Amount (Actual)";
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
 
         LibraryReportDataset.AssertCurrentRowValueEquals('ValueOfMatConsump', -CostAmountActual)
     end;
@@ -533,7 +533,7 @@ codeunit 137302 "SCM Inventory Reports - II"
             Item.Get(ProductionBOMLine."No.");
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('ProdBOMLineIndexDesc', Item.Description);
-        until ProductionBOMLine.Next = 0;
+        until ProductionBOMLine.Next() = 0;
     end;
 
     [Test]
@@ -586,7 +586,7 @@ codeunit 137302 "SCM Inventory Reports - II"
             LibraryReportDataset.GetNextRow;
             Item.Get(ProductionBOMLine."No.");
             LibraryReportDataset.AssertCurrentRowValueEquals('ProdBOMLineLevelDesc', Item.Description);
-        until ProductionBOMLine.Next = 0;
+        until ProductionBOMLine.Next() = 0;
     end;
 
     [Test]
@@ -742,8 +742,8 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // Exercise: Run Inventory Valuation WIP Report.
         Commit();
-        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate));
-        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<-CM>', WorkDate()));
+        LibraryVariableStorage.Enqueue(CalcDate('<CM>', WorkDate()));
         ProductionOrder.Get(ProductionOrder.Status::Finished, ProductionOrder."No.");
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
 
@@ -773,7 +773,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
 
         // Setup: Auto-reserve for Sales Order.
-        AutoReserveForSalesOrder(SalesHeader, Item."No.", WorkDate, PurchQty - 1);
+        AutoReserveForSalesOrder(SalesHeader, Item."No.", WorkDate(), PurchQty - 1);
         ExpectedPurchQty := PurchQty - 1;
 
         // Exercise: Generate the Sales Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
@@ -807,7 +807,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         CreatePurchaseOrder(PurchHeader, Item."No.", PurchQty);
 
         // Setup: Auto-reserve for Sales Order.
-        AutoReserveForSalesOrder(SalesHeader, Item."No.", CalcDate('<+5D>', WorkDate), PurchQty - 1);
+        AutoReserveForSalesOrder(SalesHeader, Item."No.", CalcDate('<+5D>', WorkDate()), PurchQty - 1);
 
         // Exercise1: Generate the Sales Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
         Commit();
@@ -852,7 +852,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryPurchase.PostPurchaseDocument(PurchHeader[2], true, true);
 
         // Setup: Auto-reserve for Sales Order.
-        AutoReserveForSalesOrder(SalesHeader, Item."No.", CalcDate('<+7D>', WorkDate), 3 * PurchQty - 1);
+        AutoReserveForSalesOrder(SalesHeader, Item."No.", CalcDate('<+7D>', WorkDate()), 3 * PurchQty - 1);
         ExpectedPurchQty := 2 * PurchQty;
         // Exercise1: Generate the Sales Reservation Avail. report with Show Sales Line & Reservation Entries & Modify Qty. to Ship In Order Lines.
         Commit();
@@ -954,11 +954,11 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // Exercise
         LibraryCosting.AdjustCostItemEntries('', '');
-        LibraryCosting.PostInvtCostToGL(false, WorkDate, '');
+        LibraryCosting.PostInvtCostToGL(false, WorkDate(), '');
 
         // Verify: Starting Date and Ending Date is work correctly in Inventory Valuation WIP report.
         Commit();
-        RunInventoryValuationWIPReportWithTimePeriod(CalcDate('<-1M-1D>', WorkDate), CalcDate('<-1D>', WorkDate), ProdOrderArray);
+        RunInventoryValuationWIPReportWithTimePeriod(CalcDate('<-1M-1D>', WorkDate()), CalcDate('<-1D>', WorkDate()), ProdOrderArray);
         ValidateInventoryValuationWIPReport(ProdOrderArray);
 
         // Teardown
@@ -988,7 +988,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ExplodeAndPostOutputJournal(Item."No.", ProductionOrder."No.");
 
         // Setup: Post consumptions in the next month.
-        WorkDate := CalcDate('<+1M>', WorkDate);
+        WorkDate := CalcDate('<+1M>', WorkDate());
         CalculateAndPostConsumption(ProductionOrder);
         LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
@@ -997,17 +997,17 @@ codeunit 137302 "SCM Inventory Reports - II"
         PostInventoryCostToGLRun(PostMethod::"per Entry", true);
 
         // Exercise: Run WIP report.
-        LibraryVariableStorage.Enqueue(CalcDate('<-1M>', WorkDate));
-        LibraryVariableStorage.Enqueue(CalcDate('<-1M+CM>', WorkDate));
+        LibraryVariableStorage.Enqueue(CalcDate('<-1M>', WorkDate()));
+        LibraryVariableStorage.Enqueue(CalcDate('<-1M+CM>', WorkDate()));
         REPORT.Run(REPORT::"Inventory Valuation - WIP", true, false, ProductionOrder);
 
         // Verify: Check the value of Cost Posted to G/L column.
-        ValueEntry.SetRange("Posting Date", CalcDate('<-1M>', WorkDate), CalcDate('<-1M+CM>', WorkDate));
+        ValueEntry.SetRange("Posting Date", CalcDate('<-1M>', WorkDate()), CalcDate('<-1M+CM>', WorkDate()));
         ValueEntry.SetRange("Source No.", Item."No.");
         ValueEntry.FindSet();
         repeat
             CostPostedToGL += ValueEntry."Cost Posted to G/L";
-        until ValueEntry.Next = 0;
+        until ValueEntry.Next() = 0;
 
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('SourceNo_ProductionOrder', Item."No.");
@@ -1089,9 +1089,9 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // Post Consumption and Output in different period.
         Number := LibraryRandom.RandIntInRange(1, 10);
-        PostingDate[1] := WorkDate;
-        PostingDate[2] := CalcDate('<' + Format(Number) + 'D>', WorkDate);
-        PostingDate[3] := CalcDate('<' + Format(2 * Number) + 'D>', WorkDate);
+        PostingDate[1] := WorkDate();
+        PostingDate[2] := CalcDate('<' + Format(Number) + 'D>', WorkDate());
+        PostingDate[3] := CalcDate('<' + Format(2 * Number) + 'D>', WorkDate());
         ConsumptionQty[1] := Quantity / 4;
         ConsumptionQty[2] := 3 * Quantity / 4;
         ConsumptionQty[3] := 0;
@@ -1110,7 +1110,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Commit(); // To avoid test failure.
 
         // Exercise: Run Inventory Valuation - WIP report.
-        RunInventoryValuationWIPReport(ProductionOrder, CalcDate('<+1D>', WorkDate), CalcDate('<' + Format(Number + 1) + 'D>', WorkDate));
+        RunInventoryValuationWIPReport(ProductionOrder, CalcDate('<+1D>', WorkDate()), CalcDate('<' + Format(Number + 1) + 'D>', WorkDate()));
 
         // Verify: Verify "As of..." value is correct in report Inventory Valuation - WIP
         LibraryReportDataset.LoadDataSetFile;
@@ -1185,7 +1185,7 @@ codeunit 137302 "SCM Inventory Reports - II"
 
         // [WHEN] Run report "Detailed Calculation" for item "I1"
         Commit();
-        ParentItem.SetRecFilter;
+        ParentItem.SetRecFilter();
         REPORT.Run(REPORT::"Detailed Calculation", true, false, ParentItem);
 
         // [THEN] Item "I2" is reported in the list of components
@@ -1798,7 +1798,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.CreateCurrency(Currency);
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
 
         // Using RANDOM Exchange Rate Amount and Adjustment Exchange Rate, between 100 and 400 (Standard Value).
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100 * LibraryRandom.RandInt(4));
@@ -1837,7 +1837,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         // Execute Price List report with the required combinations of Sales Type and Sales Code.
         Item.SetFilter("No.", NoFilter);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         LibraryVariableStorage.Enqueue(SalesType);
         LibraryVariableStorage.Enqueue(SalesCode);
         LibraryVariableStorage.Enqueue(CurrencyCode);
@@ -1895,7 +1895,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         with ItemLedgerEntry do begin
             if FindLast() then;
 
-            Init;
+            Init();
             "Entry No." += 1;
             "Item No." := ItemNo;
             Quantity := LibraryRandom.RandDec(100, 2);
@@ -1903,7 +1903,7 @@ codeunit 137302 "SCM Inventory Reports - II"
             "Variant Code" := LibraryUtility.GenerateGUID();
             "Global Dimension 1 Code" := LibraryUtility.GenerateGUID();
             "Global Dimension 2 Code" := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1921,7 +1921,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         SalesPrice: Record "Sales Price";
     begin
         LibraryCosting.CreateSalesPrice(
-          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate, '', VariantCode, Item."Base Unit of Measure", MinimumQty);
+          SalesPrice, SalesType, SalesCode, Item."No.", WorkDate(), '', VariantCode, Item."Base Unit of Measure", MinimumQty);
         SalesPrice.Validate("Unit Price", UnitPrice);
         SalesPrice.Modify(true);
     end;
@@ -1932,7 +1932,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     begin
         LibraryERM.CreateLineDiscForCustomer(
           SalesLineDiscount, SalesLineDiscount.Type::Item, Item."No.",
-          SalesLineDiscount."Sales Type"::Customer, SalesCode, WorkDate, '', VariantCode, Item."Base Unit of Measure", MinimumQty);
+          SalesLineDiscount."Sales Type"::Customer, SalesCode, WorkDate(), '', VariantCode, Item."Base Unit of Measure", MinimumQty);
         SalesLineDiscount.Validate("Line Discount %", LineDiscount);
         SalesLineDiscount.Modify(true);
     end;
@@ -2157,7 +2157,7 @@ codeunit 137302 "SCM Inventory Reports - II"
             LibraryManufacturing.ChangeStatusReleasedToFinished(ProductionOrder."No.");
 
             // Update the WORKDATE
-            WorkDate := CalcDate('<+1M>', WorkDate);
+            WorkDate := CalcDate('<+1M>', WorkDate());
         end;
     end;
 
@@ -2175,7 +2175,7 @@ codeunit 137302 "SCM Inventory Reports - II"
             Validate(Type, Type::Item);
             Validate("No.", ItemNo);
             Validate(Quantity, Qty);
-            Validate("Due Date", WorkDate);
+            Validate("Due Date", WorkDate());
             Modify(true);
         end;
     end;
@@ -2184,7 +2184,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     var
         CalcBOMTree: Codeunit "Calculate BOM Tree";
     begin
-        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate, 2);
+        CalcBOMTree.GenerateTreeForItem(Item, TempBOMBuffer, WorkDate(), 2);
     end;
 
     local procedure OpenProductionJournal(ProductionOrder: Record "Production Order")
@@ -2276,7 +2276,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         PurchaseLine: Record "Purchase Line";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        PurchaseHeader.Validate("Expected Receipt Date", WorkDate);
+        PurchaseHeader.Validate("Expected Receipt Date", WorkDate());
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
     end;
@@ -2377,7 +2377,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item: Record Item;
     begin
         Item.SetRange("No.", No);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::Status, true, false, Item);
     end;
 
@@ -2426,7 +2426,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         Item: Record Item;
     begin
         Item.SetRange("No.", No);
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Invt. Valuation - Cost Spec.", true, false, Item);
     end;
 
@@ -2634,7 +2634,7 @@ codeunit 137302 "SCM Inventory Reports - II"
         ProductionBOMLine.FindSet();
         repeat
             LibraryReportDataset.AssertElementWithValueExists('ProdBOMLineIndexNo', ProductionBOMLine."No.");
-        until ProductionBOMLine.Next = 0;
+        until ProductionBOMLine.Next() = 0;
     end;
 
     local procedure VerifyCostPostedToGL(ProductionOrderNo: Code[20]; DocumentNo: Code[20])
@@ -2759,7 +2759,7 @@ codeunit 137302 "SCM Inventory Reports - II"
     [Scope('OnPrem')]
     procedure InvtValCostSpecWithFiltersPageHandler(var InvtValuationCostSpec: TestRequestPage "Invt. Valuation - Cost Spec.")
     begin
-        InvtValuationCostSpec.ValuationDate.SetValue(WorkDate);
+        InvtValuationCostSpec.ValuationDate.SetValue(WorkDate());
         InvtValuationCostSpec.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

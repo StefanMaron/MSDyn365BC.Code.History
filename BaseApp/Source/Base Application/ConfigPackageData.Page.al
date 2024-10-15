@@ -10,7 +10,7 @@ page 8627 "Config. Package Data"
         {
             repeater(Group)
             {
-                field("Package Code"; "Package Code")
+                field("Package Code"; Rec."Package Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the package that contains the data that is being created.';

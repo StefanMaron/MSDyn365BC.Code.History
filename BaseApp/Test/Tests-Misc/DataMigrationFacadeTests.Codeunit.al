@@ -235,7 +235,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('Value', DimensionValue.Name, 'A different value was expected.');
 
         // [GIVEN] A specific Date and Datetime to set
-        LastModifiedDate := CalcDate('<-1D>', WorkDate);
+        LastModifiedDate := CalcDate('<-1D>', WorkDate());
         LastModifiedDateTime := CreateDateTime(LastModifiedDate, Time);
 
         VendorDataMigrationFacade.SetLastDateModified(LastModifiedDate);
@@ -259,11 +259,11 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.RecordCount(GenJournalTemplate, 1);
 
         // [GIVEN] The Currency Exchange Rate exists
-        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate(), 0.2, 0.2);
 
         // [WHEN] CreateGeneralJournalLine is called
         // [WHEN] SetGeneralJournalLineDimension is called
-        VendorDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate, WorkDate, 123, 123, '', 'GL0001');
+        VendorDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate(), WorkDate, 123, 123, '', 'GL0001');
         VendorDataMigrationFacade.SetGeneralJournalLineDimension('DEPARTMENT', 'Department', 'SALES', 'Sales');
 
         // [THEN] The Genral Journal Line is Created
@@ -275,8 +275,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Assert.AreEqual('1', GenJournalLine."Document No.", 'A different document number was expected');
         Assert.AreEqual('Document1', GenJournalLine.Description, 'A different Description was expected');
-        Assert.AreEqual(WorkDate, GenJournalLine."Posting Date", 'A different Posting Date was expected');
-        Assert.AreEqual(WorkDate, GenJournalLine."Due Date", 'A different Due Date was expected');
+        Assert.AreEqual(WorkDate(), GenJournalLine."Posting Date", 'A different Posting Date was expected');
+        Assert.AreEqual(WorkDate(), GenJournalLine."Due Date", 'A different Due Date was expected');
         Assert.AreEqual(123, GenJournalLine.Amount, 'A different Amount was expected');
         Assert.AreEqual(123, GenJournalLine."Amount (LCY)", 'A different Amount LCY was expected');
         Assert.AreEqual('', GenJournalLine."Currency Code", 'A different Currency was expected');
@@ -495,7 +495,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('Value', DimensionValue.Name, 'A different value was expected.');
 
         // [GIVEN] A specific Date and Datetime to set
-        LastModifiedDate := CalcDate('<-1D>', WorkDate);
+        LastModifiedDate := CalcDate('<-1D>', WorkDate());
         LastModifiedDateTime := CreateDateTime(LastModifiedDate, Time);
 
         CustomerDataMigrationFacade.SetLastDateModified(LastModifiedDate);
@@ -519,11 +519,11 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.RecordCount(GenJournalTemplate, 1);
 
         // [GIVEN] The Currency Exchange Rate exists
-        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate(), 0.2, 0.2);
 
         // [WHEN] CreateGeneralJournalLine is called
         // [WHEN] SetGeneralJournalLineDimension is called
-        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate, WorkDate, 123, 123, '', 'GL0001');
+        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '1', 'Document1', WorkDate(), WorkDate, 123, 123, '', 'GL0001');
         CustomerDataMigrationFacade.SetGeneralJournalLineDimension('DEPARTMENT', 'Department', 'SALES', 'Sales');
 
         // [THEN] The Genral Journal Line is Created
@@ -535,8 +535,8 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Assert.AreEqual('1', GenJournalLine."Document No.", 'A different document number was expected');
         Assert.AreEqual('Document1', GenJournalLine.Description, 'A different Description was expected');
-        Assert.AreEqual(WorkDate, GenJournalLine."Posting Date", 'A different Posting Date was expected');
-        Assert.AreEqual(WorkDate, GenJournalLine."Due Date", 'A different Due Date was expected');
+        Assert.AreEqual(WorkDate(), GenJournalLine."Posting Date", 'A different Posting Date was expected');
+        Assert.AreEqual(WorkDate(), GenJournalLine."Due Date", 'A different Due Date was expected');
         Assert.AreEqual(123, GenJournalLine.Amount, 'A different Amount was expected');
         Assert.AreEqual(123, GenJournalLine."Amount (LCY)", 'A different Amount LCY was expected');
         Assert.AreEqual('', GenJournalLine."Currency Code", 'A different Currency was expected');
@@ -560,7 +560,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [WHEN] Setting additional General Journal Line fields
         // [THEN] no errors are thrown
-        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '2', 'Document2', WorkDate, WorkDate, 123, 123, '', 'GL0001');
+        CustomerDataMigrationFacade.CreateGeneralJournalLine('MIGRATION', '2', 'Document2', WorkDate(), WorkDate, 123, 123, '', 'GL0001');
         CustomerDataMigrationFacade.SetGeneralJournalLineDocumentType(DocumentType::Payment);
         CustomerDataMigrationFacade.SetGeneralJournalLineExternalDocumentNo('1234');
         CustomerDataMigrationFacade.SetGeneralJournalLineSourceCode('GENJNL');
@@ -573,7 +573,7 @@ codeunit 135022 "Data Migration Facade Tests"
         UnbindSubscription(DataMigrationFacadeTests);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     //[HandlerFunctions('ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
@@ -596,13 +596,13 @@ codeunit 135022 "Data Migration Facade Tests"
         // [GIVEN] Item 'ITEM1'
         ItemDataMigrationFacade.CreateItemIfNeeded('ITEM1', 'Description', 'Description2', "Item Type"::Inventory.AsInteger());
         // [GIVEN] The Currency Exchange Rate 'DKK'
-        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate(), 0.2, 0.2);
         // [GIVEN] Customer Price Group 'CPG'
         ItemDataMigrationFacade.CreateCustomerPriceGroupIfNeeded('CPG', 'Customer Price Group', true);
 
         // [WHEN] CreateSalesPriceIfNeeded
         Assert.IsTrue(
-            ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 10, 'DKK', WorkDate, '', 5, ''),
+            ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 10, 'DKK', WorkDate(), '', 5, ''),
             'Sales Price was expected to have been created');
 
         // [THEN] Price List Line with header created, where "Amount Type" 'Price'
@@ -611,7 +611,7 @@ codeunit 135022 "Data Migration Facade Tests"
         PriceListLine.TestField("Source Type", PriceListLine."Source Type"::"Customer Price Group");
         PriceListLine.TestField("Source No.", 'CPG');
         PriceListLine.TestField("Currency Code", 'DKK');
-        PriceListLine.TestField("Starting Date", WorkDate);
+        PriceListLine.TestField("Starting Date", WorkDate());
         PriceListLine.TestField("Asset Type", "Price Asset Type"::Item);
         PriceListLine.TestField("Asset No.", 'ITEM1');
         PriceListLine.TestField("Variant Code", '');
@@ -624,7 +624,7 @@ codeunit 135022 "Data Migration Facade Tests"
 
         // [THEN] Creation of the same price line, with another price should fail
         Assert.IsFalse(
-            ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 11, 'DKK', WorkDate, '', 5, ''),
+            ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 11, 'DKK', WorkDate(), '', 5, ''),
             'Sales Price was not expected to have been created');
 
         // [GIVEN] Customer Discount Group 'CDG'
@@ -769,19 +769,19 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.IsFalse(ItemDataMigrationFacade.CreateUnitOfMeasureIfNeeded('UOM', 'Desc.'),
           'Unit of Measure was not expected to have been created');
 
-        Assert.IsTrue(ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 1, 'DKK', WorkDate, '', 1, ''),
+        Assert.IsTrue(ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 1, 'DKK', WorkDate(), '', 1, ''),
           'Sales Price was expected to have been created');
         SalesPrice.SetRange("Sales Type", 1);
         SalesPrice.SetRange("Sales Code", 'CPG');
         SalesPrice.SetRange("Item No.", 'ITEM1');
         SalesPrice.SetRange("Unit of Measure Code", '');
-        SalesPrice.SetRange("Starting Date", WorkDate);
+        SalesPrice.SetRange("Starting Date", WorkDate());
         SalesPrice.SetRange("Variant Code", '');
         SalesPrice.SetRange("Minimum Quantity", 1);
         SalesPrice.SetRange("Currency Code", 'DKK');
         SalesPrice.FindFirst();
         Assert.AreEqual(1, SalesPrice."Unit Price", 'A different unit price was expected');
-        Assert.IsFalse(ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 1, 'DKK', WorkDate, '', 1, ''),
+        Assert.IsFalse(ItemDataMigrationFacade.CreateSalesPriceIfNeeded(1, 'CPG', 'ITEM1', 1, 'DKK', WorkDate(), '', 1, ''),
           'Sales Price was not expected to have been created');
 
         Assert.IsTrue(ItemDataMigrationFacade.CreateTariffNumberIfNeeded('TN', 'Tariff Number', true),
@@ -882,7 +882,7 @@ codeunit 135022 "Data Migration Facade Tests"
         Assert.AreEqual('Value', DimensionValue.Name, 'A different value was expected.');
 
         // [GIVEN] A specific Date and Datetime to set
-        LastModifiedDate := CalcDate('<-1D>', WorkDate);
+        LastModifiedDate := CalcDate('<-1D>', WorkDate());
         LastModifiedDateTime := CreateDateTime(LastModifiedDate, Time);
 
         ItemDataMigrationFacade.SetLastDateModified(LastModifiedDate);
@@ -943,14 +943,14 @@ codeunit 135022 "Data Migration Facade Tests"
         ItemDataMigrationFacade.ModifyItem(true);
 
         // [WHEN] CreateItemJournalLine is called
-        ItemDataMigrationFacade.CreateItemJournalLine('IJB', 'DOC1', 'Description', WorkDate, 1, 2, 'LOC', 'GPPG');
+        ItemDataMigrationFacade.CreateItemJournalLine('IJB', 'DOC1', 'Description', WorkDate(), 1, 2, 'LOC', 'GPPG');
 
         // [THEN] the Item Journal line is created
         ItemJournalLine.SetRange("Journal Batch Name", 'IJB');
         ItemJournalLine.FindFirst();
         Assert.AreEqual('DOC1', ItemJournalLine."Document No.", 'A different Document Number was expected');
         Assert.AreEqual('Description', ItemJournalLine.Description, 'A different Description was expected');
-        Assert.AreEqual(WorkDate, ItemJournalLine."Posting Date", 'A different posting date was expected');
+        Assert.AreEqual(WorkDate(), ItemJournalLine."Posting Date", 'A different posting date was expected');
         Assert.AreEqual(1, ItemJournalLine.Quantity, 'A different quantity was expected');
         Assert.AreEqual(2, ItemJournalLine.Amount, 'A different amount was expected');
         Assert.AreEqual('LOC', ItemJournalLine."Location Code", 'A different location was expected');
@@ -1035,7 +1035,7 @@ codeunit 135022 "Data Migration Facade Tests"
         GLAccDataMigrationFacade.CreateGeneralJournalBatchIfNeeded('GJB', '', '');
 
         // [GIVEN] The calues are set
-        LastModifiedDate := CalcDate('<-1D>', WorkDate);
+        LastModifiedDate := CalcDate('<-1D>', WorkDate());
         LastModifiedDateTime := CreateDateTime(LastModifiedDate, Time);
 
         GLAccDataMigrationFacade.SetLastDateModified(LastModifiedDate);
@@ -1086,22 +1086,22 @@ codeunit 135022 "Data Migration Facade Tests"
 
         Initialize();
         // [WHEN] CreateSimpleExchangeRateIfNeeded is called
-        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate(), 0.2, 0.2);
 
         // [THEN] Exchange rate is created
-        CurrencyExchangeRate.Get('DKK', WorkDate);
+        CurrencyExchangeRate.Get('DKK', WorkDate());
         Assert.AreEqual(0.2, CurrencyExchangeRate."Relational Exch. Rate Amount",
           'A differentRelational Exch. Rate Amount was expected');
         Assert.AreEqual(0.2, CurrencyExchangeRate."Exchange Rate Amount", 'A different Exchange Rate Amount was expected');
         // Already existing does not throw error
-        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate, 0.2, 0.2);
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('DKK', WorkDate(), 0.2, 0.2);
 
         // [WHEN] CreateSimpleExchangeRateIfNeeded is called for local currency
-        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('MYC', WorkDate, 0.2, 0.2);
+        ExRateDataMigrationFacade.CreateSimpleExchangeRateIfNeeded('MYC', WorkDate(), 0.2, 0.2);
 
         // [THEN] The exchange rate is not created
         CurrencyExchangeRate.SetRange("Currency Code", 'MYC');
-        CurrencyExchangeRate.SetRange("Starting Date", WorkDate);
+        CurrencyExchangeRate.SetRange("Starting Date", WorkDate());
         Assert.RecordIsEmpty(CurrencyExchangeRate);
 
         UnbindSubscription(DataMigrationFacadeTests);

@@ -36,19 +36,19 @@ codeunit 144047 LinkToAcconReportTest
             "Account Type" := "Account Type"::Total;
             Modify(true);
 
-            Reset;
+            Reset();
             LibraryERM.CreateGLAccount(GLAccount);
             "Account Type" := "Account Type"::Posting;
             Modify(true);
         end;
 
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := 10000001;
             "G/L Account No." := GLAccount."No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDec(1000, 2);
-            Insert;
+            Insert();
         end;
 
         Commit();
@@ -85,7 +85,7 @@ codeunit 144047 LinkToAcconReportTest
                 Assert.AreNearlyEqual(GLEntry.Amount, LineAmount, 1, 'Expected amount to be present in line');
             end;
         end;
-        File.Close;
+        File.Close();
 
         Assert.AreEqual(LineCount, GLAccount.Count, 'Expected the expected row count to match data');
         Assert.IsTrue(FoundTestAccount, 'Expected to find the test account in the exported data');
@@ -115,20 +115,20 @@ codeunit 144047 LinkToAcconReportTest
             "Account Type" := "Account Type"::Total;
             Modify(true);
 
-            Reset;
+            Reset();
             LibraryERM.CreateGLAccount(GLAccount);
             "Account Type" := "Account Type"::Posting;
             Modify(true);
         end;
 
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := 10000002;
             "G/L Account No." := GLAccount."No.";
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDec(1000, 2);
             "Additional-Currency Amount" := Amount * 3;
-            Insert;
+            Insert();
         end;
 
         Commit();
@@ -166,7 +166,7 @@ codeunit 144047 LinkToAcconReportTest
                 Assert.AreNearlyEqual(GLEntry."Additional-Currency Amount", LineAmount, 1, 'Expected amount to match');
             end;
         end;
-        File.Close;
+        File.Close();
 
         Assert.AreEqual(LineCount, GLAccount.Count, 'Expected the expected row count to match data');
         Assert.IsTrue(FoundTestAccount, 'Expected to find the test account in the exported data');

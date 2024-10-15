@@ -12,7 +12,7 @@ report 5939 "Service Item - Resource Usage"
         {
             DataItemTableView = SORTING("Item No.", "Serial No.") WHERE("Type Filter" = CONST(Resource));
             RequestFilterFields = "No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -142,7 +142,7 @@ report 5939 "Service Item - Resource Usage"
 
     trigger OnPreReport()
     begin
-        ServItemFilters := "Service Item".GetFilters;
+        ServItemFilters := "Service Item".GetFilters();
     end;
 
     var

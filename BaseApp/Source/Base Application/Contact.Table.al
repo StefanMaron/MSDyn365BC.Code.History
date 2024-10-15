@@ -47,8 +47,8 @@
 
             trigger OnValidate()
             begin
-                NameBreakdown;
-                ProcessNameChange;
+                NameBreakdown();
+                ProcessNameChange();
             end;
         }
         field(3; "Search Name"; Code[100])
@@ -85,10 +85,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidateCity(Rec, PostCode);
-
-                PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidateCity(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidateCity(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidateCity(Rec, xRec);
             end;
@@ -134,7 +137,7 @@
 
             trigger OnValidate()
             begin
-                ValidateSalesPerson;
+                ValidateSalesPerson();
             end;
         }
         field(35; "Country/Region Code"; Code[10])
@@ -147,7 +150,7 @@
                 PostCode.CheckClearPostCodeCityCounty(City, "Post Code", County, "Country/Region Code", xRec."Country/Region Code");
 
                 if "Country/Region Code" <> xRec."Country/Region Code" then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(38; Comment; Boolean)
@@ -189,7 +192,7 @@
                     Error(Text11301, FieldCaption("Enterprise No."));
                 "VAT Registration No." := UpperCase("VAT Registration No.");
                 if "VAT Registration No." <> xRec."VAT Registration No." then
-                    VATRegistrationValidation;
+                    VATRegistrationValidation();
             end;
         }
         field(89; Picture; BLOB)
@@ -218,10 +221,13 @@
             end;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                OnBeforeValidatePostCode(Rec, PostCode);
-
-                PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
+                IsHandled := false;
+                OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
+                if not IsHandled then
+                    PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
 
                 OnAfterValidatePostCode(Rec, xRec);
             end;
@@ -306,8 +312,8 @@
             trigger OnValidate()
             begin
                 if (CurrFieldNo <> 0) and ("No." <> '') then begin
-                    TypeChange;
-                    Modify;
+                    TypeChange();
+                    Modify();
                 end;
             end;
         }
@@ -367,8 +373,8 @@
 
             trigger OnValidate()
             begin
-                Name := CalculatedName;
-                ProcessNameChange;
+                Name := CalculatedName();
+                ProcessNameChange();
             end;
         }
         field(5055; "Middle Name"; Text[30])
@@ -377,8 +383,8 @@
 
             trigger OnValidate()
             begin
-                Name := CalculatedName;
-                ProcessNameChange;
+                Name := CalculatedName();
+                ProcessNameChange();
             end;
         }
         field(5056; Surname; Text[30])
@@ -387,8 +393,8 @@
 
             trigger OnValidate()
             begin
-                Name := CalculatedName;
-                ProcessNameChange;
+                Name := CalculatedName();
+                ProcessNameChange();
             end;
         }
         field(5058; "Job Title"; Text[30])
@@ -868,14 +874,14 @@
 
         SegLine.SetRange("Contact No.", "No.");
         if not SegLine.IsEmpty() then
-            Error(Text001, TableCaption, "No.");
+            Error(Text001, TableCaption(), "No.");
 
         Opp.SetCurrentKey("Contact Company No.", "Contact No.");
         Opp.SetRange("Contact Company No.", "Company No.");
         Opp.SetRange("Contact No.", "No.");
         Opp.SetRange(Status, Opp.Status::"Not Started", Opp.Status::"In Progress");
         if Opp.Find('-') then
-            Error(Text002, TableCaption, "No.");
+            Error(Text002, TableCaption(), "No.");
 
         ContBusRel.SetRange("Contact No.", "No.");
         ContBusRel.DeleteAll();
@@ -985,16 +991,12 @@
         IntrastatSetup.CheckDeleteIntrastatContact(IntrastatSetup."Intrastat Contact Type"::Contact, "No.");
 
         Customer.SetRange("Primary Contact No.", "No.");
-        if not Customer.IsEmpty() then begin
-            Customer.ModifyAll(Contact, '');
-            Customer.ModifyAll("Primary Contact No.", '');
-        end;
+        Customer.ModifyAll(Contact, '');
+        Customer.ModifyAll("Primary Contact No.", '');
 
         Vendor.SetRange("Primary Contact No.", "No.");
-        if not Vendor.IsEmpty() then begin
-            Vendor.ModifyAll(Contact, '');
-            Vendor.ModifyAll("Primary Contact No.", '');
-        end;
+        Vendor.ModifyAll(Contact, '');
+        Vendor.ModifyAll("Primary Contact No.", '');
     end;
 
     trigger OnInsert()
@@ -1016,7 +1018,7 @@
         if not SkipDefaults then begin
             if "Salesperson Code" = '' then begin
                 "Salesperson Code" := RMSetup."Default Salesperson Code";
-                SetDefaultSalesperson;
+                SetDefaultSalesperson();
             end;
             if "Territory Code" = '' then
                 "Territory Code" := RMSetup."Default Territory Code";
@@ -1035,8 +1037,8 @@
         end;
 
         UpdateBusinessRelation();
-        TypeChange;
-        SetLastDateTimeModified;
+        TypeChange();
+        SetLastDateTimeModified();
         SetSearchEmail();
         OnAfterOnInsert(Rec, xRec);
     end;
@@ -1049,7 +1051,7 @@
         // so find the xRec
         ContactBeforeModify.Copy(xRec);
         if Format(xRec) = Format(Rec) then
-            ContactBeforeModify.Find;
+            ContactBeforeModify.Find();
         DoModify(ContactBeforeModify);
         SetSearchEmail();
     end;
@@ -1246,7 +1248,7 @@
             OnBeforeDuplicateCheck(Rec, ContactBeforeModify, IsDuplicateCheckNeeded);
 
             if IsDuplicateCheckNeeded then
-                CheckDuplicates;
+                CheckDuplicates();
         end;
 
         OnAfterOnModify(Rec, ContactBeforeModify);
@@ -1316,7 +1318,7 @@
                             "Company No." := '';
                             "Company Name" := '';
                             "Salutation Code" := RMSetup."Default Person Salutation Code";
-                            NameBreakdown;
+                            NameBreakdown();
                         end;
                     end;
             end;
@@ -1325,7 +1327,7 @@
 
             if Cont.Get("No.") then begin
                 if Type = Type::Company then
-                    CheckDuplicates
+                    CheckDuplicates()
                 else
                     DuplMgt.RemoveContIndex(Rec, false);
             end;
@@ -1389,83 +1391,6 @@
             if CustomerTemplMgt.TemplatesAreNotEmpty() then
                 exit;
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by CreateCustomerFromTemplate()', '18.0')]
-    procedure CreateCustomer(CustomerTemplate: Code[10]) CustNo: Code[20]
-    var
-        Cust: Record Customer;
-        CustTemplate: Record "Customer Template";
-        ContBusRel: Record "Contact Business Relation";
-        CustomerTempl: Record "Customer Templ.";
-        OfficeMgt: Codeunit "Office Management";
-        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
-        IsHandled: Boolean;
-        TemplateSelected: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCreateCustomer(Rec, CustNo, IsHandled, CustomerTemplate, HideValidationDialog);
-        if IsHandled then
-            exit;
-
-        CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
-        if CreateCompanyContactCustomer(CustomerTemplate, CustNo) then
-            exit;
-        CheckIfPrivacyBlockedGeneric();
-        RMSetup.Get();
-        RMSetup.TestField("Bus. Rel. Code for Customers");
-
-        if CustomerTemplMgt.IsEnabled() then begin
-            TemplateSelected := CustomerTemplMgt.SelectCustomerTemplateFromContact(CustomerTempl, Rec);
-            if not TemplateSelected then
-                if CustomerTemplMgt.TemplatesAreNotEmpty() then
-                    exit;
-        end;
-
-        if CustomerTemplate <> '' then
-            if CustTemplate.Get(CustomerTemplate) then;
-
-        Clear(Cust);
-        Cust.SetInsertFromContact(true);
-        Cust."Contact Type" := Type;
-        OnBeforeCustomerInsert(Cust, CustomerTemplate, Rec);
-        Cust.Insert(true);
-        Cust.SetInsertFromContact(false);
-        CustNo := Cust."No.";
-
-        ContBusRel."Contact No." := "No.";
-        ContBusRel."Business Relation Code" := RMSetup."Bus. Rel. Code for Customers";
-        ContBusRel."Link to Table" := ContBusRel."Link to Table"::Customer;
-        ContBusRel."No." := Cust."No.";
-        ContBusRel.Insert(true);
-
-        UpdateCustVendBank.UpdateCustomer(Rec, ContBusRel);
-
-        Cust.Get(ContBusRel."No.");
-        if Type = Type::Company then
-            Cust.Validate(Name, "Company Name");
-
-        OnCreateCustomerOnBeforeCustomerModify(Cust, Rec);
-        Cust.Modify();
-
-        if TemplateSelected then
-            CustomerTemplMgt.ApplyCustomerTemplate(Cust, CustomerTempl)
-        else
-            UpdateCustomerFromConversionTemplate(Cust, CustTemplate);
-
-        OnCreateCustomerOnBeforeUpdateQuotes(Cust, Rec);
-
-        UpdateQuotes(Cust, CustomerTemplate);
-        CampaignMgt.ConverttoCustomer(Rec, Cust);
-        if OfficeMgt.IsAvailable() then
-            PAGE.Run(PAGE::"Customer Card", Cust)
-        else
-            if not HideValidationDialog then
-                Message(RelatedRecordIsCreatedMsg, Cust.TableCaption);
-
-        OnAfterCreateCustomer(Rec, Cust);
-    end;
-#endif
 
     procedure CreateCustomerFromTemplate(CustomerTemplateCode: Code[20]) CustNo: Code[20]
     var
@@ -1548,28 +1473,6 @@
                 Message(RelatedRecordIsCreatedMsg, Customer.TableCaption());
     end;
 
-#if not CLEAN18
-    local procedure CreateCompanyContactCustomer(CustomerTemplate: Code[10]; var CustNo: Code[20]) CustomerCreated: Boolean
-    var
-        Contact: Record Contact;
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeCreateCompanyContactCustomer(Rec, CustomerTemplate, CustNo, HideValidationDialog, CustomerCreated, IsHandled);
-        if IsHandled then
-            exit(CustomerCreated);
-
-        if (Type = Type::Person) and ("Company No." <> '') and ("No." <> "Company No.") then
-            if Contact.Get("Company No.") then begin
-                Contact.SetHideValidationDialog(HideValidationDialog);
-                CustNo := Contact.CreateCustomer(CustomerTemplate);
-                exit(true);
-            end;
-
-        exit(false);
-    end;
-#endif
-
     local procedure CreateCompanyContactCustomerFromTemplate(CustomerTemplateCode: Code[20]; var CustNo: Code[20]) CustomerCreated: Boolean
     var
         Contact: Record Contact;
@@ -1616,8 +1519,8 @@
         CheckForExistingRelationships(ContBusRel."Link to Table"::Vendor);
         if CreateCompanyContactVendor(VendorNo, VendorTemplateCode) then
             exit;
-        CheckIfPrivacyBlockedGeneric;
-        CheckCompanyNo;
+        CheckIfPrivacyBlockedGeneric();
+        CheckCompanyNo();
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Vendors");
 
@@ -1735,12 +1638,12 @@
         ContBusRel."No." := BankAcc."No.";
         ContBusRel.Insert(true);
 
-        CheckIfPrivacyBlockedGeneric;
+        CheckIfPrivacyBlockedGeneric();
 
         UpdateCustVendBank.UpdateBankAccount(ContComp, ContBusRel);
 
         if not HideValidationDialog then
-            Message(RelatedRecordIsCreatedMsg, BankAcc.TableCaption);
+            Message(RelatedRecordIsCreatedMsg, BankAcc.TableCaption());
 
         OnAfterCreateBankAccount(Rec, BankAcc);
     end;
@@ -1757,7 +1660,7 @@
             exit;
 
         CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
-        CheckIfPrivacyBlockedGeneric;
+        CheckIfPrivacyBlockedGeneric();
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Customers");
         CreateLink(
@@ -1771,11 +1674,7 @@
         ContBusRel.SetRange("Contact No.", "Company No.");
         if ContBusRel.FindFirst() then
             if Cust.Get(ContBusRel."No.") then
-#if not CLEAN18
-                UpdateQuotes(Cust, '');
-#else
                 UpdateQuotesFromTemplate(Cust, '');
-#endif
 
         OnAfterCreateCustomerLink(Rec);
     end;
@@ -1805,7 +1704,7 @@
     var
         ContBusRel: Record "Contact Business Relation";
     begin
-        CheckIfPrivacyBlockedGeneric;
+        CheckIfPrivacyBlockedGeneric();
         TestField("Company No.");
         RMSetup.Get();
         RMSetup.TestField("Bus. Rel. Code for Bank Accs.");
@@ -1842,7 +1741,7 @@
     var
         ClientTypeManagement: Codeunit "Client Type Management";
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then begin
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then begin
             if "Mobile Phone No." = '' then
                 exit("Phone No.");
             exit("Mobile Phone No.");
@@ -1851,14 +1750,6 @@
             exit("Mobile Phone No.");
         exit("Phone No.");
     end;
-
-# if not CLEAN18
-    [Obsolete('Replaced by the procedure ShowBusinessRelation()', '18.0')]
-    procedure ShowCustVendBank()
-    begin
-        ShowBusinessRelation("Contact Business Relation Link To Table"::" ", false);
-    end;
-# endif
 
     procedure ShowBusinessRelation(LinkToTable: Enum "Contact Business Relation Link To Table"; All: Boolean)
     var
@@ -2105,18 +1996,19 @@
         NewName := CopyStr(NewName92, 1, MaxStrLen(NewName));
     end;
 
-    protected procedure UpdateSearchName()
+    procedure UpdateSearchName()
     var
         IsHandled: Boolean;
     begin
         OnBeforeUpdateSearchName(Rec, xRec, IsHandled);
         if IsHandled then
             exit;
+
         if ("Search Name" = UpperCase(xRec.Name)) or ("Search Name" = '') then
             "Search Name" := Name;
     end;
 
-    local procedure CheckDuplicates()
+    procedure CheckDuplicates()
     var
         IsHandled: Boolean;
     begin
@@ -2134,7 +2026,7 @@
         OnBeforeLaunchDuplicateForm(Rec, IsHandled);
         if not IsHandled then
             if DuplMgt.DuplicateExist(Rec) then begin
-                Modify;
+                Modify();
                 Commit();
                 DuplMgt.LaunchDuplicateForm(Rec);
             end;
@@ -2175,34 +2067,6 @@
             TestField(Type, ContactType);
     end;
 
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by FindNewCustomerTemplate()', '18.0')]
-    procedure FindCustomerTemplate(): Code[10]
-    var
-        CustTemplate: Record "Customer Template";
-        ContCompany: Record Contact;
-        CustTemplateCode: Code[10];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeFindCustomerTemplate(Rec, CustTemplateCode, IsHandled);
-        if IsHandled then
-            exit(CustTemplateCode);
-
-        CustTemplate.Reset();
-        CustTemplate.SetRange("Territory Code", "Territory Code");
-        CustTemplate.SetRange("Country/Region Code", "Country/Region Code");
-        CustTemplate.SetRange("Contact Type", Type);
-        if ContCompany.Get("Company No.") then
-            CustTemplate.SetRange("Currency Code", ContCompany."Currency Code");
-
-        if CustTemplate.Count = 1 then begin
-            CustTemplate.FindFirst();
-            exit(CustTemplate.Code);
-        end;
-    end;
-#endif
-
     procedure FindNewCustomerTemplate(): Code[20]
     var
         CustTemplate: Record "Customer Templ.";
@@ -2227,39 +2091,6 @@
             exit(CustTemplate.Code);
         end;
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by ChooseNewCustomerTemplate()', '18.0')]
-    procedure ChooseCustomerTemplate(): Code[10]
-    var
-        CustTemplate: Record "Customer Template";
-        ContBusRel: Record "Contact Business Relation";
-        CustTemplateCode: Code[10];
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeChooseCustomerTemplate(Rec, CustTemplateCode, IsHandled);
-        if IsHandled then
-            exit(CustTemplateCode);
-
-        CheckForExistingRelationships(ContBusRel."Link to Table"::Customer);
-        ContBusRel.Reset();
-        ContBusRel.SetRange("Contact No.", "No.");
-        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-        if ContBusRel.FindFirst() then
-            Error(
-              Text019,
-              TableCaption, "No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
-
-        if Confirm(CreateCustomerFromContactQst, true) then begin
-            CustTemplate.SetRange("Contact Type", Type);
-            if PAGE.RunModal(0, CustTemplate) = ACTION::LookupOK then
-                exit(CustTemplate.Code);
-
-            Error(Text022);
-        end;
-    end;
-#endif
 
     procedure ChooseNewCustomerTemplate(): Code[20]
     var
@@ -2375,80 +2206,9 @@
             end;
 
             if CurrFieldNo <> 0 then
-                Modify;
+                Modify();
         end;
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by UpdateQuotesFromTemplate()', '18.0')]
-    procedure UpdateQuotes(Customer: Record Customer; CustomerTemplate: Code[10])
-    var
-        SalesHeader: Record "Sales Header";
-        SalesHeader2: Record "Sales Header";
-        Cont: Record Contact;
-        SalesLine: Record "Sales Line";
-        TempErrorMessage: Record "Error Message" temporary;
-        ConfirmManagement: Codeunit "Confirm Management";
-    begin
-        if "Company No." <> '' then
-            Cont.SetRange("Company No.", "Company No.")
-        else
-            Cont.SetRange("No.", "No.");
-
-        if Cont.FindSet() then
-            repeat
-                SalesHeader.Reset();
-                SalesHeader.SetRange("Sell-to Customer No.", '');
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-                SalesHeader.SetRange("Sell-to Contact No.", Cont."No.");
-                if SalesHeader.FindSet() then
-                    repeat
-                        SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.");
-                        SalesHeader2."Sell-to Customer No." := Customer."No.";
-                        SalesHeader2."Sell-to Customer Name" := Customer.Name;
-                        CheckCustomerTemplate(SalesHeader2, TempErrorMessage, CustomerTemplate);
-                        SalesHeader2."Sell-to Customer Template Code" := '';
-                        if SalesHeader2."Sell-to Contact No." = SalesHeader2."Bill-to Contact No." then begin
-                            SalesHeader2."Bill-to Customer No." := Customer."No.";
-                            SalesHeader2."Bill-to Name" := Customer.Name;
-                            SalesHeader2."Bill-to Customer Template Code" := '';
-                            SalesHeader2."Salesperson Code" := Customer."Salesperson Code";
-                        end;
-                        SalesHeader2.Modify();
-                        SalesLine.SetRange("Document Type", SalesHeader2."Document Type");
-                        SalesLine.SetRange("Document No.", SalesHeader2."No.");
-                        SalesLine.ModifyAll("Sell-to Customer No.", SalesHeader2."Sell-to Customer No.");
-                        if SalesHeader2."Sell-to Contact No." = SalesHeader2."Bill-to Contact No." then
-                            SalesLine.ModifyAll("Bill-to Customer No.", SalesHeader2."Bill-to Customer No.");
-                        OnAfterModifySellToCustomerNo(SalesHeader2, SalesLine);
-                    until SalesHeader.Next() = 0;
-
-                SalesHeader.Reset();
-                SalesHeader.SetRange("Bill-to Customer No.", '');
-                SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
-                SalesHeader.SetRange("Bill-to Contact No.", Cont."No.");
-                if SalesHeader.FindSet() then
-                    repeat
-                        SalesHeader2.Get(SalesHeader."Document Type", SalesHeader."No.");
-                        SalesHeader2."Bill-to Customer No." := Customer."No.";
-                        SalesHeader2."Bill-to Customer Template Code" := '';
-                        SalesHeader2."Salesperson Code" := Customer."Salesperson Code";
-                        SalesHeader2.Modify();
-                        SalesLine.SetRange("Document Type", SalesHeader2."Document Type");
-                        SalesLine.SetRange("Document No.", SalesHeader2."No.");
-                        SalesLine.ModifyAll("Bill-to Customer No.", SalesHeader2."Bill-to Customer No.");
-                        OnAfterModifyBillToCustomerNo(SalesHeader2, SalesLine);
-                    until SalesHeader.Next() = 0;
-                OnAfterUpdateQuotesForContact(Cont, Customer);
-            until Cont.Next() = 0;
-
-        if not TempErrorMessage.IsEmpty() then
-            if ConfirmManagement.GetResponse(
-                 StrSubstNo(MultipleCustomerTemplatesConfirmQst, CustomerTemplate, Customer."No."), true)
-            then
-                TempErrorMessage.ShowErrorMessages(false);
-    end;
-#endif
 
     procedure UpdateQuotesFromTemplate(Customer: Record Customer; CustomerTemplateCode: Code[20])
     var
@@ -2523,35 +2283,6 @@
             then
                 TempErrorMessage.ShowErrorMessages(false);
     end;
-
-#if not CLEAN18
-    local procedure CheckCustomerTemplate(SalesHeader: Record "Sales Header"; var TempErrorMessage: Record "Error Message" temporary; CustomerTemplateCode: Code[10])
-    var
-        WarningMessage: Text;
-    begin
-        if CustomerTemplateCode = '' then
-            exit;
-        if SalesHeader."Sell-to Customer Template Code" <> CustomerTemplateCode then begin
-            if SalesHeader."Sell-to Customer Template Code" <> '' then
-                WarningMessage := StrSubstNo(
-                    DifferentCustomerTemplateMsg,
-                    SalesHeader."No.",
-                    SalesHeader."Sell-to Customer Template Code",
-                    CustomerTemplateCode)
-            else
-                WarningMessage := StrSubstNo(
-                    NoOriginalCustomerTemplateMsg,
-                    SalesHeader."No.",
-                    CustomerTemplateCode);
-
-            TempErrorMessage.LogMessage(
-              SalesHeader,
-              SalesHeader.FieldNo("Sell-to Customer Template Code"),
-              TempErrorMessage."Message Type"::Warning,
-              WarningMessage);
-        end;
-    end;
-#endif
 
     local procedure CheckNewCustomerTemplate(SalesHeader: Record "Sales Header"; var TempErrorMessage: Record "Error Message" temporary; CustomerTemplateCode: Code[20])
     var
@@ -2778,7 +2509,7 @@
     begin
         OnlineMapSetup.SetRange(Enabled, true);
         if OnlineMapSetup.FindFirst() then
-            OnlineMapManagement.MakeSelection(DATABASE::Contact, GetPosition)
+            OnlineMapManagement.MakeSelection(DATABASE::Contact, GetPosition())
         else
             Message(Text033);
     end;
@@ -2788,7 +2519,7 @@
         Cust: Record Customer;
         Vend: Record Vendor;
     begin
-        UpdateSearchName;
+        UpdateSearchName();
 
         case Type of
             Type::Company:
@@ -2891,12 +2622,12 @@
                     exit(Contact."No.");
                 end;
             else begin
-                    if not GuiAllowed then
-                        Error(SelectContactErr);
-                    ContactNo := SelectContact(Contact);
-                    if ContactNo <> '' then
-                        exit(ContactNo);
-                end;
+                if not GuiAllowed then
+                    Error(SelectContactErr);
+                ContactNo := SelectContact(Contact);
+                if ContactNo <> '' then
+                    exit(ContactNo);
+            end;
         end;
         Error(SelectContactErr);
     end;
@@ -2915,7 +2646,7 @@
         ContactList.SetTableView(Contact);
         ContactList.SetRecord(Contact);
         ContactList.LookupMode := true;
-        if ContactList.RunModal = ACTION::LookupOK then
+        if ContactList.RunModal() = ACTION::LookupOK then
             ContactList.GetRecord(Contact)
         else
             Clear(Contact);
@@ -2944,26 +2675,6 @@
         CompanyDetails.Editable := false;
         CompanyDetails.RunModal();
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by LookupNewCustomerTemplate()', '18.0')]
-    procedure LookupCustomerTemplate(): Code[20]
-    var
-        CustomerTemplate: Record "Customer Template";
-        CustomerTemplateList: Page "Customer Template List";
-    begin
-        CustomerTemplate.FilterGroup(2);
-        CustomerTemplate.SetRange("Contact Type", Type);
-        CustomerTemplate.FilterGroup(0);
-        CustomerTemplateList.LookupMode := true;
-        OnLookupCustomerTemplateOnBeforeSetTableView(Rec, CustomerTemplate);
-        CustomerTemplateList.SetTableView(CustomerTemplate);
-        if CustomerTemplateList.RunModal() = ACTION::LookupOK then begin
-            CustomerTemplateList.GetRecord(CustomerTemplate);
-            exit(CustomerTemplate.Code);
-        end;
-    end;
-#endif
 
     procedure LookupNewCustomerTemplate(): Code[20]
     var
@@ -3002,7 +2713,7 @@
             if ContBusRel.FindByContact(LinkToTable, Contact."No.") then
                 Error(
                   AlreadyExistErr,
-                  Contact.TableCaption, "No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
+                  Contact.TableCaption(), "No.", ContBusRel.TableCaption(), ContBusRel."Link to Table", ContBusRel."No.");
         end;
     end;
 
@@ -3019,7 +2730,7 @@
             if ContBusRel.FindByContact(ContBusRel."Link to Table", Contact."Company No.") then
                 Error(
                   AlreadyExistErr,
-                  Contact.TableCaption, "Company No.", ContBusRel.TableCaption, ContBusRel."Link to Table", ContBusRel."No.");
+                  Contact.TableCaption(), "Company No.", ContBusRel.TableCaption(), ContBusRel."Link to Table", ContBusRel."No.");
     end;
 
     procedure SetLastDateTimeModified()
@@ -3069,18 +2780,10 @@
     begin
         Cont.LockTable();
         if Cont.Get(ContactNo) then begin
-            Cont.SetLastDateTimeModified;
+            Cont.SetLastDateTimeModified();
             Cont.Modify();
         end;
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by CountNoOfBusinessRelations with LinkToTable parameter', '18.0')]
-    procedure CountNoOfBusinessRelations(): Integer
-    begin
-        exit(CountNoOfBusinessRelations("Contact Business Relation Link To Table"::" "));
-    end;
-#endif
 
     procedure CountNoOfBusinessRelations(LinkToTable: Enum "Contact Business Relation Link To Table"): Integer
     var
@@ -3096,12 +2799,12 @@
     begin
         OnBeforeCreateSalesQuoteFromContact(Rec, SalesHeader);
 
-        CheckIfPrivacyBlockedGeneric;
+        CheckIfPrivacyBlockedGeneric();
         SalesHeader.Init();
         SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
         OnCreateSalesQuoteFromContactOnBeforeSalesHeaderInsert(Rec, SalesHeader);
         SalesHeader.Insert(true);
-        SalesHeader.Validate("Document Date", WorkDate);
+        SalesHeader.Validate("Document Date", WorkDate());
         SalesHeader.Validate("Sell-to Contact No.", "No.");
         SalesHeader.Modify();
         PAGE.Run(PAGE::"Sales Quote", SalesHeader);
@@ -3114,7 +2817,7 @@
         ContBusRel.Reset();
         ContBusRel.SetRange("Contact No.", "No.");
         ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-        exit(ContBusRel.FindFirst);
+        exit(ContBusRel.FindFirst())
     end;
 
     procedure CheckIfMinorForProfiles()
@@ -3186,7 +2889,7 @@
             ApplicableCountryCode := "Country/Region Code";
             if ApplicableCountryCode = '' then
                 ApplicableCountryCode := VATRegistrationNoFormat."Country/Region Code";
-            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled then begin
+            if VATRegNoSrvConfig.VATRegNoSrvIsEnabled() then begin
                 LogNotVerified := false;
                 VATRegistrationLogMgt.ValidateVATRegNoWithVIES(
                     ResultRecordRef, Rec, "No.", VATRegistrationLog."Account Type"::Contact.AsInteger(), ApplicableCountryCode);
@@ -3274,7 +2977,7 @@
                 if Abs(ContactTextLength - StrLen(Contact.Name)) <= Treshold then
                     if TypeHelper.TextDistance(UpperCase(ContactText), UpperCase(Contact.Name)) <= Treshold then
                         Contact.Mark(true);
-            until Contact.Mark or (Contact.Next() = 0) or (ContactCount > 1000);
+            until Contact.Mark() or (Contact.Next() = 0) or (ContactCount > 1000);
         Contact.MarkedOnly(true);
     end;
 
@@ -3381,7 +3084,7 @@
             EmployeeTemplMgt.ApplyEmployeeTemplate(Employee, EmployeeTempl);
 
         if not HideValidationDialog then
-            Message(RelatedRecordIsCreatedMsg, Employee.TableCaption);
+            Message(RelatedRecordIsCreatedMsg, Employee.TableCaption());
 
         OnAfterCreateEmployee(Employee, ContBusRel);
     end;
@@ -3405,59 +3108,6 @@
         if not Rec.Get(ContactNo) then
             Clear(Rec);
     end;
-
-#if not CLEAN18
-    [Obsolete('This function will be removed once the Feature Key is removed. Will be replaced by ApplyCustomerTemplate() from CustomerTemplMgt codeunit.', '18.0')]
-    procedure UpdateCustomerFromConversionTemplate(var Cust: Record Customer; CustTemplate: Record "Customer Template")
-    var
-        DefaultDim: Record "Default Dimension";
-        DefaultDim2: Record "Default Dimension";
-    begin
-        if CustTemplate.Code <> '' then begin
-            if "Territory Code" = '' then
-                Cust."Territory Code" := CustTemplate."Territory Code"
-            else
-                Cust."Territory Code" := "Territory Code";
-            if "Currency Code" = '' then
-                Cust."Currency Code" := CustTemplate."Currency Code"
-            else
-                Cust."Currency Code" := "Currency Code";
-            if "Country/Region Code" = '' then
-                Cust."Country/Region Code" := CustTemplate."Country/Region Code"
-            else
-                Cust."Country/Region Code" := "Country/Region Code";
-            Cust."Customer Posting Group" := CustTemplate."Customer Posting Group";
-            Cust."Customer Price Group" := CustTemplate."Customer Price Group";
-            if CustTemplate."Invoice Disc. Code" <> '' then
-                Cust."Invoice Disc. Code" := CustTemplate."Invoice Disc. Code";
-            Cust."Customer Disc. Group" := CustTemplate."Customer Disc. Group";
-            Cust."Allow Line Disc." := CustTemplate."Allow Line Disc.";
-            Cust."Gen. Bus. Posting Group" := CustTemplate."Gen. Bus. Posting Group";
-            Cust."VAT Bus. Posting Group" := CustTemplate."VAT Bus. Posting Group";
-            Cust."Payment Terms Code" := CustTemplate."Payment Terms Code";
-            Cust."Payment Method Code" := CustTemplate."Payment Method Code";
-            Cust."Prices Including VAT" := CustTemplate."Prices Including VAT";
-            Cust."Shipment Method Code" := CustTemplate."Shipment Method Code";
-            Cust.UpdateReferencedIds();
-            OnCreateCustomerOnTransferFieldsFromTemplate(Cust, CustTemplate);
-            Cust.Modify();
-
-            DefaultDim.SetRange("Table ID", DATABASE::"Customer Template");
-            DefaultDim.SetRange("No.", CustTemplate.Code);
-            if DefaultDim.Find('-') then
-                repeat
-                    Clear(DefaultDim2);
-                    DefaultDim2.Init();
-                    DefaultDim2.Validate("Table ID", DATABASE::Customer);
-                    DefaultDim2."No." := Cust."No.";
-                    DefaultDim2.Validate("Dimension Code", DefaultDim."Dimension Code");
-                    DefaultDim2.Validate("Dimension Value Code", DefaultDim."Dimension Value Code");
-                    DefaultDim2."Value Posting" := DefaultDim."Value Posting";
-                    DefaultDim2.Insert(true);
-                until DefaultDim.Next() = 0;
-        end;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetSalutation(var SalutationType: Enum "Salutation Formula Salutation Type"; var LanguageCode: Code[10]; var NamePart: array[5] of Text[100]; var Contact: Record Contact; var SalutationFormula: Record "Salutation Formula")
@@ -3484,14 +3134,6 @@
     begin
     end;
 
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by ()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeChooseCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[10]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfTypeChangePossibleForPerson(var Contact: Record Contact; xContact: Record Contact; var IsHandled: Boolean)
     begin
@@ -3507,14 +3149,6 @@
     begin
     end;
 
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnCreateCustomerFromTemplateOnBeforeCustomerInsert()', '18.0')]
-    [IntegrationEvent(TRUE, false)]
-    local procedure OnBeforeCustomerInsert(var Cust: Record Customer; CustomerTemplate: Code[10]; var Contact: Record Contact)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnChooseNewCustomerTemplateOnBeforeSelectWithConfirm(var Contact: Record Contact; var CustomerTempl: Record "Customer Templ."; var IsHandled: Boolean)
     begin
@@ -3524,14 +3158,6 @@
     local procedure OnCreateCustomerFromTemplateOnBeforeCustomerInsert(var Cust: Record Customer; CustomerTemplate: Code[20]; var Contact: Record Contact)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnBeforeFindNewCustomerTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeFindCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[10]; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindNewCustomerTemplate(var Contact: Record Contact; var CustTemplateCode: Code[20]; var IsHandled: Boolean)
@@ -3552,14 +3178,6 @@
     local procedure OnCreateCustomerOnBeforeCustomerModify(var Customer: Record Customer; Contact: Record Contact)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnCreateCustomerOnTransferFieldsFromTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Template")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateCustomerFromTemplateOnAfterApplyCustomerTemplate(var Customer: Record Customer; CustomerTemplate: Record "Customer Templ."; var Contact: Record Contact)
@@ -3746,26 +3364,10 @@
     begin
     end;
 
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnBeforeCreateCustomerFromTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateCustomer(var Contact: Record Contact; var CustNo: Code[20]; var IsHandled: Boolean; CustomerTemplate: Code[10]; HideValidationDialog: Boolean)
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCustomerFromTemplate(var Contact: Record Contact; var CustNo: Code[20]; var IsHandled: Boolean; CustomerTemplate: Code[20]; HideValidationDialog: Boolean)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnBeforeCreateCompanyContactCustomerFromTemplate()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateCompanyContactCustomer(var Contact: Record Contact; CustomerTemplate: Code[10]; var CustNo: Code[20]; HideValidationDialog: Boolean; var CustomerCreated: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCompanyContactCustomerFromTemplate(var Contact: Record Contact; CustomerTemplate: Code[20]; var CustNo: Code[20]; HideValidationDialog: Boolean; var CustomerCreated: Boolean; var IsHandled: Boolean)
@@ -3843,7 +3445,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateCity(var Contact: Record Contact; var PostCode: Record "Post Code");
+    local procedure OnBeforeValidateCity(var Contact: Record Contact; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 
@@ -3883,7 +3485,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostCode(var Contact: Record Contact; var PostCode: Record "Post Code");
+    local procedure OnBeforeValidatePostCode(var Contact: Record Contact; var PostCode: Record "Post Code"; CurrentFieldNo: Integer; var IsHandled: Boolean);
     begin
     end;
 
@@ -3902,14 +3504,6 @@
     begin
     end;
 
-#if not CLEAN18
-    [Obsolete('Will be removed with other functionality related to "old" templates. Replaced by OnLookupNewCustomerTemplateOnBeforeSetTableView()', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnLookupCustomerTemplateOnBeforeSetTableView(Contact: Record Contact; var CustomerTemplate: Record "Customer Template")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnLookupNewCustomerTemplateOnBeforeSetTableView(Contact: Record Contact; var CustomerTemplate: Record "Customer Templ.")
     begin
@@ -3924,20 +3518,6 @@
     local procedure OnGetSalutationString(var SalutationString: Text[260]; SalutationFormula: Record "Salutation Formula"; NamePart: array[5] of Text[100])
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by "Contact Business Relation".OnShowRelatedCardPageCaseElse', '18.0')]
-    procedure RunOnShowCustVendBankCaseElse(var ContactBusinessRelation: Record "Contact Business Relation")
-    begin
-        OnShowCustVendBankCaseElse(ContactBusinessRelation);
-    end;
-
-    [Obsolete('Replaced by "Contact Business Relation".OnShowRelatedCardPageCaseElse', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnShowCustVendBankCaseElse(var ContactBusinessRelation: Record "Contact Business Relation")
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnShowCustVendBankOnBeforeRunPage(var Contact: Record Contact; FormSelected: Boolean; var ContBusRel: Record "Contact Business Relation"; var IsHandled: Boolean)

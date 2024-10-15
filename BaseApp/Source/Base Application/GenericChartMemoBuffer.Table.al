@@ -20,7 +20,7 @@ table 9186 "Generic Chart Memo Buffer"
         }
         field(4; "Language Name"; Text[50])
         {
-            CalcFormula = Lookup (Language.Name WHERE(Code = FIELD("Language Code")));
+            CalcFormula = Lookup(Language.Name WHERE(Code = FIELD("Language Code")));
             Caption = 'Language Name';
             FieldClass = FlowField;
         }
@@ -94,19 +94,19 @@ table 9186 "Generic Chart Memo Buffer"
     procedure GetMemo(CodeIn: Code[10]; LanguageCode: Code[10]): Text
     begin
         if Get(CodeIn, LanguageCode) then
-            exit(GetMemoText)
+            exit(GetMemoText());
     end;
 
     procedure SetMemo(CodeIn: Code[10]; LanguageCode: Code[10]; MemoIn: Text)
     begin
         if Get(CodeIn, LanguageCode) then begin
             SetMemoText(MemoIn);
-            Modify
+            Modify();
         end else begin
             Code := CodeIn;
             "Language Code" := LanguageCode;
             SetMemoText(MemoIn);
-            Insert
+            Insert();
         end
     end;
 
@@ -117,9 +117,9 @@ table 9186 "Generic Chart Memo Buffer"
 
     procedure SetMemoText(MemoIn: Text)
     begin
-        if StrLen(MemoIn) > GetMaxMemoLength then begin
-            Message(TextMemoToBeTruncatedMsg, StrLen(MemoIn), GetMaxMemoLength);
-            MemoIn := CopyStr(MemoIn, 1, GetMaxMemoLength);
+        if StrLen(MemoIn) > GetMaxMemoLength() then begin
+            Message(TextMemoToBeTruncatedMsg, StrLen(MemoIn), GetMaxMemoLength());
+            MemoIn := CopyStr(MemoIn, 1, GetMaxMemoLength());
         end;
 
         Memo1 := CopyStr(MemoIn, 1, 250);

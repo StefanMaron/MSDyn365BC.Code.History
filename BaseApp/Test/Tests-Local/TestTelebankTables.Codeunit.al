@@ -22,13 +22,13 @@ codeunit 144018 "Test Telebank Tables"
     begin
         // Setup
         SourceCodeSetup.Init();
-        if not SourceCodeSetup.Get then
+        if not SourceCodeSetup.Get() then
             SourceCodeSetup.Insert();
         SourceCodeSetup."Payment Journal" := CopyStr(CreateGuid, 1, MaxStrLen(SourceCodeSetup."Payment Journal"));
         SourceCodeSetup.Modify();
 
         with PaymentJournalTemplate do begin
-            Init;
+            Init();
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
 
             // Exercise
@@ -102,7 +102,7 @@ codeunit 144018 "Test Telebank Tables"
 
         // Exercise
         with PaymJnlBatch do begin
-            Init;
+            Init();
             "Journal Template Name" := PaymentJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
@@ -220,13 +220,13 @@ codeunit 144018 "Test Telebank Tables"
     begin
         // Setup
         SourceCodeSetup.Init();
-        if not SourceCodeSetup.Get then
+        if not SourceCodeSetup.Get() then
             SourceCodeSetup.Insert();
         SourceCodeSetup."Domiciliation Journal" := CopyStr(CreateGuid, 1, MaxStrLen(SourceCodeSetup."Domiciliation Journal"));
         SourceCodeSetup.Modify();
 
         with DomiciliationJournalTemplate do begin
-            Init;
+            Init();
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
 
             // Exercise
@@ -300,7 +300,7 @@ codeunit 144018 "Test Telebank Tables"
 
         // Exercise
         with DomiciliationJournalBatch do begin
-            Init;
+            Init();
             "Journal Template Name" := DomiciliationJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
@@ -381,20 +381,20 @@ codeunit 144018 "Test Telebank Tables"
     local procedure CreatePaymentJournalTemplate(var PaymentJournalTemplate: Record "Payment Journal Template")
     begin
         with PaymentJournalTemplate do begin
-            Init;
+            Init();
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreatePaymentJournalBatch(PaymentJournalTemplate: Record "Payment Journal Template"; var PaymJnlBatch: Record "Paym. Journal Batch")
     begin
         with PaymJnlBatch do begin
-            Init;
+            Init();
             "Journal Template Name" := PaymentJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -407,28 +407,28 @@ codeunit 144018 "Test Telebank Tables"
             SetRange("Journal Batch Name", "Journal Batch Name");
             if FindLast() then;
             "Line No." += 10000;
-            Init;
-            Insert;
+            Init();
+            Insert();
         end;
     end;
 
     local procedure CreateDomiciliationJournalTemplate(var DomiciliationJournalTemplate: Record "Domiciliation Journal Template")
     begin
         with DomiciliationJournalTemplate do begin
-            Init;
+            Init();
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateDomiciliationJournalBatch(DomiciliationJournalTemplate: Record "Domiciliation Journal Template"; var DomiciliationJournalBatch: Record "Domiciliation Journal Batch")
     begin
         with DomiciliationJournalBatch do begin
-            Init;
+            Init();
             "Journal Template Name" := DomiciliationJournalTemplate.Name;
             SetRange("Journal Template Name", "Journal Template Name");
             Name := CopyStr(CreateGuid, 1, MaxStrLen(Name));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -441,8 +441,8 @@ codeunit 144018 "Test Telebank Tables"
             SetRange("Journal Batch Name", "Journal Batch Name");
             if FindLast() then;
             "Line No." += 10000;
-            Init;
-            Insert;
+            Init();
+            Insert();
         end;
     end;
 

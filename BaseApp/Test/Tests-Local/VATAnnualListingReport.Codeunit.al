@@ -49,7 +49,7 @@ codeunit 144013 "VAT Annual Listing Report"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
 
         // Create customer, an item and post an invoice to that customer for the item
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
@@ -75,7 +75,7 @@ codeunit 144013 "VAT Annual Listing Report"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
 
         // Create customer, an item and post an invoice to that customer for the item
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
@@ -144,7 +144,7 @@ codeunit 144013 "VAT Annual Listing Report"
         Initialize();
 
         // [GIVEN] Create post invoice with amount X
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
         InvoiceAmount := FindLastInvoiceAmount(Customer."No.");
 

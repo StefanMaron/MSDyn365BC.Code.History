@@ -1,7 +1,7 @@
 page 6083 "Serv. Price Adjmt. Detail"
 {
     Caption = 'Serv. Price Adjmt. Detail';
-    DataCaptionExpression = FormCaption;
+    DataCaptionExpression = FormCaption();
     PageType = List;
     SourceTable = "Serv. Price Adjustment Detail";
 
@@ -12,7 +12,7 @@ page 6083 "Serv. Price Adjmt. Detail"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Serv. Price Adjmt. Gr. Code"; "Serv. Price Adjmt. Gr. Code")
+                field("Serv. Price Adjmt. Gr. Code"; Rec."Serv. Price Adjmt. Gr. Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the code of the service price adjustment group that applies to the posted service line.';
@@ -23,17 +23,17 @@ page 6083 "Serv. Price Adjmt. Detail"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the type for the service item line to be adjusted.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Work Type"; "Work Type")
+                field("Work Type"; Rec."Work Type")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the work type of the resource.';
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
@@ -79,7 +79,7 @@ page 6083 "Serv. Price Adjmt. Detail"
             if ServPriceAdjmtGroup.Get("Serv. Price Adjmt. Gr. Code") then
                 ShowColumn := false
             else
-                Reset;
+                Reset();
         ServPriceAdjmtGrCodeVisible := ShowColumn;
     end;
 

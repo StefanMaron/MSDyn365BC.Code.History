@@ -56,7 +56,7 @@ codeunit 144048 AdditionalPostingDateChecks
     begin
         ResetSetups();
 
-        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate);
+        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate());
 
         // Configure User setup so the posting date is valid
         ReconfigureUserSetup(CalcDate('<-1D>', PostingDate), CalcDate('<1D>', PostingDate));
@@ -75,7 +75,7 @@ codeunit 144048 AdditionalPostingDateChecks
     begin
         ResetSetups();
 
-        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate);
+        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate());
 
         // Configure User setup so the posting date is valid
         ReconfigureUserSetup(CalcDate('<-1D>', PostingDate), CalcDate('<1D>', PostingDate));
@@ -99,7 +99,7 @@ codeunit 144048 AdditionalPostingDateChecks
     begin
         ResetSetups();
 
-        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate);
+        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate());
 
         // Configure General Ledger setup so the posting date is valid
         ReconfigureGLSetup(CalcDate('<-1D>', PostingDate), CalcDate('<1D>', PostingDate));
@@ -118,7 +118,7 @@ codeunit 144048 AdditionalPostingDateChecks
     begin
         ResetSetups();
 
-        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate);
+        PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate());
 
         // Configure General Ledger setup so the posting date is valid
         ReconfigureGLSetup(CalcDate('<-1D>', PostingDate), CalcDate('<1D>', PostingDate));
@@ -201,7 +201,7 @@ codeunit 144048 AdditionalPostingDateChecks
         AllowDateTo: DateFormula;
     begin
         if PostingDate = 0D then
-            PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate);
+            PostingDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(1000)), WorkDate());
 
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
 

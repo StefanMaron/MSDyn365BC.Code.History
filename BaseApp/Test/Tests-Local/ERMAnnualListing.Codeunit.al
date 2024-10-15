@@ -103,11 +103,11 @@ codeunit 144005 "ERM Annual Listing"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
         CountryCode :=
           InitInfoAndPostLinesInPeriod(
             SalesHeader."Document Type"::Invoice,
-            CalcDate('<+' + Format(LibraryRandom.RandInt(CalcDate('<+CY+1D>', WorkDate) - StartDate)) + 'D>', StartDate));
+            CalcDate('<+' + Format(LibraryRandom.RandInt(CalcDate('<+CY+1D>', WorkDate()) - StartDate)) + 'D>', StartDate));
 
         // Exercise.
         if (InclCountry = IncludeCountry::Specific) and (not FileMustExist) then begin
@@ -138,7 +138,7 @@ codeunit 144005 "ERM Annual Listing"
 
         // [GIVEN] Posted Sales Credit Memo.
         LibraryBEHelper.CreateDomesticCustomer(Customer);
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()));
 
         // [WHEN] Run report Annual Listing - Disk.
         ExportAnnualListingDisk(
@@ -190,7 +190,7 @@ codeunit 144005 "ERM Annual Listing"
 
         // [GIVEN] Create post credit memo with amount X
         LibraryBEHelper.CreateDomesticCustomer(Customer);
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()));
         CrMemoAmount := FindLastCrMemoAmount(Customer."No.");
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 2X
@@ -219,11 +219,11 @@ codeunit 144005 "ERM Annual Listing"
 
         // [GIVEN] Posted sales invoice with amount = 500 and VAT = 10% and Posting Date = 31.12.2023.
         LibraryBEHelper.CreateDomesticCustomer(Customer);
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
         InvoiceAmount := FindLastInvoiceAmount(Customer."No.");
 
         // [GIVEN] Posted sales credit memo with amount -100 and VAT = 10% and Posting Date = 31.12.2023.
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::"Credit Memo", CalcDate('<+CY+2Y>', WorkDate()));
         CrMemoAmount := FindLastCrMemoAmount(Customer."No.");
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 600
@@ -492,7 +492,7 @@ codeunit 144005 "ERM Annual Listing"
 
         // [GIVEN] Create post invoice with amount 100
         LibraryBEHelper.CreateDomesticCustomer(Customer);
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
         InvoiceAmount := FindLastInvoiceAmount(Customer."No.");
 
         // [WHEN] Report Annual Listing - Disk is being run with Minimum Amount = 50
@@ -522,11 +522,11 @@ codeunit 144005 "ERM Annual Listing"
         Customer.Modify(true);
 
         // [GIVEN] Posted Invoice for Customer.
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
 
         // [WHEN] Run report Annual Listing.
         ExportAnnualListing(
-          false, Date2DMY(CalcDate('<+CY+2Y>', WorkDate), 3), 0.01, IncludeCountry::Specific, Customer."Country/Region Code");
+          false, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), 0.01, IncludeCountry::Specific, Customer."Country/Region Code");
 
         // [THEN] Verify VAT Amount Base and VAT Amount in report
         VerifyAnnualListingReportData(Customer."No.", Customer."Country/Region Code" + ' ' + Customer."Enterprise No.");
@@ -551,7 +551,7 @@ codeunit 144005 "ERM Annual Listing"
         Customer.Modify(true);
 
         // [GIVEN] Posted Invoice for Customer.
-        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+3Y>', WorkDate));
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+3Y>', WorkDate()));
 
         // [WHEN] Run report Annual Listing - Disk.
         ExportAnnualListingDisk(
@@ -641,6 +641,35 @@ codeunit 144005 "ERM Annual Listing"
         LibraryXPathXMLReader.VerifyNodeValue(CompanyVATNumberCapTxt, DelStr(Customer[1]."Enterprise No.", 1, 3));
     end;
 
+    [Test]
+    [HandlerFunctions('VATAnnualListingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ExportAnnualListingForAllCountries()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        IncludeCountry: Option All,Specific;
+    begin
+        // [SCENARIO 436957] Verify Report Annual Listing having data for All Countries/Regions
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No." without prefixes
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer.Modify(true);
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocumentInPeriod(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+2Y>', WorkDate()));
+
+        // [WHEN] Run report Annual Listing.
+        ExportAnnualListing(
+          true, Date2DMY(CalcDate('<+CY+2Y>', WorkDate()), 3), 100, IncludeCountry::All, '');
+
+        // [THEN] Verify report output having data with Entry No.
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists('BufferEntryNo', 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Annual Listing");
@@ -678,7 +707,7 @@ codeunit 144005 "ERM Annual Listing"
             "Country/Region Code" := CountryCode;
             "VAT Registration No." := CreateVatRegNo(CountryCode);
             "Enterprise No." := CreateEnterpriseNo;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -725,7 +754,7 @@ codeunit 144005 "ERM Annual Listing"
             "Country/Region Code" := CountryCode;
             "Line No." += 10000;
             Format := FormatText;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -815,7 +844,7 @@ codeunit 144005 "ERM Annual Listing"
             DataStream.ReadText(Txt);
             Position := StrPos(Txt, NameSpace);
         end;
-        XMLFile.Close;
+        XMLFile.Close();
 
         exit(Position)
     end;

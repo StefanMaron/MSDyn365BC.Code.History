@@ -65,9 +65,9 @@ table 5125 "Purch. Comment Line Archive"
         PurchCommentLine.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         PurchCommentLine.SetRange("Version No.", "Version No.");
         PurchCommentLine.SetRange("Document Line No.", "Line No.");
-        PurchCommentLine.SetRange(Date, WorkDate);
+        PurchCommentLine.SetRange(Date, WorkDate());
         if not PurchCommentLine.FindFirst() then
-            Date := WorkDate;
+            Date := WorkDate();
     end;
 }
 

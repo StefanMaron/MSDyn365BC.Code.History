@@ -54,7 +54,7 @@ codeunit 144024 "Test Financial Journals"
 
         // Try to post
         FinancialJournalPage."P&ost".Invoke;
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
 
         // Verify
         GLRegisters.OpenView;
@@ -64,7 +64,7 @@ codeunit 144024 "Test Financial Journals"
         LibraryVariableStorage.Enqueue(BalanceLastStatement);
 
         GLRegisters."General Ledger".Invoke;
-        GLRegisters.Close;
+        GLRegisters.Close();
     end;
 
     [Test]
@@ -90,7 +90,7 @@ codeunit 144024 "Test Financial Journals"
         // Try to post
         FinancialJournalPage."P&ost".Invoke;
 
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
     end;
 
     [Test]
@@ -130,7 +130,7 @@ codeunit 144024 "Test Financial Journals"
 
         Reconciliation.OK.Invoke;
 
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
     end;
 
     [Test]
@@ -153,7 +153,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage.Amount.SetValue(100000);
         asserterror FinancialJournalPage."Bal. Account Type".SetValue('Vendor');
 
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
     end;
 
     [Test]
@@ -183,7 +183,7 @@ codeunit 144024 "Test Financial Journals"
         // Try to post
         asserterror FinancialJournalPage."P&ost".Invoke;
 
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
     end;
 
     [Test]
@@ -213,7 +213,7 @@ codeunit 144024 "Test Financial Journals"
         // Try to post
         asserterror FinancialJournalPage."P&ost".Invoke;
 
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
     end;
 
     [Test]
@@ -768,7 +768,7 @@ codeunit 144024 "Test Financial Journals"
         FinancialJournalPage."Bal. Account Type".SetValue(GenJournalLine."Bal. Account Type"::"Bank Account");
         FinancialJournalPage."Bal. Account No.".SetValue(BankAccountNo);
 
-        FinancialJournalPage.Next;
+        FinancialJournalPage.Next();
         FinancialJournalPage.Previous;
     end;
 

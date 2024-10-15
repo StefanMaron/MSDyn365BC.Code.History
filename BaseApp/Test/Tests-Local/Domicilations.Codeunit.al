@@ -88,7 +88,7 @@ codeunit 144004 Domicilations
         SuggestDomiciliations(DomiciliationJournalLine, CustomerNo);
 
         Assert.IsFalse(
-          DomiciliationJournalLine.IsEmpty, StrSubstNo(DomLineDoesNotExistErr, DomiciliationJournalLine.TableCaption));
+          DomiciliationJournalLine.IsEmpty, StrSubstNo(DomLineDoesNotExistErr, DomiciliationJournalLine.TableCaption()));
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
         FileDomiciliations(GenJournalBatch);
         VerifyDomiciliationNo(0, 0);
@@ -325,7 +325,7 @@ codeunit 144004 Domicilations
             "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
             "Applies-to Doc. No." := LibraryUtility.GenerateGUID();
             Status := NewStatus;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -334,14 +334,14 @@ codeunit 144004 Domicilations
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Customer No." := CustomerNo;
             "Document Type" := "Document Type"::Invoice;
             "Document No." := InvoiceNo;
             Open := OpenStatus;
             Positive := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -362,7 +362,7 @@ codeunit 144004 Domicilations
         SuggestDomiciliations(DomiciliationJournalLine, CustomerFilter);
         DomiciliationJournalLine.FindSet();
         DimSetID[1] := DomiciliationJournalLine."Dimension Set ID";
-        DomiciliationJournalLine.Next;
+        DomiciliationJournalLine.Next();
         DimSetID[2] := DomiciliationJournalLine."Dimension Set ID";
     end;
 

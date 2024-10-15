@@ -164,7 +164,7 @@ table 741 "VAT Report Line"
         if (VATReportHeader.Status = VATReportHeader.Status::Released) and
            (not VATReportSetup."Modify Submitted Reports")
         then
-            Error(Text001, VATReportSetup.TableCaption);
+            Error(Text001, VATReportSetup.TableCaption());
     end;
 
     var

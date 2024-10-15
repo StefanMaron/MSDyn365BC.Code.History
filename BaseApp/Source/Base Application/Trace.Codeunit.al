@@ -15,7 +15,7 @@ codeunit 1292 Trace
         FileManagement: Codeunit "File Management";
         OutStream: OutStream;
     begin
-        if TempBlobTraceLog.HasValue then
+        if TempBlobTraceLog.HasValue() then
             if not TraceLogInStream.EOS then
                 Error(TraceStreamLogAlreadyInUseErr);
 
@@ -51,7 +51,7 @@ codeunit 1292 Trace
         TempFile.Create(FileManagement.ServerTempFileName(FileName + '.txt'));
         TempFile.CreateOutStream(OutStream);
         OutStream.WriteText(TextToLog);
-        TempFile.Close;
+        TempFile.Close();
     end;
 }
 

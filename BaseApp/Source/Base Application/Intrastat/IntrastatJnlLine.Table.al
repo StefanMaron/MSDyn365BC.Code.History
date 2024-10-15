@@ -36,7 +36,7 @@
 
             trigger OnValidate()
             begin
-                GetItemDescription;
+                GetItemDescription();
                 Validate("Conversion Factor");
             end;
         }
@@ -170,7 +170,7 @@
                 Name := Item.Description;
                 "Tariff No." := Item."Tariff No.";
                 "Country/Region of Origin Code" := Item."Country/Region of Origin Code";
-                GetItemDescription;
+                GetItemDescription();
                 Validate("Conversion Factor");
             end;
         }
@@ -257,13 +257,8 @@
             Caption = 'Partner ID';
             DataClassification = CustomerContent;
             ObsoleteReason = 'Merged to W1';
-#if CLEAN18
             ObsoleteTag = '21.0';
             ObsoleteState = Removed;
-#else
-            ObsoleteTag = '18.0';
-            ObsoleteState = Pending;
-#endif
         }
     }
 

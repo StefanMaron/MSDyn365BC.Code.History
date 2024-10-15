@@ -60,7 +60,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -84,7 +84,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -108,7 +108,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -132,7 +132,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -156,7 +156,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -180,7 +180,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -204,7 +204,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Sales Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, SalesHeader.TableCaption, SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
+          StrSubstNo(StatusErr, SalesHeader.TableCaption(), SalesLine.FieldCaption("Document Type"), SalesLine."Document Type",
             SalesHeader.FieldCaption("No."), SalesLine."Document No."), GetLastErrorText, ErrorValidationErr);
     end;
 
@@ -397,7 +397,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Purchase Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseLine2.FieldCaption("Document Type"),
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
             PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
           GetLastErrorText, ErrorValidationErr);
     end;
@@ -422,7 +422,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Purchase Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseLine2.FieldCaption("Document Type"),
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
             PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
           GetLastErrorText, ErrorValidationErr);
     end;
@@ -447,7 +447,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Purchase Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseLine2.FieldCaption("Document Type"),
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
             PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
           GetLastErrorText, ErrorValidationErr);
     end;
@@ -472,7 +472,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Purchase Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseLine2.FieldCaption("Document Type"),
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
             PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
           GetLastErrorText, ErrorValidationErr);
     end;
@@ -497,7 +497,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Purchase Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseLine2.FieldCaption("Document Type"),
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
             PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
           GetLastErrorText, ErrorValidationErr);
     end;
@@ -522,7 +522,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
 
         // Verify: Verify Error Raised on Purchase Line Validation.
         Assert.AreEqual(
-          StrSubstNo(StatusErr, PurchaseHeader.TableCaption, PurchaseLine2.FieldCaption("Document Type"),
+          StrSubstNo(StatusErr, PurchaseHeader.TableCaption(), PurchaseLine2.FieldCaption("Document Type"),
             PurchaseLine2."Document Type", PurchaseHeader.FieldCaption("No."), PurchaseLine2."Document No."),
           GetLastErrorText, ErrorValidationErr);
     end;
@@ -1019,7 +1019,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryInventory.CreateItem(Item);
         ItemStatistics.OpenEdit;
         ItemStatistics.ItemFilter.SetValue(Item."No.");
-        ItemStatistics.DateFilter.SetValue(StrSubstNo(DateFilterTok, WorkDate, CalcDate('<2M>', WorkDate)));
+        ItemStatistics.DateFilter.SetValue(StrSubstNo(DateFilterTok, WorkDate(), CalcDate('<2M>', WorkDate())));
 
         // Exercise.
         ItemStatistics.ShowMatrix.Invoke;
@@ -1122,17 +1122,17 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Item.Modify(true);
 
         // Setup. Create and Post Item Journal.
-        PostItemJournal(Item."No.", ItemJournalLine."Entry Type"::Sale, WorkDate);
+        PostItemJournal(Item."No.", ItemJournalLine."Entry Type"::Sale, WorkDate());
 
         // Setup. Create and Post an Item Journal on next month.
-        SalesAmount := PostItemJournal(Item."No.", ItemJournalLine."Entry Type"::Sale, CalcDate('<1M>', WorkDate));
+        SalesAmount := PostItemJournal(Item."No.", ItemJournalLine."Entry Type"::Sale, CalcDate('<1M>', WorkDate()));
         LibraryVariableStorage.Enqueue(SalesAmount);
 
         // Setup. Open Item Statistics page and set Item and Date Filter.
         ItemStatistics.OpenEdit;
         ItemStatistics.ItemFilter.SetValue(Item."No.");
         ItemStatistics.ViewBy.SetValue(PeriodType::Month);
-        ItemStatistics.DateFilter.SetValue(StrSubstNo(DateFilterTok, CalcDate('<-CM>', WorkDate), CalcDate('<CM+1M>', WorkDate)));
+        ItemStatistics.DateFilter.SetValue(StrSubstNo(DateFilterTok, CalcDate('<-CM>', WorkDate()), CalcDate('<CM+1M>', WorkDate())));
 
         // Exercise.
         ItemStatistics.ShowMatrix.Invoke;
@@ -1304,7 +1304,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize();
-        UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate - 1);
+        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate() - 1);
 
         // [GIVEN] Purchase order "PO" with "Posting Date" = 21/02/2016, "Receive" = FALSE, "Invoice" = FALSE
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
@@ -1314,7 +1314,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
         // [THEN] "Posting Date is not within your range of allowed posting dates." error thrown
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.ExpectedError(PostingDateNotAllowedErr);
 
         // [THEN] "PO".Receive = FALSE
@@ -1336,14 +1336,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize();
-        UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate + 10);
+        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate + 10);
 
         // [GIVEN] Purchase order "PO" posted as receipt with "Posting Date" = 21/01/2016, "Receive" = TRUE, "Invoice" = FALSE
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order);
         Commit();
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
 
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.TestField(Receive, true);
         PurchaseHeader.TestField(Invoice, false);
 
@@ -1356,7 +1356,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         // [THEN] "Posting Date is not within your range of allowed posting dates." error thrown
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         Assert.ExpectedError(PostingDateNotAllowedErr);
 
         // [THEN] "PO".Receive = TRUE
@@ -1378,7 +1378,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize();
-        UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate - 1);
+        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate() - 1);
 
         // [GIVEN] Sales order "SO" with "Posting Date" = 21/02/2016, "Ship" = FALSE, "Invoice" = FALSE
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
@@ -1388,7 +1388,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [THEN] "Posting Date is not within your range of allowed posting dates." error thrown
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.ExpectedError(PostingDateNotAllowedErr);
 
         // [THEN] "SO".Shipment = FALSE
@@ -1410,14 +1410,14 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         // [GIVEN] GLSetup."Allow Posting From" = 01/01/2016
         // [GIVEN] GLSetup."Allow Posting To" = 31/01/2016
         Initialize();
-        UpdateAllowedPostingDateInGLSetup(WorkDate - 10, WorkDate + 10);
+        UpdateAllowedPostingDateInGLSetup(WorkDate() - 10, WorkDate + 10);
 
         // [GIVEN] Sals order "SO" posted as shipment with "Posting Date" = 21/01/2016, "Ship" = TRUE, "Invoice" = FALSE
         CreateSalesOrder(SalesHeader, SalesLine, SalesHeader."Document Type"::Order);
         Commit();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField(Ship, true);
         SalesHeader.TestField(Invoice, false);
 
@@ -1430,7 +1430,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] "Posting Date is not within your range of allowed posting dates." error thrown
-        SalesHeader.Find;
+        SalesHeader.Find();
         Assert.ExpectedError(PostingDateNotAllowedErr);
 
         // [THEN] "SO".Shipment = TRUE
@@ -2129,7 +2129,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
         with SalesLine do begin
-            Init;
+            Init();
             Validate("Document Type", SalesHeader."Document Type");
             Validate("Document No.", SalesHeader."No.");
             RecRef.GetTable(SalesLine);
@@ -2156,7 +2156,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Order, Vendor."No.");
         with PurchLine do begin
-            Init;
+            Init();
             Validate("Document Type", PurchHeader."Document Type");
             Validate("Document No.", PurchHeader."No.");
             RecRef.GetTable(PurchLine);
@@ -2305,7 +2305,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           GenJournalLine."Account Type"::"Bank Account", BankAccount."No.", LibraryRandom.RandDec(100, 2));
-        GenJournalLine.Validate("Posting Date", CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandInt(10)), WorkDate));
+        GenJournalLine.Validate("Posting Date", CalcDate(StrSubstNo('<-%1D>', LibraryRandom.RandInt(10)), WorkDate()));
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocumentType);
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
@@ -2505,7 +2505,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
             exit("Posted Prepmt. Inv. Nos.");
@@ -2517,7 +2517,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Posted Prepmt. Inv. Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
             exit("Posted Prepmt. Inv. Nos.");
@@ -2529,7 +2529,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
             exit("Posted Prepmt. Cr. Memo Nos.");
@@ -2541,7 +2541,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             Validate("Posted Prepmt. Cr. Memo Nos.", LibraryERM.CreateNoSeriesCode);
             Modify(true);
             exit("Posted Prepmt. Cr. Memo Nos.");
@@ -2608,10 +2608,10 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Allow Posting From" := FromDate;
             "Allow Posting To" := ToDate;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2640,7 +2640,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Assert.AreEqual(
           ExpectedValue,
           SalesLine."Unit Cost (LCY)",
-          StrSubstNo(FieldValueErr, SalesLine.FieldCaption("Unit Cost (LCY)"), SalesLine.TableCaption));
+          StrSubstNo(FieldValueErr, SalesLine.FieldCaption("Unit Cost (LCY)"), SalesLine.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLineUnitCost(PurchaseLine: Record "Purchase Line"; ExpectedValue: Decimal)
@@ -2648,7 +2648,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Assert.AreEqual(
           ExpectedValue,
           PurchaseLine."Direct Unit Cost",
-          StrSubstNo(FieldValueErr, PurchaseLine.FieldCaption("Direct Unit Cost"), PurchaseLine.TableCaption));
+          StrSubstNo(FieldValueErr, PurchaseLine.FieldCaption("Direct Unit Cost"), PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifySalesDocumentTestReportHasNoErrors()

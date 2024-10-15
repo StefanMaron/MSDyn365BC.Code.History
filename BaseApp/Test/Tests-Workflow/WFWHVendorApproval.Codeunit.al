@@ -42,7 +42,7 @@ codeunit 134222 "WFWH Vendor Approval"
         LibraryWorkflow.DeleteAllExistingWorkflows;
 
         // Excercise
-        WorkflowSetup.InitWorkflow;
+        WorkflowSetup.InitWorkflow();
 
         // Verify
         WorkflowTableRelation.Get(
@@ -360,7 +360,7 @@ codeunit 134222 "WFWH Vendor Approval"
         Assert.IsTrue(VendorCard.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -393,7 +393,7 @@ codeunit 134222 "WFWH Vendor Approval"
         Assert.IsTrue(VendorList.CancelApprovalRequest.Enabled, 'CancelApprovalRequest should be enabled');
 
         // Cleanup
-        VendorList.Close;
+        VendorList.Close();
     end;
 
     [Test]
@@ -423,7 +423,7 @@ codeunit 134222 "WFWH Vendor Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -455,7 +455,7 @@ codeunit 134222 "WFWH Vendor Approval"
         Assert.AreEqual(WorkflowWebhookEntry.Response::Cancel, WorkflowWebhookEntry.Response, 'Approval request should be cancelled.');
 
         // Cleanup
-        VendorList.Close;
+        VendorList.Close();
     end;
 
     local procedure SendVendorForApproval(var Vendor: Record Vendor)
@@ -465,7 +465,7 @@ codeunit 134222 "WFWH Vendor Approval"
         VendorCard.OpenEdit;
         VendorCard.GotoRecord(Vendor);
         VendorCard.SendApprovalRequest.Invoke;
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     local procedure Initialize()

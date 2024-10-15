@@ -33,7 +33,7 @@ page 1123 "Chart of Cost Objects"
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the name of the cost object.';
                 }
-                field("Line Type"; "Line Type")
+                field("Line Type"; Rec."Line Type")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the purpose of the cost object, such as Cost Object, Heading, or Begin-Total. Newly created cost objects are automatically assigned the Cost Object type, but you can change this.';
@@ -43,19 +43,19 @@ page 1123 "Chart of Cost Objects"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies an account interval or a list of account numbers. The entries of the account will be totaled to give a total balance. How entries are totaled depends on the value in the Account Type field.';
                 }
-                field("Sorting Order"; "Sorting Order")
+                field("Sorting Order"; Rec."Sorting Order")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies the sorting order of the cost objects.';
                 }
-                field("Balance at Date"; "Balance at Date")
+                field("Balance at Date"; Rec."Balance at Date")
                 {
                     ApplicationArea = CostAccounting;
                     Style = Strong;
                     StyleExpr = Emphasize;
                     ToolTip = 'Specifies the cost type balance on the last date that is included in the Date Filter field. The contents of the field are calculated by using the entries in the Amount field in the Cost Entry table.';
                 }
-                field("Net Change"; "Net Change")
+                field("Net Change"; Rec."Net Change")
                 {
                     ApplicationArea = CostAccounting;
                     Style = Strong;
@@ -72,12 +72,12 @@ page 1123 "Chart of Cost Objects"
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies that the related record is blocked from being posted in transactions, for example a customer that is declared insolvent or an item that is placed in quarantine.';
                 }
-                field("New Page"; "New Page")
+                field("New Page"; Rec."New Page")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies if you want a new page to start immediately after this cost center when you print the chart of cash flow accounts.';
                 }
-                field("Blank Line"; "Blank Line")
+                field("Blank Line"; Rec."Blank Line")
                 {
                     ApplicationArea = CostAccounting;
                     ToolTip = 'Specifies whether you want a blank line to appear immediately after this cost center when you print the chart of cost centers. The New Page, Blank Line, and Indentation fields define the layout of the chart of cost centers.';
@@ -139,13 +139,11 @@ page 1123 "Chart of Cost Objects"
                     ApplicationArea = CostAccounting;
                     Caption = 'I&ndent Cost Objects';
                     Image = IndentChartOfAccounts;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Indent the selected lines.';
 
                     trigger OnAction()
                     begin
-                        CostAccountMgt.IndentCostObjectsYN;
+                        CostAccountMgt.IndentCostObjectsYN();
                     end;
                 }
                 action("Get Cost Objects From Dimension")
@@ -153,13 +151,11 @@ page 1123 "Chart of Cost Objects"
                     ApplicationArea = Dimensions;
                     Caption = 'Get Cost Objects From Dimension';
                     Image = ChangeTo;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'Transfer dimension values to the chart of cost centers.';
 
                     trigger OnAction()
                     begin
-                        CostAccountMgt.CreateCostObjects;
+                        CostAccountMgt.CreateCostObjects();
                     end;
                 }
             }
@@ -168,8 +164,6 @@ page 1123 "Chart of Cost Objects"
                 ApplicationArea = Dimensions;
                 Caption = 'Dimension Values';
                 Image = Dimensions;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View or edit the dimension values for the current dimension.';
 
                 trigger OnAction()
@@ -185,11 +179,27 @@ page 1123 "Chart of Cost Objects"
                 ApplicationArea = CostAccounting;
                 Caption = 'Cost Object with Budget';
                 Image = "Report";
-                Promoted = false;
                 //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
                 //PromotedCategory = "Report";
                 RunObject = Report "Cost Acctg. Balance/Budget";
                 ToolTip = 'View a comparison of the balance to the budget figures and calculates the variance and the percent variance in the current accounting period, the accumulated accounting period, and the fiscal year.';
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("I&ndent Cost Objects_Promoted"; "I&ndent Cost Objects")
+                {
+                }
+                actionref("Get Cost Objects From Dimension_Promoted"; "Get Cost Objects From Dimension")
+                {
+                }
+                actionref(PageDimensionValues_Promoted; PageDimensionValues)
+                {
+                }
             }
         }
     }
@@ -197,17 +207,17 @@ page 1123 "Chart of Cost Objects"
     trigger OnAfterGetRecord()
     begin
         NameIndent := 0;
-        CodeOnFormat;
-        NameOnFormat;
-        BalanceatDateOnFormat;
-        NetChangeOnFormat;
+        CodeOnFormat();
+        NameOnFormat();
+        BalanceatDateOnFormat();
+        NetChangeOnFormat();
     end;
 
     trigger OnDeleteRecord(): Boolean
     begin
         CurrPage.SetSelectionFilter(Rec);
         ConfirmDeleteIfEntriesExist(Rec, false);
-        Reset;
+        Reset();
     end;
 
     var

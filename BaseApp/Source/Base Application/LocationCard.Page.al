@@ -1,8 +1,7 @@
-﻿page 5703 "Location Card"
+page 5703 "Location Card"
 {
     Caption = 'Location Card';
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Location';
     SourceTable = Location;
 
     layout
@@ -90,7 +89,7 @@
                         ApplicationArea = Location;
                         ToolTip = 'Specifies the name of the contact person at the location';
                     }
-                    field("Branch No."; "Branch No.")
+                    field("Branch No."; Rec."Branch No.")
                     {
                         ApplicationArea = Location;
                         ToolTip = 'Specifies the location''s branch number.';
@@ -198,7 +197,7 @@
                         UpdateEnabled();
                     end;
                 }
-                field("Use ADCS"; "Use ADCS")
+                field("Use ADCS"; Rec."Use ADCS")
                 {
                     ApplicationArea = Warehouse;
                     Enabled = UseADCSEnable;
@@ -238,7 +237,7 @@
 
                     trigger OnDrillDown()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Rec.TestField("Base Calendar Code");
                         CalendarMgmt.ShowCustomizedCalendar(Rec);
                     end;
@@ -455,8 +454,6 @@
                     ApplicationArea = Warehouse;
                     Caption = '&Zones';
                     Image = Zones;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page Zones;
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about zones that you use at this location to structure your bins.';
@@ -466,8 +463,6 @@
                     ApplicationArea = Warehouse;
                     Caption = '&Bins';
                     Image = Bins;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page Bins;
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View or edit information about bins that you use at this location to hold items.';
@@ -477,9 +472,6 @@
                     ApplicationArea = Location;
                     Caption = 'Inventory Posting Setup';
                     Image = PostedInventoryPick;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Inventory Posting Setup";
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'Set up links between inventory posting groups, inventory locations, and general ledger accounts to define where transactions for inventory items are recorded in the general ledger.';
@@ -489,9 +481,6 @@
                     ApplicationArea = Warehouse;
                     Caption = 'Warehouse Employees';
                     Image = WarehouseSetup;
-                    Promoted = true;
-                    PromotedOnly = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Warehouse Employees";
                     RunPageLink = "Location Code" = FIELD(Code);
                     ToolTip = 'View the warehouse employees that exist in the system.';
@@ -501,9 +490,6 @@
                     ApplicationArea = Location;
                     Caption = 'Online Map';
                     Image = Map;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     ToolTip = 'View the address on an online map.';
 
                     trigger OnAction()
@@ -516,9 +502,6 @@
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "Default Dimensions";
                     RunPageLink = "Table ID" = const(14),
                                   "No." = field(Code);
@@ -527,12 +510,46 @@
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("&Zones_Promoted"; "&Zones")
+                {
+                }
+                actionref("&Bins_Promoted"; "&Bins")
+                {
+                }
+                actionref("Inventory Posting Setup_Promoted"; "Inventory Posting Setup")
+                {
+                }
+                actionref("Warehouse Employees_Promoted"; "Warehouse Employees")
+                {
+                }
+                actionref("Online Map_Promoted"; "Online Map")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Location', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         UpdateEnabled();
-        TransitValidation;
+        TransitValidation();
     end;
 
     trigger OnInit()
@@ -630,8 +647,6 @@
         [InDataSet]
         UsePutAwayWorksheetEnable: Boolean;
         [InDataSet]
-        UseCrossDockingEnable: Boolean;
-        [InDataSet]
         EditInTransit: Boolean;
         ShowMapLbl: Label 'Show on Map';
 
@@ -642,6 +657,8 @@
         ShipmentBinCodeEnable: Boolean;
         [InDataSet]
         UseADCSEnable: Boolean;
+        [InDataSet]
+        UseCrossDockingEnable: Boolean;
 
     procedure UpdateEnabled()
     begin
@@ -691,7 +708,7 @@
         TransferHeader: Record "Transfer Header";
     begin
         TransferHeader.SetRange("In-Transit Code", Code);
-        EditInTransit := TransferHeader.IsEmpty;
+        EditInTransit := TransferHeader.IsEmpty();
     end;
 
     [IntegrationEvent(true, false)]

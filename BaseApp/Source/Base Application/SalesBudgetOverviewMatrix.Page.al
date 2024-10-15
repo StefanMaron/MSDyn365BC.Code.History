@@ -34,7 +34,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Quantity; +Quantity)
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Budgeted Quantity';
                     Editable = false;
@@ -50,7 +50,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Amount; +Amount)
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Budgeted Sales Amount';
                     StyleExpr = 'Strong';
@@ -65,7 +65,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(CostAmount; +CalcAmt("Item Analysis Value Type"::"Cost Amount", false))
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     Caption = 'Budgeted Cost Amount';
                     StyleExpr = 'Strong';
@@ -80,7 +80,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field1; MATRIX_CellData[1])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[1];
@@ -99,7 +99,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field2; MATRIX_CellData[2])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[2];
@@ -118,7 +118,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field3; MATRIX_CellData[3])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[3];
@@ -137,7 +137,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field4; MATRIX_CellData[4])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[4];
@@ -156,7 +156,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field5; MATRIX_CellData[5])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[5];
@@ -175,7 +175,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field6; MATRIX_CellData[6])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[6];
@@ -194,7 +194,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field7; MATRIX_CellData[7])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[7];
@@ -213,7 +213,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field8; MATRIX_CellData[8])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[8];
@@ -232,7 +232,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field9; MATRIX_CellData[9])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[9];
@@ -251,7 +251,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field10; MATRIX_CellData[10])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[10];
@@ -270,7 +270,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field11; MATRIX_CellData[11])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[11];
@@ -289,7 +289,7 @@ page 9239 "Sales Budget Overview Matrix"
                 field(Field12; MATRIX_CellData[12])
                 {
                     ApplicationArea = SalesBudget;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_CaptionSet[12];
@@ -337,7 +337,7 @@ page 9239 "Sales Budget Overview Matrix"
             MATRIX_OnAfterGetRecord(MATRIX_CurrentColumnOrdinal);
         end;
 
-        FormatLine;
+        FormatLine();
         AmountOnFormat(Format(+Amount));
     end;
 

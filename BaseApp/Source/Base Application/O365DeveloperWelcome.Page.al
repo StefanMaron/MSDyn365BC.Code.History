@@ -48,7 +48,7 @@ page 1305 "O365 Developer Welcome"
                 trigger OnAction()
                 begin
                     HyperLink(LearnMoreLbl);
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -68,7 +68,7 @@ page 1305 "O365 Developer Welcome"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        MarkAsCompleted;
+        MarkAsCompleted();
     end;
 
     var
@@ -82,10 +82,9 @@ page 1305 "O365 Developer Welcome"
     local procedure MarkAsCompleted()
     begin
         "User ID" := UserId;
-        "Display Target" := Format(ClientTypeManagement.GetCurrentClientType);
+        "Display Target" := Format(ClientTypeManagement.GetCurrentClientType());
         "Tour in Progress" := false;
         "Tour Completed" := true;
-        Insert;
+        Insert();
     end;
 }
-

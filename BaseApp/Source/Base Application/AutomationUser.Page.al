@@ -78,7 +78,7 @@ page 5444 "Automation User"
         EnvironmentInfo: Codeunit "Environment Information";
     begin
         BindSubscription(AutomationAPIManagement);
-        if EnvironmentInfo.IsSaaS then
+        if EnvironmentInfo.IsSaaS() then
             SetFilter("License Type", '<>%1', "License Type"::"External User");
     end;
 

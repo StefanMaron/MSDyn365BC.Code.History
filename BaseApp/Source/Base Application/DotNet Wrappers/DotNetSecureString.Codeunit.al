@@ -10,7 +10,7 @@ codeunit 3044 DotNet_SecureString
 
     procedure SecureString()
     begin
-        DotNetSecureString := DotNetSecureString.SecureString;
+        DotNetSecureString := DotNetSecureString.SecureString();
     end;
 
     procedure AppendChar(C: Char)

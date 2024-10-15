@@ -532,7 +532,7 @@ codeunit 136129 "Service Order Tracking"
         with ServiceInvoiceLine do begin
             SetRange("No.", ItemNo);
             FindFirst();
-            ShowItemTrackingLines;
+            ShowItemTrackingLines();
         end;
     end;
 
@@ -693,7 +693,7 @@ codeunit 136129 "Service Order Tracking"
     begin
         ServiceLine.Validate("Location Code", LocationCode);
         ServiceLine.Validate(Quantity, Quantity * LibraryUtility.GenerateRandomFraction);
-        ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        ServiceLine.Validate("Needed by Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         ServiceLine.Modify(true);
     end;
 
@@ -926,7 +926,7 @@ codeunit 136129 "Service Order Tracking"
         PostedItemTrackingLines.First;
         repeat
             NumberOfLines -= 1;
-        until not PostedItemTrackingLines.Next;
+        until not PostedItemTrackingLines.Next();
 
         Assert.AreEqual(0, NumberOfLines, MissingTrackingLinesErr);
     end;

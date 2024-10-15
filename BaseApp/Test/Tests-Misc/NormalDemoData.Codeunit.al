@@ -298,7 +298,7 @@ codeunit 138200 "Normal DemoData"
         // [FEATURE] [VAT Return Period]
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" default setup
         with VATReportSetup do begin
-            Get;
+            Get();
             TestField("VAT Return Period No. Series");
             TestField("Report Version", '');
             TestField("Period Reminder Calculation", DummyDateFormula);

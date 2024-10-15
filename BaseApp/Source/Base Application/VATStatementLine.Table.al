@@ -177,9 +177,10 @@
     }
 
     var
-        Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
         TempType: Enum "VAT Statement Line Type";
+
+        Text000: Label 'must not be %1';
 
     [Scope('OnPrem')]
     procedure GetCurrencyCode(): Code[10]

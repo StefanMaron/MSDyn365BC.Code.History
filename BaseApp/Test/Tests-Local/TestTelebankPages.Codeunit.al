@@ -21,12 +21,12 @@ codeunit 144022 "Test Telebank Pages"
         ElectronicBankingSetupCard: TestPage "Electronic Banking Setup";
     begin
         // Init
-        if ElectronicBankingSetup.Get then
+        if ElectronicBankingSetup.Get() then
             ElectronicBankingSetup.Delete();
 
         // Execute
         ElectronicBankingSetupCard.OpenEdit;
-        ElectronicBankingSetupCard.Close;
+        ElectronicBankingSetupCard.Close();
 
         // Verify
         ElectronicBankingSetup.Get();
@@ -46,7 +46,7 @@ codeunit 144022 "Test Telebank Pages"
         Assert.AreEqual('', Format(EBPaymentJournal.BankAccountCodeFilter), '');
 
         // Cleanup
-        EBPaymentJournal.Close;
+        EBPaymentJournal.Close();
     end;
 
     [Test]
@@ -70,7 +70,7 @@ codeunit 144022 "Test Telebank Pages"
         EBPaymentJournalBatches.FILTER.SetFilter(Name, PaymJournalBatch.Name);
         EBPaymentJournalBatches.First;
         EBPaymentJournalBatches."Edit Journal".Invoke;
-        EBPaymentJournalBatches.Close;
+        EBPaymentJournalBatches.Close();
 
         // Verify: Page 2000001 opens - caught by page handler.
     end;
@@ -90,7 +90,7 @@ codeunit 144022 "Test Telebank Pages"
         Assert.AreEqual(BankAccountCodeFilter, DelChr(Format(EBPaymentJournal.BankAccountCodeFilter), '<>', ''''), '');
 
         // Cleanup
-        EBPaymentJournal.Close;
+        EBPaymentJournal.Close();
     end;
 
     [Test]
@@ -110,7 +110,7 @@ codeunit 144022 "Test Telebank Pages"
         Assert.AreEqual('', Format(EBPaymentJournal."Account No."), '');
 
         // Cleanup
-        EBPaymentJournal.Close;
+        EBPaymentJournal.Close();
     end;
 
     [Test]
@@ -144,11 +144,11 @@ codeunit 144022 "Test Telebank Pages"
         // Exercise
         if EBPaymentJournal.Last then;
         EBPaymentJournal.New;
-        EBPaymentJournal."Posting Date".SetValue(WorkDate);
+        EBPaymentJournal."Posting Date".SetValue(WorkDate());
         EBPaymentJournal."Account Type".SetValue(PaymentJournalLine."Account Type"::Vendor);
         EBPaymentJournal."Account No.".SetValue(Vendor."No.");
         EBPaymentJournal.New;
-        EBPaymentJournal."Posting Date".SetValue(WorkDate);
+        EBPaymentJournal."Posting Date".SetValue(WorkDate());
         EBPaymentJournal."Account Type".SetValue(PaymentJournalLine."Account Type"::Vendor);
         EBPaymentJournal."Account No.".SetValue(Vendor."No.");
         Commit();
@@ -162,7 +162,7 @@ codeunit 144022 "Test Telebank Pages"
         asserterror EBPaymentJournal.CheckPaymentLines.Invoke;
 
         // Cleanup
-        EBPaymentJournal.Close;
+        EBPaymentJournal.Close();
         PaymentJournalLine.DeleteAll();
         PaymJournalBatch.Delete();
         PaymentJnlTemplate.Delete();
@@ -234,7 +234,7 @@ codeunit 144022 "Test Telebank Pages"
         // Verify that it opens directly
         DomiciliationJournal.OpenEdit;
         // Cleanup
-        DomiciliationJournal.Close;
+        DomiciliationJournal.Close();
     end;
 
     [Test]
@@ -256,7 +256,7 @@ codeunit 144022 "Test Telebank Pages"
         DomiciliationJournalBatches.FILTER.SetFilter(Name, DomiciliationJournalBatch.Name);
         DomiciliationJournalBatches.First;
         DomiciliationJournalBatches."Edit Journal".Invoke;
-        DomiciliationJournalBatches.Close;
+        DomiciliationJournalBatches.Close();
 
         // Verify: Page 2000022 opens - caught by page handler.
 
@@ -282,7 +282,7 @@ codeunit 144022 "Test Telebank Pages"
         Assert.AreEqual('', Format(DomiciliationJournal."Customer No."), '');
 
         // Cleanup
-        DomiciliationJournal.Close;
+        DomiciliationJournal.Close();
     end;
 
     [Test]
@@ -311,14 +311,14 @@ codeunit 144022 "Test Telebank Pages"
         // Exercise
         if DomiciliationJournal.Last then;
         DomiciliationJournal.New;
-        DomiciliationJournal."Posting Date".SetValue(WorkDate);
+        DomiciliationJournal."Posting Date".SetValue(WorkDate());
         DomiciliationJournal."Customer No.".SetValue(Customer."No.");
         DomiciliationJournal."Bank Account No.".SetValue(BankAccount."No.");
         DomiciliationJournal.New;
-        DomiciliationJournal."Posting Date".SetValue(WorkDate);
+        DomiciliationJournal."Posting Date".SetValue(WorkDate());
         DomiciliationJournal."Customer No.".SetValue(Customer."No.");
         DomiciliationJournal."Bank Account No.".SetValue(BankAccount."No.");
-        BankAccount.Next;
+        BankAccount.Next();
         DomiciliationJournal."Bank Account No.".SetValue(BankAccount."No.");
         DomiciliationJournal.Previous;
         Commit();
@@ -332,7 +332,7 @@ codeunit 144022 "Test Telebank Pages"
         DomiciliationJournal.SuggestDomiciliations.Invoke;
 
         // Cleanup
-        DomiciliationJournal.Close;
+        DomiciliationJournal.Close();
         DomiciliationJournalLine.DeleteAll();
         DomiciliationJournalBatch.Delete();
         DomiciliationJournalTemplate.Delete();
@@ -351,7 +351,7 @@ codeunit 144022 "Test Telebank Pages"
     [Scope('OnPrem')]
     procedure EBPaymentJournalHandler(var EBPaymentJournal: TestPage "EB Payment Journal")
     begin
-        EBPaymentJournal.Close;
+        EBPaymentJournal.Close();
     end;
 
     [ModalPageHandler]
@@ -373,7 +373,7 @@ codeunit 144022 "Test Telebank Pages"
     [Scope('OnPrem')]
     procedure DomiciliationJournalHandler(var DomiciliationJournal: TestPage "Domiciliation Journal")
     begin
-        DomiciliationJournal.Close;
+        DomiciliationJournal.Close();
     end;
 
     [ModalPageHandler]

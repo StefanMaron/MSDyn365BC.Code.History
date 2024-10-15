@@ -23,11 +23,11 @@ page 474 "VAT Statement Preview"
                     trigger OnValidate()
                     begin
                         if Selection = Selection::"Open and Closed" then
-                            OpenandClosedSelectionOnValida;
+                            OpenandClosedSelectionOnValida();
                         if Selection = Selection::Closed then
-                            ClosedSelectionOnValidate;
+                            ClosedSelectionOnValidate();
                         if Selection = Selection::Open then
-                            OpenSelectionOnValidate;
+                            OpenSelectionOnValidate();
                     end;
                 }
                 field(PeriodSelection; PeriodSelection)
@@ -39,9 +39,9 @@ page 474 "VAT Statement Preview"
                     trigger OnValidate()
                     begin
                         if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                            BeforeandWithinPeriodSelection;
+                            BeforeandWithinPeriodSelection();
                         if PeriodSelection = PeriodSelection::"Within Period" then
-                            WithinPeriodPeriodSelectionOnV;
+                            WithinPeriodPeriodSelectionOnV();
                     end;
                 }
                 field(UseAmtsInAddCurr; UseAmtsInAddCurr)
@@ -53,8 +53,21 @@ page 474 "VAT Statement Preview"
 
                     trigger OnValidate()
                     begin
-                        UseAmtsInAddCurrOnPush;
+                        UseAmtsInAddCurrOnPush();
                     end;
+                }
+                field(VATDateType; VATDateType) 
+                {
+                    ApplicationArea = VAT;
+                    Caption = 'VAT Date Type';
+                    ToolTip = 'Specifies what date will be used to filter the amounts in the window.';
+
+                    trigger OnValidate()
+                    begin
+                        UpdateSubForm();
+                        CurrPage.Update();
+                    end;
+
                 }
                 field(DateFilter; DateFilter)
                 {
@@ -67,7 +80,7 @@ page 474 "VAT Statement Preview"
                         FilterTokens: Codeunit "Filter Tokens";
                     begin
                         FilterTokens.MakeDateFilter(DateFilter);
-                        SetFilter("Date Filter", DateFilter);
+                        Rec.SetFilter("Date Filter", DateFilter);
                         UpdateSubForm();
                         CurrPage.Update();
                     end;
@@ -106,9 +119,6 @@ page 474 "VAT Statement Preview"
                 Caption = 'Detailed Report';
                 Ellipsis = true;
                 Image = VATStatement;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
                 ToolTip = 'View a statement of posted VAT and calculates the duty liable to the customs authorities for the selected period. The report is printed on the basis of the definition of the VAT statement in the VAT Statement Line table. The report can be used in connection with VAT settlement to the customs authorities and for your own documentation.';
 
                 trigger OnAction()
@@ -122,9 +132,6 @@ page 474 "VAT Statement Preview"
                 Caption = 'Form/Intervat Declaration';
                 Ellipsis = true;
                 Image = ExportElectronicDocument;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
                 RunObject = Report "VAT - Form";
                 ToolTip = 'Send monthly or quarterly VAT declarations to an XML file. You can choose to print your VAT declaration and send the printed document to your tax authorities or you can send an electronic VAT declaration via the internet using Intervat. Note: This report is based on the VAT Statement template that is defined in the general ledger setup. Therefore, it may export data that is not the same as what is shown in the VAT Statement Preview window.';
             }
@@ -134,15 +141,29 @@ page 474 "VAT Statement Preview"
                 Caption = 'Declaration Summary Report';
                 Ellipsis = true;
                 Image = VATLedger;
-                Promoted = true;
-                PromotedCategory = "Report";
-                PromotedIsBig = true;
                 ToolTip = 'View a summary of the VAT declarations for different accounting periods. You can also use the report to verify the amounts in the different VAT rows. For example, you can check if the sum of two rows equals the amount in another row.';
 
                 trigger OnAction()
                 begin
                     RunReport(REPORT::"VAT Statement Summary");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Reports';
+
+                actionref(DetailedReport_Promoted; DetailedReport)
+                {
+                }
+                actionref(FormIntervatDeclaration_Promoted; FormIntervatDeclaration)
+                {
+                }
+                actionref(DeclarationSummaryReport_Promoted; DeclarationSummaryReport)
+                {
+                }
             }
         }
     }
@@ -154,6 +175,7 @@ page 474 "VAT Statement Preview"
 
     trigger OnOpenPage()
     begin
+        VATDateType := VATDateType::"Posting Date";
         if ValuesPassed then begin
             Selection := PassedSelection;
             PeriodSelection := PassedPeriodSelection;
@@ -175,10 +197,11 @@ page 474 "VAT Statement Preview"
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
+        VATDateType: Enum "VAT Date Type";
 
     procedure UpdateSubForm()
     begin
-        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr);
+        CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, VATDateType);
     end;
 
     procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)
@@ -229,27 +252,27 @@ page 474 "VAT Statement Preview"
 
     local procedure OpenSelectionOnValidate()
     begin
-        OpenSelectionOnPush;
+        OpenSelectionOnPush();
     end;
 
     local procedure ClosedSelectionOnValidate()
     begin
-        ClosedSelectionOnPush;
+        ClosedSelectionOnPush();
     end;
 
     local procedure OpenandClosedSelectionOnValida()
     begin
-        OpenandClosedSelectionOnPush;
+        OpenandClosedSelectionOnPush();
     end;
 
     local procedure WithinPeriodPeriodSelectionOnV()
     begin
-        WithinPeriodPeriodSelectOnPush;
+        WithinPeriodPeriodSelectOnPush();
     end;
 
     local procedure BeforeandWithinPeriodSelection()
     begin
-        BeforeandWithinPeriodSelOnPush;
+        BeforeandWithinPeriodSelOnPush();
     end;
 
     local procedure RunReport(ReportID: Integer)

@@ -792,7 +792,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         repeat
             WhseActivityLine.Validate("Qty. to Handle", 1);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
         LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
 
         // Post rest of the inventory pick with old ATO bin Code
@@ -828,7 +828,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
                     Assert.IsTrue(WhseActivityLine."Assemble to Order", 'Checking field Assemble to Order.')
                 else
                     Assert.IsFalse(WhseActivityLine."Assemble to Order", 'Checking field Assemble to Order.');
-            until WhseActivityLine.Next = 0;
+            until WhseActivityLine.Next() = 0;
         Assert.AreEqual(ExpectedNoOfInvtPickLines, NumOfLinesFound, 'Checking number of inventory pick lines');
     end;
 
@@ -998,7 +998,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
                 LibraryWarehouse.AutoFillQtyInventoryActivity(WhseActivityHeader);
                 LibraryWarehouse.PostInventoryActivity(WhseActivityHeader, false);
             end;
-        until WhseActivityHeader.Next = 0;
+        until WhseActivityHeader.Next() = 0;
         WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::"Invt. Pick");
         WhseActivityHeader.SetRange("Source Type", DATABASE::"Sales Line");
         WhseActivityHeader.SetRange("Source Subtype", SalesHeader."Document Type");
@@ -1428,7 +1428,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         end;
         Assert.IsTrue(
           StrPos(GetLastErrorText, ERR_WHSESHPT_EXISTS) > 0, StrSubstNo(TXT_EXPECTED_ACTUAL, ERR_WHSESHPT_EXISTS, GetLastErrorText));
-        ClearLastError;
+        ClearLastError();
         ATOWhseShptLine.FindFirst();
         // Check that Qty. to Ship is auto-set to 0 for ATO
         Assert.AreEqual(0, ATOWhseShptLine."Qty. to Ship", '');
@@ -1778,7 +1778,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         repeat
             Assert.AreEqual(WhseActivityLine.Quantity, AsmLine."Qty. Picked", '');
             Assert.AreEqual(WhseActivityLine.Quantity, AsmLine."Qty. Picked (Base)", '');
-        until AsmLine.Next = 0;
+        until AsmLine.Next() = 0;
 
         // Post whse shipment
         LibraryWarehouse.PostWhseShipment(WhseShptHeader, true);
@@ -2167,7 +2167,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
 
         // [GIVEN] Sales order for 1 pc for item "A". "Qty. to Assemble to Order" = 1.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ATOItem."No.", 1, Bin."Location Code", WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', ATOItem."No.", 1, Bin."Location Code", WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // [GIVEN] Find the linked assembly order and select serial no. "S1" on the assembly component "IS".
@@ -2385,7 +2385,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         EntrySummary.Init();
         ReservationPage.First;
         if ReservationPage."Summary Type".Value =
-           CopyStr(ItemLedgEntry.TableCaption, 1, MaxStrLen(EntrySummary."Summary Type"))
+           CopyStr(ItemLedgEntry.TableCaption(), 1, MaxStrLen(EntrySummary."Summary Type"))
         then
             ReservationPage."Reserve from Current Line".Invoke;
     end;
@@ -2598,7 +2598,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
     local procedure PostponeShptDateforAssemblyLeadTime(var SalesHeader: Record "Sales Header")
     begin
         SalesHeader.Validate(
-          "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
+          "Shipment Date", CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate()));
         SalesHeader.Modify();
     end;
 
@@ -2613,7 +2613,7 @@ codeunit 137914 "SCM Whse.-Asm. To Order"
         CreatePick.SetWkshPickLine(WhseWkshLine);
         CreatePick.UseRequestPage(false);
         CreatePick.RunModal();
-        if CreatePick.GetResultMessage then
+        if CreatePick.GetResultMessage() then
             WhseWorksheetLine.AutofillQtyToHandle(WhseWorksheetLine);
     end;
 

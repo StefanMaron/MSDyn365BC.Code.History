@@ -54,7 +54,7 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
             "Vendor Invoice No." := 'TEST 1';
             "VAT Bus. Posting Group" := VATBusinessPostingGroup.Code;
             "Gen. Bus. Posting Group" := GenBusinessPostingGroup.Code;
-            Modify;
+            Modify();
         end;
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
@@ -62,7 +62,7 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
             "Direct Unit Cost" := LibraryRandom.RandDec(1000, 2);
             Description := Line1Description;
             "Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
-            Modify;
+            Modify();
         end;
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", 1);
@@ -70,7 +70,7 @@ codeunit 144050 "Test GL Entry from Purch. Doc."
             "Direct Unit Cost" := LibraryRandom.RandDec(1000, 2);
             Description := Line2Description;
             "Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
-            Modify;
+            Modify();
         end;
 
         // Exersice: Post Purchase header with two lines.

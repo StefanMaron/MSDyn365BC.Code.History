@@ -62,7 +62,7 @@ codeunit 144015 "CODA Import Tests"
 
         CODAStatementPage."Process CODA Statement Lines".Invoke;
 
-        CODAStatementPage.Close;
+        CODAStatementPage.Close();
 
         // Validation
         // BUG 367180: Amount must be zero and Unapplied Amount must be equal Statement Amount if a CODA statement lines applied to G/L account
@@ -113,14 +113,14 @@ codeunit 144015 "CODA Import Tests"
 
         // [WHEN] Transfer amounts to general ledger
         CODAStatementPage."Transfer to General Ledger".Invoke; // Transfer to general ledger
-        CODAStatementPage.Close;
+        CODAStatementPage.Close();
 
         // [THEN] General journal line created with Amount = "X"
         FinancialJournalPage.OpenEdit;
         Assert.AreEqual('KBC', FinancialJournalPage."Bal. Account No.".Value, 'Balance Account No');
         Assert.AreEqual('Vendor', FinancialJournalPage."Account Type".Value, 'Account Type');
         Assert.AreEqual(Format(1352.48), FinancialJournalPage.Amount.Value, 'Amount');
-        FinancialJournalPage.Close;
+        FinancialJournalPage.Close();
     end;
 
     [Test]
@@ -265,7 +265,7 @@ codeunit 144015 "CODA Import Tests"
         // validate the processed CODA Statement content
         CODAStatementPage."Process CODA Statement Lines".Invoke;
         CODAStatementPage.StmtLines.First;
-        CODAStatementPage.StmtLines.Next;
+        CODAStatementPage.StmtLines.Next();
         Assert.AreEqual(' ', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
         Assert.AreEqual(20090421D, PostingDate, 'Posting Date');
@@ -321,7 +321,7 @@ codeunit 144015 "CODA Import Tests"
         // validate the processed CODA Statement content
         CODAStatementPage."Process CODA Statement Lines".Invoke;
         CODAStatementPage.StmtLines.First;
-        CODAStatementPage.StmtLines.Next;
+        CODAStatementPage.StmtLines.Next();
         Assert.AreEqual('Partly applied', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
         Assert.AreEqual(20090421D, PostingDate, 'Posting Date');
@@ -377,7 +377,7 @@ codeunit 144015 "CODA Import Tests"
         // validate the processed CODA Statement content
         CODAStatementPage."Process CODA Statement Lines".Invoke;
         CODAStatementPage.StmtLines.First;
-        CODAStatementPage.StmtLines.Next;
+        CODAStatementPage.StmtLines.Next();
         Assert.AreEqual('Partly applied', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
         Assert.AreEqual(20090421D, PostingDate, 'Posting Date');
@@ -434,7 +434,7 @@ codeunit 144015 "CODA Import Tests"
         // validate the processed CODA Statement content
         CODAStatementPage."Process CODA Statement Lines".Invoke;
         CODAStatementPage.StmtLines.First;
-        CODAStatementPage.StmtLines.Next;
+        CODAStatementPage.StmtLines.Next();
         Assert.AreEqual('Partly applied', CODAStatementPage.StmtLines."Application Status".Value, 'Application Status');
         Evaluate(PostingDate, Format(CODAStatementPage.StmtLines."Posting Date"));
         Assert.AreEqual(20090421D, PostingDate, 'Posting Date');
@@ -572,7 +572,7 @@ codeunit 144015 "CODA Import Tests"
         BankAccount."SWIFT Code" := 'KREDBEBB';
         BankAccount.IBAN := 'BE 29 7340 2822 2864';
         BankAccount."Country/Region Code" := 'BE';
-        BankAccount.Modify;
+        BankAccount.Modify();
 
         // [GIVEN] Setup transaction coding with Globalisation Code = Detail to have an "indirect application"
         ReplaceTransactionCodingScenario373926(TempTransactionCoding);
@@ -586,7 +586,7 @@ codeunit 144015 "CODA Import Tests"
 
         // [GIVEN] Open the imported CODA statement
         CODAStatement.FindFirst();
-        CODAStatement.SetRecFilter;
+        CODAStatement.SetRecFilter();
         LibraryVariableStorage.Enqueue(false); // Default application for "Post CODA Stmt. Lines"
         LibraryVariableStorage.Enqueue(false); // Dont print for "Post CODA Stmt. Lines"
 
@@ -787,8 +787,8 @@ codeunit 144015 "CODA Import Tests"
         repeat
             TempTransactionCoding := TransactionCoding;
             TempTransactionCoding.Insert;
-        until TransactionCoding.Next = 0;
-        TransactionCoding.DeleteAll;
+        until TransactionCoding.Next() = 0;
+        TransactionCoding.DeleteAll();
         InsertTransactionCoding(1, 1, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::Vendor, '');
         InsertTransactionCoding(
           1, 7, 0, TransactionCoding."Globalisation Code"::Global, TransactionCoding."Account Type"::"G/L Account", '580000');
@@ -822,19 +822,19 @@ codeunit 144015 "CODA Import Tests"
     var
         TransactionCoding: Record "Transaction Coding";
     begin
-        TransactionCoding.DeleteAll;
+        TransactionCoding.DeleteAll();
         TempTransactionCoding.FindSet();
         repeat
             TransactionCoding := TempTransactionCoding;
             TransactionCoding.Insert;
-        until TempTransactionCoding.Next = 0;
+        until TempTransactionCoding.Next() = 0;
     end;
 
     local procedure InsertTransactionCoding(TransactionFamily: Integer; Transaction: Integer; TransactionCategory: Integer; GlobalisationCode: Option; AccountType: Option; AccountNo: Code[20])
     var
         TransactionCoding: Record "Transaction Coding";
     begin
-        TransactionCoding.Init;
+        TransactionCoding.Init();
         TransactionCoding."Transaction Family" := TransactionFamily;
         TransactionCoding.Transaction := Transaction;
         TransactionCoding."Transaction Category" := TransactionCategory;
@@ -850,7 +850,7 @@ codeunit 144015 "CODA Import Tests"
         CODAStatementLine.TestField("Unapplied Amount", UnappliedAmount);
         CODAStatementLine.TestField(Amount, Amount);
         CODAStatementLine.TestField("Statement Amount", StatementAmount);
-        CODAStatementLine.Next;
+        CODAStatementLine.Next();
     end;
 
     [Normal]

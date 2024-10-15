@@ -1,4 +1,4 @@
-report 6032 "Post Prepaid Contract Entries"
+﻿report 6032 "Post Prepaid Contract Entries"
 {
     ApplicationArea = Service;
     Caption = 'Post Prepaid Service Contract Entries';
@@ -28,7 +28,7 @@ report 6032 "Post Prepaid Contract Entries"
                     TempServLedgEntry.SetRange("Service Contract No.", LastContract);
                     TempServLedgEntry.CalcSums("Amount (LCY)");
                     if TempServLedgEntry."Amount (LCY)" <> 0 then
-                        PostGenJnlLine
+                        PostGenJnlLine()
                     else
                         TempServLedgEntry.DeleteAll();
                     TempServLedgEntry.SetRange("Service Contract No.", "Service Contract No.");
@@ -62,7 +62,7 @@ report 6032 "Post Prepaid Contract Entries"
                     TempServLedgEntry.SetRange("Dimension Set ID");
                     TempServLedgEntry.CalcSums("Amount (LCY)");
                     if TempServLedgEntry."Amount (LCY)" <> 0 then begin
-                        PostGenJnlLine;
+                        PostGenJnlLine();
                         UpdateAnalysisView.UpdateAll(0, true);
                     end;
                 end;
@@ -80,13 +80,12 @@ report 6032 "Post Prepaid Contract Entries"
 
                 if PostPrepaidContracts = PostPrepaidContracts::"Post Prepaid Transactions" then begin
                     ServContractHdr.SetFilter("Contract No.", GetFilter("Service Contract No."));
-                    if ServContractHdr.Find('-') then begin
+                    if ServContractHdr.Find('-') then
                         repeat
                             ServContractHdr.CalcFields("No. of Unposted Credit Memos");
                             if ServContractHdr."No. of Unposted Credit Memos" <> 0 then
                                 Error(Text005Err, Text007Txt, Text008Txt, ServContractHdr."Contract No.", Text006Txt);
                         until ServContractHdr.Next() = 0;
-                    end;
                 end;
 
                 LastContract := '';
@@ -229,14 +228,14 @@ report 6032 "Post Prepaid Contract Entries"
 
     trigger OnInitReport()
     begin
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         Clear(GenJnlPostLine);
     end;
 
     trigger OnPostReport()
     begin
         if PostPrepaidContracts = PostPrepaidContracts::"Post Prepaid Transactions" then
-            Window.Close;
+            Window.Close();
     end;
 
     trigger OnPreReport()
@@ -255,7 +254,7 @@ report 6032 "Post Prepaid Contract Entries"
             Clear(DocNo);
             GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
             GenJnlBatch.TestField("No. Series");
-            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate, true);
+            DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", WorkDate(), true);
         end;
     end;
 

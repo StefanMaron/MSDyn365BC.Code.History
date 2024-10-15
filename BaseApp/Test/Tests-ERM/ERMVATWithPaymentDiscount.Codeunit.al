@@ -276,12 +276,12 @@ codeunit 134031 "ERM VAT With Payment Discount"
           DiscountAmount, CustLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErrorMessage, CustLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), DiscountAmount,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
         Assert.AreNearlyEqual(
           DiscountAmount, CustLedgerEntry."Remaining Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErrorMessage, CustLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"), DiscountAmount,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 
     [Test]
@@ -319,12 +319,12 @@ codeunit 134031 "ERM VAT With Payment Discount"
           DiscountAmount, VendorLedgerEntry."Original Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErrorMessage, VendorLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), DiscountAmount,
-            VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+            VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
         Assert.AreNearlyEqual(
           DiscountAmount, VendorLedgerEntry."Remaining Pmt. Disc. Possible", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErrorMessage, VendorLedgerEntry.FieldCaption("Remaining Pmt. Disc. Possible"), DiscountAmount,
-            VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+            VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 
     local procedure Initialize()
@@ -396,8 +396,8 @@ codeunit 134031 "ERM VAT With Payment Discount"
     begin
         PaymentAmount := PurchaseHeader."Amount Including VAT" - (PurchaseHeader.Amount * PurchaseHeader."Payment Discount %" / 100);
         DiscountAmountLCY := PurchaseHeader.Amount * PurchaseHeader."Payment Discount %" / 100;
-        PaymentAmount := LibraryERM.ConvertCurrency(PaymentAmount, CurrencyCode, '', WorkDate);
-        DiscountAmountLCY := LibraryERM.ConvertCurrency(DiscountAmountLCY, CurrencyCode, '', WorkDate);
+        PaymentAmount := LibraryERM.ConvertCurrency(PaymentAmount, CurrencyCode, '', WorkDate());
+        DiscountAmountLCY := LibraryERM.ConvertCurrency(DiscountAmountLCY, CurrencyCode, '', WorkDate());
     end;
 
     local procedure CalculatePmtAmtExclVATSales(var AmountLCY: Decimal; SalesHeader: Record "Sales Header"; No: Code[20]; CurrencyCode: Code[10]) PaymentAmount: Decimal
@@ -408,8 +408,8 @@ codeunit 134031 "ERM VAT With Payment Discount"
         SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT");
         PaymentAmount := SalesHeader."Amount Including VAT" - Round(SalesHeader.Amount * SalesHeader."Payment Discount %" / 100);
         AmountLCY := Round(SalesInvoiceHeader.Amount * SalesHeader."Payment Discount %" / 100);
-        PaymentAmount := Round(LibraryERM.ConvertCurrency(PaymentAmount, CurrencyCode, '', WorkDate));
-        AmountLCY := Round(LibraryERM.ConvertCurrency(AmountLCY, CurrencyCode, '', WorkDate));
+        PaymentAmount := Round(LibraryERM.ConvertCurrency(PaymentAmount, CurrencyCode, '', WorkDate()));
+        AmountLCY := Round(LibraryERM.ConvertCurrency(AmountLCY, CurrencyCode, '', WorkDate()));
     end;
 
     local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Amount: Decimal)
@@ -573,17 +573,17 @@ codeunit 134031 "ERM VAT With Payment Discount"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         Currency: Record Currency;
     begin
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           OriginalPmtDiscPossible, CustLedgerEntry."Original Pmt. Disc. Possible", Currency."Amount Rounding Precision",
           StrSubstNo(
             AmountErrorMessage, CustLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), OriginalPmtDiscPossible,
-            CustLedgerEntry.TableCaption, CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
+            CustLedgerEntry.TableCaption(), CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
         Assert.AreEqual(
           0, CustLedgerEntry."Pmt. Disc. Given (LCY)",
           StrSubstNo(
-            AmountErrorMessage, CustLedgerEntry.FieldCaption("Pmt. Disc. Given (LCY)"), 0, CustLedgerEntry.TableCaption,
+            AmountErrorMessage, CustLedgerEntry.FieldCaption("Pmt. Disc. Given (LCY)"), 0, CustLedgerEntry.TableCaption(),
             CustLedgerEntry.FieldCaption("Entry No."), CustLedgerEntry."Entry No."));
     end;
 
@@ -592,14 +592,14 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Currency: Record Currency;
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         DetailedCustLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Payment Discount");
         DetailedCustLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           -Amount, DetailedCustLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountErrorMessage, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedCustLedgEntry.TableCaption,
+            AmountErrorMessage, DetailedCustLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedCustLedgEntry.TableCaption(),
             DetailedCustLedgEntry.FieldCaption("Entry No."), DetailedCustLedgEntry."Entry No."));
     end;
 
@@ -608,14 +608,14 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Currency: Record Currency;
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         DetailedVendorLedgEntry.SetRange("Document No.", DocumentNo);
         DetailedVendorLedgEntry.SetRange("Entry Type", DetailedVendorLedgEntry."Entry Type"::"Payment Discount");
         DetailedVendorLedgEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, DetailedVendorLedgEntry."Amount (LCY)", Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountErrorMessage, DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedVendorLedgEntry.TableCaption,
+            AmountErrorMessage, DetailedVendorLedgEntry.FieldCaption("Amount (LCY)"), Amount, DetailedVendorLedgEntry.TableCaption(),
             DetailedVendorLedgEntry.FieldCaption("Entry No."), DetailedVendorLedgEntry."Entry No."));
     end;
 
@@ -624,7 +624,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Currency: Record Currency;
         GLEntry: Record "G/L Entry";
     begin
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Payment);
         GLEntry.SetRange("G/L Account No.", AccountNo);
@@ -632,7 +632,7 @@ codeunit 134031 "ERM VAT With Payment Discount"
         Assert.AreNearlyEqual(
           Amount, GLEntry.Amount, Currency."Amount Rounding Precision",
           StrSubstNo(
-            AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption, GLEntry.FieldCaption("Entry No."),
+            AmountErrorMessage, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption(), GLEntry.FieldCaption("Entry No."),
             GLEntry."Entry No."));
     end;
 
@@ -641,17 +641,17 @@ codeunit 134031 "ERM VAT With Payment Discount"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         Currency: Record Currency;
     begin
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         Assert.AreNearlyEqual(
           OriginalPmtDiscPossible, VendorLedgerEntry."Original Pmt. Disc. Possible", Currency."Amount Rounding Precision",
           StrSubstNo(
             AmountErrorMessage, VendorLedgerEntry.FieldCaption("Original Pmt. Disc. Possible"), OriginalPmtDiscPossible,
-            VendorLedgerEntry.TableCaption, VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
+            VendorLedgerEntry.TableCaption(), VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
         Assert.AreEqual(
           0, VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)",
           StrSubstNo(
-            AmountErrorMessage, VendorLedgerEntry.FieldCaption("Pmt. Disc. Rcd.(LCY)"), 0, VendorLedgerEntry.TableCaption,
+            AmountErrorMessage, VendorLedgerEntry.FieldCaption("Pmt. Disc. Rcd.(LCY)"), 0, VendorLedgerEntry.TableCaption(),
             VendorLedgerEntry.FieldCaption("Entry No."), VendorLedgerEntry."Entry No."));
     end;
 }

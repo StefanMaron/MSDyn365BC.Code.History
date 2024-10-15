@@ -44,7 +44,7 @@ table 5918 "Fault Code"
         if ServMgtSetup."Fault Reporting Level" = ServMgtSetup."Fault Reporting Level"::None then
             Error(
               Text000,
-              TableCaption, ServMgtSetup.FieldCaption("Fault Reporting Level"), ServMgtSetup.TableCaption,
+              TableCaption, ServMgtSetup.FieldCaption("Fault Reporting Level"), ServMgtSetup.TableCaption(),
               Format(ServMgtSetup."Fault Reporting Level"));
     end;
 
@@ -54,8 +54,9 @@ table 5918 "Fault Code"
     end;
 
     var
+        ServMgtSetup: Record "Service Mgt. Setup";
+
         Text000: Label 'You cannot use %1, because the %2 in the %3 table is %4.';
         Text001: Label 'You cannot rename a %1.';
-        ServMgtSetup: Record "Service Mgt. Setup";
 }
 

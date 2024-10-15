@@ -280,7 +280,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := true;
-            Modify;
+            Modify();
         end;
 
         // Create payments
@@ -323,7 +323,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := true;
-            Modify;
+            Modify();
         end;
 
         // Create payments
@@ -368,7 +368,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := true;
-            Modify;
+            Modify();
         end;
         ExportProtocol := CreateSEPAExportProtocol(true);
 
@@ -787,7 +787,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := false;
-            Modify;
+            Modify();
         end;
 
         // Create payments
@@ -826,7 +826,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with CountryRegion do begin
             Get('DK');
             "SEPA Allowed" := false;
-            Modify;
+            Modify();
         end;
 
         // Create payments
@@ -2116,7 +2116,7 @@ codeunit 144008 "EB - Payment Journal Export"
             Validate("Preferred Bank Account Code",
               CreateVendorBankAccount("No.", CountryCode, ExportProtocolCode, VendorSwift, VendorIban, BankAccountCurrency));
             Validate("Currency Code", VendorCurrency);
-            Modify;
+            Modify();
             exit("No.");
         end;
     end;
@@ -2374,7 +2374,7 @@ codeunit 144008 "EB - Payment Journal Export"
         with GenJournalLine do begin
             FilterGenJnlLine(GenJournalLine, VendorNo);
             FindFirst();
-            Reset;
+            Reset();
             SetRange("Journal Template Name", "Journal Template Name");
             SetRange("Journal Batch Name", "Journal Batch Name");
             ModifyAll("Posting Date", "Posting Date");
@@ -2402,7 +2402,7 @@ codeunit 144008 "EB - Payment Journal Export"
             LibraryERM.FindGLAccount(GLAccount);
             Validate("Bal. Account No.", GLAccount."No.");
             Validate("No. Series", CreateNoSeries);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2478,7 +2478,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Vendor.Get(VendorNo);
         VendorBankAccount.Get(VendorNo, Vendor."Preferred Bank Account Code");
         with PaymentJournalLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", PaymJournalBatch."Journal Template Name");
             Validate("Journal Batch Name", PaymJournalBatch.Name);
             Validate("Line No.", LibraryUtility.GetNewRecNo(PaymentJournalLine, FieldNo("Line No.")));
@@ -2515,7 +2515,7 @@ codeunit 144008 "EB - Payment Journal Export"
     begin
         CreatePaymentJnlBatch(PaymJournalBatch);
         with PaymentJournalLine do begin
-            Init;
+            Init();
             "Journal Template Name" := PaymJournalBatch."Journal Template Name";
             "Journal Batch Name" := PaymJournalBatch.Name;
             "Account Type" := AccountType;
@@ -2528,7 +2528,7 @@ codeunit 144008 "EB - Payment Journal Export"
             "SWIFT Code" := LibraryUtility.GenerateGUID();
             "Bank Country/Region Code" := "Journal Batch Name";
             "Bank Account" := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
             SetFilter("Export Protocol Code", ExportProtocol);
         end;
     end;
@@ -2849,7 +2849,7 @@ codeunit 144008 "EB - Payment Journal Export"
         FileSEPAPayments.FileName.SetValue(LibraryVariableStorage.DequeueText());
         FileSEPAPayments.AutomaticPosting.SetValue(LibraryVariableStorage.DequeueBoolean());
         FileSEPAPayments.IncludeDimText.SetValue(DimensionCode);
-        FileSEPAPayments.ExecutionDate.SetValue(WorkDate);
+        FileSEPAPayments.ExecutionDate.SetValue(WorkDate());
         FileSEPAPayments.OK.Invoke;
     end;
 
@@ -2894,7 +2894,7 @@ codeunit 144008 "EB - Payment Journal Export"
     procedure ErrorPageHandler(var ExportCheckErrorLogs: TestPage "Export Check Error Logs")
     begin
         ErrorMessage := ExportCheckErrorLogs."Error Message".Value;
-        ExportCheckErrorLogs.Close;
+        ExportCheckErrorLogs.Close();
     end;
 
     [ConfirmHandler]

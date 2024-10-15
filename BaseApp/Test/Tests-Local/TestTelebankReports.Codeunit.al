@@ -57,7 +57,7 @@ codeunit 144020 "Test Telebank Reports"
             LibraryReportDataset.AssertElementWithValueExists(
               'PmtDiscPossible_DomiciliationJnlLine', MonthCounter * 100);
             LibraryReportDataset.AssertElementWithValueExists(
-              'PostingDateFormatted_DomiciliationJnlLine', Format(DMY2Date(1, MonthCounter, Date2DMY(WorkDate, 3))));
+              'PostingDateFormatted_DomiciliationJnlLine', Format(DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3))));
             LibraryReportDataset.AssertElementWithValueExists(
               'Reference_DomiciliationJnlLine', StrSubstNo(ReferencePrefixTxt, MonthCounter));
 
@@ -71,7 +71,7 @@ codeunit 144020 "Test Telebank Reports"
     begin
         with DomiciliationJournalTemplate do begin
             Validate(Name, CopyStr(CreateGuid, 1, MaxStrLen(Name)));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -81,7 +81,7 @@ codeunit 144020 "Test Telebank Reports"
             Validate("Journal Template Name", DomiciliationJournalTemplate.Name);
             SetRange("Journal Template Name", "Journal Template Name");
             Validate(Name, CopyStr(CreateGuid, 1, MaxStrLen(Name)));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -92,21 +92,21 @@ codeunit 144020 "Test Telebank Reports"
     begin
         for MonthCounter := 1 to 12 do
             with DomiciliationJournalLine do begin
-                Init;
+                Init();
                 Validate("Customer No.", DomiciliationCustomer."No.");
                 Validate("Bank Account No.", DomiciliationBankAccount."No.");
                 Validate("Message 1", StrSubstNo(Message1PrefixTxt, MonthCounter));
                 Validate(Amount, MonthCounter * 1000);
-                Validate("Posting Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate, 3)));
+                Validate("Posting Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3)));
                 Validate("Pmt. Disc. Possible", MonthCounter * 100);
-                Validate("Pmt. Discount Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate, 3)));
+                Validate("Pmt. Discount Date", DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3)));
                 Validate(Reference, StrSubstNo(ReferencePrefixTxt, MonthCounter));
                 Validate("Journal Template Name", DomiciliationJournalBatch."Journal Template Name");
                 Validate("Journal Batch Name", DomiciliationJournalBatch.Name);
                 SetRange("Journal Template Name", "Journal Template Name");
                 SetRange("Journal Batch Name", "Journal Batch Name");
                 Validate("Line No.", Amount);
-                Insert;
+                Insert();
             end;
     end;
 

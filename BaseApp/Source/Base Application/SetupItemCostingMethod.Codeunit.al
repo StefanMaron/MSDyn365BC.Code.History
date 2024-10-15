@@ -8,9 +8,9 @@ codeunit 8625 "Setup Item Costing Method"
     begin
         "Costing Method" := InventorySetup."Default Costing Method"::FIFO;
         if Type = Type::Inventory then
-            if InventorySetup.Get then
+            if InventorySetup.Get() then
                 "Costing Method" := InventorySetup."Default Costing Method";
-        Modify;
+        Modify();
     end;
 }
 

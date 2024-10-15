@@ -9,9 +9,9 @@ codeunit 5305 "Outlook Synch. Process Line"
     begin
         case OSynchActionType of
             OSynchActionType::Insert:
-                InsertItem;
+                InsertItem();
             OSynchActionType::Modify:
-                ProcessItem;
+                ProcessItem();
             OSynchActionType::Delete:
                 OSynchDeletionMgt.ProcessItem(OSynchUserSetup, EntityRecID, ErrorLogXMLWriter, StartDateTime);
         end;
@@ -21,7 +21,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         OSynchEntity: Record "Outlook Synch. Entity";
         OSynchEntityElement: Record "Outlook Synch. Entity Element";
         OSynchUserSetup: Record "Outlook Synch. User Setup";
-        ErrorConflictBuffer: Record "Outlook Synch. Link" temporary;
+        TempErrorConflictBuffer: Record "Outlook Synch. Link" temporary;
         Base64Convert: Codeunit "Base64 Convert";
         OSynchSetupMgt: Codeunit "Outlook Synch. Setup Mgt.";
         OSynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";
@@ -56,9 +56,9 @@ codeunit 5305 "Outlook Synch. Process Line"
 
         if ErrorConflictBufferIn.Find('-') then
             repeat
-                ErrorConflictBuffer.Init();
-                ErrorConflictBuffer := ErrorConflictBufferIn;
-                ErrorConflictBuffer.Insert();
+                TempErrorConflictBuffer.Init();
+                TempErrorConflictBuffer := ErrorConflictBufferIn;
+                TempErrorConflictBuffer.Insert();
             until ErrorConflictBufferIn.Next() = 0;
 
         XMLTextReader := XMLTextReaderIn;
@@ -87,7 +87,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         if not EntityRecRef.Get(EntityRecID) then begin
             if SkipCheckForConflicts then begin
                 OSynchLink.Delete();
-                InsertItem;
+                InsertItem();
                 exit;
             end;
             OSynchOutlookMgt.WriteErrorLog(
@@ -117,7 +117,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 Error('');
             end;
 
-        ModifiedEntityRecRef := EntityRecRef.Duplicate;
+        ModifiedEntityRecRef := EntityRecRef.Duplicate();
 
         OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", OSynchEntity.Code);
@@ -154,37 +154,37 @@ codeunit 5305 "Outlook Synch. Process Line"
         Evaluate(RecID, Format(EntityRecRef.RecordId));
         UpdateSynchronizationDate(OSynchUserSetup."User ID", RecID);
 
-        EntityRecRef.Close;
+        EntityRecRef.Close();
     end;
 
     local procedure ProcessConstants(var OSynchField: Record "Outlook Synch. Field"; var RecRef: RecordRef)
     var
-        KeyFieldsBuffer: Record "Outlook Synch. Lookup Name" temporary;
+        TempKeyFieldsBuffer: Record "Outlook Synch. Lookup Name" temporary;
         FieldRef: FieldRef;
     begin
-        KeyFieldsBuffer.Reset();
-        KeyFieldsBuffer.DeleteAll();
-        OSynchField.ClearMarks;
+        TempKeyFieldsBuffer.Reset();
+        TempKeyFieldsBuffer.DeleteAll();
+        OSynchField.ClearMarks();
 
         if OSynchField.Find('-') then
             repeat
                 if CheckKeyField(OSynchField."Master Table No.", OSynchField."Field No.") then begin
-                    KeyFieldsBuffer.Init();
-                    KeyFieldsBuffer."Entry No." := OSynchField."Field No.";
-                    KeyFieldsBuffer.Name := CopyStr(OSynchField.DefaultValueExpression, 1, MaxStrLen(KeyFieldsBuffer.Name));
-                    if KeyFieldsBuffer.Insert() then;
+                    TempKeyFieldsBuffer.Init();
+                    TempKeyFieldsBuffer."Entry No." := OSynchField."Field No.";
+                    TempKeyFieldsBuffer.Name := CopyStr(OSynchField.DefaultValueExpression, 1, MaxStrLen(TempKeyFieldsBuffer.Name));
+                    if TempKeyFieldsBuffer.Insert() then;
                 end else
                     OSynchField.Mark(true);
             until OSynchField.Next() = 0;
 
         if OSynchField.Find('-') then;
-        KeyFieldsBuffer.Reset();
-        if KeyFieldsBuffer.Find('-') then
+        TempKeyFieldsBuffer.Reset();
+        if TempKeyFieldsBuffer.Find('-') then
             repeat
-                FieldRef := RecRef.Field(KeyFieldsBuffer."Entry No.");
+                FieldRef := RecRef.Field(TempKeyFieldsBuffer."Entry No.");
                 if not
                    OSynchTypeConversion.EvaluateTextToFieldRef(
-                     OSynchTypeConversion.SetValueFormat(KeyFieldsBuffer.Name, FieldRef),
+                     OSynchTypeConversion.SetValueFormat(TempKeyFieldsBuffer.Name, FieldRef),
                      FieldRef,
                      true)
                 then
@@ -192,7 +192,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                         Error(Text001, FieldRef.Caption, OSynchField."Synch. Entity Code")
                     else
                         Error(Text010, FieldRef.Caption, OSynchField."Outlook Object", OSynchField."Synch. Entity Code");
-            until KeyFieldsBuffer.Next() = 0;
+            until TempKeyFieldsBuffer.Next() = 0;
 
         OSynchField.MarkedOnly(true);
         if OSynchField.Find('-') then
@@ -301,7 +301,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
                                                 Error(Text010, FldRef.Caption, OSynchField."Outlook Object", OSynchField."Synch. Entity Code");
                                             end;
-                                    RelatedRecRef.Close;
+                                    RelatedRecRef.Close();
                                 end else begin
                                     FldRef := SynchRecRef.Field(OSynchField."Field No.");
 
@@ -370,7 +370,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         OSynchEntity1: Record "Outlook Synch. Entity";
         OSynchFilter: Record "Outlook Synch. Filter";
         TempOSynchFilter: Record "Outlook Synch. Filter" temporary;
-        KeyFieldsBuffer: Record "Outlook Synch. Lookup Name" temporary;
+        TempKeyFieldsBuffer: Record "Outlook Synch. Lookup Name" temporary;
         OSynchDependency: Record "Outlook Synch. Dependency";
         TempDependentRecRef: RecordRef;
         NullRecRef: RecordRef;
@@ -415,31 +415,31 @@ codeunit 5305 "Outlook Synch. Process Line"
                         OSynchSetupMgt.ComposeFilterRecords(OSynchFilter, TempOSynchFilter, TempDependentRecRef, TempOSynchFilter.Type::CONST);
                     end;
                 until OSynchDependency.Next() = 0;
-            TempDependentRecRef.Close;
+            TempDependentRecRef.Close();
         end;
 
-        KeyFieldsBuffer.Reset();
-        KeyFieldsBuffer.DeleteAll();
-        TempOSynchFilter.ClearMarks;
+        TempKeyFieldsBuffer.Reset();
+        TempKeyFieldsBuffer.DeleteAll();
+        TempOSynchFilter.ClearMarks();
 
         if TempOSynchFilter.Find('-') then
             repeat
                 if CheckKeyField(TempOSynchFilter."Table No.", TempOSynchFilter."Field No.") then begin
-                    KeyFieldsBuffer.Init();
-                    KeyFieldsBuffer."Entry No." := TempOSynchFilter."Field No.";
-                    KeyFieldsBuffer.Name := CopyStr(TempOSynchFilter.GetFilterExpressionValue, 1, MaxStrLen(KeyFieldsBuffer.Name));
-                    if KeyFieldsBuffer.Insert() then;
+                    TempKeyFieldsBuffer.Init();
+                    TempKeyFieldsBuffer."Entry No." := TempOSynchFilter."Field No.";
+                    TempKeyFieldsBuffer.Name := CopyStr(TempOSynchFilter.GetFilterExpressionValue(), 1, MaxStrLen(TempKeyFieldsBuffer.Name));
+                    if TempKeyFieldsBuffer.Insert() then;
                 end else
                     TempOSynchFilter.Mark(true);
             until TempOSynchFilter.Next() = 0;
 
-        KeyFieldsBuffer.Reset();
-        if KeyFieldsBuffer.Find('-') then
+        TempKeyFieldsBuffer.Reset();
+        if TempKeyFieldsBuffer.Find('-') then
             repeat
-                FieldRef := CollectionRecRef.Field(KeyFieldsBuffer."Entry No.");
+                FieldRef := CollectionRecRef.Field(TempKeyFieldsBuffer."Entry No.");
                 if not
                    OSynchTypeConversion.EvaluateTextToFieldRef(
-                     OSynchTypeConversion.SetValueFormat(KeyFieldsBuffer.Name, FieldRef),
+                     OSynchTypeConversion.SetValueFormat(TempKeyFieldsBuffer.Name, FieldRef),
                      FieldRef,
                      true)
                 then
@@ -451,7 +451,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                           FieldRef.Caption,
                           OSynchEntityElementIn."Outlook Collection",
                           OSynchEntityElementIn."Synch. Entity Code");
-            until KeyFieldsBuffer.Next() = 0;
+            until TempKeyFieldsBuffer.Next() = 0;
 
         TempOSynchFilter.MarkedOnly(true);
         TempOSynchFilter.SetCurrentKey("Table No.", "Field No."); // Defines validation order
@@ -461,7 +461,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 FieldRef := CollectionRecRef.Field(TempOSynchFilter."Field No.");
                 if not
                    OSynchTypeConversion.EvaluateTextToFieldRef(
-                     OSynchTypeConversion.SetValueFormat(TempOSynchFilter.GetFilterExpressionValue, FieldRef),
+                     OSynchTypeConversion.SetValueFormat(TempOSynchFilter.GetFilterExpressionValue(), FieldRef),
                      FieldRef,
                      true)
                 then
@@ -478,7 +478,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
     local procedure ProcessFields(var OSynchField: Record "Outlook Synch. Field"; var SynchRecRef: RecordRef; Iterator: Text[38]; ElementNo: Integer; ProcessOnlySearchFields: Boolean)
     var
-        OSynchFieldBuffer: Record "Outlook Synch. Field" temporary;
+        TempOSynchFieldBuffer: Record "Outlook Synch. Field" temporary;
         IsConst: Boolean;
     begin
         if not OSynchField.Find('-') then
@@ -487,40 +487,40 @@ codeunit 5305 "Outlook Synch. Process Line"
         repeat
             if OSynchField."Outlook Property" = '' then begin
                 if not IsConst then begin
-                    ProcessProperties(OSynchFieldBuffer, SynchRecRef, Iterator, ElementNo, ProcessOnlySearchFields);
-                    OSynchFieldBuffer.Reset();
-                    OSynchFieldBuffer.DeleteAll();
+                    ProcessProperties(TempOSynchFieldBuffer, SynchRecRef, Iterator, ElementNo, ProcessOnlySearchFields);
+                    TempOSynchFieldBuffer.Reset();
+                    TempOSynchFieldBuffer.DeleteAll();
                 end;
 
                 if (OSynchField."Table No." = 0) and
                    (OSynchField."Read-Only Status" = OSynchField."Read-Only Status"::"Read-Only in Microsoft Dynamics NAV") and
                    (OSynchField.Condition = '')
                 then begin
-                    OSynchFieldBuffer.Init();
-                    OSynchFieldBuffer.Copy(OSynchField);
-                    OSynchFieldBuffer.Insert();
+                    TempOSynchFieldBuffer.Init();
+                    TempOSynchFieldBuffer.Copy(OSynchField);
+                    TempOSynchFieldBuffer.Insert();
                 end;
 
                 IsConst := true;
             end else begin
                 if IsConst then begin
-                    ProcessConstants(OSynchFieldBuffer, SynchRecRef);
-                    OSynchFieldBuffer.Reset();
-                    OSynchFieldBuffer.DeleteAll();
+                    ProcessConstants(TempOSynchFieldBuffer, SynchRecRef);
+                    TempOSynchFieldBuffer.Reset();
+                    TempOSynchFieldBuffer.DeleteAll();
                 end;
 
-                OSynchFieldBuffer.Init();
-                OSynchFieldBuffer.Copy(OSynchField);
-                OSynchFieldBuffer.Insert();
+                TempOSynchFieldBuffer.Init();
+                TempOSynchFieldBuffer.Copy(OSynchField);
+                TempOSynchFieldBuffer.Insert();
 
                 IsConst := false;
             end;
         until OSynchField.Next() = 0;
 
         if IsConst then
-            ProcessConstants(OSynchFieldBuffer, SynchRecRef)
+            ProcessConstants(TempOSynchFieldBuffer, SynchRecRef)
         else
-            ProcessProperties(OSynchFieldBuffer, SynchRecRef, Iterator, ElementNo, ProcessOnlySearchFields);
+            ProcessProperties(TempOSynchFieldBuffer, SynchRecRef, Iterator, ElementNo, ProcessOnlySearchFields);
     end;
 
     local procedure ProcessDateTimeProperty(var SynchRecRef: RecordRef; OSynchFieldIn: Record "Outlook Synch. Field"; OPropertyValue: Text[1024])
@@ -535,6 +535,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         RelatedFldRef: FieldRef;
         DateTimeVar: DateTime;
     begin
+        DateTimeVar := 0DT;
         OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", OSynchFieldIn."Synch. Entity Code");
         OSynchField.SetRange("Element No.", OSynchFieldIn."Element No.");
@@ -588,7 +589,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                                                 Error(Text010, FldRef.Caption, OSynchField."Outlook Object", OSynchField."Synch. Entity Code");
                                     until OSynchFilter.Next() = 0;
                             end;
-                            RelatedRecRef.Close;
+                            RelatedRecRef.Close();
                         end;
                 end;
             until OSynchField.Next() = 0;
@@ -596,7 +597,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
     local procedure ProcessCollections(EntityRecRef: RecordRef)
     var
-        CollectionElementsBuffer: Record "Outlook Synch. Link" temporary;
+        TempCollectionElementsBuffer: Record "Outlook Synch. Link" temporary;
         CollectionsBuffer: RecordRef;
         ChildIterator: Text[38];
         ElementIterator: Text[38];
@@ -617,8 +618,8 @@ codeunit 5305 "Outlook Synch. Process Line"
         repeat
             ChildTagName := XMLTextReader.GetName(ChildIterator);
             if ChildTagName = 'Collection' then begin
-                CollectionElementsBuffer.Reset();
-                CollectionElementsBuffer.DeleteAll();
+                TempCollectionElementsBuffer.Reset();
+                TempCollectionElementsBuffer.DeleteAll();
 
                 OCollectionName := XMLTextReader.GetCurrentNodeAttribute(ChildIterator, 'Name');
                 OSynchEntityElement.SetRange("Outlook Collection", OCollectionName);
@@ -656,10 +657,10 @@ codeunit 5305 "Outlook Synch. Process Line"
                             CollectionsBuffer.Open(OSynchEntityElement."Table No.", true);
 
                         if CollectionsBuffer.Find('-') then
-                            ProcessCollectiosBuffer(CollectionElementsBuffer, CollectionsBuffer, CollectionTableID);
+                            ProcessCollectiosBuffer(TempCollectionElementsBuffer, CollectionsBuffer, CollectionTableID);
 
                         CollectionTableID := OSynchEntityElement."Table No.";
-                        CollectionsBuffer.Close;
+                        CollectionsBuffer.Close();
                         CollectionsBuffer.Open(CollectionTableID, true);
                         IsBufferUsed := true;
                     end;
@@ -672,7 +673,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                               OSynchEntityElement,
                               ElementIterator,
                               EntityRecRef,
-                              CollectionElementsBuffer,
+                              TempCollectionElementsBuffer,
                               CollectionsBuffer,
                               CollectionElementNo);
                         end;
@@ -680,14 +681,14 @@ codeunit 5305 "Outlook Synch. Process Line"
                 end;
 
                 XMLTextReader.RemoveIterator(ElementIterator);
-                DeletedCollectionElements(CollectionElementsBuffer, OSynchEntityElement, EntityRecRef);
+                DeletedCollectionElements(TempCollectionElementsBuffer, OSynchEntityElement, EntityRecRef);
             end;
         until not XMLTextReader.MoveNext(ChildIterator);
         XMLTextReader.RemoveIterator(ChildIterator);
 
         if IsBufferUsed then
             if CollectionsBuffer.Find('-') then
-                ProcessCollectiosBuffer(CollectionElementsBuffer, CollectionsBuffer, CollectionTableID);
+                ProcessCollectiosBuffer(TempCollectionElementsBuffer, CollectionsBuffer, CollectionTableID);
     end;
 
     procedure ProcessCollectiosBuffer(var CollectionElementsBuffer: Record "Outlook Synch. Link"; CollectionsBuffer: RecordRef; TableID: Integer)
@@ -708,7 +709,7 @@ codeunit 5305 "Outlook Synch. Process Line"
             if CollectionElementsBuffer.Insert() then;
         until CollectionsBuffer.Next() = 0;
 
-        CollectionRecRef.Close;
+        CollectionRecRef.Close();
     end;
 
     local procedure ProcessCollectionElement(OSynchEntityElementIn: Record "Outlook Synch. Entity Element"; ElementIterator: Text[38]; EntityRecRef: RecordRef; var CollectionElementsBuffer: Record "Outlook Synch. Link"; var CollectionsBuffer: RecordRef; CollectionElementNo: Integer)
@@ -752,7 +753,7 @@ codeunit 5305 "Outlook Synch. Process Line"
               EntityRecRef,
               TempCollectionRecRef,
               RecID);
-            TempCollectionRecRef.Close;
+            TempCollectionRecRef.Close();
 
             if Format(RecID) = '' then begin
                 if OSynchEntityElementIn."Master Table No." = OSynchEntityElementIn."Table No." then
@@ -802,7 +803,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
                     exit;
                 end else begin
-                    CollectionRecRef := EntityRecRef.Duplicate;
+                    CollectionRecRef := EntityRecRef.Duplicate();
                     IsOneToOneEntity := true;
                 end;
 
@@ -847,7 +848,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                     ModifyCollectionElement(RecID, OSynchEntityElementIn."Element No.", ElementIterator, CollectionElementsBuffer);
                     exit;
                 end;
-                TempCollectionRecRef.Close;
+                TempCollectionRecRef.Close();
             end;
 
             if OSynchEntityElementIn."Table No." = OSynchEntityElementIn."Master Table No." then begin
@@ -861,7 +862,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                       OSynchEntityElementIn."Synch. Entity Code",
                       OSynchEntityElementIn."Outlook Collection");
 
-                OriginalCollectionRecRef := CollectionRecRef.Duplicate;
+                OriginalCollectionRecRef := CollectionRecRef.Duplicate();
                 if not SetRelation(CollectionRecRef, DependentRecRef, OSynchDependency) then
                     Error(
                       Text008,
@@ -894,16 +895,16 @@ codeunit 5305 "Outlook Synch. Process Line"
               CollectionsBuffer,
               CollectionElementNo);
 
-            DependentRecRef.Close;
-            TempDependentRecRef.Close;
-            CollectionRecRef.Close;
+            DependentRecRef.Close();
+            TempDependentRecRef.Close();
+            CollectionRecRef.Close();
         end;
     end;
 
     local procedure DeletedCollectionElements(var CollectionElementsBuffer: Record "Outlook Synch. Link"; OSynchEntityElementIn: Record "Outlook Synch. Entity Element"; EntityRecRef: RecordRef)
     var
         OSynchFilter: Record "Outlook Synch. Filter";
-        DeletedCollectionElementsBuf: Record "Outlook Synch. Link" temporary;
+        TempDeletedCollectionElementsBuf: Record "Outlook Synch. Link" temporary;
         CollectionRecRef: RecordRef;
         RecID: RecordID;
     begin
@@ -917,22 +918,22 @@ codeunit 5305 "Outlook Synch. Process Line"
                 exit;
         end;
 
-        DeletedCollectionElementsBuf.Reset();
-        DeletedCollectionElementsBuf.DeleteAll();
+        TempDeletedCollectionElementsBuf.Reset();
+        TempDeletedCollectionElementsBuf.DeleteAll();
 
         repeat
             Evaluate(RecID, Format(CollectionRecRef.RecordId));
             if not CollectionElementsBuffer.Get(OSynchUserSetup."User ID", RecID) then begin
-                DeletedCollectionElementsBuf.Init();
-                DeletedCollectionElementsBuf."User ID" := OSynchUserSetup."User ID";
-                DeletedCollectionElementsBuf."Record ID" := RecID;
-                DeletedCollectionElementsBuf.Insert();
+                TempDeletedCollectionElementsBuf.Init();
+                TempDeletedCollectionElementsBuf."User ID" := OSynchUserSetup."User ID";
+                TempDeletedCollectionElementsBuf."Record ID" := RecID;
+                TempDeletedCollectionElementsBuf.Insert();
             end;
         until CollectionRecRef.Next() = 0;
 
         Evaluate(RecID, Format(EntityRecRef.RecordId));
-        OSynchDeletionMgt.ProcessCollectionElements(DeletedCollectionElementsBuf, OSynchEntityElementIn, RecID);
-        CollectionRecRef.Close;
+        OSynchDeletionMgt.ProcessCollectionElements(TempDeletedCollectionElementsBuf, OSynchEntityElementIn, RecID);
+        CollectionRecRef.Close();
     end;
 
     local procedure ModifyCollectionElement(CollectionElementRecID: RecordID; ElementNo: Integer; ElementIterator: Text[38]; var CollectionElementsBuffer: Record "Outlook Synch. Link")
@@ -943,7 +944,7 @@ codeunit 5305 "Outlook Synch. Process Line"
     begin
         CollectionRecRef.Get(CollectionElementRecID);
 
-        ModifiedCollectionRecRef := CollectionRecRef.Duplicate;
+        ModifiedCollectionRecRef := CollectionRecRef.Duplicate();
 
         OSynchField.Reset();
         OSynchField.SetRange("Synch. Entity Code", OSynchEntity.Code);
@@ -952,7 +953,7 @@ codeunit 5305 "Outlook Synch. Process Line"
 
         ModifyRecRef(ModifiedCollectionRecRef, CollectionRecRef, ElementNo);
 
-        CollectionRecRef.Close;
+        CollectionRecRef.Close();
 
         CollectionElementsBuffer.Init();
         CollectionElementsBuffer."User ID" := OSynchUserSetup."User ID";
@@ -1020,7 +1021,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                             DecimaVar := DecimaVar + CollectionElementNo * 10000;
                         end;
                     FieldType::GUID:
-                        FldRef.Value := CreateGuid;
+                        FldRef.Value := CreateGuid();
                 end;
         end else begin
             IntVar := CollectionElementNo * 10000;
@@ -1040,7 +1041,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 FieldType::Decimal:
                     FldRef.Validate(DecimaVar);
                 FieldType::GUID:
-                    FldRef.Value := CreateGuid;
+                    FldRef.Value := CreateGuid();
             end;
 
         CollectionElementRecRef.Insert();
@@ -1169,9 +1170,9 @@ codeunit 5305 "Outlook Synch. Process Line"
             if DependentEntityIDHash = '' then
                 Error(Text007, OSynchEntityElementIn."Synch. Entity Code", OSynchEntityElementIn."Outlook Collection");
 
-            ErrorConflictBuffer.Reset();
-            ErrorConflictBuffer.SetRange("Outlook Entry ID Hash", DependentEntityIDHash);
-            if ErrorConflictBuffer.FindFirst() then
+            TempErrorConflictBuffer.Reset();
+            TempErrorConflictBuffer.SetRange("Outlook Entry ID Hash", DependentEntityIDHash);
+            if TempErrorConflictBuffer.FindFirst() then
                 Error(
                   Text008,
                   OSynchEntityElementIn."Synch. Entity Code",
@@ -1261,7 +1262,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         TempRecRef.SetView(OSynchSetupMgt.ComposeTableFilter(OSynchFilter, NullRecRef));
         if not TempRecRef.Find('-') then
             Error(Text009, OSynchUserSetup."Synch. Entity Code");
-        TempRecRef.Close;
+        TempRecRef.Close();
     end;
 
     procedure CheckKeyField(TableID: Integer; FieldID: Integer): Boolean
@@ -1280,7 +1281,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 exit(true);
         end;
 
-        CheckRecordRef.Close;
+        CheckRecordRef.Close();
     end;
 
     local procedure ConflictDetected(SynchRecRef: RecordRef; LastSynchTime: DateTime) IsConflict: Boolean
@@ -1387,7 +1388,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                         end;
                     end;
                 until CollectionRecRef.Next() = 0;
-            CollectionRecRef.Close;
+            CollectionRecRef.Close();
         end;
 
         ChangeLogEntry.SetRange("Primary Key Field 1 Value");
@@ -1440,7 +1441,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                     CheckUserSettingsForConflicts(EntityRecRef, RecID.TableNo);
                     exit;
                 end;
-                CollectionRecRef.Close;
+                CollectionRecRef.Close();
             until TempChangeLogEntry.Next() = 0;
     end;
 
@@ -1471,7 +1472,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 repeat
                     OSynchNAVMgt.CopyRecordReference(CollectionElementRecRef, TempCollectionElementRecRef, false);
                 until CollectionElementRecRef.Next() = 0;
-            CollectionElementRecRef.Close;
+            CollectionElementRecRef.Close();
         end;
 
         OSynchField.Reset();
@@ -1526,7 +1527,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                                       Format(RelatedFieldRef.Value));
                             until OSynchFilter.Next() = 0;
                     end;
-                    RelatedRecRef.Close;
+                    RelatedRecRef.Close();
                 end;
             until OSynchField.Next() = 0;
 
@@ -1547,7 +1548,7 @@ codeunit 5305 "Outlook Synch. Process Line"
         i: Integer;
         MaxKeyCount: Integer;
     begin
-        SynchRecRef := RecID.GetRecord;
+        SynchRecRef := RecID.GetRecord();
 
         ChangeLogEntry.SetRange("Table No.", RecID.TableNo);
 
@@ -1627,7 +1628,7 @@ codeunit 5305 "Outlook Synch. Process Line"
                 exit(false);
         end;
 
-        RecRef.Close;
+        RecRef.Close();
         exit(true);
     end;
 }

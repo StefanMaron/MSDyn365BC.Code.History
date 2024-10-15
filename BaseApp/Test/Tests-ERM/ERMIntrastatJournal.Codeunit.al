@@ -51,7 +51,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Posted Purchase Order
         Initialize();
-        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate);
+        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate());
 
         // [THEN] Verify Item Ledger Entry
         VerifyItemLedgerEntry(ItemLedgerEntry."Document Type"::"Purchase Receipt", DocumentNo, GetCountryRegionCode, PurchaseLine.Quantity);
@@ -70,7 +70,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Posted Purchase Order
         Initialize();
-        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate);
+        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate());
 
         // [WHEN] Get Intrastat Journal Line for Purchase Order
         // [THEN] Verify Intrastat Journal Line
@@ -88,7 +88,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Posted Purchase Order
         Initialize();
-        CreateAndPostPurchaseOrder(PurchaseLine, WorkDate);
+        CreateAndPostPurchaseOrder(PurchaseLine, WorkDate());
 
         // [WHEN] Create Intrastat Journal Lines, Delete them
         // [THEN] Verify that no Intrastat Journal Lines exist for Posted Purchase Order.
@@ -109,7 +109,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Posted Purchase Order
         Initialize();
-        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate);
+        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate());
 
         // [WHEN] Undo Purchase Receipt Line
         UndoPurchaseReceiptLine(DocumentNo, PurchaseLine."No.");
@@ -120,7 +120,7 @@ codeunit 134150 "ERM Intrastat Journal"
         PurchRcptLine.FindFirst();
         Assert.AreEqual(
           -PurchaseLine.Quantity, PurchRcptLine.Quantity, StrSubstNo(ValidationErr,
-            PurchRcptLine.FieldCaption(Quantity), -PurchaseLine.Quantity, PurchRcptLine.TableCaption));
+            PurchRcptLine.FieldCaption(Quantity), -PurchaseLine.Quantity, PurchRcptLine.TableCaption()));
     end;
 
     [Test]
@@ -136,7 +136,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create and Post Purchase Order
         Initialize();
-        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate);
+        DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, WorkDate());
 
         // [WHEN] Undo Purchase Receipt Line
         UndoPurchaseReceiptLine(DocumentNo, PurchaseLine."No.");
@@ -159,7 +159,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create and Post Sales Order
         Initialize();
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate);
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate());
 
         // [THEN] Verify Item Ledger Entry
         VerifyItemLedgerEntry(ItemLedgerEntry."Document Type"::"Sales Shipment", DocumentNo, GetCountryRegionCode, -SalesLine.Quantity);
@@ -178,7 +178,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create and Post Sales Order
         Initialize();
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate);
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate());
 
         // [WHEN] Get Intrastat Journal Lines for Sales Order
         // [THEN] Verify Intrastat Journal Line
@@ -196,7 +196,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Take Starting Date as WORKDATE and Random Ending Date based on WORKDATE.
         Initialize();
-        CreateAndPostSalesOrder(SalesLine, WorkDate);
+        CreateAndPostSalesOrder(SalesLine, WorkDate());
 
         // [WHEN] Intrastat Journal Lines, Delete them
         // [THEN] Verify that no lines exist for Posted Sales Order.
@@ -217,7 +217,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Posted Sales Order
         Initialize();
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate);
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate());
 
         // [WHEN] Undo Sales Shipment Line
         UndoSalesShipmentLine(DocumentNo, SalesLine."No.");
@@ -228,7 +228,7 @@ codeunit 134150 "ERM Intrastat Journal"
         SalesShipmentLine.FindFirst();
         Assert.AreEqual(
           -SalesLine.Quantity, SalesShipmentLine.Quantity,
-          StrSubstNo(ValidationErr, SalesShipmentLine.FieldCaption(Quantity), -SalesLine.Quantity, SalesShipmentLine.TableCaption));
+          StrSubstNo(ValidationErr, SalesShipmentLine.FieldCaption(Quantity), -SalesLine.Quantity, SalesShipmentLine.TableCaption()));
     end;
 
     [Test]
@@ -244,7 +244,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create and Post Sales Order and undo Sales Shipment Line.
         Initialize();
-        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate);
+        DocumentNo := CreateAndPostSalesOrder(SalesLine, WorkDate());
         UndoSalesShipmentLine(DocumentNo, SalesLine."No.");
 
         // [WHEN] Create Intrastat Journal Template, Batch and Get Entries for Intrastat Journal Line
@@ -268,7 +268,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create Purchase Order with New Posting Date and Create New Batch and Template for Intrastat Journal with difference with 1 Year.
         Initialize();
-        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         CreateAndPostPurchaseOrder(PurchaseLine, NewPostingDate);
 
         // [GIVEN] Two Intrastat Journal Batches for the same period
@@ -319,7 +319,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Create and Post Purchase Order on January with Amount = "X" and location code "Y"
-        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, NewPostingDate);
 
         // [GIVEN] Create and Post Purchase Credit Memo with Item Charge Assignment on February.
@@ -375,7 +375,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create Sales Order with New Posting Date and Create New Batch and Template for Intrastat Journal.
         Initialize();
-        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         CreateAndPostSalesOrder(SalesLine, NewPostingDate);
         LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, NewPostingDate);
         Commit();  // Commit is required to commit the posted entries.
@@ -411,7 +411,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Create and Post Sales Order with New Posting Date with different 1 Year.
         Initialize();
-        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        NewPostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         DocumentNo := CreateAndPostSalesOrder(SalesLine, NewPostingDate);
 
         // [GIVEN] Create and Sales Credit Memo with Item Charge Assign Ment with different Posting Date. 1M is required for Sales Credit Memo.
@@ -525,7 +525,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice in "Y" period - Cross-border
-        InvoicePostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        InvoicePostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, InvoicePostingDate);
         ItemNo := PurchaseLine."No.";
 
@@ -574,7 +574,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [FEATURE] [Purchase] [Item Charge]
         // [SCENARIO 376161] Invoice and Item Charge not suggested for Intrastat Journal in different Periods - Not Cross-Border
         Initialize();
-        InvoicePostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        InvoicePostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
 
         // [GIVEN] Posted Purchase Invoice in "Y" period - Not Cross-border
         CompanyInformation.Get();
@@ -630,13 +630,13 @@ codeunit 134150 "ERM Intrastat Journal"
         NoOfPurchaseLines := LibraryRandom.RandIntInRange(2, 10);
         DocumentNo :=
           CreateAndPostPurchaseDocumentMultiLine(
-            PurchaseLine, PurchaseHeader."Document Type"::Order, WorkDate, CreateItem, NoOfPurchaseLines);
+            PurchaseLine, PurchaseHeader."Document Type"::Order, WorkDate(), CreateItem, NoOfPurchaseLines);
         // [GIVEN] Undo Receipt for one of the lines (random) and finally post Purchase Order
         UndoPurchaseReceiptLineByLineNo(DocumentNo, LibraryRandom.RandInt(NoOfPurchaseLines));
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         // [WHEN] User runs Get Entries for Intrastat Journal
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate(), WorkDate());
         // [THEN] Only lines for which Undo Receipt was not done are suggested
         VerifyNoOfIntrastatLinesForDocumentNo(
           IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name",
@@ -661,13 +661,13 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Posted(Shipment) Sales Order with lines for the same Item
         DocumentNo :=
           CreateAndPostSalesDocumentMultiLine(
-            SalesLine, SalesLine."Document Type"::Order, WorkDate, CreateItem, NoOfSalesLines);
+            SalesLine, SalesLine."Document Type"::Order, WorkDate(), CreateItem, NoOfSalesLines);
         // [GIVEN] Undo Receipt for one of the lines (random) and finally post Sales Order
         UndoSalesShipmentLineByLineNo(DocumentNo, LibraryRandom.RandInt(NoOfSalesLines));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
         // [WHEN] User runs Get Entries for Intrastat Journal
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate(), WorkDate());
         // [THEN] Only lines for which Undo Receipt was not done are suggested
         VerifyNoOfIntrastatLinesForDocumentNo(
           IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name",
@@ -692,7 +692,7 @@ codeunit 134150 "ERM Intrastat Journal"
         NoOfPurchaseLines := LibraryRandom.RandIntInRange(2, 10);
         DocumentNo :=
           CreateAndPostPurchaseDocumentMultiLine(
-            PurchaseLine, PurchaseHeader."Document Type"::"Return Order", WorkDate, CreateItem, NoOfPurchaseLines);
+            PurchaseLine, PurchaseHeader."Document Type"::"Return Order", WorkDate(), CreateItem, NoOfPurchaseLines);
         // [GIVEN] Undo Receipt for one of the lines (random) and finally post Return Order
         UndoReturnShipmentLineByLineNo(DocumentNo, LibraryRandom.RandInt(NoOfPurchaseLines));
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -700,7 +700,7 @@ codeunit 134150 "ERM Intrastat Journal"
         PurchaseHeader.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
         // [WHEN] User runs Get Entries for Intrastat Journal
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate(), WorkDate());
         // [THEN] Only lines for which Undo Receipt was not done are suggested
         VerifyNoOfIntrastatLinesForDocumentNo(
           IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name",
@@ -725,13 +725,13 @@ codeunit 134150 "ERM Intrastat Journal"
         NoOfSalesLines := LibraryRandom.RandIntInRange(2, 10);
         DocumentNo :=
           CreateAndPostSalesDocumentMultiLine(
-            SalesLine, SalesLine."Document Type"::"Return Order", WorkDate, CreateItem, NoOfSalesLines);
+            SalesLine, SalesLine."Document Type"::"Return Order", WorkDate(), CreateItem, NoOfSalesLines);
         // [GIVEN] Undo Receipt for one of the lines (random) and finally post Return Order
         UndoReturnReceiptLineByLineNo(DocumentNo, LibraryRandom.RandInt(NoOfSalesLines));
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
         // [WHEN] User runs Get Entries for Intrastat Journal
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, WorkDate(), WorkDate());
         // [THEN] Only lines for which Undo Receipt was not done are suggested
         VerifyNoOfIntrastatLinesForDocumentNo(
           IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name",
@@ -755,7 +755,7 @@ codeunit 134150 "ERM Intrastat Journal"
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor(GetCountryRegionCode));
         with PurchaseHeader do begin
-            Validate("Posting Date", CalcDate('<+1Y-CM>', WorkDate));
+            Validate("Posting Date", CalcDate('<+1Y-CM>', WorkDate()));
             Validate("Buy-from Country/Region Code", '');
             Modify(true);
         end;
@@ -797,7 +797,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Posted Purchase Invoice in "Y" period
-        InvoicePostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        InvoicePostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         DocumentNo := CreateAndPostPurchaseOrder(PurchaseLine, InvoicePostingDate);
         ItemNo := PurchaseLine."No.";
 
@@ -840,7 +840,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // TESTFIELD("Statistics Period")
         IntrastatJnlBatch.Init();
-        asserterror IntrastatJnlBatch.GetStatisticsStartDate;
+        asserterror IntrastatJnlBatch.GetStatisticsStartDate();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(IntrastatJnlBatch.FieldName("Statistics Period"));
 
@@ -921,13 +921,13 @@ codeunit 134150 "ERM Intrastat Journal"
         Vendor.Get(LibraryPurchase.CreateIntrastatContact(''));
         asserterror SetIntrastatContactViaPage(IntrastatSetup."Intrastat Contact Type"::Contact, Vendor."No.");
         Assert.ExpectedErrorCode('TestValidation');
-        Assert.ExpectedError(Contact.TableCaption);
+        Assert.ExpectedError(Contact.TableCaption());
 
         // Trying to set "Intrastat Contact Type" = "Vendor" with contact
         Contact.Get(LibraryMarketing.CreateIntrastatContact(''));
         asserterror SetIntrastatContactViaPage(IntrastatSetup."Intrastat Contact Type"::Vendor, Contact."No.");
         Assert.ExpectedErrorCode('TestValidation');
-        Assert.ExpectedError(Vendor.TableCaption);
+        Assert.ExpectedError(Vendor.TableCaption());
     end;
 
     [Test]
@@ -1051,7 +1051,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [THEN] You got an error on Tariff no.
         IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Tariff No."));
-        IntrastatJournalPage.Close;
+        IntrastatJournalPage.Close();
     end;
 
     [Test]
@@ -1085,7 +1085,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [THEN] You got a error in error part
         IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
 
-        IntrastatJournalPage.Close;
+        IntrastatJournalPage.Close();
     end;
 
     [MessageHandler]
@@ -1159,7 +1159,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [THEN] You do not get any errors
         IntrastatJournalPage.CreateFile.Invoke;
 
-        IntrastatJournalPage.Close;
+        IntrastatJournalPage.Close();
     end;
 
     [RequestPageHandler]
@@ -1183,7 +1183,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Sales Invoice with Item and Item Charge posted on 'X'
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         DocumentNo := CreateAndPostSalesInvoiceWithItemAndItemCharge(PostingDate);
         // [GIVEN] Sales Credit Memo with Item Charge posted on 'Y'='X'+<1M>
         PostingDate := CalcDate('<1M>', PostingDate);
@@ -1212,7 +1212,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Item Ledger Entry with Quantity < 0
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         CreateItemLedgerEntry(
           ItemLedgerEntry,
           PostingDate,
@@ -1246,7 +1246,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Item Ledger Entry with Quantity > 0
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         CreateItemLedgerEntry(
           ItemLedgerEntry,
           PostingDate,
@@ -1280,7 +1280,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Initialize();
 
         // [GIVEN] Item Ledger Entry with Quantity > 0
-        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
+        PostingDate := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
         CreateItemLedgerEntry(
           ItemLedgerEntry,
           PostingDate,
@@ -1322,7 +1322,7 @@ codeunit 134150 "ERM Intrastat Journal"
           ItemLedgerEntry."Entry Type"::Sale);
 
         // [WHEN] Get Intrastat Entries
-        CreateIntrastatJnlBatchAndGetEntries(IntrastatJnlLine, WorkDate);
+        CreateIntrastatJnlBatchAndGetEntries(IntrastatJnlLine, WorkDate());
 
         // [THEN] There is no Intrastat Line with Item
         IntrastatJnlLine.SetRange("Item No.", ItemLedgerEntry."Item No.");
@@ -1353,7 +1353,7 @@ codeunit 134150 "ERM Intrastat Journal"
         CreateAndPostTransferOrder(TransferLine, Location.Code, LocationEU.Code, ItemNo);
 
         // [WHEN] Open "Intrastat Journal" page.
-        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate), CalcDate('<CM>', WorkDate));
+        CreateIntrastatJnlLineAndGetEntries(IntrastatJnlLine, CalcDate('<CM-1M+1D>', WorkDate()), CalcDate('<CM>', WorkDate()));
 
         // [THEN] "Intrastat Jnl. Line" is created for posted sales order.
         IntrastatJnlLine.Reset();
@@ -1378,7 +1378,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [SCENARIO 390312] Stan can see the "Partner VAT ID", "Country/Region of Origin Code" fields in the Intrastat Journal page
 
         Initialize();
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         LibraryVariableStorage.Enqueue(IntrastatJnlBatch."Journal Template Name");
         LibraryApplicationArea.EnableFoundationSetup();
         IntrastatJournal.OpenEdit();
@@ -1401,7 +1401,7 @@ codeunit 134150 "ERM Intrastat Journal"
         Item."Country/Region of Origin Code" :=
           LibraryUtility.GenerateRandomCode(Item.FieldNo("Country/Region of Origin Code"), DATABASE::Item);
         Item.Insert;
-        IntrastatJnlLine.Init;
+        IntrastatJnlLine.Init();
         IntrastatJnlLine."Item No." := Item."No.";
 
         Assert.AreEqual(
@@ -1447,7 +1447,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Suggest Intrastat Journal Lines
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Posted Sales Invoice has VAT Registration No. = 'DE1234567'
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -1494,7 +1494,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Suggest Intrastat Journal Lines
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Posted Sales Shipment has VAT Registration No. = 'DE1234567'
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -1531,7 +1531,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
@@ -1557,14 +1557,14 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Pay-to Vendor with VAT Registration No = 'AT0123456'
         Vendor.Get(CreateVendorWithVATRegNo(true));
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, Vendor."No.");
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate(), Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", Vendor."No.");
@@ -1593,14 +1593,14 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Pay-to Vendor with VAT Registration No = 'AT0123456'
         Vendor.Get(CreateVendorWithVATRegNo(true));
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, Vendor."No.");
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate(), Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ReturnShipmentHeader.SetRange("Buy-from Vendor No.", Vendor."No.");
@@ -1633,7 +1633,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = '' in Intrastat Journal Line
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNo);
@@ -1667,7 +1667,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", GetDefaultPartnerID);
@@ -1684,7 +1684,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [FEATURE] [Job] [UT] [Shipment]
         // [SCENARIO 373278] GetPartnerID takes PartnerID from VAT Registration No. when value is not blank in EU Customer
         Customer.Get(CreateCustomerWithVATRegNo(true));
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLineForJobEntry(
           IntrastatJnlLine, IntrastatJnlBatch, Customer."Country/Region Code", IntrastatJnlLine.Type::Shipment,
           MockJobEntry(Customer."No."));
@@ -1719,7 +1719,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
@@ -1754,7 +1754,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         ServiceInvoiceHeader.Get(DocumentNo);
@@ -1793,7 +1793,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
@@ -1832,7 +1832,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
@@ -1858,7 +1858,7 @@ codeunit 134150 "ERM Intrastat Journal"
 
         // [GIVEN] Return Shipment with Pay-to Vendor with VAT Registration No = 'AT0123456'
         Vendor.Get(CreateVendorWithVATRegNo(true));
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, Vendor."No.");
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate(), Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
@@ -1870,7 +1870,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", Vendor."VAT Registration No.");
@@ -1904,7 +1904,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", Customer."VAT Registration No.");
@@ -1937,7 +1937,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", GetDefaultPartnerID);
@@ -1996,15 +1996,15 @@ codeunit 134150 "ERM Intrastat Journal"
         // [GIVEN] Purchase credit memo for vendor of Partner Type = Person
         Vendor.Get(CreateVendorWithVATRegNo(true));
         Vendor."Intrastat Partner Type" := "Partner Type"::Person;
-        Vendor.Modify;
-        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate, Vendor."No.");
+        Vendor.Modify();
+        CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", WorkDate(), Vendor."No.");
         CreatePurchaseLine(PurchaseHeader, PurchaseLine, PurchaseLine.Type::Item, CreateItem);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, PurchaseLine."No.", GetDefaultPartnerID);
@@ -2035,7 +2035,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", GetDefaultPartnerID);
@@ -2090,13 +2090,13 @@ codeunit 134150 "ERM Intrastat Journal"
             SalesHeader, SalesLine, Customer."No.", WorkDate(), SalesLine."Document Type"::Invoice,
             SalesLine.Type::Item, CreateItem, 1);
         SalesHeader."EU 3-Party Trade" := true;
-        SalesHeader.Modify;
+        SalesHeader.Modify();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  is taken from customer in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, SalesLine."No.", Customer."VAT Registration No.");
@@ -2162,12 +2162,12 @@ codeunit 134150 "ERM Intrastat Journal"
         ServiceShipmentHeader.SetRange("Customer No.", Customer."No.");
         ServiceShipmentHeader.FindFirst();
         ServiceShipmentHeader."EU 3-Party Trade" := true;
-        ServiceShipmentHeader.Modify;
+        ServiceShipmentHeader.Modify();
 
         // [WHEN] Intrastat Journal Line is created
         CreateIntrastatJnlLine(IntrastatJnlLine);
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate());
 
         // [THEN] Partner VAT ID  is taken from customer in Intrastat Journal Line
         VerifyPartnerID(IntrastatJnlBatch, ItemLedgerEntry."Item No.", Customer."VAT Registration No.");
@@ -2455,9 +2455,9 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatSetup: Record "Intrastat Setup";
     begin
         with IntrastatSetup do begin
-            Init;
+            Init();
             "Report Receipts" := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2470,7 +2470,7 @@ codeunit 134150 "ERM Intrastat Journal"
         CreateAndUpdateIntrastatBatch(
           IntrastatJnlBatch,
           IntrastatJnlTemplate.Name,
-          Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
+          Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
     end;
 
@@ -2565,12 +2565,12 @@ codeunit 134150 "ERM Intrastat Journal"
             "Journal Template Name" := IntrastatJnlBatch."Journal Template Name";
             "Journal Batch Name" := IntrastatJnlBatch.Name;
             "Line No." := LibraryUtility.GetNewRecNo(IntrastatJnlLine, FieldNo("Line No."));
-            Date := WorkDate;
+            Date := WorkDate();
             Type := JnlLineType;
             "Country/Region Code" := CountryRegionCode;
             "Source Type" := "Source Type"::"Job Entry";
             "Source Entry No." := JobEntryNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -2731,7 +2731,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         // Exercise: Run Get Item Entries. Take Starting Date as WORKDATE and Random Ending Date based on WORKDATE.
         CreateIntrastatJnlLineAndGetEntries(
-          IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         // Verify.
         VerifyIntrastatLine(DocumentNo, ItemNo, IntrastatJnlLineType, GetCountryRegionCode, Quantity);
     end;
@@ -2928,7 +2928,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         // Create and Get Intrastat Journal Lines. Take Random Ending Date based on WORKDATE.
         CreateIntrastatJnlLineAndGetEntries(
-          IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
 
         // Exercise: Delete all entries from Intrastat Journal Lines.
         IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name");
@@ -2961,7 +2961,7 @@ codeunit 134150 "ERM Intrastat Journal"
     begin
         // Exercise: Run Get Item Entries. Take Starting Date as WORKDATE and Random Ending Date based on WORKDATE.
         CreateIntrastatJnlLineAndGetEntries(
-          IntrastatJnlLine, WorkDate, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          IntrastatJnlLine, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         // Verify:
         VerifyNoIntrastatLineForItem(DocumentNo, ItemNo);
     end;
@@ -2979,11 +2979,11 @@ codeunit 134150 "ERM Intrastat Journal"
         Job: Record Job;
         JobLedgerEntry: Record "Job Ledger Entry";
     begin
-        Job.Init;
+        Job.Init();
         Job."No." := LibraryUtility.GenerateGUID();
         Job."Bill-to Customer No." := CustomerNo;
         Job.Insert;
-        JobLedgerEntry.Init;
+        JobLedgerEntry.Init();
         JobLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(JobLedgerEntry, JobLedgerEntry.FieldNo("Entry No."));
         JobLedgerEntry."Job No." := Job."No.";
         JobLedgerEntry.Insert;
@@ -3005,7 +3005,7 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatSetup: Record "Intrastat Setup";
     begin
         with IntrastatSetup do begin
-            Get;
+            Get();
             Validate("Intrastat Contact Type", ContactType);
             Validate("Intrastat Contact No.", ContactNo);
             Modify(true);
@@ -3019,7 +3019,7 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatSetup.OpenEdit;
         IntrastatSetup."Intrastat Contact Type".SetValue(ContactType);
         IntrastatSetup."Intrastat Contact No.".SetValue(ContactNo);
-        IntrastatSetup.Close;
+        IntrastatSetup.Close();
     end;
 
     local procedure LookupIntrastatContactViaPage(ContactType: Option)
@@ -3029,7 +3029,7 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatSetup.OpenEdit;
         IntrastatSetup."Intrastat Contact Type".SetValue(ContactType);
         IntrastatSetup."Intrastat Contact No.".Lookup;
-        IntrastatSetup.Close;
+        IntrastatSetup.Close();
     end;
 
     local procedure UpdateIntrastatCodeInCountryRegion()
@@ -3084,7 +3084,7 @@ codeunit 134150 "ERM Intrastat Journal"
             SetRange("Document No.", DocumentNo);
             FindSet();
             Next(LineNo - 1);
-            SetRecFilter;
+            SetRecFilter();
         end;
         LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
     end;
@@ -3097,7 +3097,7 @@ codeunit 134150 "ERM Intrastat Journal"
             SetRange("Document No.", DocumentNo);
             FindSet();
             Next(LineNo - 1);
-            SetRecFilter;
+            SetRecFilter();
         end;
         LibraryPurchase.UndoReturnShipmentLine(ReturnShipmentLine);
     end;
@@ -3120,7 +3120,7 @@ codeunit 134150 "ERM Intrastat Journal"
             SetRange("Document No.", DocumentNo);
             FindSet();
             Next(LineNo - 1);
-            SetRecFilter;
+            SetRecFilter();
         end;
         LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
     end;
@@ -3133,7 +3133,7 @@ codeunit 134150 "ERM Intrastat Journal"
             SetRange("Document No.", DocumentNo);
             FindSet();
             Next(LineNo - 1);
-            SetRecFilter;
+            SetRecFilter();
         end;
         LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
     end;
@@ -3175,15 +3175,15 @@ codeunit 134150 "ERM Intrastat Journal"
 
         Assert.AreEqual(
           Type, IntrastatJnlLine.Type,
-          StrSubstNo(ValidationErr, IntrastatJnlLine.FieldCaption(Type), Type, IntrastatJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, IntrastatJnlLine.FieldCaption(Type), Type, IntrastatJnlLine.TableCaption()));
 
         Assert.AreEqual(
           Quantity, IntrastatJnlLine.Quantity,
-          StrSubstNo(ValidationErr, IntrastatJnlLine.FieldCaption(Quantity), Quantity, IntrastatJnlLine.TableCaption));
+          StrSubstNo(ValidationErr, IntrastatJnlLine.FieldCaption(Quantity), Quantity, IntrastatJnlLine.TableCaption()));
 
         Assert.AreEqual(
           CountryRegionCode, IntrastatJnlLine."Country/Region Code", StrSubstNo(ValidationErr,
-            IntrastatJnlLine.FieldCaption("Country/Region Code"), CountryRegionCode, IntrastatJnlLine.TableCaption));
+            IntrastatJnlLine.FieldCaption("Country/Region Code"), CountryRegionCode, IntrastatJnlLine.TableCaption()));
     end;
 
     local procedure VerifyItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20];
@@ -3198,19 +3198,19 @@ codeunit 134150 "ERM Intrastat Journal"
 
         Assert.AreEqual(
           CountryRegionCode, ItemLedgerEntry."Country/Region Code", StrSubstNo(ValidationErr,
-            ItemLedgerEntry.FieldCaption("Country/Region Code"), CountryRegionCode, ItemLedgerEntry.TableCaption));
+            ItemLedgerEntry.FieldCaption("Country/Region Code"), CountryRegionCode, ItemLedgerEntry.TableCaption()));
 
         Assert.AreEqual(
           Quantity, ItemLedgerEntry.Quantity,
-          StrSubstNo(ValidationErr, ItemLedgerEntry.FieldCaption(Quantity), Quantity, ItemLedgerEntry.TableCaption));
+          StrSubstNo(ValidationErr, ItemLedgerEntry.FieldCaption(Quantity), Quantity, ItemLedgerEntry.TableCaption()));
 
         Assert.AreEqual(
           0, ItemLedgerEntry."Invoiced Quantity",
-          StrSubstNo(ValidationErr, ItemLedgerEntry.FieldCaption("Invoiced Quantity"), 0, ItemLedgerEntry.TableCaption));
+          StrSubstNo(ValidationErr, ItemLedgerEntry.FieldCaption("Invoiced Quantity"), 0, ItemLedgerEntry.TableCaption()));
 
         Assert.AreEqual(
           Quantity, ItemLedgerEntry."Remaining Quantity",
-          StrSubstNo(ValidationErr, ItemLedgerEntry.FieldCaption("Remaining Quantity"), Quantity, ItemLedgerEntry.TableCaption));
+          StrSubstNo(ValidationErr, ItemLedgerEntry.FieldCaption("Remaining Quantity"), Quantity, ItemLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyNoIntrastatLineForItem(DocumentNo: Code[20]; ItemNo: Code[20])
@@ -3250,7 +3250,7 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatSetup: Record "Intrastat Setup";
     begin
         with IntrastatSetup do begin
-            Get;
+            Get();
             TestField("Intrastat Contact Type", ContactType);
             TestField("Intrastat Contact No.", ContactNo);
         end;

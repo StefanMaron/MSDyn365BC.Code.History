@@ -84,8 +84,6 @@ page 5341 "CRM Account List"
                 ApplicationArea = Suite;
                 Caption = 'Create in Business Central';
                 Image = NewCustomer;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Generate the entity from the coupled Dataverse account.';
 
                 trigger OnAction()
@@ -102,8 +100,6 @@ page 5341 "CRM Account List"
                 ApplicationArea = Suite;
                 Caption = 'Hide Coupled Accounts';
                 Image = FilterLines;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Do not show coupled accounts.';
 
                 trigger OnAction()
@@ -116,14 +112,29 @@ page 5341 "CRM Account List"
                 ApplicationArea = Suite;
                 Caption = 'Show Coupled Accounts';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Show coupled accounts.';
 
                 trigger OnAction()
                 begin
                     MarkedOnly(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CreateFromCRM_Promoted; CreateFromCRM)
+                {
+                }
+                actionref(ShowOnlyUncoupled_Promoted; ShowOnlyUncoupled)
+                {
+                }
+                actionref(ShowAll_Promoted; ShowAll)
+                {
+                }
             }
         }
     }

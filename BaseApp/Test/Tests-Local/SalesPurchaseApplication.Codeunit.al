@@ -45,7 +45,7 @@ codeunit 144002 "Sales/Purchase Application"
         DocNo: Code[20];
     begin
         DocNo := SalesApplicationWithDefApplicationDate(true);
-        VerifyApplicationDateOnDtldCustLedgEntry(DocNo, WorkDate);
+        VerifyApplicationDateOnDtldCustLedgEntry(DocNo, WorkDate());
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplication(true, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -79,7 +79,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -89,7 +89,7 @@ codeunit 144002 "Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure SalesApplyWhenApplicationDateAfterWorkdateWithUseWorkdate()
     begin
-        asserterror SalesApplication(true, CalcDate('<1D>', WorkDate));
+        asserterror SalesApplication(true, CalcDate('<1D>', WorkDate()));
         Assert.ExpectedError(WrongApplDateErr);
     end;
 
@@ -101,7 +101,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<1D>', WorkDate);
+        ApplicationDate := CalcDate('<1D>', WorkDate());
         DocNo := SalesApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -114,7 +114,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -127,7 +127,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -148,7 +148,7 @@ codeunit 144002 "Sales/Purchase Application"
         DocNo: Code[20];
     begin
         DocNo := PurchApplicationWithDefApplicationDate(true);
-        VerifyApplicationDateOnDtldVendLedgEntry(DocNo, WorkDate);
+        VerifyApplicationDateOnDtldVendLedgEntry(DocNo, WorkDate());
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplication(true, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -182,7 +182,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -192,7 +192,7 @@ codeunit 144002 "Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure PurchApplyWhenApplicationDateAfterWorkdateWithUseWorkdate()
     begin
-        asserterror PurchApplication(true, CalcDate('<1D>', WorkDate));
+        asserterror PurchApplication(true, CalcDate('<1D>', WorkDate()));
         Assert.ExpectedError(WrongApplDateErr);
     end;
 
@@ -204,7 +204,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<1D>', WorkDate);
+        ApplicationDate := CalcDate('<1D>', WorkDate());
         DocNo := PurchApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -217,7 +217,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -230,7 +230,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplication(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -252,9 +252,9 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplicationUnapply(true, ApplicationDate);
-        VerifyApplicationDateOnDtldCustLedgEntry(DocNo, WorkDate);
+        VerifyApplicationDateOnDtldCustLedgEntry(DocNo, WorkDate());
     end;
 
     [Test]
@@ -265,7 +265,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -277,7 +277,7 @@ codeunit 144002 "Sales/Purchase Application"
     var
         ApplicationDate: Date;
     begin
-        ApplicationDate := CalcDate('<1D>', WorkDate);
+        ApplicationDate := CalcDate('<1D>', WorkDate());
         asserterror SalesApplicationUnapply(true, ApplicationDate);
         Assert.ExpectedError(WrongApplDateErr);
     end;
@@ -290,7 +290,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<1D>', WorkDate);
+        ApplicationDate := CalcDate('<1D>', WorkDate());
         DocNo := SalesApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -303,7 +303,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -316,7 +316,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := SalesApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldCustLedgEntry(DocNo, ApplicationDate);
     end;
@@ -329,9 +329,9 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplicationUnapply(true, ApplicationDate);
-        VerifyApplicationDateOnDtldVendLedgEntry(DocNo, WorkDate);
+        VerifyApplicationDateOnDtldVendLedgEntry(DocNo, WorkDate());
     end;
 
     [Test]
@@ -342,7 +342,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -352,7 +352,7 @@ codeunit 144002 "Sales/Purchase Application"
     [Scope('OnPrem')]
     procedure PurchUnapplyWhenApplicationDateAfterWorkdateWithUseWorkdate()
     begin
-        asserterror PurchApplicationUnapply(true, CalcDate('<1D>', WorkDate));
+        asserterror PurchApplicationUnapply(true, CalcDate('<1D>', WorkDate()));
         Assert.ExpectedError(WrongApplDateErr);
     end;
 
@@ -364,7 +364,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<1D>', WorkDate);
+        ApplicationDate := CalcDate('<1D>', WorkDate());
         DocNo := PurchApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -377,7 +377,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -390,7 +390,7 @@ codeunit 144002 "Sales/Purchase Application"
         ApplicationDate: Date;
         DocNo: Code[20];
     begin
-        ApplicationDate := CalcDate('<-1D>', WorkDate);
+        ApplicationDate := CalcDate('<-1D>', WorkDate());
         DocNo := PurchApplicationUnapply(false, ApplicationDate);
         VerifyApplicationDateOnDtldVendLedgEntry(DocNo, ApplicationDate);
     end;
@@ -698,7 +698,7 @@ codeunit 144002 "Sales/Purchase Application"
         with GenJnlLine do begin
             LibraryERM.FindGenJournalTemplate(GenJnlTemplate);
             LibraryERM.FindGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-            Init;
+            Init();
             "Journal Template Name" := GenJnlBatch."Journal Template Name";
             "Journal Batch Name" := GenJnlBatch.Name;
         end;
@@ -741,7 +741,7 @@ codeunit 144002 "Sales/Purchase Application"
             CustLedgEntry2.CalcFields("Remaining Amount");
             CustLedgEntry2.Validate("Amount to Apply", CustLedgEntry2."Remaining Amount");
             CustLedgEntry2.Modify(true);
-        until CustLedgEntry2.Next = 0;
+        until CustLedgEntry2.Next() = 0;
         LibraryERM.SetAppliestoIdCustomer(CustLedgEntry2);
         LibraryERM.PostCustLedgerApplication(CustLedgEntry);
     end;
@@ -761,7 +761,7 @@ codeunit 144002 "Sales/Purchase Application"
             VendLedgEntry2.CalcFields("Remaining Amount");
             VendLedgEntry2.Validate("Amount to Apply", VendLedgEntry2."Remaining Amount");
             VendLedgEntry2.Modify(true);
-        until VendLedgEntry2.Next = 0;
+        until VendLedgEntry2.Next() = 0;
         LibraryERM.SetAppliestoIdVendor(VendLedgEntry2);
         LibraryERM.PostVendLedgerApplication(VendLedgEntry);
     end;
@@ -798,7 +798,7 @@ codeunit 144002 "Sales/Purchase Application"
 
     local procedure GetDefPostingDate(): Date
     begin
-        exit(CalcDate('<-1M>', WorkDate));
+        exit(CalcDate('<-1M>', WorkDate()));
     end;
 
     local procedure GetEntryAmount(AccType: Enum "Gen. Journal Account Type") Amount: Decimal

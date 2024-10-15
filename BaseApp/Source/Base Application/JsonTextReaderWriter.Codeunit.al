@@ -22,7 +22,7 @@ codeunit 1234 "Json Text Reader/Writer"
     begin
         if not IsNull(StringBuilder) then
             exit;
-        StringBuilder := StringBuilder.StringBuilder;
+        StringBuilder := StringBuilder.StringBuilder();
         StringWriter := StringWriter.StringWriter(StringBuilder);
         JsonTextWriter := JsonTextWriter.JsonTextWriter(StringWriter);
         if DoNotFormat then
@@ -38,42 +38,42 @@ codeunit 1234 "Json Text Reader/Writer"
 
     procedure WriteStartConstructor(Name: Text)
     begin
-        InitializeWriter;
+        InitializeWriter();
 
         JsonTextWriter.WriteStartConstructor(Name);
     end;
 
     procedure WriteEndConstructor()
     begin
-        JsonTextWriter.WriteEndConstructor;
+        JsonTextWriter.WriteEndConstructor();
     end;
 
     procedure WriteStartObject(ObjectName: Text)
     begin
-        InitializeWriter;
+        InitializeWriter();
 
         if ObjectName <> '' then
             JsonTextWriter.WritePropertyName(ObjectName);
-        JsonTextWriter.WriteStartObject;
+        JsonTextWriter.WriteStartObject();
     end;
 
     procedure WriteEndObject()
     begin
-        JsonTextWriter.WriteEndObject;
+        JsonTextWriter.WriteEndObject();
     end;
 
     procedure WriteStartArray(ArrayName: Text)
     begin
-        InitializeWriter;
+        InitializeWriter();
 
         if ArrayName <> '' then
             JsonTextWriter.WritePropertyName(ArrayName);
-        JsonTextWriter.WriteStartArray;
+        JsonTextWriter.WriteStartArray();
     end;
 
     procedure WriteEndArray()
     begin
-        JsonTextWriter.WriteEndArray;
+        JsonTextWriter.WriteEndArray();
     end;
 
     procedure WriteStringProperty(VariableName: Text; Variable: Variant)
@@ -113,7 +113,12 @@ codeunit 1234 "Json Text Reader/Writer"
     procedure WriteNullProperty(VariableName: Text)
     begin
         JsonTextWriter.WritePropertyName(VariableName);
-        JsonTextWriter.WriteNull;
+        JsonTextWriter.WriteNull();
+    end;
+
+    procedure WriteNullValue()
+    begin
+        JsonTextWriter.WriteNull();
     end;
 
     procedure WriteBytesProperty(VariableName: Text; TempBlob: Codeunit "Temp Blob")
@@ -122,10 +127,10 @@ codeunit 1234 "Json Text Reader/Writer"
         InStr: InStream;
     begin
         TempBlob.CreateInStream(InStr);
-        MemoryStream := MemoryStream.MemoryStream;
+        MemoryStream := MemoryStream.MemoryStream();
         CopyStream(MemoryStream, InStr);
         JsonTextWriter.WritePropertyName(VariableName);
-        JsonTextWriter.WriteValue(MemoryStream.ToArray);
+        JsonTextWriter.WriteValue(MemoryStream.ToArray());
     end;
 
     procedure WriteRawProperty(VariableName: Text; Variable: Variant)
@@ -136,7 +141,7 @@ codeunit 1234 "Json Text Reader/Writer"
 
     procedure GetJSonAsText() JSon: Text
     begin
-        JSon := StringBuilder.ToString;
+        JSon := StringBuilder.ToString();
     end;
 
     procedure WriteValue(Variable: Variant)

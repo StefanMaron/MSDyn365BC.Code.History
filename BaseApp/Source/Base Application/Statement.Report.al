@@ -302,7 +302,7 @@ report 116 Statement
                                     CustBalance := CustBalance + Amount;
                                     IsNewCustCurrencyGroup := IsFirstPrintLine;
                                     IsFirstPrintLine := false;
-                                    ClearCompanyPicture;
+                                    ClearCompanyPicture();
                                 end;
                             end;
 
@@ -342,7 +342,7 @@ report 116 Statement
 
                         trigger OnAfterGetRecord()
                         begin
-                            ClearCompanyPicture;
+                            ClearCompanyPicture();
                         end;
                     }
                     dataitem(CustLedgEntry2; "Cust. Ledger Entry")
@@ -413,7 +413,7 @@ report 116 Statement
                             if "Due Date" >= EndDate then
                                 CurrReport.Skip();
 
-                            ClearCompanyPicture;
+                            ClearCompanyPicture();
                         end;
 
                         trigger OnPreDataItem()
@@ -442,7 +442,7 @@ report 116 Statement
                             CustLedgerEntry.SetRange("Customer No.", Customer."No.");
                             CustLedgerEntry.SetRange("Posting Date", 0D, EndDate);
                             CustLedgerEntry.SetRange("Currency Code", TempCurrency2.Code);
-                            EntriesExists := not CustLedgerEntry.IsEmpty;
+                            EntriesExists := not CustLedgerEntry.IsEmpty();
                         until EntriesExists;
                         Cust2 := Customer;
                         Cust2.SetRange("Date Filter", 0D, StartDate - 1);
@@ -522,7 +522,7 @@ report 116 Statement
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            ClearCompanyPicture;
+                            ClearCompanyPicture();
                             if not TempAgingBandBuf.Find('-') then
                                 CurrReport.Break();
                         end else
@@ -555,7 +555,7 @@ report 116 Statement
                     CustLedgerEntry.SetRange("Customer No.", "No.");
                     CustLedgerEntry.SetRange("Posting Date", StartDate, EndDate);
                     CopyFilter("Currency Filter", CustLedgerEntry."Currency Code");
-                    PrintLine := not CustLedgerEntry.IsEmpty;
+                    PrintLine := not CustLedgerEntry.IsEmpty();
                 end;
                 if not PrintLine then
                     CurrReport.Skip();
@@ -570,9 +570,9 @@ report 116 Statement
             var
                 CustLedgerEntry: Record "Cust. Ledger Entry";
             begin
-                VerifyDates;
+                VerifyDates();
                 AgingBandEndingDate := EndDate;
-                CalcAgingBandDates;
+                CalcAgingBandDates();
 
                 CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
@@ -580,7 +580,7 @@ report 116 Statement
                 CustLedgerEntry.Reset();
                 CustLedgerEntry.SetCurrentKey("Currency Code");
                 TempCurrency2.Init();
-                while CustLedgerEntry.FindFirst do begin
+                while CustLedgerEntry.FindFirst() do begin
                     TempCurrency2.Code := CustLedgerEntry."Currency Code";
                     TempCurrency2.Insert();
                     CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");
@@ -714,17 +714,17 @@ report 116 Statement
 
                             case SupportedOutputMethod of
                                 SupportedOutputMethod::Print:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetPrintOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetPrintOption();
                                 SupportedOutputMethod::Preview:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetPreviewOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetPreviewOption();
                                 SupportedOutputMethod::PDF:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetPDFOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetPDFOption();
                                 SupportedOutputMethod::Email:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetEmailOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetEmailOption();
                                 SupportedOutputMethod::Excel:
                                     ChosenOutputMethod := CustomLayoutReporting.GetExcelOption;
                                 SupportedOutputMethod::XML:
-                                    ChosenOutputMethod := CustomLayoutReporting.GetXMLOption;
+                                    ChosenOutputMethod := CustomLayoutReporting.GetXMLOption();
                             end;
                         end;
                     }
@@ -756,7 +756,7 @@ report 116 Statement
 
         trigger OnOpenPage()
         begin
-            InitRequestPageDataInternal;
+            InitRequestPageDataInternal();
         end;
     }
 
@@ -796,7 +796,7 @@ report 116 Statement
     var
         CusNo: Code[20];
     begin
-        if not IsReportInPreviewMode then
+        if not IsReportInPreviewMode() then
             foreach CusNo in PrintedCustomersList do
                 if Customer.Get(CusNo) then begin
                     Customer."Last Statement No." := Customer."Last Statement No." + 1;
@@ -810,13 +810,10 @@ report 116 Statement
 
     trigger OnPreReport()
     begin
-        InitRequestPageDataInternal;
+        InitRequestPageDataInternal();
     end;
 
     var
-        Text001Lbl: Label 'Entries %1', Comment = '%1 is the currency code';
-        Text002Lbl: Label 'Overdue Entries %1', Comment = '%1 is the currency code';
-        Text003Txt: Label 'Statement ';
         GLSetup: Record "General Ledger Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         CompanyInfo: Record "Company Information";
@@ -830,6 +827,8 @@ report 116 Statement
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;
+        PeriodLength: DateFormula;
+        PeriodLength2: DateFormula;
         PrintedCustomersList: List of [Code[20]];
         PrintAllHavingEntry: Boolean;
         PrintAllHavingBal: Boolean;
@@ -849,24 +848,36 @@ report 116 Statement
         CustBalance: Decimal;
         RemainingAmount: Decimal;
         CurrencyCode3: Code[10];
+        DateChoice: Option "Due Date","Posting Date";
+        AgingDate: array[5] of Date;
+        AgingBandEndingDate: Date;
+        AgingBandCurrencyCode: Code[20];
+        IncludeAgingBand: Boolean;
+        [InDataSet]
+        LogInteractionEnable: Boolean;
+        isInitialized: Boolean;
+        IsFirstLoop: Boolean;
+        IsFirstPrintLine: Boolean;
+        IsNewCustCurrencyGroup: Boolean;
+        SupportedOutputMethod: Option Print,Preview,PDF,Email,Excel,XML;
+        ChosenOutputMethod: Integer;
+        PrintIfEmailIsMissing: Boolean;
+        [InDataSet]
+        ShowPrintIfEmailIsMissing: Boolean;
+        FirstCustomerPrinted: Boolean;
+
+        Text001Lbl: Label 'Entries %1', Comment = '%1 is the currency code';
+        Text002Lbl: Label 'Overdue Entries %1', Comment = '%1 is the currency code';
+        Text003Txt: Label 'Statement ';
         Text005Txt: Label 'Multicurrency Application';
         Text006Txt: Label 'Payment Discount';
         Text007Txt: Label 'Rounding';
-        PeriodLength: DateFormula;
-        PeriodLength2: DateFormula;
-        DateChoice: Option "Due Date","Posting Date";
-        AgingDate: array[5] of Date;
         Text008Err: Label 'You must specify the Aging Band Period Length.';
-        AgingBandEndingDate: Date;
         Text010Err: Label 'You must specify Aging Band Ending Date.';
         Text011Lbl: Label 'Aged Summary by %1 (%2 by %3)', Comment = '%1 is ending date, %2 is period length, %3 is Due Date or Posting Date';
-        IncludeAgingBand: Boolean;
         Text012Err: Label 'Period Length is out of range.';
-        AgingBandCurrencyCode: Code[20];
         Text013Txt: Label 'Due Date,Posting Date';
         Text014Txt: Label 'Application Writeoffs';
-        [InDataSet]
-        LogInteractionEnable: Boolean;
         Text036Txt: Label '-%1', Comment = 'Negating the period length: %1 is the period length';
         StatementCaptionLbl: Label 'Statement';
         PhoneNo_CompanyInfoCaptionLbl: Label 'Phone No.';
@@ -882,7 +893,6 @@ report 116 Statement
         DueDate_CustLedgEntry2CaptionLbl: Label 'Due Date';
         CustBalanceCaptionLbl: Label 'Running Total';
         beforeCaptionLbl: Label '..before';
-        isInitialized: Boolean;
         CompanyInfoHomepageCaptionLbl: Label 'Home Page';
         CompanyInfoEmailCaptionLbl: Label 'Email';
         DocDateCaptionLbl: Label 'Document Date';
@@ -890,16 +900,7 @@ report 116 Statement
         BlankStartDateErr: Label 'Start Date must have a value.';
         BlankEndDateErr: Label 'End Date must have a value.';
         StartDateLaterTheEndDateErr: Label 'Start date must be earlier than End date.';
-        IsFirstLoop: Boolean;
         CurrReportPageNoCaptionLbl: Label 'Page';
-        IsFirstPrintLine: Boolean;
-        IsNewCustCurrencyGroup: Boolean;
-        SupportedOutputMethod: Option Print,Preview,PDF,Email,Excel,XML;
-        ChosenOutputMethod: Integer;
-        PrintIfEmailIsMissing: Boolean;
-        [InDataSet]
-        ShowPrintIfEmailIsMissing: Boolean;
-        FirstCustomerPrinted: Boolean;
 
     local procedure GetDate(PostingDate: Date; DueDate: Date): Date
     begin
@@ -934,7 +935,7 @@ report 116 Statement
     begin
         TempAgingBandBuf.Init();
         TempAgingBandBuf."Currency Code" := CurrencyCode;
-        if not TempAgingBandBuf.Find then
+        if not TempAgingBandBuf.Find() then
             TempAgingBandBuf.Insert();
         I := 1;
         GoOn := true;
@@ -988,7 +989,7 @@ report 116 Statement
 
     procedure InitializeRequest(NewPrintEntriesDue: Boolean; NewPrintAllHavingEntry: Boolean; NewPrintAllHavingBal: Boolean; NewPrintReversedEntries: Boolean; NewPrintUnappliedEntries: Boolean; NewIncludeAgingBand: Boolean; NewPeriodLength: Text[30]; NewDateChoice: Option; NewLogInteraction: Boolean; NewStartDate: Date; NewEndDate: Date)
     begin
-        InitRequestPageDataInternal;
+        InitRequestPageDataInternal();
 
         PrintEntriesDue := NewPrintEntriesDue;
         PrintAllHavingEntry := NewPrintAllHavingEntry;
@@ -1007,7 +1008,7 @@ report 116 Statement
     var
         MailManagement: Codeunit "Mail Management";
     begin
-        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody);
+        exit(CurrReport.Preview or MailManagement.IsHandlingGetEmailBody());
     end;
 
     procedure InitRequestPageDataInternal()

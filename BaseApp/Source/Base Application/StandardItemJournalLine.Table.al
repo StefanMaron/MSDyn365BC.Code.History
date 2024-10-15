@@ -50,7 +50,7 @@ table 753 "Standard Item Journal Line"
                     exit;
                 end;
 
-                GetItem;
+                GetItem();
                 Item.TestField(Blocked, false);
                 Description := Item.Description;
                 "Inventory Posting Group" := Item."Inventory Posting Group";
@@ -61,7 +61,7 @@ table 753 "Standard Item Journal Line"
                    ("Item Charge No." <> '')
                 then begin
                     if "Item No." <> xRec."Item No." then begin
-                        RetrieveCosts;
+                        RetrieveCosts();
                         "Indirect Cost %" := 0;
                         "Overhead Rate" := 0;
                     end;
@@ -69,7 +69,7 @@ table 753 "Standard Item Journal Line"
                     "Indirect Cost %" := Item."Indirect Cost %";
                     "Overhead Rate" := Item."Overhead Rate";
                     if not "Phys. Inventory" then begin
-                        RetrieveCosts;
+                        RetrieveCosts();
                         "Unit Cost" := UnitCost;
                     end else
                         UnitCost := "Unit Cost";
@@ -125,9 +125,9 @@ table 753 "Standard Item Journal Line"
 
                 case "Entry Type" of
                     "Entry Type"::Purchase:
-                        "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter);
+                        "Location Code" := UserMgt.GetLocation(1, '', UserMgt.GetPurchasesFilter());
                     "Entry Type"::Sale:
-                        "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter);
+                        "Location Code" := UserMgt.GetLocation(0, '', UserMgt.GetSalesFilter());
                 end;
 
                 if "Item No." <> '' then
@@ -186,7 +186,7 @@ table 753 "Standard Item Journal Line"
                 );
 
                 GetUnitAmount(FieldNo(Quantity));
-                UpdateAmount;
+                UpdateAmount();
             end;
         }
         field(16; "Unit Amount"; Decimal)
@@ -196,7 +196,7 @@ table 753 "Standard Item Journal Line"
 
             trigger OnValidate()
             begin
-                UpdateAmount;
+                UpdateAmount();
                 if "Item No." <> '' then
                     if "Value Entry Type" = "Value Entry Type"::Revaluation then
                         "Unit Cost" := "Unit Amount"
@@ -206,7 +206,7 @@ table 753 "Standard Item Journal Line"
                             "Entry Type"::"Positive Adjmt.":
                                 begin
                                     if "Entry Type" = "Entry Type"::"Positive Adjmt." then begin
-                                        GetItem;
+                                        GetItem();
                                         if (CurrFieldNo = FieldNo("Unit Amount")) and
                                            (Item."Costing Method" = Item."Costing Method"::Standard)
                                         then
@@ -215,7 +215,7 @@ table 753 "Standard Item Journal Line"
                                               FieldCaption("Unit Amount"), Item.FieldCaption("Costing Method"), Item."Costing Method");
                                     end;
 
-                                    ReadGLSetup;
+                                    ReadGLSetup();
                                     if "Entry Type" = "Entry Type"::Purchase then
                                         "Unit Cost" := "Unit Amount";
                                     if "Entry Type" = "Entry Type"::"Positive Adjmt." then
@@ -230,7 +230,7 @@ table 753 "Standard Item Journal Line"
                             "Entry Type"::"Negative Adjmt.",
                             "Entry Type"::Consumption:
                                 begin
-                                    GetItem;
+                                    GetItem();
                                     if (CurrFieldNo = FieldNo("Unit Amount")) and
                                        (Item."Costing Method" = Item."Costing Method"::Standard)
                                     then
@@ -254,7 +254,7 @@ table 753 "Standard Item Journal Line"
             trigger OnValidate()
             begin
                 TestField("Item No.");
-                RetrieveCosts;
+                RetrieveCosts();
                 if "Entry Type" in ["Entry Type"::Purchase, "Entry Type"::"Positive Adjmt.", "Entry Type"::Consumption] then
                     if Item."Costing Method" = Item."Costing Method"::Standard then begin
                         if CurrFieldNo = FieldNo("Unit Cost") then
@@ -274,7 +274,7 @@ table 753 "Standard Item Journal Line"
                             "Unit Amount" := "Unit Cost";
                         "Entry Type"::"Positive Adjmt.":
                             begin
-                                ReadGLSetup;
+                                ReadGLSetup();
                                 "Unit Amount" :=
                                   Round(
                                     ("Unit Cost" - "Overhead Rate" * "Qty. per Unit of Measure") / (1 + "Indirect Cost %" / 100),
@@ -290,7 +290,7 @@ table 753 "Standard Item Journal Line"
                                 "Unit Amount" := "Unit Cost";
                             end;
                     end;
-                    UpdateAmount;
+                    UpdateAmount();
                 end;
             end;
         }
@@ -304,7 +304,7 @@ table 753 "Standard Item Journal Line"
                 TestField(Quantity);
                 "Unit Amount" := Amount / Quantity;
                 Validate("Unit Amount");
-                ReadGLSetup;
+                ReadGLSetup();
                 "Unit Amount" := Round("Unit Amount", GLSetup."Unit-Amount Rounding Precision");
             end;
         }
@@ -364,7 +364,7 @@ table 753 "Standard Item Journal Line"
                       Text003,
                       "Entry Type", FieldCaption("Entry Type"), FieldCaption("Indirect Cost %"));
 
-                GetItem;
+                GetItem();
                 if Item."Costing Method" = Item."Costing Method"::Standard then
                     Error(
                       Text002,
@@ -567,10 +567,10 @@ table 753 "Standard Item Journal Line"
 
             trigger OnValidate()
             begin
-                GetItem;
+                GetItem();
                 "Qty. per Unit of Measure" := UOMMgt.GetQtyPerUnitOfMeasure(Item, "Unit of Measure Code");
                 GetUnitAmount(FieldNo("Unit of Measure Code"));
-                ReadGLSetup;
+                ReadGLSetup();
                 "Unit Cost" := Round(UnitCost * "Qty. per Unit of Measure", GLSetup."Unit-Amount Rounding Precision");
                 "Qty. Rounding Precision" := UOMMgt.GetQtyRoundingPrecision(Item, "Unit of Measure Code");
                 "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
@@ -704,7 +704,6 @@ table 753 "Standard Item Journal Line"
     end;
 
     var
-        Text001: Label 'You cannot rename a %1.';
         Item: Record Item;
         ItemVariant: Record "Item Variant";
         Location: Record Location;
@@ -717,9 +716,11 @@ table 753 "Standard Item Journal Line"
         UOMMgt: Codeunit "Unit of Measure Management";
         UnitCost: Decimal;
         GLSetupRead: Boolean;
+        PhysInvtEntered: Boolean;
+
+        Text001: Label 'You cannot rename a %1.';
         Text002: Label 'You cannot change %1 when %2 is %3.';
         Text003: Label 'You cannot change %3 when %2 is %1.';
-        PhysInvtEntered: Boolean;
 
     local procedure SetDefaultPriceCalculationMethod()
     var
@@ -885,9 +886,9 @@ table 753 "Standard Item Journal Line"
 
     local procedure RetrieveCosts()
     begin
-        ReadGLSetup;
-        GetItem;
-        if GetSKU then
+        ReadGLSetup();
+        GetItem();
+        if GetSKU() then
             UnitCost := SKU."Unit Cost"
         else
             UnitCost := Item."Unit Cost";
@@ -920,7 +921,7 @@ table 753 "Standard Item Journal Line"
         PriceType: Enum "Price Type";
         UnitCostValue: Decimal;
     begin
-        RetrieveCosts;
+        RetrieveCosts();
         if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
            ("Item Charge No." <> '')
         then

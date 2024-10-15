@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 1193 "Implement Res. Price Change"
 {
     Caption = 'Implement Res. Price Change';
@@ -69,6 +69,10 @@ report 1193 "Implement Res. Price Change"
     }
 
     var
+        ResPrice: Record "Resource Price";
+        Window: Dialog;
+        ConfirmDeletion: Boolean;
+
         Text000: Label 'Updating Resource Prices...\\';
         Text001: Label 'Type                #1##########\';
         Text002: Label 'Code                #2##########\';
@@ -76,8 +80,5 @@ report 1193 "Implement Res. Price Change"
         Text004: Label 'Job No.             #4##########\';
         Text005: Label 'Currency Code       #5##########\';
         Text006: Label 'The resource prices have now been updated in accordance with the suggested price changes.\\Do you want to delete the suggested price changes?';
-        ResPrice: Record "Resource Price";
-        Window: Dialog;
-        ConfirmDeletion: Boolean;
 }
 #endif

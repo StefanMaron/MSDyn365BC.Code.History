@@ -27,7 +27,7 @@ codeunit 143001 "Library - CODA Helper"
               CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Bank Account No.")), 1, MaxStrLen("Bank Account No."));
             IBAN :=
               CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CODAStatementLine."Bank Account No. Other Party")), 1, MaxStrLen(IBAN));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -47,7 +47,7 @@ codeunit 143001 "Library - CODA Helper"
               CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen("Bank Account No.")), 1, MaxStrLen("Bank Account No."));
             IBAN :=
               CopyStr(LibraryUtility.GenerateRandomXMLText(MaxStrLen(CODAStatementLine."Bank Account No. Other Party")), 1, MaxStrLen(IBAN));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -57,7 +57,7 @@ codeunit 143001 "Library - CODA Helper"
         CODAStatement.Init();
         CODAStatement."Bank Account No." := BankAccountNo;
         CODAStatement."Statement No." := Format(LibraryRandom.RandInt(10));
-        CODAStatement."Statement Date" := WorkDate;
+        CODAStatement."Statement Date" := WorkDate();
         CODAStatement.Insert();
     end;
 
@@ -74,7 +74,7 @@ codeunit 143001 "Library - CODA Helper"
             Transaction := TransactionCoding.Transaction;
             "Transaction Category" := TransactionCoding."Transaction Category";
             "Bank Account No. Other Party" := BankAccountNoOtherParty;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -86,7 +86,7 @@ codeunit 143001 "Library - CODA Helper"
             Transaction := LibraryRandom.RandInt(99);
             "Transaction Category" := LibraryRandom.RandInt(999);
             "Account Type" := AccountType;
-            Insert;
+            Insert();
         end;
     end;
 

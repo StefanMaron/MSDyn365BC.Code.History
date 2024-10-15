@@ -17,7 +17,7 @@ codeunit 144016 "Library CODA Data Provider"
     begin
         tempFile.CreateTempFile(TEXTENCODING::Windows);
         fileName := tempFile.Name;
-        tempFile.Close;
+        tempFile.Close();
         tempFile.TextMode := true;
         tempFile.Create(fileName, TEXTENCODING::Windows);
         if FileNo = 1 then
@@ -30,7 +30,7 @@ codeunit 144016 "Library CODA Data Provider"
             Write7022600005C(tempFile);
             Write7022600005D(tempFile);
         end;
-        tempFile.Close;
+        tempFile.Close();
     end;
 
     [Normal]
@@ -42,13 +42,13 @@ codeunit 144016 "Library CODA Data Provider"
         // AL Mapping of the TFS data file 'Fortis 210409.txt
         tempFile.CreateTempFile(TEXTENCODING::Windows);
         FileName := tempFile.Name;
-        tempFile.Close;
+        tempFile.Close();
         tempFile.TextMode := true;
         tempFile.Create(FileName, TEXTENCODING::Windows);
 
         WriteFortis210409(tempFile);
 
-        tempFile.Close;
+        tempFile.Close();
     end;
 
     [Normal]
@@ -60,14 +60,14 @@ codeunit 144016 "Library CODA Data Provider"
         // Implementation of the CODA file CODA1_Multiple.txt
         tempFile.CreateTempFile(TEXTENCODING::Windows);
         FileName := tempFile.Name;
-        tempFile.Close;
+        tempFile.Close();
         tempFile.TextMode := true;
         tempFile.Create(FileName, TEXTENCODING::Windows);
         WriteCODA1MultipleA(tempFile);
         WriteCODA1MultipleB(tempFile);
         WriteCODA1MultipleC(tempFile);
         WriteCODA1MultipleD(tempFile);
-        tempFile.Close;
+        tempFile.Close();
     end;
 
     [Normal]
@@ -79,11 +79,11 @@ codeunit 144016 "Library CODA Data Provider"
         // Implementation of the CODA file Ontvangen CODA.2009-04-16_Original.txt
         tempFile.CreateTempFile(TEXTENCODING::Windows);
         FileName := tempFile.Name;
-        tempFile.Close;
+        tempFile.Close();
         tempFile.TextMode := true;
         tempFile.Create(FileName, TEXTENCODING::Windows);
         WriteOntVangenCODA20090416(tempFile);
-        tempFile.Close;
+        tempFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -93,11 +93,11 @@ codeunit 144016 "Library CODA Data Provider"
     begin
         tempFile.CreateTempFile(TEXTENCODING::Windows);
         FileName := tempFile.Name;
-        tempFile.Close;
+        tempFile.Close();
         tempFile.TextMode := true;
         tempFile.Create(FileName, TEXTENCODING::Windows);
         WriteOntVangenCODAScenario373926(tempFile);
-        tempFile.Close;
+        tempFile.Close();
     end;
 
     [Scope('OnPrem')]
@@ -107,7 +107,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatement."Bank Account No." := BankAccountNo;
         CODAStatement."Statement No." := Format(LibraryRandom.RandInt(210));
         CODAStatement."Statement Ending Balance" := LibraryRandom.RandDecInRange(100000, 200000, 1);
-        CODAStatement."Statement Date" := WorkDate;
+        CODAStatement."Statement Date" := WorkDate();
         CODAStatement."Balance Last Statement" := LibraryRandom.RandDecInRange(10000, 100000, 1);
         CODAStatement."CODA Statement No." := 0;
         CODAStatement.Insert();
@@ -4322,7 +4322,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '230058315713';
         CODAStatementLine."Statement Amount" := 498297;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 1;
         CODAStatementLine.Transaction := 50;
@@ -4355,7 +4355,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine."Statement Line No." := 20000;
         CODAStatementLine.ID := CODAStatementLine.ID::"Free Message";
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 0;
         CODAStatementLine.Transaction := 0;
@@ -4384,7 +4384,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '4850743000074';
         CODAStatementLine."Statement Amount" := 6967;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 2;
         CODAStatementLine."Transaction Family" := 1;
         CODAStatementLine.Transaction := 50;
@@ -4413,7 +4413,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '230058315713';
         CODAStatementLine."Statement Amount" := 100200;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 1;
         CODAStatementLine.Transaction := 50;
@@ -4473,7 +4473,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '4850750705981';
         CODAStatementLine."Statement Amount" := -1208;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 3;
         CODAStatementLine.Transaction := 3;
@@ -4503,7 +4503,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '788535710831';
         CODAStatementLine."Statement Amount" := 426053;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 1;
         CODAStatementLine.Transaction := 50;
@@ -4538,7 +4538,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '4866447710582';
         CODAStatementLine."Statement Amount" := -182;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 3;
         CODAStatementLine."Transaction Family" := 41;
         CODAStatementLine.Transaction := 37;
@@ -4565,7 +4565,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.ID := CODAStatementLine.ID::Information;
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '4866447710582';
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 3;
         CODAStatementLine."Transaction Family" := 41;
         CODAStatementLine.Transaction := 37;
@@ -4645,7 +4645,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Detail;
         CODAStatementLine."Bank Reference No." := '4866447710582';
         CODAStatementLine."Statement Amount" := -32;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 8;
         CODAStatementLine."Transaction Family" := 41;
         CODAStatementLine.Transaction := 37;
@@ -4675,7 +4675,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Detail;
         CODAStatementLine."Bank Reference No." := '4866447710582';
         CODAStatementLine."Statement Amount" := -150;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 8;
         CODAStatementLine."Transaction Family" := 41;
         CODAStatementLine.Transaction := 37;
@@ -4703,7 +4703,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '4866447710582';
         CODAStatementLine."Statement Amount" := -220099;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 1;
         CODAStatementLine.Transaction := 1;
@@ -4738,7 +4738,7 @@ codeunit 144016 "Library CODA Data Provider"
         CODAStatementLine.Type := CODAStatementLine.Type::Global;
         CODAStatementLine."Bank Reference No." := '4866447710582';
         CODAStatementLine."Statement Amount" := -1700;
-        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate);
+        CODAStatementLine."Transaction Date" := CalcDate('<CM+30D>', WorkDate());
         CODAStatementLine."Transaction Type" := 0;
         CODAStatementLine."Transaction Family" := 1;
         CODAStatementLine.Transaction := 1;

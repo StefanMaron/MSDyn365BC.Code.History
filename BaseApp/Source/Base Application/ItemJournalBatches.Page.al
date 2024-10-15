@@ -1,7 +1,7 @@
 page 262 "Item Journal Batches"
 {
     Caption = 'Item Journal Batches';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     PageType = List;
     SourceTable = "Item Journal Batch";
 
@@ -22,17 +22,17 @@ page 262 "Item Journal Batches"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a brief description of the item journal batch you are creating.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Posting No. Series"; "Posting No. Series")
+                field("Posting No. Series"; Rec."Posting No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series code used to assign document numbers to ledger entries that are posted from this journal batch.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
@@ -63,9 +63,6 @@ page 262 "Item Journal Batches"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit Journal';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open a journal based on the journal batch.';
 
@@ -96,9 +93,6 @@ page 262 "Item Journal Batches"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Item Jnl.-B.Post";
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
@@ -108,12 +102,26 @@ page 262 "Item Journal Batches"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Codeunit "Item Jnl.-B.Post+Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Edit Journal_Promoted"; "Edit Journal")
+                {
+                }
+                actionref("P&ost_Promoted"; "P&ost")
+                {
+                }
+                actionref("Post and &Print_Promoted"; "Post and &Print")
+                {
                 }
             }
         }
@@ -126,7 +134,7 @@ page 262 "Item Journal Batches"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetupNewBatch;
+        SetupNewBatch();
     end;
 
     trigger OnOpenPage()

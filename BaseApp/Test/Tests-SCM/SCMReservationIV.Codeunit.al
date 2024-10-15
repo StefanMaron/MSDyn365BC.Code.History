@@ -349,7 +349,7 @@ codeunit 137271 "SCM Reservation IV"
         UpdateQuantityOnSalesLine(SalesLine."Document No.", ItemJournalLine.Quantity);
 
         // [THEN] Verify Reserved Quantity on Sales LIne.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.CalcFields("Reserved Quantity");
         SalesLine.TestField("Reserved Quantity", SalesLine.Quantity);
     end;
@@ -406,7 +406,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
 
         // [WHEN] Update Item No. on Sales Line.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.Validate("No.", ItemJournalLine."Item No.");
         SalesLine.Modify(true);
 
@@ -670,7 +670,7 @@ codeunit 137271 "SCM Reservation IV"
         // [GIVEN] Create Production Component with Item Tracking and Reservation.
         CreateProdOrderComponentWithITAndReserv(ProductionOrder, Item."No.", Location.Code, TrackingOption::SetLotNo);
         WarehouseSetup.Get();
-        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate, false);
+        PickNo := NoSeriesManagement.GetNextNo(WarehouseSetup."Whse. Pick Nos.", WorkDate(), false);
         LibraryVariableStorage.Enqueue(StrSubstNo(PickActivityMsg, PickNo));  // Enqueue for Message Handler.
 
         // [GIVEN] Create Warehouse Pick, update Quantity To Handle on Warehouse Activity , register Warehouse Pick partially.
@@ -1181,7 +1181,7 @@ codeunit 137271 "SCM Reservation IV"
         PostTransferReceipt(TransferLine."Document No.");
 
         // [THEN] Sales demand reservation is split: 4 pcs are reserved against Item Ledger Entry, 6 - from Transfer Line
-        TransferLine.Find;
+        TransferLine.Find();
         VerifyReservationEntry(TransferLine."Item No.", TransferLine."Quantity Received", DATABASE::"Item Ledger Entry", true);
         VerifyReservationEntry(TransferLine."Item No.", TransferLine."Qty. to Ship", DATABASE::"Transfer Line", true);
     end;
@@ -1217,7 +1217,7 @@ codeunit 137271 "SCM Reservation IV"
         Initialize(false);
         CreateTransferOrder(
           TransferLine, LibraryWarehouse.CreateLocation(Location), LibraryInventory.CreateItem(Item), LibraryRandom.RandDec(10, 2));
-        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));
+        TransferLine.Validate("Receipt Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));
         TransferLine.Modify(true);
 
         // [GIVEN] Create Sales Order.
@@ -1543,7 +1543,7 @@ codeunit 137271 "SCM Reservation IV"
         repeat
             WhseActivityLine.Validate("Qty. to Handle", WhseActivityLine."Qty. to Handle" / 4);
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         // [WHEN] Register pick
         WhseActivityHeader.SetRange("No.", WhseActivityLine."No.");
@@ -1623,7 +1623,7 @@ codeunit 137271 "SCM Reservation IV"
         // [GIVEN] Regenerative plan is calculated for "I". Item Tracking is established between item entry and sales order line.
         // [GIVEN] Additional reservation entry with Type = Surplus (Quantity = "Q" - "q") is created for excessive quantity in inventory.
         Item.SetRange("No.", Item."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
 
         // [GIVEN] Set lot "L" in item tracking on the sales line.
         LibraryVariableStorage.Enqueue(TrackingOption::SelectEntries);
@@ -1668,7 +1668,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Regenerative Plan is calculated for the item. Reservation entries representing order tracking between the sales and the purchase are created.
         Item.SetRange("No.", Item."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate());
         FindReservationEntry(ReservationEntry, Item."No.", DATABASE::"Sales Line", ReservationEntry."Reservation Status"::Tracking);
 
         // [WHEN] Select Purchasing Code for Special Order on the sales line.
@@ -1711,7 +1711,7 @@ codeunit 137271 "SCM Reservation IV"
         // [THEN] No confirm message is raised during posting.
 
         // [THEN] "RO2" is shipped.
-        PurchaseLine[2].Find;
+        PurchaseLine[2].Find();
         PurchaseLine[2].TestField("Return Qty. Shipped", Qty);
     end;
 
@@ -1746,7 +1746,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader[2], true, false);
 
         // [THEN] "RO2" is shipped.
-        PurchaseLine[2].Find;
+        PurchaseLine[2].Find();
         PurchaseLine[2].TestField("Return Qty. Shipped", PurchaseLine[2].Quantity);
     end;
 
@@ -1841,7 +1841,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Regenerative plan is calculated in planning worksheet.
         ProdItem.SetRange("No.", ProdItem."No.");
-        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate, WorkDate);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(ProdItem, WorkDate(), WorkDate());
 
         // [GIVEN] Item "C" is included in the list of planning components.
         PlanningComponent.SetRange("Item No.", CompItem."No.");
@@ -2103,7 +2103,7 @@ codeunit 137271 "SCM Reservation IV"
         // [GIVEN] Two assembly orders, each has its own lot no. ("L1" on the first assembly, "L2" on the second one).
         // [GIVEN] Quantity on each assembly order = "Q".
         for i := 1 to ArrayLen(LotNo) do begin
-            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, Item."No.", '', Qty, '');
+            LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), Item."No.", '', Qty, '');
             LibraryVariableStorage.Enqueue(TrackingOption::AssignLot);
             AssemblyHeader.OpenItemTrackingLines();
             LotNo[i] := CopyStr(LibraryVariableStorage.DequeueText, 1, MaxStrLen(LotNo[i]));
@@ -2255,7 +2255,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Assembly order with two lines, each has its own lot no. ("L1" on the first line, "L2" on the second line).
         // [GIVEN] Quantity on each assembly line = "Q".
-        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate, LibraryInventory.CreateItemNo, '', Qty, '');
+        LibraryAssembly.CreateAssemblyHeader(AssemblyHeader, WorkDate(), LibraryInventory.CreateItemNo, '', Qty, '');
         for i := 1 to ArrayLen(LotNo) do begin
             LibraryAssembly.CreateAssemblyLine(
               AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", Qty, 1, '');
@@ -2492,7 +2492,7 @@ codeunit 137271 "SCM Reservation IV"
 
         // [GIVEN] Create sales order for 50 pcs, reserve it from the inventory.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty, Location.Code, WorkDate());
         LibrarySales.AutoReserveSalesLine(SalesLine);
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
@@ -2511,7 +2511,7 @@ codeunit 137271 "SCM Reservation IV"
         SplitWarehouseActivityLine(WarehouseActivityLine, QtyToHandle);
 
         // [GIVEN] Delete the new pick line with quantity of 40 pcs.
-        WarehouseActivityLine.Next;
+        WarehouseActivityLine.Next();
         WarehouseActivityLine.Delete(true);
 
         // [WHEN] Post the inventory pick.
@@ -2519,7 +2519,7 @@ codeunit 137271 "SCM Reservation IV"
         LibraryWarehouse.PostInventoryActivity(WarehouseActivityHeader, false);
 
         // [THEN] 10 pcs on the sales order line has been shipped.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Quantity Shipped", QtyToHandle);
 
         // [THEN] 15 pcs of lot "L2" remain reserved from the inventory to the sales line.
@@ -2792,7 +2792,7 @@ codeunit 137271 "SCM Reservation IV"
         // [GIVEN] Sales order for 20 pcs.
         // [GIVEN] Release the order, create shipment and pick.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 20, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 20, Location.Code, WorkDate());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
         CreatePick(Location.Code, SalesHeader."No.");
 
@@ -2884,7 +2884,7 @@ codeunit 137271 "SCM Reservation IV"
         // [GIVEN] Sales order for 2 pcs.
         // [GIVEN] Select lots "L1" and "L2".
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, Location.Code, WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, Location.Code, WorkDate());
         LibraryVariableStorage.Enqueue(TrackingOption::ManualSetMultipleLots);
         LibraryVariableStorage.Enqueue(ArrayLen(LotNos));
         for i := 1 to ArrayLen(LotNos) do begin
@@ -3039,7 +3039,7 @@ codeunit 137271 "SCM Reservation IV"
     var
         RequisitionLine: Record "Requisition Line";
     begin
-        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate, WorkDate, false);
+        LibraryPlanning.CalcNetChangePlanForPlanWksh(Item, WorkDate(), WorkDate, false);
         RequisitionLine.SetRange("No.", Item."No.");
         RequisitionLine.FindFirst();
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
@@ -3279,7 +3279,7 @@ codeunit 137271 "SCM Reservation IV"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order",
-          LibraryPurchase.CreateVendorNo, ItemNo, Qty, '', WorkDate);
+          LibraryPurchase.CreateVendorNo, ItemNo, Qty, '', WorkDate());
         LibraryVariableStorage.Enqueue(ReservationOption::ReserveFromCurrentLine);
         PurchaseLine.ShowReservation();
     end;
@@ -3582,7 +3582,7 @@ codeunit 137271 "SCM Reservation IV"
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
         WarehouseShipmentHeader.FindFirst();
         LibraryWarehouse.ReopenWhseShipment(WarehouseShipmentHeader);
-        WarehouseShipmentHeader.Find;
+        WarehouseShipmentHeader.Find();
         WarehouseShipmentHeader.Delete(true);
     end;
 
@@ -3860,7 +3860,7 @@ codeunit 137271 "SCM Reservation IV"
         ProdOrderComponents.OpenView;
         ProdOrderComponents.FILTER.SetFilter("Item No.", ItemNo);
         ProdOrderComponents.Reserve.Invoke;
-        ProdOrderComponents.Close;
+        ProdOrderComponents.Close();
     end;
 
     local procedure SelectAndClearItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch")
@@ -3889,7 +3889,7 @@ codeunit 137271 "SCM Reservation IV"
         repeat
             WarehouseActivityLine.Validate("Lot No.", TrackingSpecification."Lot No.");
             WarehouseActivityLine.Modify(true);
-        until WarehouseActivityLine.Next = 0;
+        until WarehouseActivityLine.Next() = 0;
     end;
 
     local procedure SetQtyToHandleWhseActivity(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; ItemNo: Code[20]; ActionType: Enum "Warehouse Action Type")
@@ -3980,7 +3980,7 @@ codeunit 137271 "SCM Reservation IV"
         SalesOrderSubform.OpenEdit;
         SalesOrderSubform.FILTER.SetFilter("Document No.", DocumentNo);
         SalesOrderSubform.Quantity.SetValue(Quantity);
-        SalesOrderSubform.Close;
+        SalesOrderSubform.Close();
     end;
 
     local procedure UpdateQuantityBaseInPurchaseItemTrackingLines(var PurchaseLine: Record "Purchase Line"; Qty: Decimal)
@@ -4023,7 +4023,7 @@ codeunit 137271 "SCM Reservation IV"
         GLEntry.FindSet();
         repeat
             ActualAmount += GLEntry."Credit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           CreditAmount, ActualAmount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(ValidationErr, GLEntry."Credit Amount", CreditAmount));
     end;
@@ -4222,7 +4222,7 @@ codeunit 137271 "SCM Reservation IV"
                         LibraryVariableStorage.Dequeue(Quantity);
                         ItemTrackingLines."Lot No.".SetValue(LotNo);
                         ItemTrackingLines."Quantity (Base)".SetValue(Quantity);
-                        ItemTrackingLines.Next;
+                        ItemTrackingLines.Next();
                     end;
                 end;
         end;

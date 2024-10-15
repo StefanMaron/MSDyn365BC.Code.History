@@ -8,10 +8,6 @@
     end;
 
     var
-        Text000: Label 'customer';
-        Text001: Label 'vendor';
-        Text002: Label 'This %1 is related to %2 %3. Your identification is setup to process from %2 %4.';
-        Text003: Label 'This document will be processed in your %2.';
         GLSetup: Record "General Ledger Setup";
         UserSetup: Record "User Setup";
         RespCenter: Record "Responsibility Center";
@@ -24,6 +20,11 @@
         HasGotSalesUserSetup: Boolean;
         HasGotPurchUserSetup: Boolean;
         HasGotServUserSetup: Boolean;
+
+        Text000: Label 'customer';
+        Text001: Label 'vendor';
+        Text002: Label 'This %1 is related to %2 %3. Your identification is setup to process from %2 %4.';
+        Text003: Label 'This document will be processed in your %2.';
         AllowedPostingDateErr: Label 'The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
         AllowedPostingDateMsg: Label 'The setup of allowed posting dates is incorrect. The date in the %1 field must not be after the date in the %2 field.', Comment = '%1 - caption Allow Posting From, %2 - caption Allow Posting To';
         OpenGLSetupActionTxt: Label 'Open the General Ledger Setup window';
@@ -113,17 +114,17 @@
             DocType::Sales:
                 begin
                     AccType := Text000;
-                    UserRespCenter := GetSalesFilter;
+                    UserRespCenter := GetSalesFilter();
                 end;
             DocType::Purchase:
                 begin
                     AccType := Text001;
-                    UserRespCenter := GetPurchasesFilter;
+                    UserRespCenter := GetPurchasesFilter();
                 end;
             DocType::Service:
                 begin
                     AccType := Text000;
-                    UserRespCenter := GetServiceFilter;
+                    UserRespCenter := GetServiceFilter();
                 end;
         end;
         if (AccRespCenter <> '') and
@@ -133,7 +134,7 @@
             Message(
               Text002 +
               Text003,
-              AccType, RespCenter.TableCaption, AccRespCenter, UserRespCenter);
+              AccType, RespCenter.TableCaption(), AccRespCenter, UserRespCenter);
         if UserRespCenter = '' then
             exit(AccRespCenter);
 
@@ -181,11 +182,11 @@
 
         case DocType of
             DocType::Sales:
-                UserRespCenter := GetSalesFilter;
+                UserRespCenter := GetSalesFilter();
             DocType::Purchase:
-                UserRespCenter := GetPurchasesFilter;
+                UserRespCenter := GetPurchasesFilter();
             DocType::Service:
-                UserRespCenter := GetServiceFilter;
+                UserRespCenter := GetServiceFilter();
         end;
         if UserRespCenter <> '' then
             RespCenterCode := UserRespCenter;
@@ -243,7 +244,7 @@
                             AllowedPostingDatesNotification.AddAction(OpenUserSetupActionTxt,
                               CODEUNIT::"Document Notifications", 'ShowUserSetup');
                     end;
-                    AllowedPostingDatesNotification.Send;
+                    AllowedPostingDatesNotification.Send();
                     Error('');
                 end;
             NotificationType::Error:

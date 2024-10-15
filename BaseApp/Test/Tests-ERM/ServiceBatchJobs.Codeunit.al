@@ -50,7 +50,7 @@ codeunit 136122 "Service Batch Jobs"
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
-        LibraryERM.SetJournalTemplateNameMandatory(false);
+        LibraryERMCountryData.UpdateJournalTemplMandatory(false);
 
         LibrarySetupStorage.SaveGeneralLedgerSetup();
         LibrarySetupStorage.SaveSalesSetup();
@@ -118,7 +118,7 @@ codeunit 136122 "Service Batch Jobs"
 
         // 3. Verify: Verify Service Order Deleted.
         Assert.IsFalse(
-          ServiceHeader.Get(ServiceHeader."Document Type"::Order, OrderNo), StrSubstNo(ExistError, ServiceHeader.TableCaption, OrderNo));
+          ServiceHeader.Get(ServiceHeader."Document Type"::Order, OrderNo), StrSubstNo(ExistError, ServiceHeader.TableCaption(), OrderNo));
     end;
 
     [Test]
@@ -161,7 +161,7 @@ codeunit 136122 "Service Batch Jobs"
 
         // [THEN] "SO" is posted.
         Assert.IsFalse(
-          ServiceHeader.Get(ServiceHeader."Document Type"::Order, OrderNo), StrSubstNo(ExistError, ServiceHeader.TableCaption, OrderNo));
+          ServiceHeader.Get(ServiceHeader."Document Type"::Order, OrderNo), StrSubstNo(ExistError, ServiceHeader.TableCaption(), OrderNo));
 
         // [THEN] "SO-TXT" is removed.
         VerifyServiceCommentLineNotExists(ServiceHeader."Document Type"::Order.AsInteger(), CommentText);
@@ -197,7 +197,7 @@ codeunit 136122 "Service Batch Jobs"
         Clear(BatchPostServiceInvoices);
         BatchPostServiceInvoices.SetTableView(ServiceHeader);
         BatchPostServiceInvoices.UseRequestPage(false);
-        BatchPostServiceInvoices.InitializeRequest(WorkDate, true, true, true);
+        BatchPostServiceInvoices.InitializeRequest(WorkDate(), true, true, true);
         BatchPostServiceInvoices.Run();
 
         // 3. Verify: Verify Service Invoice Line after run Batch Job.
@@ -232,7 +232,7 @@ codeunit 136122 "Service Batch Jobs"
         Clear(BatchPostServiceCrMemos);
         BatchPostServiceCrMemos.SetTableView(ServiceHeader);
         BatchPostServiceCrMemos.UseRequestPage(false);
-        BatchPostServiceCrMemos.InitializeRequest(WorkDate, true, true, true);
+        BatchPostServiceCrMemos.InitializeRequest(WorkDate(), true, true, true);
         BatchPostServiceCrMemos.Run();
 
         // 3. Verify: Verify Service Credit Memo Line after run Batch Job.
@@ -300,7 +300,7 @@ codeunit 136122 "Service Batch Jobs"
         CreateFaultResolCodesRlship(FaultResolCodRelationship);
 
         // 2.Exercise: Run the report for Insert Fault Resolution Relationship Code without From Date.
-        asserterror InsertFaultResolRelation(0D, WorkDate, true, true);
+        asserterror InsertFaultResolRelation(0D, WorkDate(), true, true);
 
         // 3.Verify: Verify the Fault Resolution Code Relationship Report.
         Assert.AreEqual(StrSubstNo(FromDateError), StrSubstNo(GetLastErrorText), DateError);
@@ -339,7 +339,7 @@ codeunit 136122 "Service Batch Jobs"
         CreateFaultResolCodesRlship(FaultResolCodRelationship);
 
         // 2.Exercise: Run the report for Insert Fault Resolution Relationship Code without To Date.
-        asserterror InsertFaultResolRelation(WorkDate, 0D, true, true);
+        asserterror InsertFaultResolRelation(WorkDate(), 0D, true, true);
 
         // 3.Verify: Verify the Fault Resolution Code Relationship report.
         Assert.AreEqual(StrSubstNo(ToDateError), StrSubstNo(GetLastErrorText), DateError);
@@ -365,7 +365,7 @@ codeunit 136122 "Service Batch Jobs"
 
         SignServContractDoc.SignContract(ServiceContractHeader);
         PostServiceInvoiceCreditMemo(ServiceContractHeader."Contract No.", ServiceHeader."Document Type"::Invoice);
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         ModifyServiceContract(ServiceContractHeader);
 
         CreateContractCreditMemo(ServiceContractHeader);
@@ -435,8 +435,8 @@ codeunit 136122 "Service Batch Jobs"
 
         // [GIVEN] Two service contracts "A" and "B" with posted service invoices
         Initialize();
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate('<-CY>', WorkDate);
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<-CY>', WorkDate());
         for i := 1 to ArrayLen(ServiceContractHeader) do
             SignServiceContractAndPostInvoice(ServiceContractHeader[i]);
 
@@ -467,8 +467,8 @@ codeunit 136122 "Service Batch Jobs"
 
         // [GIVEN] Three service contracts "A", "B" and "C" with posted service invoices
         Initialize();
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate('<-CY>', WorkDate);
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate('<-CY>', WorkDate());
         for i := 1 to ArrayLen(ServiceContractHeader) do
             SignServiceContractAndPostInvoice(ServiceContractHeader[i]);
 
@@ -654,7 +654,7 @@ codeunit 136122 "Service Batch Jobs"
             if Counter > 1 then
                 ServiceLine.Validate("Qty. to Ship", 0);
             ServiceLine.Modify(true);
-            Item.Next;
+            Item.Next();
         end;
     end;
 
@@ -689,7 +689,7 @@ codeunit 136122 "Service Batch Jobs"
         ModifyServiceContractHeader(ServiceContractHeader);
         SignServContractDoc.SignContract(ServiceContractHeader);
         LockOpenServContract.OpenServContract(ServiceContractHeader);
-        ServiceContractHeader.Find;
+        ServiceContractHeader.Find();
         PostServiceInvoice(ServiceContractHeader);
     end;
 
@@ -699,7 +699,7 @@ codeunit 136122 "Service Batch Jobs"
         repeat
             TempServiceLine := FromServiceLine;
             TempServiceLine.Insert();
-        until FromServiceLine.Next = 0;
+        until FromServiceLine.Next() = 0;
     end;
 
     local procedure DeleteInvoiceServiceOrders(ServiceOrderNo: Code[20])
@@ -790,8 +790,8 @@ codeunit 136122 "Service Batch Jobs"
         LockOpenServContract: Codeunit "Lock-OpenServContract";
     begin
         LockOpenServContract.OpenServContract(ServiceContractHeader);
-        ServiceContractHeader.Find;
-        ServiceContractHeader.Validate("Expiration Date", WorkDate);
+        ServiceContractHeader.Find();
+        ServiceContractHeader.Validate("Expiration Date", WorkDate());
         ServiceContractHeader.Modify(true);
         LockOpenServContract.LockServContract(ServiceContractHeader);
     end;
@@ -800,7 +800,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         ServiceContractHeader.CalcFields("Calcd. Annual Amount");
         ServiceContractHeader.Validate("Annual Amount", ServiceContractHeader."Calcd. Annual Amount");
-        ServiceContractHeader.Validate("Starting Date", WorkDate);
+        ServiceContractHeader.Validate("Starting Date", WorkDate());
         ServiceContractHeader.Validate("Price Update Period", ServiceContractHeader."Service Period");
         ServiceContractHeader.Modify(true);
     end;
@@ -838,7 +838,7 @@ codeunit 136122 "Service Batch Jobs"
     begin
         Clear(PostPrepaidContractEntries);
         PostPrepaidContractEntries.SetTableView(ServiceLedgerEntry);
-        PostPrepaidContractEntries.InitializeRequest(WorkDate, WorkDate, PostPrepaidContractAction::"Post Prepaid Transactions");
+        PostPrepaidContractEntries.InitializeRequest(WorkDate(), WorkDate(), PostPrepaidContractAction::"Post Prepaid Transactions");
         PostPrepaidContractEntries.UseRequestPage(false);
         PostPrepaidContractEntries.Run();
     end;
@@ -848,7 +848,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceHeader: Record "Service Header";
         ServContractManagement: Codeunit ServContractManagement;
     begin
-        ServContractManagement.InitCodeUnit;
+        ServContractManagement.InitCodeUnit();
         ServContractManagement.CreateInvoice(ServiceContractHeader);
         PostServiceInvoiceCreditMemo(ServiceContractHeader."Contract No.", ServiceHeader."Document Type"::Invoice);
     end;
@@ -858,7 +858,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceHeader: Record "Service Header";
         ServContractManagement: Codeunit ServContractManagement;
     begin
-        ServContractManagement.InitCodeUnit;
+        ServContractManagement.InitCodeUnit();
         ServContractManagement.CreateContractLineCreditMemo(ServiceContractLine, false);
         PostServiceInvoiceCreditMemo(ServiceContractLine."Contract No.", ServiceHeader."Document Type"::"Credit Memo");
     end;
@@ -898,7 +898,7 @@ codeunit 136122 "Service Batch Jobs"
         LockOpenServContract.OpenServContract(ServiceContractHeader);
         LibraryService.FindServiceContractLine(
           ServiceContractLine, ServiceContractHeader."Contract Type", ServiceContractHeader."Contract No.");
-        ServiceContractLine.Validate("Contract Expiration Date", WorkDate);
+        ServiceContractLine.Validate("Contract Expiration Date", WorkDate());
         ServiceContractLine.Modify(true);
         PostServiceCrMemo(ServiceContractLine);
     end;
@@ -983,7 +983,7 @@ codeunit 136122 "Service Batch Jobs"
             Assert.AreNearlyEqual(
               TempServiceLine.Amount * Discount / 100,
               ServiceCrMemoLine."Inv. Discount Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)", '');
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceInvoiceLine(var TempServiceLine: Record "Service Line" temporary; PreAssignedNo: Code[20]; Discount: Decimal)
@@ -1002,7 +1002,7 @@ codeunit 136122 "Service Batch Jobs"
             Assert.AreNearlyEqual(
               TempServiceLine.Amount * Discount / 100,
               ServiceInvoiceLine."Inv. Discount Amount", GeneralLedgerSetup."Inv. Rounding Precision (LCY)", '');
-        until TempServiceLine.Next = 0;
+        until TempServiceLine.Next() = 0;
     end;
 
     local procedure VerifyServiceItemLog(ServiceItemNo: Code[20])
@@ -1034,7 +1034,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceLedgerEntry.SetRange("Service Contract No.", ContractNo);
         ServiceLedgerEntry.SetRange("Moved from Prepaid Acc.", false);
         ServiceLedgerEntry.SetRange(Open, false);
-        Assert.IsFalse(ServiceLedgerEntry.FindFirst, StrSubstNo(ServiceLedgerEntryError, ServiceLedgerEntry.TableCaption))
+        Assert.IsFalse(ServiceLedgerEntry.FindFirst, StrSubstNo(ServiceLedgerEntryError, ServiceLedgerEntry.TableCaption()))
     end;
 
     local procedure VerifyNonPrepaidGLEntry(ContractNo: Code[20]; Exists: Boolean)

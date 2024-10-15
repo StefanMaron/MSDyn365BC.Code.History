@@ -13,7 +13,7 @@ report 5210 "Employee - Phone Nos."
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_TABLECAPTION__________EmployeeFilter; TableCaption + ': ' + EmployeeFilter)
@@ -25,7 +25,7 @@ report 5210 "Employee - Phone Nos."
             column(Employee__No__; "No.")
             {
             }
-            column(FullName; FullName)
+            column(FullName; FullName())
             {
             }
             column(Employee__Phone_No__; "Phone No.")
@@ -80,7 +80,7 @@ report 5210 "Employee - Phone Nos."
 
     trigger OnPreReport()
     begin
-        EmployeeFilter := Employee.GetFilters;
+        EmployeeFilter := Employee.GetFilters();
     end;
 
     var

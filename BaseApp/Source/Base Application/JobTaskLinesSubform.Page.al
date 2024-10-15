@@ -15,7 +15,7 @@ page 1001 "Job Task Lines Subform"
                 IndentationColumn = DescriptionIndent;
                 IndentationControls = Description;
                 ShowCaption = false;
-                field("Job No."; "Job No.")
+                field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     Style = Strong;
@@ -23,7 +23,7 @@ page 1001 "Job Task Lines Subform"
                     ToolTip = 'Specifies the number of the related job.';
                     Visible = false;
                 }
-                field("Job Task No."; "Job Task No.")
+                field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     Style = Strong;
@@ -37,7 +37,7 @@ page 1001 "Job Task Lines Subform"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies a description of the job task. You can enter anything that is meaningful in describing the task. The description is copied and used in descriptions on the job planning line.';
                 }
-                field("Job Task Type"; "Job Task Type")
+                field("Job Task Type"; Rec."Job Task Type")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this. Choose the field to select one of the following five options:';
@@ -48,119 +48,119 @@ page 1001 "Job Task Lines Subform"
                     ToolTip = 'Specifies an interval or a list of job task numbers.';
                     Visible = false;
                 }
-                field("Job Posting Group"; "Job Posting Group")
+                field("Job Posting Group"; Rec."Job Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the job posting group of the task.';
                     Visible = false;
                 }
-                field("WIP-Total"; "WIP-Total")
+                field("WIP-Total"; Rec."WIP-Total")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the job tasks you want to group together when calculating Work In Process (WIP) and Recognition.';
                     Visible = false;
                 }
-                field("WIP Method"; "WIP Method")
+                field("WIP Method"; Rec."WIP Method")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the Work in Process calculation method that is associated with a job. The value in this field comes from the WIP method specified on the job card.';
                     Visible = false;
                 }
-                field("Start Date"; "Start Date")
+                field("Start Date"; Rec."Start Date")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies the start date for the job task. The date is based on the date on the related job planning line.';
                 }
-                field("End Date"; "End Date")
+                field("End Date"; Rec."End Date")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies the end date for the job task. The date is based on the date on the related job planning line.';
                 }
-                field("Schedule (Total Cost)"; "Schedule (Total Cost)")
+                field("Schedule (Total Cost)"; Rec."Schedule (Total Cost)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     Caption = 'Budget (Total Cost)';
                     ToolTip = 'Specifies, in the local currency, the total budgeted cost for the job task during the time period in the Planning Date Filter field.';
                 }
-                field("Schedule (Total Price)"; "Schedule (Total Price)")
+                field("Schedule (Total Price)"; Rec."Schedule (Total Price)")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Budget (Total Price)';
                     ToolTip = 'Specifies, in local currency, the total budgeted price for the job task during the time period in the Planning Date Filter field.';
                     Visible = false;
                 }
-                field("Usage (Total Cost)"; "Usage (Total Cost)")
+                field("Usage (Total Cost)"; Rec."Usage (Total Cost)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies, in local currency, the total cost of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
                 }
-                field("Usage (Total Price)"; "Usage (Total Price)")
+                field("Usage (Total Price)"; Rec."Usage (Total Price)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies, in the local currency, the total price of the usage of items, resources and general ledger expenses posted on the job task during the time period in the Posting Date Filter field.';
                     Visible = false;
                 }
-                field("Contract (Total Cost)"; "Contract (Total Cost)")
+                field("Contract (Total Cost)"; Rec."Contract (Total Cost)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies, in local currency, the total billable cost for the job task during the time period in the Planning Date Filter field.';
                     Visible = false;
                 }
-                field("Contract (Total Price)"; "Contract (Total Price)")
+                field("Contract (Total Price)"; Rec."Contract (Total Price)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task during the time period in the Planning Date Filter field.';
                 }
-                field("Contract (Invoiced Cost)"; "Contract (Invoiced Cost)")
+                field("Contract (Invoiced Cost)"; Rec."Contract (Invoiced Cost)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies, in the local currency, the total billable cost for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                     Visible = false;
                 }
-                field("Contract (Invoiced Price)"; "Contract (Invoiced Price)")
+                field("Contract (Invoiced Price)"; Rec."Contract (Invoiced Price)")
                 {
                     ApplicationArea = Basic, Suite, Jobs;
                     ToolTip = 'Specifies, in the local currency, the total billable price for the job task that has been invoiced during the time period in the Posting Date Filter field.';
                 }
-                field("Remaining (Total Cost)"; "Remaining (Total Cost)")
+                field("Remaining (Total Cost)"; Rec."Remaining (Total Cost)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the remaining total cost (LCY) as the sum of costs from job planning lines associated with the job task. The calculation occurs when you have specified that there is a usage link between the job ledger and the job planning lines.';
                     Visible = false;
                 }
-                field("Remaining (Total Price)"; "Remaining (Total Price)")
+                field("Remaining (Total Price)"; Rec."Remaining (Total Price)")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the remaining total price (LCY) as the sum of prices from job planning lines associated with the job task. The calculation occurs when you have specified that there is a usage link between the job ledger and the job planning lines.';
                     Visible = false;
                 }
-                field("EAC (Total Cost)"; CalcEACTotalCost)
+                field("EAC (Total Cost)"; CalcEACTotalCost())
                 {
                     ApplicationArea = Suite;
                     Caption = 'EAC (Total Cost)';
                     ToolTip = 'Specifies the estimate at completion (EAC) total cost for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Cost) field is calculated as follows: Usage (Total Cost) + Remaining (Total Cost).';
                     Visible = false;
                 }
-                field("EAC (Total Price)"; CalcEACTotalPrice)
+                field("EAC (Total Price)"; CalcEACTotalPrice())
                 {
                     ApplicationArea = Suite;
                     Caption = 'EAC (Total Price)';
                     ToolTip = 'Specifies the estimate at completion (EAC) total price for a job task line. If the Apply Usage Link check box on the job is selected, then the EAC (Total Price) field is calculated as follows: Usage (Total Price) + Remaining (Total Price).';
                     Visible = false;
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = false;
                 }
-                field("Outstanding Orders"; "Outstanding Orders")
+                field("Outstanding Orders"; Rec."Outstanding Orders")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -176,7 +176,7 @@ page 1001 "Job Task Lines Subform"
                         PAGE.RunModal(PAGE::"Purchase Lines", PurchLine);
                     end;
                 }
-                field("Amt. Rcd. Not Invoiced"; "Amt. Rcd. Not Invoiced")
+                field("Amt. Rcd. Not Invoiced"; Rec."Amt. Rcd. Not Invoiced")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -285,7 +285,7 @@ page 1001 "Job Task Lines Subform"
                             TestField("Job No.");
                             Job.Get("Job No.");
                             if Job.Blocked = Job.Blocked::All then
-                                Job.TestBlocked;
+                                Job.TestBlocked();
 
                             JobTask.SetRange("Job No.", Job."No.");
                             if "Job Task No." <> '' then
@@ -351,7 +351,7 @@ page 1001 "Job Task Lines Subform"
                             TestField("Job No.");
                             Job.Get("Job No.");
                             if Job.Blocked = Job.Blocked::All then
-                                Job.TestBlocked;
+                                Job.TestBlocked();
 
                             TestField("Job Task No.");
                             JobTask.SetRange("Job No.", Job."No.");
@@ -376,7 +376,7 @@ page 1001 "Job Task Lines Subform"
                             TestField("Job No.");
                             Job.Get("Job No.");
                             if Job.Blocked = Job.Blocked::All then
-                                Job.TestBlocked;
+                                Job.TestBlocked();
 
                             JobTask.SetRange("Job No.", Job."No.");
                             if "Job Task No." <> '' then
@@ -491,7 +491,7 @@ page 1001 "Job Task Lines Subform"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        ClearTempDim;
+        ClearTempDim();
     end;
 
     var

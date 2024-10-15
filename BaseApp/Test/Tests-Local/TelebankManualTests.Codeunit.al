@@ -121,7 +121,7 @@ codeunit 144019 "Telebank - Manual Tests"
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.",
           GenJournalLine."Bal. Account Type"::"Bank Account", BankAccount."No.", -1210);
         GenJournalLine."External Document No." := '0001';
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         if BlockedAll then
@@ -142,7 +142,7 @@ codeunit 144019 "Telebank - Manual Tests"
     local procedure CreateExportProtocol(var ExportProtocol: Record "Export Protocol"; NewCodeExpenses: Option; NewCheckObjectID: Integer; NewExportObjectID: Integer; NewExportNoSeries: Code[20])
     begin
         with ExportProtocol do begin
-            Init;
+            Init();
             Code := CopyStr(CreateGuid, 1, 10);
             Description := Code;
 
@@ -151,7 +151,7 @@ codeunit 144019 "Telebank - Manual Tests"
             "Check Object ID" := NewCheckObjectID;
             "Export Object ID" := NewExportObjectID;
             "Export No. Series" := NewExportNoSeries;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -169,7 +169,7 @@ codeunit 144019 "Telebank - Manual Tests"
             "Country/Region Code" := 'BE';
             "SWIFT Code" := 'GKCCBEBB';
             IBAN := 'BE65 0631 1416 5496';
-            Modify;
+            Modify();
         end;
     end;
 
@@ -220,7 +220,7 @@ codeunit 144019 "Telebank - Manual Tests"
             Found[1] := Found[1] or (Amount1 = GLEntry.Amount);
             Found[2] := Found[2] or (Amount2 = GLEntry.Amount);
             Found[3] := Found[3] or (Amount3 = GLEntry.Amount);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.IsTrue(Found[1], StrSubstNo('%1 was not found.', Amount1));
         Assert.IsTrue(Found[2], StrSubstNo('%1 was not found.', Amount2));
         Assert.IsTrue(Found[3], StrSubstNo('%1 was not found.', Amount3));
@@ -241,7 +241,7 @@ codeunit 144019 "Telebank - Manual Tests"
     procedure SuggestVendorPaymentsHandler(var SuggestVendorPaymentsEB: TestRequestPage "Suggest Vendor Payments EB")
     begin
         SuggestVendorPaymentsEB.Vend.SetFilter("No.", GlobalVendorNo);
-        SuggestVendorPaymentsEB.DueDate.SetValue(CalcDate('<02M-3D>', WorkDate));
+        SuggestVendorPaymentsEB.DueDate.SetValue(CalcDate('<02M-3D>', WorkDate()));
         SuggestVendorPaymentsEB.OK.Invoke;
     end;
 
@@ -250,7 +250,7 @@ codeunit 144019 "Telebank - Manual Tests"
     procedure SuggestVendorPaymentsHandlerWithErr(var SuggestVendorPaymentsEB: TestRequestPage "Suggest Vendor Payments EB")
     begin
         SuggestVendorPaymentsEB.Vend.SetFilter("No.", GlobalVendorNo);
-        SuggestVendorPaymentsEB.DueDate.SetValue(CalcDate('<02M-3D>', WorkDate));
+        SuggestVendorPaymentsEB.DueDate.SetValue(CalcDate('<02M-3D>', WorkDate()));
         SuggestVendorPaymentsEB.OK.Invoke;
     end;
 }

@@ -92,7 +92,7 @@ report 5696 "Date Compress FA Ledger"
                     if "FA No." <> '' then
                         FindEqualPostingType(FALedgEntry2);
                     repeat
-                        if FALedgEntryTmp.Get("Entry No.") or ("FA No." = '') then begin
+                        if TempFALedgEntry.Get("Entry No.") or ("FA No." = '') then begin
                             EqualDim := FADimMgt.TestEqualFALedgEntryDimID("Dimension Set ID");
                             if EqualDim then
                                 SummarizeEntry(NewFALedgEntry, FALedgEntry2);
@@ -152,7 +152,7 @@ report 5696 "Date Compress FA Ledger"
                 SetRange("Entry No.", 0, LastEntryNo);
                 SetRange("FA Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
-                InitRegisters;
+                InitRegisters();
 
                 if UseDataArchive then
                     DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress FA Ledger"));
@@ -310,7 +310,7 @@ report 5696 "Date Compress FA Ledger"
                 Error(
                   Text000,
                   FieldCaption("FA No."), FieldCaption("Depreciation Book Code"));
-            Reset;
+            Reset();
             Clear(FALedgEntry2);
         end;
 
@@ -324,17 +324,6 @@ report 5696 "Date Compress FA Ledger"
     end;
 
     var
-        Text000: Label 'You may set filters only on %1 and %2.';
-        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
-        Text004: Label '%1 must be specified.';
-        Text005: Label 'Date compressing FA ledger entries...\\';
-        Text006: Label 'FA No.               #1##########\';
-        Text007: Label 'Date                 #2######\\';
-        Text008: Label 'No. of new entries   #3######\';
-        Text009: Label 'No. of entries del.  #4######';
-        Text010: Label 'Date Compressed';
-        Text011: Label 'The date compression has been interrupted. Another user changed the table %1.';
-        Text012: Label 'Retain Dimensions';
         SourceCodeSetup: Record "Source Code Setup";
         DateComprReg: Record "Date Compr. Register";
         EntrdDateComprReg: Record "Date Compr. Register";
@@ -342,7 +331,7 @@ report 5696 "Date Compress FA Ledger"
         EntrdFALedgEntry: Record "FA Ledger Entry";
         NewFALedgEntry: Record "FA Ledger Entry";
         FALedgEntry2: Record "FA Ledger Entry";
-        FALedgEntryTmp: Record "FA Ledger Entry" temporary;
+        TempFALedgEntry: Record "FA Ledger Entry" temporary;
         SelectedDim: Record "Selected Dimension";
         TempSelectedDim: Record "Selected Dimension" temporary;
         DimSelectionBuf: Record "Dimension Selection Buffer";
@@ -366,6 +355,18 @@ report 5696 "Date Compress FA Ledger"
         [InDataSet]
         DataArchiveProviderExists: Boolean;
         EqualDim: Boolean;
+
+        Text000: Label 'You may set filters only on %1 and %2.';
+        CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
+        Text004: Label '%1 must be specified.';
+        Text005: Label 'Date compressing FA ledger entries...\\';
+        Text006: Label 'FA No.               #1##########\';
+        Text007: Label 'Date                 #2######\\';
+        Text008: Label 'No. of new entries   #3######\';
+        Text009: Label 'No. of entries del.  #4######';
+        Text010: Label 'Date Compressed';
+        Text011: Label 'The date compression has been interrupted. Another user changed the table %1.';
+        Text012: Label 'Retain Dimensions';
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -420,11 +421,11 @@ report 5696 "Date Compress FA Ledger"
 
         if LastEntryNo <> FALedgEntry2.GetLastEntryNo() then
             Error(
-              Text011, FALedgEntry2.TableCaption);
+              Text011, FALedgEntry2.TableCaption());
 
         if FAReg."No." <> FAReg2.GetLastEntryNo() then
             Error(
-              Text011, FAReg.TableCaption);
+              Text011, FAReg.TableCaption());
     end;
 
     local procedure InsertField(Number: Integer; Name: Text[100])
@@ -451,7 +452,7 @@ report 5696 "Date Compress FA Ledger"
         FALedgEntry: Record "FA Ledger Entry";
         EqualPostingType: Boolean;
     begin
-        FALedgEntryTmp.DeleteAll();
+        TempFALedgEntry.DeleteAll();
         with FALedgEntry do begin
             SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
             SetRange("FA No.", FALedgEntry2."FA No.");
@@ -465,8 +466,8 @@ report 5696 "Date Compress FA Ledger"
                   (FALedgEntry2."Part of Book Value" = "Part of Book Value") and
                   (FALedgEntry2."Part of Depreciable Basis" = "Part of Depreciable Basis");
                 if EqualPostingType then begin
-                    FALedgEntryTmp."Entry No." := "Entry No.";
-                    FALedgEntryTmp.Insert();
+                    TempFALedgEntry."Entry No." := "Entry No.";
+                    TempFALedgEntry.Insert();
                 end;
             until (Next = 0) or not EqualPostingType;
         end;
@@ -477,7 +478,7 @@ report 5696 "Date Compress FA Ledger"
         with FALedgEntry do begin
             NewFALedgEntry.Quantity := NewFALedgEntry.Quantity + Quantity;
             NewFALedgEntry.Amount := NewFALedgEntry.Amount + Amount;
-            Delete;
+            Delete();
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;

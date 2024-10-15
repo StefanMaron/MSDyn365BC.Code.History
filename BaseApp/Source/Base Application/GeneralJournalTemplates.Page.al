@@ -33,42 +33,42 @@ page 101 "General Journal Templates"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the journal template will be a recurring journal.';
                 }
-                field("Bal. Account Type"; "Bal. Account Type")
+                field("Bal. Account Type"; Rec."Bal. Account Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of account that a balancing entry is posted to, such as BANK for a cash account.';
                 }
-                field("Bal. Account No."; "Bal. Account No.")
+                field("Bal. Account No."; Rec."Bal. Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the general ledger, customer, vendor, or bank account that the balancing entry is posted to, such as a cash account for cash purchases.';
                 }
-                field("No. Series"; "No. Series")
+                field("No. Series"; Rec."No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series from which entry or record numbers are assigned to new entries or records.';
                 }
-                field("Posting No. Series"; "Posting No. Series")
+                field("Posting No. Series"; Rec."Posting No. Series")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the number series that will be used to assign document numbers to ledger entries that are posted from journals using this template.';
                 }
-                field("Source Code"; "Source Code")
+                field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code that specifies where the entry was created.';
                 }
-                field("Reason Code"; "Reason Code")
+                field("Reason Code"; Rec."Reason Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the reason code, a supplementary source code that enables you to trace the entry.';
                 }
-                field("Force Doc. Balance"; "Force Doc. Balance")
+                field("Force Doc. Balance"; Rec."Force Doc. Balance")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether transactions that are posted in the general journal must balance by document number and document type, in addition to balancing by date.';
                 }
-                field("Copy VAT Setup to Jnl. Lines"; "Copy VAT Setup to Jnl. Lines")
+                field("Copy VAT Setup to Jnl. Lines"; Rec."Copy VAT Setup to Jnl. Lines")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether the program to calculate VAT for accounts and balancing accounts on the journal line of the selected journal template.';
@@ -84,12 +84,12 @@ page 101 "General Journal Templates"
                                 Error(Text002);
                     end;
                 }
-                field("Increment Batch Name"; "Increment Batch Name")
+                field("Increment Batch Name"; Rec."Increment Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if batch names using this template are automatically incremented. Example: The posting following BATCH001 is automatically named BATCH002.';
                 }
-                field("Allow VAT Difference"; "Allow VAT Difference")
+                field("Allow VAT Difference"; Rec."Allow VAT Difference")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to allow the manual adjustment of VAT amounts in journals.';
@@ -105,18 +105,18 @@ page 101 "General Journal Templates"
                                 Error(Text002);
                     end;
                 }
-                field("Allow Posting Date From"; "Allow Posting Date From")
+                field("Allow Posting Date From"; Rec."Allow Posting Date From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date when posting to the journal template is allowed.';
                 }
-                field("Allow Posting Date To"; "Allow Posting Date To")
+                field("Allow Posting Date To"; Rec."Allow Posting Date To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date when posting to the journal template is allowed.';
                 }
 #if not CLEAN20
-                field("Allow Posting From"; "Allow Posting From")
+                field("Allow Posting From"; Rec."Allow Posting From")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the earliest date when posting to the journal template is allowed.';
@@ -125,7 +125,7 @@ page 101 "General Journal Templates"
                     ObsoleteTag = '20.0';
                     Visible = false;
                 }
-                field("Allow Posting To"; "Allow Posting To")
+                field("Allow Posting To"; Rec."Allow Posting To")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the last date when posting to the journal template is allowed.';
@@ -135,83 +135,83 @@ page 101 "General Journal Templates"
                     Visible = false;
                 }
 #endif
-                field("Page ID"; "Page ID")
+                field("Page ID"; Rec."Page ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the number of the page that is used to show the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Page Caption"; "Page Caption")
+                field("Page Caption"; Rec."Page Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the displayed name of the journal or worksheet that uses the template.';
                     Visible = false;
                 }
-                field("Test Report ID"; "Test Report ID")
+                field("Test Report ID"; Rec."Test Report ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the test report that is printed when you click Test Report.';
                     Visible = false;
                 }
-                field("Test Report Caption"; "Test Report Caption")
+                field("Test Report Caption"; Rec."Test Report Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the test report that is printed when you print a journal under this journal template.';
                     Visible = false;
                 }
-                field("Posting Report ID"; "Posting Report ID")
+                field("Posting Report ID"; Rec."Posting Report ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the posting report that is printed when you choose Post and Print.';
                     Visible = false;
                 }
-                field("Posting Report Caption"; "Posting Report Caption")
+                field("Posting Report Caption"; Rec."Posting Report Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the report that is printed when you print the journal.';
                     Visible = false;
                 }
-                field("Force Posting Report"; "Force Posting Report")
+                field("Force Posting Report"; Rec."Force Posting Report")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether a report is printed automatically when you post.';
                     Visible = false;
                 }
-                field("Cust. Receipt Report ID"; "Cust. Receipt Report ID")
+                field("Cust. Receipt Report ID"; Rec."Cust. Receipt Report ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies how to print customer receipts when you post.';
                     Visible = false;
                 }
-                field("Cust. Receipt Report Caption"; "Cust. Receipt Report Caption")
+                field("Cust. Receipt Report Caption"; Rec."Cust. Receipt Report Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies how to print customer receipts when you post.';
                     Visible = false;
                 }
-                field("Vendor Receipt Report ID"; "Vendor Receipt Report ID")
+                field("Vendor Receipt Report ID"; Rec."Vendor Receipt Report ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies how to print vendor receipts when you post.';
                     Visible = false;
                 }
-                field("Vendor Receipt Report Caption"; "Vendor Receipt Report Caption")
+                field("Vendor Receipt Report Caption"; Rec."Vendor Receipt Report Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies how to print vendor receipts when you post.';
                     Visible = false;
                 }
-                field("Copy to Posted Jnl. Lines"; "Copy to Posted Jnl. Lines")
+                field("Copy to Posted Jnl. Lines"; Rec."Copy to Posted Jnl. Lines")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies whether the journal lines to be copied to posted journal lines of the selected journal template.';
@@ -267,9 +267,11 @@ page 101 "General Journal Templates"
                     Image = Description;
                     RunObject = Codeunit "Update Journal Template Names";
                     ToolTip = 'This procedure will copy values from local Journal Template Name to new Journal Templ. Name if new field in the record is empty.';
+#pragma warning disable AS0072
                     ObsoleteReason = 'Will be removed together with old Journal Template Name fields.';
                     ObsoleteState = Pending;
                     ObsoleteTag = '20.0';
+#pragma warning restore AS0072
                 }
 #endif
             }

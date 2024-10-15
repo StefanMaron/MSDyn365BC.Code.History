@@ -1,4 +1,4 @@
-codeunit 224 "EmplEntry-Apply Posted Entries"
+﻿codeunit 224 "EmplEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Employee Ledger Entry" = rimd,
@@ -35,6 +35,14 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        GenJnlBatch: Record "Gen. Journal Batch";
+        DetailedEmployeeLedgEntryPreviewContext: Record "Detailed Employee Ledger Entry";
+        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
+        RunOptionPreview: Option Apply,Unapply;
+        RunOptionPreviewContext: Option Apply,Unapply;
+        PreviewMode: Boolean;
+
         PostingApplicationMsg: Label 'Posting application...';
         MustNotBeBeforeErr: Label 'The posting date entered must not be before the posting date on the employee ledger entry.';
         NoEntriesAppliedErr: Label 'Cannot post because you did not specify which entry to apply. You must specify an entry in the Applies-to ID field for one or more open entries.', Comment = '%1 - Caption of "Applies to ID" field of Gen. Journal Line';
@@ -47,13 +55,6 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         CannotUnapplyExchRateErr: Label 'You cannot unapply the entry with the posting date %1, because the exchange rate for the additional reporting currency has been changed.', Comment = '%1 - a date';
         CannotApplyClosedEntriesErr: Label 'One or more of the entries that you selected is closed. You cannot apply closed entries.';
         WorkDateErr: Label 'When using workdate for applying/unapplying, the workdate must not be before the latest posting date %1 on the entries to apply.', Comment = '%1 - a date';
-        GLSetup: Record "General Ledger Setup";
-        GenJnlBatch: Record "Gen. Journal Batch";
-        DetailedEmployeeLedgEntryPreviewContext: Record "Detailed Employee Ledger Entry";
-        ApplyUnapplyParametersContext: Record "Apply Unapply Parameters";
-        RunOptionPreview: Option Apply,Unapply;
-        RunOptionPreviewContext: Option Apply,Unapply;
-        PreviewMode: Boolean;
 
 #if not CLEAN20
     [Obsolete('Replaced by Apply(EmplLedgEntry; ApplyUnapplyParameters)', '20.0')]
@@ -154,7 +155,7 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
         OnEmplPostApplyEmplLedgEntryOnBeforeGenJnlPostLine(GenJnlLine, EmplLedgEntry);
         GenJnlPostLine.EmplPostApplyEmplLedgEntry(GenJnlLine, EmplLedgEntry);
 
-        EntryNoAfterApplication := FindLastApplDtldEmplLedgEntry;
+        EntryNoAfterApplication := FindLastApplDtldEmplLedgEntry();
         if EntryNoAfterApplication = EntryNoBeforeApplication then
             Error(NoEntriesAppliedErr);
 
@@ -238,6 +239,8 @@ codeunit 224 "EmplEntry-Apply Posted Entries"
     var
         UnapplyEmplEntries: Page "Unapply Employee Entries";
     begin
+        if DtldEmplLedgEntry."Applied Empl. Ledger Entry No." <> DtldEmplLedgEntry."Employee Ledger Entry No." then
+            DtldEmplLedgEntry.Get(FindLastApplEntry(DtldEmplLedgEntry."Applied Empl. Ledger Entry No."));
         DtldEmplLedgEntry.TestField("Entry Type", DtldEmplLedgEntry."Entry Type"::Application);
         DtldEmplLedgEntry.TestField(Unapplied, false);
         UnapplyEmplEntries.SetDtldEmplLedgEntry(DtldEmplLedgEntry."Entry No.");

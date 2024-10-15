@@ -1,7 +1,7 @@
 page 7606 "Customized Calendar Entries"
 {
     Caption = 'Customized Calendar Entries';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     PageType = ListPlus;
     SourceTable = "Customized Calendar Entry";
 
@@ -12,14 +12,14 @@ page 7606 "Customized Calendar Entries"
             group(General)
             {
                 Caption = 'General';
-                field("Source Type"; "Source Type")
+                field("Source Type"; Rec."Source Type")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Source Type';
                     DrillDown = false;
                     ToolTip = 'Specifies whether this customized calendar entry was set up for your company, a customer, vendor, location, shipping agent, or a service.';
                 }
-                field("Base Calendar Code"; "Base Calendar Code")
+                field("Base Calendar Code"; Rec."Base Calendar Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Base Calendar Code';

@@ -434,7 +434,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode := CreateNonVisibleNoSeries(true);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
 
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate);
+        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate());
         NoSeriesLine.ModifyAll("Starting Date", WorkDate + 1);
 
         Result := WrapperSalesDocumentNoIsVisible;
@@ -460,7 +460,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         SetNoSeriesDateOrder(NoSeriesCode, true);
 
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate);
+        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate());
         NoSeriesLine.ModifyAll("Last Date Used", WorkDate + 1);
 
         Result := WrapperSalesDocumentNoIsVisible;
@@ -486,7 +486,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         SetNoSeriesDateOrder(NoSeriesCode, false);
 
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate);
+        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate());
         NoSeriesLine.ModifyAll("Last Date Used", WorkDate + 1);
 
         Result := WrapperSalesDocumentNoIsVisible;
@@ -510,7 +510,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
 
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate);
+        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate());
         NoSeriesLine.ModifyAll("Last No. Used", '');
         NoSeriesLine.ModifyAll("Starting No.", '');
 
@@ -535,7 +535,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         NoSeriesCode := CreateNonVisibleNoSeries(false);
         UpdateNoSeriesOnSalesSetup(SalesSetupDocType::Invoice, NoSeriesCode);
 
-        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate);
+        NoSeriesMgt.SetNoSeriesLineFilter(NoSeriesLine, NoSeriesCode, WorkDate());
         NoSeriesLine.ModifyAll("Last No. Used", '2');
         NoSeriesLine.ModifyAll("Ending No.", '1');
 
@@ -729,7 +729,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [THEN] The the handler should NOT open
         LibraryVariableStorage.AssertEmpty;
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -776,7 +776,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         SetNoSeriesManualNos(NoSeriesCode, true);
 
         // [THEN] The VendorNo should be visible
-        Result := DocumentNoVisibility.VendorNoIsVisible;
+        Result := DocumentNoVisibility.VendorNoIsVisible();
         Assert.IsTrue(
           Result,
           'When "Manual Nos." is TRUE, "Vendor No" should be visible.');
@@ -785,7 +785,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         SetNoSeriesManualNos(NoSeriesCode, false);
 
         // [THEN] The VendorNo should NOT be visible
-        Result := DocumentNoVisibility.VendorNoIsVisible;
+        Result := DocumentNoVisibility.VendorNoIsVisible();
         Assert.IsFalse(
           Result,
           'When "Manual Nos." is FALSE, "Vendor No" should be hidden.');
@@ -818,7 +818,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [THEN] The the handler should NOT open
         LibraryVariableStorage.AssertEmpty;
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -907,7 +907,7 @@ codeunit 138100 "Streamline. Autofill No Series"
 
         // [THEN] The the handler should NOT open
         LibraryVariableStorage.AssertEmpty;
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -1081,9 +1081,9 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [WHEN] A new customer is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
         with Customer do begin
-            Init;
+            Init();
             "No." := NewNo;
-            Insert;
+            Insert();
         end;
 
         // [THEN] A new CustomerCard is opened without errors and with NoSeries adjusted.
@@ -1119,9 +1119,9 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [WHEN] A new vendor is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
         with Vendor do begin
-            Init;
+            Init();
             "No." := NewNo;
-            Insert;
+            Insert();
         end;
 
         // [THEN] A new VendorCard is opened without errors and with NoSeries adjusted.
@@ -1156,10 +1156,10 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [WHEN] A new sales quote is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
         with SalesHeader do begin
-            Init;
+            Init();
             "No." := NewNo;
             "Document Type" := "Document Type"::Quote;
-            Insert;
+            Insert();
         end;
 
         // [THEN] A new SalesQuoteCard is opened without errors and with NoSeries adjusted.
@@ -1194,10 +1194,10 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [WHEN] A new sales invoice is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
         with SalesHeader do begin
-            Init;
+            Init();
             "No." := NewNo;
             "Document Type" := "Document Type"::Invoice;
-            Insert;
+            Insert();
         end;
 
         // [THEN] A new SalesInvoiceCard is opened without errors and with NoSeries adjusted.
@@ -1233,10 +1233,10 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [WHEN] A new purchase quote is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
         with PurchaseHeader do begin
-            Init;
+            Init();
             "No." := NewNo;
             "Document Type" := "Document Type"::Quote;
-            Insert;
+            Insert();
         end;
 
         // [THEN] A new PurchaseQuoteCard is opened without errors and with NoSeries adjusted.
@@ -1272,10 +1272,10 @@ codeunit 138100 "Streamline. Autofill No Series"
         // [WHEN] A new purchase invoice is created using the next Number in the series bypassing the UI
         NewNo := NoSeriesMgt.DoGetNextNo(NoSeriesCode, 0D, false, true);
         with PurchaseHeader do begin
-            Init;
+            Init();
             "No." := NewNo;
             "Document Type" := "Document Type"::Invoice;
-            Insert;
+            Insert();
         end;
 
         // [THEN] A new PurchaseInvoiceCard is opened without errors and with NoSeries adjusted.
@@ -1440,7 +1440,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         GoodNoSeriesCode := CreateNonVisibleNoSeries(false);
         DocumentNoVisibility.ClearState();
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
 
             "Quote Nos." := GoodNoSeriesCode;
             "Order Nos." := GoodNoSeriesCode;
@@ -1470,7 +1470,7 @@ codeunit 138100 "Streamline. Autofill No Series"
                     "Fin. Chrg. Memo Nos." := NoSeriesCode;
             end;
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1482,7 +1482,7 @@ codeunit 138100 "Streamline. Autofill No Series"
         GoodNoSeriesCode := CreateNonVisibleNoSeries(false);
         DocumentNoVisibility.ClearState();
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
 
             "Quote Nos." := GoodNoSeriesCode;
             "Order Nos." := GoodNoSeriesCode;
@@ -1506,7 +1506,7 @@ codeunit 138100 "Streamline. Autofill No Series"
                     "Return Order Nos." := NoSeriesCode;
             end;
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1646,7 +1646,7 @@ codeunit 138100 "Streamline. Autofill No Series"
             Type::Good:
                 begin
                     NoSeriesLine."Ending No." := CopyStr(NoSeriesCode, 1, 10) + '9999999999';
-                    NoSeriesLine."Starting Date" := WorkDate - 1;
+                    NoSeriesLine."Starting Date" := WorkDate() - 1;
                 end;
             Type::Future:
                 begin
@@ -1657,7 +1657,7 @@ codeunit 138100 "Streamline. Autofill No Series"
                 begin
                     NoSeriesLine."Ending No." := CopyStr(NoSeriesCode, 1, 10) + '7777777777';
                     NoSeriesLine.Validate("Last No. Used", NoSeriesLine."Ending No.");
-                    NoSeriesLine."Starting Date" := WorkDate - 1;
+                    NoSeriesLine."Starting Date" := WorkDate() - 1;
                 end;
         end;
 
@@ -1673,22 +1673,22 @@ codeunit 138100 "Streamline. Autofill No Series"
 
     local procedure ValidateFieldsOnNoSeriesListPage(var NoSeries: Record "No. Series"; var NoSeriesLine: Record "No. Series Line")
     var
-        NoSeriesListPage: TestPage "No. Series List";
+        NoSeriesPage: TestPage "No. Series";
     begin
-        NoSeriesListPage.OpenView;
-        NoSeriesListPage.GotoRecord(NoSeries);
+        NoSeriesPage.OpenView();
+        NoSeriesPage.GotoRecord(NoSeries);
 
         Assert.AreEqual(
           NoSeriesLine."Starting No.",
-          NoSeriesListPage.StartNo.Value,
+          NoSeriesPage.StartNo.Value,
           'Wrong "Starting No."');
 
         Assert.AreEqual(
           NoSeriesLine."Ending No.",
-          NoSeriesListPage.EndNo.Value,
+          NoSeriesPage.EndNo.Value,
           'Wrong "Ending No."');
 
-        NoSeriesListPage.OK.Invoke;
+        NoSeriesPage.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1704,7 +1704,7 @@ codeunit 138100 "Streamline. Autofill No Series"
             Assert.IsTrue(
               NoSeriesLinesPage.GotoRecord(NoSeriesLine),
               'Cannot find record in set.');
-        until NoSeriesLine.Next = 0;
+        until NoSeriesLine.Next() = 0;
 
         NoSeriesLinesPage.OK.Invoke;
     end;

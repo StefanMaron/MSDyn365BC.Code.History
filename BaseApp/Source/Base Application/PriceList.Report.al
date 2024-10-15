@@ -1,4 +1,4 @@
-#if not CLEAN19
+#if not CLEAN21
 report 715 "Price List"
 {
     DefaultLayout = RDLC;
@@ -69,10 +69,10 @@ report 715 "Price List"
             column(SalesDesc; SalesDesc)
             {
             }
-            column(UnitPriceFieldCaption; SalesPrice.FieldCaption("Unit Price") + CurrencyText)
+            column(UnitPriceFieldCaption; TempSalesPrice.FieldCaption("Unit Price") + CurrencyText)
             {
             }
-            column(LineDiscountFieldCaption; SalesLineDisc.FieldCaption("Line Discount %") + CurrencyText)
+            column(LineDiscountFieldCaption; TempSalesLineDisc.FieldCaption("Line Discount %") + CurrencyText)
             {
             }
             column(No_Item; "No.")
@@ -120,7 +120,7 @@ report 715 "Price List"
                 column(VATText_SalesPrices; VATText)
                 {
                 }
-                column(SalesPriceUnitPrice; SalesPrice."Unit Price")
+                column(SalesPriceUnitPrice; TempSalesPrice."Unit Price")
                 {
                     AutoFormatExpression = Currency.Code;
                     AutoFormatType = 2;
@@ -134,7 +134,7 @@ report 715 "Price List"
                 column(ItemDesc_SalesPrices; ItemDesc)
                 {
                 }
-                column(MinimumQty_SalesPrices; SalesPrice."Minimum Quantity")
+                column(MinimumQty_SalesPrices; TempSalesPrice."Minimum Quantity")
                 {
                 }
 
@@ -151,12 +151,12 @@ report 715 "Price List"
             dataitem(SalesLineDiscs; "Integer")
             {
                 DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 ..));
-                column(LineDisc_SalesLineDisc; SalesLineDisc."Line Discount %")
+                column(LineDisc_SalesLineDisc; TempSalesLineDisc."Line Discount %")
                 {
                     AutoFormatExpression = Currency.Code;
                     AutoFormatType = 2;
                 }
-                column(MinimumQty_SalesLineDiscs; SalesLineDisc."Minimum Quantity")
+                column(MinimumQty_SalesLineDiscs; TempSalesLineDisc."Minimum Quantity")
                 {
                 }
                 column(UOM_SalesLineDiscs; UnitOfMeasure)
@@ -194,10 +194,10 @@ report 715 "Price List"
                     column(UOM_Variant_SalesPrices; UnitOfMeasure)
                     {
                     }
-                    column(MinimumQty_Variant_SalesPrices; SalesPrice."Minimum Quantity")
+                    column(MinimumQty_Variant_SalesPrices; TempSalesPrice."Minimum Quantity")
                     {
                     }
-                    column(UnitPrince_Variant_SalesPrices; SalesPrice."Unit Price")
+                    column(UnitPrince_Variant_SalesPrices; TempSalesPrice."Unit Price")
                     {
                     }
                     column(VATText_Variant_SalesPrices; VATText)
@@ -226,10 +226,10 @@ report 715 "Price List"
                     column(UOM_Variant_SalesLineDescs; UnitOfMeasure)
                     {
                     }
-                    column(MinimumQty_Variant_SalesLineDescs; SalesLineDisc."Minimum Quantity")
+                    column(MinimumQty_Variant_SalesLineDescs; TempSalesLineDisc."Minimum Quantity")
                     {
                     }
-                    column(LineDisc_Variant_SalesLineDescs; SalesLineDisc."Line Discount %")
+                    column(LineDisc_Variant_SalesLineDescs; TempSalesLineDisc."Line Discount %")
                     {
                     }
 
@@ -268,9 +268,9 @@ report 715 "Price List"
                     LineWithPrice.SetSources(PriceSourceList);
                     PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                     PriceCalculation.FindPrice(TempPriceListLine, false);
-                    CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
+                    CopyFromToPriceListLine.CopyTo(TempSalesPrice, TempPriceListLine);
                     PriceCalculation.FindDiscount(TempPriceListLine, false);
-                    CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
+                    CopyFromToPriceListLine.CopyTo(TempSalesLineDisc, TempPriceListLine);
                 end;
             }
 
@@ -297,9 +297,9 @@ report 715 "Price List"
                 LineWithPrice.SetSources(PriceSourceList);
                 PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
                 PriceCalculation.FindPrice(TempPriceListLine, false);
-                CopyFromToPriceListLine.CopyTo(SalesPrice, TempPriceListLine);
+                CopyFromToPriceListLine.CopyTo(TempSalesPrice, TempPriceListLine);
                 PriceCalculation.FindDiscount(TempPriceListLine, false);
-                CopyFromToPriceListLine.CopyTo(SalesLineDisc, TempPriceListLine);
+                CopyFromToPriceListLine.CopyTo(TempSalesLineDisc, TempPriceListLine);
             end;
 
             trigger OnPreDataItem()
@@ -401,7 +401,7 @@ report 715 "Price List"
                                     begin
                                         CustList.LookupMode := true;
                                         CustList.SetRecord(Cust);
-                                        if CustList.RunModal = ACTION::LookupOK then begin
+                                        if CustList.RunModal() = ACTION::LookupOK then begin
                                             CustList.GetRecord(Cust);
                                             SalesCode := Cust."No.";
                                         end;
@@ -410,7 +410,7 @@ report 715 "Price List"
                                     begin
                                         CustPriceGrList.LookupMode := true;
                                         CustPriceGrList.SetRecord(CustPriceGr);
-                                        if CustPriceGrList.RunModal = ACTION::LookupOK then begin
+                                        if CustPriceGrList.RunModal() = ACTION::LookupOK then begin
                                             CustPriceGrList.GetRecord(CustPriceGr);
                                             SalesCode := CustPriceGr.Code;
                                         end;
@@ -419,7 +419,7 @@ report 715 "Price List"
                                     begin
                                         CampaignList.LookupMode := true;
                                         CampaignList.SetRecord(Campaign);
-                                        if CampaignList.RunModal = ACTION::LookupOK then begin
+                                        if CampaignList.RunModal() = ACTION::LookupOK then begin
                                             CampaignList.GetRecord(Campaign);
                                             SalesCode := Campaign."No.";
                                         end;
@@ -429,7 +429,7 @@ report 715 "Price List"
 
                         trigger OnValidate()
                         begin
-                            ValidateSalesCode;
+                            ValidateSalesCode();
                         end;
                     }
                     field("Currency.Code"; Currency.Code)
@@ -456,7 +456,7 @@ report 715 "Price List"
         begin
             VerifyPriceSetup();
             if DateReq = 0D then
-                DateReq := WorkDate;
+                DateReq := WorkDate();
 
             SalesCodeCtrlEnable := true;
             if SalesType = SalesType::"All Customers" then
@@ -476,9 +476,9 @@ report 715 "Price List"
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
         if CustPriceGr.Code <> '' then
-            CustPriceGr.Find;
+            CustPriceGr.Find();
 
-        SetCurrency;
+        SetCurrency();
     end;
 
     var
@@ -492,8 +492,8 @@ report 715 "Price List"
         Campaign: Record Campaign;
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
-        SalesPrice: Record "Sales Price" temporary;
-        SalesLineDisc: Record "Sales Line Discount" temporary;
+        TempSalesPrice: Record "Sales Price" temporary;
+        TempSalesLineDisc: Record "Sales Line Discount" temporary;
         ContBusRel: Record "Contact Business Relation";
         GLSetup: Record "General Ledger Setup";
         PriceSourceList: Codeunit "Price Source List";
@@ -551,7 +551,7 @@ report 715 "Price List"
     begin
         PricesInCurrency := Currency.Code <> '';
         if PricesInCurrency then begin
-            Currency.Find;
+            Currency.Find();
             CurrencyText := ' (' + Currency.Code + ')';
             CurrencyFactor := 0;
         end else
@@ -589,7 +589,7 @@ report 715 "Price List"
 
     local procedure PreparePrintSalesPrice(IsVariant: Boolean)
     begin
-        with SalesPrice do begin
+        with TempSalesPrice do begin
             if PricesInCurrency then begin
                 SetRange("Currency Code", Currency.Code);
                 if Find('-') then begin
@@ -611,7 +611,7 @@ report 715 "Price List"
 
     local procedure PrintSalesPrice(IsVariant: Boolean)
     begin
-        with SalesPrice do begin
+        with TempSalesPrice do begin
             if IsFirstSalesPrice then begin
                 IsFirstSalesPrice := false;
                 if not Find('-') then
@@ -645,7 +645,7 @@ report 715 "Price List"
 
     local procedure PreparePrintSalesDisc(IsVariant: Boolean)
     begin
-        with SalesLineDisc do begin
+        with TempSalesLineDisc do begin
             if PricesInCurrency then begin
                 SetRange("Currency Code", Currency.Code);
                 if Find('-') then begin
@@ -667,7 +667,7 @@ report 715 "Price List"
 
     local procedure PrintSalesDisc()
     begin
-        with SalesLineDisc do begin
+        with TempSalesLineDisc do begin
             if IsFirstSalesLineDisc then begin
                 IsFirstSalesLineDisc := false;
                 if not Find('-') then

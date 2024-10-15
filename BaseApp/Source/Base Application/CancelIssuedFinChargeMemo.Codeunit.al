@@ -97,7 +97,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         end;
 
         if FeePosted then
-            PostGenJnlLines;
+            PostGenJnlLines();
 
         OnAfterCancelIssuedFinChargeMemo(IssuedFinChargeMemoHeader);
     end;
@@ -152,7 +152,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
                     TempGenJnlLine.Validate("Tax Liable", IssuedFinChargeMemoHeader."Tax Liable");
                     TempGenJnlLine.Validate("Tax Group Code", "Tax Group Code");
                 end;
-                TempGenJnlLine.UpdateLineBalance;
+                TempGenJnlLine.UpdateLineBalance();
                 TotalAmount := TotalAmount - TempGenJnlLine.Amount;
                 TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
                 TempGenJnlLine."Bill-to/Pay-to No." := IssuedFinChargeMemoHeader."Customer No.";
@@ -168,11 +168,11 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
             CustomerPostingGroup.Get("Customer Posting Group");
             InitGenJnlLine(
               IssuedFinChargeMemoHeader, TempGenJnlLine, TempGenJnlLine."Account Type"::"G/L Account",
-              CustomerPostingGroup.GetInterestAccount, true, DocumentNo, PostingDate);
+              CustomerPostingGroup.GetInterestAccount(), true, DocumentNo, PostingDate);
 
             TempGenJnlLine.Validate("VAT Bus. Posting Group", "VAT Bus. Posting Group");
             TempGenJnlLine.Validate(Amount, InterestAmount + InterestVATAmount);
-            TempGenJnlLine.UpdateLineBalance;
+            TempGenJnlLine.UpdateLineBalance();
             TotalAmount := TotalAmount - TempGenJnlLine.Amount;
             TotalAmountLCY := TotalAmountLCY - TempGenJnlLine."Balance (LCY)";
             TempGenJnlLine."Bill-to/Pay-to No." := "Customer No.";
@@ -183,7 +183,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
     local procedure InitGenJnlLine(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"; var GenJnlLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; SystemCreatedEntry: Boolean; DocumentNo: Code[20]; PostingDate: Date)
     begin
         with GenJnlLine do begin
-            Init;
+            Init();
             "Line No." := "Line No." + 1;
             "Document Type" := "Document Type"::" ";
             "Document No." := DocumentNo;
@@ -289,7 +289,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         AppliedCustomerLedgerNotification: Notification;
     begin
-        AppliedCustomerLedgerNotification.Id := GetAppliedCustomerLedgerEntryNotificationId;
+        AppliedCustomerLedgerNotification.Id := GetAppliedCustomerLedgerEntryNotificationId();
         AppliedCustomerLedgerNotification.Message :=
           StrSubstNo(CancelAppliedEntryErr, EntryNo, IssuedFinChargeMemoHeader."No.");
         AppliedCustomerLedgerNotification.AddAction(
@@ -299,7 +299,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         AppliedCustomerLedgerNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
         AppliedCustomerLedgerNotification.SetData('EntryNo', Format(EntryNo));
         NotificationLifecycleMgt.SendNotificationWithAdditionalContext(
-          AppliedCustomerLedgerNotification, IssuedFinChargeMemoHeader.RecordId, GetAppliedCustomerLedgerEntryNotificationId);
+          AppliedCustomerLedgerNotification, IssuedFinChargeMemoHeader.RecordId, GetAppliedCustomerLedgerEntryNotificationId());
     end;
 
     procedure ShowCustomerLedgerEntry(Notification: Notification)

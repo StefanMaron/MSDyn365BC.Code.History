@@ -117,7 +117,7 @@
                         var
                             BankAccReconciliation: Record "Bank Acc. Reconciliation";
                         begin
-                            BankAccReconciliation.OpenNewWorksheet
+                            BankAccReconciliation.OpenNewWorksheet();
                         end;
                     }
                 }
@@ -174,7 +174,7 @@
 
         Rec.SetFilter("Due Date Filter", '<=%1', WorkDate());
         Rec.SetFilter("Overdue Date Filter", '<%1', WorkDate());
-        ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable;
+        ShowCheckForOCR := OCRServiceMgt.OcrServiceIsEnable();
     end;
 
     var

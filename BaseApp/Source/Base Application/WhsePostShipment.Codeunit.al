@@ -1,4 +1,4 @@
-codeunit 5763 "Whse.-Post Shipment"
+﻿codeunit 5763 "Whse.-Post Shipment"
 {
     Permissions = TableData "Whse. Item Tracking Line" = r,
                   TableData "Posted Whse. Shipment Header" = im,
@@ -10,7 +10,7 @@ codeunit 5763 "Whse.-Post Shipment"
         OnBeforeRun(Rec);
 
         WhseShptLine.Copy(Rec);
-        Code;
+        Code();
         Rec := WhseShptLine;
 
         OnAfterRun(Rec);
@@ -18,14 +18,13 @@ codeunit 5763 "Whse.-Post Shipment"
 
     var
         Text000: Label 'The source document %1 %2 is not released.';
-        Text001: Label 'There is nothing to post.';
         Text003: Label 'Number of source documents posted: %1 out of a total of %2.';
         Text004: Label 'Ship lines have been posted.';
         Text005: Label 'Some ship lines remain.';
         WhseRqst: Record "Warehouse Request";
         WhseShptHeader: Record "Warehouse Shipment Header";
         WhseShptLine: Record "Warehouse Shipment Line";
-        WhseShptLineBuf: Record "Warehouse Shipment Line" temporary;
+        TempWarehouseShipmentLine: Record "Warehouse Shipment Line" temporary;
         SalesHeader: Record "Sales Header";
         PurchHeader: Record "Purchase Header";
         TransHeader: Record "Transfer Header";
@@ -39,7 +38,9 @@ codeunit 5763 "Whse.-Post Shipment"
         ServiceHeader: Record "Service Header";
         ServiceShptHeader: Record "Service Shipment Header";
         ServiceInvHeader: Record "Service Invoice Header";
+        InventorySetup: Record "Inventory Setup";
         NoSeriesMgt: Codeunit NoSeriesManagement;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         WMSMgt: Codeunit "WMS Management";
@@ -76,13 +77,13 @@ codeunit 5763 "Whse.-Post Shipment"
                     if Location."Bin Mandatory" then
                         TestField("Bin Code");
                     if not "Assemble to Order" then
-                        if not FullATOPosted then
+                        if not FullATOPosted() then
                             Error(FullATONotPostedErr, "No.", "Line No.");
 
                     OnAfterCheckWhseShptLine(WhseShptLine);
                 until Next() = 0
             else
-                Error(Text001);
+                Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
             CounterSourceDocOK := 0;
             CounterSourceDocTotal := 0;
@@ -228,7 +229,7 @@ codeunit 5763 "Whse.-Post Shipment"
                                 NewCalledFromWhseDoc := true;
                                 OnInitSourceDocumentHeaderOnBeforeReopenSalesHeader(SalesHeader, Invoice, NewCalledFromWhseDoc);
                                 SalesRelease.Reopen(SalesHeader);
-                                SalesRelease.SetSkipCheckReleaseRestrictions;
+                                SalesRelease.SetSkipCheckReleaseRestrictions();
                                 SalesHeader.SetHideValidationDialog(true);
                                 SalesHeader.SetCalledFromWhseDoc(NewCalledFromWhseDoc);
                                 SalesHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
@@ -283,7 +284,7 @@ codeunit 5763 "Whse.-Post Shipment"
                             then begin
                                 OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(WhseShptLine, PurchHeader);
                                 PurchRelease.Reopen(PurchHeader);
-                                PurchRelease.SetSkipCheckReleaseRestrictions;
+                                PurchRelease.SetSkipCheckReleaseRestrictions();
                                 PurchHeader.SetHideValidationDialog(true);
                                 PurchHeader.SetCalledFromWhseDoc(true);
                                 PurchHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
@@ -643,23 +644,80 @@ codeunit 5763 "Whse.-Post Shipment"
     begin
         IsHandled := false;
         OnBeforeTryPostSourceTransferDocument(TransferPostShipment, TransHeader, IsHandled);
-        if not IsHandled then
-            if TransferPostShipment.Run(TransHeader) then begin
-                CounterSourceDocOK := CounterSourceDocOK + 1;
-                Result := true;
-            end;
+        if not IsHandled then begin
+            Result := false;
+            InventorySetup.Get();
+            if TransHeader."Direct Transfer" then
+                Result := TryPostDirectTransferDocument(TransferPostShipment)
+            else
+                if TransferPostShipment.Run(TransHeader) then begin
+                    CounterSourceDocOK := CounterSourceDocOK + 1;
+                    Result := true;
+                end;
+        end;
 
         OnAfterTryPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader, Result);
     end;
 
-    local procedure PostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    local procedure TryPostDirectTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment") Posted: Boolean
+    var
+        TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
     begin
-        OnBeforePostSourceTransferDocument(TransferPostShipment, TransHeader);
+        Posted := false;
+        case InventorySetup."Direct Transfer Posting" of
+            InventorySetup."Direct Transfer Posting"::"Direct Transfer":
+                if TransferPostTransfer.Run(TransHeader) then begin
+                    CounterSourceDocOK := CounterSourceDocOK + 1;
+                    Posted := true;
+                end;
+            InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
+                if TransferPostShipment.Run(TransHeader) then
+                    if TransferPostReceipt.Run(TransHeader) then begin
+                        CounterSourceDocOK := CounterSourceDocOK + 1;
+                        Posted := true;
+                    end;
+        end;
+    end;
 
-        TransferPostShipment.Run(TransHeader);
-        CounterSourceDocOK := CounterSourceDocOK + 1;
+    local procedure PostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforePostSourceTransferDocument(TransferPostShipment, TransHeader, CounterSourceDocOK, IsHandled);
+        if IsHandled then
+            exit;
+
+        InventorySetup.Get();
+        if TransHeader."Direct Transfer" then
+            PostSourceDirectTransferDocument(TransferPostShipment)
+        else begin
+            TransferPostShipment.Run(TransHeader);
+            CounterSourceDocOK := CounterSourceDocOK + 1;
+        end;
 
         OnAfterPostSourceTransferDocument(CounterSourceDocOK, TransferPostShipment, TransHeader);
+    end;
+
+    local procedure PostSourceDirectTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment")
+    var
+        TransferPostReceipt: Codeunit "TransferOrder-Post Receipt";
+        TransferPostTransfer: Codeunit "TransferOrder-Post Transfer";
+    begin
+        case InventorySetup."Direct Transfer Posting" of
+            InventorySetup."Direct Transfer Posting"::"Direct Transfer":
+                begin
+                    TransferPostTransfer.Run(TransHeader);
+                    CounterSourceDocOK := CounterSourceDocOK + 1;
+                end;
+            InventorySetup."Direct Transfer Posting"::"Receipt and Shipment":
+                begin
+                    TransferPostShipment.Run(TransHeader);
+                    TransferPostReceipt.Run(TransHeader);
+                    CounterSourceDocOK := CounterSourceDocOK + 1;
+                end;
+        end;
     end;
 
     procedure SetPrint(Print2: Boolean)
@@ -719,12 +777,12 @@ codeunit 5763 "Whse.-Post Shipment"
         DeleteWhseShptLine: Boolean;
     begin
         OnBeforePostUpdateWhseDocuments(WhseShptHeaderParam);
-        with WhseShptLineBuf do
+        with TempWarehouseShipmentLine do
             if Find('-') then begin
                 repeat
                     WhseShptLine2.Get("No.", "Line No.");
                     DeleteWhseShptLine := "Qty. Outstanding" = "Qty. to Ship";
-                    OnBeforeDeleteUpdateWhseShptLine(WhseShptLine2, DeleteWhseShptLine, WhseShptLineBuf);
+                    OnBeforeDeleteUpdateWhseShptLine(WhseShptLine2, DeleteWhseShptLine, TempWarehouseShipmentLine);
                     if DeleteWhseShptLine then begin
                         ItemTrackingMgt.SetDeleteReservationEntries(true);
                         ItemTrackingMgt.DeleteWhseItemTrkgLines(
@@ -736,14 +794,14 @@ codeunit 5763 "Whse.-Post Shipment"
                 until Next() = 0;
                 DeleteAll();
 
-                OnPostUpdateWhseDocumentsOnAfterWhseShptLineBufLoop(WhseShptHeaderParam, WhseShptLine2, WhseShptLineBuf);
+                OnPostUpdateWhseDocumentsOnAfterWhseShptLineBufLoop(WhseShptHeaderParam, WhseShptLine2, TempWarehouseShipmentLine);
             end;
 
         OnPostUpdateWhseDocumentsOnBeforeUpdateWhseShptHeader(WhseShptHeaderParam);
 
         WhseShptLine2.SetRange("No.", WhseShptHeaderParam."No.");
         if not WhseShptLine2.FindFirst() then begin
-            WhseShptHeaderParam.DeleteRelatedLines;
+            WhseShptHeaderParam.DeleteRelatedLines();
             WhseShptHeaderParam.Delete();
         end else begin
             WhseShptHeaderParam."Document Status" := WhseShptHeaderParam.GetDocumentStatus(0);
@@ -764,17 +822,17 @@ codeunit 5763 "Whse.-Post Shipment"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostUpdateWhseShptLine(WhseShptLine2, WhseShptLineBuf, WhseShptHeaderParam, IsHandled);
+        OnBeforePostUpdateWhseShptLine(WhseShptLine2, TempWarehouseShipmentLine, WhseShptHeaderParam, IsHandled);
         if IsHandled then
             exit;
 
-        with WhseShptLineBuf do begin
+        with TempWarehouseShipmentLine do begin
             WhseShptLine2.Validate("Qty. Shipped", "Qty. Shipped" + "Qty. to Ship");
             WhseShptLine2."Qty. Shipped (Base)" := "Qty. Shipped (Base)" + "Qty. to Ship (Base)";
             WhseShptLine2.Validate("Qty. Outstanding", "Qty. Outstanding" - "Qty. to Ship");
             WhseShptLine2."Qty. Outstanding (Base)" := "Qty. Outstanding (Base)" - "Qty. to Ship (Base)";
-            WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine;
-            OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, WhseShptLineBuf);
+            WhseShptLine2.Status := WhseShptLine2.CalcStatusShptLine();
+            OnBeforePostUpdateWhseShptLineModify(WhseShptLine2, TempWarehouseShipmentLine);
             WhseShptLine2.Modify();
             OnAfterPostUpdateWhseShptLine(WhseShptLine2);
         end;
@@ -857,7 +915,7 @@ codeunit 5763 "Whse.-Post Shipment"
     begin
         UpdateWhseShptLineBuf(WhseShptLine);
         with PostedWhseShptLine do begin
-            Init;
+            Init();
             TransferFields(WhseShptLine);
             "No." := PostedWhseShptHeader."No.";
             OnAfterInitPostedShptLine(WhseShptLine, PostedWhseShptLine);
@@ -888,7 +946,7 @@ codeunit 5763 "Whse.-Post Shipment"
             "Whse. Shipment No." := WhseShptLine."No.";
             "Whse Shipment Line No." := WhseShptLine."Line No.";
             OnCreatePostedShptLineOnBeforePostedWhseShptLineInsert(PostedWhseShptLine, WhseShptLine);
-            Insert;
+            Insert();
         end;
 
         OnCreatePostedShptLineOnBeforePostWhseJnlLine(PostedWhseShptLine, TempHandlingSpecification, WhseShptLine);
@@ -899,12 +957,12 @@ codeunit 5763 "Whse.-Post Shipment"
     local procedure UpdateWhseShptLineBuf(WhseShptLine2: Record "Warehouse Shipment Line")
     begin
         with WhseShptLine2 do begin
-            WhseShptLineBuf."No." := "No.";
-            WhseShptLineBuf."Line No." := "Line No.";
-            if not WhseShptLineBuf.Find then begin
-                WhseShptLineBuf.Init();
-                WhseShptLineBuf := WhseShptLine2;
-                WhseShptLineBuf.Insert();
+            TempWarehouseShipmentLine."No." := "No.";
+            TempWarehouseShipmentLine."Line No." := "Line No.";
+            if not TempWarehouseShipmentLine.Find() then begin
+                TempWarehouseShipmentLine.Init();
+                TempWarehouseShipmentLine := WhseShptLine2;
+                TempWarehouseShipmentLine.Insert();
             end;
         end;
     end;
@@ -1026,7 +1084,7 @@ codeunit 5763 "Whse.-Post Shipment"
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if LocationCode <> Location.Code then
                 Location.Get(LocationCode);
@@ -1054,7 +1112,7 @@ codeunit 5763 "Whse.-Post Shipment"
           WhseShptLine."Source Type", WhseShptLine."Source Subtype", WhseShptLine."Source No.", WhseShptLine."Source Line No.", true);
         if ReservationEntry.Find('-') then
             repeat
-                if ReservationEntry.TrackingExists then begin
+                if ReservationEntry.TrackingExists() then begin
                     QtyPickedBase := 0;
                     WhseItemTrkgLine.SetTrackingKey();
                     WhseItemTrkgLine.SetTrackingFilterFromReservEntry(ReservationEntry);
@@ -1696,7 +1754,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header")
+    local procedure OnBeforePostSourceTransferDocument(var TransferPostShipment: Codeunit "TransferOrder-Post Shipment"; var TransHeader: Record "Transfer Header"; var CounterSourceDocOK: Integer; var IsHandled: Boolean)
     begin
     end;
 

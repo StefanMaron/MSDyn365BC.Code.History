@@ -149,7 +149,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
         ManualVATCorrection."Statement Template Name" := VATStatementLine."Statement Template Name";
         ManualVATCorrection."Statement Name" := VATStatementLine."Statement Name";
         ManualVATCorrection."Statement Line No." := VATStatementLine."Line No.";
-        ManualVATCorrection."Posting Date" := WorkDate;
+        ManualVATCorrection."Posting Date" := WorkDate();
         ManualVATCorrection.Amount := LibraryRandom.RandDec(10000, 2);
         ManualVATCorrection.Insert();
 
@@ -180,7 +180,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
 
         // Post a line every month
         for MonthCounter := 1 to 12 do begin
-            PostingDate := DMY2Date(1, MonthCounter, Date2DMY(WorkDate, 3));
+            PostingDate := DMY2Date(1, MonthCounter, Date2DMY(WorkDate(), 3));
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, GenJnlLine."Document Type"::Payment,
               GenJnlLine."Account Type"::"G/L Account", GLAccount."No.", 1000 * MonthCounter);
@@ -213,7 +213,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
     [Scope('OnPrem')]
     procedure HandleRequestPage(var RequestPage: TestRequestPage "Checklist Revenue and VAT")
     begin
-        RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         RequestPage.NoOfPeriods.SetValue := 12;
         RequestPage.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
@@ -222,7 +222,7 @@ codeunit 144012 "Checklist Revenue and VAT Test"
     [Scope('OnPrem')]
     procedure ChecklistRevenueAndVATSaveAsPDF_RPH(var RequestPage: TestRequestPage "Checklist Revenue and VAT")
     begin
-        RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate, 3));
+        RequestPage.StartDate.SetValue := DMY2Date(1, 1, Date2DMY(WorkDate(), 3));
         RequestPage.NoOfPeriods.SetValue := 12;
         RequestPage.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
     end;

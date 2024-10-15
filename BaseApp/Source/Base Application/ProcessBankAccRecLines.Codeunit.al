@@ -1,4 +1,4 @@
-﻿codeunit 1248 "Process Bank Acc. Rec Lines"
+codeunit 1248 "Process Bank Acc. Rec Lines"
 {
     Permissions = TableData "Data Exch." = rimd;
     TableNo = "Bank Acc. Reconciliation Line";
@@ -56,7 +56,7 @@
         NumberOfLinesImported := 0;
         InsertNonReconciledOrImportedLines(TempBankAccReconLine, GetLastStatementLineNo(BankAccRecon), NumberOfLinesImported);
 
-        ProgressWindow.Close;
+        ProgressWindow.Close();
         FinishDateTime := CurrentDateTime();
         LogTelemetryOnBankAccRecOnAfterImportBankStatement(NumberOfLinesImported, StartDateTime, FinishDateTime);
         OnAfterImportBankStatement(TempBankAccReconLine, DataExch);
@@ -102,7 +102,7 @@
     begin
         if TempBankAccReconLine.FindSet() then
             repeat
-                if TempBankAccReconLine.CanImport then begin
+                if TempBankAccReconLine.CanImport() then begin
                     BankAccReconciliationLine := TempBankAccReconLine;
                     BankAccReconciliationLine."Statement Line No." += StatementLineNoOffset;
                     BankAccReconciliationLine.Insert();

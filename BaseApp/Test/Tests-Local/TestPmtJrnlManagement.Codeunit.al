@@ -588,7 +588,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.ModifyPmtDiscDueDate(PaymentJnlLine);
 
         // Validate
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         Assert.AreEqual(WorkDate + 2, CustLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, CustLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
@@ -619,7 +619,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.ModifyPmtDiscDueDate(PaymentJnlLine);
 
         // Validate
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         Assert.AreEqual(WorkDate + 2, CustLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, CustLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
@@ -652,7 +652,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.ModifyPmtDiscDueDate(PaymentJnlLine);
 
         // Validate
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         Assert.AreEqual(WorkDate + 2, VendLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, VendLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
@@ -683,7 +683,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.ModifyPmtDiscDueDate(PaymentJnlLine);
 
         // Validate
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         Assert.AreEqual(WorkDate + 2, VendLedgEntry."Pmt. Discount Date", '');
         Assert.AreEqual(0, VendLedgEntry."Remaining Pmt. Disc. Possible", '');
     end;
@@ -714,7 +714,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.SetApplID(PaymentJnlLine);
 
         // Validate
-        CustLedgEntry.Find;
+        CustLedgEntry.Find();
         Assert.AreEqual(-PaymentJnlLine."Original Remaining Amount", CustLedgEntry."Amount to Apply", '');
         Assert.AreEqual(PaymentJnlLine."Applies-to ID", CustLedgEntry."Applies-to ID", '');
     end;
@@ -745,7 +745,7 @@ codeunit 144017 "Test PmtJrnlManagement"
         PmtJrnlManagement.SetApplID(PaymentJnlLine);
 
         // Validate
-        VendLedgEntry.Find;
+        VendLedgEntry.Find();
         Assert.AreEqual(-PaymentJnlLine."Original Remaining Amount", VendLedgEntry."Amount to Apply", '');
         Assert.AreEqual(PaymentJnlLine."Applies-to ID", VendLedgEntry."Applies-to ID", '');
     end;
@@ -867,7 +867,7 @@ codeunit 144017 "Test PmtJrnlManagement"
     [Scope('OnPrem')]
     procedure EBPaymentJournalHandler(var EBPaymentJournal: TestPage "EB Payment Journal")
     begin
-        EBPaymentJournal.Close;
+        EBPaymentJournal.Close();
     end;
 
     [ModalPageHandler]
@@ -890,35 +890,35 @@ codeunit 144017 "Test PmtJrnlManagement"
     [Scope('OnPrem')]
     procedure GLAccCardHandler(var GLAccCard: TestPage "G/L Account Card")
     begin
-        GLAccCard.Close;
+        GLAccCard.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustCardHandler(var CustCard: TestPage "Customer Card")
     begin
-        CustCard.Close;
+        CustCard.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure VendCardHandler(var VendCard: TestPage "Vendor Card")
     begin
-        VendCard.Close;
+        VendCard.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure CustLedgEntriesHandler(var CustLedgerEntries: TestPage "Customer Ledger Entries")
     begin
-        CustLedgerEntries.Close;
+        CustLedgerEntries.Close();
     end;
 
     [PageHandler]
     [Scope('OnPrem')]
     procedure VendLedgEntriesHandler(var VendLedgerEntries: TestPage "Vendor Ledger Entries")
     begin
-        VendLedgerEntries.Close;
+        VendLedgerEntries.Close();
     end;
 }
 

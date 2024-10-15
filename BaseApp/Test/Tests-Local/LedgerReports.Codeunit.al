@@ -45,7 +45,7 @@ codeunit 144044 "Ledger Reports"
         // [GIVEN] Created and posted two invoices: "Inv1" with DocNo=1 and Posting Date=03.01.20, "Inv2" with DocNo=2 and Posting Date=02.01.20
         LibrarySales.CreateCustomer(Customer);
         CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo1, Customer."No.", WorkDate + 1);
-        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo2, Customer."No.", WorkDate);
+        CreateAndPostSalesInvoiceForCustomerWithDate(PostedSalesDocumentNo2, Customer."No.", WorkDate());
 
         // [WHEN] Run Sales Ledger report for 2 days period
         LibraryVariableStorage.Enqueue('<2D>');
@@ -80,7 +80,7 @@ codeunit 144044 "Ledger Reports"
         // [GIVEN] Created and posted two invoices: "Inv1" with DocNo=1 and Posting Date=03.01.20, "Inv2" with DocNo=2 and Posting Date=02.01.20
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo1, Vendor."No.", WorkDate + 1);
-        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo2, Vendor."No.", WorkDate);
+        CreateAndPostPurchaseInvoiceForVendorWithDate(PostedSalesDocumentNo2, Vendor."No.", WorkDate());
 
         // [WHEN] Run Purchase Ledger report for 2 days period
         LibraryVariableStorage.Enqueue('<2D>');
@@ -314,7 +314,7 @@ codeunit 144044 "Ledger Reports"
         Assert.AreEqual(1, VATEntry.Count, 'Expected to find 1 VAT Entry.');
         SalesSetup.Get();
         GenJournalTemplate.Get(SalesSetup."S. Invoice Template Name");
-        GenJournalTemplate.SetRecFilter;
+        GenJournalTemplate.SetRecFilter();
         // Excersise report
         LibraryVariableStorage.Clear();
         LibraryVariableStorage.Enqueue('<1D>');
@@ -354,7 +354,7 @@ codeunit 144044 "Ledger Reports"
             Assert.AreEqual(1, LibraryReportDataset.RowCount, 'Expected to find one cedit row pr. G/L Entry');
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('DebitAmt_GLEntry2', VariantValue);
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         VATEntry.FindSet();
         repeat
@@ -364,7 +364,7 @@ codeunit 144044 "Ledger Reports"
             LibraryReportDataset.GetNextRow;
             LibraryReportDataset.AssertCurrentRowValueEquals('VATBusPostGroup_VATEntry', VATEntry."VAT Bus. Posting Group");
             LibraryReportDataset.AssertCurrentRowValueEquals('VATProdPostGroup_VATEntry', VATEntry."VAT Prod. Posting Group");
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
     end;
 
     local procedure RunPurchaseLedgerReportTest(UseLocalCurrency: Boolean)
@@ -416,7 +416,7 @@ codeunit 144044 "Ledger Reports"
         Assert.AreEqual(CreditSum, DebitSum, 'Expected sum of credit and debit to be the equal.');
 
         GLEntry.Reset();
-        GLEntry.SetRange("Posting Date", WorkDate);
+        GLEntry.SetRange("Posting Date", WorkDate());
         GLEntry.SetRange("Source Code", SourceCodeSetup.Purchases);
         GLEntry.FindSet();
         repeat
@@ -425,7 +425,7 @@ codeunit 144044 "Ledger Reports"
                 Assert.AreNotEqual(-1, RowIndex, 'Expected to find G/L Entry in dataset')
             else
                 Assert.AreEqual(-1, RowIndex, 'Did not expect to find a G/L Entry with debit and credit amount 0 in the dataset');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
         ValidateGLAccountDescription('GLEntry2GLAccountNo', 'GLEntry2Description');
     end;
@@ -500,12 +500,12 @@ codeunit 144044 "Ledger Reports"
         GLTotalCredit := LibraryReportDataset.Sum('CreditAmt_GLEntry');
         Assert.AreEqual(GLTotalCredit, GLTotalDebit, 'Expected the sum of GL Entry credit and debit are equal');
 
-        VATStatementLine.SetRange("Date Filter", WorkDate);
+        VATStatementLine.SetRange("Date Filter", WorkDate());
         VATStatementLine.FindSet();
         repeat
             RowIndex := LibraryReportDataset.FindRow('RowNo_VATStmtLine', VATStatementLine."Row No.");
             Assert.AreNotEqual(0, RowIndex, 'Expected to find VATStatementLine in dataset.');
-        until VATStatementLine.Next = 0;
+        until VATStatementLine.Next() = 0;
 
         ValidateGLAccountDescription('GLAccNo_GLEntry2', 'Desc_GLEntry2');
     end;
@@ -738,7 +738,7 @@ codeunit 144044 "Ledger Reports"
             CreateCustomer(Customer);
             LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2));
             CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
-            SalesHeader.Validate("Posting Date", WorkDate);
+            SalesHeader.Validate("Posting Date", WorkDate());
             SalesHeader.Modify(true);
             CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
 
@@ -760,7 +760,7 @@ codeunit 144044 "Ledger Reports"
             LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 25);
             CreatePurchaseDocument(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchHeader."Document Type"::Invoice);
 
-            PurchHeader.Validate("Posting Date", WorkDate);
+            PurchHeader.Validate("Posting Date", WorkDate());
             PurchHeader.Modify(true);
 
             exit(PostPurchaseDocument(PurchHeader, true, true));
@@ -782,7 +782,7 @@ codeunit 144044 "Ledger Reports"
             CreatePurchaseDocument(PurchHeader, PurchLine, GeneralPostingSetup, VATPostingSetup, PurchHeader."Document Type"::"Credit Memo");
 
             PurchHeader.Validate("Vendor Cr. Memo No.", PurchHeader."No.");
-            PurchHeader.Validate("Posting Date", WorkDate);
+            PurchHeader.Validate("Posting Date", WorkDate());
             PurchHeader.Modify(true);
 
             exit(PostPurchaseDocument(PurchHeader, true, true));
@@ -1005,7 +1005,7 @@ codeunit 144044 "Ledger Reports"
         with GLEntry do begin
             Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Journal Templ. Name" := GenJournalTemplate.Name;
             "G/L Account No." := LibraryUtility.GenerateGUID();
             Amount := LibraryRandom.RandDec(100, 2);
@@ -1036,7 +1036,7 @@ codeunit 144044 "Ledger Reports"
         PeriodLength: DateFormula;
     begin
         // Start Date
-        StartDate := WorkDate; // Setting this to 0D should initialize the value to WorkDate but will cause a failure when the end date is calculated
+        StartDate := WorkDate(); // Setting this to 0D should initialize the value to WorkDate but will cause a failure when the end date is calculated
         SalesLedgerReport.StartDate.SetValue(StartDate);
         // No. of Periods
         SalesLedgerReport.NoOfPeriods.SetValue(1); // Causes default value initialization
@@ -1063,7 +1063,7 @@ codeunit 144044 "Ledger Reports"
         PeriodLength: DateFormula;
     begin
         // Start Date
-        StartDate := WorkDate; // Setting this to 0D should initialize the value to WorkDate but will cause a failure when the end date is calculated
+        StartDate := WorkDate(); // Setting this to 0D should initialize the value to WorkDate but will cause a failure when the end date is calculated
         PurchaseLedgerReport.StartDate.SetValue(StartDate);
         // No. of Periods
         PurchaseLedgerReport.NoOfPeriods.SetValue(1); // Causes default value initialization
@@ -1086,7 +1086,7 @@ codeunit 144044 "Ledger Reports"
     var
         PeriodLength: DateFormula;
     begin
-        PurchaseLedger.StartDate.SetValue(WorkDate);
+        PurchaseLedger.StartDate.SetValue(WorkDate());
         PurchaseLedger.NoOfPeriods.SetValue(1);
         Evaluate(PeriodLength, '<1D>');
         PurchaseLedger.PeriodLength.SetValue(PeriodLength);
@@ -1104,7 +1104,7 @@ codeunit 144044 "Ledger Reports"
         PeriodLength: DateFormula;
     begin
         // Start Date
-        StartDate := WorkDate; // Setting this to 0D should initialize the value to WorkDate but will cause a failure when the end date is calculated
+        StartDate := WorkDate(); // Setting this to 0D should initialize the value to WorkDate but will cause a failure when the end date is calculated
         GenLedgerReport.StartDate.SetValue(StartDate);
         // No. of Periods
         GenLedgerReport.NoOfPeriods.SetValue(1); // Causes default value initialization
@@ -1154,7 +1154,7 @@ codeunit 144044 "Ledger Reports"
         PeriodLength: DateFormula;
     begin
         // Start Date
-        StartDate := WorkDate;
+        StartDate := WorkDate();
         FinancialLedgerReport.StartDate.SetValue(StartDate);
         // No. of Periods
         FinancialLedgerReport.NoOfPeriods.SetValue(1); // Causes default value initialization

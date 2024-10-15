@@ -40,7 +40,7 @@
                     Mark := not FinChrgMemoIssue.Run();
                 end;
 
-                if (PrintDoc <> PrintDoc::" ") and not Mark then begin
+                if (PrintDoc <> PrintDoc::" ") and not Mark() then begin
                     FinChrgMemoIssue.GetIssuedFinChrgMemo(IssuedFinChrgMemoHeader);
                     TempIssuedFinChrgMemoHeader := IssuedFinChrgMemoHeader;
                     TempIssuedFinChrgMemoHeader.Insert();
@@ -52,7 +52,7 @@
                 ConfirmManagement: Codeunit "Confirm Management";
                 IsHandled: Boolean;
             begin
-                Window.Close;
+                Window.Close();
                 Commit();
                 if PrintDoc <> PrintDoc::" " then
                     if TempIssuedFinChrgMemoHeader.FindSet() then
@@ -61,7 +61,7 @@
                             IsHandled := false;
                             OnBeforePrintRecords(IssuedFinChrgMemoHeader, IsHandled);
                             if not IsHandled then begin
-                                IssuedFinChrgMemoHeader.SetRecFilter;
+                                IssuedFinChrgMemoHeader.SetRecFilter();
                                 IssuedFinChrgMemoHeader.PrintRecords(false, PrintDoc = PrintDoc::Email, HideDialog);
                             end;
                         until TempIssuedFinChrgMemoHeader.Next() = 0;
@@ -196,13 +196,6 @@
     }
 
     var
-        EnterPostingDateErr: Label 'Enter the posting date.';
-        IssuingFinanceChargeMsg: Label 'Issuing finance charge memo...';
-        IssuingFinanceChargesMsg: Label 'Issuing finance charge memos @1@@@@@@@@@@@@@';
-        ShowNotIssuedQst: Label 'It was not possible to issue some of the selected finance charge memos.\Do you want to see these finance charge memos?';
-#if not CLEAN20
-        Text19067972: Label 'When posting Interest or Additional Fees:';
-#endif
         GenJnlLineReq: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
         GLSetup: Record "General Ledger Setup";
@@ -224,6 +217,14 @@
         HideDialog: Boolean;
         [InDataSet]
         IsJournalTemplNameVisible: Boolean;
+
+        EnterPostingDateErr: Label 'Enter the posting date.';
+        IssuingFinanceChargeMsg: Label 'Issuing finance charge memo...';
+        IssuingFinanceChargesMsg: Label 'Issuing finance charge memos @1@@@@@@@@@@@@@';
+        ShowNotIssuedQst: Label 'It was not possible to issue some of the selected finance charge memos.\Do you want to see these finance charge memos?';
+#if not CLEAN20
+        Text19067972: Label 'When posting Interest or Additional Fees:';
+#endif
         ProceedOnIssuingWithInvRoundingQst: Label 'The invoice rounding amount will be added to the finance charge memo when it is posted according to invoice rounding setup.\Do you want to continue?';
 
     [IntegrationEvent(false, false)]

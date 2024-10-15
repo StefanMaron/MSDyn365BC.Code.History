@@ -1,4 +1,4 @@
-report 90 "Import Consolidation from DB"
+﻿report 90 "Import Consolidation from DB"
 {
     Caption = 'Consolidation Report';
     ProcessingOnly = true;
@@ -96,7 +96,7 @@ report 90 "Import Consolidation from DB"
                         CurrReport.Break();
 
                     SubsidGLSetup.ChangeCompany("Business Unit"."Company Name");
-                    SubsidGLSetup.Get();
+                    SubsidGLSetup.GetRecordOnce();
                     AdditionalCurrencyCode := SubsidGLSetup."Additional Reporting Currency";
                     if SubsidGLSetup."LCY Code" <> '' then
                         SubsidCurrencyCode := SubsidGLSetup."LCY Code"
@@ -120,7 +120,7 @@ report 90 "Import Consolidation from DB"
                       '', '', "Business Unit"."Company Name",
                       SubsidCurrencyCode, AdditionalCurrencyCode, ParentCurrencyCode,
                       0, ConsolidStartDate, ConsolidEndDate);
-                    BusUnitConsolidate.UpdateGLEntryDimSetID;
+                    BusUnitConsolidate.UpdateGLEntryDimSetID();
                     BusUnitConsolidate.Run("Business Unit");
                 end;
             }
@@ -132,7 +132,7 @@ report 90 "Import Consolidation from DB"
 
                 Clear(BusUnitConsolidate);
                 BusUnitConsolidate.SetDocNo(GLDocNo);
-                GLSetup.Get();
+                GLSetup.GetRecordOnce();
                 if GLSetup."Journal Templ. Name Mandatory" then begin
                     GenJnlBatch."Journal Template Name" := GenJnlLineReq."Journal Template Name";
                     GenJnlBatch.Name := GenJnlLineReq."Journal Batch Name";
@@ -154,23 +154,22 @@ report 90 "Import Consolidation from DB"
 
                 TempDim.Reset();
                 TempDim.DeleteAll();
-                if Dim.Find('-') then begin
+                if Dim.Find('-') then
                     repeat
                         TempDim.Init();
                         TempDim := Dim;
                         TempDim.Insert();
                     until Dim.Next() = 0;
-                end;
+
                 TempDim.Reset();
                 TempDimVal.Reset();
                 TempDimVal.DeleteAll();
-                if DimVal.Find('-') then begin
+                if DimVal.Find('-') then
                     repeat
                         TempDimVal.Init();
                         TempDimVal := DimVal;
                         TempDimVal.Insert();
                     until DimVal.Next() = 0;
-                end;
 
                 AdditionalCurrencyCode := '';
                 SubsidCurrencyCode := '';
@@ -323,11 +322,11 @@ report 90 "Import Consolidation from DB"
         trigger OnOpenPage()
         begin
             if ConsolidStartDate = 0D then
-                ConsolidStartDate := WorkDate;
+                ConsolidStartDate := WorkDate();
             if ConsolidEndDate = 0D then
-                ConsolidEndDate := WorkDate;
+                ConsolidEndDate := WorkDate();
 
-            GLSetup.Get();
+            GLSetup.GetRecordOnce();
             if ParentCurrencyCode = '' then
                 ParentCurrencyCode := GLSetup."LCY Code";
             IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
@@ -348,7 +347,7 @@ report 90 "Import Consolidation from DB"
     begin
         DimSelectionBuf.CompareDimText(
           3, REPORT::"Import Consolidation from DB", '', ColumnDim, Text020);
-        GLSetup.Get();
+        GLSetup.GetRecordOnce();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlLineReq."Journal Template Name" = '' then
                 Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
@@ -363,19 +362,6 @@ report 90 "Import Consolidation from DB"
     end;
 
     var
-        Text000: Label 'Enter a document number.';
-        Text001: Label 'Importing Subsidiary Data...\\';
-        Text002: Label 'Business Unit Code   #1##########\';
-        Text003: Label 'G/L Account No.      #2##########\';
-        Text004: Label 'Date                 #3######';
-        Text006: Label 'Enter the starting date for the consolidation period.';
-        Text007: Label 'Enter the ending date for the consolidation period.';
-        Text020: Label 'Copy Dimensions';
-        Text022: Label 'A %1 with %2 on a closing date (%3) was found while consolidating nonclosing entries (%4 %5).';
-        Text023: Label 'Do you want to consolidate in the period from %1 to %2?';
-        Text024: Label 'There is no %1 to consolidate.';
-        Text028: Label 'You must create a new fiscal year in the consolidated company.';
-        Text030: Label 'When using closing dates, the starting and ending dates must be the same.';
         SelectedDim: Record "Selected Dimension";
         Dim: Record Dimension;
         DimVal: Record "Dimension Value";
@@ -398,6 +384,20 @@ report 90 "Import Consolidation from DB"
         IsJournalTemplNameVisible: Boolean;
         Text032Err: Label 'The %1 is later than the %2 in company %3.';
         GLEntryNo: Integer;
+
+        Text000: Label 'Enter a document number.';
+        Text001: Label 'Importing Subsidiary Data...\\';
+        Text002: Label 'Business Unit Code   #1##########\';
+        Text003: Label 'G/L Account No.      #2##########\';
+        Text004: Label 'Date                 #3######';
+        Text006: Label 'Enter the starting date for the consolidation period.';
+        Text007: Label 'Enter the ending date for the consolidation period.';
+        Text020: Label 'Copy Dimensions';
+        Text022: Label 'A %1 with %2 on a closing date (%3) was found while consolidating nonclosing entries (%4 %5).';
+        Text023: Label 'Do you want to consolidate in the period from %1 to %2?';
+        Text024: Label 'There is no %1 to consolidate.';
+        Text028: Label 'You must create a new fiscal year in the consolidated company.';
+        Text030: Label 'When using closing dates, the starting and ending dates must be the same.';
         ConsPeriodSubsidiaryQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year of one or more of the subsidiaries.\Do you want to proceed with the consolidation?', Comment = '%1 and %2 - request page values';
         ConsPeriodCompanyQst: Label 'The consolidation period %1 .. %2 is not within the fiscal year %3 .. %4 of the consolidated company %5.\Do you want to proceed with the consolidation?', Comment = '%1, %2, %3, %4 - request page values, %5 - company name';
         PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
@@ -420,7 +420,7 @@ report 90 "Import Consolidation from DB"
                 if not GLEntry.IsEmpty() then
                     Error(
                       Text022,
-                      GLEntry.TableCaption,
+                      GLEntry.TableCaption(),
                       GLEntry.FieldCaption("Posting Date"),
                       GLEntry.GetFilter("Posting Date"),
                       GLEntry.FieldCaption("G/L Account No."),
@@ -448,7 +448,7 @@ report 90 "Import Consolidation from DB"
         BusUnit.CopyFilters("Business Unit");
         BusUnit.SetRange(Consolidate, true);
         if not BusUnit.Find('-') then
-            Error(Text024, BusUnit.TableCaption);
+            Error(Text024, BusUnit.TableCaption());
 
         ConsolPeriodInclInFiscalYears := true;
         repeat
@@ -513,10 +513,9 @@ report 90 "Import Consolidation from DB"
     begin
         if (StartDate = ClosingDate(StartDate)) or
            (EndDate = ClosingDate(EndDate))
-        then begin
+        then
             if StartDate <> EndDate then
                 Error(Text030);
-        end;
     end;
 
     local procedure CheckBusUnitsDatesToFiscalYear(var BusUnit: Record "Business Unit")

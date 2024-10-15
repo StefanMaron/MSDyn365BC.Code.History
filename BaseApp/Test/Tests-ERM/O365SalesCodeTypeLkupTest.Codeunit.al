@@ -86,7 +86,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
 
             // [THEN] The SaaS type is set to service
             StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         // [WHEN] Setting the saas type on the standard Sales Line to co
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(CopyStr(StandardSalesLine.FormatType, 1, 2));
         // [THEN] The SaaS type is set to Comment
-        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType);
+        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType());
     end;
 
     [Test]
@@ -143,12 +143,12 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         // [WHEN] Setting the saas type on the standard Sales Line to ' '
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(' ');
         // [THEN] The SaaS type is set to Blank
-        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType);
+        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType());
 
         // [WHEN] Setting the saas type on the standard Sales Line to ''
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue('');
         // [THEN] The SaaS type is set to Blank
-        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType);
+        StandardSalesCodeCard.StdSalesLines.FilteredTypeField.AssertEquals(StandardSalesLine.FormatType());
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         StandardSalesCodeCard.StdSalesLines.FilteredTypeField.SetValue(Format(StandardSalesLine.Type::"G/L Account"));
         GLAccNo := LibraryERM.CreateGLAccountWithSalesSetup;
         StandardSalesCodeCard.StdSalesLines."No.".SetValue(GLAccNo);
-        StandardSalesCodeCard.Close;
+        StandardSalesCodeCard.Close();
 
         // [THEN] Standard Sales Line with code "X", Type = "G/L Account" and "No." = "Y"
         StandardSalesLine.Get(StandardSalesCodeValue, 10000);
@@ -241,7 +241,7 @@ codeunit 134654 "O365 Sales Code Type Lkup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

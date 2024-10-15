@@ -264,14 +264,14 @@ table 5880 "Pstd. Phys. Invt. Order Line"
 
     procedure ShowDimensions()
     begin
-        DimManagement.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Document No.", "Line No."));
+        DimManagement.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption(), "Document No.", "Line No."));
     end;
 
     procedure ShowPostPhysInvtRecordingLines()
     var
         PstdPhysInvtRecordLine: Record "Pstd. Phys. Invt. Record Line";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");
@@ -287,7 +287,7 @@ table 5880 "Pstd. Phys. Invt. Order Line"
     var
         ItemTrackingDocMgt: Codeunit "Item Tracking Doc. Management";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");
@@ -300,7 +300,7 @@ table 5880 "Pstd. Phys. Invt. Order Line"
     var
         PstdExpPhysInvtTrack: Record "Pstd. Exp. Phys. Invt. Track";
     begin
-        if EmptyLine then
+        if EmptyLine() then
             exit;
 
         TestField("Item No.");

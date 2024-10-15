@@ -15,12 +15,12 @@ page 666 "Overdue Approval Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the document is due for approval.';
                 }
-                field("Approver ID"; "Approver ID")
+                field("Approver ID"; Rec."Approver ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who must approve the document.';
@@ -32,7 +32,7 @@ page 666 "Overdue Approval Entries"
                         UserMgt.DisplayUserInformation("Approver ID");
                     end;
                 }
-                field("Sent to ID"; "Sent to ID")
+                field("Sent to ID"; Rec."Sent to ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the user who sent the mail notifying the approver that they has document approvals that are overdue.';
@@ -44,37 +44,37 @@ page 666 "Overdue Approval Entries"
                         UserMgt.DisplayUserInformation("Sent to ID");
                     end;
                 }
-                field("Sent Date"; "Sent Date")
+                field("Sent Date"; Rec."Sent Date")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date when the overdue notification mail was sent to the approver who should approve the document.';
                 }
-                field("Sent Time"; "Sent Time")
+                field("Sent Time"; Rec."Sent Time")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the time when the overdue notification mail was sent to the approver who should approve the document.';
                 }
-                field("Table ID"; "Table ID")
+                field("Table ID"; Rec."Table ID")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the ID of the table where the record that is subject to approval is stored.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the type of document that an approval entry has been created for. Approval entries can be created for six different types of sales or purchase documents:';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the document that was sent for approval. The number is copied from the relevant sales or purchase document, such as a purchase order or a sales quote.';
                 }
-                field("Sequence No."; "Sequence No.")
+                field("Sequence No."; Rec."Sequence No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the order of approvers when an approval workflow involves more than one approver.';
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
                     ApplicationArea = Suite;
                     ExtendedDatatype = EMail;
@@ -114,7 +114,7 @@ page 666 "Overdue Approval Entries"
 
                     trigger OnAction()
                     begin
-                        ShowRecord;
+                        ShowRecord();
                     end;
                 }
                 action("&App. Entry")
@@ -138,8 +138,6 @@ page 666 "Overdue Approval Entries"
                 ApplicationArea = Suite;
                 Caption = '&Delete Entries';
                 Image = Delete;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Delete the overdue approval entries.';
 
                 trigger OnAction()
@@ -156,6 +154,17 @@ page 666 "Overdue Approval Entries"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Delete Entries_Promoted"; "&Delete Entries")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -166,7 +175,7 @@ page 666 "Overdue Approval Entries"
         if UserSetup.Get(UserId) then
             if not UserSetup."Approval Administrator" then begin
                 FilterGroup(2);
-                Filterstring := GetFilters;
+                Filterstring := GetFilters();
                 FilterGroup(0);
                 if StrLen(Filterstring) = 0 then begin
                     FilterGroup(2);
@@ -190,7 +199,7 @@ page 666 "Overdue Approval Entries"
         ApprovalEntry.SetRange("Record ID to Approve", OverdueApprovalEntry."Record ID to Approve");
         ApprovalEntry.SetRange("Sequence No.", OverdueApprovalEntry."Sequence No.");
 
-        AppEntryForm.CalledFrom;
+        AppEntryForm.CalledFrom();
         AppEntryForm.SetTableView(ApprovalEntry);
         AppEntryForm.Run();
     end;

@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2120 "O365 Sales Disable BC Pages"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -13,35 +17,36 @@ codeunit 2120 "O365 Sales Disable BC Pages"
     [Scope('OnPrem')]
     procedure DisableDataClassificationWorksheet(var Rec: Record "Data Sensitivity")
     begin
-        CheckInvoicingIdentityAndError
+        CheckInvoicingIdentityAndError();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnOpenPageEvent', '', false, false)]
     local procedure DisableMyNotifications(var Rec: Record "My Notifications")
     begin
-        CheckInvoicingIdentityAndError
+        CheckInvoicingIdentityAndError();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"Application Area", 'OnOpenPageEvent', '', false, false)]
     local procedure DisableApplicationArea(var Rec: Record "Application Area Buffer")
     begin
-        CheckInvoicingIdentityAndError
+        CheckInvoicingIdentityAndError();
     end;
 
     [EventSubscriber(ObjectType::Page, Page::"O365 Device Setup", 'OnOpenPageEvent', '', false, false)]
     local procedure DisableO365DeviceSetup(var Rec: Record "O365 Device Setup Instructions")
     begin
-        CheckInvoicingIdentityAndError
+        CheckInvoicingIdentityAndError();
     end;
 
     local procedure CheckInvoicingIdentityAndError()
     var
         EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if not EnvInfoProxy.IsInvoicing then
+        if not EnvInfoProxy.IsInvoicing() then
             exit;
 
         Error(NotAccessibleInMicrosoftInvoicingErr, NotAccessibleInMicrosoftInvoicingUrlTxt);
     end;
 }
+#endif
 

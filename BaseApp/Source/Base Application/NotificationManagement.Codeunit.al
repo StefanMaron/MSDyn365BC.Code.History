@@ -57,7 +57,7 @@ codeunit 1510 "Notification Management"
         OnBeforeInsertOverdueEntry(ApprovalEntry, OverdueApprovalEntry);
 
         with OverdueApprovalEntry do begin
-            Init;
+            Init();
             "Approver ID" := ApprovalEntry."Approver ID";
             User.SetRange("User Name", ApprovalEntry."Approver ID");
             if User.FindFirst() then begin
@@ -79,7 +79,7 @@ codeunit 1510 "Notification Management"
             "Approval Type" := ApprovalEntry."Approval Type";
             "Limit Type" := ApprovalEntry."Limit Type";
             "Record ID to Approve" := ApprovalEntry."Record ID to Approve";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -113,7 +113,7 @@ codeunit 1510 "Notification Management"
         if AggregatedNotifications then begin
             if NotificationEntry.FindSet() then begin
                 InitialSentNotificationEntry.NewRecord(NotificationEntry, NotificationBody, NotificationMethod);
-                while NotificationEntry.Next <> 0 do begin
+                while NotificationEntry.Next() <> 0 do begin
                     SentNotificationEntry.NewRecord(NotificationEntry, NotificationBody, NotificationMethod);
                     SentNotificationEntry.Validate("Aggregated with Entry", InitialSentNotificationEntry.ID);
                     SentNotificationEntry.Modify(true);

@@ -16,7 +16,7 @@ page 120 "G/L Budget Entries"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Budget Name"; "Budget Name")
+                field("Budget Name"; Rec."Budget Name")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
@@ -27,7 +27,7 @@ page 120 "G/L Budget Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the date of the budget entry.';
                 }
-                field("G/L Account No."; "G/L Account No.")
+                field("G/L Account No."; Rec."G/L Account No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the G/L account that the budget entry applies to, or, the account on the line where the budget figure has been entered.';
@@ -37,49 +37,49 @@ page 120 "G/L Budget Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a description of the budget figure.';
                 }
-                field("Global Dimension 1 Code"; "Global Dimension 1 Code")
+                field("Global Dimension 1 Code"; Rec."Global Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = GlobalDimension1CodeEnable;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = GlobalDimension1CodeVisible;
                 }
-                field("Global Dimension 2 Code"; "Global Dimension 2 Code")
+                field("Global Dimension 2 Code"; Rec."Global Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = GlobalDimension2CodeEnable;
                     ToolTip = 'Specifies the code for the global dimension that is linked to the record or entry for analysis purposes. Two global dimensions, typically for the company''s most important activities, are available on all cards, documents, reports, and lists.';
                     Visible = GlobalDimension2CodeVisible;
                 }
-                field("Budget Dimension 1 Code"; "Budget Dimension 1 Code")
+                field("Budget Dimension 1 Code"; Rec."Budget Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = BudgetDimension1CodeEnable;
                     ToolTip = 'Specifies the dimension value code for the Budget Dimension 1 Code the budget entry is linked to.';
                     Visible = BudgetDimension1CodeVisible;
                 }
-                field("Budget Dimension 2 Code"; "Budget Dimension 2 Code")
+                field("Budget Dimension 2 Code"; Rec."Budget Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = BudgetDimension2CodeEnable;
                     ToolTip = 'Specifies the dimension value code for the Budget Dimension 2 Code the budget entry is linked to.';
                     Visible = BudgetDimension2CodeVisible;
                 }
-                field("Budget Dimension 3 Code"; "Budget Dimension 3 Code")
+                field("Budget Dimension 3 Code"; Rec."Budget Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = BudgetDimension3CodeEnable;
                     ToolTip = 'Specifies the dimension value code for the Budget Dimension 3 Code the budget entry is linked to.';
                     Visible = BudgetDimension3CodeVisible;
                 }
-                field("Budget Dimension 4 Code"; "Budget Dimension 4 Code")
+                field("Budget Dimension 4 Code"; Rec."Budget Dimension 4 Code")
                 {
                     ApplicationArea = Dimensions;
                     Enabled = BudgetDimension4CodeEnable;
                     ToolTip = 'Specifies the dimension value code for the Budget Dimension 4 Code the budget entry is linked to.';
                     Visible = BudgetDimension4CodeVisible;
                 }
-                field("Business Unit Code"; "Business Unit Code")
+                field("Business Unit Code"; Rec."Business Unit Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code for the business unit that the budget entry is linked to.';
@@ -90,13 +90,13 @@ page 120 "G/L Budget Entries"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the amount of the budget entry.';
                 }
-                field("Entry No."; "Entry No.")
+                field("Entry No."; Rec."Entry No.")
                 {
                     ApplicationArea = Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the entry, as assigned from the specified number series when the entry was created.';
                 }
-                field("Dimension Set ID"; "Dimension Set ID")
+                field("Dimension Set ID"; Rec."Dimension Set ID")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies a reference to a combination of dimension values. The actual values are stored in the Dimension Set Entry table.';
@@ -139,7 +139,7 @@ page 120 "G/L Budget Entries"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action(SetDimensionFilter)
@@ -152,7 +152,7 @@ page 120 "G/L Budget Entries"
 
                     trigger OnAction()
                     begin
-                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter);
+                        SetFilter("Dimension Set ID", DimensionSetIDFilter.LookupFilter());
                     end;
                 }
             }
@@ -244,7 +244,7 @@ page 120 "G/L Budget Entries"
         GLBudgetName: Record "G/L Budget Name";
     begin
         if GetFilter("Budget Name") = '' then
-            GLBudgetName.Init
+            GLBudgetName.Init()
         else begin
             CopyFilter("Budget Name", GLBudgetName.Name);
             GLBudgetName.FindFirst();

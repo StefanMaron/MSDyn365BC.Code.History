@@ -3,7 +3,6 @@ page 9820 "Control Add-ins"
     ApplicationArea = Basic, Suite;
     Caption = 'Control Add-ins';
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Control Add-in Resource';
     SourceTable = "Add-in";
     UsageCategory = Lists;
 
@@ -13,12 +12,12 @@ page 9820 "Control Add-ins"
         {
             repeater(Group)
             {
-                field("Add-in Name"; "Add-in Name")
+                field("Add-in Name"; Rec."Add-in Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the Client Control Add-in that is registered on the Business Central Server.';
                 }
-                field("Public Key Token"; "Public Key Token")
+                field("Public Key Token"; Rec."Public Key Token")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the public key token that is associated with the Add-in.';
@@ -65,9 +64,6 @@ page 9820 "Control Add-ins"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Import';
                     Image = Import;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ToolTip = 'Import a control add-in definition from a file.';
 
                     trigger OnAction()
@@ -77,7 +73,7 @@ page 9820 "Control Add-ins"
                         RecordRef: RecordRef;
                         ResourceName: Text;
                     begin
-                        if Resource.HasValue then
+                        if Resource.HasValue() then
                             if not Confirm(ImportQst) then
                                 exit;
 
@@ -89,7 +85,7 @@ page 9820 "Control Add-ins"
                             RecordRef.GetTable(Rec);
                             TempBlob.ToRecordRef(RecordRef, FieldNo(Resource));
                             RecordRef.SetTable(Rec);
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
 
                             Message(ImportDoneMsg);
                         end;
@@ -100,8 +96,6 @@ page 9820 "Control Add-ins"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Export';
                     Image = Export;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Export a control add-in definition to a file.';
 
                     trigger OnAction()
@@ -110,7 +104,7 @@ page 9820 "Control Add-ins"
                         FileManagement: Codeunit "File Management";
                     begin
                         TempBlob.FromRecord(Rec, FieldNo(Resource));
-                        if TempBlob.HasValue then
+                        if TempBlob.HasValue() then
                             FileManagement.BLOBExport(TempBlob, "Add-in Name" + '.zip', true)
                         else
                             Message(NoResourceMsg);
@@ -121,20 +115,39 @@ page 9820 "Control Add-ins"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Clear';
                     Image = Cancel;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     ToolTip = 'Clear the resource from the selected control add-in.';
 
                     trigger OnAction()
                     begin
-                        if not Resource.HasValue then
+                        if not Resource.HasValue() then
                             exit;
 
                         Clear(Resource);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
 
                         Message(RemoveDoneMsg);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Control Add-in Resource', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Import_Promoted; Import)
+                {
+                }
+                actionref(Export_Promoted; Export)
+                {
+                }
+                actionref(Clear_Promoted; Clear)
+                {
                 }
             }
         }

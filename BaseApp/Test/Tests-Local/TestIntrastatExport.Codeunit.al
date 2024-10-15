@@ -40,7 +40,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
 
         // [GIVEN] Intrastat Journal Line of receipt
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
 
         // [WHEN] Intrastat exported to file
@@ -73,7 +73,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
 
         // [WHEN] Intrastat exported to file with counterparty
@@ -106,7 +106,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
 
         // [WHEN] Intrastat exported to file
@@ -139,7 +139,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
 
         // [WHEN] Intrastat exported to file with counterparty
@@ -172,7 +172,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Shipment);
 
         // [WHEN] Intrastat exported to file
@@ -205,7 +205,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(true);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Shipment);
 
         // [WHEN] Intrastat exported to file with counterparty
@@ -238,7 +238,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Shipment);
 
         // [WHEN] Intrastat exported to file
@@ -271,7 +271,7 @@ codeunit 144052 "Test Intrastat Export"
         UpdateSimplifiedIntrastatDeclOnGLSetup(false);
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Shipment);
 
         // [WHEN] Intrastat exported to file with counterparty
@@ -321,7 +321,7 @@ codeunit 144052 "Test Intrastat Export"
         // [SCENARIO 120548] Export Intrastat with empty Transaction Type
 
         // [GIVEN] Intrastat Journal Line with empty Transaction Type
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
         IntrastatJnlLine."Transaction Type" := '';
         IntrastatJnlLine.Modify();
@@ -343,7 +343,7 @@ codeunit 144052 "Test Intrastat Export"
         // [SCENARIO 120548] Reexport file is not possible for Intrastat Journal
 
         // [GIVEN] Intrastat Journal Line
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
 
         // [GIVEN] Intrastat Journal exported
@@ -367,7 +367,7 @@ codeunit 144052 "Test Intrastat Export"
         // [SCENARIO 371608] Export Intrastat with Country/Region that has empty Intrastat Code
 
         // [GIVEN] Intrastat Journal Line with Country/Region that has empty "Intrastat Code"
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlBatch, JnlLineType::Receipt);
         CountryRegion.Get(IntrastatJnlLine."Country/Region Code");
         CountryRegion.Validate("Intrastat Code", '');
@@ -444,7 +444,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
@@ -478,7 +478,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
@@ -511,7 +511,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -544,7 +544,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostSalesInvoice(ItemLedgerEntry, SellToCustomer."No.", BillToCustomer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -574,7 +574,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostSalesInvoice(ItemLedgerEntry, CreateCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
@@ -604,7 +604,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
@@ -636,7 +636,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
@@ -667,7 +667,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -698,7 +698,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostPurchCrMemo(ItemLedgerEntry, CreateEUVendorWithVATRegNo, Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -728,7 +728,7 @@ codeunit 144052 "Test Intrastat Export"
         CreatePostPurchCrMemo(ItemLedgerEntry, CreateVendorWithVATRegNo, Vendor."No.");
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'QV999999999999' in Intrastat Journal Line
@@ -748,7 +748,7 @@ codeunit 144052 "Test Intrastat Export"
         // [SCENARIO 268704] LocalizationManagement.GetPartnerID takes PartnerID from Enterprise No. when VAT Registration No. is blank in EU Customer
         Customer.Get(CreateEUCustomerWithVATRegNo);
         ResetCustomerVATRegNo(Customer);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLineForJobEntry(
           IntrastatJnlLine, IntrastatJnlBatch, Customer."Country/Region Code", JnlLineType::Shipment, MockJobEntry(Customer."No."));
         Assert.AreEqual(
@@ -767,7 +767,7 @@ codeunit 144052 "Test Intrastat Export"
         // [FEATURE] [Job] [UT] [Shipment]
         // [SCENARIO 268704] LocalizationManagement.GetPartnerID takes PartnerID from VAT Registration No. when value is not blank in EU Customer
         Customer.Get(CreateEUCustomerWithVATRegNo);
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         CreateIntrastatJnlLineForJobEntry(
           IntrastatJnlLine, IntrastatJnlBatch, Customer."Country/Region Code", JnlLineType::Shipment, MockJobEntry(Customer."No."));
         Assert.AreEqual(
@@ -816,7 +816,7 @@ codeunit 144052 "Test Intrastat Export"
         // [GIVEN] Intrastat Journal Lines created
         ItemLedgerEntry.SetRange("Source Type");
         ItemLedgerEntry.SetRange("Source No.");
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
         IntrastatTransType :=
           LibraryUtility.GenerateRandomCode(IntrastatJnlLine.FieldNo("Transaction Type"), DATABASE::"Intrastat Jnl. Line");
@@ -864,7 +864,7 @@ codeunit 144052 "Test Intrastat Export"
           ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
@@ -898,7 +898,7 @@ codeunit 144052 "Test Intrastat Export"
           ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = '123456' in Intrastat Journal Line
@@ -931,7 +931,7 @@ codeunit 144052 "Test Intrastat Export"
           ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -964,7 +964,7 @@ codeunit 144052 "Test Intrastat Export"
           ItemLedgerEntry, DocumentNo, CreateEUCustomerWithVATRegNo, Customer."No.", CreateItemWithTariffNo);
 
         // [WHEN] Intrastat Journal Line is created
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         RunGetItemEntries(ItemLedgerEntry, IntrastatJnlBatch);
 
         // [THEN] Partner VAT ID  = 'AT0123456' in Intrastat Journal Line
@@ -1094,7 +1094,7 @@ codeunit 144052 "Test Intrastat Export"
             "Country/Region Code" := CountryRegionCode;
             "Source Type" := "Source Type"::"Job Entry";
             "Source Entry No." := JobEntryNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1138,7 +1138,7 @@ codeunit 144052 "Test Intrastat Export"
         TariffNumber: Record "Tariff Number";
     begin
         with TariffNumber do begin
-            Init;
+            Init();
             "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Tariff Number");
             Insert(true);
             exit("No.");
@@ -1151,7 +1151,7 @@ codeunit 144052 "Test Intrastat Export"
         Year: Integer;
         Century: Integer;
     begin
-        Century := Date2DMY(WorkDate, 3) div 100;
+        Century := Date2DMY(WorkDate(), 3) div 100;
         Evaluate(Year, CopyStr(Period, 1, 2));
         Year := Year + Century * 100;
         Evaluate(Month, CopyStr(Period, 3, 2));
@@ -1252,7 +1252,7 @@ codeunit 144052 "Test Intrastat Export"
     begin
         IntrastatJnlLine."Journal Template Name" := IntrastatJnlBatch."Journal Template Name";
         IntrastatJnlLine."Journal Batch Name" := IntrastatJnlBatch.Name;
-        GetItemLedgerEntries.InitializeRequest(WorkDate, WorkDate, 0);
+        GetItemLedgerEntries.InitializeRequest(WorkDate(), WorkDate(), 0);
         GetItemLedgerEntries.SetIntrastatJnlLine(IntrastatJnlLine);
         GetItemLedgerEntries.SetTableView(ItemLedgerEntry);
         GetItemLedgerEntries.UseRequestPage(false);
@@ -1284,7 +1284,7 @@ codeunit 144052 "Test Intrastat Export"
                 Area := IntrastatArea;
                 "Total Weight" := LibraryRandom.RandDecInRange(10, 20, 2);
                 "No. of Supplementary Units" := LibraryRandom.RandIntInRange(10, 20);
-                Modify;
+                Modify();
                 TotalWeight += "Total Weight";
                 NoOfUnits += "No. of Supplementary Units";
             until Next = 0;

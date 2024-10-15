@@ -13,7 +13,7 @@ report 119 "Customer - Sales List"
         dataitem(Customer; Customer)
         {
             RequestFilterFields = "No.", "Date Filter";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(MinAmtLCY; MinAmtLCY)
@@ -95,7 +95,7 @@ report 119 "Customer - Sales List"
             var
                 FormatAddr: Codeunit "Format Address";
             begin
-                AmtSalesLCY := CalculateAmtOfSaleLCY;
+                AmtSalesLCY := CalculateAmtOfSaleLCY();
                 if AmtSalesLCY < MinAmtLCY then
                     CurrReport.Skip();
 

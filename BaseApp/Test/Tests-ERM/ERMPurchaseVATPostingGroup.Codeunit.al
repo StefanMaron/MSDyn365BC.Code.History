@@ -125,7 +125,7 @@ codeunit 134038 "ERM Purchase VAT Posting Group"
         Assert.AreEqual(
           Vendor."VAT Bus. Posting Group", PurchaseHeader."VAT Bus. Posting Group",
           StrSubstNo(PostingGroupError, PurchaseHeader.FieldCaption("VAT Bus. Posting Group"),
-            Vendor."VAT Bus. Posting Group", PurchaseHeader.TableCaption, PurchaseHeader."No."));
+            Vendor."VAT Bus. Posting Group", PurchaseHeader.TableCaption(), PurchaseHeader."No."));
     end;
 
     [ConfirmHandler]

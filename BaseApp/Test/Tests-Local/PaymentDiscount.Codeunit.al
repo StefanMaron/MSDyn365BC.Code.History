@@ -610,7 +610,7 @@ codeunit 144001 "Payment Discount"
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
 
         // [THEN] VAT Entry created with "Base Before Pmt. Disc" = 50
-        SalesLine.Find;
+        SalesLine.Find();
         VerifyVATBaseBeforePmtDiscOnVATEntry(
           SalesHeader."Posting Date", FindSalesPrepmtInvoice(SalesHeader."Bill-to Customer No.", SalesHeader."No."),
           -SalesLine."Prepmt. Amt. Inv.");
@@ -633,7 +633,7 @@ codeunit 144001 "Payment Discount"
         LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
 
         // [THEN] VAT Entry created with "Base Before Pmt. Disc" = 50
-        PurchaseLine.Find;
+        PurchaseLine.Find();
         VerifyVATBaseBeforePmtDiscOnVATEntry(
           PurchaseHeader."Posting Date", FindPurchPrepmtInvoice(PurchaseHeader."Pay-to Vendor No.", PurchaseHeader."No."),
           PurchaseLine."Prepmt. Amt. Inv.");
@@ -704,7 +704,7 @@ codeunit 144001 "Payment Discount"
             GeneralPostingSetup."Sales Prepayments Account" :=
                 CreatePrepaymentAccount(GeneralPostingSetup, SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
             GeneralPostingSetup.Modify(true);
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure SetupPurchasePrepaymentAccount(PurchaseHeader: Record "Purchase Header")
@@ -718,7 +718,7 @@ codeunit 144001 "Payment Discount"
             GeneralPostingSetup."Purch. Prepayments Account" :=
                 CreatePrepaymentAccount(GeneralPostingSetup, PurchaseLine."VAT Bus. Posting Group", PurchaseLine."VAT Prod. Posting Group");
             GeneralPostingSetup.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdateGLSetup(VATTolerancePct: Decimal; PmtDiscExclVAT: Boolean)
@@ -741,7 +741,7 @@ codeunit 144001 "Payment Discount"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             OldGLSetup := GLSetup;
             Validate("VAT Tolerance %", 0);
             Validate("Pmt. Disc. Excl. VAT", false);
@@ -755,7 +755,7 @@ codeunit 144001 "Payment Discount"
         GLSetup: Record "General Ledger Setup";
     begin
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Adjust for Payment Disc.", AdjPmtDisc);
             Validate("Pmt. Disc. Excl. VAT", PmtDiscExclVAT);
             Validate("VAT Tolerance %", VATTolerancePct);
@@ -788,7 +788,7 @@ codeunit 144001 "Payment Discount"
     local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
-        SalesHeader."Shipment Date" := WorkDate;
+        SalesHeader."Shipment Date" := WorkDate();
         SalesHeader."Responsibility Center" := LibraryUtility.GenerateGUID();
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
@@ -1013,7 +1013,7 @@ codeunit 144001 "Payment Discount"
         repeat
             PurchaseLine.Validate("Prepayment %", PurchaseHeader."Prepayment %");
             PurchaseLine.Modify(true);
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure CalcAndUpdateSalesVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
@@ -1149,7 +1149,7 @@ codeunit 144001 "Payment Discount"
             until Next = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption, DocNo, ExpectedAmount));
+              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
         end;
     end;
 
@@ -1167,7 +1167,7 @@ codeunit 144001 "Payment Discount"
             until Next = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption, DocNo, ExpectedAmount));
+              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
         end;
     end;
 
@@ -1197,7 +1197,7 @@ codeunit 144001 "Payment Discount"
             until Next = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption, DocNo, ExpectedAmount));
+              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
         end;
     end;
 
@@ -1215,7 +1215,7 @@ codeunit 144001 "Payment Discount"
             until Next = 0;
             Assert.AreEqual(
               ExpectedAmount, TotalPmtDiscAmount,
-              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption, DocNo, ExpectedAmount));
+              StrSubstNo(PmtDiscOnDocLineErr, FieldCaption("Pmt. Discount Amount"), TableCaption(), DocNo, ExpectedAmount));
         end;
     end;
 

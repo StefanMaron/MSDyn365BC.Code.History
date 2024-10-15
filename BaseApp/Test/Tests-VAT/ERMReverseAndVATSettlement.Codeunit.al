@@ -49,7 +49,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         // Run VAT Settlement Report for Posted Entry only.
         Initialize();
         CalcAndVATSettlement(LibraryERM.CreateGLAccountNo, DocNo);
-        CreatePostGeneralJournalLine(GenJournalLine, WorkDate);
+        CreatePostGeneralJournalLine(GenJournalLine, WorkDate());
         VATAmount :=
           FindVATAmount(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", GenJournalLine.Amount);
 
@@ -76,7 +76,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         // VAT Settlement Report for Posted Entry only.
         Initialize();
         CalcAndVATSettlement(LibraryERM.CreateGLAccountNo, DocNo);
-        CreatePostGeneralJournalLine(GenJournalLine, WorkDate);
+        CreatePostGeneralJournalLine(GenJournalLine, WorkDate());
 
         // Exercise: Run VAT Settlement Batch Job.
         CalcAndVATSettlement(GenJournalLine."Bal. Account No.", DocNo);
@@ -117,7 +117,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
 
         // [THEN] Error raised 'The transaction cannot be reversed, because the VAT Entry has been compressed'
-        Assert.ExpectedError(StrSubstNo(ReverseDateCompressErr, DummyVATEntry.TableCaption));
+        Assert.ExpectedError(StrSubstNo(ReverseDateCompressErr, DummyVATEntry.TableCaption()));
     end;
 
     [Test]
@@ -830,7 +830,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     begin
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         DocNo := GetNextJnlDocNo(TemplateName, BatchName, false);
-        CalcandPostVATSettlement.InitializeRequest(WorkDate, WorkDate, WorkDate, TemplateName, BatchName, AccountNo, false, true);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate, TemplateName, BatchName, AccountNo, false, true);
         CalcandPostVATSettlement.SetInitialized(false);
         CalcandPostVATSettlement.SaveAsExcel(TemporaryPath + AccountNo + '.xls');
     end;
@@ -844,7 +844,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     begin
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         DocumentNo := GetNextJnlDocNo(TemplateName, BatchName, false);
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo, true, PostSettlement);
         FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
         CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
         Commit();
@@ -860,7 +860,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     begin
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
         DocumentNo := GetNextJnlDocNo(TemplateName, BatchName, false);
-        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo, true, PostSettlement);
+        CalcandPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), Enum::"VAT Date Type"::"Posting Date", WorkDate(), TemplateName, BatchName, LibraryERM.CreateGLAccountNo, true, PostSettlement);
         FilterVATPostingSetup.SetFilter("VAT Bus. Posting Group", '%1|%2|%3', VATPostingSetup[1]."VAT Bus. Posting Group", VATPostingSetup[2]."VAT Bus. Posting Group", VATPostingSetup[3]."VAT Bus. Posting Group");
         CalcandPostVATSettlement.SetTableView(FilterVATPostingSetup);
         CalcandPostVATSettlement.UseRequestPage(false);
@@ -948,7 +948,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         VATEntry.FindFirst();
         ReversalEntry.SetHideDialog(true);
         asserterror ReversalEntry.ReverseTransaction(TransactionNo);
-        Assert.ExpectedError(StrSubstNo(ReversalError, VATEntry.TableCaption, VATEntry."Entry No."));
+        Assert.ExpectedError(StrSubstNo(ReversalError, VATEntry.TableCaption(), VATEntry."Entry No."));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Base: Decimal)
@@ -962,7 +962,7 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
         VATEntry.SetRange(Type, VATEntry.Type::Settlement);
         VATEntry.FindFirst();
         Assert.AreNearlyEqual(Base, VATEntry.Base, GeneralLedgerSetup."Appln. Rounding Precision",
-          StrSubstNo(VATBaseError, Base, VATEntry.Base, VATEntry.TableCaption));
+          StrSubstNo(VATBaseError, Base, VATEntry.Base, VATEntry.TableCaption()));
     end;
 
     local procedure GetNextJnlDocNo(TemplateName: Code[10]; BatchName: Code[10]; ModifySeries: Boolean): Code[20]
@@ -972,10 +972,10 @@ codeunit 134130 "ERM Reverse And VAT Settlement"
     begin
         GenJnlBatch.Get(TemplateName, BatchName);
         if GenJnlBatch."Posting No. Series" <> '' then
-            exit(NoSeriesManagement.GetNextNo(GenJnlBatch."Posting No. Series", WorkDate, ModifySeries));
+            exit(NoSeriesManagement.GetNextNo(GenJnlBatch."Posting No. Series", WorkDate(), ModifySeries));
 
         GenJnlBatch.TestField("No. Series");
-        exit(NoSeriesManagement.GetNextNo(GenJnlBatch."No. Series", WorkDate, ModifySeries));
+        exit(NoSeriesManagement.GetNextNo(GenJnlBatch."No. Series", WorkDate(), ModifySeries));
     end;
 
     local procedure VerifyVATEntryClosedByEntryNo(VATEntry: array[3] of Record "VAT Entry"; SettlementVATEntryNo: array[3] of Integer)

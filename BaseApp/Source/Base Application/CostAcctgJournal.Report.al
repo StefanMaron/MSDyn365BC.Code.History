@@ -12,7 +12,7 @@ report 1128 "Cost Acctg. Journal"
         {
             DataItemTableView = SORTING("Journal Template Name", "Journal Batch Name", "Line No.");
             RequestFilterFields = "Journal Template Name", "Journal Batch Name", "Posting Date", "Line No.", "Cost Center Code", "Cost Object Code";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column("Filter"; Text011 + GetFilters)
@@ -194,6 +194,11 @@ report 1128 "Cost Acctg. Journal"
     }
 
     var
+        CostType: Record "Cost Type";
+        WithError: Boolean;
+        Errorline: array[20] of Text[80];
+        Lineno: Integer;
+
         Text000: Label 'Posting date is not defined.';
         Text001: Label 'Document no. is not defined.';
         Text002: Label 'Define cost type or balance cost type.';
@@ -206,10 +211,6 @@ report 1128 "Cost Acctg. Journal"
         Text009: Label 'Balance cost center or cost object must be defined.';
         Text010: Label 'Balance cost center and cost object cannot be both defined concurrently.';
         Text011: Label 'Filter: ';
-        CostType: Record "Cost Type";
-        WithError: Boolean;
-        Errorline: array[20] of Text[80];
-        Lineno: Integer;
         CAJournalCaptionLbl: Label 'Cost Accounting Journal';
         BalCTCaptionLbl: Label 'Balance CT';
         COCaptionLbl: Label 'CO';

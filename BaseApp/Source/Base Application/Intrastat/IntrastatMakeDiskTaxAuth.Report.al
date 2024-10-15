@@ -160,8 +160,6 @@ report 593 "Intrastat - Make Disk Tax Auth"
     end;
 
     var
-        ReceiptShipmentErr: Label 'must be Receipt or Shipment';
-        GreaterThanZeroErr: Label 'must be more than 0';
         TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         GLSetup: Record "General Ledger Setup";
         IntrastatSetup: Record "Intrastat Setup";
@@ -180,6 +178,9 @@ report 593 "Intrastat - Make Disk Tax Auth"
         CounterpartyInfo: Boolean;
         NextLine: Integer;
         Dir: Text;
+
+        ReceiptShipmentErr: Label 'must be Receipt or Shipment';
+        GreaterThanZeroErr: Label 'must be more than 0';
         EnterpriseNoNotValidErr: Label 'The enterprise number in Company Information is not valid.';
         StandardReportTxt: Label 'INTRASTAT_X_S', Locked = true;
         StandardFormTxt: Label 'INTRASTAT_X_SF', Locked = true;
@@ -257,7 +258,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     begin
         OnBeforeCreateXMLDocument(EnterpriseNo);
         // Create XML Document
-        XMLDoc := XMLDoc.XmlDocument;
+        XMLDoc := XMLDoc.XmlDocument();
         Namespace := 'http://www.onegate.eu/2010-01-01';
 
         // Header
@@ -370,7 +371,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         XMLDOMManagement.AddElement(ItemNode, 'Dim', "Transaction Specification", Namespace, DimNode);
                         XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXDELTRM');
                     end;
-                    Delete;
+                    Delete();
                 until Next() = 0;
         end;
     end;
@@ -415,7 +416,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         Year: Integer;
         Century: Integer;
     begin
-        Century := Date2DMY(WorkDate, 3) div 100;
+        Century := Date2DMY(WorkDate(), 3) div 100;
         Evaluate(Year, CopyStr(Period, 1, 2));
         Year := Year + Century * 100;
         Evaluate(Month, CopyStr(Period, 3, 2));

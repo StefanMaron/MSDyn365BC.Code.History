@@ -13,18 +13,18 @@ page 614 "Handled IC Outbox Jnl. Lines"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("IC Partner Code"; "IC Partner Code")
+                field("IC Partner Code"; Rec."IC Partner Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the code of the intercompany partner that the transaction is related to if the entry was created from an intercompany transaction.';
                     Visible = false;
                 }
-                field("Account Type"; "Account Type")
+                field("Account Type"; Rec."Account Type")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the purpose of the account. Newly created accounts are automatically assigned the Posting account type, but you can change this.';
                 }
-                field("Account No."; "Account No.")
+                field("Account No."; Rec."Account No.")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the account number that the entry on the journal line will be posted to.';
@@ -39,30 +39,30 @@ page 614 "Handled IC Outbox Jnl. Lines"
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the total amount (including VAT) that the journal line consists of.';
                 }
-                field("VAT Amount"; "VAT Amount")
+                field("VAT Amount"; Rec."VAT Amount")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                     Visible = false;
                 }
-                field("Currency Code"; "Currency Code")
+                field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the currency that is used on the entry.';
                     Visible = false;
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies when the related invoice must be paid.';
                 }
-                field("Payment Discount %"; "Payment Discount %")
+                field("Payment Discount %"; Rec."Payment Discount %")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the payment discount percentage that is granted if you pay on or before the date entered in the Pmt. Discount Date field. The discount percentage is specified in the Payment Terms Code field.';
                     Visible = false;
                 }
-                field("Payment Discount Date"; "Payment Discount Date")
+                field("Payment Discount Date"; Rec."Payment Discount Date")
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the last date on which the amount in the journal line must be paid for the order to qualify for a payment discount if the line is an invoice journal line.';
@@ -104,9 +104,6 @@ page 614 "Handled IC Outbox Jnl. Lines"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     RunObject = Page "IC Inbox/Outbox Jnl. Line Dim.";
                     RunPageLink = "Table ID" = CONST(417),
                                   "Transaction No." = FIELD("Transaction No."),
@@ -115,6 +112,17 @@ page 614 "Handled IC Outbox Jnl. Lines"
                                   "Line No." = FIELD("Line No.");
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Dimensions_Promoted; Dimensions)
+                {
                 }
             }
         }

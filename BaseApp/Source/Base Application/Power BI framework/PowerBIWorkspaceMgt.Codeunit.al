@@ -119,11 +119,6 @@ codeunit 6319 "Power BI Workspace Mgt."
         if not TempPowerBISelectionElement.IsEmpty() then
             exit;
 
-        if not PowerBIServiceMgt.CanHandleServiceCalls() then begin
-            OnGetReportsAndWorkspaces(TempPowerBISelectionElement, EnglishContext);
-            exit;
-        end;
-
         // Get reports for My Workspace
         AddPersonalWorkspace(TempPowerBISelectionElement);
         AddSharedWorkspaces(TempPowerBISelectionElement);
@@ -221,9 +216,12 @@ codeunit 6319 "Power BI Workspace Mgt."
         Session.LogMessage('0000B71', ParseReportsWarningTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
     end;
 
+#if not CLEAN21
     [Scope('OnPrem')]
     [IntegrationEvent(false, false)]
+    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
     procedure OnGetReportsAndWorkspaces(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary; EnglishContext: Text[30])
     begin
     end;
+#endif
 }

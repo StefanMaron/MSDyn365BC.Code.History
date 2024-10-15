@@ -1,4 +1,4 @@
-xmlport 5051 "Export Segment Contact"
+﻿xmlport 5051 "Export Segment Contact"
 {
     Caption = 'Export Segment Contact';
     Direction = Export;

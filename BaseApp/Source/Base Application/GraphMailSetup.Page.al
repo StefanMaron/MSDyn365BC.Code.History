@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 411 "Graph Mail Setup"
 {
     Caption = 'Email Setup';
@@ -5,6 +6,9 @@ page 411 "Graph Mail Setup"
     InsertAllowed = false;
     SourceTable = "Graph Mail Setup";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,14 +19,14 @@ page 411 "Graph Mail Setup"
                 InstructionalText = 'Invoices will be sent from this account.';
                 ShowCaption = false;
                 Visible = TokenAcquired;
-                field("Sender Name"; "Sender Name")
+                field("Sender Name"; Rec."Sender Name")
                 {
                     ApplicationArea = All;
                     Editable = false;
                     ShowCaption = false;
                     ToolTip = 'Specifies the name of the account that sends email on behalf of your business.';
                 }
-                field("Sender Email"; "Sender Email")
+                field("Sender Email"; Rec."Sender Email")
                 {
                     ApplicationArea = All;
                     Editable = false;
@@ -41,11 +45,11 @@ page 411 "Graph Mail Setup"
                         UserSpecifiedAddress: Page "Email User-Specified Address";
                         Recipient: Text;
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
 
                         UserSpecifiedAddress.SetEmailAddress("Sender Email");
-                        if UserSpecifiedAddress.RunModal = ACTION::OK then begin
+                        if UserSpecifiedAddress.RunModal() = ACTION::OK then begin
                             Recipient := UserSpecifiedAddress.GetEmailAddress();
                             SendTestMail(Recipient);
                             Message(StrSubstNo(TestSuccessMsg, Recipient));
@@ -64,9 +68,9 @@ page 411 "Graph Mail Setup"
 
                         trigger OnDrillDown()
                         begin
-                            ClearRefreshCode;
+                            ClearRefreshCode();
                             TokenAcquired := false;
-                            InitAuthFlow;
+                            InitAuthFlow();
                         end;
                     }
                 }
@@ -83,8 +87,8 @@ page 411 "Graph Mail Setup"
 
                         trigger OnDrillDown()
                         begin
-                            ClearRefreshCode;
-                            CurrPage.Close;
+                            ClearRefreshCode();
+                            CurrPage.Close();
                         end;
                     }
                 }
@@ -109,31 +113,31 @@ page 411 "Graph Mail Setup"
     begin
         TokenAcquired := IsolatedStorage.Contains(Format(RefreshTokenKeyTxt), DataScope::Company) and ("Expires On" > CurrentDateTime);
 
-        if IsEnabled then
-            if User.Get(UserSecurityId) then
+        if IsEnabled() then
+            if User.Get(UserSecurityId()) then
                 CanSwitchToUserAccount := User."Authentication Email" <> "Sender Email";
 
         if CanSwitchToUserAccount then
-            CanSwitchToUserAccount := GraphMail.UserHasLicense;
+            CanSwitchToUserAccount := GraphMail.UserHasLicense();
 
         if not TokenAcquired then
-            InitAuthFlow;
+            InitAuthFlow();
     end;
 
     trigger OnOpenPage()
     var
         GraphMailSetup: Record "Graph Mail Setup";
     begin
-        if not GraphMailSetup.Get then
+        if not GraphMailSetup.Get() then
             GraphMailSetup.Insert();
 
-        if GraphMailSetup.IsEnabled then begin
-            GraphMailSetup.RenewRefreshToken; // validates values
+        if GraphMailSetup.IsEnabled() then begin
+            GraphMailSetup.RenewRefreshToken(); // validates values
             GraphMailSetup.Modify(true);
         end;
 
         TransferFields(GraphMailSetup);
-        Insert;
+        Insert();
 
         LookupMode := CurrPage.LookupMode;
     end;
@@ -143,7 +147,7 @@ page 411 "Graph Mail Setup"
         GraphMailSetup: Record "Graph Mail Setup";
     begin
         if (not CurrPage.LookupMode) or (CloseAction = ACTION::LookupOK) then begin
-            if not GraphMailSetup.Get then
+            if not GraphMailSetup.Get() then
                 GraphMailSetup.Insert();
 
             GraphMailSetup.TransferFields(Rec);
@@ -165,10 +169,10 @@ page 411 "Graph Mail Setup"
     local procedure InitAuthFlow()
     begin
         if not Initialize(true) then
-            CurrPage.Close;
+            CurrPage.Close();
 
         TokenAcquired := true;
-        Modify;
+        Modify();
     end;
 
     local procedure ClearRefreshCode()
@@ -177,4 +181,4 @@ page 411 "Graph Mail Setup"
             IsolatedStorage.Delete(Format(RefreshTokenKeyTxt), DataScope::Company);
     end;
 }
-
+#endif

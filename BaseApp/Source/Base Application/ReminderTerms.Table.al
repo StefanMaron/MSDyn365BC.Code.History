@@ -68,12 +68,12 @@ table 292 "Reminder Terms"
     trigger OnRename()
     begin
         ReminderTermsTranslation.SetRange("Reminder Terms Code", xRec.Code);
-        while ReminderTermsTranslation.FindFirst do
+        while ReminderTermsTranslation.FindFirst() do
             ReminderTermsTranslation.Rename(
               Code, ReminderTermsTranslation."Language Code");
 
         ReminderLevel.SetRange("Reminder Terms Code", xRec.Code);
-        while ReminderLevel.FindFirst do
+        while ReminderLevel.FindFirst() do
             ReminderLevel.Rename(Code, ReminderLevel."No.");
     end;
 
@@ -86,15 +86,15 @@ table 292 "Reminder Terms"
         ReminderTerms: Record "Reminder Terms";
     begin
         ReminderTerms.SetRange("Post Interest", true);
-        InterestVisible := not ReminderTerms.IsEmpty;
+        InterestVisible := not ReminderTerms.IsEmpty();
 
         ReminderTerms.SetRange("Post Interest");
         ReminderTerms.SetRange("Post Additional Fee", true);
-        AdditionalFeeVisible := not ReminderTerms.IsEmpty;
+        AdditionalFeeVisible := not ReminderTerms.IsEmpty();
 
         ReminderTerms.SetRange("Post Additional Fee");
         ReminderTerms.SetRange("Post Add. Fee per Line", true);
-        AddFeePerLineVisible := not ReminderTerms.IsEmpty;
+        AddFeePerLineVisible := not ReminderTerms.IsEmpty();
     end;
 }
 

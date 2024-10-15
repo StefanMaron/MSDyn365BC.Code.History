@@ -57,7 +57,6 @@ codeunit 1620 "PEPPOL Validation"
 
             if CompanyInfo.GLN + CompanyInfo."VAT Registration No." + CompanyInfo."Enterprise No." = '' then
                 Error(MissingCompInfGLNOrVATRegNoOrEnterpNoErr);
-
             TestField("Bill-to Name");
             TestField("Bill-to Address");
             TestField("Bill-to City");
@@ -120,7 +119,7 @@ codeunit 1620 "PEPPOL Validation"
                 Error(MissingDescriptionErr);
 
             if (Type <> Type::" ") and ("No." <> '') then begin // Not a description line
-                if GeneralLedgerSetup.UseVat then
+                if GeneralLedgerSetup.UseVat() then
                     TestField("VAT Prod. Posting Group");
                 VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
                 VATPostingSetup.TestField("Tax Category");

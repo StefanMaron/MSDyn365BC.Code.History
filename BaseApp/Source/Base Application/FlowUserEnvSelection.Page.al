@@ -14,7 +14,7 @@ page 6416 "Flow User Env. Selection"
         {
             repeater(Group)
             {
-                field("Environment Display Name"; "Environment Display Name")
+                field("Environment Display Name"; Rec."Environment Display Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Environment Name';
@@ -23,7 +23,7 @@ page 6416 "Flow User Env. Selection"
 
                     trigger OnDrillDown()
                     begin
-                        EnsureOnlyOneSelection;
+                        EnsureOnlyOneSelection();
                     end;
                 }
                 field(Enabled; Enabled)
@@ -33,7 +33,7 @@ page 6416 "Flow User Env. Selection"
 
                     trigger OnValidate()
                     begin
-                        EnsureOnlyOneSelection;
+                        EnsureOnlyOneSelection();
                     end;
                 }
             }
@@ -46,11 +46,11 @@ page 6416 "Flow User Env. Selection"
 
     trigger OnOpenPage()
     begin
-        Reset;
+        Reset();
         if IsEmpty() then
-            Error(FlowServiceManagement.GetGenericError);
+            Error(FlowServiceManagement.GetGenericError());
 
-        SortByEnvironmentNameAscending;
+        SortByEnvironmentNameAscending();
         FindFirst();
     end;
 
@@ -63,10 +63,10 @@ page 6416 "Flow User Env. Selection"
         if Count >= 1 then
             ModifyAll(Enabled, false);
 
-        Reset;
+        Reset();
         Enabled := true;
 
-        SortByEnvironmentNameAscending;
+        SortByEnvironmentNameAscending();
         CurrPage.Update();
     end;
 
@@ -78,7 +78,7 @@ page 6416 "Flow User Env. Selection"
 
         DeleteAll();
         Copy(TempFlowUserEnvironmentBuffer, true);
-        Reset;
+        Reset();
     end;
 
     local procedure SortByEnvironmentNameAscending()

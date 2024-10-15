@@ -31,7 +31,7 @@ codeunit 104151 "ISO Code UPG.BE"
             IF FindSet() then
                 REPEAT
                     "ISO Code" := "ISO Currency Code";
-                    MODIFY;
+                    Modify();
                 UNTIL Next() = 0;
         END;
 
@@ -52,7 +52,7 @@ codeunit 104151 "ISO Code UPG.BE"
             IF FindSet() then
                 REPEAT
                     "ISO Code" := "ISO Country/Region Code";
-                    MODIFY;
+                    Modify();
                 UNTIL Next() = 0;
         END;
 

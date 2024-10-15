@@ -47,9 +47,6 @@ page 5840 "Standard Cost Worksheet Names"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Edit Worksheet';
                 Image = OpenWorksheet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open the related worksheet.';
 
@@ -58,6 +55,17 @@ page 5840 "Standard Cost Worksheet Names"
                     StdCostWksh."Standard Cost Worksheet Name" := Name;
                     PAGE.Run(PAGE::"Standard Cost Worksheet", StdCostWksh);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(EditWorksheet_Promoted; EditWorksheet)
+                {
+                }
             }
         }
     }
@@ -74,7 +82,8 @@ page 5840 "Standard Cost Worksheet Names"
 
     var
         StdCostWkshName: Record "Standard Cost Worksheet Name";
-        Text001: Label 'Default';
         StdCostWksh: Record "Standard Cost Worksheet";
+
+        Text001: Label 'Default';
 }
 

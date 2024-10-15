@@ -1,4 +1,4 @@
-﻿page 232 "Apply Customer Entries"
+page 232 "Apply Customer Entries"
 {
     Caption = 'Apply Customer Entries';
     DataCaptionFields = "Customer No.";
@@ -6,7 +6,6 @@
     InsertAllowed = false;
     LinksAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Line,Entry';
     SourceTable = "Cust. Ledger Entry";
 
     layout
@@ -413,8 +412,6 @@
                     ApplicationArea = Suite;
                     Caption = 'Reminder/Fin. Charge Entries';
                     Image = Reminder;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Reminder/Fin. Charge Entries";
                     RunPageLink = "Customer Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Customer Entry No.");
@@ -425,8 +422,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Applied E&ntries';
                     Image = Approve;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Applied Customer Entries";
                     RunPageOnRec = true;
                     ToolTip = 'View the ledger entries that have been applied to this record.';
@@ -437,8 +432,6 @@
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -452,8 +445,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Detailed &Ledger Entries';
                     Image = View;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     RunObject = Page "Detailed Cust. Ledg. Entries";
                     RunPageLink = "Cust. Ledger Entry No." = FIELD("Entry No.");
                     RunPageView = SORTING("Cust. Ledger Entry No.", "Posting Date");
@@ -465,8 +456,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Find entries...';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ShortCutKey = 'Ctrl+Alt+Q';
                     ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
@@ -489,8 +478,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Applies-to ID';
                     Image = SelectLineToApply;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Shift+F11';
                     ToolTip = 'Set the Applies-to ID field on the posted entry to automatically be filled in with the document number of the entry in the journal.';
 
@@ -508,8 +495,6 @@
                     Caption = 'Post Application';
                     Ellipsis = true;
                     Image = PostApplication;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F9';
                     ToolTip = 'Define the document number of the ledger entry to use to perform the application. In addition, you specify the Posting Date for the application.';
 
@@ -523,8 +508,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
@@ -542,8 +525,6 @@
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Only Selected Entries to Be Applied';
                     Image = ShowSelected;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ToolTip = 'View the selected ledger entries that will be applied to the specified record.';
 
                     trigger OnAction()
@@ -568,9 +549,6 @@
                 ApplicationArea = Basic, Suite;
                 Caption = 'Show Posted Document';
                 Image = Document;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Show details for the posted payment, invoice, or credit memo.';
 
                 trigger OnAction()
@@ -584,15 +562,68 @@
                 Caption = 'Show Document Attachment';
                 Enabled = HasDocumentAttachment;
                 Image = Attach;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'View documents or images that are attached to the posted invoice or credit memo.';
 
                 trigger OnAction()
                 begin
                     Rec.ShowPostedDocAttachment();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Set Applies-to ID_Promoted"; "Set Applies-to ID")
+                {
+                }
+                actionref("Post Application_Promoted"; "Post Application")
+                {
+                }
+                actionref(Preview_Promoted; Preview)
+                {
+                }
+                actionref("Show Only Selected Entries to Be Applied_Promoted"; "Show Only Selected Entries to Be Applied")
+                {
+                }
+                group(Category_Category4)
+                {
+                    Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 3.';
+                    ShowAs = SplitButton;
+
+                    actionref(ShowPostedDocument_Promoted; ShowPostedDocument)
+                    {
+                    }
+                    actionref(ShowDocumentAttachment_Promoted; ShowDocumentAttachment)
+                    {
+                    }
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Entry', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref("&Navigate_Promoted"; "&Navigate")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+                actionref("Reminder/Fin. Charge Entries_Promoted"; "Reminder/Fin. Charge Entries")
+                {
+                }
+                actionref("Applied E&ntries_Promoted"; "Applied E&ntries")
+                {
+                }
+                actionref("Detailed &Ledger Entries_Promoted"; "Detailed &Ledger Entries")
+                {
+                }
             }
         }
     }
@@ -705,8 +736,6 @@
     end;
 
     var
-        GenJnlLine: Record "Gen. Journal Line";
-        SalesHeader: Record "Sales Header";
         ServHeader: Record "Service Header";
         Cust: Record Customer;
         GLSetup: Record "General Ledger Setup";
@@ -721,7 +750,6 @@
         PaymentToleranceMgt: Codeunit "Payment Tolerance Management";
         Navigate: Page Navigate;
         StyleTxt: Text;
-        CustEntryApplID: Code[50];
         AppliesToID: Code[50];
         ValidExchRate: Boolean;
         MustSelectEntryErr: Label 'You must select an applying entry before you can post the application.';
@@ -731,8 +759,6 @@
         ShowAppliedEntries: Boolean;
         OK: Boolean;
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.\\Instead, post the document of type %1 with the number %2 and then apply it to the document of type %3 with the number %4.', Comment = '%1 - document type, %2 - document number,%3 - document type,%4 - document number';
-        [InDataSet]
-        AppliesToIDVisible: Boolean;
         ApplicationPostedMsg: Label 'The application was successfully posted.';
         ApplicationDateErr: Label 'The %1 entered must not be before the %1 on the %2.';
         ApplicationProcessCanceledErr: Label 'Post application process has been canceled.';
@@ -742,10 +768,12 @@
     protected var
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
+        CustLedgEntry: Record "Cust. Ledger Entry";
         TempApplyingCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
         GenJnlLine2: Record "Gen. Journal Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
+        SalesHeader: Record "Sales Header";
         ApplnDate: Date;
         ApplnRoundingPrecision: Decimal;
         ApplnRounding: Decimal;
@@ -757,6 +785,9 @@
         ApplyingAmount: Decimal;
         PmtDiscAmount: Decimal;
         ApplnCurrencyCode: Code[10];
+        CustEntryApplID: Code[50];
+        [InDataSet]
+        AppliesToIDVisible: Boolean;
         DifferentCurrenciesInAppln: Boolean;
         PostingDone: Boolean;
         ProfitLCY: Decimal;
@@ -979,7 +1010,7 @@
             CustEntrySetApplID.SetApplId(CustLedgEntry, TempApplyingCustLedgEntry, "Applies-to ID")
         end else begin
             CurrPage.SetSelectionFilter(CustLedgEntry);
-            CustEntrySetApplID.SetApplId(CustLedgEntry, TempApplyingCustLedgEntry, GetAppliesToID)
+            CustEntrySetApplID.SetApplId(CustLedgEntry, TempApplyingCustLedgEntry, GetAppliesToID())
         end;
     end;
 
@@ -1143,7 +1174,7 @@
                                 else
                                     AppliedCustLedgEntry.SetRange("Customer No.", ServHeader."Bill-to Customer No.");
                                 AppliedCustLedgEntry.SetRange(Open, true);
-                                AppliedCustLedgEntry.SetRange("Applies-to ID", GetAppliesToID);
+                                AppliedCustLedgEntry.SetRange("Applies-to ID", GetAppliesToID());
 
                                 HandleChosenEntries(CalcType::"Sales Header", ApplyingAmount, ApplnCurrencyCode, ApplnDate);
                             end;
@@ -1191,7 +1222,7 @@
         exit(ApplnAmountToApply);
     end;
 
-    local procedure FindAmountRounding()
+    protected procedure FindAmountRounding()
     begin
         if ApplnCurrencyCode = '' then begin
             Currency.Init();
@@ -1271,7 +1302,7 @@
         end;
     end;
 
-    local procedure HandleChosenEntries(Type: Enum "Customer Apply Calculation Type"; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
+    protected procedure HandleChosenEntries(Type: Enum "Customer Apply Calculation Type"; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date)
     var
         TempAppliedCustLedgEntry: Record "Cust. Ledger Entry" temporary;
         PossiblePmtDisc: Decimal;
@@ -1468,14 +1499,6 @@
         AppliesToID := AppliesToID2;
     end;
 
-#if not CLEAN18
-    [Obsolete('Replaced by ExchangeLedgerEntryAmounts()', '18.0')]
-    procedure ExchangeAmountsOnLedgerEntry(Type: Option Direct,GenJnlLine,SalesHeader; CurrencyCode: Code[10]; var CalcCustLedgEntry: Record "Cust. Ledger Entry"; PostingDate: Date)
-    begin
-        ExchangeLedgerEntryAmounts("Customer Apply Calculation Type".FromInteger(Type), CurrencyCode, CalcCustLedgEntry, PostingDate);
-    end;
-#endif
-
     procedure ExchangeLedgerEntryAmounts(Type: Enum "Customer Apply Calculation Type"; CurrencyCode: Code[10]; var CalcCustLedgEntry: Record "Cust. Ledger Entry"; PostingDate: Date)
     var
         CalculateCurrency: Boolean;
@@ -1500,9 +1523,6 @@
         end;
 
         OnAfterExchangeLedgerEntryAmounts(CalcCustLedgEntry, CustLedgEntry, CurrencyCode);
-#if not CLEAN18
-        OnAfterExchangeAmountsOnLedgerEntry(CalcCustLedgEntry, CustLedgEntry, CurrencyCode);
-#endif
     end;
 
     procedure CalcOppositeEntriesAmount(var TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary) Result: Decimal
@@ -1555,14 +1575,6 @@
     local procedure OnAfterCalcApplnRemainingAmount(CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplnRemainingAmount: Decimal)
     begin
     end;
-
-#if not CLEAN18
-    [Obsolete('Replaced by event OnAfterExchangeLedgerEntryAmounts().', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnAfterExchangeAmountsOnLedgerEntry(var CalcCustLedgEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExchangeLedgerEntryAmounts(var CalcCustLedgEntry: Record "Cust. Ledger Entry"; CustLedgerEntry: Record "Cust. Ledger Entry"; CurrencyCode: Code[10])

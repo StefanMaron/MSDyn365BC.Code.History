@@ -1063,7 +1063,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StdPurchCode.SetRange("Code", StdPurchCodeCode);
         Assert.RecordIsEmpty(StdPurchCode);
         Assert.ExpectedConfirm(
-            StrSubstNo(StdCodeDeleteConfirmLbl, StdPurchCodeCode, StdVendPurchCode.TableCaption),
+            StrSubstNo(StdCodeDeleteConfirmLbl, StdPurchCodeCode, StdVendPurchCode.TableCaption()),
             LibraryVariableStorage.DequeueText());
         StdVendPurchCode.SetRange("Code", StdPurchCodeCode);
         Assert.RecordIsEmpty(StdVendPurchCode);
@@ -1231,7 +1231,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
     begin
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchaseHeader."Document Date" := WorkDate;
+        PurchaseHeader."Document Date" := WorkDate();
         PurchaseHeader.Insert();
     end;
 
@@ -1421,7 +1421,7 @@ codeunit 134564 "ERM Insert Std. Purch. Lines"
         StandardPurchaseLine: Record "Standard Purchase Line";
     begin
         FilterOnPurchaseLine(PurchaseLine, PurchaseHeader);
-        Assert.IsTrue(PurchaseLine.FindFirst, StrSubstNo(ValueMustExistMsg, PurchaseLine.TableCaption));
+        Assert.IsTrue(PurchaseLine.FindFirst, StrSubstNo(ValueMustExistMsg, PurchaseLine.TableCaption()));
         FindStandardPurchaseLine(StandardPurchaseLine, PurchaseLine."Buy-from Vendor No.");
         PurchaseLine.TestField(Type, StandardPurchaseLine.Type);
         PurchaseLine.TestField("No.", StandardPurchaseLine."No.");

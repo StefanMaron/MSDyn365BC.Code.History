@@ -47,8 +47,8 @@ codeunit 132542 TestMappingToW1Tables
 
         // Setup Input Table
         TempBlobOEM.CreateOutStream(OutStream);
-        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate, 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
-        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate, 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
+        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate(), 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
+        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate(), 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
         ConvertOEMToANSI(TempBlobOEM, TempBlobANSI);
         SetupSourceMock(DataExchDef.Code, TempBlobANSI);
 
@@ -99,7 +99,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Setup Input Table
         TempBlobOEM.CreateOutStream(OutStream);
-        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate, 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
+        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate(), 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
         ConvertOEMToANSI(TempBlobOEM, TempBlobANSI);
         SetupSourceMock(DataExchDef.Code, TempBlobANSI);
 
@@ -165,7 +165,7 @@ codeunit 132542 TestMappingToW1Tables
             Assert.AreEqual(-AnyDecimal[i], GenJnlLineTemplate.Amount, 'Amount did not Match');
             Assert.AreEqual(i, GenJnlLineTemplate."Data Exch. Line No.", 'Line no. did not match.');
             Assert.AreEqual(DataExch."Entry No.", GenJnlLineTemplate."Data Exch. Entry No.", 'Wrong data entry no.');
-            GenJnlLineTemplate.Next;
+            GenJnlLineTemplate.Next();
         end;
 
         GenJnlLineTemplate.FindFirst();
@@ -222,7 +222,7 @@ codeunit 132542 TestMappingToW1Tables
             Assert.AreEqual(-AnyDecimal[i], GenJnlLineTemplate.Amount, 'Amount did not Match');
             Assert.AreEqual(i, GenJnlLineTemplate."Data Exch. Line No.", 'Line no. did not match.');
             Assert.AreEqual(DataExch."Entry No.", GenJnlLineTemplate."Data Exch. Entry No.", 'Wrong data entry no.');
-            GenJnlLineTemplate.Next;
+            GenJnlLineTemplate.Next();
         end;
 
         GenJnlLineTemplate.FindFirst();
@@ -339,7 +339,7 @@ codeunit 132542 TestMappingToW1Tables
             Assert.AreEqual(AnyDecimal[i], BankAccReconciliationLine."Statement Amount", 'Amount did not Match');
             Assert.AreEqual(i, BankAccReconciliationLine."Data Exch. Line No.", 'Line no. did not match.');
             Assert.AreEqual(DataExch."Entry No.", BankAccReconciliationLine."Data Exch. Entry No.", 'Wrong data entry no.');
-            BankAccReconciliationLine.Next;
+            BankAccReconciliationLine.Next();
         end;
 
         BankAccReconciliationLine.FindFirst();
@@ -543,7 +543,7 @@ codeunit 132542 TestMappingToW1Tables
 
         // Setup Input Table
         TempBlob.CreateOutStream(OutStream);
-        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate, 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
+        WriteLine(OutStream, StrSubstNo('%1,%2,%3', Format(WorkDate(), 6, '<Day,2><Month,2><Year,2>'), 'AnyText', 100));
         SetupSourceMock(DataExchDef.Code, TempBlob);
 
         // Exercise
@@ -663,7 +663,7 @@ codeunit 132542 TestMappingToW1Tables
         Assert.ExpectedError(
           StrSubstNo(BankStmtImpFormatBalAccErr, GenJournalBatch.FieldCaption("Bank Statement Import Format"),
             GenJournalBatch.FieldCaption("Bal. Account Type"), GenJournalBatch."Bal. Account Type",
-            GenJournalBatch.TableCaption, GenJournalBatch.FieldCaption("Journal Template Name"),
+            GenJournalBatch.TableCaption(), GenJournalBatch.FieldCaption("Journal Template Name"),
             GenJournalBatch."Journal Template Name", GenJournalBatch.FieldCaption(Name), GenJournalBatch.Name));
     end;
 
@@ -686,7 +686,7 @@ codeunit 132542 TestMappingToW1Tables
         Assert.ExpectedError(
           StrSubstNo(BankStmtImpFormatBalAccErr, GenJournalBatch.FieldCaption("Bank Statement Import Format"),
             GenJournalBatch.FieldCaption("Bal. Account Type"), GenJournalBatch."Bal. Account Type"::"Bank Account",
-            GenJournalBatch.TableCaption, GenJournalBatch.FieldCaption("Journal Template Name"),
+            GenJournalBatch.TableCaption(), GenJournalBatch.FieldCaption("Journal Template Name"),
             GenJournalBatch."Journal Template Name", GenJournalBatch.FieldCaption(Name), GenJournalBatch.Name));
     end;
 
@@ -821,7 +821,7 @@ codeunit 132542 TestMappingToW1Tables
             Assert.AreEqual(AnyDecimal[i], BankAccReconciliationLine."Statement Amount", 'Amount did not Match');
             Assert.AreEqual(i, BankAccReconciliationLine."Data Exch. Line No.", 'Line no. did not match.');
             Assert.AreEqual(DataExch."Entry No.", BankAccReconciliationLine."Data Exch. Entry No.", 'Wrong post. entry no.');
-            BankAccReconciliationLine.Next;
+            BankAccReconciliationLine.Next();
         end;
 
         // [THEN] All lines are imported
@@ -1268,6 +1268,9 @@ codeunit 132542 TestMappingToW1Tables
         // [GIVEN] Three posted Gen. Journal Lines with Posting Dates "D1", "D2", "D3"; Descriptions "T1", "T2", "T3"; Amounts -100, -200, -300.
         CreateAndPostMultipleGenJournalLines(BankAccReconciliation."Bank Account No.", DateValues, TextValues, DecimalValues, LinesNumber);
 
+        // [GIVEN] Updated bank reconciliation Date to cover the three lines
+        UpdateBankReconciliationToLatestDate(BankAccReconciliation, DateValues);
+
         // [GIVEN] Imported bank statement for Bank Account Reconciliation. Three Bank Acc. Reconciliation Lines are created.
         BankAccReconciliationLine.Delete(true);
         BankAccReconciliation.ImportBankStatement();
@@ -1407,7 +1410,7 @@ codeunit 132542 TestMappingToW1Tables
     begin
         Size := LibraryRandom.RandInt(100);
         for i := 1 to Size do begin
-            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate - 1000, WorkDate + 1000);
+            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate() - 1000, WorkDate + 1000);
             TextArray[i] := AnyASCIITextExceptCommaAndQuotes(30);
             DecimalArray[i] := LibraryRandom.RandDecInRange(-10000000, 10000000, 2);
         end
@@ -1418,7 +1421,7 @@ codeunit 132542 TestMappingToW1Tables
         i: Integer;
     begin
         for i := 1 to Size do begin
-            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate - 1000, WorkDate + 1000);
+            DateArray[i] := LibraryUtility.GenerateRandomDate(WorkDate() - 1000, WorkDate + 1000);
             DecimalArray[i] := LibraryRandom.RandIntInRange(1, 9);
         end
     end;
@@ -1486,7 +1489,7 @@ codeunit 132542 TestMappingToW1Tables
         while 0 <> InStream.ReadText(EncodedText) do
             Writer.WriteLine(EncodedText);
 
-        Writer.Close;
+        Writer.Close();
     end;
 
     local procedure VerifyImportedGenJnlLines(var GenJournalLine: Record "Gen. Journal Line"; var LineNo: Integer; var DocNo: Code[20]; LineCount: Integer)
@@ -1498,7 +1501,7 @@ codeunit 132542 TestMappingToW1Tables
             Assert.AreEqual(DocNo, GenJournalLine."Document No.", 'Document No not incremented as expected');
             LineNo += 10000;
             DocNo := IncStr(DocNo);
-        until GenJournalLine.Next = 0;
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyImportedGenJnlLinesWithDataExchNo(var GenJournalLine: Record "Gen. Journal Line"; var LineNo: Integer; var DocNo: Code[20]; DataExchNo: Integer; LineCount: Integer)
@@ -1519,7 +1522,7 @@ codeunit 132542 TestMappingToW1Tables
             DataExchField.SetRange("Column No.", DataExchColumnDef."Column No.");
             DataExchField.FindFirst();
             Assert.AreEqual(DataExchField.Value, Format(BankStatementLineDetails.Value), 'Wrong shown value.');
-        until not BankStatementLineDetails.Next;
+        until not BankStatementLineDetails.Next();
     end;
 
     local procedure VerifyEmptyBankStatementDetailsPage(BankStatementLineDetails: TestPage "Bank Statement Line Details")
@@ -1640,7 +1643,8 @@ codeunit 132542 TestMappingToW1Tables
 
     local procedure PostBankAccReconciliation(BankAccReconciliation: Record "Bank Acc. Reconciliation"; StatementAmount: Decimal)
     begin
-        BankAccReconciliation.Validate("Statement Date", WorkDate());
+        if BankAccReconciliation."Statement Date" = 0D then
+            BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Validate("Statement Ending Balance", BankAccReconciliation."Balance Last Statement" + StatementAmount);
         BankAccReconciliation.Modify();
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
@@ -1708,7 +1712,7 @@ codeunit 132542 TestMappingToW1Tables
 
     local procedure VerifyNegation(GLEntry: Record "G/L Entry"; Value1: Decimal; Value2: Decimal)
     begin
-        GLEntry.Find;
+        GLEntry.Find();
         GLEntry.TestField(Amount, Value1);
         GLEntry.TestField(Quantity, Value2);
     end;
@@ -1760,6 +1764,18 @@ codeunit 132542 TestMappingToW1Tables
         ErmPeSourceTestMock.GetTempBlobList(TempBlobList);
         TempBlobList.Add(TempBlob);
         ErmPeSourceTestMock.SetTempBlobList(TempBlobList);
+    end;
+
+    local procedure UpdateBankReconciliationToLatestDate(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; PostingDates: List of [Date])
+    var
+        LatestDate: Date;
+        TemporalDate: Date;
+    begin
+        foreach TemporalDate in PostingDates do begin
+            if TemporalDate > LatestDate then
+                LatestDate := TemporalDate;
+        end;
+        BankAccReconciliation.Validate("Statement Date", LatestDate);
     end;
 
     [ModalPageHandler]

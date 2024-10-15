@@ -45,23 +45,23 @@ codeunit 1105 "Transfer GL Entries to CA"
         if not Confirm(Text000) then
             exit;
 
-        TransferGLtoCA;
+        TransferGLtoCA();
 
         Message(Text002, FirstGLEntryNo, NoOfJnlLines);
     end;
 
     procedure TransferGLtoCA()
     begin
-        ClearAll;
+        ClearAll();
 
-        CostAccMgt.LinkCostTypesToGLAccounts;
+        CostAccMgt.LinkCostTypesToGLAccounts();
 
         Window.Open(Text001);
 
         BatchRun := true;
-        GetGLEntries;
+        GetGLEntries();
 
-        Window.Close;
+        Window.Close();
     end;
 
     procedure GetGLEntries()
@@ -77,7 +77,7 @@ codeunit 1105 "Transfer GL Entries to CA"
         if IsHandled then
             exit;
 
-        GetCostAccSetup;
+        GetCostAccSetup();
         SourceCodeSetup.Get();
         SourceCodeSetup.TestField("G/L Entry to CA");
 
@@ -85,8 +85,8 @@ codeunit 1105 "Transfer GL Entries to CA"
             if not CostAccSetup."Auto Transfer from G/L" then
                 exit;
             TempCostJnlLine.DeleteAll();
-            ClearAll;
-            GetCostAccSetup;
+            ClearAll();
+            GetCostAccSetup();
         end;
 
         CostRegister.LockTable();
@@ -158,13 +158,13 @@ codeunit 1105 "Transfer GL Entries to CA"
 
         if NoOfJnlLines = 0 then begin
             if BatchRun then begin
-                Window.Close;
+                Window.Close();
                 Error(Text005);
             end;
             exit;
         end;
 
-        PostCostJournalLines;
+        PostCostJournalLines();
     end;
 
     local procedure InsertCostJournalLine(CostCenterCode: Code[20]; CostObjectCode: Code[20])
@@ -230,7 +230,7 @@ codeunit 1105 "Transfer GL Entries to CA"
                 CostJnlLine := TempCostJnlLine;
                 CAJnlPostLine.RunWithCheck(CostJnlLine);
             until TempCostJnlLine.Next() = 0;
-        Window2.Close;
+        Window2.Close();
     end;
 
     local procedure GetCostAccSetup()

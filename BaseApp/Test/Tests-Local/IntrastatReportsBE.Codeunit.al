@@ -31,7 +31,7 @@ codeunit 144011 "Intrastat Reports BE"
         Initialize();
 
         // [GIVEN] 100 or more Intrastat Jnl Lines.
-        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate());
         for i := 1 to LibraryRandom.RandIntInRange(100, 200) do
             MockIntrastatJnlLine(
               IntrastatJnlLine, IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, IntrastatJnlLine.Type::Shipment,

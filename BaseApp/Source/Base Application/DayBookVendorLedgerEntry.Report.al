@@ -27,7 +27,7 @@ report 2502 "Day Book Vendor Ledger Entry"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(All_amounts_are_in___GLSetup__LCY_Code_; StrSubstNo(AllAmountsAreInLbl, GLSetup."LCY Code"))
@@ -42,7 +42,7 @@ report 2502 "Day Book Vendor Ledger Entry"
             column(PrintCLDetails; PrintCLDetails)
             {
             }
-            column(Total_for______Vendor_Ledger_Entry__TABLENAME__________VendLedgFilter; StrSubstNo(TotalForVendLedgerEntryLbl, "Vendor Ledger Entry".TableCaption, VendLedgFilter))
+            column(Total_for______Vendor_Ledger_Entry__TABLENAME__________VendLedgFilter; StrSubstNo(TotalForVendLedgerEntryLbl, "Vendor Ledger Entry".TableCaption(), VendLedgFilter))
             {
             }
             column(Vendor_Ledger_Entry___Amount__LCY__; "Vendor Ledger Entry"."Amount (LCY)")
@@ -283,14 +283,14 @@ report 2502 "Day Book Vendor Ledger Entry"
                         TransactionNoFilter: Text[250];
                     begin
                         if not PrintGLDetails then
-                            CurrReport.Break
-                            ;
+                            CurrReport.Break();
+
                         DtldVendLedgEntry.Reset();
                         DtldVendLedgEntry.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
                         DtldVendLedgEntry.SetFilter("Entry Type", '<>%1', DtldVendLedgEntry."Entry Type"::Application);
                         if DtldVendLedgEntry.FindSet() then begin
                             TransactionNoFilter := Format(DtldVendLedgEntry."Transaction No.");
-                            while DtldVendLedgEntry.Next <> 0 do
+                            while DtldVendLedgEntry.Next() <> 0 do
                                 TransactionNoFilter := TransactionNoFilter + '|' + Format(DtldVendLedgEntry."Transaction No.");
                         end;
                         SetFilter("Transaction No.", TransactionNoFilter);
@@ -418,7 +418,7 @@ report 2502 "Day Book Vendor Ledger Entry"
 
                         trigger OnValidate()
                         begin
-                            PrintCLDetailsOnAfterValidate;
+                            PrintCLDetailsOnAfterValidate();
                         end;
                     }
                     field(PrintGLEntryDetails; PrintGLDetails)
@@ -429,7 +429,7 @@ report 2502 "Day Book Vendor Ledger Entry"
 
                         trigger OnValidate()
                         begin
-                            PrintGLDetailsOnAfterValidate;
+                            PrintGLDetailsOnAfterValidate();
                         end;
                     }
                 }
@@ -447,7 +447,7 @@ report 2502 "Day Book Vendor Ledger Entry"
 
     trigger OnPreReport()
     begin
-        VendLedgFilter := ReqVendLedgEntry.GetFilters;
+        VendLedgFilter := ReqVendLedgEntry.GetFilters();
         GLSetup.Get();
     end;
 

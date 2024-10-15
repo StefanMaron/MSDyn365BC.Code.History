@@ -1,4 +1,4 @@
-codeunit 104000 "Upgrade - BaseApp"
+﻿codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
     Permissions = TableData "User Group Plan" = rimd;
@@ -50,7 +50,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
-        UpdateItems();
         UpdateJobs();
         UpdateItemTrackingCodes();
         UpgradeJobQueueEntries();
@@ -81,6 +80,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeCRMIntegrationRecord();
 
         UseCustomLookupInPrices();
+        FillItemChargeAssignmentQtyToHandle();
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
         UpgradeCustomerVATLiable();
@@ -109,6 +109,9 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeCustLedgEntryPmtDiscountPossible();
         UpgradeVendLedgEntryPmtDiscountPossible();
         UpgradeGenJournalLinePmtDiscountPossible();
+        UpgradeAccountSchedulesToFinancialReports();
+        UpgradeCRMUnitGroupMapping();
+        UpgradeCRMSDK90ToCRMSDK91();
     end;
 
     local procedure ClearTemporaryTables()
@@ -228,32 +231,10 @@ codeunit 104000 "Upgrade - BaseApp"
         IF GenJournalBatch.FindSet() then
             REPEAT
                 GenJournalBatch.UpdateBalAccountId();
-                IF GenJournalBatch.MODIFY THEN;
+                IF GenJournalBatch.MODIFY() THEN;
             UNTIL GenJournalBatch.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBalAccountNoOnJournalAPIUpgradeTag());
-    end;
-
-    local procedure UpdateItems()
-    var
-        ItemCategory: Record "Item Category";
-        Item: Record "Item";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
-    begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemCategoryOnItemAPIUpgradeTag()) THEN
-            EXIT;
-
-        IF NOT ItemCategory.ISEMPTY THEN BEGIN
-            Item.SETFILTER("Item Category Code", '<>''''');
-            IF Item.FINDSET(TRUE, FALSE) THEN
-                REPEAT
-                    Item.UpdateItemCategoryId();
-                    IF Item.MODIFY THEN;
-                UNTIL Item.Next() = 0;
-        END;
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemCategoryOnItemAPIUpgradeTag());
     end;
 
     local procedure UpdateJobs()
@@ -285,34 +266,39 @@ codeunit 104000 "Upgrade - BaseApp"
         PriceListLine: Record "Price List Line";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PriceListLineDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupUpgradeTag()) then
             exit;
+
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupFixedUpgradeTag()) then
             exit;
 
-        PriceListLine.SetRange("Source Group", "Price Source Group"::All);
-        if EnvironmentInformation.IsSaaS() then
-            if PriceListLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
-                exit;
-        if PriceListLine.FindSet(true) then
-            repeat
-                if PriceListLine."Source Type" in
-                    ["Price Source Type"::"All Jobs",
-                    "Price Source Type"::Job,
-                    "Price Source Type"::"Job Task"]
-                then
-                    PriceListLine."Source Group" := "Price Source Group"::Job
-                else
-                    case PriceListLine."Price Type" of
-                        "Price Type"::Purchase:
-                            PriceListLine."Source Group" := "Price Source Group"::Vendor;
-                        "Price Type"::Sale:
-                            PriceListLine."Source Group" := "Price Source Group"::Customer;
-                    end;
-                if PriceListLine."Source Group" <> "Price Source Group"::All then
-                    PriceListLine.Modify();
-            until PriceListLine.Next() = 0;
+        PriceListLineDataTransfer.SetTables(Database::"Price List Line", Database::"Price List Line");
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Source Group"), '=%1', "Price Source Group"::All);
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Source Type"), '%1|%2|%3', "Price Source Type"::"All Jobs", "Price Source Type"::Job, "Price Source Type"::"Job Task");
+        PriceListLineDataTransfer.AddConstantValue("Price Source Group"::Job, PriceListLine.FieldNo("Source Group"));
+        PriceListLineDataTransfer.UpdateAuditFields := false;
+        PriceListLineDataTransfer.CopyFields();
+        Clear(PriceListLineDataTransfer);
+
+        PriceListLineDataTransfer.SetTables(Database::"Price List Line", Database::"Price List Line");
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Source Group"), '=%1', "Price Source Group"::All);
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Source Type"), '<>%1&<>%2&<>%3', "Price Source Type"::"All Jobs", "Price Source Type"::Job, "Price Source Type"::"Job Task");
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Price Type"), '=%1', "Price Type"::Purchase);
+        PriceListLineDataTransfer.AddConstantValue("Price Source Group"::Vendor, PriceListLine.FieldNo("Source Group"));
+        PriceListLineDataTransfer.UpdateAuditFields := false;
+        PriceListLineDataTransfer.CopyFields();
+        Clear(PriceListLineDataTransfer);
+
+        PriceListLineDataTransfer.SetTables(Database::"Price List Line", Database::"Price List Line");
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Source Group"), '=%1', "Price Source Group"::All);
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Source Type"), '<>%1&<>%2&<>%3', "Price Source Type"::"All Jobs", "Price Source Type"::Job, "Price Source Type"::"Job Task");
+        PriceListLineDataTransfer.AddSourceFilter(PriceListLine.FieldNo("Price Type"), '=%1', "Price Type"::Sale);
+        PriceListLineDataTransfer.AddConstantValue("Price Source Group"::Customer, PriceListLine.FieldNo("Source Group"));
+        PriceListLineDataTransfer.UpdateAuditFields := false;
+        PriceListLineDataTransfer.CopyFields();
+        Clear(PriceListLineDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPriceSourceGroupFixedUpgradeTag());
     end;
@@ -334,6 +320,7 @@ codeunit 104000 "Upgrade - BaseApp"
         if EnvironmentInformation.IsSaaS() then
             if PriceListLine.Count() > GetSafeRecordCountForSaaSUpgrade() then
                 exit;
+
         if PriceListLine.Findset(true) then
             repeat
                 if PriceListHeader.Code <> PriceListLine."Price List Code" then
@@ -525,14 +512,14 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeAPIs()
     begin
-        CreateTimeSheetDetailsIds;
-        UpgradeSalesInvoiceEntityAggregate;
-        UpgradePurchInvEntityAggregate;
-        UpgradeSalesOrderEntityBuffer;
-        UpgradeSalesQuoteEntityBuffer;
-        UpgradeSalesCrMemoEntityBuffer;
-        UpgradeSalesOrderShipmentMethod;
-        UpgradeSalesCrMemoShipmentMethod;
+        CreateTimeSheetDetailsIds();
+        UpgradeSalesInvoiceEntityAggregate();
+        UpgradePurchInvEntityAggregate();
+        UpgradeSalesOrderEntityBuffer();
+        UpgradeSalesQuoteEntityBuffer();
+        UpgradeSalesCrMemoEntityBuffer();
+        UpgradeSalesOrderShipmentMethod();
+        UpgradeSalesCrMemoShipmentMethod();
 
         UpgradeSalesShipmentLineDocumentId();
         UpdateItemVariants();
@@ -554,14 +541,36 @@ codeunit 104000 "Upgrade - BaseApp"
 
     procedure UpgradeItemPostingGroups()
     var
-        APIDataUpgrade: Codeunit "API Data Upgrade";
+        Item: Record "Item";
+        GenProdPostingGroup: Record "Gen. Product Posting Group";
+        InventoryPostingGroup: Record "Inventory Posting Group";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        BlankGuid: Guid;
+        GenProdPostingGroupDataTransfer: DataTransfer;
+        InventoryPostingGroupDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag()) then
             exit;
 
-        APIDataUpgrade.UpgradeItemPostingGroups(true);
+        // Scenario - Set a default value to a new field
+        Item.SetFilter("Gen. Prod. Posting Group Id", '<>%1', BlankGuid);
+        if Item.IsEmpty() then begin
+            GenProdPostingGroupDataTransfer.SetTables(Database::"Gen. Product Posting Group", Database::Item);
+            GenProdPostingGroupDataTransfer.AddFieldValue(GenProdPostingGroup.FieldNo("SystemId"), Item.FieldNo("Gen. Prod. Posting Group Id"));
+            GenProdPostingGroupDataTransfer.AddJoin(GenProdPostingGroup.FieldNo(Code), Item.FieldNo("Gen. Prod. Posting Group"));
+            GenProdPostingGroupDataTransfer.UpdateAuditFields := false;
+            GenProdPostingGroupDataTransfer.CopyFields();
+        end;
+
+        Item.SetFilter("Inventory Posting Group Id", '<>%1', BlankGuid);
+        if Item.IsEmpty() then begin
+            InventoryPostingGroupDataTransfer.SetTables(Database::"Inventory Posting Group", Database::Item);
+            InventoryPostingGroupDataTransfer.AddFieldValue(InventoryPostingGroup.FieldNo("SystemId"), Item.FieldNo("Inventory Posting Group Id"));
+            InventoryPostingGroupDataTransfer.AddJoin(InventoryPostingGroup.FieldNo(Code), Item.FieldNo("Inventory Posting Group"));
+            InventoryPostingGroupDataTransfer.UpdateAuditFields := false;
+            InventoryPostingGroupDataTransfer.CopyFields();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemPostingGroupsUpgradeTag());
     end;
@@ -1123,7 +1132,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 JobQueueLogEntry.Modify();
             UNTIL JobQueueLogEntry.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetJobQueueEntryMergeErrorMessageFieldsUpgradeTag());
     end;
 
     local procedure UpgradeNotificationEntries()
@@ -1137,13 +1146,18 @@ codeunit 104000 "Upgrade - BaseApp"
 
         if NotificationEntry.FindSet(true) then
             repeat
-                NotificationEntry."Error Message" := NotificationEntry."Error Message 2" +
-                  NotificationEntry."Error Message 3" + NotificationEntry."Error Message 4";
+                NotificationEntry."Error Message" :=
+                    CopyStr(
+                        NotificationEntry."Error Message" +
+                        NotificationEntry."Error Message 2" +
+                        NotificationEntry."Error Message 3" +
+                        NotificationEntry."Error Message 4",
+                        1, MaxStrLen(NotificationEntry."Error Message"));
 
                 NotificationEntry.Modify();
             until NotificationEntry.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNotificationEntryMergeErrorMessageFieldsUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNotificationEntryMergeErrorMessageFieldsUpgradeTag());
     end;
 
     local procedure UpgradeVATReportSetup()
@@ -1157,7 +1171,7 @@ codeunit 104000 "Upgrade - BaseApp"
             EXIT;
 
         WITH VATReportSetup DO BEGIN
-            IF NOT GET THEN
+            IF NOT GET() THEN
                 EXIT;
             IF IsPeriodReminderCalculation() OR ("Period Reminder Time" = 0) THEN
                 EXIT;
@@ -1234,7 +1248,9 @@ codeunit 104000 "Upgrade - BaseApp"
     var
         PowerBIReportUploads: Record "Power BI Report Uploads";
         PowerBIReportConfiguration: Record "Power BI Report Configuration";
+#if not CLEAN21
         PowerBIReportBuffer: Record "Power BI Report Buffer";
+#endif
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
@@ -1257,6 +1273,7 @@ codeunit 104000 "Upgrade - BaseApp"
                 end;
             until PowerBIReportConfiguration.Next() = 0;
 
+#if not CLEAN21
         if PowerBIReportBuffer.FindSet(true, false) then
             repeat
                 if PowerBIReportBuffer.ReportEmbedUrl = '' then begin
@@ -1264,6 +1281,7 @@ codeunit 104000 "Upgrade - BaseApp"
                     PowerBIReportBuffer.Modify();
                 end;
             until PowerBIReportBuffer.Next() = 0;
+#endif
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPowerBiEmbedUrlTooShortUpgradeTag());
     end;
@@ -1342,28 +1360,72 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradeDimensionValues()
     var
+        Dimension: Record "Dimension";
+        DimensionValue: Record "Dimension Value";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        APIDataUpgrade: Codeunit "API Data Upgrade";
+        BlankGuid: Guid;
+        DimensionValueDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimensionValueDimensionIdUpgradeTag()) then
             exit;
 
-        APIDataUpgrade.UpgradeDimensionValues();
+        DimensionValue.SetFilter("Dimension Id", '<>%1', BlankGuid);
+        if DimensionValue.IsEmpty() then begin
+            DimensionValueDataTransfer.SetTables(Database::"Dimension", Database::"Dimension Value");
+            DimensionValueDataTransfer.AddFieldValue(Dimension.FieldNo(SystemId), DimensionValue.FieldNo("Dimension Id"));
+            DimensionValueDataTransfer.AddJoin(Dimension.FieldNo(Code), DimensionValue.FieldNo("Dimension Code"));
+            DimensionValueDataTransfer.UpdateAuditFields := false;
+            DimensionValueDataTransfer.CopyFields();
+        end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimensionValueDimensionIdUpgradeTag());
     end;
 
     local procedure UpgradeGLAccountAPIType()
     var
+        GLAccount: Record "G/L Account";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        APIDataUpgrade: Codeunit "API Data Upgrade";
+        GLAccountDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLAccountAPITypeUpgradeTag()) then
             exit;
 
-        APIDataUpgrade.UpgradeGLAccountAPIType();
+        GLAccountDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Account Type"), '=%1', GLAccount."Account Type"::Posting);
+        GLAccountDataTransfer.AddConstantValue(GLAccount."API Account Type"::Posting, GLAccount.FieldNo("API Account Type"));
+        GLAccountDataTransfer.UpdateAuditFields := false;
+        GLAccountDataTransfer.CopyFields();
+        Clear(GLAccountDataTransfer);
+
+        GLAccountDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Account Type"), '=%1', GLAccount."Account Type"::Heading);
+        GLAccountDataTransfer.AddConstantValue(GLAccount."API Account Type"::Heading, GLAccount.FieldNo("API Account Type"));
+        GLAccountDataTransfer.UpdateAuditFields := false;
+        GLAccountDataTransfer.CopyFields();
+        Clear(GLAccountDataTransfer);
+
+        GLAccountDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Account Type"), '=%1', GLAccount."Account Type"::Total);
+        GLAccountDataTransfer.AddConstantValue(GLAccount."API Account Type"::Total, GLAccount.FieldNo("API Account Type"));
+        GLAccountDataTransfer.UpdateAuditFields := false;
+        GLAccountDataTransfer.CopyFields();
+        Clear(GLAccountDataTransfer);
+
+        GLAccountDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Account Type"), '=%1', GLAccount."Account Type"::"Begin-Total");
+        GLAccountDataTransfer.AddConstantValue(GLAccount."API Account Type"::"Begin-Total", GLAccount.FieldNo("API Account Type"));
+        GLAccountDataTransfer.UpdateAuditFields := false;
+        GLAccountDataTransfer.CopyFields();
+        Clear(GLAccountDataTransfer);
+
+        GLAccountDataTransfer.SetTables(Database::"G/L Account", Database::"G/L Account");
+        GLAccountDataTransfer.AddSourceFilter(GLAccount.FieldNo("Account Type"), '=%1', GLAccount."Account Type"::"End-Total");
+        GLAccountDataTransfer.AddConstantValue(GLAccount."API Account Type"::"End-Total", GLAccount.FieldNo("API Account Type"));
+        GLAccountDataTransfer.UpdateAuditFields := false;
+        GLAccountDataTransfer.CopyFields();
+        Clear(GLAccountDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLAccountAPITypeUpgradeTag());
     end;
@@ -2034,14 +2096,20 @@ codeunit 104000 "Upgrade - BaseApp"
 
     local procedure UpgradePurchRcptLineDocumentId()
     var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        APIDataUpgrade: Codeunit "API Data Upgrade";
+        PurchRcptLineDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewPurchRcptLineUpgradeTag()) then
             exit;
 
-        APIDataUpgrade.UpgradePurchRcptLineDocumentId(true);
+        PurchRcptLineDataTransfer.SetTables(Database::"Purch. Rcpt. Header", Database::"Purch. Rcpt. Line");
+        PurchRcptLineDataTransfer.AddFieldValue(PurchRcptHeader.FieldNo("SystemId"), PurchRcptLine.FieldNo("Document Id"));
+        PurchRcptLineDataTransfer.AddJoin(PurchRcptHeader.FieldNo("No."), PurchRcptLine.FieldNo("Document No."));
+        PurchRcptLineDataTransfer.UpdateAuditFields := false;
+        PurchRcptLineDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewPurchRcptLineUpgradeTag());
     end;
@@ -2147,39 +2215,81 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag()) THEN
             exit;
 
         IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment);
         if IntrastatJnlLine.FindSet() then
             repeat
-                IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine."Partner ID";
+                IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
                 IntrastatJnlLine.Modify();
             until IntrastatJnlLine.Next() = 0;
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag());
     end;
 
     local procedure UpgradeDimensionSetEntry()
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         DimensionSetEntry: Record "Dimension Set Entry";
-        UpdateDimSetGlblDimNo: Codeunit "Update Dim. Set Glbl. Dim. No.";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
+        DimensionSetEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimSetEntryGlobalDimNoUpgradeTag()) THEN
             exit;
 
         if GeneralLedgerSetup.Get() then begin
-            if EnvironmentInformation.IsSaaS() then
-                if DimensionSetEntry.Count() > GetSafeRecordCountForSaaSUpgrade() then
-                    exit;
-
             if UpgradeDimensionSetEntryIsHandled() then
                 exit;
-            UpdateDimSetGlblDimNo.BlankGlobalDimensionNo();
-            UpdateDimSetGlblDimNo.SetGlobalDimensionNos(GeneralLedgerSetup);
+
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Global Dimension No."), '>0');
+            DimensionSetEntryDataTransfer.AddConstantValue(0, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
+
+            Clear(DimensionSetEntryDataTransfer);
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Dimension Code"), '=%1', GeneralLedgerSetup."Shortcut Dimension 3 Code");
+            DimensionSetEntryDataTransfer.AddConstantValue(3, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
+
+            Clear(DimensionSetEntryDataTransfer);
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Dimension Code"), '=%1', GeneralLedgerSetup."Shortcut Dimension 4 Code");
+            DimensionSetEntryDataTransfer.AddConstantValue(4, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
+
+            Clear(DimensionSetEntryDataTransfer);
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Dimension Code"), '=%1', GeneralLedgerSetup."Shortcut Dimension 5 Code");
+            DimensionSetEntryDataTransfer.AddConstantValue(5, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
+
+            Clear(DimensionSetEntryDataTransfer);
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Dimension Code"), '=%1', GeneralLedgerSetup."Shortcut Dimension 6 Code");
+            DimensionSetEntryDataTransfer.AddConstantValue(6, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
+
+            Clear(DimensionSetEntryDataTransfer);
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Dimension Code"), '=%1', GeneralLedgerSetup."Shortcut Dimension 7 Code");
+            DimensionSetEntryDataTransfer.AddConstantValue(7, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
+
+            Clear(DimensionSetEntryDataTransfer);
+            DimensionSetEntryDataTransfer.SetTables(Database::"Dimension Set Entry", Database::"Dimension Set Entry");
+            DimensionSetEntryDataTransfer.AddSourceFilter(DimensionSetEntry.FieldNo("Dimension Code"), '=%1', GeneralLedgerSetup."Shortcut Dimension 8 Code");
+            DimensionSetEntryDataTransfer.AddConstantValue(8, DimensionSetEntry.FieldNo("Global Dimension No."));
+            DimensionSetEntryDataTransfer.UpdateAuditFields := false;
+            DimensionSetEntryDataTransfer.CopyFields();
         end;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimSetEntryGlobalDimNoUpgradeTag());
@@ -2321,14 +2431,14 @@ codeunit 104000 "Upgrade - BaseApp"
         MediaRepository: Record "Media Repository";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
-        PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
+        PowerBIEmbeddedReportPart: Page "Power BI Embedded Report Part";
         TargetClientType: ClientType;
         ImageName: Text[250];
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpgradePowerBIOptinImageUpgradeTag()) THEN
             exit;
 
-        ImageName := PowerBIReportSpinnerPart.GetOptinImageName();
+        ImageName := PowerBIEmbeddedReportPart.GetOptinImageName();
 
         TargetClientType := ClientType::Phone;
         if not MediaRepository.Get(ImageName, TargetClientType) then
@@ -2349,14 +2459,14 @@ codeunit 104000 "Upgrade - BaseApp"
     var
         MediaRepository: Record "Media Repository";
         TargetMediaRepository: Record "Media Repository";
-        PowerBIReportSpinnerPart: Page "Power BI Report Spinner Part";
+        PowerBIEmbeddedReportPart: Page "Power BI Embedded Report Part";
         ImageName: Text[250];
     begin
         Session.LogMessage('0000EH4', STRSUBSTNO(AttemptingPowerBIUpdateTxt, targetClientType), Verbosity::Normal, DataClassification::SystemMetadata,
             TelemetryScope::ExtensionPublisher, 'Category', 'AL SaaS Upgrade');
 
         // Insert the same image we use on web
-        ImageName := PowerBIReportSpinnerPart.GetOptinImageName();
+        ImageName := PowerBIEmbeddedReportPart.GetOptinImageName();
         if not MediaRepository.Get(ImageName, Format(ClientType::Web)) then
             exit(false);
 
@@ -2573,6 +2683,107 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetICSetupUpgradeTag());
     end;
 
+    local procedure UpgradeCRMUnitGroupMapping()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        UnitGroup: Record "Unit Group";
+        Item: Record Item;
+        Resource: Record Resource;
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UnitGroupDataTransfer: DataTransfer;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCRMUnitGroupMappingUpgradeTag()) then
+            exit;
+
+        if CRMConnectionSetup.Get() then
+            if IntegrationTableMapping.Get('UNIT GROUP') then begin
+                CRMConnectionSetup."Unit Group Mapping Enabled" := true;
+                CRMConnectionSetup.Modify();
+
+                IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+#if not CLEAN22
+                IntegrationFieldMapping.SetRange("Field No.", UnitGroup.FieldNo("Code"));
+#endif
+                IntegrationFieldMapping.ModifyAll("Field No.", UnitGroup.FieldNo("Source No."));
+            end else begin
+                UnitGroup.DeleteAll();
+
+                UnitGroupDataTransfer.SetTables(Database::Item, Database::"Unit Group");
+                UnitGroupDataTransfer.AddFieldValue(Item.FieldNo(SystemId), UnitGroup.FieldNo("Source Id"));
+                UnitGroupDataTransfer.AddFieldValue(Item.FieldNo("No."), UnitGroup.FieldNo("Source No."));
+                UnitGroupDataTransfer.AddConstantValue(UnitGroup."Source Type"::Item, UnitGroup.FieldNo("Source Type"));
+                UnitGroupDataTransfer.UpdateAuditFields := false;
+                UnitGroupDataTransfer.CopyRows();
+                Clear(UnitGroupDataTransfer);
+
+                UnitGroupDataTransfer.SetTables(Database::Resource, Database::"Unit Group");
+                UnitGroupDataTransfer.AddFieldValue(Resource.FieldNo(SystemId), UnitGroup.FieldNo("Source Id"));
+                UnitGroupDataTransfer.AddFieldValue(Resource.FieldNo("No."), UnitGroup.FieldNo("Source No."));
+                UnitGroupDataTransfer.AddConstantValue(UnitGroup."Source Type"::Resource, UnitGroup.FieldNo("Source Type"));
+                UnitGroupDataTransfer.UpdateAuditFields := false;
+                UnitGroupDataTransfer.CopyRows();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCRMUnitGroupMappingUpgradeTag());
+    end;
+
+    local procedure UpgradeCRMSDK90ToCRMSDK91()
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCRMSDK90UpgradeTag()) then
+            exit;
+
+        if CRMConnectionSetup.Get() then
+            if CRMConnectionSetup."Proxy Version" = 9 then begin
+                CRMConnectionSetup."Proxy Version" := 91;
+                CRMConnectionSetup.Modify();
+            end;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Proxy Version" = 9 then begin
+                CDSConnectionSetup."Proxy Version" := 91;
+                CDSConnectionSetup.Modify();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCRMSDK90UpgradeTag());
+    end;
+
+    local procedure FillItemChargeAssignmentQtyToHandle()
+    var
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetItemChargeHandleQtyUpgradeTag()) then
+            exit;
+
+        ItemChargeAssignmentPurch.SetFilter("Qty. to Assign", '>0');
+        if ItemChargeAssignmentPurch.FindSet(true) then
+            repeat
+                ItemChargeAssignmentPurch."Qty. to Handle" := ItemChargeAssignmentPurch."Qty. to Assign";
+                ItemChargeAssignmentPurch."Amount to Handle" := ItemChargeAssignmentPurch."Amount to Assign";
+                ItemChargeAssignmentPurch.Modify();
+            until ItemChargeAssignmentPurch.Next() = 0;
+
+        ItemChargeAssignmentSales.SetFilter("Qty. to Assign", '>0');
+        if ItemChargeAssignmentSales.FindSet(true) then
+            repeat
+                ItemChargeAssignmentSales."Qty. to Handle" := ItemChargeAssignmentSales."Qty. to Assign";
+                ItemChargeAssignmentSales."Amount to Handle" := ItemChargeAssignmentSales."Amount to Assign";
+                ItemChargeAssignmentSales.Modify();
+            until ItemChargeAssignmentSales.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetItemChargeHandleQtyUpgradeTag());
+    end;
+
     local procedure UseCustomLookupInPrices()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
@@ -2592,26 +2803,69 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag());
     end;
 
+    [Scope('OnPrem')]
+    local procedure UpgradeAccountSchedulesToFinancialReports()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        FinancialReport: Record "Financial Report";
+        FinancialReportMgt: Codeunit "Financial Report Mgt.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        AnythingModified: Boolean;
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetAccountSchedulesToFinancialReportsUpgradeTag()) then
+            exit;
+        if not GeneralLedgerSetup.Get() then
+            exit;
+        FinancialReportMgt.Initialize();
+        if not (GeneralLedgerSetup."Acc. Sched. for Balance Sheet" = '') then
+            if FinancialReport.Get(GeneralLedgerSetup."Acc. Sched. for Balance Sheet") then
+                if GeneralLedgerSetup."Fin. Rep. for Balance Sheet" = '' then begin
+                    GeneralLedgerSetup."Fin. Rep. for Balance Sheet" := GeneralLedgerSetup."Acc. Sched. for Balance Sheet";
+                    AnythingModified := true;
+                end;
+        if not (GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt" = '') then
+            if FinancialReport.Get(GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt") then
+                if GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt" = '' then begin
+                    GeneralLedgerSetup."Fin. Rep. for Cash Flow Stmt" := GeneralLedgerSetup."Acc. Sched. for Cash Flow Stmt";
+                    AnythingModified := true;
+                end;
+        if not (GeneralLedgerSetup."Acc. Sched. for Income Stmt." = '') then
+            if FinancialReport.Get(GeneralLedgerSetup."Acc. Sched. for Income Stmt.") then
+                if GeneralLedgerSetup."Fin. Rep. for Income Stmt." = '' then begin
+                    GeneralLedgerSetup."Fin. Rep. for Income Stmt." := GeneralLedgerSetup."Acc. Sched. for Income Stmt.";
+                    AnythingModified := true;
+                end;
+        if not (GeneralLedgerSetup."Acc. Sched. for Retained Earn." = '') then
+            if FinancialReport.Get(GeneralLedgerSetup."Acc. Sched. for Retained Earn.") then
+                if GeneralLedgerSetup."Fin. Rep. for Retained Earn." = '' then begin
+                    GeneralLedgerSetup."Fin. Rep. for Retained Earn." := GeneralLedgerSetup."Acc. Sched. for Retained Earn.";
+                    AnythingModified := true;
+                end;
+        if AnythingModified then
+            GeneralLedgerSetup.Modify();
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetAccountSchedulesToFinancialReportsUpgradeTag());
+    end;
+
     local procedure UpgradeGLEntryJournalTemplateName()
     var
         GLEntry: Record "G/L Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        GLEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        GLEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        GLEntry.SetFilter("Journal Template Name", '<>%1', '');
-        GLEntry.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"G/L Entry", GLEntry.Count()) then
-                exit;
-        if GLEntry.FindSet(true) then
-            repeat
-                GLEntry."Journal Templ. Name" := GLEntry."Journal Template Name";
-                GLEntry.Modify();
-            until GLEntry.Next() = 0;
+        GLEntry.SetFilter("Journal Templ. Name", '<>%1', '');
+        if not GLEntry.IsEmpty() then
+            exit;
+
+        GLEntryDataTransfer.SetTables(Database::"G/L Entry", Database::"G/L Entry");
+        GLEntryDataTransfer.AddSourceFilter(GLEntry.FieldNo("Journal Template Name"), '<>%1', '');
+        GLEntryDataTransfer.AddFieldValue(GLEntry.FieldNo("Journal Template Name"), GLEntry.FieldNo("Journal Templ. Name"));
+        GLEntryDataTransfer.UpdateAuditFields := false;
+        GLEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2621,21 +2875,20 @@ codeunit 104000 "Upgrade - BaseApp"
         GLRegister: Record "G/L Register";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        GLRegisterDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLRegisterJournalTemplateNameUpgradeTag()) then
             exit;
 
-        GLRegister.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        GLRegister.SetFilter("Journal Template Name", '<>%1', '');
-        GLRegister.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"G/L Register", GLRegister.Count()) then
-                exit;
-        if GLRegister.FindSet(true) then
-            repeat
-                GLRegister."Journal Templ. Name" := GLRegister."Journal Template Name";
-                GLRegister.Modify();
-            until GLRegister.Next() = 0;
+        GLRegister.SetFilter("Journal Templ. Name", '<>%1', '');
+        if not GLRegister.IsEmpty() then
+            exit;
+
+        GLRegisterDataTransfer.SetTables(Database::"G/L Register", Database::"G/L Register");
+        GLRegisterDataTransfer.AddSourceFilter(GLRegister.FieldNo("Journal Template Name"), '<>%1', '');
+        GLRegisterDataTransfer.AddFieldValue(GLRegister.FieldNo("Journal Template Name"), GLRegister.FieldNo("Journal Templ. Name"));
+        GLRegisterDataTransfer.UpdateAuditFields := false;
+        GLRegisterDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLRegisterJournalTemplateNameUpgradeTag());
     end;
@@ -2681,7 +2934,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         if not GeneralLedgerSetup.Get() then
             exit;
-            
+
         GeneralLedgerSetup."Bank Acc. Recon. Template Name" := GeneralLedgerSetup."Payment Recon. Template Name";
         GeneralLedgerSetup."Apply Jnl. Template Name" := GeneralLedgerSetup."Jnl. Templ. Name for Applying";
         GeneralLedgerSetup."Apply Jnl. Batch Name" := GeneralLedgerSetup."Jnl. Batch Name for Applying";
@@ -2744,21 +2997,20 @@ codeunit 104000 "Upgrade - BaseApp"
         VATEntry: Record "VAT Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        VATEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        VATEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        VATEntry.SetFilter("Journal Template Name", '<>%1', '');
-        VATEntry.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"VAT Entry", VATEntry.Count()) then
-                exit;
-        if VATEntry.FindSet(true) then
-            repeat
-                VATEntry."Journal Templ. Name" := VATEntry."Journal Template Name";
-                VATEntry.Modify();
-            until VATEntry.Next() = 0;
+        VATEntry.SetRange("Journal Templ. Name", '<>%1', '');
+        if not VATEntry.IsEmpty() then
+            exit;
+
+        VATEntryDataTransfer.SetTables(Database::"VAT Entry", Database::"VAT Entry");
+        VATEntryDataTransfer.AddSourceFilter(VATEntry.FieldNo("Journal Template Name"), '<>%1', '');
+        VATEntryDataTransfer.AddFieldValue(VATEntry.FieldNo("Journal Template Name"), VATEntry.FieldNo("Journal Templ. Name"));
+        VATEntryDataTransfer.UpdateAuditFields := false;
+        VATEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2768,21 +3020,20 @@ codeunit 104000 "Upgrade - BaseApp"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        BankAccountLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        BankAccountLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        BankAccountLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
-        BankAccountLedgerEntry.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Bank Account Ledger Entry", BankAccountLedgerEntry.Count()) then
-                exit;
-        if BankAccountLedgerEntry.FindSet(true) then
-            repeat
-                BankAccountLedgerEntry."Journal Templ. Name" := BankAccountLedgerEntry."Journal Template Name";
-                BankAccountLedgerEntry.Modify();
-            until BankAccountLedgerEntry.Next() = 0;
+        BankAccountLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
+        if not BankAccountLedgerEntry.IsEmpty() then
+            exit;
+
+        BankAccountLedgerEntryDataTransfer.SetTables(Database::"Bank Account Ledger Entry", Database::"Bank Account Ledger Entry");
+        BankAccountLedgerEntryDataTransfer.AddSourceFilter(BankAccountLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
+        BankAccountLedgerEntryDataTransfer.AddFieldValue(BankAccountLedgerEntry.FieldNo("Journal Template Name"), BankAccountLedgerEntry.FieldNo("Journal Templ. Name"));
+        BankAccountLedgerEntryDataTransfer.UpdateAuditFields := false;
+        BankAccountLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetBankAccountLedgerEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2792,21 +3043,20 @@ codeunit 104000 "Upgrade - BaseApp"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        CustLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        CustLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        CustLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
-        CustLedgerEntry.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Cust. Ledger Entry", CustLedgerEntry.Count()) then
-                exit;
-        if CustLedgerEntry.FindSet(true) then
-            repeat
-                CustLedgerEntry."Journal Templ. Name" := CustLedgerEntry."Journal Template Name";
-                CustLedgerEntry.Modify();
-            until CustLedgerEntry.Next() = 0;
+        CustLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
+        if not CustLedgerEntry.IsEmpty() then
+            exit;
+
+        CustLedgerEntryDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
+        CustLedgerEntryDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
+        CustLedgerEntryDataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Journal Template Name"), CustLedgerEntry.FieldNo("Journal Templ. Name"));
+        CustLedgerEntryDataTransfer.UpdateAuditFields := false;
+        CustLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2816,21 +3066,20 @@ codeunit 104000 "Upgrade - BaseApp"
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        EmployeeLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetEmplLedgerEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        EmployeeLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        EmployeeLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
-        EmployeeLedgerEntry.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Employee Ledger Entry", EmployeeLedgerEntry.Count()) then
-                exit;
-        if EmployeeLedgerEntry.FindSet(true) then
-            repeat
-                EmployeeLedgerEntry."Journal Templ. Name" := EmployeeLedgerEntry."Journal Template Name";
-                EmployeeLedgerEntry.Modify();
-            until EmployeeLedgerEntry.Next() = 0;
+        EmployeeLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
+        if not EmployeeLedgerEntry.IsEmpty() then
+            exit;
+
+        EmployeeLedgerEntryDataTransfer.SetTables(Database::"Employee Ledger Entry", Database::"Employee Ledger Entry");
+        EmployeeLedgerEntryDataTransfer.AddSourceFilter(EmployeeLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
+        EmployeeLedgerEntryDataTransfer.AddFieldValue(EmployeeLedgerEntry.FieldNo("Journal Template Name"), EmployeeLedgerEntry.FieldNo("Journal Templ. Name"));
+        EmployeeLedgerEntryDataTransfer.UpdateAuditFields := false;
+        EmployeeLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEmplLedgerEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2840,21 +3089,20 @@ codeunit 104000 "Upgrade - BaseApp"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        VendLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryJournalTemplateNameUpgradeTag()) then
             exit;
 
-        VendLedgerEntry.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        VendLedgerEntry.SetFilter("Journal Template Name", '<>%1', '');
-        VendLedgerEntry.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Vendor Ledger Entry", VendLedgerEntry.Count()) then
-                exit;
-        if VendLedgerEntry.FindSet(true) then
-            repeat
-                VendLedgerEntry."Journal Templ. Name" := VendLedgerEntry."Journal Template Name";
-                VendLedgerEntry.Modify();
-            until VendLedgerEntry.Next() = 0;
+        VendLedgerEntry.SetRange("Journal Templ. Name", '<>%1', '');
+        if not VendLedgerEntry.IsEmpty() then
+            exit;
+
+        VendLedgerEntryDataTransfer.SetTables(Database::"Vendor Ledger Entry", Database::"Vendor Ledger Entry");
+        VendLedgerEntryDataTransfer.AddSourceFilter(VendLedgerEntry.FieldNo("Journal Template Name"), '<>%1', '');
+        VendLedgerEntryDataTransfer.AddFieldValue(VendLedgerEntry.FieldNo("Journal Template Name"), VendLedgerEntry.FieldNo("Journal Templ. Name"));
+        VendLedgerEntryDataTransfer.UpdateAuditFields := false;
+        VendLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryJournalTemplateNameUpgradeTag());
     end;
@@ -2864,21 +3112,20 @@ codeunit 104000 "Upgrade - BaseApp"
         SalesHeader: Record "Sales Header";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        SalesHeaderDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSalesHeaderJournalTemplateNameUpgradeTag()) then
             exit;
 
-        SalesHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        SalesHeader.SetFilter("Journal Template Name", '<>%1', '');
-        SalesHeader.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Sales Header", SalesHeader.Count()) then
-                exit;
-        if SalesHeader.FindSet(true) then
-            repeat
-                SalesHeader."Journal Templ. Name" := SalesHeader."Journal Template Name";
-                SalesHeader.Modify();
-            until SalesHeader.Next() = 0;
+        SalesHeader.SetRange("Journal Templ. Name", '<>%1', '');
+        if not SalesHeader.IsEmpty() then
+            exit;
+
+        SalesHeaderDataTransfer.SetTables(Database::"Sales Header", Database::"Sales Header");
+        SalesHeaderDataTransfer.AddSourceFilter(SalesHeader.FieldNo("Journal Template Name"), '<>%1', '');
+        SalesHeaderDataTransfer.AddFieldValue(SalesHeader.FieldNo("Journal Template Name"), SalesHeader.FieldNo("Journal Templ. Name"));
+        SalesHeaderDataTransfer.UpdateAuditFields := false;
+        SalesHeaderDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSalesHeaderJournalTemplateNameUpgradeTag());
     end;
@@ -2888,21 +3135,20 @@ codeunit 104000 "Upgrade - BaseApp"
         ServiceHeader: Record "Service Header";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        ServiceHeaderDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetServiceHeaderJournalTemplateNameUpgradeTag()) then
             exit;
 
-        ServiceHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        ServiceHeader.SetFilter("Journal Template Name", '<>%1', '');
-        ServiceHeader.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Service Header", ServiceHeader.Count()) then
-                exit;
-        if ServiceHeader.FindSet(true) then
-            repeat
-                ServiceHeader."Journal Templ. Name" := ServiceHeader."Journal Template Name";
-                ServiceHeader.Modify();
-            until ServiceHeader.Next() = 0;
+        ServiceHeader.SetRange("Journal Templ. Name", '<>%1', '');
+        if not ServiceHeader.IsEmpty() then
+            exit;
+
+        ServiceHeaderDataTransfer.SetTables(Database::"Service Header", Database::"Service Header");
+        ServiceHeaderDataTransfer.AddSourceFilter(ServiceHeader.FieldNo("Journal Template Name"), '<>%1', '');
+        ServiceHeaderDataTransfer.AddFieldValue(ServiceHeader.FieldNo("Journal Template Name"), ServiceHeader.FieldNo("Journal Templ. Name"));
+        ServiceHeaderDataTransfer.UpdateAuditFields := false;
+        ServiceHeaderDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetServiceHeaderJournalTemplateNameUpgradeTag());
     end;
@@ -2912,21 +3158,20 @@ codeunit 104000 "Upgrade - BaseApp"
         PurchaseHeader: Record "Purchase Header";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        PurchaseHeaderDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetPurchaseHeaderJournalTemplateNameUpgradeTag()) then
             exit;
 
-        PurchaseHeader.SetLoadFields("Journal Templ. Name", "Journal Template Name");
-        PurchaseHeader.SetFilter("Journal Template Name", '<>%1', '');
-        PurchaseHeader.SetRange("Journal Templ. Name", '');
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Purchase Header", PurchaseHeader.Count()) then
-                exit;
-        if PurchaseHeader.FindSet(true) then
-            repeat
-                PurchaseHeader."Journal Templ. Name" := PurchaseHeader."Journal Template Name";
-                PurchaseHeader.Modify();
-            until PurchaseHeader.Next() = 0;
+        PurchaseHeader.SetRange("Journal Templ. Name", '<>%1', '');
+        if not PurchaseHeader.IsEmpty() then
+            exit;
+
+        PurchaseHeaderDataTransfer.SetTables(Database::"Purchase Header", Database::"Purchase Header");
+        PurchaseHeaderDataTransfer.AddSourceFilter(PurchaseHeader.FieldNo("Journal Template Name"), '<>%1', '');
+        PurchaseHeaderDataTransfer.AddFieldValue(PurchaseHeader.FieldNo("Journal Template Name"), PurchaseHeader.FieldNo("Journal Templ. Name"));
+        PurchaseHeaderDataTransfer.UpdateAuditFields := false;
+        PurchaseHeaderDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetPurchaseHeaderJournalTemplateNameUpgradeTag());
     end;
@@ -2936,21 +3181,20 @@ codeunit 104000 "Upgrade - BaseApp"
         CustLedgerEntry: Record "Cust. Ledger Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        CustLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryPmtDiscPossibleUpgradeTag()) then
             exit;
 
-        CustLedgerEntry.SetLoadFields("Orig. Pmt. Disc. Possible(LCY)", "Org. Pmt. Disc. Possible (LCY)");
-        CustLedgerEntry.SetFilter("Org. Pmt. Disc. Possible (LCY)", '<>%1', 0);
-        CustLedgerEntry.SetRange("Orig. Pmt. Disc. Possible(LCY)", 0);
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Cust. Ledger Entry", CustLedgerEntry.Count()) then
-                exit;
-        if CustLedgerEntry.FindSet(true) then
-            repeat
-                CustLedgerEntry."Orig. Pmt. Disc. Possible(LCY)" := CustLedgerEntry."Org. Pmt. Disc. Possible (LCY)";
-                CustLedgerEntry.Modify();
-            until CustLedgerEntry.Next() = 0;
+        CustLedgerEntry.SetFilter("Orig. Pmt. Disc. Possible(LCY)", '<>%1', 0);
+        if not CustLedgerEntry.IsEmpty() then
+            exit;
+
+        CustLedgerEntryDataTransfer.SetTables(Database::"Cust. Ledger Entry", Database::"Cust. Ledger Entry");
+        CustLedgerEntryDataTransfer.AddSourceFilter(CustLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), '<>%1', 0);
+        CustLedgerEntryDataTransfer.AddFieldValue(CustLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), CustLedgerEntry.FieldNo("Orig. Pmt. Disc. Possible(LCY)"));
+        CustLedgerEntryDataTransfer.UpdateAuditFields := false;
+        CustLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetCustLedgerEntryPmtDiscPossibleUpgradeTag());
     end;
@@ -2960,21 +3204,20 @@ codeunit 104000 "Upgrade - BaseApp"
         VendLedgerEntry: Record "Vendor Ledger Entry";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        VendLedgerEntryDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryPmtDiscPossibleUpgradeTag()) then
             exit;
 
-        VendLedgerEntry.SetLoadFields("Orig. Pmt. Disc. Possible(LCY)", "Org. Pmt. Disc. Possible (LCY)");
-        VendLedgerEntry.SetFilter("Org. Pmt. Disc. Possible (LCY)", '<>%1', 0);
-        VendLedgerEntry.SetRange("Orig. Pmt. Disc. Possible(LCY)", 0);
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Vendor Ledger Entry", VendLedgerEntry.Count()) then
-                exit;
-        if VendLedgerEntry.FindSet(true) then
-            repeat
-                VendLedgerEntry."Orig. Pmt. Disc. Possible(LCY)" := VendLedgerEntry."Org. Pmt. Disc. Possible (LCY)";
-                VendLedgerEntry.Modify();
-            until VendLedgerEntry.Next() = 0;
+        VendLedgerEntry.SetFilter("Orig. Pmt. Disc. Possible(LCY)", '<>%1', 0);
+        if not VendLedgerEntry.IsEmpty() then
+            exit;
+
+        VendLedgerEntryDataTransfer.SetTables(Database::"Vendor Ledger Entry", Database::"Vendor Ledger Entry");
+        VendLedgerEntryDataTransfer.AddSourceFilter(VendLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), '<>%1', 0);
+        VendLedgerEntryDataTransfer.AddFieldValue(VendLedgerEntry.FieldNo("Org. Pmt. Disc. Possible (LCY)"), VendLedgerEntry.FieldNo("Orig. Pmt. Disc. Possible(LCY)"));
+        VendLedgerEntryDataTransfer.UpdateAuditFields := false;
+        VendLedgerEntryDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVendLedgerEntryPmtDiscPossibleUpgradeTag());
     end;
@@ -2984,24 +3227,21 @@ codeunit 104000 "Upgrade - BaseApp"
         GenJournalLine: Record "Gen. Journal Line";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        GenJournalLineDataTransfer: DataTransfer;
     begin
         if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGenJournalLinePmtDiscPossibleUpgradeTag()) then
             exit;
 
-        GenJournalLine.SetLoadFields(
-            "Orig. Pmt. Disc. Possible", "Orig. Pmt. Disc. Possible(LCY)",
-            "Original Pmt. Disc. Possible", "Org. Pmt. Disc. Possible (LCY)");
-        GenJournalLine.SetFilter("Org. Pmt. Disc. Possible (LCY)", '<>%1', 0);
-        GenJournalLine.SetRange("Orig. Pmt. Disc. Possible(LCY)", 0);
-        if EnvironmentInformation.IsSaaS() then
-            if LogTelemetryForManyRecords(Database::"Gen. Journal Line", GenJournalLine.Count()) then
-                exit;
-        if GenJournalLine.FindSet(true) then
-            repeat
-                GenJournalLine."Orig. Pmt. Disc. Possible" := GenJournalLine."Original Pmt. Disc. Possible";
-                GenJournalLine."Orig. Pmt. Disc. Possible(LCY)" := GenJournalLine."Org. Pmt. Disc. Possible (LCY)";
-                GenJournalLine.Modify();
-            until GenJournalLine.Next() = 0;
+        GenJournalLine.SetFilter("Orig. Pmt. Disc. Possible(LCY)", '<>%1', 0);
+        if not GenJournalLine.IsEmpty() then
+            exit;
+
+        GenJournalLineDataTransfer.SetTables(Database::"Gen. Journal Line", Database::"Gen. Journal Line");
+        GenJournalLineDataTransfer.AddSourceFilter(GenJournalLine.FieldNo("Org. Pmt. Disc. Possible (LCY)"), '<>%1', 0);
+        GenJournalLineDataTransfer.AddFieldValue(GenJournalLine.FieldNo("Original Pmt. Disc. Possible"), GenJournalLine.FieldNo("Orig. Pmt. Disc. Possible"));
+        GenJournalLineDataTransfer.AddFieldValue(GenJournalLine.FieldNo("Org. Pmt. Disc. Possible (LCY)"), GenJournalLine.FieldNo("Orig. Pmt. Disc. Possible(LCY)"));
+        GenJournalLineDataTransfer.UpdateAuditFields := false;
+        GenJournalLineDataTransfer.CopyFields();
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGenJournalLinePmtDiscPossibleUpgradeTag());
     end;

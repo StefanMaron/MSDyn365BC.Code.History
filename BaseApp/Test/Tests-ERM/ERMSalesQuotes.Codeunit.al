@@ -104,7 +104,7 @@ codeunit 134379 "ERM Sales Quotes"
           SalesHeader.Amount * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(
             AmountErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), SalesHeader.Amount * SalesLine."VAT %" / 100,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
 
         // Tear Down: Cleanup of Setup Done.
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
@@ -161,7 +161,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // Exercise: Create Sales Quote for Contact.
         SalesHeader.Insert(true);
-        SalesHeader.Validate("Posting Date", WorkDate);
+        SalesHeader.Validate("Posting Date", WorkDate());
         SalesHeader.Validate("Sell-to Contact No.", ContactBusinessRelation."Contact No.");
         SalesHeader.Modify(true);
 
@@ -236,7 +236,7 @@ codeunit 134379 "ERM Sales Quotes"
         FindSalesLine(SalesLine, SalesHeader."No.");
         Assert.AreNearlyEqual(
           InvDiscountAmount, SalesLine."Inv. Discount Amount", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(AmountErrorMessage, SalesLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, SalesLine.TableCaption));
+          StrSubstNo(AmountErrorMessage, SalesLine.FieldCaption("Inv. Discount Amount"), InvDiscountAmount, SalesLine.TableCaption()));
 
         // Tear Down: Cleanup of Setup Done.
         UpdateSalesReceivablesSetup(OldDefaultPostingDate, OldDefaultPostingDate, OldStockoutWarning);
@@ -302,7 +302,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // Exercise: Create Sales Order form Sales Quote.
         CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order (Yes/No)", SalesHeader);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // Verify: Verify that New Sales Order created from Sales Quote.
         // Verify Message on Message Dialog in SalesQuoteToOrderFalse Handler.
@@ -448,7 +448,7 @@ codeunit 134379 "ERM Sales Quotes"
         Assert.IsTrue(SalesQuotes.Reopen.Enabled, ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesQuotes.SendApprovalRequest.Enabled, ControlShouldBeEnabledErr);
         Assert.IsFalse(SalesQuotes.CancelApprovalRequest.Enabled, ControlShouldBeDisabledErr);
-        SalesQuotes.Close;
+        SalesQuotes.Close();
 
         // [WHEN] "Sell-to Contact No." = '' in Sales Quote
         SalesHeader."Sell-to Contact No." := '';
@@ -457,7 +457,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [THEN] "Contact" control is disabled
         Assert.IsFalse(SalesQuotes."C&ontact".Enabled, ControlShouldBeDisabledErr);
-        SalesQuotes.Close;
+        SalesQuotes.Close();
 
         // [WHEN] "Sell-to Contact No." = "C", "Sell-to Customer No." = ''
         SalesHeader."Sell-to Contact No." := Contact."No.";
@@ -540,10 +540,10 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [WHEN] Lookup "Contact No." in Sales Quote and confirm "Customer Template" selection with code "CUST"
         SalesQuote."Sell-to Contact No.".Lookup;
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [THEN] "Sell-to Customer Template Code" is assigned according to selected "Customer Template"
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.TestField("Sell-to Customer Templ. Code", CustomerTemplate.Code);
     end;
 
@@ -608,7 +608,7 @@ codeunit 134379 "ERM Sales Quotes"
         Assert.IsFalse(SalesQuote.GetRecurringSalesLines.Enabled, ControlShouldBeDisabledErr);
         Assert.IsFalse(SalesQuote.CopyDocument.Enabled, ControlShouldBeDisabledErr);
 
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [WHEN] Sales Quotes page is opened with no application area
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -647,7 +647,7 @@ codeunit 134379 "ERM Sales Quotes"
         Assert.IsTrue(SalesQuote.GetRecurringSalesLines.Enabled, ControlShouldBeEnabledErr);
         Assert.IsTrue(SalesQuote.CopyDocument.Enabled, ControlShouldBeEnabledErr);
 
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [WHEN] Sales Quotes page is opened with no application area
         LibraryApplicationArea.DisableApplicationAreaSetup;
@@ -790,7 +790,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         LibraryVariableStorage.Enqueue(SalesLine."Amount Including VAT");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [GIVEN] Sales Quote page with "SQ" is opened
         SalesQuote.OpenEdit;
@@ -829,7 +829,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
         LibraryVariableStorage.Enqueue(SalesLine."No.");
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [GIVEN] Sales Quote page with "SQ" is opened
         SalesQuote.OpenEdit;
@@ -1028,7 +1028,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesDocNo := SalesQuote."No.".Value;
         SalesDocYourReference := SalesQuote."Your Reference".Value;
         SalesDocQuoteValidUntilDate := SalesQuote."Quote Valid Until Date".AsDate;
-        SalesQuote.Close;
+        SalesQuote.Close();
 
         // [THEN] Created Sales Header record has "Your Reference" = Y and "Quote Valid Until Date" = D
         SalesHeader.Get(SalesHeader."Document Type"::Quote, SalesDocNo);
@@ -1081,91 +1081,6 @@ codeunit 134379 "ERM Sales Quotes"
         Customer.TestField(Name, ContactCompany[2].Name);
     end;
 
-#if not CLEAN18
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes,CustomerTemplateListModalPageHandlerGetRecord')]
-    [Scope('OnPrem')]
-    procedure LookupCustomerTemplateFromPersonContactLinkedToCompanyContact()
-    var
-        SalesHeader: Record "Sales Header";
-        ContactPerson: Record Contact;
-        ContactCompany: Record Contact;
-        CustomerTemplatePerson: Record "Customer Template";
-        CustomerTemplateCompany: Record "Customer Template";
-        SelectedTemplateCode: Code[10];
-    begin
-        // [FEATURE] [UT] [Contact]
-        // [SCENARIO 262275] Lookup customer template from contact-person which is linked to contact-company opens list of templates filtered by Contact Type = Company
-        Initialize();
-
-        // [GIVEN] Create customer templates with both contact types: TEMP_PERSON and TEMP_COMPANY
-        CreateCustomerTemplateWithContactType(CustomerTemplateCompany, CustomerTemplateCompany."Contact Type"::Company);
-        CreateCustomerTemplateWithContactType(CustomerTemplatePerson, CustomerTemplatePerson."Contact Type"::Person);
-
-        // [GIVEN] Contact COMP with type Company
-        // [GIVEN] Contact PERS with type Person linked to contact COMP
-        LibraryMarketing.CreatePersonContactWithCompanyNo(ContactPerson);
-        ContactCompany.Get(ContactPerson."Company No.");
-
-        // [GIVEN] Sales quote created from contact PERS
-        SalesHeader."Sell-to Contact No." := ContactPerson."No.";
-
-        // [WHEN] SalesHeader.SelectSalesHeaderCustomerTemplate is being run and try to filter template TEMP_COMPANY
-        LibraryVariableStorage.Enqueue(CustomerTemplateCompany.Code);
-        SelectedTemplateCode := SalesHeader.SelectSalesHeaderCustomerTemplate;
-
-        // [THEN] TEMP_COMPANY is chosen
-        Assert.AreEqual(CustomerTemplateCompany.Code, SelectedTemplateCode, InvalidTemplateSelectedErr);
-
-        // [WHEN] SalesHeader.SelectSalesHeaderCustomerTemplate is being run and try to filter template TEMP_PERSON
-        LibraryVariableStorage.Enqueue(CustomerTemplatePerson.Code);
-        asserterror SalesHeader.SelectSalesHeaderCustomerTemplate;
-
-        // [THEN] TEMP_PERSON is not available to choose
-        Assert.ExpectedError(RowDoesNotExistErr);
-    end;
-
-    [Test]
-    [HandlerFunctions('ConfirmHandlerYes,CustomerTemplateListModalPageHandlerGetRecord')]
-    [Scope('OnPrem')]
-    procedure LookupCustomerTemplateFromPersonContactNotLinkedToCompanyContact()
-    var
-        SalesHeader: Record "Sales Header";
-        ContactPerson: Record Contact;
-        CustomerTemplatePerson: Record "Customer Template";
-        CustomerTemplateCompany: Record "Customer Template";
-        SelectedTemplateCode: Code[10];
-    begin
-        // [FEATURE] [UT] [Contact]
-        // [SCENARIO 262275] Lookup customer template from contact-person which is not linked to contact-company opens list of templates filtered by Contact Type = Person
-        Initialize();
-
-        // [GIVEN] Create customer templates with both contact types: TEMP_PERSON and TEMP_COMPANY
-        CreateCustomerTemplateWithContactType(CustomerTemplateCompany, CustomerTemplateCompany."Contact Type"::Company);
-        CreateCustomerTemplateWithContactType(CustomerTemplatePerson, CustomerTemplatePerson."Contact Type"::Person);
-
-        // [GIVEN] Contact PERS with type Person not linked to company
-        LibraryMarketing.CreatePersonContact(ContactPerson);
-
-        // [GIVEN] Sales quote created from contact PERS
-        SalesHeader."Sell-to Contact No." := ContactPerson."No.";
-
-        // [WHEN] SalesHeader.SelectSalesHeaderCustomerTemplate is being run and try to filter template TEMP_PERSON
-        LibraryVariableStorage.Enqueue(CustomerTemplatePerson.Code);
-        SelectedTemplateCode := SalesHeader.SelectSalesHeaderCustomerTemplate;
-
-        // [THEN] TEMP_PERSON is chosen
-        Assert.AreEqual(CustomerTemplatePerson.Code, SelectedTemplateCode, InvalidTemplateSelectedErr);
-
-        // [WHEN] SalesHeader.SelectSalesHeaderCustomerTemplate is being run and try to filter template TEMP_COMPANY
-        LibraryVariableStorage.Enqueue(CustomerTemplateCompany.Code);
-        asserterror SalesHeader.SelectSalesHeaderCustomerTemplate;
-
-        // [THEN] TEMP_COMPANY is not available to choose
-        Assert.ExpectedError(RowDoesNotExistErr);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure QuoteValidUntilDateOnValidateDocumentDate()
@@ -1210,7 +1125,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.Insert(true);
 
         // [THEN] "Quote Valid Until Date" = 31.01.2018
-        SalesHeader.TestField("Quote Valid Until Date", CalcDate('<30D>', WorkDate));
+        SalesHeader.TestField("Quote Valid Until Date", CalcDate('<30D>', WorkDate()));
     end;
 
     [Test]
@@ -1226,12 +1141,12 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [GIVEN] Create overdue quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
-        SalesHeader."Quote Valid Until Date" := WorkDate - 1;
+        SalesHeader."Quote Valid Until Date" := WorkDate() - 1;
         SalesHeader.Modify();
         Commit();
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run with confirmation to delete quotes
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
         // [THEN] Quote deleted
@@ -1251,12 +1166,12 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [GIVEN] Create overdue quote
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, LibrarySales.CreateCustomerNo);
-        SalesHeader."Quote Valid Until Date" := WorkDate - 1;
+        SalesHeader."Quote Valid Until Date" := WorkDate() - 1;
         SalesHeader.Modify();
         Commit();
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run and cancel confirmation to delete quotes
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         asserterror REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
         // [THEN] Quote is not deleted
@@ -1283,7 +1198,7 @@ codeunit 134379 "ERM Sales Quotes"
 
         // [WHEN] Report "Delete Overdue Sales Quotes" is being run
         Commit();
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
         REPORT.Run(REPORT::"Delete Expired Sales Quotes");
 
         // [THEN] Quote is not deleted
@@ -1365,7 +1280,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         SalesLine.Modify(true);
         LibraryVariableStorage.Enqueue(CreditLimit + 1);
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
 
         // [GIVEN] Sales Quote page with "SQ" is opened
         SalesQuote.OpenEdit;
@@ -1377,7 +1292,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] Notification "Credit Limit" is shown
         // Verification done in CreditLimitNotificationHandler
         NotificationLifecycleMgt.RecallAllNotifications();
-        SalesQuote.Close;
+        SalesQuote.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1444,7 +1359,7 @@ codeunit 134379 "ERM Sales Quotes"
         SalesOrder."No.".AssertEquals(SalesHeaderOrder."No.");
 
         // Cleanup
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Test]
@@ -1479,7 +1394,7 @@ codeunit 134379 "ERM Sales Quotes"
         // [WHEN] Customer created from quote "SQ2"
         ErrorMessages.Trap;
         SalesHeader.CheckCustomerCreated(false);
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation message is shown: "Quotes with Customer Templates different from CT02 were assigned to customer C00010. Do you want to review..."
         // [THEN] Error Messages page is shown with warning message "Sales quote SQ1 with original customer template CT01 was assigned to the customer created from template CT02."
@@ -1525,7 +1440,7 @@ codeunit 134379 "ERM Sales Quotes"
         ErrorMessages.Trap;
         LibraryVariableStorage.Enqueue(true);
         SalesHeader.CheckCustomerCreated(false);
-        SalesHeader.Find;
+        SalesHeader.Find();
 
         // [THEN] Confirmation message is shown: "Quotes with Customer Templates different from CT01 were assigned to customer C00010. Do you want to review..."
         // [THEN] Error Messages page is shown with warning message "Sales quote SQ1 without an original customer template was assigned to the customer created from template CT01."
@@ -1761,6 +1676,36 @@ codeunit 134379 "ERM Sales Quotes"
         // [THEN] The field Qty. to Assemble to Order is editable (Drill-down not invoke), Checked in CheckIsCommentLineIsBlankNumber.
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestSPrePaymentErrorOnNegValueQtySalsQuote()
+    var
+        Item: Record Item;
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        // [SCENARIO 446418] Sales Quote control missing regarding Prepayments and negative quantities.
+
+        Initialize();
+
+        // [GIVEN] Create Item and Customer
+        Item.Get(CreateItem);
+        LibrarySales.CreateCustomer(Customer);
+
+        // [THEN] Update Prepayment % on customer.
+        Customer.Validate("Prepayment %", LibraryRandom.RandDec(100, 2));
+        Customer.Modify();
+
+        // [GIVEN] Create Sales Quote.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Quote, Customer."No.");
+        UpdateVatProdPostingGroup(Item, SalesHeader."Gen. Bus. Posting Group", SalesHeader."VAT Bus. Posting Group", Item."VAT Prod. Posting Group");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+
+        // [VERIFY] On Validate of Negative quantity prepayment error expected.
+        asserterror SalesLine.Validate(Quantity, -1 * SalesLine.Quantity);
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -1899,15 +1844,6 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplate.Modify(true);
     end;
 
-#if not CLEAN18
-    local procedure CreateCustomerTemplateWithContactType(var CustomerTemplate: Record "Customer Template"; ContactType: Enum "Contact Type"): Code[10]
-    begin
-        LibrarySales.CreateCustomerTemplate(CustomerTemplate);
-        CustomerTemplate.Validate("Contact Type", ContactType);
-        CustomerTemplate.Modify();
-        exit(CustomerTemplate.Code);
-    end;
-#endif
     local procedure CreateItem(): Code[20]
     var
         Item: Record Item;
@@ -1932,18 +1868,18 @@ codeunit 134379 "ERM Sales Quotes"
         LibraryService.CreateExtendedTextHeaderItem(ExtendedTextHeader, Item."No.");
         LibraryService.CreateExtendedTextLineItem(ExtendedTextLine, ExtendedTextHeader);
         LibraryUtility.FillFieldMaxText(ExtendedTextLine, ExtendedTextLine.FieldNo(Text));
-        ExtendedTextLine.Find;
+        ExtendedTextLine.Find();
     end;
 
     local procedure CreateQuoteFromContact(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])
     begin
         with SalesHeader do begin
-            Init;
+            Init();
             Validate("Document Type", "Document Type"::Quote);
             Insert(true);
-            Validate("Document Date", WorkDate);
+            Validate("Document Date", WorkDate());
             Validate("Sell-to Contact No.", ContactNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1980,6 +1916,42 @@ codeunit 134379 "ERM Sales Quotes"
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
         SalesHeader.FindFirst();
         SalesHeader.TestField("Posting Date", 0D);
+    end;
+
+    local procedure UpdateVatProdPostingGroup(Item: Record Item; GenBusPostingGroup: Code[20]; VATBusPostingGrp: Code[20]; VATProdPostingGroup: Code[20])
+    var
+        GenPostingSetup: Record "General Posting Setup";
+        GLAcc: Record "G/L Account";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        FindVATpostingSetup(VATPostingSetup, VATBusPostingGrp, VATProdPostingGroup);
+        if GenPostingSetup.Get(GenBusPostingGroup, Item."Gen. Prod. Posting Group") then
+            if GenPostingSetup."Sales Prepayments Account" <> '' then begin
+                GLAcc.Get(GenPostingSetup."Sales Prepayments Account");
+                GLAcc."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
+                GLAcc.Modify();
+            end;
+    end;
+
+    local procedure FindVATpostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGrp: Code[20]; VATProdPostingGrouptxt: Code[20])
+    var
+        VATProdPostingGroup: Record "VAT Product Posting Group";
+    begin
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGrp);
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATProdPostingGrouptxt);
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        IF not VATPostingSetup.FindFirst() then begin
+            LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
+            LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGrp, VATProdPostingGroup.Code);
+            VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+            VATPostingSetup.Validate("VAT %", 0);
+            VATPostingSetup.Validate("VAT Identifier",
+              LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+            VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
+            VATPostingSetup.Validate("Tax Category", 'S');
+            VATPostingSetup.Insert(true);
+        end;
     end;
 
     [ConfirmHandler]
@@ -2053,18 +2025,6 @@ codeunit 134379 "ERM Sales Quotes"
         CustomerTemplateList.OK.Invoke;
     end;
 
-#if not CLEAN18
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure CustomerTemplateListModalPageHandlerGetRecord(var CustomerTemplateList: TestPage "Customer Template List")
-    var
-        CustomerTemplate: Record "Customer Template";
-    begin
-        CustomerTemplate.Get(LibraryVariableStorage.DequeueText);
-        CustomerTemplateList.GotoRecord(CustomerTemplate);
-        CustomerTemplateList.OK.Invoke;
-    end;
-#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ContactListModalPageHandler(var ContactList: TestPage "Contact List")

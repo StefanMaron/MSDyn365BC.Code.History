@@ -6,17 +6,7 @@ page 5502 "Trial Balance Entity"
     InsertAllowed = false;
     ModifyAllowed = false;
     SourceTable = "Trial Balance Entity Buffer";
-#if not CLEAN18
-    EntityName = 'trialBalance';
-    EntitySetName = 'trialBalance';
-    PageType = API;
-    DelayedInsert = true;
-#else
-    ObsoleteState = Pending;
-    ObsoleteReason = 'API version beta will be deprecated. This page will be changed to List type.';
-    ObsoleteTag = '18.0';
     PageType = List;
-#endif
     SourceTableTemporary = true;
 
 

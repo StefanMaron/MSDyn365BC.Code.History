@@ -37,7 +37,7 @@ codeunit 144021 "Test VAT - Form Report"
         // [SCENARIO REP.030] VAT Correction Amount in 'Form/Intervat Declaration'
         Initialize();
         // [GIVEN] VAT Statement Line Row '01' has Amount = 0
-        StartDate := CalcDate('<1Y>', WorkDate);
+        StartDate := CalcDate('<1Y>', WorkDate());
         // [GIVEN] Added Manual VAT Correction. Amount = X
         CorrectionAmount := AddManVATCorrection('01', StartDate);
 
@@ -115,7 +115,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
         xmlFileName := LibraryReportDataset.GetFileName;
 
         // Exercise.
@@ -140,7 +140,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
         xmlFileName := LibraryReportDataset.GetFileName;
 
         // Exercise.
@@ -163,7 +163,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
         xmlFileName := LibraryReportDataset.GetFileName;
 
         // Exercise.
@@ -192,7 +192,7 @@ codeunit 144021 "Test VAT - Form Report"
 
         // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = TRUE, "Previous Sequence No." = 11
         // [WHEN] Export to XML by Report 11307 VAT - Form
-        StartDate := CalcDate('<1Y>', WorkDate);
+        StartDate := CalcDate('<1Y>', WorkDate());
         xmlFileName := LibraryReportDataset.GetFileName;
         SeqNo := LibraryRandom.RandInt(9999);
         OpenVATFormRep(
@@ -224,7 +224,7 @@ codeunit 144021 "Test VAT - Form Report"
 
         // [GIVEN] In the Request Page of "VAT - Form" Report, "Is Correction" = FALSE
         // [WHEN] Export to XML by Report 11307 VAT - Form
-        StartDate := CalcDate('<1Y>', WorkDate);
+        StartDate := CalcDate('<1Y>', WorkDate());
         xmlFileName := LibraryReportDataset.GetFileName;
         OpenVATFormRep(
           Period::Month, Date2DMY(StartDate, 2), Date2DMY(StartDate, 3), IncludeVATEntries::Open,
@@ -297,7 +297,7 @@ codeunit 144021 "Test VAT - Form Report"
     begin
         // Setup.
         Initialize();
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
 
         // Create customer, an item and post an invoice to that customer for the item
         LibraryBEHelper.CreateCustomerItemSalesInvoiceAndPost(Customer);
@@ -319,7 +319,7 @@ codeunit 144021 "Test VAT - Form Report"
             repeat
                 base := base + Abs(VATEntry.Base);
                 amount := amount + Abs(VATEntry.Amount);
-            until VATEntry.Next = 0;
+            until VATEntry.Next() = 0;
 
         if Period = Period::Month then
             periodnodeName := 'Month'

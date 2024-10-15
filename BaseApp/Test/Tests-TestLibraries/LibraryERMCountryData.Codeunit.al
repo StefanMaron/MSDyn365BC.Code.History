@@ -344,7 +344,7 @@ codeunit 131305 "Library - ERM Country Data"
                         PurchaseSetup.Get();
                         PurchaseSetup."P. Invoice Template Name" := Name;
                         PurchaseSetup."P. Cr. Memo Template Name" := Name;
-						PurchaseSetup."P. Prep. Inv. Template Name" := Name;
+                        PurchaseSetup."P. Prep. Inv. Template Name" := Name;
                         PurchaseSetup."P. Prep. Cr.Memo Template Name" := Name;
                         PurchaseSetup.Modify();
                     end;
@@ -429,7 +429,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if GeneralPostingSetup."Purch. Credit Memo Account" = '' then
                     GeneralPostingSetup.Validate("Purch. Credit Memo Account", CreateGLAccount);
                 GeneralPostingSetup.Modify(true);
-            until GeneralPostingSetup.Next = 0;
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure CreateGLAccount(): Code[20]

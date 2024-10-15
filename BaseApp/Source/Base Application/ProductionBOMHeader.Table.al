@@ -77,11 +77,19 @@ table 99000771 "Production BOM Header"
 
             trigger OnValidate()
             var
+                Item: Record Item;
+                ProdBOMLineRec: Record "Production BOM Line";
                 PlanningAssignment: Record "Planning Assignment";
                 MfgSetup: Record "Manufacturing Setup";
                 ProdBOMCheck: Codeunit "Production BOM-Check";
             begin
                 if (Status <> xRec.Status) and (Status = Status::Certified) then begin
+                    ProdBOMLineRec.SetLoadFields(Type, "No.", "Variant Code");
+                    ProdBOMLineRec.SetFilter("Production BOM No.", "No.");
+                    while ProdBOMLineRec.Next() <> 0 do begin
+                        if Item.IsVariantMandatory(ProdBOMLineRec.Type = ProdBOMLineRec.Type::Item, ProdBOMLineRec."No.") then
+                            ProdBOMLineRec.TestField("Variant Code");
+                    end;
                     MfgSetup.LockTable();
                     MfgSetup.Get();
                     ProdBOMCheck.ProdBOMLineCheck("No.", '');
@@ -89,7 +97,7 @@ table 99000771 "Production BOM Header"
                     ProdBOMCheck.Run(Rec);
                     PlanningAssignment.NewBOM("No.");
                 end;
-                if Status = Status::Closed then begin
+                if Status = Status::Closed then
                     if Confirm(
                          Text001, false)
                     then begin
@@ -101,7 +109,6 @@ table 99000771 "Production BOM Header"
                             until ProdBOMVersion.Next() = 0;
                     end else
                         Status := xRec.Status;
-                end;
             end;
         }
         field(50; "Version Nos."; Code[20])
@@ -179,7 +186,7 @@ table 99000771 "Production BOM Header"
     trigger OnRename()
     begin
         if Status = Status::Certified then
-            Error(Text002, TableCaption, FieldCaption(Status), Format(Status));
+            Error(Text002, TableCaption(), FieldCaption(Status), Format(Status));
     end;
 
     var

@@ -9,7 +9,9 @@ codeunit 131016 "Library - Power BI Service Mgt"
     end;
 
     var
+#if not CLEAN21
         MockPowerBIReportBuffer: Record "Power BI Report Buffer";
+#endif
         BlobReportMap: DotNet GenericDictionary2;
         MockExceptionMessage: Text;
         MockExceptionDetails: Text;
@@ -29,6 +31,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
         exit(ContextTxt);
     end;
 
+#if not CLEAN21
     procedure SetupMockPBIService()
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
@@ -41,12 +44,12 @@ codeunit 131016 "Library - Power BI Service Mgt"
         AzureADMgtSetup."Auth Flow Codeunit ID" := CODEUNIT::"Library - Azure AD Auth Flow";
         AzureADMgtSetup.Modify();
         with AzureADAppSetup do
-            if not Get then begin
-                Init;
+            if not Get() then begin
+                Init();
                 "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
-                "App ID" := CreateGuid;
-                SetSecretKeyToIsolatedStorage(CreateGuid);
-                Insert;
+                "App ID" := CreateGuid();
+                SetSecretKeyToIsolatedStorage(CreateGuid());
+                Insert();
             end;
     end;
 
@@ -70,16 +73,6 @@ codeunit 131016 "Library - Power BI Service Mgt"
         end;
     end;
 
-    procedure AddPowerBIReport(ReportId: Guid; Name: Text[100]; BlobId: Guid)
-    begin
-        // Adds a fake report to the mocked PBI account.
-        AddReport(ReportId, Name, false);
-        if IsNull(BlobReportMap) then
-            BlobReportMap := BlobReportMap.Dictionary;
-
-        BlobReportMap.Add(BlobId, ReportId);
-    end;
-
     procedure ClearReports()
     begin
         // Empties the list of reports in the mocked PBI account.
@@ -88,6 +81,17 @@ codeunit 131016 "Library - Power BI Service Mgt"
         if not IsNull(BlobReportMap) then
             BlobReportMap.Clear
     end;
+
+    procedure AddPowerBIReport(ReportId: Guid; Name: Text[100]; BlobId: Guid)
+    begin
+        // Adds a fake report to the mocked PBI account.
+        AddReport(ReportId, Name, false);
+        if IsNull(BlobReportMap) then
+            BlobReportMap := BlobReportMap.Dictionary();
+
+        BlobReportMap.Add(BlobId, ReportId);
+    end;
+    #endif
 
     procedure AddException(ExceptionMessage: Text; ExceptionDetails: Text)
     begin
@@ -103,18 +107,20 @@ codeunit 131016 "Library - Power BI Service Mgt"
         MockExceptionDetails := '';
     end;
 
+#if not CLEAN21
     local procedure CanHandle(): Boolean
     var
         AzureADMgtSetup: Record "Azure AD Mgt. Setup";
     begin
         // Determines whether the PBI service calls are set to use this codeunit rather than the regular non-mocked version,
         // by checking table 6303. Tests need to call SetupMockPBIService() to set this correctly.
-        if AzureADMgtSetup.Get then
+        if AzureADMgtSetup.Get() then
             exit(AzureADMgtSetup."PBI Service Mgt. Codeunit ID" = CODEUNIT::"Library - Power BI Service Mgt");
 
         exit(false);
     end;
 
+#if not CLEAN21
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Power BI Service Mgt.", 'OnGetReports', '', false, false)]
     local procedure OnGetReports(var TempPowerBIReportBuffer: Record "Power BI Report Buffer" temporary; var ExceptionMessage: Text; var ExceptionDetails: Text; EnglishContext: Text[30])
     var
@@ -127,12 +133,13 @@ codeunit 131016 "Library - Power BI Service Mgt"
                 TempPowerBIReportBuffer.TransferFields(MockPowerBIReportBuffer);
                 TempPowerBIReportBuffer.Enabled := PowerBIServiceMgt.IsReportEnabled(TempPowerBIReportBuffer.ReportID, EnglishContext);
                 TempPowerBIReportBuffer.Insert();
-            until MockPowerBIReportBuffer.Next = 0;
+            until MockPowerBIReportBuffer.Next() = 0;
 
             ExceptionMessage := MockExceptionMessage;
             ExceptionDetails := MockExceptionDetails;
         end;
     end;
+#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Power BI Service Mgt.", 'OnUploadReports', '', false, false)]
     local procedure OnUploadReports(var ApiRequestList: DotNet ImportReportRequestList; var ApiResponseList: DotNet ImportReportResponseList)
@@ -144,7 +151,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
     begin
         // Event handler mock for ImportReports, where we send a list of reports to Power BI to upload into
         // the user's account.
-        if CanHandle then begin
+        if CanHandle() then begin
             if not MockDeploymentServiceAvailable then begin
                 DotNetDateTime := MockDeploymentRetryAfter;
                 ApiResponseList.RetryAfter := DotNetDateTime;
@@ -155,7 +162,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
                 MockResponse := MockResponse.ImportReportResponse(UploadRequest.ReportId);
 
                 if MockDeploymentServiceAvailable and MockDeploymentUploadSuccessful then begin
-                    MockResponse.ImportId := CreateGuid;
+                    MockResponse.ImportId := CreateGuid();
 
                     if MockDeploymentRefreshSuccessful then begin
                         MockReport := MockReport.ImportedReport(GetPowerBIReportId(UploadRequest.ReportId), MockUrlTxt);
@@ -179,7 +186,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
     begin
         // Event handler mock for GetImportedReports, where we send a list of previously uploaded reports to
         // Power BI to finish refreshing.
-        if CanHandle then begin
+        if CanHandle() then begin
             if not MockDeploymentServiceAvailable then begin
                 DotNetDateTime := MockDeploymentRetryAfter;
                 ApiResponseList.RetryAfter := DotNetDateTime;
@@ -197,9 +204,10 @@ codeunit 131016 "Library - Power BI Service Mgt"
 
                 ApiResponseList.Add(MockResponse);
             end;
-            ImportIdList.Clear;
+            ImportIdList.Clear();
         end;
     end;
+#endif
 
     procedure SetMockDeploymentResults(ServiceAvailable: Boolean; UploadSuccessful: Boolean; RefreshSuccessful: Boolean; ShouldRetry: Boolean; RetryAfter: DateTime)
     begin
@@ -237,7 +245,7 @@ codeunit 131016 "Library - Power BI Service Mgt"
     begin
         if BlobReportMap.TryGetValue(BlobId, DummyValue) then
             exit(DummyValue);
-        exit(CreateGuid);
+        exit(CreateGuid());
     end;
 }
 

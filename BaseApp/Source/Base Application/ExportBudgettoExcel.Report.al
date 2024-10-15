@@ -26,7 +26,7 @@ report 82 "Export Budget to Excel"
                 TempBudgetBuf1.Amount := Amount;
 
                 TempBudgetBuf2 := TempBudgetBuf1;
-                if TempBudgetBuf2.Find then begin
+                if TempBudgetBuf2.Find() then begin
                     TempBudgetBuf2.Amount :=
                       TempBudgetBuf2.Amount + TempBudgetBuf1.Amount;
                     TempBudgetBuf2.Modify();
@@ -56,8 +56,8 @@ report 82 "Export Budget to Excel"
                 RecNo := 0;
 
                 RowNo := 1;
-                EnterCell(RowNo, 1, Text006, false, true, '', ExcelBuf."Cell Type"::Text);
-                EnterCell(RowNo, 2, '', false, true, '', ExcelBuf."Cell Type"::Text);
+                EnterCell(RowNo, 1, Text006, false, true, '', TempExcelBuf."Cell Type"::Text);
+                EnterCell(RowNo, 2, '', false, true, '', TempExcelBuf."Cell Type"::Text);
                 EnterFilterInCell(GetFilter("Budget Name"), FieldCaption("Budget Name"));
 
                 GLSetup.Get();
@@ -69,12 +69,12 @@ report 82 "Export Budget to Excel"
                 EnterDimFilter(GLBudgetName."Budget Dimension 2 Code", GetFilter("Budget Dimension 2 Code"));
                 EnterDimFilter(GLBudgetName."Budget Dimension 3 Code", GetFilter("Budget Dimension 3 Code"));
                 EnterDimFilter(GLBudgetName."Budget Dimension 4 Code", GetFilter("Budget Dimension 4 Code"));
-                OnAfterEnterDimFilter("G/L Budget Entry", ExcelBuf, RowNo);
+                OnAfterEnterDimFilter("G/L Budget Entry", TempExcelBuf, RowNo);
 
                 RowNo := RowNo + 2;
                 HeaderRowNo := RowNo;
-                EnterCell(HeaderRowNo, 1, FieldCaption("G/L Account No."), false, true, '', ExcelBuf."Cell Type"::Text);
-                EnterCell(HeaderRowNo, 2, GLAcc.FieldCaption(Name), false, true, '', ExcelBuf."Cell Type"::Text);
+                EnterCell(HeaderRowNo, 1, FieldCaption("G/L Account No."), false, true, '', TempExcelBuf."Cell Type"::Text);
+                EnterCell(HeaderRowNo, 2, GLAcc.FieldCaption(Name), false, true, '', TempExcelBuf."Cell Type"::Text);
                 i := 0;
                 ColNo := 2;
                 Continue := true;
@@ -88,13 +88,13 @@ report 82 "Export Budget to Excel"
                     if Continue then begin
                         ColNo := ColNo + 1;
                         IsHandled := false;
-                        OnGLBudgetEntryOnPostDataItemOnBeforeSetHeaderDim(HeaderRowNo, ColNo, i, ExcelBuf, IsHandled);
+                        OnGLBudgetEntryOnPostDataItemOnBeforeSetHeaderDim(HeaderRowNo, ColNo, i, TempExcelBuf, IsHandled);
                         if not IsHandled then
                             if i = BusUnitDimIndex then
-                                EnterCell(HeaderRowNo, ColNo, BusUnit.TableCaption, false, true, '', ExcelBuf."Cell Type"::Text)
+                                EnterCell(HeaderRowNo, ColNo, BusUnit.TableCaption(), false, true, '', TempExcelBuf."Cell Type"::Text)
                             else begin
                                 Dim.Get(ColumnDimCode[i]);
-                                EnterCell(HeaderRowNo, ColNo, Dim."Code Caption", false, true, '', ExcelBuf."Cell Type"::Text);
+                                EnterCell(HeaderRowNo, ColNo, Dim."Code Caption", false, true, '', TempExcelBuf."Cell Type"::Text);
                             end;
                     end;
                 end;
@@ -103,7 +103,7 @@ report 82 "Export Budget to Excel"
                         ColNo := ColNo + 1;
                         EnterCell(
                           HeaderRowNo, ColNo, CopyStr(TypeHelper.FormatDateWithCurrentCulture(TempPeriod."Period Start"), 1, 250),
-                          false, true, '', ExcelBuf."Cell Type"::Date);
+                          false, true, '', TempExcelBuf."Cell Type"::Date);
                     until TempPeriod.Next() = 0;
 
                 CopyFilter("G/L Account No.", GLAcc."No.");
@@ -115,21 +115,21 @@ report 82 "Export Budget to Excel"
                         RowNo := RowNo + 1;
                         EnterCell(
                           RowNo, 2, CopyStr(CopyStr(PadStr(' ', 100), 1, 2 * GLAcc.Indentation + 1) + GLAcc.Name, 2),
-                          GLAcc."Account Type" <> GLAcc."Account Type"::Posting, false, '', ExcelBuf."Cell Type"::Text);
+                          GLAcc."Account Type" <> GLAcc."Account Type"::Posting, false, '', TempExcelBuf."Cell Type"::Text);
                         EnterCell(
-                          RowNo, 1, GLAcc."No.", GLAcc."Account Type" <> GLAcc."Account Type"::Posting, false, '', ExcelBuf."Cell Type"::Text);
+                          RowNo, 1, GLAcc."No.", GLAcc."Account Type" <> GLAcc."Account Type"::Posting, false, '', TempExcelBuf."Cell Type"::Text);
                         if (GLAcc.Totaling = '') or (not IncludeTotalingFormulas) then begin
                             TempBudgetBuf2.SetRange("G/L Account No.", GLAcc."No.");
                             if TempBudgetBuf2.Find('-') then begin
                                 TempBudgetBuf1 := TempBudgetBuf2;
-                                EnterDimValues;
+                                EnterDimValues();
                                 if TempPeriod.Find('-') then;
                                 repeat
                                     if IsDimDifferent(TempBudgetBuf1, TempBudgetBuf2) then begin
                                         RowNo := RowNo + 1;
                                         EnterCell(
-                                          RowNo, 1, GLAcc."No.", GLAcc."Account Type" <> GLAcc."Account Type"::Posting, false, '', ExcelBuf."Cell Type"::Text);
-                                        EnterDimValues;
+                                          RowNo, 1, GLAcc."No.", GLAcc."Account Type" <> GLAcc."Account Type"::Posting, false, '', TempExcelBuf."Cell Type"::Text);
+                                        EnterDimValues();
                                         TempBudgetBuf1 := TempBudgetBuf2;
                                     end;
                                     TempPeriod.Get(0, TempBudgetBuf2.Date);
@@ -137,15 +137,15 @@ report 82 "Export Budget to Excel"
                                       RowNo, NoOfDimensions + 2 + TempPeriod."Period No.",
                                       MatrixMgt.FormatAmount(TempBudgetBuf2.Amount, RoundingFactor, false),
                                       GLAcc."Account Type" <> GLAcc."Account Type"::Posting,
-                                      false, '', ExcelBuf."Cell Type"::Number);
-                                    TempPeriod.Next;
+                                      false, '', TempExcelBuf."Cell Type"::Number);
+                                    TempPeriod.Next();
                                 until TempBudgetBuf2.Next() = 0;
                             end else begin
                                 Clear(TempBudgetBuf2);
-                                EnterDimValues;
+                                EnterDimValues();
                             end;
                         end else
-                            if TempPeriod.Find('-') then begin
+                            if TempPeriod.Find('-') then
                                 repeat
                                     EnterFormula(
                                       RowNo,
@@ -155,56 +155,54 @@ report 82 "Export Budget to Excel"
                                       false,
                                       '#,##0.00');
                                 until TempPeriod.Next() = 0;
-                            end;
                     until GLAcc.Next() = 0;
                 if IncludeTotalingFormulas then
-                    HasFormulaError := ExcelBuf.ExportBudgetFilterToFormula(ExcelBuf);
-                Window.Close;
+                    HasFormulaError := TempExcelBuf.ExportBudgetFilterToFormula(TempExcelBuf);
+                Window.Close();
                 LastBudgetRowNo := RowNo;
 
                 EnterRangeOfValues(DimensionRange, BusUnit, DimValue);
                 if HasFormulaError then
-                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text007, ExcelBuf.GetExcelReference(7)), true) then
+                    if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text007, TempExcelBuf.GetExcelReference(7)), true) then
                         CurrReport.Break();
 
-                ExcelBuf.CreateBook(ServerFileName, ExcelBuf.GetExcelReference(10));
-                ExcelBuf.SetCurrent(HeaderRowNo + 1, 1);
-                ExcelBuf.StartRange;
-                ExcelBuf.SetCurrent(LastBudgetRowNo, 1);
-                ExcelBuf.EndRange;
-                ExcelBuf.CreateRange(ExcelBuf.GetExcelReference(8));
-                if TempPeriod.Find('-') then begin
+                TempExcelBuf.CreateBook(ServerFileName, TempExcelBuf.GetExcelReference(10));
+                TempExcelBuf.SetCurrent(HeaderRowNo + 1, 1);
+                TempExcelBuf.StartRange();
+                TempExcelBuf.SetCurrent(LastBudgetRowNo, 1);
+                TempExcelBuf.EndRange();
+                TempExcelBuf.CreateRange(TempExcelBuf.GetExcelReference(8));
+                if TempPeriod.Find('-') then
                     repeat
-                        ExcelBuf.SetCurrent(HeaderRowNo + 1, NoOfDimensions + 2 + TempPeriod."Period No.");
-                        ExcelBuf.StartRange;
-                        ExcelBuf.SetCurrent(LastBudgetRowNo, NoOfDimensions + 2 + TempPeriod."Period No.");
-                        ExcelBuf.EndRange;
-                        ExcelBuf.CreateRange(ExcelBuf.GetExcelReference(9) + '_' + Format(TempPeriod."Period No."));
+                        TempExcelBuf.SetCurrent(HeaderRowNo + 1, NoOfDimensions + 2 + TempPeriod."Period No.");
+                        TempExcelBuf.StartRange();
+                        TempExcelBuf.SetCurrent(LastBudgetRowNo, NoOfDimensions + 2 + TempPeriod."Period No.");
+                        TempExcelBuf.EndRange();
+                        TempExcelBuf.CreateRange(TempExcelBuf.GetExcelReference(9) + '_' + Format(TempPeriod."Period No."));
                     until TempPeriod.Next() = 0;
-                end;
 
                 for i := 1 to NoOfDimensions do begin
-                    ExcelBuf.SetCurrent(HeaderRowNo + 1, i + 2);
-                    ExcelBuf.StartRange;
-                    ExcelBuf.SetCurrent(LastBudgetRowNo, i + 2);
-                    ExcelBuf.EndRange;
-                    ExcelBuf.CreateRange('NAV_DIM' + Format(i));
-                    ExcelBuf.SetCurrent(DimensionRange[1, i], 1);
-                    ExcelBuf.StartRange;
-                    ExcelBuf.SetCurrent(DimensionRange[2, i], 1);
-                    ExcelBuf.EndRange;
-                    ExcelBuf.CreateValidationRule('NAV_DIM' + Format(i));
+                    TempExcelBuf.SetCurrent(HeaderRowNo + 1, i + 2);
+                    TempExcelBuf.StartRange();
+                    TempExcelBuf.SetCurrent(LastBudgetRowNo, i + 2);
+                    TempExcelBuf.EndRange();
+                    TempExcelBuf.CreateRange('NAV_DIM' + Format(i));
+                    TempExcelBuf.SetCurrent(DimensionRange[1, i], 1);
+                    TempExcelBuf.StartRange();
+                    TempExcelBuf.SetCurrent(DimensionRange[2, i], 1);
+                    TempExcelBuf.EndRange();
+                    TempExcelBuf.CreateValidationRule('NAV_DIM' + Format(i));
                 end;
 
-                ExcelBuf.WriteSheet(
+                TempExcelBuf.WriteSheet(
                   PadStr(StrSubstNo('%1 %2', GLBudgetName.Name, GLBudgetName.Description), 30),
                   CompanyName,
                   UserId);
 
-                ExcelBuf.CloseBook;
+                TempExcelBuf.CloseBook();
                 if not TestMode then begin
-                    ExcelBuf.SetFriendlyFilename(StrSubstNo('%1-%2', GLBudgetName.Name, GLBudgetName.Description));
-                    ExcelBuf.OpenExcel;
+                    TempExcelBuf.SetFriendlyFilename(StrSubstNo('%1-%2', GLBudgetName.Name, GLBudgetName.Description));
+                    TempExcelBuf.OpenExcel();
                 end;
             end;
 
@@ -231,7 +229,7 @@ report 82 "Export Budget to Excel"
                 if BusUnit.FindFirst() then begin
                     i := i + 1;
                     BusUnitDimIndex := i;
-                    BusUnitDimCode := CopyStr(UpperCase(BusUnit.TableCaption), 1, MaxStrLen(ColumnDimCode[1]));
+                    BusUnitDimCode := CopyStr(UpperCase(BusUnit.TableCaption()), 1, MaxStrLen(ColumnDimCode[1]));
                     ColumnDimCode[BusUnitDimIndex] := BusUnitDimCode;
                 end;
                 if SelectedDim.Find('-') then
@@ -250,7 +248,7 @@ report 82 "Export Budget to Excel"
 
                 SetRange(Date, StartDate, TempPeriod."Period End");
                 TempBudgetBuf2.DeleteAll();
-                ExcelBuf.DeleteAll();
+                TempExcelBuf.DeleteAll();
             end;
         }
     }
@@ -314,7 +312,7 @@ report 82 "Export Budget to Excel"
         begin
             ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Export Budget to Excel", '');
             if StartDate = 0D then
-                StartDate := CalcDate('<-CY>', WorkDate);
+                StartDate := CalcDate('<-CY>', WorkDate());
             if (Format(PeriodLength) = '') or (Format(PeriodLength) = '0D') then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -331,13 +329,6 @@ report 82 "Export Budget to Excel"
     end;
 
     var
-        Text000: Label 'Column Dimensions';
-        Text001: Label 'You can only export one budget at a time.';
-        Text002: Label 'You must specify a Start Date, No. of Periods, and a Period Length.';
-        Text003: Label 'You can only select a maximum of %1 column dimensions.';
-        Text005: Label 'Analyzing Data...\\';
-        Text006: Label 'Export Filters';
-        Text007: Label 'Some filters cannot be converted into Excel formulas. You will have to check %1 errors in the Excel worksheet. Do you want to create the Excel worksheet?';
         TempPeriod: Record Date temporary;
         SelectedDim: Record "Selected Dimension";
         TempBudgetBuf1: Record "Budget Buffer" temporary;
@@ -346,12 +337,12 @@ report 82 "Export Budget to Excel"
         GLSetup: Record "General Ledger Setup";
         Dim: Record Dimension;
         GLBudgetName: Record "G/L Budget Name";
-        ExcelBuf: Record "Excel Buffer" temporary;
+        TempExcelBuf: Record "Excel Buffer" temporary;
         GLAcc: Record "G/L Account";
         DimSelectionBuf: Record "Dimension Selection Buffer";
         MatrixMgt: Codeunit "Matrix Management";
-        StartDate: Date;
         PeriodLength: DateFormula;
+        StartDate: Date;
         NoOfPeriods: Integer;
         NoOfDimensions: Integer;
         i: Integer;
@@ -367,6 +358,14 @@ report 82 "Export Budget to Excel"
         BusUnitDimIndex: Integer;
         BusUnitDimCode: Code[20];
         TestMode: Boolean;
+
+        Text000: Label 'Column Dimensions';
+        Text001: Label 'You can only export one budget at a time.';
+        Text002: Label 'You must specify a Start Date, No. of Periods, and a Period Length.';
+        Text003: Label 'You can only select a maximum of %1 column dimensions.';
+        Text005: Label 'Analyzing Data...\\';
+        Text006: Label 'Export Filters';
+        Text007: Label 'Some filters cannot be converted into Excel formulas. You will have to check %1 errors in the Excel worksheet. Do you want to create the Excel worksheet?';
 
     local procedure CalcPeriodStart(EntryDate: Date): Date
     begin
@@ -418,24 +417,24 @@ report 82 "Export Budget to Excel"
 
     local procedure EnterCell(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean; NumberFormat: Text[30]; CellType: Option)
     begin
-        ExcelBuf.Init();
-        ExcelBuf.Validate("Row No.", RowNo);
-        ExcelBuf.Validate("Column No.", ColumnNo);
-        ExcelBuf."Cell Value as Text" := CellValue;
-        ExcelBuf.Formula := '';
-        ExcelBuf.Bold := Bold;
-        ExcelBuf.Underline := UnderLine;
-        ExcelBuf.NumberFormat := NumberFormat;
-        ExcelBuf."Cell Type" := CellType;
-        ExcelBuf.Insert();
+        TempExcelBuf.Init();
+        TempExcelBuf.Validate("Row No.", RowNo);
+        TempExcelBuf.Validate("Column No.", ColumnNo);
+        TempExcelBuf."Cell Value as Text" := CellValue;
+        TempExcelBuf.Formula := '';
+        TempExcelBuf.Bold := Bold;
+        TempExcelBuf.Underline := UnderLine;
+        TempExcelBuf.NumberFormat := NumberFormat;
+        TempExcelBuf."Cell Type" := CellType;
+        TempExcelBuf.Insert();
     end;
 
     local procedure EnterFilterInCell("Filter": Text; FieldName: Text[100])
     begin
         if Filter <> '' then begin
             RowNo := RowNo + 1;
-            EnterCell(RowNo, 1, FieldName, false, false, '', ExcelBuf."Cell Type"::Text);
-            EnterCell(RowNo, 2, CopyStr(Filter, 1, 250), false, false, '', ExcelBuf."Cell Type"::Text);
+            EnterCell(RowNo, 1, FieldName, false, false, '', TempExcelBuf."Cell Type"::Text);
+            EnterCell(RowNo, 2, CopyStr(Filter, 1, 250), false, false, '', TempExcelBuf."Cell Type"::Text);
         end;
     end;
 
@@ -453,7 +452,7 @@ report 82 "Export Budget to Excel"
                 if GetDimValueCount(ColumnDimCode[ColDimIndex], DimFilter) = 1 then
                     DimValueCode := CopyStr(DimFilter, 1, MaxStrLen(DimValueCode));
             end;
-            EnterCell(RowNo, ColNo, DimValueCode, false, false, '', ExcelBuf."Cell Type"::Text);
+            EnterCell(RowNo, ColNo, DimValueCode, false, false, '', TempExcelBuf."Cell Type"::Text);
         end;
     end;
 
@@ -472,15 +471,15 @@ report 82 "Export Budget to Excel"
 
     local procedure EnterFormula(RowNo: Integer; ColumnNo: Integer; CellValue: Text[250]; Bold: Boolean; UnderLine: Boolean; NumberFormat: Text[30])
     begin
-        ExcelBuf.Init();
-        ExcelBuf.Validate("Row No.", RowNo);
-        ExcelBuf.Validate("Column No.", ColumnNo);
-        ExcelBuf."Cell Value as Text" := '';
-        ExcelBuf.Formula := CellValue; // is converted to formula later.
-        ExcelBuf.Bold := Bold;
-        ExcelBuf.Underline := UnderLine;
-        ExcelBuf.NumberFormat := NumberFormat;
-        ExcelBuf.Insert();
+        TempExcelBuf.Init();
+        TempExcelBuf.Validate("Row No.", RowNo);
+        TempExcelBuf.Validate("Column No.", ColumnNo);
+        TempExcelBuf."Cell Value as Text" := '';
+        TempExcelBuf.Formula := CellValue; // is converted to formula later.
+        TempExcelBuf.Bold := Bold;
+        TempExcelBuf.Underline := UnderLine;
+        TempExcelBuf.NumberFormat := NumberFormat;
+        TempExcelBuf.Insert();
     end;
 
     local procedure EnterDimFilter(DimCode: Code[20]; DimFilter: Text)
@@ -568,7 +567,7 @@ report 82 "Export Budget to Excel"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeEnterRangeForDimension(DimensionRange, BusUnit, DimValue, RowNo, IsHandled, i, "G/L Budget Entry", ExcelBuf);
+        OnBeforeEnterRangeForDimension(DimensionRange, BusUnit, DimValue, RowNo, IsHandled, i, "G/L Budget Entry", TempExcelBuf);
         if IsHandled then
             exit;
 
@@ -597,7 +596,7 @@ report 82 "Export Budget to Excel"
             DimensionRange[1, i] := RowNo;
             repeat
                 FieldRef := RecRef.Field(FieldID);
-                EnterCell(RowNo, 1, Format(FieldRef.Value), false, false, '', ExcelBuf."Cell Type"::Text);
+                EnterCell(RowNo, 1, Format(FieldRef.Value), false, false, '', TempExcelBuf."Cell Type"::Text);
                 RowNo := RowNo + 1;
             until RecRef.Next() = 0;
             DimensionRange[2, i] := RowNo - 1;

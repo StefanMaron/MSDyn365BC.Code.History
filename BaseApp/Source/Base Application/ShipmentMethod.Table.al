@@ -60,25 +60,25 @@ table 10 "Shipment Method"
     begin
         with ShipmentTermsTranslation do begin
             SetRange("Shipment Method", Code);
-            DeleteAll
+            DeleteAll();
         end;
     end;
 
     trigger OnInsert()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnModify()
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
     end;
 
     trigger OnRename()
     var
         CRMSyncHelper: Codeunit "CRM Synch. Helper";
     begin
-        SetLastModifiedDateTime;
+        SetLastModifiedDateTime();
         CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
 

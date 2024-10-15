@@ -10,6 +10,7 @@ codeunit 132502 "Purch. Document Posting Errors"
 
     var
         Assert: Codeunit Assert;
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         LibraryERM: Codeunit "Library - ERM";
         LibraryErrorMessage: Codeunit "Library - Error Message";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -24,7 +25,6 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryPlanning: Codeunit "Library - Planning";
         LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
-        NothingToPostErr: Label 'There is nothing to post.';
         DefaultDimErr: Label 'Select a Dimension Value Code for the Dimension Code %1 for Vendor %2.';
         CheckPurchLineMsg: Label 'Check purchase document line.';
 
@@ -47,10 +47,10 @@ codeunit 132502 "Purch. Document Posting Errors"
         // [SCENARIO] Posting of document, where "Posting Date" is out of the allowed period, set in G/L Setup
         Initialize();
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
-        PurchHeader.TestField("Posting Date", WorkDate);
+        PurchHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
         LibraryErrorMessage.TrapErrorMessages;
@@ -77,14 +77,14 @@ codeunit 132502 "Purch. Document Posting Errors"
         GeneralLedgerSetupPage.Trap;
         LibraryErrorMessage.DrillDownOnSource;
         // [THEN] opens "General Ledger Setup" page.
-        GeneralLedgerSetupPage."Allow Posting To".AssertEquals(WorkDate - 1);
-        GeneralLedgerSetupPage.Close;
+        GeneralLedgerSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
+        GeneralLedgerSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
         PurchInvoicePage.Trap;
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Purchase Invoice" page.
-        PurchInvoicePage."Posting Date".AssertEquals(WorkDate);
+        PurchInvoicePage."Posting Date".AssertEquals(WorkDate());
     end;
 
     [Test]
@@ -101,11 +101,11 @@ codeunit 132502 "Purch. Document Posting Errors"
         Initialize();
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "User Setup"
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup."Allow Posting To" := WorkDate - 1;
+        UserSetup."Allow Posting To" := WorkDate() - 1;
         UserSetup.Modify();
         // [GIVEN] Invoice '1001', where "Posting Date" is 01.01.2019
         LibraryPurchase.CreatePurchaseInvoice(PurchHeader);
-        PurchHeader.TestField("Posting Date", WorkDate);
+        PurchHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
         LibraryErrorMessage.TrapErrorMessages;
@@ -129,14 +129,14 @@ codeunit 132502 "Purch. Document Posting Errors"
         UserSetupPage.Trap;
         LibraryErrorMessage.DrillDownOnSource;
         // [THEN] opens "User Setup" page.
-        UserSetupPage."Allow Posting To".AssertEquals(WorkDate - 1);
-        UserSetupPage.Close;
+        UserSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
+        UserSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
         PurchInvoicePage.Trap;
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Purchase Invoice" page.
-        PurchInvoicePage."Posting Date".AssertEquals(WorkDate);
+        PurchInvoicePage."Posting Date".AssertEquals(WorkDate());
 
         // TearDown
         UserSetup.Delete();
@@ -374,7 +374,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         GeneralJournalTemplates.Trap();
         LibraryErrorMessage.DrillDownOnSource();
         // [THEN] opens "General Journal Templates" page.
-        GeneralJournalTemplates."Allow Posting Date To".AssertEquals(WorkDate - 1);
+        GeneralJournalTemplates."Allow Posting Date To".AssertEquals(WorkDate() - 1);
         GeneralJournalTemplates.Close();
 
         // [WHEN] DrillDown on "Description"
@@ -402,7 +402,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         Initialize();
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, PurchHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -417,7 +417,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         Assert.RecordCount(TempErrorMessage, 2);
         // [THEN] Second line, where Description is 'There is nothing to post', Context is 'Purchase Header: Order, 1002'
         TempErrorMessage.FindLast();
-        TempErrorMessage.TestField(Description, NothingToPostErr);
+        TempErrorMessage.TestField(Description, DocumentErrorsMgt.GetNothingToPostErrorMsg());
         TempErrorMessage.TestField("Context Record ID", PurchHeader.RecordId);
     end;
 
@@ -437,7 +437,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         Initialize();
         LibraryPurchase.SetPostWithJobQueue(false);
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019, and nothing to post
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchHeader(PurchHeader[1], PurchHeader[1]."Document Type"::Order, VendorNo);
@@ -461,7 +461,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         Assert.AreEqual(PurchHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 1st error');
         // [THEN] The second error for Order '1002' is 'There is nothing to post'
         TempErrorMessage.Get(2);
-        Assert.ExpectedMessage(NothingToPostErr, TempErrorMessage.Description);
+        Assert.ExpectedMessage(DocumentErrorsMgt.GetNothingToPostErrorMsg(), TempErrorMessage.Description);
         Assert.AreEqual(PurchHeader[1].RecordId, TempErrorMessage."Context Record ID", 'Context for 2nd error');
         // [THEN] The Error for Invoice '1003' is 'Posting Date is not within your range of allowed posting dates.'
         TempErrorMessage.Get(3);
@@ -493,7 +493,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
 
         // [GIVEN] "Allow Posting To" is 31.12.2018 in "General Ledger Setup"
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate - 1);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Invoice '1002', where "Posting Date" is 01.01.2019, and no mandatory dimension
         VendorNo := LibraryPurchase.CreateVendorNo();
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchHeader[1], VendorNo);
@@ -550,7 +550,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
         // to use has already been used.
         Initialize();
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate());
         PurchSetup.Get();
         PurchSetup."Receipt on Invoice" := true;
         PurchSetup.Modify();
@@ -613,7 +613,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         // This can occur when a user manually changes the Last No. Used of a No Series Line such that the next number
         // to use has already been used.
         Initialize();
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate());
         LibraryErrorMessage.TrapErrorMessages();
 
         // [GIVEN] Purchase return order where we create a Return Shipment Header record and the next Return Shipment No. already exists.
@@ -676,7 +676,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         // This can occur when a user manually changes the Last No. Used of the No Series Line such that the next number
         // to use has already been used.
         Initialize();
-        LibraryERM.SetAllowPostingFromTo(0D, WorkDate);
+        LibraryERM.SetAllowPostingFromTo(0D, WorkDate());
         LibraryErrorMessage.TrapErrorMessages();
 
         // [GIVEN] Purchase invoice where we create a Purch. Inv. Header record and the next Posting No. already exists.
@@ -767,7 +767,7 @@ codeunit 132502 "Purch. Document Posting Errors"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Purch. Document Posting Errors");
-        LibraryErrorMessage.Clear;
+        LibraryErrorMessage.Clear();
         LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
@@ -830,7 +830,7 @@ codeunit 132502 "Purch. Document Posting Errors"
     begin
         CreateReqWkshTemplateName(RequisitionWkshName, ReqWkshTemplate);
         GetDropShipmentOnReqWksht(SalesLine, RequisitionLine, RequisitionWkshName.Name, ReqWkshTemplate.Name);
-        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate(), WorkDate, WorkDate(), WorkDate, '');
     end;
 
     local procedure GetDropShipmentOnReqWksht(var SalesLine: Record "Sales Line"; var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Code[10]; ReqWkshTemplate: Code[10])

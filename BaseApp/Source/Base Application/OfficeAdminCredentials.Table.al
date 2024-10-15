@@ -43,13 +43,13 @@ table 1612 "Office Admin. Credentials"
     trigger OnInsert()
     begin
         if Endpoint = '' then
-            Validate(Endpoint, DefaultEndpoint);
+            Validate(Endpoint, DefaultEndpoint());
     end;
 
     trigger OnModify()
     begin
         if Endpoint = '' then
-            Validate(Endpoint, DefaultEndpoint);
+            Validate(Endpoint, DefaultEndpoint());
     end;
 
     var
@@ -66,10 +66,10 @@ table 1612 "Office Admin. Credentials"
     begin
         PasswordText := DelChr(PasswordText, '=', ' ');
         if Password = '' then
-            Password := CreateGuid;
+            Password := CreateGuid();
 
         IsolatedStorageManagement.Set(Password, PasswordText, DATASCOPE::Company);
-        Modify;
+        Modify();
     end;
 
     [NonDebuggable]

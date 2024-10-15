@@ -896,12 +896,12 @@ codeunit 137006 "SCM PAC Output Consumption"
         MachineCenter: Record "Machine Center";
     begin
         MachineCenter.Get(MachineCenterNo);
-        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-3W>', WorkDate), CalcDate('<2W>', WorkDate));
+        LibraryManufacturing.CalculateMachCenterCalendar(MachineCenter, CalcDate('<-3W>', WorkDate()), CalcDate('<2W>', WorkDate()));
         WorkCenter.Get(WorkCenterNo);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-3W>', WorkDate), CalcDate('<2W>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-3W>', WorkDate()), CalcDate('<2W>', WorkDate()));
         Clear(WorkCenter);
         WorkCenter.Get(WorkCenterNo2);
-        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-3W>', WorkDate), CalcDate('<2W>', WorkDate));
+        LibraryManufacturing.CalculateWorkCenterCalendar(WorkCenter, CalcDate('<-3W>', WorkDate()), CalcDate('<2W>', WorkDate()));
     end;
 
     local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; ItemNo: Code[20]; ItemNo2: Code[20]; ItemNo3: Code[20]; QuantityPer: Decimal): Code[20]
@@ -1018,7 +1018,7 @@ codeunit 137006 "SCM PAC Output Consumption"
             ProdOrderRoutingLine.Validate("Next Operation No.", '');
             ProdOrderRoutingLine.Validate("Previous Operation No.", '');
             ProdOrderRoutingLine.Modify(true);
-        until ProdOrderRoutingLine.Next = 0;
+        until ProdOrderRoutingLine.Next() = 0;
     end;
 
     [Normal]
@@ -1050,7 +1050,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ProductionOrder: Record "Production Order";
     begin
         ProductionOrder.Get(ProductionOrder.Status::Planned, ProductionOrderNo);
-        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate, false);
+        LibraryManufacturing.ChangeProdOrderStatus(ProductionOrder, ProductionOrder.Status::Released, WorkDate(), false);
         ProductionOrder.SetRange(Status, ProductionOrder.Status::Released);
         ProductionOrder.SetRange("Source No.", ProductionOrder."Source No.");
         ProductionOrder.FindFirst();
@@ -1070,7 +1070,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         repeat
             ItemJournalLine.Validate("Output Quantity", ProductionOrder.Quantity - 1);
             ItemJournalLine.Modify(true);
-        until ItemJournalLine.Next = 0;
+        until ItemJournalLine.Next() = 0;
     end;
 
     [Normal]
@@ -1112,7 +1112,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         repeat
             ProdOrderComponent.CalcFields("Act. Consumption (Qty)");
             ActualProdOrderQuantity += ProdOrderComponent."Act. Consumption (Qty)";
-        until ProdOrderComponent.Next = 0;
+        until ProdOrderComponent.Next() = 0;
         exit(ActualProdOrderQuantity);
     end;
 
@@ -1129,7 +1129,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ItemLedgerEntry.FindSet();
         repeat
             Quantity += ItemLedgerEntry.Quantity;
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         exit(Abs(Quantity));
     end;
 
@@ -1145,7 +1145,7 @@ codeunit 137006 "SCM PAC Output Consumption"
         ItemLedgerEntry.FindSet();
         repeat
             Quantity += ItemLedgerEntry.Quantity;
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
         exit(Quantity);
     end;
 

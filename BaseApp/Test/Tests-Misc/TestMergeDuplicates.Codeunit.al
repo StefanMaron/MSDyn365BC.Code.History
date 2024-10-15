@@ -266,7 +266,7 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.IsTrue(MergePage.Tables.First, 'there must be record in Tables part');
         MergePage.Tables."Table ID".AssertEquals(CurrTableID);
         MergePage.Tables."Table ID".AssertEquals('287');
-        MergePage.Tables."Table Name".AssertEquals(CustomerBankAccount[1].TableCaption);
+        MergePage.Tables."Table Name".AssertEquals(CustomerBankAccount[1].TableCaption());
         MergePage.Tables.ID.AssertEquals('1');
         MergePage.Tables.Name.AssertEquals(CustomerBankAccount[1].FieldCaption("Customer No."));
         MergePage.Tables."In Primary Key".AssertEquals(0);
@@ -460,7 +460,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesLineBuffer.Insert();
         // [WHEN] FindConflicts() for table '287'
         TempMergeDuplicatesLineBuffer.FindConflicts(
-          CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", TempMergeDuplicatesConflict);
+CustomerBankAccount[1]."Customer No.", CustomerBankAccount[2]."Customer No.", TempMergeDuplicatesConflict);
 
         // [THEN] Line Buffer, where Conflicts is '1'
         TempMergeDuplicatesLineBuffer.TestField(Conflicts, 1);
@@ -468,7 +468,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesConflict.SetRange("Table ID", DATABASE::"Customer Bank Account");
         Assert.RecordCount(TempMergeDuplicatesConflict, 1);
         TempMergeDuplicatesConflict.FindFirst();
-        TempMergeDuplicatesConflict.TestField("Table Name", CustomerBankAccount[1].TableCaption);
+        TempMergeDuplicatesConflict.TestField("Table Name", CustomerBankAccount[1].TableCaption());
         // [THEN] Conflict Buffer still has 1 conflict for table '18'
         TempMergeDuplicatesConflict.SetRange("Table ID", DATABASE::Customer);
         Assert.RecordCount(TempMergeDuplicatesConflict, 1);
@@ -510,7 +510,7 @@ codeunit 134399 "Test Merge Duplicates"
         MergeDuplicatePage.Tables.FILTER.SetFilter("Table ID", '287');
         MergeDuplicatePage.Tables.First;
         MergeDuplicatePage.Tables.Conflicts.AssertEquals(1);
-        MergeDuplicatePage.Close;
+        MergeDuplicatePage.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -553,7 +553,7 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.IsFalse(MergeDuplicatePage.Conflicts.Visible, 'Conflicts.VISIBLE');
         // [THEN] Tab Related Tables, where "Table ID" = 287, "Conflicts" is '0'
         MergeDuplicatePage.Tables.Conflicts.AssertEquals(0);
-        MergeDuplicatePage.Close;
+        MergeDuplicatePage.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -579,7 +579,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(1) for the field that is the foregn key
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, TempMergeDuplicatesConflict."Field ID", 1, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 1, "Name" = 'Customer No.', "Can Be Renamed" = 'No'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 1);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName("Customer No."));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", false);
@@ -587,7 +587,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(2) for the field in primary key, equal in both records
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, TempMergeDuplicatesConflict."Field ID", 2, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 2, "Name" = 'Code', "Can Be Renamed" = 'Yes'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 2);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName(Code));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed");
@@ -595,7 +595,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(3) for the field out of the primary key
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, TempMergeDuplicatesConflict."Field ID", 3, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 3, "Name" = 'Name', "Can Be Renamed" = 'No'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 3);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName(Name));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", false);
@@ -625,7 +625,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(2) for the field in primary key, not equal in both records
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, TempMergeDuplicatesConflict."Field ID", 2, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 2, "Name" = 'Code', "Can Be Renamed" = 'No'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 2);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName(Code));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", false);
@@ -633,7 +633,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(3) for the field out of the primary key
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, TempMergeDuplicatesConflict."Field ID", 3, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 3, "Name" = 'Name', "Can Be Renamed" = 'No'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 3);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName(Name));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", false);
@@ -661,7 +661,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(2) for the field in primary key, not equal in both records
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, 0, 2, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 2, "Name" = 'Code', "Can Be Renamed" = 'No'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 2);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName(Code));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", false);
@@ -669,7 +669,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] AddFieldData(3) for the field out of the primary key
         TempMergeDuplicatesLineBuffer.AddFieldData(RecordRef, 0, 3, true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 3, "Name" = 'Name', "Can Be Renamed" = 'No'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 3);
         TempMergeDuplicatesLineBuffer.TestField(Name, CustomerBankAccount[1].FieldName(Name));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", false);
@@ -709,7 +709,7 @@ codeunit 134399 "Test Merge Duplicates"
         TempMergeDuplicatesLineBuffer.AddFieldData(
           RecordRef, ItemReference[1].FieldNo("Reference Type No."), ItemReference[1].FieldNo("Item No."), true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 1, "Name" = 'Item No.', "Can Be Renamed" = 'Yes'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 1);
         TempMergeDuplicatesLineBuffer.TestField(Name, ItemReference[1].FieldName("Item No."));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", true);
@@ -719,7 +719,7 @@ codeunit 134399 "Test Merge Duplicates"
           RecordRef, ItemReference[1].FieldNo("Reference Type No."),
           ItemReference[1].FieldNo("Reference No."), true, TempPKInt);
         // [THEN] Line Buffer record, where "ID" = 6, "Name" = 'Reference No.', "Can Be Renamed" = 'Yes'
-        TempMergeDuplicatesLineBuffer.Find;
+        TempMergeDuplicatesLineBuffer.Find();
         TempMergeDuplicatesLineBuffer.TestField(ID, 6);
         TempMergeDuplicatesLineBuffer.TestField(Name, ItemReference[1].FieldName("Reference No."));
         TempMergeDuplicatesLineBuffer.TestField("Can Be Renamed", true);
@@ -755,7 +755,7 @@ codeunit 134399 "Test Merge Duplicates"
 
         Assert.IsTrue(TempMergeDuplicatesLineBuffer[3].HasFieldToOverride, Format(TempMergeDuplicatesLineBuffer[3].ID));
 
-        TempMergeDuplicatesLineBuffer[2].Find;
+        TempMergeDuplicatesLineBuffer[2].Find();
         TempMergeDuplicatesLineBuffer[2].Override := false;
         TempMergeDuplicatesLineBuffer[2].Modify();
 
@@ -858,7 +858,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [WHEN] Set "Duplicate" to 'B'
         asserterror TempMergeDuplicatesBuffer.Validate(Duplicate, LibrarySales.CreateCustomerNo);
         // [THEN] Error message: 'Customer A does not exist'
-        Assert.ExpectedError(StrSubstNo(CurrentDoesNotExistErr, Customer.TableCaption, Current))
+        Assert.ExpectedError(StrSubstNo(CurrentDoesNotExistErr, Customer.TableCaption(), Current))
     end;
 
     [Test]
@@ -941,7 +941,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [GIVEN] "Table Name" is 'Customer Bank Account'
         RecRef.Open(TempMergeDuplicatesConflict."Table ID");
         TableName := RecRef.Caption;
-        RecRef.Close;
+        RecRef.Close();
         TempMergeDuplicatesConflict.TestField("Table Name", TableName);
 
         // [WHEN] Open Conflicts page
@@ -951,7 +951,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] "Table ID" is 287, "Table Name" is 'Customer Bank Account'
         MergeDuplicateConflictsPage."Table ID".AssertEquals(DATABASE::"Customer Bank Account");
         MergeDuplicateConflictsPage."Table Name".AssertEquals(TableName);
-        MergeDuplicateConflictsPage.Close;
+        MergeDuplicateConflictsPage.Close();
     end;
 
     [Test]
@@ -984,7 +984,7 @@ codeunit 134399 "Test Merge Duplicates"
         MergeDuplicatePage."Remove Duplicate".Invoke;
 
         // [THEN] Current record 'C00010,BANK', where "Name" is 'B', "Address" is 'Moscow'
-        CustomerBankAccount[1].Find;
+        CustomerBankAccount[1].Find();
         CustomerBankAccount[1].TestField(Name, CustomerBankAccount[2].Name);
         CustomerBankAccount[1].TestField(Address, ExpectedAddress);
         // [THEN] Conflicting record does not exist
@@ -1025,7 +1025,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] "Rename" action is enabled; "Alternative Value" is not editable on "Code" field
         Assert.IsTrue(MergeDuplicatePage."Rename Duplicate".Enabled, 'Rename should be enabled after');
         VerifyFieldDuplicateValueEditable(MergeDuplicatePage, CustomerBankAccount[1].FieldNo(Code), false);
-        MergeDuplicatePage.Close;
+        MergeDuplicatePage.Close();
     end;
 
     [Test]
@@ -1066,7 +1066,7 @@ codeunit 134399 "Test Merge Duplicates"
         asserterror MergeDuplicatePage."Remove Duplicate".Invoke;
         // [THEN] Error message: 'Restore the modified primary key fields.'
         Assert.ExpectedError(RestorePKeyFieldErr);
-        MergeDuplicatePage.Close;
+        MergeDuplicatePage.Close();
     end;
 
     [Test]
@@ -1164,7 +1164,7 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.IsTrue(CustomerBankAccount[1].Find, 'Current bank should not exist');
         // [THEN] Conflict line is removed from the list
         Assert.IsFalse(MergeDuplicateConflictsPage.First, 'should be no conflicts in the list');
-        MergeDuplicateConflictsPage.Close;
+        MergeDuplicateConflictsPage.Close();
         // [THEN] Page is closed
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -1204,7 +1204,7 @@ codeunit 134399 "Test Merge Duplicates"
         Assert.IsTrue(CustomerBankAccount[2].Find, 'Duplicate bank should not exist');
         // [THEN] Customer 'A' has the bank account 'X'
         Assert.IsTrue(CustomerBankAccount[1].Find, 'Current bank should not exist');
-        MergeDuplicateConflictsPage.Close;
+        MergeDuplicateConflictsPage.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1258,7 +1258,7 @@ codeunit 134399 "Test Merge Duplicates"
     //     Assert.IsTrue(TableWithPK16Fields[1].Find,'Current record should exist');
     //     // [THEN] Conflict line is removed from the list
     //     Assert.IsFalse(MergeDuplicateConflictsPage.First,'should be no conflicts in the list');
-    //     MergeDuplicateConflictsPage.Close;
+    //     MergeDuplicateConflictsPage.Close();
     //     LibraryVariableStorage.AssertEmpty;
     // end;
 
@@ -1301,7 +1301,7 @@ codeunit 134399 "Test Merge Duplicates"
         // [THEN] Customer 'A' has the bank account 'X'
         Assert.IsTrue(CustomerBankAccount[1].Find, 'Current bank should not exist');
         // [THEN] Page is not closed
-        MergeDuplicateConflictsPage.Close;
+        MergeDuplicateConflictsPage.Close();
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1539,8 +1539,10 @@ codeunit 134399 "Test Merge Duplicates"
         Customer: array[2] of Record Customer;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         GenJournalLine: Record "Gen. Journal Line";
+#if not CLEAN21
         O365CouponClaim: Record "O365 Coupon Claim";
         O365PostedCouponClaim: Record "O365 Posted Coupon Claim";
+#endif
 #if not CLEAN20
         NativePayment: Record "Native - Payment";
 #endif
@@ -1567,6 +1569,7 @@ codeunit 134399 "Test Merge Duplicates"
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.Insert();
         GenJournalLine.TestField("Customer Id", Customer[1].SystemId);
+#if not CLEAN21
         // [GIVEN] O365CouponClaim, where "Customer Id" is 'AAA'
         O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
         O365CouponClaim."Customer Id" := Customer[1].SystemId;
@@ -1575,9 +1578,10 @@ codeunit 134399 "Test Merge Duplicates"
         O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
         O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
         O365PostedCouponClaim.Insert();
+#endif
 #if not CLEAN20
         // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is 'AAA'
-        NativePayment."Applies-to Invoice Id" := CreateGuid;
+        NativePayment."Applies-to Invoice Id" := CreateGuid();
         NativePayment.Validate("Customer No.", Customer[1]."No.");
         NativePayment.Insert();
 #endif
@@ -1620,36 +1624,38 @@ codeunit 134399 "Test Merge Duplicates"
         Customer[2].TestField(Name, Customer[2].Name);
 
         // [THEN] Journal Line, where "Account No." is 'B', "Bal. Account No." is 'B', "Customer Id" is 'BBB'
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Customer Id", Customer[2].SystemId);
+#if not CLEAN21
         // [THEN] O365CouponClaim, where "Customer Id" is 'BBB'
-        O365CouponClaim.Find;
+        O365CouponClaim.Find();
         O365CouponClaim.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] O365PostedCouponClaim, where "Customer Id" is 'BBB'
-        O365PostedCouponClaim.Find;
+        O365PostedCouponClaim.Find();
         O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
+#endif
 #if not CLEAN20
         // [THEN] Native Payment, where "Customer No." is 'B', "Customer Id" is 'BBB'
-        NativePayment.Find;
+        NativePayment.Find();
         NativePayment.TestField("Customer No.", Customer[2]."No.");
         NativePayment.TestField("Customer Id", Customer[2].SystemId);
 #endif
         // [GIVEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
-        SalesInvoiceEntityAggregate.Find;
+        SalesInvoiceEntityAggregate.Find();
         SalesInvoiceEntityAggregate.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesInvoiceEntityAggregate.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
-        SalesOrderEntityBuffer.Find;
+        SalesOrderEntityBuffer.Find();
         SalesOrderEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesOrderEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
-        SalesQuoteEntityBuffer.Find;
+        SalesQuoteEntityBuffer.Find();
         SalesQuoteEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesQuoteEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is 'BBB'
-        SalesCrMemoEntityBuffer.Find;
+        SalesCrMemoEntityBuffer.Find();
         SalesCrMemoEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesCrMemoEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is 'BBB'
@@ -1814,7 +1820,7 @@ codeunit 134399 "Test Merge Duplicates"
         repeat
             if TempMergeDuplicatesLineBuffer."Current Value" = TempMergeDuplicatesLineBuffer."Duplicate Value" then
                 Error(StrSubstNo(SameValueErr, TempMergeDuplicatesLineBuffer.ID));
-        until TempMergeDuplicatesLineBuffer.Next = 0;
+        until TempMergeDuplicatesLineBuffer.Next() = 0;
         Assert.RecordIsEmpty(TempMergeDuplicatesConflict);
     end;
 
@@ -1922,11 +1928,11 @@ codeunit 134399 "Test Merge Duplicates"
         Vendor[2].TestField(Name, Vendor[2].Name);
 
         // [GIVEN] PurchInvEntityAggregate, where "Sell-to Vendor No." is 'B', "Vendor Id" is 'BBB'
-        PurchInvEntityAggregate.Find;
+        PurchInvEntityAggregate.Find();
         PurchInvEntityAggregate.TestField("Buy-from Vendor No.", Vendor[2]."No.");
         PurchInvEntityAggregate.TestField("Vendor Id", Vendor[2].SystemId);
         // [GIVEN] IncomingDocument, where "Vendor No." is 'B', "Vendor ID" is 'BBB'
-        IncomingDocument.Find;
+        IncomingDocument.Find();
         IncomingDocument.TestField("Vendor No.", Vendor[2]."No.");
         IncomingDocument.TestField("Vendor Id", Vendor[2].SystemId);
         // [GIVEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is 'BBB'
@@ -2171,7 +2177,6 @@ codeunit 134399 "Test Merge Duplicates"
         MergePage.Duplicate.AssertEquals(Contacts[2]."No.");
     end;
 
-
     [Test]
     [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
@@ -2180,8 +2185,10 @@ codeunit 134399 "Test Merge Duplicates"
         Customer: array[2] of Record Customer;
         TempMergeDuplicatesBuffer: Record "Merge Duplicates Buffer" temporary;
         GenJournalLine: Record "Gen. Journal Line";
+#if not CLEAN21
         O365CouponClaim: Record "O365 Coupon Claim";
         O365PostedCouponClaim: Record "O365 Posted Coupon Claim";
+#endif
 #if not CLEAN20
         NativePayment: Record "Native - Payment";
 #endif
@@ -2212,6 +2219,7 @@ codeunit 134399 "Test Merge Duplicates"
         GenJournalLine.Validate("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.Insert();
         GenJournalLine.TestField("Customer Id", Customer[1].SystemId);
+#if not CLEAN21
         // [GIVEN] O365CouponClaim, where "Customer Id" is '0'
         O365CouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
         O365CouponClaim."Customer Id" := Customer[1].SystemId;
@@ -2220,9 +2228,10 @@ codeunit 134399 "Test Merge Duplicates"
         O365PostedCouponClaim."Claim ID" := LibraryUtility.GenerateGUID();
         O365PostedCouponClaim."Customer Id" := Customer[1].SystemId;
         O365PostedCouponClaim.Insert();
+#endif
 #if not CLEAN20
         // [GIVEN] Native Payment, where "Customer No." is 'A', "Customer Id" is '0'
-        NativePayment."Applies-to Invoice Id" := CreateGuid;
+        NativePayment."Applies-to Invoice Id" := CreateGuid();
         NativePayment.Validate("Customer No.", Customer[1]."No.");
         NativePayment.Insert();
 #endif
@@ -2265,36 +2274,38 @@ codeunit 134399 "Test Merge Duplicates"
         Customer[2].TestField(Name, Customer[2].Name);
 
         // [THEN] Journal Line, where "Account No." is 'B', "Bal. Account No." is 'B', "Customer Id" is '0'
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Bal. Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Account No.", Customer[2]."No.");
         GenJournalLine.TestField("Customer Id", Customer[2].SystemId);
+#if not CLEAN21
         // [THEN] O365CouponClaim, where "Customer Id" is '0'
-        O365CouponClaim.Find;
+        O365CouponClaim.Find();
         O365CouponClaim.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] O365PostedCouponClaim, where "Customer Id" is '0'
-        O365PostedCouponClaim.Find;
+        O365PostedCouponClaim.Find();
         O365PostedCouponClaim.TestField("Customer Id", Customer[2].SystemId);
+#endif
 #if not CLEAN20
         // [THEN] Native Payment, where "Customer No." is 'B', "Customer Id" is '0'
-        NativePayment.Find;
+        NativePayment.Find();
         NativePayment.TestField("Customer No.", Customer[2]."No.");
         NativePayment.TestField("Customer Id", Customer[2].SystemId);
 #endif
         // [THEN] SalesInvoiceEntityAggregate, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesInvoiceEntityAggregate.Find;
+        SalesInvoiceEntityAggregate.Find();
         SalesInvoiceEntityAggregate.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesInvoiceEntityAggregate.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesOrderEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesOrderEntityBuffer.Find;
+        SalesOrderEntityBuffer.Find();
         SalesOrderEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesOrderEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesQuoteEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesQuoteEntityBuffer.Find;
+        SalesQuoteEntityBuffer.Find();
         SalesQuoteEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesQuoteEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] SalesCrMemoEntityBuffer, where "Sell-to Customer No." is 'B', "Customer Id" is '0'
-        SalesCrMemoEntityBuffer.Find;
+        SalesCrMemoEntityBuffer.Find();
         SalesCrMemoEntityBuffer.TestField("Sell-to Customer No.", Customer[2]."No.");
         SalesCrMemoEntityBuffer.TestField("Customer Id", Customer[2].SystemId);
         // [THEN] Default Dimension, where "Table ID" is '18', "No." is 'B', ParentID is '0'
@@ -2528,7 +2539,6 @@ codeunit 134399 "Test Merge Duplicates"
         ContactDuplicate.Insert();
     end;
 
-
     local procedure OpenMergePageForConflictingRecords(var MergeDuplicatePage: TestPage "Merge Duplicate"; MergeDuplicatesConflict: Record "Merge Duplicates Conflict")
     var
         MergeDuplicate: Page "Merge Duplicate";
@@ -2571,7 +2581,7 @@ codeunit 134399 "Test Merge Duplicates"
     begin
         ODataEdmType.DeleteAll();
         IntegrationRecord.DeleteAll();
-        IntegrationManagement.ResetIntegrationActivated;
+        IntegrationManagement.ResetIntegrationActivated();
         APIMockEvents.SetIsAPIEnabled(false);
         BindSubscription(APIMockEvents);
         Assert.IsFalse(IntegrationManagement.IsIntegrationActivated, 'Integration must be disabled with mock.');

@@ -103,13 +103,13 @@ codeunit 144049 "VAT Statement Summery Report T"
         VATStatementName: Record "VAT Statement Name";
         VATStatementMonth: Date;
     begin
-        VATStatementMonth := CalcDate('<-CM>', WorkDate);
+        VATStatementMonth := CalcDate('<-CM>', WorkDate());
         VATStatementTemplate.FindFirst();
         VATStatementName.FindFirst();
         with VATStatementLine do begin
             SetRange("Line No.", 9990000);
             DeleteAll();
-            Init;
+            Init();
             "Statement Template Name" := VATStatementTemplate.Name;
             "Statement Name" := VATStatementName.Name;
             "Line No." := 9990000;
@@ -124,15 +124,15 @@ codeunit 144049 "VAT Statement Summery Report T"
             "Print with" := "Print with"::Sign;
             "Document Type" := "Document Type"::"All except Credit Memo";
             "Print on Official VAT Form" := true;
-            Insert;
+            Insert();
         end;
 
         with VATEntry do begin
             if Get(990000) then
-                Delete;
-            Init;
+                Delete();
+            Init();
             "Entry No." := 990000;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := VATEntryOneAmount;
             Closed := false;
             "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
@@ -143,10 +143,10 @@ codeunit 144049 "VAT Statement Summery Report T"
             Insert(true);
 
             if Get(990001) then
-                Delete;
-            Init;
+                Delete();
+            Init();
             "Entry No." := 990001;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Type := Type::Sale;
             Amount := VATEntryTwoAmount;
             Closed := true;

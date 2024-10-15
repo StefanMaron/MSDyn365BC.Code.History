@@ -13,7 +13,7 @@ page 475 "VAT Statement Preview Line"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Row No."; "Row No.")
+                field("Row No."; Rec."Row No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a number that identifies the line.';
@@ -28,28 +28,28 @@ page 475 "VAT Statement Preview Line"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what the VAT statement line will include.';
                 }
-                field("Amount Type"; "Amount Type")
+                field("Amount Type"; Rec."Amount Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if the VAT statement line shows the VAT amounts, or the base amounts on which the VAT is calculated.';
                 }
-                field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
+                field("VAT Bus. Posting Group"; Rec."VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
+                field("VAT Prod. Posting Group"; Rec."VAT Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
-                field("Tax Jurisdiction Code"; "Tax Jurisdiction Code")
+                field("Tax Jurisdiction Code"; Rec."Tax Jurisdiction Code")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies a tax jurisdiction code for the statement.';
                     Visible = false;
                 }
-                field("Use Tax"; "Use Tax")
+                field("Use Tax"; Rec."Use Tax")
                 {
                     ApplicationArea = SalesTax;
                     ToolTip = 'Specifies whether to use only entries from the VAT Entry table that are marked as Use Tax to be totaled on this line.';
@@ -69,9 +69,9 @@ page 475 "VAT Statement Preview Line"
                         case Type of
                             Type::"Account Totaling":
                                 begin
-                                    GLEntry.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
+                                    SetKeyForGLEntry(GLEntry);
                                     GLEntry.SetFilter("G/L Account No.", "Account Totaling");
-                                    CopyFilter("Date Filter", GLEntry."Posting Date");
+                                    SetDateFilterForGLEntry(GLEntry);
                                     if "Document Type" = "Document Type"::"All except Credit Memo" then
                                         GLEntry.SetFilter("Document Type", '<>%1', "Document Type"::"Credit Memo")
                                     else
@@ -82,8 +82,7 @@ page 475 "VAT Statement Preview Line"
                             Type::"VAT Entry Totaling":
                                 begin
                                     VATEntry.Reset();
-                                    VATEntry.SetCurrentKey(
-                                      "Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Type", "Posting Date");
+                                    SetKeyForVATEntry(VATEntry);
                                     VATEntry.SetRange(Type, "Gen. Posting Type");
                                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Bus. Posting Group");
                                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Prod. Posting Group");
@@ -94,10 +93,8 @@ page 475 "VAT Statement Preview Line"
                                     else
                                         VATEntry.SetRange("Document Type", "Document Type");
                                     if GetFilter("Date Filter") <> '' then
-                                        if PeriodSelection = PeriodSelection::"Before and Within Period" then
-                                            VATEntry.SetRange("Posting Date", 0D, GetRangeMax("Date Filter"))
-                                        else
-                                            CopyFilter("Date Filter", VATEntry."Posting Date");
+                                        SetDateFilterForVATEntry(VATEntry);
+                                        
                                     case Selection of
                                         Selection::Open:
                                             VATEntry.SetRange(Closed, false);
@@ -169,6 +166,50 @@ page 475 "VAT Statement Preview Line"
         UseAmtsInAddCurr: Boolean;
         CorrectionValue: Decimal;
         NetAmountLCY: Decimal;
+        VATDateType: Enum "VAT Date Type";
+
+    local procedure SetKeyForGLEntry(var GLEntryLocal: Record "G/L Entry")
+    begin
+        case VATDateType of
+            VATDateType::"Document Date": GLEntryLocal.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Document Date", "Document Type");
+            VATDateType::"Posting Date": GLEntryLocal.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "Posting Date", "Document Type");
+            VATDateType::"VAT Reporting Date": GLEntryLocal.SetCurrentKey("Journal Templ. Name", "G/L Account No.", "VAT Reporting Date", "Document Type");
+        end
+    end;
+
+    local procedure SetKeyForVATEntry(var VATEntryLocal: Record "VAT Entry")
+    begin
+        case VATDateType of
+            VATDateType::"Document Date": VATEntryLocal.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Document Date");
+            VATDateType::"Posting Date": VATEntryLocal.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
+            VATDateType::"VAT Reporting Date": VATEntryLocal.SetCurrentKey("Journal Templ. Name", Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
+        end
+    end;
+
+    local procedure SetDateFilterForGLEntry(var GLEntryLocal: Record "G/L Entry")
+    begin
+        case VATDateType of
+            VATDateType::"Document Date": Rec.CopyFilter("Date Filter", GLEntryLocal."Document Date");
+            VATDateType::"Posting Date": Rec.CopyFilter("Date Filter", GLEntryLocal."Posting Date");
+            VATDateType::"VAT Reporting Date": Rec.CopyFilter("Date Filter", GLEntryLocal."VAT Reporting Date");
+        end
+    end;
+
+    local procedure SetDateFilterForVATEntry(var VATEntryLocal: Record "VAT Entry")
+    begin
+        if PeriodSelection = PeriodSelection::"Before and Within Period" then
+            case VATDateType of
+                VATDateType::"Document Date": VATEntryLocal.SetRange("Document Date", 0D, Rec.GetRangeMax("Date Filter"));
+                VATDateType::"Posting Date": VATEntryLocal.SetRange("Posting Date", 0D, Rec.GetRangeMax("Date Filter"));
+                VATDateType::"VAT Reporting Date": VATEntryLocal.SetRange("VAT Reporting Date", 0D, Rec.GetRangeMax("Date Filter"));
+            end
+        else
+            case VATDateType of
+                VATDateType::"Document Date": Rec.CopyFilter("Date Filter", VATEntryLocal."Document Date");
+                VATDateType::"Posting Date": Rec.CopyFilter("Date Filter", VATEntryLocal."Posting Date");
+                VATDateType::"VAT Reporting Date": Rec.CopyFilter("Date Filter", VATEntryLocal."VAT Reporting Date");
+            end
+    end;
 
     local procedure CalcColumnValue(VATStatementLine: Record "VAT Statement Line"; var ColumnValue: Decimal; var CorrectionValue: Decimal; var NetAmountLCY: Decimal; JournalTempl: Code[10]; Level: Integer)
     var
@@ -182,6 +223,22 @@ page 475 "VAT Statement Preview Line"
         VATStatement.CalcLineTotal(VATStatementLine, ColumnValue, CorrectionValue, NetAmountLCY, JournalTempl, Level);
     end;
 
+    procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
+    begin
+        VATStmtName.CopyFilter("Date Filter", "Date Filter");
+        Selection := NewSelection;
+        PeriodSelection := NewPeriodSelection;
+        UseAmtsInAddCurr := NewUseAmtsInAddCurr;
+        VATDateType := NewVATDateType;
+        VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, NewVATDateType);
+        OnUpdateFormOnBeforePageUpdate2(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr, NewVATDateType);
+        CurrPage.Update();
+
+        OnAfterUpdateForm();
+    end;
+
+#if not CLEAN21
+    [Obsolete('Replaced by UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")', '21.0')]
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean)
     begin
         VATStmtName.CopyFilter("Date Filter", "Date Filter");
@@ -194,6 +251,7 @@ page 475 "VAT Statement Preview Line"
 
         OnAfterUpdateForm();
     end;
+#endif
 
     local procedure ApplyDateFilter(var ManualVATCorrection: Record "Manual VAT Correction")
     begin
@@ -269,8 +327,16 @@ page 475 "VAT Statement Preview Line"
     begin
     end;
 
+#if not CLEAN21
     [IntegrationEvent(false, false)]
+    [Obsolete('Replaced by OnUpdateFormOnBeforePageUpdate2(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; VATDateType: Enum "VAT Date Type")', '21.0')]
     local procedure OnUpdateFormOnBeforePageUpdate(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateFormOnBeforePageUpdate2(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATDateType: Enum "VAT Date Type")
     begin
     end;
 

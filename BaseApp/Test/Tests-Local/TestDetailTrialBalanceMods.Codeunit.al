@@ -76,7 +76,7 @@ codeunit 144026 "Test Detail Trial Balance Mods"
         GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FieldNo("Entry No."));
         GLEntry."G/L Account No." := GLAccountNo;
         GLEntry.Description := GLAccountNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Insert();
     end;
 

@@ -17,8 +17,8 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
     [Scope('OnPrem')]
     procedure TestTrailBalanceDebitCredit()
     begin
-        TrailingBalanceDebitCredit(false, CalcDate('<-24M>', WorkDate), CalcDate('<+11M><+8D>', WorkDate));
-        TrailingBalanceDebitCredit(false, WorkDate, CalcDate('<+11M><+8D>', WorkDate));
+        TrailingBalanceDebitCredit(false, CalcDate('<-24M>', WorkDate()), CalcDate('<+11M><+8D>', WorkDate()));
+        TrailingBalanceDebitCredit(false, WorkDate(), CalcDate('<+11M><+8D>', WorkDate()));
     end;
 
     [Test]
@@ -26,7 +26,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
     [Scope('OnPrem')]
     procedure TestTrailBalanceDebitCreditAMts()
     begin
-        TrailingBalanceDebitCredit(true, CalcDate('<-24M>', WorkDate), CalcDate('<+11M><+8D>', WorkDate));
+        TrailingBalanceDebitCredit(true, CalcDate('<-24M>', WorkDate()), CalcDate('<+11M><+8D>', WorkDate()));
     end;
 
     [Test]
@@ -168,7 +168,7 @@ codeunit 144014 "Rep Trial Balance Debit/Credit"
     procedure RHTrailBalanceDebitCreditNoStartDate(var TrailBalanceDebitCredit: TestRequestPage "Trial Balance - Debit/Credit")
     begin
         TrailBalanceDebitCredit."G/L Account".SetFilter("Date Filter", StrSubstNo('%1..%2', 00000101D,
-            Format(CalcDate('<+11M><+8D>', WorkDate))));
+            Format(CalcDate('<+11M><+8D>', WorkDate()))));
         TrailBalanceDebitCredit.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

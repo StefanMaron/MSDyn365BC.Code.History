@@ -174,10 +174,10 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(AmountWithoutVAT + NonDeductibleVATAmount, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-(VATAmount + AmountWithoutVAT), GLEntry.Amount, '');
 
         // Line | Base                        | Amount
@@ -260,13 +260,13 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(AmountWithoutVAT + NonDeductibleVATAmount, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount - NonDeductibleVATAmount, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-VATAmount, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-AmountWithoutVAT, GLEntry.Amount, '');
 
         // Line | Base                        | Amount
@@ -365,17 +365,17 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(AmountWithoutVAT2 + NonDeductibleVATAmount2, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(AmountWithoutVATAndDiscount1 + NonDeductibleVATAmount1, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-(AmountWithVAT1 + AmountWithVAT2), GLEntry.Amount, '');
 
         // Line | Base                        | Amount
@@ -392,7 +392,7 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount2, VATEntry."Non Ded. VAT Amount", '');
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(AmountWithoutVATAndDiscount1 + NonDeductibleVATAmount1, VATEntry.Base, '');
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount1, VATEntry."Non Ded. VAT Amount", '');
@@ -479,23 +479,23 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(AmountWithoutVAT2 + NonDeductibleVATAmount2, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-VATAmount2, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(AmountWithoutVATAndDiscount1 + NonDeductibleVATAmount1, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-VATAmount1, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-(AmountWithoutVATAndDiscount1 + AmountWithoutVAT2), GLEntry.Amount, '');
 
         // Line | Base                        | Amount
@@ -509,7 +509,7 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount2, VATEntry."Non Ded. VAT Amount", '');
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(AmountWithoutVATAndDiscount1 + NonDeductibleVATAmount1, VATEntry.Base, '');
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount1, VATEntry."Non Ded. VAT Amount", '');
@@ -553,7 +553,7 @@ codeunit 144000 "Non-Deductible VAT"
         VAT := VATPostingSetup."VAT %";
         NonDeductibleVAT1 := 10;
         AmountWithoutVAT1 := 100;
-        AmountWithoutVAT1LCY := CurrencyExchangeRate.ExchangeAmount(AmountWithoutVAT1, CurrencyCode, '', WorkDate);
+        AmountWithoutVAT1LCY := CurrencyExchangeRate.ExchangeAmount(AmountWithoutVAT1, CurrencyCode, '', WorkDate());
         LineDiscount1 := 10;
         AmountWithoutVATAndDiscount1 := LibraryBEHelper.CalcPercentageChange(AmountWithoutVAT1LCY, LineDiscount1, 0.01, false);
         VATAmount1 := LibraryBEHelper.CalcPercentage(AmountWithoutVATAndDiscount1, VAT, 0.01);
@@ -561,7 +561,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         NonDeductibleVAT2 := LibraryRandom.RandInt(99);
         AmountWithoutVAT2 := LibraryRandom.RandIntInRange(100, 1000);
-        AmountWithoutVAT2LCY := CurrencyExchangeRate.ExchangeAmount(AmountWithoutVAT2, CurrencyCode, '', WorkDate);
+        AmountWithoutVAT2LCY := CurrencyExchangeRate.ExchangeAmount(AmountWithoutVAT2, CurrencyCode, '', WorkDate());
         VATAmount2 := LibraryBEHelper.CalcPercentage(AmountWithoutVAT2LCY, VAT, 0.01);
         NonDeductibleVATAmount2 := LibraryBEHelper.CalcPercentage(VATAmount2, NonDeductibleVAT2, 0.01);
 
@@ -606,23 +606,23 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(AmountWithoutVAT2LCY + NonDeductibleVATAmount2, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-VATAmount2, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(AmountWithoutVATAndDiscount1 + NonDeductibleVATAmount1, GLEntry.Amount, '');
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-VATAmount1, GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-(AmountWithoutVATAndDiscount1 + AmountWithoutVAT2LCY), GLEntry.Amount, '');
 
         // Line | Base                        | Amount
@@ -636,7 +636,7 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(VATAmount2 - NonDeductibleVATAmount2, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount2, VATEntry."Non Ded. VAT Amount", '');
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(AmountWithoutVATAndDiscount1 + NonDeductibleVATAmount1, VATEntry.Base, '');
         Assert.AreEqual(VATAmount1 - NonDeductibleVATAmount1, VATEntry.Amount, '');
         Assert.AreEqual(NonDeductibleVATAmount1, VATEntry."Non Ded. VAT Amount", '');
@@ -702,10 +702,10 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(-(AmountWithoutVAT + NonDeductibleVATAmount), GLEntry.Amount, '');
         Assert.AreEqual(-(VATAmount - NonDeductibleVATAmount), GLEntry."VAT Amount", '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(-(VATAmount - NonDeductibleVATAmount), GLEntry.Amount, '');
 
-        GLEntry.Next;
+        GLEntry.Next();
         Assert.AreEqual(VATAmount + AmountWithoutVAT, GLEntry.Amount, '');
 
         // Line | Base                        | Amount
@@ -789,7 +789,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         // [THEN] Line of Statistics page considering info about the Line with Normal VAT has "VAT %", "VAT Amount", "Amount Including VAT"
         // [THEN] as they are in Purchase Line
-        PurchaseInvoiceStatistics.SubForm.Next;
+        PurchaseInvoiceStatistics.SubForm.Next();
         VerifyPurchInvStatLine(
           PurchaseInvoiceStatistics, PurchaseLineNormalVAT."VAT %",
           PurchaseLineNormalVAT."Amount Including VAT" - PurchaseLineNormalVAT."Line Amount",
@@ -798,7 +798,7 @@ codeunit 144000 "Non-Deductible VAT"
         PurchaseInvoiceStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
           GetLoweredVATBase(PurchaseLineNormalVAT."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
 
-        PurchaseInvoiceStatistics.Close;
+        PurchaseInvoiceStatistics.Close();
 
         // [THEN] 2 entry is created in VAT Entry table
         // [THEN] 1st VAT Entry is of Normal type and VAT amount is calculated according to discount: 205,8
@@ -871,7 +871,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         // [THEN] Line of Statistics page considering info about the Line with Normal VAT has "VAT %", "VAT Amount", "Amount Including VAT"
         // [THEN] as they are in Purchase Credit Memo Line
-        PurchaseCrMemoStatistics.SubForm.Next;
+        PurchaseCrMemoStatistics.SubForm.Next();
         VerifyPurchCrMemoStatLine(
           PurchaseCrMemoStatistics, PurchaseLineNormalVAT."VAT %",
           PurchaseLineNormalVAT."Amount Including VAT" - PurchaseLineNormalVAT."Line Amount",
@@ -880,7 +880,7 @@ codeunit 144000 "Non-Deductible VAT"
         PurchaseCrMemoStatistics.SubForm."VAT Base (Lowered)".AssertEquals(
           GetLoweredVATBase(PurchaseLineNormalVAT."Direct Unit Cost", PurchaseHeader."VAT Base Discount %"));
 
-        PurchaseCrMemoStatistics.Close;
+        PurchaseCrMemoStatistics.Close();
 
         // [THEN] 2 entry is created in VAT Entry table
         // [THEN] 1st VAT Entry is of Normal type and VAT amount is calculated according to discount: 205,8
@@ -1209,7 +1209,7 @@ codeunit 144000 "Non-Deductible VAT"
 
         // [THEN] "VAT Amount" field is not editable in all lines
         Assert.IsFalse(PurchaseStatistics.SubForm."VAT Amount".Editable, VATAmountIsEditableErr);
-        PurchaseStatistics.SubForm.Next;
+        PurchaseStatistics.SubForm.Next();
         Assert.IsFalse(PurchaseStatistics.SubForm."VAT Amount".Editable, VATAmountIsEditableErr);
     end;
 
@@ -1434,7 +1434,7 @@ codeunit 144000 "Non-Deductible VAT"
             InvoiceNo[i] := CreateAndPostPurchaseInvoice(VATPostingSetup, '', GLAccount, BaseAmount[i], VATAmount[i], NonDedVATAmount[i]);
 
         // [WHEN] Print REP 20 "Calc. and Post VAT Settlement" with VAT Settlement Account = "Y"
-        VATPostingSetup.SetRecFilter;
+        VATPostingSetup.SetRecFilter();
         GLAccountNo := SaveCalcAndPostVATSettlementReport(VATPostingSetup, true);
 
         // [THEN] G/L entries balance for VATSetup."Purchase VAT Account" and "Reverse Chrg. VAT Acc." = 240 = 80 + 160
@@ -2908,7 +2908,7 @@ codeunit 144000 "Non-Deductible VAT"
         Currency.Modify(true);
 
         // Create Currency Exchange Rate.
-        LibraryERM.CreateExchRate(CurrencyExchRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchRate, Currency.Code, WorkDate());
         CurrencyExchRate.Validate("Exchange Rate Amount", LibraryRandom.RandDec(100, 2));
         CurrencyExchRate.Validate(
           "Relational Exch. Rate Amount", CurrencyExchRate."Exchange Rate Amount" + LibraryRandom.RandDec(500, 2));
@@ -3024,7 +3024,7 @@ codeunit 144000 "Non-Deductible VAT"
         LibraryBEHelper.CreateGLAccount(GLAccount, VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase, 0);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", 1);
         SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(1000, 10000));
-        SalesLine.Modify;
+        SalesLine.Modify();
     end;
 
     local procedure CreatePurchaseOrderWithDiscountAndReverseChargeVAT(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
@@ -3243,7 +3243,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        PurchaseHeader.Validate("Posting Date", CalcDate('<-CM>', WorkDate));
+        PurchaseHeader.Validate("Posting Date", CalcDate('<-CM>', WorkDate()));
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
@@ -3375,7 +3375,7 @@ codeunit 144000 "Non-Deductible VAT"
     local procedure MockPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal; PurchaseAmount: Decimal)
     begin
         with PurchaseLine do begin
-            Init;
+            Init();
             "Document Type" := PurchaseHeader."Document Type";
             "Document No." := PurchaseHeader."No.";
             "Line No." := LibraryUtility.GetNewRecNo(PurchaseLine, FieldNo("Line No."));
@@ -3383,7 +3383,7 @@ codeunit 144000 "Non-Deductible VAT"
             "VAT Calculation Type" := VATCalculationType;
             Amount := PurchaseAmount;
             "Amount Including VAT" := Amount * (1 + ("VAT %" / 100));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -3398,7 +3398,7 @@ codeunit 144000 "Non-Deductible VAT"
         Clear(CalcAndPostVATSettlement);
 
         LibraryERM.FindGenJnlTemplateAndBatch(TemplateName, BatchName);
-        CalcAndPostVATSettlement.InitializeRequest(WorkDate, WorkDate, WorkDate, TemplateName, BatchName, GLAccount."No.", true, Post);
+        CalcAndPostVATSettlement.InitializeRequest(WorkDate(), WorkDate(), WorkDate, TemplateName, BatchName, GLAccount."No.", true, Post);
         CalcAndPostVATSettlement.InitializeRequest2(false);
         Commit();
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
@@ -3433,9 +3433,9 @@ codeunit 144000 "Non-Deductible VAT"
 
     local procedure ConvertAmounts(var VATBaseTarget: Decimal; var VATAmountTarget: Decimal; var NonDedVATAmountTarget: Decimal; VATBaseSource: Decimal; VATAmountSource: Decimal; NonDedVATAmountSource: Decimal; CurrencyCodeSource: Code[10]; CurrencyCodeTarget: Code[10])
     begin
-        VATBaseTarget := Round(LibraryERM.ConvertCurrency(VATBaseSource, CurrencyCodeSource, CurrencyCodeTarget, WorkDate));
-        VATAmountTarget := Round(LibraryERM.ConvertCurrency(VATAmountSource, CurrencyCodeSource, CurrencyCodeTarget, WorkDate));
-        NonDedVATAmountTarget := Round(LibraryERM.ConvertCurrency(NonDedVATAmountSource, CurrencyCodeSource, CurrencyCodeTarget, WorkDate));
+        VATBaseTarget := Round(LibraryERM.ConvertCurrency(VATBaseSource, CurrencyCodeSource, CurrencyCodeTarget, WorkDate()));
+        VATAmountTarget := Round(LibraryERM.ConvertCurrency(VATAmountSource, CurrencyCodeSource, CurrencyCodeTarget, WorkDate()));
+        NonDedVATAmountTarget := Round(LibraryERM.ConvertCurrency(NonDedVATAmountSource, CurrencyCodeSource, CurrencyCodeTarget, WorkDate()));
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VendorNo: Code[20]; DocumentNo: Code[20])
@@ -3584,7 +3584,7 @@ codeunit 144000 "Non-Deductible VAT"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange("Document Type", DocumentType);
-        Assert.AreEqual(2, VATEntry.Count, VATEntry.TableCaption);
+        Assert.AreEqual(2, VATEntry.Count, VATEntry.TableCaption());
 
         VATEntry.FindSet();
         Assert.AreEqual(
@@ -3594,7 +3594,7 @@ codeunit 144000 "Non-Deductible VAT"
         Assert.AreEqual(LoweredVATNormalVAT, VATEntry.Amount, VATEntry.FieldCaption(Amount));
         Assert.AreEqual(LoweredVATBaseNormalVAT, VATEntry.Base, VATEntry.FieldCaption(Base));
 
-        VATEntry.Next;
+        VATEntry.Next();
         Assert.AreEqual(
           VATEntry."VAT Calculation Type"::"Reverse Charge VAT",
           VATEntry."VAT Calculation Type",
@@ -3868,7 +3868,7 @@ codeunit 144000 "Non-Deductible VAT"
             PurchaseStatistics.SubForm.First;
             VerifyPurchStatisticSubform(
               PurchaseStatistics, AmountWithoutVATAndDiscount1, VATAmount[1], NonDeductibleVATAmount[1]);
-            PurchaseStatistics.SubForm.Next;
+            PurchaseStatistics.SubForm.Next();
             VerifyPurchStatisticSubform(
               PurchaseStatistics, AmountWithoutVAT2, VATAmount[2], NonDeductibleVATAmount[2]);
         end;
@@ -3917,7 +3917,7 @@ codeunit 144000 "Non-Deductible VAT"
             PurchaseInvoiceStatistics.SubForm.First;
             VerifyPurchInvoiceStatisticSubform(
               PurchaseInvoiceStatistics, AmountWithoutVATAndDiscount1, VATAmount[1], NonDeductibleVATAmount[1]);
-            PurchaseInvoiceStatistics.SubForm.Next;
+            PurchaseInvoiceStatistics.SubForm.Next();
             VerifyPurchInvoiceStatisticSubform(
               PurchaseInvoiceStatistics, AmountWithoutVAT2, VATAmount[2], NonDeductibleVATAmount[2]);
         end;

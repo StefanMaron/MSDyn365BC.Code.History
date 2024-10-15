@@ -6,7 +6,6 @@ codeunit 5913 "FaultResolRelation-Calculate"
     end;
 
     var
-        Text000: Label 'Searching Posted Service Order No.  #1###########';
         TempFaultResolutionRelation: Record "Fault/Resol. Cod. Relationship" temporary;
         FaultResolutionRelation: Record "Fault/Resol. Cod. Relationship";
         ServShptHeader: Record "Service Shipment Header";
@@ -17,6 +16,8 @@ codeunit 5913 "FaultResolRelation-Calculate"
         Window: Dialog;
         AreaFlag: Boolean;
         SymptomFlag: Boolean;
+
+        Text000: Label 'Searching Posted Service Order No.  #1###########';
 
     procedure CopyResolutionRelationToTable(FromDate: Date; ToDate: Date; ServiceItemGroupRelation: Boolean; RetainManuallyInserted: Boolean)
     begin
@@ -183,7 +184,7 @@ codeunit 5913 "FaultResolRelation-Calculate"
                 end;
             until TempFaultResolutionRelation.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 }
 

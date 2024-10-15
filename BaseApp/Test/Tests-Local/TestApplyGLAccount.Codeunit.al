@@ -67,7 +67,7 @@ codeunit 144023 "Test Apply G/L Account"
         if GLEntry.FindSet() then begin
             repeat
                 Assert.AreEqual(GLEntry.Amount, GLEntry."Remaining Amount", '');
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         end;
 
         // ---------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ codeunit 144023 "Test Apply G/L Account"
                     Assert.AreEqual(0, GLEntry.Amount, '');
 
                 Assert.AreEqual(GLEntry.Amount, GLEntry."Remaining Amount", '');
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         end;
 
         // Verify that the amount and remaining amount on the previously created entries
@@ -116,7 +116,7 @@ codeunit 144023 "Test Apply G/L Account"
                     Assert.AreEqual(0, GLEntry.Amount, '');
 
                 Assert.AreEqual(GLEntry.Amount, GLEntry."Remaining Amount", '');
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
         end;
     end;
 
@@ -220,7 +220,7 @@ codeunit 144023 "Test Apply G/L Account"
         // Setup - Insert 2 General Journal lines against a G/L Account and a
         // corresponding balancing accounts
 
-        Date1 := CalcDate('<CY-1Y+27D>', WorkDate);
+        Date1 := CalcDate('<CY-1Y+27D>', WorkDate());
         FirstLineDocNo := CreatePostGenJnlLineOnDate('510000', Date1, 1000);
 
         // ---------------------------------------------------------------
@@ -251,7 +251,7 @@ codeunit 144023 "Test Apply G/L Account"
         NavigatePage.Trap;
         ApplyGeneralLedgerEntriesPage."&Navigate".Invoke;
         Assert.AreEqual(2, NavigatePage."No. of Records".AsInteger, '');
-        NavigatePage.Close;
+        NavigatePage.Close();
 
         ApplyGeneralLedgerEntriesPage.Dimensions.Invoke;
 
@@ -319,8 +319,8 @@ codeunit 144023 "Test Apply G/L Account"
         // Setup - Insert 2 General Journal lines against a G/L Account and a
         // corresponding balancing accounts
 
-        Date1 := CalcDate('<CY-1Y+27D>', WorkDate);
-        Date2 := CalcDate('<CY-1Y+31D>', WorkDate);
+        Date1 := CalcDate('<CY-1Y+27D>', WorkDate());
+        Date2 := CalcDate('<CY-1Y+31D>', WorkDate());
         FirstLineDocNo := CreatePostGenJnlLineOnDate('580000', Date1, 1000);
         SecondLineDocNo := CreatePostGenJnlLineOnDate('580000', Date2, -1000);
 
@@ -401,8 +401,8 @@ codeunit 144023 "Test Apply G/L Account"
         BusinessUnit.Name := 'Cons1';
         CompanyInfo.FindFirst();
         BusinessUnit."Company Name" := CopyStr(CompanyInfo.Name, 1, MaxStrLen(BusinessUnit."Company Name"));
-        BusinessUnit."Starting Date" := CalcDate('<CY-1Y+1D>', WorkDate);
-        BusinessUnit."Ending Date" := CalcDate('<CY>', WorkDate);
+        BusinessUnit."Starting Date" := CalcDate('<CY-1Y+1D>', WorkDate());
+        BusinessUnit."Ending Date" := CalcDate('<CY>', WorkDate());
         BusinessUnit.Modify(true);
     end;
 
@@ -423,14 +423,14 @@ codeunit 144023 "Test Apply G/L Account"
         GLEntry: Record "G/L Entry";
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := GLAccountNo;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Amount := LibraryRandom.RandDecInRange(10, 20, 2);
             Open := true;
             "Remaining Amount" := Amount;
-            Insert;
+            Insert();
             exit(Amount);
         end;
     end;

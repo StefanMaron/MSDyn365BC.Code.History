@@ -65,7 +65,7 @@ codeunit 5054 WordManagement
                 InStreamBLOB.ReadText(NewLine);
                 MergeFile.Write(CurrentLine);
             end;
-            if InteractLogEntry.Get(EntryNo) then begin
+            if InteractLogEntry.Get(EntryNo) then
                 case CorrespondenceType of
                     CorrespondenceType::Fax:
                         MergeFile.Write('<td>' + AttachmentManagement.InteractionFax(InteractLogEntry) + '</td>');
@@ -74,7 +74,6 @@ codeunit 5054 WordManagement
                     CorrespondenceType::"Hard Copy":
                         MergeFile.Write('<td></td>');
                 end;
-            end;
             MergeFile.Write(NewLine);
         end;
     end;
@@ -179,13 +178,13 @@ codeunit 5054 WordManagement
             if HeaderFieldsCount <> DataFieldsCount then
                 Error(FieldCountMismatchErr, HeaderFieldsCount, DataFieldsCount);
 
-            Reset;
+            Reset();
             if Find('-') then
                 repeat
                     WordMergefile.AddField(Name);
                 until Next() = 0;
 
-            WordMergefile.WriteLine;
+            WordMergefile.WriteLine();
         end;
     end;
 
@@ -283,7 +282,7 @@ codeunit 5054 WordManagement
         OnBeforeCheckCanRunWord(CanRunWord, CanRunWordModified);
         if CanRunWordModified then
             exit(CanRunWord);
-        CanRunWord := IsActive;
+        CanRunWord := IsActive();
     end;
 
     [IntegrationEvent(false, false)]

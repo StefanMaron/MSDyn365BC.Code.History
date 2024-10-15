@@ -13,19 +13,19 @@ page 867 "CF Availability by Periods"
             group(Options)
             {
                 Caption = 'Options';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
                 }
-                field("Manual Payments From"; "Manual Payments From")
+                field("Manual Payments From"; Rec."Manual Payments From")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies a starting date from which manual payments should be included in cash flow forecast.';
                 }
-                field("Manual Payments To"; "Manual Payments To")
+                field("Manual Payments To"; Rec."Manual Payments To")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'To';
@@ -46,7 +46,7 @@ page 867 "CF Availability by Periods"
                         DrillDownSourceTypeEntries("Source Type Filter"::"Liquid Funds");
                     end;
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
@@ -60,7 +60,7 @@ page 867 "CF Availability by Periods"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(PeriodType; PeriodType)
@@ -71,7 +71,7 @@ page 867 "CF Availability by Periods"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
                 field(AmountType; AmountType)
@@ -82,7 +82,7 @@ page 867 "CF Availability by Periods"
 
                     trigger OnValidate()
                     begin
-                        UpdateSubForm;
+                        UpdateSubForm();
                     end;
                 }
             }
@@ -99,7 +99,7 @@ page 867 "CF Availability by Periods"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     var

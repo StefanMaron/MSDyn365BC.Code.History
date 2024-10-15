@@ -1,9 +1,8 @@
-report 501 "Intrastat - Form"
+﻿report 501 "Intrastat - Form"
 {
     // Could use COMPANYDISPLAYNAME for the companyname.
     DefaultLayout = RDLC;
     RDLCLayout = './Intrastat/IntrastatForm.rdlc';
-
     ApplicationArea = BasicEU;
     Caption = 'Intrastat - Form';
     UsageCategory = ReportsAndAnalysis;
@@ -78,7 +77,7 @@ report 501 "Intrastat - Form"
             column(VYear; VYear)
             {
             }
-            column(Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312; 'Navision' + ' ' + ApplicationSystemConstants.ApplicationVersion + ' ' + Text11312)
+            column(Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312; 'Navision' + ' ' + ApplicationSystemConstants.ApplicationVersion() + ' ' + Text11312)
             {
             }
             column(V1Caption; V1CaptionLbl)
@@ -215,7 +214,7 @@ report 501 "Intrastat - Form"
                 column(VYear_Control1010017; VYear)
                 {
                 }
-                column(Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312_Control1010000; 'Navision' + ' ' + ApplicationSystemConstants.ApplicationVersion + ' ' + Text11312)
+                column(Navision__________ApplicationSystemConstants_ApplicationVersion_________Text11312_Control1010000; 'Navision' + ' ' + ApplicationSystemConstants.ApplicationVersion() + ' ' + Text11312)
                 {
                 }
                 column(TWeight; TWeight)
@@ -626,14 +625,6 @@ report 501 "Intrastat - Form"
     end;
 
     var
-        Text11301: Label 'must be Import or Export';
-        Text11302: Label 'INTRASTAT 19 RECEIPT';
-        Text11303: Label 'MA-1', Locked = true;
-        Text11304: Label 'INTRASTAT 29 SHIPMENT';
-        Text11305: Label 'MA-2', Locked = true;
-        Text11307: Label 'must be more than 0';
-        Text11310: Label 'No message allowed when using a Nihil declaration.';
-        Text11311: Label 'NIHIL', Locked = true;
         GLSetup: Record "General Ledger Setup";
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
         Company: Record "Company Information";
@@ -667,6 +658,14 @@ report 501 "Intrastat - Form"
         TArea: Text[30];
         Nihil: Boolean;
         StopShowWarnMsg: Boolean;
+        Text11301: Label 'must be Import or Export';
+        Text11302: Label 'INTRASTAT 19 RECEIPT';
+        Text11303: Label 'MA-1', Locked = true;
+        Text11304: Label 'INTRASTAT 29 SHIPMENT';
+        Text11305: Label 'MA-2', Locked = true;
+        Text11307: Label 'must be more than 0';
+        Text11310: Label 'No message allowed when using a Nihil declaration.';
+        Text11311: Label 'NIHIL', Locked = true;
         Text11312: Label 'Report for internal use only, must not be used as an official statement';
         Text11313: Label 'This report is for internal use only and must not be used as an official declaration.\\Don''t show me this warning again?';
         Text11315: Label 'Enterprise number in the Company Information table is not valid.';

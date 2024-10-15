@@ -317,7 +317,7 @@ codeunit 130619 "Library - Graph Document Tools"
         totalTaxAmountTxt: Text;
         totalAmountIncludingTaxTxt: Text;
     begin
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
 
         // Parse JSON
@@ -354,7 +354,7 @@ codeunit 130619 "Library - Graph Document Tools"
         totalTaxAmountTxt: Text;
         totalAmountIncludingTaxTxt: Text;
     begin
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.CalcFields(Amount, "Amount Including VAT", "Invoice Discount Amount");
         PurchaseHeader.CalcFields("Invoice Discount Amount");
 
@@ -889,14 +889,6 @@ codeunit 130619 "Library - Graph Document Tools"
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'itemId', ItemId), 'Could not find itemId');
         Assert.IsTrue(JSONManagement.GetStringPropertyValueFromJObjectByName(JObject, 'accountId', AccountId), 'Could not find accountId');
     end;
-
-#if not CLEAN18
-    [Scope('OnPrem')]
-    procedure CreateCustomerFromContact(var Customer: Record Customer; Contact: Record Contact)
-    begin
-        LibraryMarketing.CreateCustomerFromContact(Customer, Contact);
-    end;
-#endif
 
     [Scope('OnPrem')]
     procedure VerifyValidDiscountAmount(ResponseText: Text; ExpectedDiscountAmount: Decimal)

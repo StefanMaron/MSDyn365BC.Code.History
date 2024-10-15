@@ -42,7 +42,7 @@ codeunit 456 "Job Queue Management"
             if not IsEmpty() then
                 exit;
 
-            Init;
+            Init();
             Validate("Object Type to Run", ObjectTypeToRun);
             Validate("Object ID to Run", ObjectIdToRun);
             "Earliest Start Date/Time" := CurrentDateTime;
@@ -78,9 +78,9 @@ codeunit 456 "Job Queue Management"
                     if Status = Status::"In Process" then begin
                         // Non-recurring jobs will be auto-deleted after execution has completed.
                         "Recurring Job" := false;
-                        Modify;
+                        Modify();
                     end else
-                        Delete;
+                        Delete();
                 until Next() = 0;
         end;
     end;

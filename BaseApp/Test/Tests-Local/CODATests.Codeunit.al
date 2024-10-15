@@ -434,20 +434,20 @@ codeunit 144006 "CODA Tests"
         CreateCustLedgerEntry(CustLedgerEntry, LibrarySales.CreateCustomerNo, false);
 
         with CODAStatementLine do begin
-            Init;
+            Init();
             "Statement No." := LibraryUtility.GenerateGUID();
             "Statement Line No." := LibraryRandom.RandInt(100);
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Document No." := LibraryUtility.GenerateGUID();
             "Account Type" := "Account Type"::Customer;
             "Account No." := CustLedgerEntry."Customer No.";
-            Insert;
+            Insert();
             TestField("Applies-to ID", '');
         end;
 
         CODAWriteStatements.Apply(CODAStatementLine);
 
-        CODAStatementLine.Find;
+        CODAStatementLine.Find();
         CODAStatementLine.TestField("Applies-to ID", CODAStatementLine."Document No.");
     end;
 
@@ -475,7 +475,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [WHEN] Change the Account No. to VendorAccount and ensure
@@ -515,7 +515,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Change the Account No. to VendorAccount
@@ -564,7 +564,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Change the Account No. to VendorAccount
@@ -584,7 +584,7 @@ codeunit 144006 "CODA Tests"
         // [THEN] Amount = 0
         // [THEN] "Application Status" is changed to "Partly applied"
         // [THEN] "Unapplied Amount" = "Amt"
-        CODAStatementLine.Find;
+        CODAStatementLine.Find();
         CODAStatementLine.TestField("Applies-to ID", '');
         VerifyCODAStatementLineApplicationInfo(
           CODAStatementLine, VendLedgerEntry.Amount, 0, CODAStatementLine."Application Status"::"Partly applied", VendLedgerEntry.Amount);
@@ -618,7 +618,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Account No. is "X"
@@ -672,7 +672,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Change the Account No. to VendorAccount
@@ -719,7 +719,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Change the Account No. to VendorAccount
@@ -772,7 +772,7 @@ codeunit 144006 "CODA Tests"
         CreateCODAStatementLineWithStatementLineNo(
           CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
         UpdateCODAStatementLine(
-          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          CODAStatementLine, WorkDate(), CODAStatementLine."Account Type"::Vendor,
           VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
 
         // [GIVEN] Change the Account No. to VendorAccount
@@ -992,7 +992,7 @@ codeunit 144006 "CODA Tests"
         CODAStatement.Init();
         CODAStatement."Bank Account No." := BankAccount."No.";
         CODAStatement."Statement No." := Format(LibraryRandom.RandInt(10));
-        CODAStatement."Statement Date" := WorkDate;
+        CODAStatement."Statement Date" := WorkDate();
         CODAStatement.Insert();
         with CODAStatementLine do begin
             "Bank Account No." := BankAccount."No.";
@@ -1001,7 +1001,7 @@ codeunit 144006 "CODA Tests"
             Transaction := TransactionCoding.Transaction;
             "Transaction Category" := TransactionCoding."Transaction Category";
             "Bank Account No. Other Party" := CopyStr(BankAccountNoOtherParty, 1, MaxStrLen("Bank Account No. Other Party"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1015,7 +1015,7 @@ codeunit 144006 "CODA Tests"
             Transaction := LastTransactionCoding.Transaction + 1;
             "Transaction Category" := LastTransactionCoding."Transaction Category" + 1;
             "Account Type" := AccountType;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1046,7 +1046,7 @@ codeunit 144006 "CODA Tests"
         CODAStatement.Init();
         CODAStatement."Bank Account No." := BankAccount."No.";
         CODAStatement."Statement No." := Format(LibraryRandom.RandInt(10));
-        CODAStatement."Statement Date" := WorkDate;
+        CODAStatement."Statement Date" := WorkDate();
         CODAStatement.Insert();
         with CODAStatementLine do begin
             "Bank Account No." := BankAccount."No.";
@@ -1056,7 +1056,7 @@ codeunit 144006 "CODA Tests"
             Transaction := TransactionCoding.Transaction;
             "Transaction Category" := TransactionCoding."Transaction Category";
             "Bank Account No. Other Party" := CopyStr(BankAccountNoOtherParty, 1, MaxStrLen("Bank Account No. Other Party"));
-            Insert;
+            Insert();
         end;
     end;
 

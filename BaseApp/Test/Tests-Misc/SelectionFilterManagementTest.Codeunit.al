@@ -28,9 +28,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Currency do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -49,9 +49,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CustomerPriceGroup do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -70,9 +70,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Location do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -91,9 +91,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with GLAccount do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -112,9 +112,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Customer do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -133,9 +133,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Contact do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -154,9 +154,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Vendor do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -175,9 +175,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Item do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -196,9 +196,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Resource do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -217,9 +217,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with InventoryPostingGroup do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -239,9 +239,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with GLBudgetName do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Name := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -260,9 +260,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with BusinessUnit do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -281,9 +281,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CustomerDiscountGroup do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -303,9 +303,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with ItemDiscountGroup do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -324,9 +324,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with ItemCategory do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -345,9 +345,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with DimensionValue do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -428,9 +428,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with ICPartner do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -449,9 +449,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CashFlowForecast do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -470,9 +470,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CashFlowAccount do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -491,9 +491,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CostBudgetName do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Name := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -512,9 +512,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CostCenter do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -533,9 +533,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CostObject do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 Code := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -554,9 +554,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with CostType do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -575,9 +575,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with Campaign do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -596,9 +596,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with LotNoInformation do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "Lot No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -617,9 +617,9 @@ codeunit 132537 SelectionFilterManagementTest
     begin
         with SerialNoInformation do begin
             if not FindFirst() then begin
-                Init;
+                Init();
                 "Serial No." := '1';
-                Insert;
+                Insert();
             end;
             Mark(true);
             MarkedOnly(true);
@@ -902,7 +902,7 @@ codeunit 132537 SelectionFilterManagementTest
 
         // [GIVEN] A table (Currency) with at least 1 record
         if not Customer.FindFirst() then begin
-            Customer.Init;
+            Customer.Init();
             Customer."No." := 'ABC';
             Customer.Insert;
         end;

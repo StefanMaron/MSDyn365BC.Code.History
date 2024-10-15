@@ -99,7 +99,7 @@ page 9193 "Thirty Day Trial Dialog"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Next';
-                Enabled = NextActionEnabled;
+                Visible = NextActionEnabled;
                 Image = NextRecord;
                 InFooterBar = true;
 
@@ -113,15 +113,16 @@ page 9193 "Thirty Day Trial Dialog"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Get started';
                 Enabled = TermsAndConditionsAccepted;
+                Visible = FinalStepVisible;
                 Gesture = None;
-                Image = Approve;
+                Image = NextRecord;
                 InFooterBar = true;
                 //The property 'ToolTip' cannot be empty.
                 //ToolTip = '';
 
                 trigger OnAction()
                 begin
-                    StartTrialAction;
+                    StartTrialAction();
                 end;
             }
         }
@@ -130,7 +131,7 @@ page 9193 "Thirty Day Trial Dialog"
     trigger OnOpenPage()
     begin
         Step := Step::Start;
-        EnableControls;
+        EnableControls();
         OnIsRunningPreview(IsPreview);
     end;
 
@@ -161,13 +162,13 @@ page 9193 "Thirty Day Trial Dialog"
 
     local procedure EnableControls()
     begin
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::Finish:
-                ShowFinalStep;
+                ShowFinalStep();
         end;
     end;
 
@@ -178,7 +179,7 @@ page 9193 "Thirty Day Trial Dialog"
         else
             Step := Step + 1;
 
-        EnableControls;
+        EnableControls();
     end;
 
     local procedure ShowStartStep()
@@ -205,7 +206,7 @@ page 9193 "Thirty Day Trial Dialog"
     local procedure StartTrialAction()
     begin
         TrialWizardCompleted := true;
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     procedure Confirmed(): Boolean

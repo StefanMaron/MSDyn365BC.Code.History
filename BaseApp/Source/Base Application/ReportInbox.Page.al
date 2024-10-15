@@ -17,28 +17,28 @@ page 680 "Report Inbox"
         {
             repeater(Group)
             {
-                field("Report Name"; "Report Name")
+                field("Report Name"; Rec."Report Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the report.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowReport;
+                        ShowReport();
                         CurrPage.Update(false);
                     end;
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Created Date-Time"; "Created Date-Time")
+                field("Created Date-Time"; Rec."Created Date-Time")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time that the scheduled report was processed from the job queue.';
                 }
-                field("User ID"; "User ID")
+                field("User ID"; Rec."User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the user who posted the entry, to be used, for example, in the change log.';
@@ -57,10 +57,7 @@ page 680 "Report Inbox"
                 Caption = 'Open in OneDrive';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and open it in a new window so you can manage or share the file.', Comment = 'OneDrive should not be translated';
                 Image = Cloud;
-                Enabled = ShareOptionsEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
+                Visible = ShareOptionsEnabled;
                 Scope = Repeater;
                 trigger OnAction()
                 begin
@@ -73,10 +70,7 @@ page 680 "Report Inbox"
                 Caption = 'Share';
                 ToolTip = 'Copy the file to your Business Central folder in OneDrive and share the file. You can also see who it''s already shared with.', Comment = 'OneDrive should not be translated';
                 Image = Share;
-                Enabled = ShareOptionsEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
+                Visible = ShareOptionsEnabled;
                 Scope = Repeater;
                 trigger OnAction()
                 begin
@@ -88,9 +82,6 @@ page 680 "Report Inbox"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Download';
                 Enabled = DownloadEnabled;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 Scope = Repeater;
                 Image = Download;
                 ShortCutKey = 'Return';
@@ -103,6 +94,23 @@ page 680 "Report Inbox"
                 end;
             }
 
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(OpenInOneDrive_Promoted; OpenInOneDrive)
+                {
+                }
+                actionref(ShareWithOneDrive_Promoted; ShareWithOneDrive)
+                {
+                }
+                actionref(Show_Promoted; Show)
+                {
+                }
+            }
         }
     }
 

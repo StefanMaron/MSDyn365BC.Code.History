@@ -83,7 +83,7 @@ codeunit 1392 "Monitor Sensitive Field"
         FilterPageBuilder.AddFieldNo(DataSensitivity.TableCaption(), DataSensitivity.FieldNo("Field Caption"));
 
         if FilterPageBuilder.RunModal() then begin
-            DataSensitivity.SetView(FilterPageBuilder.GetView(DataSensitivity.TableCaption));
+            DataSensitivity.SetView(FilterPageBuilder.GetView(DataSensitivity.TableCaption()));
             ImportMonitorFieldsByDataSensitivity(DataSensitivity);
         end;
     end;

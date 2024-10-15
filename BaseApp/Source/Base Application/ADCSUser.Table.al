@@ -60,10 +60,10 @@ table 7710 "ADCS User"
         CryptoProvider: DotNet SHA512Managed;
         Encoding: DotNet Encoding;
     begin
-        CryptoProvider := CryptoProvider.SHA512Managed;
+        CryptoProvider := CryptoProvider.SHA512Managed();
         HashedValue := Convert.ToBase64String(CryptoProvider.ComputeHash(Encoding.Unicode.GetBytes(Input + Name)));
-        CryptoProvider.Clear;
-        CryptoProvider.Dispose;
+        CryptoProvider.Clear();
+        CryptoProvider.Dispose();
     end;
 }
 

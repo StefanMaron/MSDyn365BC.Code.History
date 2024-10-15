@@ -75,14 +75,14 @@ codeunit 1545 "Workflow Webhook Notification"
             WorkflowWebhookNotification.Modify(true);
             Commit();
         end else begin
-            Exception := GetLastErrorObject;
+            Exception := GetLastErrorObject();
 
             ErrorMessage := Exception.Message;
             ErrorDetails := Exception.StackTrace;
 
             if RetryCounter > 0 then begin
                 Retry := true;
-                DotNetExceptionHandler.Collect;
+                DotNetExceptionHandler.Collect();
                 if DotNetExceptionHandler.CastToType(WebException, GetDotNetType(WebException)) then begin
                     HttpWebResponse := WebException.Response;
                     if not IsNull(HttpWebResponse) then
@@ -135,25 +135,25 @@ codeunit 1545 "Workflow Webhook Notification"
         HttpWebRequest.Method := 'POST';
         HttpWebRequest.ContentType('application/json');
 
-        RequestStr := HttpWebRequest.GetRequestStream;
+        RequestStr := HttpWebRequest.GetRequestStream();
         StreamWriter := StreamWriter.StreamWriter(RequestStr, Encoding.ASCII);
         StreamWriter.Write('{"Row Id":"' + TypeHelper.GetGuidAsString(DataID) +
           '","Workflow Step Id":"' + TypeHelper.GetGuidAsString(WorkflowStepInstanceID) +
           '","Requested By User Email":"' + RequestedByUserEmail + '"}');
-        StreamWriter.Flush;
-        StreamWriter.Close;
-        StreamWriter.Dispose;
+        StreamWriter.Flush();
+        StreamWriter.Close();
+        StreamWriter.Dispose();
 
-        HttpWebResponse := HttpWebRequest.GetResponse;
-        HttpWebResponse.Close; // close connection
-        HttpWebResponse.Dispose; // cleanup of IDisposable
+        HttpWebResponse := HttpWebRequest.GetResponse();
+        HttpWebResponse.Close(); // close connection
+        HttpWebResponse.Dispose(); // cleanup of IDisposable
     end;
 
     local procedure FindNotificationRecord(var WorkflowWebhookNotificationTable: Record "Workflow Webhook Notification"; WorkflowStepInstanceID: Guid): Boolean
     begin
         // Fetch current notification record
         WorkflowWebhookNotificationTable.SetRange("Workflow Step Instance ID", WorkflowStepInstanceID);
-        exit(WorkflowWebhookNotificationTable.FindFirst);
+        exit(WorkflowWebhookNotificationTable.FindFirst());
     end;
 
     local procedure GetNotificationRecord(var WorkflowWebhookNotificationTable: Record "Workflow Webhook Notification"; WorkflowStepInstanceID: Guid)

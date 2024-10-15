@@ -84,7 +84,7 @@ codeunit 144051 TELEBANK
         LibraryVariableStorage.Enqueue(false);
 
         // Execution date
-        LibraryVariableStorage.Enqueue(WorkDate);
+        LibraryVariableStorage.Enqueue(WorkDate());
 
         // Inscription No
         LibraryVariableStorage.Enqueue(1);
@@ -109,14 +109,14 @@ codeunit 144051 TELEBANK
         NoSeriesLine.Modify(true);
 
         with ElectronicBankingSetup do begin
-            Get;
+            Get();
             "Summarize Gen. Jnl. Lines" := true;
             Modify(true);
         end;
 
         // Creat epayment journal lines
         // Clear all existing rows
-        CustomerPaymentJournalLine.SetRange("Posting Date", WorkDate);
+        CustomerPaymentJournalLine.SetRange("Posting Date", WorkDate());
         CustomerPaymentJournalLine.DeleteAll();
 
         // Create customer and vendor
@@ -127,8 +127,8 @@ codeunit 144051 TELEBANK
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, Vendor."No.");
 
         with CustomerPaymentJournalLine do begin
-            Reset;
-            Init;
+            Reset();
+            Init();
             "Journal Template Name" := GenJournalTemplate.Name;
             "Journal Batch Name" := PaymJournalBatch.Name;
             "Line No." := 1;
@@ -136,13 +136,13 @@ codeunit 144051 TELEBANK
             "Account No." := Customer."No.";
             Amount := LibraryRandom.RandDec(1000, 2);
             "Beneficiary Bank Account" := CustomerBankAccount.Code;
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
 
         with VendorPaymentJournalLine do begin
-            Reset;
-            Init;
+            Reset();
+            Init();
             "Journal Template Name" := GenJournalTemplate.Name;
             "Journal Batch Name" := PaymJournalBatch.Name;
             "Line No." := 2;
@@ -150,8 +150,8 @@ codeunit 144051 TELEBANK
             "Account No." := Vendor."No.";
             Amount := LibraryRandom.RandDec(1000, 2);
             "Beneficiary Bank Account" := VendorBankAccount.Code;
-            "Posting Date" := WorkDate;
-            Insert;
+            "Posting Date" := WorkDate();
+            Insert();
         end;
 
         // Exersice

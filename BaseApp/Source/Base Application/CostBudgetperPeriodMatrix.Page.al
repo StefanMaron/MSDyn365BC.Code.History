@@ -18,7 +18,7 @@ page 1131 "Cost Budget per Period Matrix"
                 IndentationColumn = NameIndent;
                 IndentationControls = Name;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = CostAccounting;
                     Editable = false;
@@ -37,7 +37,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column1; MATRIX_CellData[1])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[1];
@@ -57,7 +57,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column2; MATRIX_CellData[2])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[2];
@@ -77,7 +77,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column3; MATRIX_CellData[3])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[3];
@@ -97,7 +97,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column4; MATRIX_CellData[4])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[4];
@@ -117,7 +117,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column5; MATRIX_CellData[5])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[5];
@@ -137,7 +137,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column6; MATRIX_CellData[6])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[6];
@@ -157,7 +157,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column7; MATRIX_CellData[7])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[7];
@@ -177,7 +177,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column8; MATRIX_CellData[8])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[8];
@@ -197,7 +197,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column9; MATRIX_CellData[9])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[9];
@@ -217,7 +217,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column10; MATRIX_CellData[10])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[10];
@@ -237,7 +237,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column11; MATRIX_CellData[11])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[11];
@@ -257,7 +257,7 @@ page 1131 "Cost Budget per Period Matrix"
                 field(Column12; MATRIX_CellData[12])
                 {
                     ApplicationArea = CostAccounting;
-                    AutoFormatExpression = FormatStr;
+                    AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
                     BlankZero = true;
                     CaptionClass = '3,' + MATRIX_ColumnCaption[12];
@@ -476,7 +476,7 @@ page 1131 "Cost Budget per Period Matrix"
         CostBudgetEntries.SetCurrRegNo(CurrRegNo);
         CostBudgetEntries.SetTableView(CostBudgetEntry);
         CostBudgetEntries.RunModal();
-        CurrRegNo := CostBudgetEntries.GetCurrRegNo;
+        CurrRegNo := CostBudgetEntries.GetCurrRegNo();
         CurrPage.Update(false);
     end;
 
@@ -522,7 +522,7 @@ page 1131 "Cost Budget per Period Matrix"
         MatrixCostBudgetEntry."Cost Object Code" := CostObjectFilter;
         MatrixCostBudgetEntry.Amount := MATRIX_CellData[ColumnID] - "Budget Amount";
         MatrixCostBudgetEntry.Insert(true);
-        RegNo := MatrixCostBudgetEntry.GetCostBudgetRegNo;
+        RegNo := MatrixCostBudgetEntry.GetCostBudgetRegNo();
     end;
 
     local procedure FormatStr(): Text

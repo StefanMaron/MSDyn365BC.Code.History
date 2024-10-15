@@ -13,22 +13,22 @@ page 5646 "Insurance Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("Annual Premium"; "Annual Premium")
+                field("Annual Premium"; Rec."Annual Premium")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of the annual insurance premium.';
                 }
-                field("Policy Coverage"; "Policy Coverage")
+                field("Policy Coverage"; Rec."Policy Coverage")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the amount of coverage provided by this insurance policy.';
                 }
-                field("Total Value Insured"; "Total Value Insured")
+                field("Total Value Insured"; Rec."Total Value Insured")
                 {
                     ApplicationArea = FixedAssets;
                     ToolTip = 'Specifies the total value of fixed assets linked to this insurance policy. This is the value of fixed assets for which insurance is required.';
                 }
-                field("""Policy Coverage"" - ""Total Value Insured"""; "Policy Coverage" - "Total Value Insured")
+                field("""Policy Coverage"" - ""Total Value Insured"""; Rec."Policy Coverage" - "Total Value Insured")
                 {
                     ApplicationArea = FixedAssets;
                     AutoFormatType = 1;

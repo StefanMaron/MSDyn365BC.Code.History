@@ -26,7 +26,7 @@ codeunit 104010 "UPG Set Country App Areas"
         IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetCountryApplicationAreasTag) THEN
             EXIT;
 
-        IF ApplicationAreaSetup.GET AND ApplicationAreaSetup.Basic THEN BEGIN
+        IF ApplicationAreaSetup.GET() AND ApplicationAreaSetup.Basic THEN BEGIN
             ApplicationAreaSetup.VAT := TRUE;
             ApplicationAreaSetup."Basic EU" := TRUE;
             ApplicationAreaSetup."Basic BE" := TRUE;
@@ -46,12 +46,11 @@ codeunit 104010 "UPG Set Country App Areas"
             EXIT;
 
         BankAccountPostingGroup.SETFILTER("G/L Bank Account No.", '<>%1', '');
-        IF BankAccountPostingGroup.FINDSET(TRUE) THEN BEGIN
-            REPEAT
+        if BankAccountPostingGroup.FINDSET(TRUE) then
+            repeat
                 BankAccountPostingGroup."G/L Account No." := BankAccountPostingGroup."G/L Bank Account No.";
                 BankAccountPostingGroup.Modify();
-            UNTIL BankAccountPostingGroup.Next() = 0;
-        END;
+            until BankAccountPostingGroup.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag);
     end;

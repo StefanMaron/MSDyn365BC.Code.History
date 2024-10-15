@@ -63,7 +63,7 @@ codeunit 144010 "VAT Reports BE"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        FileName := VATVIESDeclarationDiskOpen(0, WorkDate, true, '', Customer."No.");
+        FileName := VATVIESDeclarationDiskOpen(0, WorkDate(), true, '', Customer."No.");
 
         // Verify
         Assert.IsTrue(FILE.Exists(FileName), FileName + ' ' + NotFoundMsg);
@@ -100,7 +100,7 @@ codeunit 144010 "VAT Reports BE"
         // Exercise.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
-        asserterror VATVIESDeclarationDiskOpen(0, WorkDate, true, Representative.ID, Customer."No.");
+        asserterror VATVIESDeclarationDiskOpen(0, WorkDate(), true, Representative.ID, Customer."No.");
 
         // Verify
 
@@ -135,7 +135,7 @@ codeunit 144010 "VAT Reports BE"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        FileName := VATVIESDeclarationDiskOpen(0, WorkDate, true, Representative.ID, Customer."No.");
+        FileName := VATVIESDeclarationDiskOpen(0, WorkDate(), true, Representative.ID, Customer."No.");
 
         // Verify
         Assert.IsTrue(FILE.Exists(FileName), FileName + ' ' + NotFoundMsg);
@@ -179,7 +179,7 @@ codeunit 144010 "VAT Reports BE"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", DocumentNo);
         AmountToTest += CustLedgerEntry."Sales (LCY)";
-        FileName := VATVIESDeclarationDiskOpen(1, WorkDate, true, '', Customer."No.");
+        FileName := VATVIESDeclarationDiskOpen(1, WorkDate(), true, '', Customer."No.");
 
         // Verify
         Assert.IsTrue(FILE.Exists(FileName), FileName + ' ' + NotFoundMsg);
@@ -210,7 +210,7 @@ codeunit 144010 "VAT Reports BE"
         // Setup.
         CreateCustomer(Customer, true);
         CreateItemWithCost(Item);
-        PostingDate := CalcDate('<+8Y>', WorkDate);
+        PostingDate := CalcDate('<+8Y>', WorkDate());
 
         // Exercise.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -272,7 +272,7 @@ codeunit 144010 "VAT Reports BE"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::"Credit Memo", DocumentNo);
 
-        FileName := VATVIESDeclarationDiskOpen(1, WorkDate, true, '', Customer."No.");
+        FileName := VATVIESDeclarationDiskOpen(1, WorkDate(), true, '', Customer."No.");
         // Verify
         // Verification is in CannotCreateFileMessageHandler
         Assert.IsFalse(FILE.Exists(FileName), FileName);
@@ -300,7 +300,7 @@ codeunit 144010 "VAT Reports BE"
         Customer.SetRange("No.", Customer."No.");
 
         // Verify
-        asserterror VATVIESDeclarationDiskOpen(0, WorkDate, true, '', Customer."No.");
+        asserterror VATVIESDeclarationDiskOpen(0, WorkDate(), true, '', Customer."No.");
     end;
 
     [Test]
@@ -328,7 +328,7 @@ codeunit 144010 "VAT Reports BE"
         Customer.SetRange("No.", Customer."No.");
 
         // Verify
-        asserterror VATVIESDeclarationDiskOpen(0, WorkDate, true, '', Customer."No.");
+        asserterror VATVIESDeclarationDiskOpen(0, WorkDate(), true, '', Customer."No.");
 
         LibraryBEHelper.InitializeCompanyInformation;
     end;
@@ -378,11 +378,11 @@ codeunit 144010 "VAT Reports BE"
             SalesLine.Validate("Unit Price", I * 100);
             SalesLine.Modify();
             SalesHeader.SetHideValidationDialog(true);
-            SalesHeader.Validate("Posting Date", DMY2Date(1, I, Date2DMY(WorkDate, 3) + 10));
+            SalesHeader.Validate("Posting Date", DMY2Date(1, I, Date2DMY(WorkDate(), 3) + 10));
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end;
         VATStatementSummaryOpen(
-          DMY2Date(1, 1, Date2DMY(WorkDate, 3) + 10), 12, true, 2, false, false, false,
+          DMY2Date(1, 1, Date2DMY(WorkDate(), 3) + 10), 12, true, 2, false, false, false,
           VATStatementName, VATStatementLine."Statement Template Name");
         LibraryReportDataset.LoadDataSetFile;
 
@@ -491,12 +491,12 @@ codeunit 144010 "VAT Reports BE"
 
         // Setup: Create Customer. Create and post Sales Invoice at WorkDate. Create VAT - VIES Correction.
         Initialize();
-        DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
+        DocumentNo := CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate());
         CorrectionAmount := LibraryRandom.RandDec(100, 2);
-        CreateVATVIESCorrection(Customer, -CorrectionAmount, WorkDate, false); // FALSE means no need to fill in Posting Date.
+        CreateVATVIESCorrection(Customer, -CorrectionAmount, WorkDate(), false); // FALSE means no need to fill in Posting Date.
 
         // Exercise: Run VAT - VIES Declaration Disk by VATVIESDeclarationDiskRequestPageHandler.
-        FileName := VATVIESDeclarationDiskOpen(0, WorkDate, false, '', Customer."No.");
+        FileName := VATVIESDeclarationDiskOpen(0, WorkDate(), false, '', Customer."No.");
 
         // Verify: Verify the Amount in exported file is calculated together.
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
@@ -521,7 +521,7 @@ codeunit 144010 "VAT Reports BE"
         Initialize();
 
         // [GIVEN]
-        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate, 100, 200);
+        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate(), 100, 200);
         // [GIVEN] Create and post document for customer without correction
         CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, PostingDate);
         CustNo := Customer."No.";
@@ -672,17 +672,17 @@ codeunit 144010 "VAT Reports BE"
         Initialize();
 
         // [GIVEN] Posted Sales document for Customer with blank "Country/Region Code".
-        CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
+        CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate());
         CustomerNo := Customer."No.";
         Customer."Country/Region Code" := '';
         Customer.Modify();
 
         // [GIVEN] Posted Sales document for Customer with non-blank "Country/Region Code".
-        CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate);
+        CreateAndPostSalesDocument(SalesLine, SalesHeader, Customer, WorkDate());
         Customer.TestField("Country/Region Code");
 
         // [WHEN] Run report "VAT-VIES Declaration Disk".
-        FileName := VATVIESDeclarationDiskOpen(0, WorkDate, true, '', StrSubstNo('%1|%2', CustomerNo, Customer."No."));
+        FileName := VATVIESDeclarationDiskOpen(0, WorkDate(), true, '', StrSubstNo('%1|%2', CustomerNo, Customer."No."));
 
         // [THEN] XML file is created.
         Assert.IsTrue(FILE.Exists(FileName), StrSubstNo('%1 %2', FileName, NotFoundMsg));
@@ -756,7 +756,7 @@ codeunit 144010 "VAT Reports BE"
         VATVIESCorrection: Record "VAT VIES Correction";
     begin
         with VATVIESCorrection do begin
-            Init;
+            Init();
             Validate("Period Type", 1); // Month - not important
             Validate("Declaration Period No.", Date2DMY(PostingDate, 2));
             Validate("Declaration Period Year", Date2DMY(PostingDate, 3));
@@ -765,7 +765,7 @@ codeunit 144010 "VAT Reports BE"
             Validate(Amount, AmountToCorrect);
             if AssignCorrectionDate then
                 Validate("Correction Date", PostingDate);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -791,7 +791,7 @@ codeunit 144010 "VAT Reports BE"
     begin
         with ManualVATCorrection do begin
             DeleteAll();
-            Init;
+            Init();
             Validate("Posting Date", PostingDate);
             Validate(Amount, LibraryRandom.RandDec(100, 2));
             Validate("Statement Template Name", VATStatementLine."Statement Template Name");
@@ -839,7 +839,7 @@ codeunit 144010 "VAT Reports BE"
         GLAccount: Record "G/L Account";
     begin
         with Currency do begin
-            Init;
+            Init();
             Validate(Code, 'BEF'); // The ACY for this report can be either BEF or EUR
             Insert(true);
             LibraryERM.SetCurrencyGainLossAccounts(Currency);
@@ -1033,7 +1033,7 @@ codeunit 144010 "VAT Reports BE"
             DataStream.ReadText(Txt);
             Position := StrPos(Txt, NameSpace);
         end;
-        XMLFile.Close;
+        XMLFile.Close();
 
         exit(Position)
     end;

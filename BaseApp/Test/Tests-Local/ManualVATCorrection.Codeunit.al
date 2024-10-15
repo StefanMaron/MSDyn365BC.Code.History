@@ -48,7 +48,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.010] Mandatory 'Posting Date' (TC157002)
 
         // [GIVEN] A record in Table Manual VAT Correction
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
 
         // [WHEN] Entering empty 'Posting Date'
         asserterror TempManualVATCorrection.Validate("Posting Date", 0D);
@@ -69,11 +69,11 @@ codeunit 144029 "Manual VAT Correction"
         // [GIVEN] Page Manual VAT Correction
 
         // [GIVEN] Inserted record A with Posting Date = X
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
         TempManualVATCorrection.Insert(true);
 
         // [GIVEN] New record B with Posting Date = X
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
 
         // [WHEN] Record B is being inserted
         asserterror TempManualVATCorrection.Insert(true);
@@ -92,11 +92,11 @@ codeunit 144029 "Manual VAT Correction"
         // [FEATURE] MANVATCORR
         // [SCENARIO TAB.012] Duplicate 'Posting Date' is allowed on 2 different VAT Statement lines.
 
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
         TempManualVATCorrection.Insert(true);
 
         // [GIVEN] New record B with Posting Date = X related to VAT Statement Z.
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
         VATStatementLine.FindLast();
         TempManualVATCorrection.Validate("Statement Line No.", VATStatementLine."Line No.");
 
@@ -118,7 +118,7 @@ codeunit 144029 "Manual VAT Correction"
 
         // [GIVEN] New record with amount = 0
         TempManualVATCorrection.Init();
-        TempManualVATCorrection."Posting Date" := WorkDate;
+        TempManualVATCorrection."Posting Date" := WorkDate();
 
         // [WHEN] Record is being inserted
         asserterror TempManualVATCorrection.Insert(true);
@@ -137,7 +137,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.013] Amount Zero is not allowed.
 
         // [GIVEN] Inserted record A with amount = 0
-        CreateManCorrLine(TempManualVATCorrection, 1, WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, 1, WorkDate(), '');
 
         // [WHEN] Entering zero Amount
         asserterror TempManualVATCorrection.Validate(Amount, 0);
@@ -156,7 +156,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.020] 'User ID' on insert
 
         // [GIVEN] Created new record
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
 
         // [WHEN] Record is inserted
         TempManualVATCorrection.Insert(true);
@@ -175,7 +175,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.021] 'User ID' on modify
 
         // [GIVEN] Inserted record with 'User ID' = X (not equal to USERID)
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, 'TestId');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), 'TestId');
         TempManualVATCorrection.Insert();
 
         // [WHEN] Record is modified
@@ -201,7 +201,7 @@ codeunit 144029 "Manual VAT Correction"
         // [GIVEN] Page Manual VAT Correction
 
         // [GIVEN] Inserted record with Amount=Y
-        CreateManCorrLine(TempManualVATCorrection, 1, WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, 1, WorkDate(), '');
         TempManualVATCorrection.Insert();
 
         // [WHEN] Amount is changed to X
@@ -212,7 +212,7 @@ codeunit 144029 "Manual VAT Correction"
         // [THEN] 'Additional-Currency Amount' = X * ExchangeRate
         Assert.AreEqual(
           Round(TempManualVATCorrection."Additional-Currency Amount"),
-          Round(GetExchangedAmount(WorkDate, SetAmount)), AmountIncorrectErr);
+          Round(GetExchangedAmount(WorkDate(), SetAmount)), AmountIncorrectErr);
 
         ClearAddnlReportingCurrency;
     end;
@@ -228,7 +228,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.035] 'Additional-Currency Amount' is not editable
 
         // [GIVEN] Inserted Manual VAT Correction record
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
         TempManualVATCorrection.Insert();
 
         // [WHEN] Open page Manual VAT Correction
@@ -257,7 +257,7 @@ codeunit 144029 "Manual VAT Correction"
         // [GIVEN] Page Manual VAT Correction
 
         // [GIVEN] Inserted record with Amount=Y
-        CreateManCorrLine(TempManualVATCorrection, 1, WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, 1, WorkDate(), '');
         TempManualVATCorrection.Insert();
 
         // [WHEN] Amount is changed to X
@@ -279,7 +279,7 @@ codeunit 144029 "Manual VAT Correction"
         // [SCENARIO TAB.040] 'Row No.' shows related VAT Statement Line.'Row No.'
 
         // [GIVEN] Inserted record, related to VAT Stmt. Line 'Row No.' = X
-        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate, '');
+        CreateManCorrLine(TempManualVATCorrection, LibraryRandom.RandDec(100, 2), WorkDate(), '');
 
         // [WHEN] VAT Stmt. Line 'Row No.' is changed to Y
         ChangeRowNoOnVATStmtLine(TempManualVATCorrection, VATStatementLine);
@@ -312,7 +312,7 @@ codeunit 144029 "Manual VAT Correction"
     local procedure CreateManCorrLine(var ManualVATCorrection: Record "Manual VAT Correction"; AmountVal: Decimal; PostingDate: Date; UserId: Code[50])
     begin
         with ManualVATCorrection do begin
-            Init;
+            Init();
             Validate("Posting Date", PostingDate);
             Validate(Amount, AmountVal);
             if UserId <> '' then

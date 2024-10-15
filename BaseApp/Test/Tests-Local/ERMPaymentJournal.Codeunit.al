@@ -134,7 +134,7 @@ codeunit 144003 "ERM Payment Journal"
         PostPaymentJournal(GenJnlLine, PaymentJnlLine, ExportProtocolCode);
 
         // verify
-        PaymentJnlLine.Find;
+        PaymentJnlLine.Find();
         VerifyGenJnlLineApplyToID(GenJnlBatch, PaymentJnlLine."Account No.", PaymentJnlLine."Applies-to ID");
     end;
 
@@ -377,8 +377,8 @@ codeunit 144003 "ERM Payment Journal"
         // [GIVEN] Vendor "V" with overall positive balance and two Vendor Ledger Entries with the same "Document No." and "Document Type".
         VendorNo := LibraryPurchase.CreateVendorNo();
         DocumentNo := LibraryUtility.GenerateGUID();
-        MockVendorLedgerEntry(VendorNo, DocumentNo, WorkDate, LibraryRandom.RandDecInRange(100, 1000, 2));
-        MockVendorLedgerEntry(VendorNo, DocumentNo, WorkDate, LibraryRandom.RandDecInRange(100, 1000, 2));
+        MockVendorLedgerEntry(VendorNo, DocumentNo, WorkDate(), LibraryRandom.RandDecInRange(100, 1000, 2));
+        MockVendorLedgerEntry(VendorNo, DocumentNo, WorkDate(), LibraryRandom.RandDecInRange(100, 1000, 2));
 
         // [WHEN] Suggest Vendor Payments for "V".
         SuggestVendorPayments(VendorNo);
@@ -1018,7 +1018,7 @@ codeunit 144003 "ERM Payment Journal"
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account");
             "Country/Region Code" := Vendor."Country/Region Code";
             FillInBankBranchAndAccount("Bank Branch No.", "Bank Account No.", Domestic);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1032,7 +1032,7 @@ codeunit 144003 "ERM Payment Journal"
             "Country/Region Code" := Vendor."Country/Region Code";
 
             GenerateBankAccNosMod97Compliant("Bank Account No.", "Bank Branch No.");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1051,7 +1051,7 @@ codeunit 144003 "ERM Payment Journal"
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Customer Bank Account");
             "Country/Region Code" := Customer."Country/Region Code";
             FillInBankBranchAndAccount("Bank Branch No.", "Bank Account No.", Domestic);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1060,7 +1060,7 @@ codeunit 144003 "ERM Payment Journal"
         RecRef: RecordRef;
     begin
         with PaymentJnlLine do begin
-            Init;
+            Init();
             Validate("Journal Template Name", TemplateName);
             Validate("Journal Batch Name", BatchName);
             RecRef.GetTable(PaymentJnlLine);
@@ -1074,7 +1074,7 @@ codeunit 144003 "ERM Payment Journal"
         CreatePaymentJournalLine(TemplateName, BatchName, PaymentJnlLine);
         with PaymentJnlLine do begin
             Validate("Account Type", AccountType);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Account No.", AccountNo);
             Validate("Applies-to Doc. Type", AppliesToDocType);
             Validate("Applies-to Doc. No.", AppliesToDocNo);
@@ -1096,9 +1096,9 @@ codeunit 144003 "ERM Payment Journal"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             Validate("Shortcut Dimension 8 Code", NewDimensionCode);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1163,7 +1163,7 @@ codeunit 144003 "ERM Payment Journal"
                         "Export Object ID" := REPORT::"File Domestic Payments";
                     end;
             end;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1198,7 +1198,7 @@ codeunit 144003 "ERM Payment Journal"
         PaymentJournalPost: Report "Payment Journal Post";
     begin
         ExportProtocol.Get(ExportProtocolCode);
-        PaymentJournalPost.SetParameters(GenJnlLine, false, ExportProtocol."Export Object ID", WorkDate);
+        PaymentJournalPost.SetParameters(GenJnlLine, false, ExportProtocol."Export Object ID", WorkDate());
         PaymentJournalPost.SetTableView(PaymentJnlLine);
         PaymentJournalPost.RunModal();
     end;
@@ -1262,7 +1262,7 @@ codeunit 144003 "ERM Payment Journal"
     local procedure CreatePaymentTemplate(var PaymentJnlTemplate: Record "Payment Journal Template")
     begin
         with PaymentJnlTemplate do begin
-            Init;
+            Init();
             Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Payment Journal Template"));
             Validate("Page ID", PAGE::"EB Payment Journal");
             Insert(true);
@@ -1272,7 +1272,7 @@ codeunit 144003 "ERM Payment Journal"
     local procedure CreatePaymentBatch(PaymentJnlTemplate: Record "Payment Journal Template"; var PaymJnlBatch: Record "Paym. Journal Batch")
     begin
         with PaymJnlBatch do begin
-            Init;
+            Init();
             Validate("Journal Template Name", PaymentJnlTemplate.Name);
             Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Paym. Journal Batch"));
             Validate("Reason Code", PaymentJnlTemplate."Reason Code");
@@ -1283,7 +1283,7 @@ codeunit 144003 "ERM Payment Journal"
     local procedure CreatePaymentBatchWithNoNumbers(PaymentJnlTemplate: Record "Payment Journal Template"; var PaymJnlBatch: Record "Paym. Journal Batch")
     begin
         with PaymJnlBatch do begin
-            Init;
+            Init();
             Validate("Journal Template Name", PaymentJnlTemplate.Name);
             Validate(Name, GenerateRandomLetters(10));
             Validate("Reason Code", PaymentJnlTemplate."Reason Code");
@@ -1340,14 +1340,14 @@ codeunit 144003 "ERM Payment Journal"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Document No." := DocumentNo;
             Amount := EntryAmount;
             "Posting Date" := PostingDate;
             Open := true;
-            Insert;
+            Insert();
             MockDetailedVendorLedgerEntry(VendorNo, DocumentNo, "Entry No.", EntryAmount, PostingDate);
         end;
     end;
@@ -1357,14 +1357,14 @@ codeunit 144003 "ERM Payment Journal"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Vendor No." := VendorNo;
             "Document No." := DocumentNo;
             "Posting Date" := PostingDate;
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             Amount := EntryAmount;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1374,7 +1374,7 @@ codeunit 144003 "ERM Payment Journal"
     begin
         with SelectedDim do begin
             DeleteAll();
-            Init;
+            Init();
             "User ID" := UserId;
             Validate("Object Type", 3);
             Validate("Object ID", REPORT::"File Domestic Payments");
@@ -1443,7 +1443,7 @@ codeunit 144003 "ERM Payment Journal"
             repeat
                 Count += 1;
                 Assert.AreEqual(Status, PmtJnlLine.Status, WrongStatusOfLineErr);
-            until PmtJnlLine.Next = 0;
+            until PmtJnlLine.Next() = 0;
         Assert.AreEqual(NumberOfLines, Count, WrongNumberOfLinesErr);
     end;
 

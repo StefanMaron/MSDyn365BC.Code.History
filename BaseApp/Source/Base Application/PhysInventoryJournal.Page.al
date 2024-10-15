@@ -7,7 +7,6 @@ page 392 "Phys. Inventory Journal"
     DataCaptionFields = "Journal Batch Name";
     DelayedInsert = true;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Post/Print,Prepare,Line,Item,Item Availability by,Page';
     SaveValues = true;
     SourceTable = "Item Journal Line";
     UsageCategory = Tasks;
@@ -348,8 +347,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Dimensions;
                     Caption = 'Dimensions';
                     Image = Dimensions;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department, that you can assign to sales and purchase documents to distribute costs and analyze transaction history.';
 
@@ -364,9 +361,7 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
-                    Promoted = true;
-                    PromotedCategory = Category6;
-                    ShortCutKey = 'Ctrl+Alt+I'; 
+                    ShortCutKey = 'Ctrl+Alt+I';
                     ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
@@ -379,8 +374,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Bin Contents';
                     Image = BinContent;
-                    Promoted = true;
-                    PromotedCategory = Category6;
                     RunObject = Page "Bin Contents List";
                     RunPageLink = "Location Code" = FIELD("Location Code"),
                                   "Item No." = FIELD("Item No."),
@@ -398,8 +391,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Card';
                     Image = EditLines;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("Item No.");
                     ShortCutKey = 'Shift+F7';
@@ -410,8 +401,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Ledger E&ntries';
                     Image = CustomerLedger;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Item Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No.");
                     RunPageView = SORTING("Item No.");
@@ -423,8 +412,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Warehouse;
                     Caption = 'Phys. In&ventory Ledger Entries';
                     Image = PhysicalInventoryLedger;
-                    Promoted = true;
-                    PromotedCategory = Category7;
                     RunObject = Page "Phys. Inventory Ledger Entries";
                     RunPageLink = "Item No." = FIELD("Item No.");
                     RunPageView = SORTING("Item No.");
@@ -439,13 +426,11 @@ page 392 "Phys. Inventory Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Event';
                         Image = "Event";
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         ToolTip = 'View how the actual and the projected available balance of an item will develop over time according to supply and demand events.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent())
                         end;
                     }
                     action(Period)
@@ -453,13 +438,11 @@ page 392 "Phys. Inventory Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Period';
                         Image = Period;
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         ToolTip = 'Show the projected quantity of the item over time according to time periods, such as day, week, or month.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod())
                         end;
                     }
                     action(Variant)
@@ -467,13 +450,11 @@ page 392 "Phys. Inventory Journal"
                         ApplicationArea = Planning;
                         Caption = 'Variant';
                         Image = ItemVariant;
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         ToolTip = 'View or edit the item''s variants. Instead of setting up each color of an item as a separate item, you can set up the various colors as variants of the item.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant())
                         end;
                     }
                     action(Location)
@@ -482,13 +463,11 @@ page 392 "Phys. Inventory Journal"
                         ApplicationArea = Location;
                         Caption = 'Location';
                         Image = Warehouse;
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         ToolTip = 'View the actual and projected quantity of the item per location.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation())
                         end;
                     }
                     action(Lot)
@@ -507,13 +486,11 @@ page 392 "Phys. Inventory Journal"
                         ApplicationArea = Basic, Suite;
                         Caption = 'BOM Level';
                         Image = BOMLevel;
-                        Promoted = true;
-                        PromotedCategory = Category8;
                         ToolTip = 'View availability figures for items on bills of materials that show how many units of a parent item you can make based on the availability of child items.';
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM)
+                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
                 }
@@ -531,8 +508,6 @@ page 392 "Phys. Inventory Journal"
                     Caption = 'Calculate &Inventory';
                     Ellipsis = true;
                     Image = CalculateInventory;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Start the process of counting inventory by filling the journal with known quantities.';
 
                     trigger OnAction()
@@ -548,8 +523,6 @@ page 392 "Phys. Inventory Journal"
                     Caption = '&Calculate Counting Period';
                     Ellipsis = true;
                     Image = CalculateCalendar;
-                    Promoted = true;
-                    PromotedCategory = Category5;
                     ToolTip = 'Show all items that a counting period has been assigned to, according to the counting period, the last counting period update, and the current work date.';
 
                     trigger OnAction()
@@ -568,8 +541,6 @@ page 392 "Phys. Inventory Journal"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
                 trigger OnAction()
@@ -603,9 +574,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'P&ost';
                     Image = PostOrder;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'F9';
                     ToolTip = 'Finalize the document or journal by posting the amounts and quantities to the related accounts in your company books.';
 
@@ -621,9 +589,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    Promoted = true;
-                    PromotedCategory = Category4;
-                    PromotedIsBig = true;
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
 
@@ -645,8 +610,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show Lines with Issues';
                     Image = Error;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     Visible = BackgroundErrorCheck;
                     Enabled = not ShowAllLinesEnabled;
                     ToolTip = 'View a list of journal lines that have issues before you post the journal.';
@@ -661,8 +624,6 @@ page 392 "Phys. Inventory Journal"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Show All Lines';
                     Image = ExpandAll;
-                    Promoted = true;
-                    PromotedCategory = Category9;
                     Visible = BackgroundErrorCheck;
                     Enabled = ShowAllLinesEnabled;
                     ToolTip = 'View all journal lines, including lines with and without issues.';
@@ -672,6 +633,112 @@ page 392 "Phys. Inventory Journal"
                         SwitchLinesWithErrorsFilter(ShowAllLinesEnabled);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                group(Category_Category4)
+                {
+                    Caption = 'Posting';
+                    ShowAs = SplitButton;
+
+                    actionref("P&ost_Promoted"; "P&ost")
+                    {
+                    }
+                    actionref("Post and &Print_Promoted"; "Post and &Print")
+                    {
+                    }
+                }
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Prepare', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(CalculateInventory_Promoted; CalculateInventory)
+                {
+                }
+                actionref(CalculateCountingPeriod_Promoted; CalculateCountingPeriod)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Line', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("Item &Tracking Lines_Promoted"; "Item &Tracking Lines")
+                {
+                }
+                actionref(Dimensions_Promoted; Dimensions)
+                {
+                }
+#if not CLEAN21
+                actionref("Bin Contents_Promoted"; "Bin Contents")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Item', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref(Card_Promoted; Card)
+                {
+                }
+                actionref("Ledger E&ntries_Promoted"; "Ledger E&ntries")
+                {
+                }
+                actionref("Phys. In&ventory Ledger Entries_Promoted"; "Phys. In&ventory Ledger Entries")
+                {
+                }
+            }
+            group(Category_Category8)
+            {
+                Caption = 'Item Availability by', Comment = 'Generated from the PromotedActionCategories property index 7.';
+
+                actionref(Location_Promoted; Location)
+                {
+                }
+                actionref(Period_Promoted; Period)
+                {
+                }
+                actionref(Event_Promoted; "Event")
+                {
+                }
+                actionref(Variant_Promoted; Variant)
+                {
+                }
+                actionref("BOM Level_Promoted"; "BOM Level")
+                {
+                }
+                actionref(Lot_Promoted; Lot)
+                {
+                }
+            }
+            group(Category_Category9)
+            {
+                Caption = 'Page', Comment = 'Generated from the PromotedActionCategories property index 8.';
+
+                actionref(ShowLinesWithErrors_Promoted; ShowLinesWithErrors)
+                {
+                }
+                actionref(ShowAllLines_Promoted; ShowAllLines)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }
@@ -713,9 +780,9 @@ page 392 "Phys. Inventory Journal"
     var
         JnlSelected: Boolean;
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
 
-        if Rec.IsOpenedFromBatch then begin
+        if Rec.IsOpenedFromBatch() then begin
             CurrentJnlBatchName := Rec."Journal Batch Name";
             ItemJnlMgt.OpenJnl(CurrentJnlBatchName, Rec);
             SetControlAppearanceFromBatch();

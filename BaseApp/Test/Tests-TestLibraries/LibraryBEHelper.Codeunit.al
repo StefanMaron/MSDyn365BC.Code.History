@@ -21,18 +21,18 @@ codeunit 143000 "Library - BE Helper"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             if "E-Mail" = '' then begin
                 "E-Mail" := 'test@test.tst'; // value not important, it must not be empty
-                Modify;
+                Modify();
             end;
             if "Enterprise No." = '' then begin
                 "Enterprise No." := CreateMOD97CompliantCode;
-                Modify;
+                Modify();
             end;
             if "Country/Region Code" <> 'BE' then begin
                 "Country/Region Code" := 'BE';
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -48,7 +48,7 @@ codeunit 143000 "Library - BE Helper"
             "Country/Region Code" := CountryCode;
             "Line No." += 10000;
             Format := FormatText;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -68,7 +68,7 @@ codeunit 143000 "Library - BE Helper"
         repeat
             VATRegistrationNo := LibraryERM.GenerateVATRegistrationNo(CountryCode);
             TempVATEntry.SetRange("VAT Registration No.", VATRegistrationNo);
-        until TempVATEntry.IsEmpty;
+        until TempVATEntry.IsEmpty();
         exit(VATRegistrationNo);
     end;
 
@@ -83,7 +83,7 @@ codeunit 143000 "Library - BE Helper"
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Customer."VAT Registration No.";
                 TempVATEntry.Insert();
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         Vendor.SetFilter("VAT Registration No.", '<>%1', '');
         if Vendor.FindSet() then
@@ -91,7 +91,7 @@ codeunit 143000 "Library - BE Helper"
                 TempVATEntry."Entry No." += 1;
                 TempVATEntry."VAT Registration No." := Vendor."VAT Registration No.";
                 TempVATEntry.Insert();
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -199,7 +199,7 @@ codeunit 143000 "Library - BE Helper"
             "Country/Region Code" := CountryCode;
             if CountryCode <> 'BE' then
                 Validate("VAT Registration No.", GetUniqueVATRegNo(CountryCode));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -213,7 +213,7 @@ codeunit 143000 "Library - BE Helper"
         CreateCustomer(Customer, CompanyInformation."Country/Region Code");
         with Customer do begin
             Validate("Enterprise No.", CreateEnterpriseNo);
-            Modify;
+            Modify();
         end;
         ClearVATEntriesByEnterpriseNo(Customer."Enterprise No.");
     end;
@@ -224,7 +224,7 @@ codeunit 143000 "Library - BE Helper"
         CreateDomesticCustomer(Customer);
         with Customer do begin
             "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -234,7 +234,7 @@ codeunit 143000 "Library - BE Helper"
         CreateCustomer(Customer, 'GB');
         with Customer do begin
             "VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-            Modify;
+            Modify();
         end;
     end;
 
@@ -261,7 +261,7 @@ codeunit 143000 "Library - BE Helper"
         Resource.FindFirst();
         with Resource do begin
             Validate("Unit Price", LibraryRandom.RandInt(100));
-            Modify;
+            Modify();
         end;
     end;
 
@@ -273,7 +273,7 @@ codeunit 143000 "Library - BE Helper"
     begin
         CreateCountryRegion(CountryRegion);
         with Representative do begin
-            Init;
+            Init();
             Validate(ID, 'XX');  // Not important
             Name := 'X'; // Not important - but not Blank
             Address := 'X'; // Not important - but not Blank
@@ -285,7 +285,7 @@ codeunit 143000 "Library - BE Helper"
             Validate("Issued by", CountryRegion.Code);
             Validate("Identification Type", "Identification Type"::NVAT); // Not important
             Address := 'X'; // Not important - but not Blank
-            Insert;
+            Insert();
         end;
     end;
 
@@ -308,8 +308,8 @@ codeunit 143000 "Library - BE Helper"
         StartDate: Date;
     begin
         // Dates for posting
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
-        EndDate := CalcDate('<+CY+1Y>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
+        EndDate := CalcDate('<+CY+1Y>', WorkDate());
 
         // Get a VATPostingGroup that dos not have 0% VAT.
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
@@ -334,8 +334,8 @@ codeunit 143000 "Library - BE Helper"
         StartDate: Date;
     begin
         // Dates for posting
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
-        EndDate := CalcDate('<+CY+1Y>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
+        EndDate := CalcDate('<+CY+1Y>', WorkDate());
 
         // Get a VATPostingGroup that dos not have 0% VAT.
         LibraryERM.FindVATPostingSetupInvt(VATPostingSetup);
@@ -422,8 +422,8 @@ codeunit 143000 "Library - BE Helper"
         StartDate: Date;
     begin
         // Dates for posting
-        StartDate := CalcDate('<+CY+1D>', WorkDate);
-        EndDate := CalcDate('<+CY+1Y>', WorkDate);
+        StartDate := CalcDate('<+CY+1D>', WorkDate());
+        EndDate := CalcDate('<+CY+1Y>', WorkDate());
 
         // Create a Customer and assign the VATPostingGroup.
         CreateDomesticCustomerWithVATSetup(Customer, VATPostingSetup);
@@ -439,9 +439,9 @@ codeunit 143000 "Library - BE Helper"
     procedure CreatePaymentJournalTemplate(var PaymentJournalTemplate: Record "Payment Journal Template")
     begin
         with PaymentJournalTemplate do begin
-            Init;
+            Init();
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Payment Journal Template");
-            Insert;
+            Insert();
         end;
     end;
 
@@ -449,10 +449,10 @@ codeunit 143000 "Library - BE Helper"
     procedure CreatePaymentJournalBatch(var PaymJournalBatch: Record "Paym. Journal Batch"; PaymentJournalTemplateName: Code[10])
     begin
         with PaymJournalBatch do begin
-            Init;
+            Init();
             "Journal Template Name" := PaymentJournalTemplateName;
             Name := LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Paym. Journal Batch");
-            Insert;
+            Insert();
         end;
     end;
 }

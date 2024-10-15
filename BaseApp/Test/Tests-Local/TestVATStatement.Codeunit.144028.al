@@ -99,7 +99,7 @@ codeunit 144028 "Test VAT Statement"
         ExpectedCorrValue := AddManualVATCorrectionFromUI(ManualVATCorrectionListPage);
 
         // [THEN] Correction Value is shown in VAT Statement Line
-        VATStatementPreviewPage.Close;
+        VATStatementPreviewPage.Close();
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
         VATStatementPreviewPage.VATStatementLineSubForm.CorrectionValue.AssertEquals(ExpectedCorrValue);
         VATStatementPreviewPage.Close
@@ -273,12 +273,12 @@ codeunit 144028 "Test VAT Statement"
         // [GIVEN] Manual VAT Correction A with Posting Date = WORKDATE
         // [GIVEN] Manual VAT Correction B with Posting Date = WORKDATE + 1M
         AddManualVATCorrection(VATStatementLine, false);
-        ManualVATCorrection.SetRange("Posting Date", WorkDate);
+        ManualVATCorrection.SetRange("Posting Date", WorkDate());
         ManualVATCorrection.FindFirst();
         ExpectedCorrValue := ManualVATCorrection.Amount;
         // [GIVEN] Date Filter set to ..WORKDATE
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
-        VATStatementPreviewPage.DateFilter.SetValue(WorkDate);
+        VATStatementPreviewPage.DateFilter.SetValue(WorkDate());
         VATStatementPreviewPage.PeriodSelection.SetValue(PeriodSelection::"Before and Within Period");
 
         // [WHEN] DrillDown on 'Correction Amount'
@@ -290,7 +290,7 @@ codeunit 144028 "Test VAT Statement"
         Assert.AreEqual(ExpectedCorrValue, ActualCorrValue, 'Date Filter is not applied');
         // [THEN] 'Correction Amount' DrillDown page does not include Manual VAT Correction B
         ManualVATCorrectionListPage.Last;
-        ManualVATCorrectionListPage."Posting Date".AssertEquals(WorkDate);
+        ManualVATCorrectionListPage."Posting Date".AssertEquals(WorkDate());
     end;
 
     [Test]
@@ -317,12 +317,12 @@ codeunit 144028 "Test VAT Statement"
         // [GIVEN] Manual VAT Correction A with Posting Date = WORKDATE
         // [GIVEN] Manual VAT Correction B with Posting Date = WORKDATE + 1M
         AddManualVATCorrection(VATStatementLine, false);
-        ManualVATCorrection.SetFilter("Posting Date", '>%1', WorkDate);
+        ManualVATCorrection.SetFilter("Posting Date", '>%1', WorkDate());
         ManualVATCorrection.FindLast();
         ExpectedCorrValue := ManualVATCorrection.Amount;
         // [GIVEN] Date Filter set to exclude entry A
         OpenVATStatementPreviewPage(VATStatementLine, VATStatementPreviewPage);
-        VATStatementPreviewPage.DateFilter.SetValue(StrSubstNo('%1..%2', WorkDate + 1, CalcDate('<1M>', WorkDate)));
+        VATStatementPreviewPage.DateFilter.SetValue(StrSubstNo('%1..%2', WorkDate + 1, CalcDate('<1M>', WorkDate())));
         VATStatementPreviewPage.PeriodSelection.SetValue(PeriodSelection::"Within Period");
 
         // [WHEN] DrillDown on 'Correction Amount'
@@ -334,7 +334,7 @@ codeunit 144028 "Test VAT Statement"
         Assert.AreEqual(ExpectedCorrValue, ActualCorrValue, 'Date Filter is not applied');
         // [THEN] 'Correction Amount' DrillDown page does not include Manual VAT Correction A
         ManualVATCorrectionListPage.First;
-        ManualVATCorrectionListPage."Posting Date".AssertEquals(CalcDate('<1M>', WorkDate));
+        ManualVATCorrectionListPage."Posting Date".AssertEquals(CalcDate('<1M>', WorkDate()));
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 144028 "Test VAT Statement"
             Assert.AreNotEqual(
               ActualColumnValue / Abs(ActualColumnValue), ActualCorrValue / Abs(ActualCorrValue),
               StrSubstNo(OppositeSignErr, VATStatementLine."Calculate with"));
-        until VATStatementLine.Next = 0;
+        until VATStatementLine.Next() = 0;
     end;
 
     [Test]
@@ -618,13 +618,13 @@ codeunit 144028 "Test VAT Statement"
         Assert.AreEqual(false, BooleanValue, 'Use Tax filter is not as expecetd');
 
         TextValue := VATEntriesPage.FILTER.GetFilter("Document Type");
-        Assert.AreEqual('<>Credit Memo', TextValue, 'Document Type filter is not as expected');
+        Assert.AreEqual('<>3', TextValue, 'Document Type filter is not as expected');
 
         TextValue := VATEntriesPage.FILTER.GetFilter(Closed);
         Evaluate(BooleanValue, TextValue);
         Assert.AreEqual(false, BooleanValue, 'Closed filter is not as expecetd');
 
-        VATEntriesPage.Close;
+        VATEntriesPage.Close();
     end;
 
     [Test]
@@ -650,7 +650,7 @@ codeunit 144028 "Test VAT Statement"
         Evaluate(BooleanValue, TextValue);
         Assert.AreEqual(true, BooleanValue, 'Closed filter is not as expecetd');
 
-        VATEntriesPage.Close;
+        VATEntriesPage.Close();
     end;
 
     [Test]
@@ -674,7 +674,7 @@ codeunit 144028 "Test VAT Statement"
         TextValue := VATEntriesPage.FILTER.GetFilter(Closed);
         Assert.AreEqual('', TextValue, 'Closed filter is not as expecetd');
 
-        VATEntriesPage.Close;
+        VATEntriesPage.Close();
     end;
 
     [Test]
@@ -705,7 +705,7 @@ codeunit 144028 "Test VAT Statement"
         TextValue := VATEntriesPage.FILTER.GetFilter("Posting Date");
         Assert.AreEqual(ExpectedValue, TextValue, 'Posting Date filter is not as expecetd');
 
-        VATEntriesPage.Close;
+        VATEntriesPage.Close();
     end;
 
     [Test]
@@ -908,7 +908,7 @@ codeunit 144028 "Test VAT Statement"
 
         ManualVATCorrection.DeleteAll();
         with VATEntry do begin
-            Reset;
+            Reset();
             SetFilter("Entry No.", '<%1', 0);
             DeleteAll();
         end;
@@ -919,14 +919,14 @@ codeunit 144028 "Test VAT Statement"
         VATStatementLine.FindSet();
         repeat
             TotalAmount += AddManualVATCorrToSingleLine(VATStatementLine, ShowAmtInACY);
-        until VATStatementLine.Next = 0;
+        until VATStatementLine.Next() = 0;
         exit(TotalAmount);
     end;
 
     local procedure AddManualVATCorrectionFromUI(var ManualVATCorrectionListPage: TestPage "Manual VAT Correction List") Amount: Decimal
     begin
         ManualVATCorrectionListPage.New;
-        ManualVATCorrectionListPage."Posting Date".SetValue(WorkDate);
+        ManualVATCorrectionListPage."Posting Date".SetValue(WorkDate());
         Amount := LibraryRandom.RandDec(1000, 2);
         ManualVATCorrectionListPage.Amount.SetValue(Amount);
         ManualVATCorrectionListPage.OK.Invoke;
@@ -949,7 +949,7 @@ codeunit 144028 "Test VAT Statement"
         ManualVATCorrection."Statement Template Name" := VATStatementLine."Statement Template Name";
         ManualVATCorrection."Statement Name" := VATStatementLine."Statement Name";
         ManualVATCorrection."Statement Line No." := VATStatementLine."Line No.";
-        ManualVATCorrection."Posting Date" := WorkDate;
+        ManualVATCorrection."Posting Date" := WorkDate();
         ManualVATCorrection.Validate(Amount, -LibraryRandom.RandDec(1000, 2));
         ManualVATCorrection.Insert();
         TotalAmount += GetVATCorrAmount(ManualVATCorrection, ShowAmtInACY, VATStatementLine."Calculate with");
@@ -1072,9 +1072,9 @@ codeunit 144028 "Test VAT Statement"
     local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATBase: Decimal)
     begin
         with VATEntry do begin
-            Init;
+            Init();
             "Entry No." := -1;
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             Type := Type::Sale;
             "VAT Bus. Posting Group" := LibraryUtility.GenerateGUID();
             "VAT Prod. Posting Group" := "VAT Bus. Posting Group";
@@ -1082,7 +1082,7 @@ codeunit 144028 "Test VAT Statement"
             Amount := VATBase * 0.2;
             "Additional-Currency Base" := GetExchangedAmount("Posting Date", Base);
             "Additional-Currency Amount" := GetExchangedAmount("Posting Date", Amount);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1099,7 +1099,7 @@ codeunit 144028 "Test VAT Statement"
         VATStatementName.Insert();
 
         with VATStatementLine do begin
-            Init;
+            Init();
             "Statement Template Name" := VATStatementName."Statement Template Name";
             "Statement Name" := VATStatementName.Name;
             CreateVATStmtLine(VATStatementLine, 100, Type::"Row Totaling", "Amount Type"::" ", '101..199');
@@ -1108,11 +1108,11 @@ codeunit 144028 "Test VAT Statement"
             "VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
             CreateVATStmtLine(VATStatementLine, 101, Type::"VAT Entry Totaling", "Amount Type"::Base, '');
             CreateVATStmtLine(VATStatementLine, 102, Type::"VAT Entry Totaling", "Amount Type"::Amount, '');
-            Init;
+            Init();
             CreateVATStmtLine(VATStatementLine, 103, Type::Description, "Amount Type"::" ", '');
             CreateVATStmtLine(VATStatementLine, 200, Type::"Account Totaling", "Amount Type"::" ", '');
 
-            Reset;
+            Reset();
             SetRange("Statement Template Name", VATStatementName."Statement Template Name");
             SetRange("Statement Name", VATStatementName.Name);
             FindSet();
@@ -1136,7 +1136,7 @@ codeunit 144028 "Test VAT Statement"
             if IsCalculatedWithOppositeSign("Row No.") then
                 "Calculate with" := "Calculate with"::"Opposite Sign";
             Print := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1163,7 +1163,7 @@ codeunit 144028 "Test VAT Statement"
             if IsCalculatedWithOppositeSign(ManualVATCorrectionListPage."Row No.".Value) then
                 Amount := -Amount;
             Result += Amount;
-        until not ManualVATCorrectionListPage.Next;
+        until not ManualVATCorrectionListPage.Next();
         exit(Result);
     end;
 
@@ -1182,7 +1182,7 @@ codeunit 144028 "Test VAT Statement"
                     LineAmount := VATEntriesPage.Base.AsDEcimal;
             end;
             Result += LineAmount;
-        until not VATEntriesPage.Next;
+        until not VATEntriesPage.Next();
     end;
 
     [ModalPageHandler]

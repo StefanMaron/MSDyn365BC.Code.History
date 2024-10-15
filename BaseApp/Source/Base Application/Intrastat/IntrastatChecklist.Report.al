@@ -1,4 +1,4 @@
-report 502 "Intrastat - Checklist"
+﻿report 502 "Intrastat - Checklist"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './Intrastat/IntrastatChecklist.rdlc';
@@ -29,13 +29,13 @@ report 502 "Intrastat - Checklist"
                 column(IntrastatJnlBatStatPeriod; StrSubstNo(Text001, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(CompanyInfoEnterpriseNo; CompanyInfo."Enterprise No.")
                 {
                 }
-                column(ApplicationVersion; 'Navision' + ' ' + ApplicationSystemConstants.ApplicationVersion + ' ' + Text11306)
+                column(ApplicationVersion; 'Navision' + ' ' + ApplicationSystemConstants.ApplicationVersion() + ' ' + Text11306)
                 {
                 }
                 column(HeaderText; HeaderText)
@@ -295,15 +295,15 @@ report 502 "Intrastat - Checklist"
                         AddError(
                           "Intrastat Jnl. Line", FieldNo("Country/Region Code"),
                           StrSubstNo(Text11305, Country.Code));
-                    IntrastatJnlLineTemp.Reset();
-                    IntrastatJnlLineTemp.SetRange(Type, Type);
-                    IntrastatJnlLineTemp.SetRange("Tariff No.", "Tariff No.");
-                    IntrastatJnlLineTemp.SetRange("Country/Region Code", "Country/Region Code");
-                    IntrastatJnlLineTemp.SetRange("Transaction Type", "Transaction Type");
-                    IntrastatJnlLineTemp.SetRange("Transport Method", "Transport Method");
-                    if not IntrastatJnlLineTemp.FindFirst() then begin
-                        IntrastatJnlLineTemp := "Intrastat Jnl. Line";
-                        IntrastatJnlLineTemp.Insert();
+                    TempIntrastatJnlLine.Reset();
+                    TempIntrastatJnlLine.SetRange(Type, Type);
+                    TempIntrastatJnlLine.SetRange("Tariff No.", "Tariff No.");
+                    TempIntrastatJnlLine.SetRange("Country/Region Code", "Country/Region Code");
+                    TempIntrastatJnlLine.SetRange("Transaction Type", "Transaction Type");
+                    TempIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
+                    if not TempIntrastatJnlLine.FindFirst() then begin
+                        TempIntrastatJnlLine := "Intrastat Jnl. Line";
+                        TempIntrastatJnlLine.Insert();
                         NoOfRecordsRTC += 1;
                     end;
 
@@ -348,9 +348,9 @@ report 502 "Intrastat - Checklist"
                 trigger OnPreDataItem()
                 begin
                     ErrorMessage.SetContext("Intrastat Jnl. Batch");
-                    ErrorMessage.ClearLog;
+                    ErrorMessage.ClearLog();
 
-                    IntrastatJnlLineTemp.DeleteAll();
+                    TempIntrastatJnlLine.DeleteAll();
                     NoOfDetails := 0;
                     NoOfRecords := 0;
 
@@ -429,20 +429,10 @@ report 502 "Intrastat - Checklist"
     end;
 
     var
-        Text11300: Label '%1 must be specified.';
-        Text11301: Label 'Tariff Number %1 does not exist.';
-        Text11302: Label '%1 must be more than 0.';
-        Text11303: Label '%1 must be %2.';
-        Text11304: Label '%1 must not be 0.';
-        Text11305: Label 'Intrastat Code must be specified for Country/Region %1.';
-        Text11306: Label 'Report for internal use only, must not be used as an official statement';
-        Text11307: Label 'Country/Region %1 does not exist.';
-        Text001: Label 'Statistics Period: %1';
-        Text002: Label 'All amounts are in %1.';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
-        IntrastatJnlLineTemp: Record "Intrastat Jnl. Line" temporary;
+        TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary;
         PrevIntrastatJnlLine: Record "Intrastat Jnl. Line";
         Tariffnumber: Record "Tariff Number";
         ErrorMessage: Record "Error Message";
@@ -469,6 +459,17 @@ report 502 "Intrastat - Checklist"
         TransportMethodGroup: Code[10];
         TransactionSpecificationGroup: Code[10];
         AreaGroup: Code[10];
+
+        Text11300: Label '%1 must be specified.';
+        Text11301: Label 'Tariff Number %1 does not exist.';
+        Text11302: Label '%1 must be more than 0.';
+        Text11303: Label '%1 must be %2.';
+        Text11304: Label '%1 must not be 0.';
+        Text11305: Label 'Intrastat Code must be specified for Country/Region %1.';
+        Text11306: Label 'Report for internal use only, must not be used as an official statement';
+        Text11307: Label 'Country/Region %1 does not exist.';
+        Text001: Label 'Statistics Period: %1';
+        Text002: Label 'All amounts are in %1.';
         IntrastatChecklistCaptionLbl: Label 'Intrastat - Checklist';
         PageCaptionLbl: Label 'Page';
         EnterpriseNoCaptionLbl: Label 'Enterprise No.';

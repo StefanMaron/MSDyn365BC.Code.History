@@ -1,4 +1,4 @@
-page 400 "Purchase Invoice Statistics"
+﻿page 400 "Purchase Invoice Statistics"
 {
     Caption = 'Purchase Invoice Statistics';
     Editable = false;
@@ -124,7 +124,7 @@ page 400 "Purchase Invoice Statistics"
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        ClearAll;
+        ClearAll();
 
         Currency.Initialize("Currency Code");
 
@@ -145,7 +145,7 @@ page 400 "Purchase Invoice Statistics"
         else
             AmountLCY :=
               CurrExchRate.ExchangeAmtFCYToLCY(
-                WorkDate, "Currency Code", VendAmount, "Currency Factor");
+                WorkDate(), "Currency Code", VendAmount, "Currency Factor");
 
         VendLedgEntry.SetCurrentKey("Document No.");
         VendLedgEntry.SetRange("Document No.", "No.");
@@ -163,7 +163,7 @@ page 400 "Purchase Invoice Statistics"
         if TempNonDeductVATAmountLine.FindSet() then begin
             repeat
                 TempVATAmountLine := TempNonDeductVATAmountLine;
-                if TempVATAmountLine.Find then
+                if TempVATAmountLine.Find() then
                     TempVATAmountLine.ApplyNonDeductibleVAT(TempNonDeductVATAmountLine."VAT Amount");
             until TempNonDeductVATAmountLine.Next() = 0;
             TempNonDeductVATAmountLine.DeleteAll();
@@ -182,11 +182,8 @@ page 400 "Purchase Invoice Statistics"
         Vend: Record Vendor;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempNonDeductVATAmountLine: Record "VAT Amount Line" temporary;
-        Currency: Record Currency;
         VendAmount: Decimal;
-        AmountInclVAT: Decimal;
         InvDiscAmount: Decimal;
-        AmountLCY: Decimal;
         LineQty: Decimal;
         TotalNetWeight: Decimal;
         TotalGrossWeight: Decimal;
@@ -195,6 +192,11 @@ page 400 "Purchase Invoice Statistics"
         VATAmount: Decimal;
         VATPercentage: Decimal;
         VATAmountText: Text[30];
+
+    protected var
+        Currency: Record Currency;
+        AmountInclVAT: Decimal;
+        AmountLCY: Decimal;
 
     local procedure GetVATPct(PurchInvLine: Record "Purch. Inv. Line"): Decimal
     begin

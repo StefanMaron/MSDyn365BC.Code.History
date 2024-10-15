@@ -36,9 +36,9 @@ codeunit 5510 "Production Journal Mgt"
 
         MfgSetup.Get();
 
-        SetTemplateAndBatchName;
+        SetTemplateAndBatchName();
 
-        InitSetupValues;
+        InitSetupValues();
 
         ProgressBar.Open(GeneratingJnlLinesMsg);
         DeleteJnlLines(ToTemplateName, ToBatchName, ProdOrder."No.", ActualLineNo);
@@ -160,13 +160,13 @@ codeunit 5510 "Production Journal Mgt"
             exit(false);
 
         with ProdOrderRtngLine do begin
-            Reset;
+            Reset();
             SetRange(Status, ProdOrderLine.Status);
             SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
             SetRange("Routing Reference No.", ProdOrderLine."Routing Reference No.");
             SetRange("Routing No.", ProdOrderLine."Routing No.");
             SetRange("Routing Link Code", ProdOrderComp."Routing Link Code");
-            exit(FindFirst);
+            exit(FindFirst());
         end;
     end;
 
@@ -240,7 +240,7 @@ codeunit 5510 "Production Journal Mgt"
             OnAfterInsertConsumptionJnlLine(ItemJnlLine);
 
             if Item."Item Tracking Code" <> '' then
-                ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
+                ItemTrackingMgt.CopyItemTracking(RowID1(), ItemJnlLine.RowID1(), false);
             OnInsertConsumptionItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, Item."Item Tracking Code", NextLineNo);
         end;
 
@@ -262,7 +262,7 @@ codeunit 5510 "Production Journal Mgt"
             if (Item."Rounding Precision" > 0) and not IgnoreRoundingPrecision then
                 ItemJnlLine.Validate(Quantity, UOMMgt.RoundToItemRndPrecision(NeededQty, Item."Rounding Precision"))
             else
-                ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision));
+                ItemJnlLine.Validate(Quantity, Round(NeededQty, UOMMgt.QtyRndPrecision()));
     end;
 
     procedure InsertOutputItemJnlLine(ProdOrderRtngLine: Record "Prod. Order Routing Line"; ProdOrderLine: Record "Prod. Order Line")
@@ -285,7 +285,7 @@ codeunit 5510 "Production Journal Mgt"
                         begin
                             WorkCenter.Get(ProdOrderRtngLine."No.");
                             if WorkCenter.Blocked then begin
-                                Message(Text005, WorkCenter.TableCaption, WorkCenter."No.", ProdOrderRtngLine."Operation No.");
+                                Message(Text005, WorkCenter.TableCaption(), WorkCenter."No.", ProdOrderRtngLine."Operation No.");
                                 exit;
                             end;
                         end;
@@ -293,13 +293,13 @@ codeunit 5510 "Production Journal Mgt"
                         begin
                             MachineCenter.Get(ProdOrderRtngLine."No.");
                             if MachineCenter.Blocked then begin
-                                Message(Text005, MachineCenter.TableCaption, MachineCenter."No.", ProdOrderRtngLine."Operation No.");
+                                Message(Text005, MachineCenter.TableCaption(), MachineCenter."No.", ProdOrderRtngLine."Operation No.");
                                 exit;
                             end;
 
                             WorkCenter.Get(ProdOrderRtngLine."Work Center No.");
                             if WorkCenter.Blocked then begin
-                                Message(Text005, WorkCenter.TableCaption, WorkCenter."No.", ProdOrderRtngLine."Operation No.");
+                                Message(Text005, WorkCenter.TableCaption(), WorkCenter."No.", ProdOrderRtngLine."Operation No.");
                                 exit;
                             end;
                         end;
@@ -348,7 +348,7 @@ codeunit 5510 "Production Journal Mgt"
             if ("Location Code" <> '') and IsLastOperation(ProdOrderRtngLine) then
                 ItemJnlLine.CheckWhse("Location Code", QtyToPost);
             OnInsertOutputItemJnlLineOnBeforeSubcontractingWorkCenterUsed(ItemJnlLine, ProdOrderLine);
-            if ItemJnlLine.SubcontractingWorkCenterUsed then
+            if ItemJnlLine.SubcontractingWorkCenterUsed() then
                 ItemJnlLine.Validate("Output Quantity", 0)
             else begin
                 if not IsLastOperation(ProdOrderRtngLine) then begin
@@ -372,7 +372,7 @@ codeunit 5510 "Production Journal Mgt"
             OnAfterInsertOutputJnlLine(ItemJnlLine);
 
             if IsLastOperation(ProdOrderRtngLine) then
-                ItemTrackingMgt.CopyItemTracking(RowID1, ItemJnlLine.RowID1, false);
+                ItemTrackingMgt.CopyItemTracking(RowID1(), ItemJnlLine.RowID1(), false);
             OnInsertOutputItemJnlLineOnAfterCopyItemTracking(ItemJnlLine, ProdOrderRtngLine, NextLineNo);
         end;
 
@@ -404,17 +404,16 @@ codeunit 5510 "Production Journal Mgt"
         DoRecursion := false;
         OnBeforeRecursiveInsertOutputJnlLine(ProdOrderRoutingLine, ProdOrderLine, DoRecursion, AdditionalProdOrderLine);
         if DoRecursion and AdditionalProdOrderLine.HasFilter then
-            if AdditionalProdOrderLine.FindSet() then begin
+            if AdditionalProdOrderLine.FindSet() then
                 repeat
                     InsertOutputItemJnlLine(ProdOrderRoutingLine, AdditionalProdOrderLine);
                 until AdditionalProdOrderLine.Next() = 0;
-            end;
     end;
 
     procedure InitSetupValues()
     begin
         MfgSetup.Get();
-        PostingDate := WorkDate;
+        PostingDate := WorkDate();
         CalcBasedOn := CalcBasedOn::"Expected Output";
         PresetOutputQuantity := MfgSetup."Preset Output Quantity";
 
@@ -472,7 +471,7 @@ codeunit 5510 "Production Journal Mgt"
         if not ItemJnlBatch.Get(ToTemplateName, ToBatchName) then begin
             ItemJnlBatch.Init();
             ItemJnlBatch."Journal Template Name" := ItemJnlTemplate.Name;
-            ItemJnlBatch.SetupNewBatch;
+            ItemJnlBatch.SetupNewBatch();
             ItemJnlBatch.Name := ToBatchName;
             ItemJnlBatch.Description := Text004;
             ItemJnlBatch.Insert(true);

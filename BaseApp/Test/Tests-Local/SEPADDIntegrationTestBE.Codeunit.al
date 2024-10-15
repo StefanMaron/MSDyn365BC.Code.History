@@ -597,7 +597,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         Item: Record Item;
     begin
         LibrarySales.CreateCustomerMandate(SEPADirectDebitMandate, CustomerBankAccount."Customer No.",
-          CustomerBankAccount.Code, WorkDate, CalcDate('1Y', WorkDate));
+          CustomerBankAccount.Code, WorkDate(), CalcDate('1Y', WorkDate()));
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerBankAccount."Customer No.");
         SalesHeader."Direct Debit Mandate ID" := SEPADirectDebitMandate.ID;
         SalesHeader.Modify();
@@ -664,7 +664,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
-        ExportFile.Close;
+        ExportFile.Close();
     end;
 
     local procedure ExportToTempBlob(TempBlob: Codeunit "Temp Blob"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")

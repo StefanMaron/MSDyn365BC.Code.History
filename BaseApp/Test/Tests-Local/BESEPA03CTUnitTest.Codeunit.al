@@ -166,8 +166,8 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
                 Amount := LibraryRandom.RandDec(100, 2);
                 "Currency Code" := ''; // in BE LCY code is EUR so this needs to be blank!
-                "Posting Date" := WorkDate;
-                Insert;
+                "Posting Date" := WorkDate();
+                Insert();
             end;
     end;
 
@@ -177,7 +177,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
             Code := LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Export Protocol");
             "Export Object Type" := "Export Object Type"::XMLPort;
             "Export Object ID" := XMLPORT::"SEPA CT pain.001.001.03";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -233,7 +233,7 @@ codeunit 144220 "BE - SEPA.03 CT Unit Test"
         TempPaymentJournalLine.FindSet();
         repeat
             VerifyPaymentLine(TempPaymentJournalLine, PaymentExportData);
-        until TempPaymentJournalLine.Next = 0;
+        until TempPaymentJournalLine.Next() = 0;
     end;
 
     local procedure VerifyPaymentErrors(PaymentDocNo: Code[20]; LineNo: Integer; ExpErrorText: Text; ExpCount: Integer)
