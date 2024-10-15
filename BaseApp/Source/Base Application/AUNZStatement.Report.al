@@ -250,6 +250,9 @@ report 17110 "AU/NZ Statement"
                     column(CustLedgerEntry3__Document_Type__Control1500090; "Document Type")
                     {
                     }
+                    column(CustLedgerEntry3__Currency_Code_; "Currency Code")
+                    {
+                    }
                     column(FORMAT__Posting_Date___Control1500091; Format("Posting Date"))
                     {
                     }
@@ -283,12 +286,12 @@ report 17110 "AU/NZ Statement"
                                 OpenCrBalLCY := "Remaining Amt. (LCY)";
                             end
                         end else begin
-                            BalanceToPrint := BalanceToPrint + "Remaining Amount";
+                            BalanceToPrint := BalanceToPrint + "Remaining Amt. (LCY)";
                             if "Remaining Amount" >= 0 then begin
-                                DebitBalance := DebitBalance + "Remaining Amount";
+                                DebitBalance := DebitBalance + "Remaining Amt. (LCY)";
                                 OpenDrBal := "Remaining Amount";
                             end else begin
-                                CreditBalance := CreditBalance + "Remaining Amount";
+                                CreditBalance := CreditBalance + "Remaining Amt. (LCY)";
                                 OpenCrBal := "Remaining Amount";
                             end
                         end;
@@ -719,10 +722,13 @@ report 17110 "AU/NZ Statement"
 
     trigger OnPreReport()
     begin
-        if PrintLCY then
-            CurrencyLabel := 'Local (LCY)'
-        else
+        if PrintLCY then begin
+            CurrencyLabel := 'Local (LCY)';
+            BalanceCaptionLbl := 'Balance'
+        end else begin
             CurrencyLabel := 'Customer';
+            BalanceCaptionLbl := 'Balance (LCY)';
+        end;
 
         if (not AllHavingEntries) and (not AllHavingBalance) then
             Error(Text1500001);
@@ -812,7 +818,7 @@ report 17110 "AU/NZ Statement"
         Account_Number_CaptionLbl: Label 'Account Number:';
         Currency_CaptionLbl: Label 'Currency:';
         Page_CaptionLbl: Label 'Page:';
-        BalanceCaptionLbl: Label 'Balance';
+        BalanceCaptionLbl: Text;
         CreditsCaptionLbl: Label 'Credits';
         DebitsCaptionLbl: Label 'Debits';
         Due_DateCaptionLbl: Label 'Due Date';
@@ -859,7 +865,7 @@ report 17110 "AU/NZ Statement"
         exit('');
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CalcAging()
     begin
         if AgingMethod = AgingMethod::None then
@@ -900,7 +906,7 @@ report 17110 "AU/NZ Statement"
         AgingHead[i] := StrSubstNo('%1 %2 %3', Text1500006, ToDate - Periodstartdate[i - 1] + 1, Text1500005);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CalcOpenLedgEntry()
     begin
         Clear(AgingAmount);

@@ -1,6 +1,7 @@
 table 5339 "Integration Synch. Job Errors"
 {
     Caption = 'Integration Synch. Job Errors';
+    ReplicateData = false;
 
     fields
     {

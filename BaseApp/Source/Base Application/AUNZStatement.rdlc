@@ -19,7 +19,7 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>17.89cm</Width>
+                  <Width>18.21366cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
@@ -704,13 +704,16 @@
                                     <Width>2.1cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.5cm</Width>
+                                    <Width>2cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>2.8cm</Width>
+                                    <Width>2.4cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>4.45cm</Width>
+                                    <Width>2.3cm</Width>
+                                  </TablixColumn>
+                                  <TablixColumn>
+                                    <Width>3cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
@@ -808,6 +811,32 @@
                                                 </TextRuns>
                                                 <Style>
                                                   <TextAlign>Left</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <Style>
+                                              <VerticalAlign>Middle</VerticalAlign>
+                                              <PaddingLeft>0.105cm</PaddingLeft>
+                                              <PaddingRight>0.105cm</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="textbox3949">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!CustLedgerEntry3__Currency_Code_.Value</Value>
+                                                    <Style />
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
                                                 </Style>
                                               </Paragraph>
                                             </Paragraphs>
@@ -1012,6 +1041,32 @@
                                       </TablixCell>
                                       <TablixCell>
                                         <CellContents>
+                                          <Textbox Name="textbox3950">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=" "</Value>
+                                                    <Style />
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style>
+                                                  <TextAlign>Right</TextAlign>
+                                                </Style>
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <Style>
+                                              <VerticalAlign>Middle</VerticalAlign>
+                                              <PaddingLeft>0.105cm</PaddingLeft>
+                                              <PaddingRight>0.105cm</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                      <TablixCell>
+                                        <CellContents>
                                           <Textbox Name="textbox65">
                                             <CanGrow>true</CanGrow>
                                             <KeepTogether>true</KeepTogether>
@@ -1107,6 +1162,7 @@
                                   <TablixMember />
                                   <TablixMember />
                                   <TablixMember />
+                                  <TablixMember />
                                 </TablixMembers>
                               </TablixColumnHierarchy>
                               <TablixRowHierarchy>
@@ -1145,7 +1201,7 @@
                               </Filters>
                               <Top>0.18043in</Top>
                               <Height>0.33308in</Height>
-                              <Width>17.89cm</Width>
+                              <Width>17.9207cm</Width>
                               <ZIndex>2</ZIndex>
                               <Style />
                             </Tablix>
@@ -1884,7 +1940,7 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
               </Filter>
             </Filters>
             <Height>3.80851cm</Height>
-            <Width>17.89cm</Width>
+            <Width>18.21366cm</Width>
             <Style />
           </Tablix>
         </ReportItems>
@@ -2870,7 +2926,7 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
               </Paragraphs>
               <Top>7.8714cm</Top>
               <Height>0.42301cm</Height>
-              <Width>2.14cm</Width>
+              <Width>1.96361cm</Width>
               <ZIndex>34</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -2895,7 +2951,7 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
                 </Paragraph>
               </Paragraphs>
               <Top>7.8714cm</Top>
-              <Left>2.14cm</Left>
+              <Left>2.03417cm</Left>
               <Height>0.42301cm</Height>
               <Width>2.3cm</Width>
               <ZIndex>35</ZIndex>
@@ -2951,7 +3007,7 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
               <Top>7.8714cm</Top>
               <Left>6.12cm</Left>
               <Height>0.42301cm</Height>
-              <Width>2.1cm</Width>
+              <Width>1.84361cm</Width>
               <ZIndex>37</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -2977,10 +3033,10 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
                   </Style>
                 </Paragraph>
               </Paragraphs>
-              <Top>7.8714cm</Top>
-              <Left>8.22cm</Left>
+              <Top>7.88822cm</Top>
+              <Left>10.575cm</Left>
               <Height>0.42301cm</Height>
-              <Width>2.52cm</Width>
+              <Width>1.93375cm</Width>
               <ZIndex>38</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -3007,9 +3063,9 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
                 </Paragraph>
               </Paragraphs>
               <Top>7.8714cm</Top>
-              <Left>10.74cm</Left>
+              <Left>12.61458cm</Left>
               <Height>0.42301cm</Height>
-              <Width>2.92646cm</Width>
+              <Width>1.84014cm</Width>
               <ZIndex>39</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
@@ -3036,14 +3092,43 @@ Cstr(Fields!BalanceCaption.Value))</Hidden>
                 </Paragraph>
               </Paragraphs>
               <Top>7.8714cm</Top>
-              <Left>13.6676cm</Left>
+              <Left>14.49cm</Left>
               <Height>0.42301cm</Height>
-              <Width>4.2224cm</Width>
+              <Width>3.4cm</Width>
               <ZIndex>40</ZIndex>
               <Style>
                 <VerticalAlign>Middle</VerticalAlign>
                 <PaddingLeft>0.105cm</PaddingLeft>
                 <PaddingRight>2pt</PaddingRight>
+              </Style>
+            </Textbox>
+            <Textbox Name="textbox113">
+              <CanGrow>true</CanGrow>
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>="Currency"</Value>
+                      <Style>
+                        <FontWeight>Bold</FontWeight>
+                      </Style>
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Right</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>7.88822cm</Top>
+              <Left>7.99889cm</Left>
+              <Height>0.42301cm</Height>
+              <Width>2.57611cm</Width>
+              <ZIndex>41</ZIndex>
+              <Style>
+                <VerticalAlign>Middle</VerticalAlign>
+                <PaddingLeft>0.105cm</PaddingLeft>
+                <PaddingRight>0.105cm</PaddingRight>
               </Style>
             </Textbox>
           </ReportItems>
@@ -3341,6 +3426,9 @@ End Function</Code>
         </Field>
         <Field Name="CustLedgerEntry3__Document_Type__Control1500090">
           <DataField>CustLedgerEntry3__Document_Type__Control1500090</DataField>
+        </Field>
+        <Field Name="CustLedgerEntry3__Currency_Code_">
+          <DataField>CustLedgerEntry3__Currency_Code_</DataField>
         </Field>
         <Field Name="FORMAT__Posting_Date___Control1500091">
           <DataField>FORMAT__Posting_Date___Control1500091</DataField>

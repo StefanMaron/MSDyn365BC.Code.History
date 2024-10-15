@@ -13,6 +13,11 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryERM: Codeunit "Library - ERM";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibrarySales: Codeunit "Library - Sales";
+        LibraryJournals: Codeunit "Library - Journals";
+        LibraryDimension: Codeunit "Library - Dimension";
         FileManagement: Codeunit "File Management";
         CurrencyCodeCap: Label 'GetCurrencyCode_CurrencyCode_';
         EntryAmountCap: Label 'EntryAmount_5_';
@@ -235,6 +240,72 @@ codeunit 141075 "UT REP Aged Accounts"
         // [THEN] No RDLC rendering errors
     end;
 
+    [Test]
+    [HandlerFunctions('AgedAccountsReceivableBackdatingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AgedAccRecBackdatingReportConsidersGlobalDimensionFiltersWhenReportOpenLedgEntries()
+    var
+        Customer: Record Customer;
+        GenJournalLine: Record "Gen. Journal Line";
+        AgingBy: Option "Due Date","Posting Date","Document Date";
+        HeadingType: Option "Date Interval","Number of Days";
+        PeriodLength: DateFormula;
+        i: Integer;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 418998] "Aged Acc. Rec. (BackDating)" Report considers global dimension filters
+        Initialize();
+
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Two posted invoices
+        // [GIVEN] Invoice "A" with Amount = 100, "Global Dimension 1 Code" = "X1", "Global Dimension 2 Code" = "X2"
+        // [GIVEN] Invoice "B" with Amount = 200, "Global Dimension 1 Code" = "X2", "Global Dimension 2 Code" = "Y2"
+        for i := 1 to 2 do
+            PostInvoiceWithDimensions(GenJournalLine, "Gen. Journal Account Type"::Customer, Customer."No.");
+        PrepareAgedAccRecReportForDimRun(
+          Customer, PeriodLength, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+
+        // [WHEN] Run "Aged Acc. Rec. (BackDating)" Report with "Global Dimension 1 Filter" = "X2" and "Global Dimension 2 Filter" = "Y2"
+        SaveAgedAccountsRecBackDating(Customer);
+
+        // [THEN] Total amount in exported XML file of report is 200
+        VerifyXMLReport('Customer__No__', Customer."No.", 'AccountTotal_5_', GenJournalLine."Amount (LCY)");
+    end;
+
+    [Test]
+    [HandlerFunctions('AgedAccountsPayableBackdatingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AgedAccPayBackdatingReportConsidersGlobalDimensionFiltersWhenReportOpenLedgEntries()
+    var
+        Vendor: Record Vendor;
+        GenJournalLine: Record "Gen. Journal Line";
+        AgingBy: Option "Due Date","Posting Date","Document Date";
+        HeadingType: Option "Date Interval","Number of Days";
+        PeriodLength: DateFormula;
+        i: Integer;
+    begin
+        // [FEATURE] [Dimension]
+        // [SCENARIO 418998] "Aged Acc. Pay. (BackDating)" Report considers global dimension filters
+        Initialize();
+
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Two posted invoices
+        // [GIVEN] Invoice "A" with Amount = 100, "Global Dimension 1 Code" = "X1", "Global Dimension 2 Code" = "X2"
+        // [GIVEN] Invoice "B" with Amount = 200, "Global Dimension 1 Code" = "X2", "Global Dimension 2 Code" = "Y2"
+        for i := 1 to 2 do
+            PostInvoiceWithDimensions(GenJournalLine, "Gen. Journal Account Type"::Vendor, Vendor."No.");
+        PrepareAgedAccPayReportForDimRun(
+          Vendor, PeriodLength, GenJournalLine."Shortcut Dimension 1 Code", GenJournalLine."Shortcut Dimension 2 Code");
+
+        // [WHEN] Run "Aged Acc. Rec. (BackDating)" Report with "Global Dimension 1 Filter" = "X2" and "Global Dimension 2 Filter" = "Y2"
+        SaveAgedAccountsPayBackDating(Vendor);
+
+        // [THEN] Total amount in exported XML file of report is 200
+        VerifyXMLReport('Vendor__No__', Vendor."No.", 'AccountTotal_5_', GenJournalLine."Amount (LCY)");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -384,6 +455,69 @@ codeunit 141075 "UT REP Aged Accounts"
     begin
         GeneralLedgerSetup.Get();
         exit(GeneralLedgerSetup."LCY Code");
+    end;
+
+    local procedure PostInvoiceWithDimensions(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        DimensionValue: array[2] of Record "Dimension Value";
+        Amount: Decimal;
+    begin
+        GeneralLedgerSetup.Get();
+        if AccountType = "Gen. Journal Account Type"::Customer then
+            Amount := LibraryRandom.RandIntInRange(1000, 2000)
+        else
+            Amount := -LibraryRandom.RandIntInRange(1000, 2000);
+        LibraryDimension.CreateDimensionValue(DimensionValue[1], GeneralLedgerSetup."Global Dimension 1 Code");
+        LibraryDimension.CreateDimensionValue(DimensionValue[2], GeneralLedgerSetup."Global Dimension 2 Code");
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          AccountType, AccountNo, GenJournalLine."Bal. Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNo, Amount);
+        GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
+        GenJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue[2].Code);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+    end;
+
+    local procedure PrepareAgedAccRecReportForDimRun(var Customer: Record Customer; var PeriodLength: DateFormula; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])
+    begin
+        Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
+        Customer.SetFilter("Global Dimension 1 Filter", ShortcutDimension1Code);
+        Customer.SetFilter("Global Dimension 2 Filter", ShortcutDimension2Code);
+        Customer.SetRecFilter();
+    end;
+
+    local procedure PrepareAgedAccPayReportForDimRun(var Vendor: Record Vendor; var PeriodLength: DateFormula; ShortcutDimension1Code: Code[20]; ShortcutDimension2Code: Code[20])
+    begin
+        Evaluate(PeriodLength, '<' + Format(LibraryRandom.RandInt(5)) + 'M>');
+        Vendor.SetFilter("Global Dimension 1 Filter", ShortcutDimension1Code);
+        Vendor.SetFilter("Global Dimension 2 Filter", ShortcutDimension2Code);
+        Vendor.SetRecFilter();
+    end;
+
+    local procedure SaveAgedAccountsRecBackDating(var Customer: Record Customer)
+    begin
+        EnqueueValuesForMiscellaneousHandler(Customer."No.", false, 0, 0);
+        Report.Run(Report::"Aged Acc. Rec. (BackDating)", true, false, Customer);
+    end;
+
+    local procedure SaveAgedAccountsPayBackDating(var Vendor: Record Vendor)
+    begin
+        EnqueueValuesForMiscellaneousHandler(Vendor."No.", false, 0, 0);
+        Report.Run(Report::"Aged Acc. Pay. (BackDating)", true, false, Vendor);
+    end;
+
+    local procedure VerifyXMLReport(XmlElementCaption: Text; XmlValue: Text; ValidateCaption: Text; ValidateValue: Decimal)
+    begin
+        with LibraryReportDataset do begin
+            LoadDataSetFile();
+            SetRange(XmlElementCaption, XmlValue);
+            GetLastRow();
+            AssertCurrentRowValueEquals(ValidateCaption, ValidateValue);
+        end;
     end;
 
     local procedure VerifyValuesOnAgedAccountsBackdatingReport(CurrencyCode: Code[10]; EntryAmount: Decimal)

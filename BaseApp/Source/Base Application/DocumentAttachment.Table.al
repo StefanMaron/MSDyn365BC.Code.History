@@ -350,6 +350,85 @@ table 1173 "Document Attachment"
         exit(CopyStr(StrSubstNo('%1.%2', FileName, FileExtension), 1, MaxStrLen(SourceFileName)));
     end;
 
+    procedure VATReturnSubmissionAttachmentsExist(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        DocType: Enum "Attachment Document Type";
+    begin
+        exit(VATReturnAttachmentsExist(VATReportHeader, DocType::"VAT Return Submission"));
+    end;
+
+    procedure VATReturnResponseAttachmentsExist(VATReportHeader: Record "VAT Report Header"): Boolean
+    var
+        DocType: Enum "Attachment Document Type";
+    begin
+        exit(VATReturnAttachmentsExist(VATReportHeader, DocType::"VAT Return Response"));
+    end;
+
+    local procedure VATReturnAttachmentsExist(VATReportHeader: Record "VAT Report Header"; DocType: Enum "Attachment Document Type"): Boolean
+    begin
+        SetRange("Table ID", Database::"VAT Report Header");
+        SetRange("No.", VATReportHeader."No.");
+        SetRange("Document Type", DocType);
+        exit(not IsEmpty());
+    end;
+
+    procedure DownloadZipFileWithVATReturnSubmissionAttachments(VATRepConfigCode: Enum "VAT Report Configuration"; VATReportNo: Code[20]): Boolean
+    begin
+        exit(DownloadZipFileWithVATReturnAttachments(VATRepConfigCode, VATReportNo, "Document Type"::"VAT Return Submission"));
+    end;
+
+    procedure DownloadZipFileWithVATReturnResponseAttachments(VATRepConfigCode: Enum "VAT Report Configuration"; VATReportNo: Code[20]): Boolean
+    begin
+        exit(DownloadZipFileWithVATReturnAttachments(VATRepConfigCode, VATReportNo, "Document Type"::"VAT Return Response"));
+    end;
+
+    local procedure DownloadZipFileWithVATReturnAttachments(VATRepConfigCode: Enum "VAT Report Configuration"; VATReportNo: Code[20]; DocType: Enum "Attachment Document Type"): Boolean
+    var
+        VATReportHeader: Record "VAT Report Header";
+        DataCompression: Codeunit "Data Compression";
+        TempBlob: Codeunit "Temp Blob";
+        ZipTempBlob: Codeunit "Temp Blob";
+        ServerFileInStream: InStream;
+        ZipInStream: InStream;
+        DocumentStream: OutStream;
+        ZipOutStream: OutStream;
+        ToFile: Text;
+    begin
+        if not VATReportHeader.Get(VATRepConfigCode, VATReportNo) then
+            exit(false);
+
+        SetRange("Table ID", Database::"VAT Report Header");
+        SetRange("No.", VATReportHeader."No.");
+        SetRange("Document Type", DocType);
+        if not FindSet() then
+            exit(false);
+
+        ToFile := VATReportHeader."No.";
+        case "Document Type" of
+            "Document Type"::"VAT Return Submission":
+                ToFile += '_Submission.zip';
+            "Document Type"::"VAT Return Response":
+                ToFile += 'Response.zip';
+        end;
+
+        DataCompression.CreateZipArchive();
+        repeat
+            if "Document Reference ID".HasValue() then begin
+                clear(TempBlob);
+                TempBlob.CreateOutStream(DocumentStream);
+                "Document Reference ID".ExportStream(DocumentStream);
+                TempBlob.CreateInStream(ServerFileInStream);
+                DataCompression.AddEntry(ServerFileInStream, "File Name" + '.' + "File Extension");
+            end;
+        until Next() = 0;
+        ZipTempBlob.CreateOutStream(ZipOutStream);
+        DataCompression.SaveZipArchive(ZipOutStream);
+        DataCompression.CloseZipArchive();
+        ZipTempBlob.CreateInStream(ZipInStream);
+        DownloadFromStream(ZipInStream, '', '', '', ToFile);
+        exit(true);
+    end;
+
     local procedure GetNextFileName(FileName: Text[250]; FileIndex: Integer): Text[250]
     begin
         exit(StrSubstNo('%1 (%2)', FileName, FileIndex));

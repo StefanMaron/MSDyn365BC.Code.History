@@ -353,7 +353,8 @@ codeunit 11603 "EFT Management"
                         VendorLedgerEntry."EFT Bank Account No.",
                         VendorLedgerEntry."Document No.",
                         VendorLedgerEntry."Payment Reference",
-                        VendorLedgerEntry.Amount);
+                        VendorLedgerEntry.Amount,
+                        True);
                     repeat
                         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, TempVendorLedgerEntry, true);
                     until TempVendorLedgerEntry.Next() = 0;
@@ -375,7 +376,8 @@ codeunit 11603 "EFT Management"
             GenJournalLine."EFT Bank Account No.",
             GenJournalLine."Document No.",
             GenJournalLine."Payment Reference",
-            GenJournalLine.Amount);
+            GenJournalLine.Amount,
+            GenJournalLine."Skip WHT");
         UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
         PaymentBufferGenJournalLine.Insert();
     end;
@@ -396,7 +398,8 @@ codeunit 11603 "EFT Management"
                 GenJournalLine."EFT Bank Account No.",
                 GenJournalLine."Document No.",
                 GenJournalLine."Payment Reference",
-                GenJournalLine.Amount);
+                GenJournalLine.Amount,
+                GenJournalLine."Skip WHT");
             repeat
                 UpdatePaymentBufferAmounts(PaymentBufferGenJournalLine, VendorLedgerEntry, false);
             until VendorLedgerEntry.Next() = 0;
@@ -415,7 +418,8 @@ codeunit 11603 "EFT Management"
             GenJournalLine."EFT Bank Account No.",
             GenJournalLine."Document No.",
             GenJournalLine."Payment Reference",
-            GenJournalLine.Amount);
+            GenJournalLine.Amount,
+            GenJournalLine."Skip WHT");
         PaymentBufferGenJournalLine."WHT Absorb Base" := 0;
         PaymentBufferGenJournalLine.Insert();
     end;
@@ -486,6 +490,8 @@ codeunit 11603 "EFT Management"
         if PaymentIsPosted then
             PaymentBufferGenJournalLine.Amount += -VendorLedgerEntry."Amount to Apply";
         VendorLedgerEntry."EFT Amount Transferred" := PaymentBufferGenJournalLine.Amount;
+        if PaymentBufferGenJournalLine."Skip WHT" then
+            exit;
         WHTAmount := WithHoldingTaxAmountLCY(VendorLedgerEntry);
         if PaymentBufferGenJournalLine.Amount > 0 then
             PaymentBufferGenJournalLine."WHT Absorb Base" += WHTAmount
@@ -493,7 +499,7 @@ codeunit 11603 "EFT Management"
             PaymentBufferGenJournalLine."WHT Absorb Base" -= WHTAmount;
     end;
 
-    local procedure InitPaymentBuffer(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; EFTBankAccountNo: Code[20]; DocumentNo: Code[20]; PaymentReference: Code[50]; Amount: Decimal)
+    local procedure InitPaymentBuffer(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; VendorNo: Code[20]; EFTBankAccountNo: Code[20]; DocumentNo: Code[20]; PaymentReference: Code[50]; Amount: Decimal; SkipWHT: Boolean)
     begin
         PaymentBufferGenJournalLine.Init();
 
@@ -510,6 +516,7 @@ codeunit 11603 "EFT Management"
         PaymentBufferGenJournalLine."Payment Reference" := PaymentReference;
         PaymentBufferGenJournalLine."EFT Bank Account No." := EFTBankAccountNo;
         PaymentBufferGenJournalLine.Amount := Amount;
+        PaymentBufferGenJournalLine."Skip WHT" := SkipWHT;
     end;
 
     local procedure CanDownloadFile(): Boolean

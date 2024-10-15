@@ -254,7 +254,7 @@ codeunit 87 "Blanket Sales Order to Order"
                 SalesOrderHeader."Posting Date" := WorkDate;
 
             SalesOrderHeader.InitFromSalesHeader(SalesHeader);
-            OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog);
+            OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog, SalesOrderHeader);
             SalesOrderHeader.Validate("Posting Date");
             SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
             SalesOrderHeader.Reserve := Reserve;
@@ -441,7 +441,7 @@ codeunit 87 "Blanket Sales Order to Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(var SalesHeader: Record "Sales Header"; HideValidationDialog: Boolean)
+    local procedure OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(var SalesHeader: Record "Sales Header"; HideValidationDialog: Boolean; var SalesOrderHeader: Record "Sales Header")
     begin
     end;
 

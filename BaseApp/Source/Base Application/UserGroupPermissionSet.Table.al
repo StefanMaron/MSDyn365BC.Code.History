@@ -19,14 +19,14 @@ table 9003 "User Group Permission Set"
         }
         field(3; "User Group Name"; Text[50])
         {
-            CalcFormula = Lookup ("User Group".Name WHERE(Code = FIELD("User Group Code")));
+            CalcFormula = Lookup("User Group".Name WHERE(Code = FIELD("User Group Code")));
             Caption = 'User Group Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(4; "Role Name"; Text[30])
         {
-            CalcFormula = Lookup ("Permission Set".Name WHERE("Role ID" = FIELD("Role ID")));
+            CalcFormula = Lookup("Permission Set".Name WHERE("Role ID" = FIELD("Role ID")));
             Caption = 'Name';
             Editable = false;
             FieldClass = FlowField;
@@ -43,7 +43,7 @@ table 9003 "User Group Permission Set"
         }
         field(7; "Extension Name"; Text[250])
         {
-            CalcFormula = Lookup ("Published Application".Name WHERE(ID = FIELD("App ID"), "Tenant Visible" = CONST(true)));
+            CalcFormula = Lookup("Published Application".Name WHERE(ID = FIELD("App ID"), "Tenant Visible" = CONST(true)));
             Caption = 'Extension Name';
             Editable = false;
             FieldClass = FlowField;

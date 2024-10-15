@@ -280,6 +280,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                     DtldCustLedgEntry.SetRange("Customer No.", Customer."No.");
                     DtldCustLedgEntry.SetRange("Posting Date", CalcDate('<+1D>', PeriodStartDate[5]), PeriodStartDate[6]);
                     DtldCustLedgEntry.SetRange("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
+                    CopyDimFiltersFromCustomer(DtldCustLedgEntry);
                     if DtldCustLedgEntry.Find('-') then
                         repeat
                             "Entry No." := DtldCustLedgEntry."Cust. Ledger Entry No.";
@@ -290,6 +291,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                     SetRange("Customer No.", Customer."No.");
                     SetRange(Open, true);
                     SetRange("Posting Date", 0D, PeriodStartDate[5]);
+                    CopyDimFiltersFromCustomer("Cust. Ledger Entry");
                     if Find('-') then
                         repeat
                             Mark(true);
@@ -553,6 +555,7 @@ report 17116 "Aged Acc. Rec. (BackDating)"
                 CustLedgerEntry.SetCurrentKey("Customer No.", Open, Positive, "Due Date", "Currency Code");
                 CustLedgerEntry.SetRange("Customer No.", "No.");
                 CustLedgerEntry.SetRange(Open, true);
+                CopyDimFiltersFromCustomer(CustLedgerEntry);
                 CalcFields("Net Change (LCY)");
                 AccountNetChange := "Net Change (LCY)";
                 CustLedgerEntry.SetRange("Posting Date", 0D, PeriodStartDate[5]);
@@ -1090,6 +1093,22 @@ report 17116 "Aged Acc. Rec. (BackDating)"
         PrintEntryDetailsEnable := PrintAccountDetails = true;
         if PrintEntryDetailsEnable = false then
             PrintEntryDetails := false;
+    end;
+
+    local procedure CopyDimFiltersFromCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+        if Customer.GetFilter("Global Dimension 1 Filter") <> '' then
+            CustLedgerEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
+        if Customer.GetFilter("Global Dimension 2 Filter") <> '' then
+            CustLedgerEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+    end;
+
+    local procedure CopyDimFiltersFromCustomer(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
+    begin
+        if Customer.GetFilter("Global Dimension 1 Filter") <> '' then
+            DtldCustLedgEntry.SetFilter("Initial Entry Global Dim. 1", Customer.GetFilter("Global Dimension 1 Filter"));
+        if Customer.GetFilter("Global Dimension 2 Filter") <> '' then
+            DtldCustLedgEntry.SetFilter("Initial Entry Global Dim. 2", Customer.GetFilter("Global Dimension 2 Filter"));
     end;
 }
 

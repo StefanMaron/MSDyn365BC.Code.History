@@ -154,8 +154,8 @@
         field(10; "Period Type"; Option)
         {
             Caption = 'Period Type';
-            OptionCaption = ' ,,Month,Quarter,Year';
-            OptionMembers = " ",,Month,Quarter,Year;
+            OptionCaption = ' ,,Month,Quarter,Year,Bi-Monthly,Half-Year,Half-Month,Weekly';
+            OptionMembers = " ",,Month,Quarter,Year,"Bi-Monthly","Half-Year","Half-Month","Weekly";
 
             trigger OnValidate()
             begin
@@ -445,6 +445,8 @@
     end;
 
     procedure PeriodToDate()
+    var
+        StartDay: Integer;
     begin
         if not IsPeriodValid then
             exit;
@@ -462,6 +464,34 @@
         if "Period Type" = "Period Type"::Year then begin
             "Start Date" := DMY2Date(1, 1, "Period Year");
             "End Date" := DMY2Date(31, 12, "Period Year");
+        end;
+
+        if "Period Type" = "Period Type"::"Bi-Monthly" then begin
+            "Start Date" := DMY2Date(1, "Period No." * 2 - 1, "Period Year");
+            "End Date" := CalcDate('<1M+CM>', "Start Date");
+        end;
+
+        if "Period Type" = "Period Type"::"Half-Year" then begin
+            "Start Date" := DMY2Date(1, "Period No." * 6 - 5, "Period Year");
+            "End Date" := CalcDate('<CM + 5M>', "Start Date");
+        end;
+
+        if "Period Type" = "Period Type"::"Half-Month" then begin
+            if ("Period No." mod 2) = 0 then
+                StartDay := 16
+            else
+                StartDay := 1;
+
+            "Start Date" := DMY2Date(StartDay, Round("Period No." / 2, 1, '>'), "Period Year");
+            if ("Period No." mod 2) = 0 then
+                "End Date" := CalcDate('<CM>', "Start Date")
+            else
+                "End Date" := DMY2Date(15, Date2DMY("Start Date", 2), Date2DMY("Start Date", 3));
+        end;
+
+        if "Period Type" = "Period Type"::"Weekly" then begin
+            "Start Date" := CalcDate('<W' + FORMAT("Period No.") + '>', DMY2Date(1, 1, "Period Year"));
+            "End Date" := CalcDate('<CW>', "Start Date");
         end;
     end;
 
@@ -495,6 +525,26 @@
 
         if ("Period Type" = "Period Type"::Month) and
            (("Period No." < 1) or ("Period No." > 12))
+        then
+            exit(false);
+
+        if ("Period Type" = "Period Type"::"Bi-Monthly") and
+           (("Period No." < 1) or ("Period No." > 6))
+        then
+            exit(false);
+
+        if ("Period Type" = "Period Type"::"Half-Year") and
+           (("Period No." < 1) or ("Period No." > 2))
+        then
+            exit(false);
+
+        if ("Period Type" = "Period Type"::"Half-Month") and
+           (("Period No." < 1) or ("Period No." > 24))
+        then
+            exit(false);
+
+        if ("Period Type" = "Period Type"::Weekly) and
+           (("Period No." < 1) or ("Period No." > 53))
         then
             exit(false);
 

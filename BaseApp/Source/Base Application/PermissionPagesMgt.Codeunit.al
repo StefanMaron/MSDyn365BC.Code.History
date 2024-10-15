@@ -22,6 +22,8 @@ codeunit 9001 "Permission Pages Mgt."
         ResolvePermissionNotificationTxt: Label 'The permission sets highlighted in red no longer exist. For example, because the app that installed them has been uninstalled. It''s safe to delete these records to clean up the page.';
         ResolvePermissionsLbl: Label 'Resolve Permissions';
         UnableToRetrievePSErr: Label 'Unable to retrieve permission sets.';
+        InvalidRoleIDErr: Label 'The permission set role ID cannot contain special characters such as ''&|()*@<>=.!?%.';
+        RoleIDReservedCharactersTok: Label '''&|()*@<>=.!?%', Locked = true, Comment = 'Characters reserved for filter criterias or tokens.';
 
 
     procedure Init(NewNoOfRecords: Integer; NewNoOfColumns: Integer)
@@ -165,6 +167,17 @@ codeunit 9001 "Permission Pages Mgt."
         AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         exit((AggregatePermissionSetScope = AggregatePermissionSet.Scope::Tenant) and IsNullGuid(AppId));
+    end;
+
+    procedure VerifyPermissionSetRoleID(RoleID: Code[20])
+    begin
+        if not IsPermissionSetRoleIDValid(RoleID) then
+            Error(InvalidRoleIDErr);
+    end;
+
+    local procedure IsPermissionSetRoleIDValid(RoleID: Code[20]): Boolean
+    begin
+        exit(DelChr(RoleID, '=', RoleIDReservedCharactersTok) = RoleID);
     end;
 
     procedure CheckAndRaiseNotificationIfAppDBPermissionSetsChanged()

@@ -850,11 +850,17 @@ page 256 "Payment Journal"
                     ToolTip = 'Print the remittance advice before posting a payment journal and after posting a payment. This advice displays vendor invoice numbers, which helps vendors to perform reconciliations.';
 
                     trigger OnAction()
+                    var
+                        ReportSelections: Record "Report Selections";
                     begin
                         GenJnlLine.Reset();
                         GenJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         GenJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
-                        REPORT.Run(REPORT::"Remittance Advice - Journal", true, false, GenJnlLine);
+                        ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
+                        if not ReportSelections.IsEmpty() then
+                            ReportSelections.PrintReport(ReportSelections.Usage::"V.Remittance", GenJnlLine)
+                        else
+                            Report.Run(Report::"Remittance Advice - Journal", true, false, GenJnlLine);
                     end;
                 }
                 group("EFT Payments")
