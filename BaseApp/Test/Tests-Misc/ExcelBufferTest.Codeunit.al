@@ -717,6 +717,53 @@ codeunit 139011 "Excel Buffer Test"
         Assert.AreEqual('Test', TempExcelBuffer."Cell Value as Text", 'First entry value check failed');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SaveToStreamTextWithLongValue()
+    var
+        TempExcelBuffer: Record "Excel Buffer" temporary;
+        ExpectedText: Text;
+        ActualText: Text;
+        TempBlob: Codeunit "Temp Blob";
+        ExcelInStream: InStream;
+        ExcelOutStream: OutStream;
+    begin
+        // [SCENARIO 423217] Stan store, expore and import text in excel cells with length greater than 250 using Excel Buffer.
+
+        ExpectedText := LibraryUtility.GenerateRandomAlphabeticText(MaxStrLen(TempExcelBuffer."Cell Value as Text") + 1, 0);
+
+        TempExcelBuffer.DeleteAll();
+        TempExcelBuffer.CreateNewBook('Sheet1');
+        TempExcelBuffer.EnterCell(TempExcelBuffer, 2, 1, CopyStr(ExpectedText, 1, MaxStrLen(TempExcelBuffer."Cell Value as Text")), false, false, false);
+        TempExcelBuffer."Cell Value as Blob".CreateOutStream(ExcelOutStream, TEXTENCODING::Windows);
+        ExcelOutStream.Write(ExpectedText);
+        TempExcelBuffer.Modify(true);
+        TempExcelBuffer.WriteSheet('', '', '');
+        TempBlob.CreateOutStream(ExcelOutStream);
+        TempExcelBuffer.CloseBook();
+        TempExcelBuffer.SaveToStream(ExcelOutStream, false);
+
+        TempExcelBuffer.Reset();
+        TempExcelBuffer.DeleteAll();
+        Clear(TempExcelBuffer);
+
+        TempBlob.CreateInStream(ExcelInStream);
+        TempExcelBuffer.OpenBookStream(ExcelInStream, 'Sheet1');
+        TempExcelBuffer.ReadSheet();
+        TempExcelBuffer.FindFirst();
+
+        Assert.IsTrue(TempExcelBuffer."Cell Value as Blob".HasValue, '"Cell Value as Blob".HasValue must be true');
+        TempExcelBuffer.CalcFields("Cell Value as Blob");
+        TempExcelBuffer."Cell Value as Blob".CreateInStream(ExcelInStream, TextEncoding::Windows);
+        ExcelInStream.ReadText(ActualText);
+
+        Assert.AreEqual(ActualText, ExpectedText, '');
+
+        Assert.AreEqual(
+            CopyStr(ExpectedText, 1, MaxStrLen(TempExcelBuffer."Cell Value as Text")),
+            TempExcelBuffer."Cell Value as Text", 'First entry value check failed');
+    end;
+
     local procedure CreateExcelFile(var ExcelBuffer: Record "Excel Buffer"; SheetName: Text): Text
     var
         variant: Variant;

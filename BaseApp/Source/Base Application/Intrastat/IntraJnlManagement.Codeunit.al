@@ -307,6 +307,8 @@ codeunit 350 IntraJnlManagement
 
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Form AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
         CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Disk Tax Auth AT", IntrastatJnlLine.FieldNo("Total Weight"), '');
+
+        OnAfterCreateDefaultAdvancedIntrastatSetup();
     end;
 
     local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
@@ -381,6 +383,11 @@ codeunit 350 IntraJnlManagement
             exit(TotalWeight);
 
         exit(Round(TotalWeight, 0.001));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDefaultAdvancedIntrastatSetup()
+    begin
     end;
 
     [IntegrationEvent(false, false)]

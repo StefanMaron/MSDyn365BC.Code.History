@@ -423,8 +423,13 @@ codeunit 134153 "Test Intrastat"
     end;
 
     local procedure FindOrCreateIntrastatTransactionType(): Code[10]
+    var
+        TransactionType: Record "Transaction Type";
     begin
-        exit(LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
+        TransactionType.Code := Format(LibraryRandom.RandIntInRange(1, 9));
+        if not TransactionType.Get(TransactionType.Code) then
+            TransactionType.Insert();
+        exit(TransactionType.Code);
     end;
 
     local procedure FindOrCreateIntrastatTransportMethod(): Code[10]

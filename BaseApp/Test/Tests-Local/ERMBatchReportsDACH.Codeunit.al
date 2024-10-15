@@ -2,6 +2,7 @@ codeunit 142061 "ERM Batch Reports DACH"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    EventSubscriberInstance = Manual;
 
     trigger OnRun()
     begin
@@ -45,8 +46,45 @@ codeunit 142061 "ERM Batch Reports DACH"
         GLAccountNo := GetFASalesAccOnDispLoss(FANo);
         FindGLEntry(GLEntry, GLEntry."Document Type"::Invoice, DocumentNo, GLEntry."Gen. Posting Type"::Sale, GLAccountNo);
 
-        // [THEN] There is a VATEntry "Y" with "Document Type" = "Invoice", "Document No." = "SI", Type = "Sale", "G/L Account No." = "DispLossGLAcc"
-        FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, DocumentNo, VATEntry.Type::Sale, GLAccountNo);
+        // [THEN] There is a VATEntry "Y" with "Document Type" = "Invoice", "Document No." = "SI", Type = "Sale", "G/L Account No." = ""
+        FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, DocumentNo, VATEntry.Type::Sale, ''); // "G/L Acc. No." is not filled - default behavior.
+
+        // [THEN] There is a "G/L Entry - VAT Entry Link" record with "G/L Entry No." = "X", "VAT Entry No." = "Y"
+        GLEntryVATEntryLink.GET(GLEntry."Entry No.", VATEntry."Entry No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure GLEntryVATEntryLinkForFASalesAccOnDispLossWithEventSubscriber()
+    var
+        GLEntry: Record "G/L Entry";
+        VATEntry: Record "VAT Entry";
+        GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link";
+        ERMBatchReportsDACHSubscriber: Codeunit "ERM Batch Reports DACH";
+        FANo: Code[20];
+        DocumentNo: Code[20];
+        GLAccountNo: Code[20];
+    begin
+        // [FEATURE] [G/L Entry - VAT Entry Link]
+        // [SCENARIO 423793] Extension can fill G/L Account No. on VAT entry inserted during posting utilizing event subscription
+        Initialize();
+
+        // [GIVEN] Fixed Asset "FA" with "Sales Acc. on Disp. (Loss)" = "DispLossGLAcc", "Disposal Calculation Method" = "Gross", "VAT on Net Disposal Entries" = TRUE
+        FANo := CreateFAWithBook;
+
+        // [GIVEN] Posted purchase invoice fixed asset "FA" on "Posting Date" = 01-01-2019
+        BindSubscription(ERMBatchReportsDACHSubscriber);
+        CreatePostFixedAssetPurchaseInvoice(WorkDate, FANo, LibraryRandom.RandDecInRange(10000, 20000, 2));
+
+        // [WHEN] Post sales invoice "SI" fixed asset "FA" on "Posting Date" = 01-02-2019 with "Depr. until FA Posting Date" = TRUE
+        DocumentNo := CreatePostFixedAssetSalesInvoice(CalcDate('<1M>', WorkDate), FANo, LibraryRandom.RandDecInRange(1000, 2000, 2));
+
+        // [THEN] There is a GLEntry "X" with "Document Type" = "Invoice", "Document No." = "SI", "Gen. Posting Type" = "Sale", "G/L Account No." = "DispLossGLAcc"
+        GLAccountNo := GetFASalesAccOnDispLoss(FANo);
+        FindGLEntry(GLEntry, GLEntry."Document Type"::Invoice, DocumentNo, GLEntry."Gen. Posting Type"::Sale, GLAccountNo);
+
+        // [THEN] There is a VATEntry "Y" with "Document Type" = "Invoice", "Document No." = "SI", Type = "Sale", "G/L Acc. No." = "DispLossGLAcc"
+        FindVATEntry(VATEntry, VATEntry."Document Type"::Invoice, DocumentNo, VATEntry.Type::Sale, GLAccountNo); // "G/L Acc. No." has been filled by a subscriber
 
         // [THEN] There is a "G/L Entry - VAT Entry Link" record with "G/L Entry No." = "X", "VAT Entry No." = "Y"
         GLEntryVATEntryLink.GET(GLEntry."Entry No.", VATEntry."Entry No.");
@@ -164,8 +202,14 @@ codeunit 142061 "ERM Batch Reports DACH"
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetRange(Type, VATEntryType);
-        VATEntry.SetRange("G/L Acc. No.", '');
+        VATEntry.SetRange("G/L Acc. No.", GLAccountNo);
         VATEntry.FindFirst();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"G/L Entry - VAT Entry Link", 'OnInsertLink', '', false, false)]
+    local procedure HandleOnSetGLAccountNoInVATEntriesOnGLEntryVATEntryLinkInsert(var GLEntryVATEntryLink: Record "G/L Entry - VAT Entry Link")
+    begin
+        GLEntryVATEntryLink.AdjustGLAccountNoOnVATEntry();
     end;
 }
 

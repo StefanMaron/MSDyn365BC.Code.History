@@ -1,4 +1,4 @@
-codeunit 1543 "Workflow Webhook Management"
+﻿codeunit 1543 "Workflow Webhook Management"
 {
     Permissions = TableData "Workflow Webhook Entry" = imd;
 
@@ -46,11 +46,9 @@ codeunit 1543 "Workflow Webhook Management"
     end;
 
     procedure CanRequestApproval(RecordId: RecordID): Boolean
-    var
-        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
     begin
         // Checks if the given record can have an approval request made, based on whether or not there's already a pending approval for it.
-        exit(not FindWorkflowWebhookEntryByRecordIdAndResponse(WorkflowWebhookEntry, RecordId, WorkflowWebhookEntry.Response::Pending));
+        exit(not HasPendingWorkflowWebhookEntryByRecordId(RecordId));
     end;
 
     procedure GetCanRequestAndCanCancel(RecordId: RecordID; var CanRequestApprovalForFlow: Boolean; var CanCancelApprovalForFlow: Boolean)
@@ -342,6 +340,15 @@ codeunit 1543 "Workflow Webhook Management"
         WorkflowWebhookEntry.SetRange(Response, ResponseStatus);
 
         exit(WorkflowWebhookEntry.FindFirst);
+    end;
+
+    procedure HasPendingWorkflowWebhookEntryByRecordId(RecordId: RecordID): Boolean
+    var
+        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
+    begin
+        WorkflowWebhookEntry.SetRange("Record ID", RecordId);
+        WorkflowWebhookEntry.SetRange(Response, WorkflowWebhookEntry.Response::Pending);
+        exit(not WorkflowWebhookEntry.IsEmpty());
     end;
 
     procedure FindAndCancel(RecordId: RecordID)
