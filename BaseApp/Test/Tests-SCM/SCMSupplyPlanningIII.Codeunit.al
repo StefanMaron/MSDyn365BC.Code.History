@@ -2526,6 +2526,362 @@
         UpdateBaseCalendarOnCompanyInformation(OldBaseCalendarCode);
     end;
 
+    [Test]
+    procedure CalcRegenPlanBackTwoProdItemsWhenChildItemWithWaitRunTime()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan for two production items when child item has Routing with Wait and Run time.
+        Initialize();
+
+        // [GIVEN] Certified Production BOM "B" with Item "I2" with Replenishment System "Prod. Order" and Manufacturing Policy "Make-to-Order".
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order", Manufacturing Policy "Make-to-Order" and with Production BOM "B".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center (works 0800 - 1600). Run Time is 7 hours.
+        // [GIVEN] Certified Routing for Item "I2" with one line for Work Center (works 0800 - 1600). Run Time is 1 hour, Wait Time is 2 hours.
+        CreateProductionItemWithOneLineRouting(ChildItem, 0, 60, 120, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(ChildItem, "Manufacturing Policy"::"Make-to-Order");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        CreateProductionItemWithOneLineRouting(Item, 0, 420, 0, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(Item, "Manufacturing Policy"::"Make-to-Order");
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Friday, 27.01.23.
+        ShipmentDate := CalcDate('<1W + WD4>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [WHEN] Calculate regenerative plan for "I1" and "I2".
+        Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [THEN] Two Requisition Lines are created.
+        // [THEN] First line is for Prod. Order for "I1". Starting DateTime = 26.01 09:00, Ending DateTime = 26.01 16:00.
+        // [THEN] Second line is for Prod. Order of "I2". Starting DateTime = 25.01 15:00, Ending DateTime = 26.01 09:00.
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 090000T), CreateDateTime(ShipmentDate - 1, 160000T));
+        VerifyRequisitionLineStartEndDateTime(
+            ChildItem."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 2, 150000T), CreateDateTime(ShipmentDate - 1, 090000T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanBackTwoProdItemsWhenChildItemWithWaitTimeOnly()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan for two production items when child item has Routing with Wait time only.
+        Initialize();
+
+        // [GIVEN] Certified Production BOM "B" with Item "I2" with Replenishment System "Prod. Order" and Manufacturing Policy "Make-to-Order".
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order", Manufacturing Policy "Make-to-Order" and with Production BOM "B".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center (works 0800 - 1600). Run Time is 7 hours.
+        // [GIVEN] Certified Routing for Item "I2" with one line for Work Center (works 0800 - 1600). Wait Time is 2 hours.
+        CreateProductionItemWithOneLineRouting(ChildItem, 0, 0, 120, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(ChildItem, "Manufacturing Policy"::"Make-to-Order");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        CreateProductionItemWithOneLineRouting(Item, 0, 420, 0, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(Item, "Manufacturing Policy"::"Make-to-Order");
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Friday, 27.01.23.
+        ShipmentDate := CalcDate('<1W + WD4>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [WHEN] Calculate regenerative plan for "I1" and "I2".
+        Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [THEN] Two Requisition Lines are created.
+        // [THEN] First line is for Prod. Order for "I1". Starting DateTime = 26.01 09:00, Ending DateTime = 26.01 16:00.
+        // [THEN] Second line is for Prod. Order of "I2". Starting DateTime = 26.01 07:00, Ending DateTime = 26.01 09:00.
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 090000T), CreateDateTime(ShipmentDate - 1, 160000T));
+        VerifyRequisitionLineStartEndDateTime(
+            ChildItem."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 070000T), CreateDateTime(ShipmentDate - 1, 090000T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanBackWhenWaitTimeOnHolidaysAndRunTime()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan for production item when it has Routing with Wait and Run time and Due Date on Monday.
+        Initialize();
+
+        // [GIVEN] Manufacturing Setup has Normal Starting Time 00:00:00 and Normal Ending Time 23:59:59.
+        UpdateManufacturingSetupNormalStartingEndingTime(000000T, 235959T);
+
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center (works 0800 - 1600). Wait Time is 2 hours, Run Time is 1 hour.
+        CreateProductionItemWithOneLineRouting(Item, 0, 60, 120, 0, 080000T, 160000T);
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Monday, 30.01.23.
+        ShipmentDate := CalcDate('<1W + WD1>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [WHEN] Calculate regenerative plan for "I1".
+        Item.SetFilter("No.", Item."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [THEN] Requisition Line with Prod. Order type for "I1" is created. Starting DateTime = 27.01 15:00 (Friday), Ending DateTime = 29.01 23:59:59 (Sunday).
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 3, 150000T), CreateDateTime(ShipmentDate - 1, 235959T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanBackWhenCapacityConstrainedResourceAndWaitTimeOnHolidays()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan for production item when it has Routing with Wait time only and Due Date on Monday.
+        Initialize();
+
+        // [GIVEN] Manufacturing Setup has Normal Starting Time 00:00:00 and Normal Ending Time 23:59:59.
+        UpdateManufacturingSetupNormalStartingEndingTime(000000T, 235959T);
+
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center "A" (works 0800 - 1600). Wait Time is 2 hours.
+        // [GIVEN] Work Center "A" is a capacity constrained resource.
+        CreateProductionItemWithOneLineRouting(Item, 0, 0, 120, 0, 080000T, 160000T);
+        RoutingHeader.Get(Item."Routing No.");
+        RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        RoutingLine.FindFirst();
+        CreateCapacityConstrainedResourceForWorkCenter(RoutingLine."No.", 50);
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Monday, 30.01.23.
+        ShipmentDate := CalcDate('<1W + WD1>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [WHEN] Calculate regenerative plan for "I1".
+        Item.SetFilter("No.", Item."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [THEN] Requisition Line with Prod. Order type for "I1" is created. Starting DateTime = 29.01 22:00 (Sunday), Ending DateTime = 29.01 23:59:59 (Sunday).
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 220000T), CreateDateTime(ShipmentDate - 1, 235959T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanForwardTwoProdItemsWhenChildItemWithWaitRunTime()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan forward for two production items when child item has Routing with Wait and Run time.
+        Initialize();
+
+        // [GIVEN] Certified Production BOM "B" with Item "I2" with Replenishment System "Prod. Order" and Manufacturing Policy "Make-to-Order".
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order", Manufacturing Policy "Make-to-Order" and with Production BOM "B".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center (works 0800 - 1600). Run Time is 7 hours.
+        // [GIVEN] Certified Routing for Item "I2" with one line for Work Center (works 0800 - 1600). Run Time is 1 hour, Wait Time is 2 hours.
+        CreateProductionItemWithOneLineRouting(ChildItem, 0, 60, 120, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(ChildItem, "Manufacturing Policy"::"Make-to-Order");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        CreateProductionItemWithOneLineRouting(Item, 0, 420, 0, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(Item, "Manufacturing Policy"::"Make-to-Order");
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Friday, 27.01.23.
+        ShipmentDate := CalcDate('<1W + WD4>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [GIVEN] Requisition Lines for "I1" and "I2".
+        // [GIVEN] First line is for Prod. Order for "I1". Starting DateTime = 26.01 09:00, Ending DateTime = 26.01 16:00.
+        // [GIVEN] Second line is for Prod. Order of "I2". Starting DateTime = 25.01 15:00, Ending DateTime = 26.01 09:00.
+        Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [WHEN] Set Starting Time 14:00 for second Requisition Line with Item "I2".
+        FilterOnRequisitionLine(RequisitionLine, ChildItem."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Starting Time", 140000T);
+        RequisitionLine.Modify(true);
+
+        // [THEN] Requisition Line for "I1" has Starting DateTime = 26.01 09:00, Ending DateTime = 26.01 16:00.
+        // [THEN] Requisition Line for "I2" has Starting DateTime = 25.01 14:00, Ending DateTime = 25.01 17:00.
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 090000T), CreateDateTime(ShipmentDate - 1, 160000T));
+        VerifyRequisitionLineStartEndDateTime(
+            ChildItem."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 2, 140000T), CreateDateTime(ShipmentDate - 2, 170000T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanForwardTwoProdItemsWhenChildItemWithWaitTimeOnly()
+    var
+        Item: Record Item;
+        ChildItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan forward for two production items when child item has Routing with Wait time only.
+        Initialize();
+
+        // [GIVEN] Certified Production BOM "B" with Item "I2" with Replenishment System "Prod. Order" and Manufacturing Policy "Make-to-Order".
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order", Manufacturing Policy "Make-to-Order" and with Production BOM "B".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center (works 0800 - 1600). Run Time is 7 hours.
+        // [GIVEN] Certified Routing for Item "I2" with one line for Work Center (works 0800 - 1600). Wait Time is 2 hours.
+        CreateProductionItemWithOneLineRouting(ChildItem, 0, 0, 120, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(ChildItem, "Manufacturing Policy"::"Make-to-Order");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, ChildItem."No.");
+        CreateProductionItemWithOneLineRouting(Item, 0, 420, 0, 0, 080000T, 160000T);
+        UpdateManufacturingPolicyOnItem(Item, "Manufacturing Policy"::"Make-to-Order");
+        UpdateProductionBOMOnItem(Item, ProductionBOMHeader."No.");
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Friday, 27.01.23.
+        ShipmentDate := CalcDate('<1W + WD4>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [GIVEN] Requisition Lines for "I1" and "I2".
+        // [GIVEN] First line is for Prod. Order for "I1". Starting DateTime = 26.01 09:00, Ending DateTime = 26.01 16:00.
+        // [GIVEN] Second line is for Prod. Order of "I2". Starting DateTime = 26.01 07:00, Ending DateTime = 26.01 09:00.
+        Item.SetFilter("No.", ItemFilterTxt, Item."No.", ChildItem."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [WHEN] Set Starting Time 06:00 for second Requisition Line with Item "I2".
+        FilterOnRequisitionLine(RequisitionLine, ChildItem."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Starting Time", 060000T);
+        RequisitionLine.Modify(true);
+
+        // [THEN] Requisition Line for "I1" has Starting DateTime = 26.01 09:00, Ending DateTime = 26.01 16:00.
+        // [THEN] Requisition Line for "I2" has Starting DateTime = 26.01 06:00, Ending DateTime = 26.01 08:00.
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 090000T), CreateDateTime(ShipmentDate - 1, 160000T));
+        VerifyRequisitionLineStartEndDateTime(
+            ChildItem."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 060000T), CreateDateTime(ShipmentDate - 1, 080000T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanForwardWhenWaitTimeOnHolidaysAndRunMoveTime()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan forward for production item when it has Routing with Wait, Run and Move time and Wait time on holidays.
+        Initialize();
+
+        // [GIVEN] Manufacturing Setup has Normal Starting Time 00:00:00 and Normal Ending Time 23:59:59.
+        UpdateManufacturingSetupNormalStartingEndingTime(000000T, 235959T);
+
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center (works 0800 - 1600). Wait Time is 2 hours, Move Time is 1 hour.
+        CreateProductionItemWithOneLineRouting(Item, 0, 60, 120, 60, 080000T, 235959T);
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Monday, 30.01.23.
+        ShipmentDate := CalcDate('<1W + WD1>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [GIVEN] Requisition Line for "I1" with Starting DateTime = 27.01 15:00 (Friday), Ending DateTime = 29.01 23:59:59 (Sunday).
+        Item.SetFilter("No.", Item."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [WHEN] Set Starting Time 22:59:59 for Requisition Line with Item "I1".
+        FilterOnRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Starting Time", 225959T);
+        RequisitionLine.Modify(true);
+
+        // [THEN] Requisition Line for "I1" has Starting DateTime = 27.01 22:59:59 (Friday), Ending DateTime = 30.01 09:00 (Monday).
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 3, 225959T), CreateDateTime(ShipmentDate, 090000T));
+    end;
+
+    [Test]
+    procedure CalcRegenPlanForwardWhenCapacityConstrainedResourceAndWaitTimeOnHolidays()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        ShipmentDate: Date;
+    begin
+        // [SCENARIO 415709] Calculate Regen. Plan forward for production item when it has Routing with Wait time only and Wait Time on holidays.
+        Initialize();
+
+        // [GIVEN] Manufacturing Setup has Normal Starting Time 00:00:00 and Normal Ending Time 23:59:59.
+        UpdateManufacturingSetupNormalStartingEndingTime(000000T, 235959T);
+
+        // [GIVEN] Item "I1" with Replenishment System "Prod. Order".
+        // [GIVEN] Certified Routing for Item "I1" with one line for Work Center "A" (works 0800 - 1600). Wait Time is 2 hours.
+        // [GIVEN] Work Center "A" is a capacity constrained resource.
+        CreateProductionItemWithOneLineRouting(Item, 0, 0, 120, 0, 080000T, 160000T);
+        RoutingHeader.Get(Item."Routing No.");
+        RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
+        RoutingLine.FindFirst();
+        CreateCapacityConstrainedResourceForWorkCenter(RoutingLine."No.", 50);
+
+        // [GIVEN] Sales Order for Item "I1" with Shipment Date on Monday, 30.01.23.
+        ShipmentDate := CalcDate('<1W + WD1>', WorkDate());
+        LibrarySales.CreateSalesDocumentWithItem(
+            SalesHeader, SalesLine, "Sales Document Type"::Order, '', Item."No.", 1, '', ShipmentDate);
+
+        // [GIVEN] Requisition Line for "I1" with Starting DateTime = 29.01 22:00 (Sunday), Ending DateTime = 29.01 23:59:59 (Sunday).
+        Item.SetFilter("No.", Item."No.");
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, ShipmentDate - 10, ShipmentDate + 10);
+
+        // [WHEN] Set Starting Time 21:00 for Requisition Line with Item "I1".
+        FilterOnRequisitionLine(RequisitionLine, Item."No.");
+        RequisitionLine.FindFirst();
+        RequisitionLine.Validate("Starting Time", 210000T);
+        RequisitionLine.Modify(true);
+
+        // [THEN] Requisition Line for "I1" has Starting DateTime = 29.01 21:00 (Sunday), Ending DateTime = 29.01 23:00 (Sunday).
+        VerifyRequisitionLineStartEndDateTime(
+            Item."No.", RequisitionLine."Ref. Order Type"::"Prod. Order", "Action Message Type"::New,
+            CreateDateTime(ShipmentDate - 1, 210000T), CreateDateTime(ShipmentDate - 1, 230000T));
+    end;
+
     local procedure Initialize()
     var
         UntrackedPlanningElement: Record "Untracked Planning Element";
@@ -2861,10 +3217,43 @@
         LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', "Capacity Type Routing"::"Work Center", WorkCenterCode);
         RoutingLine.Validate("Run Time", RunTime);
         RoutingLine.Modify(true);
-        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
-        RoutingHeader.Modify(true);
+        UpdateStatusOnRoutingHeader(RoutingHeader, "Routing Status"::Certified);
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Modify(true);
+    end;
+
+    local procedure CreateProductionItemWithOneLineRouting(var Item: Record Item; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; WorkCenterStartTime: Time; WorkCenterEndTime: Time)
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        WorkCenterCode: Code[20];
+    begin
+        WorkCenterCode :=
+            CreateWorkCenterWithShopCalendar(
+                "Capacity Unit of Measure"::Minutes,
+                LibraryManufacturing.UpdateShopCalendarWorkingDaysCustomTime(WorkCenterStartTime, WorkCenterEndTime), 100, 1, WorkDate());
+        CreateItem(Item, Item."Reordering Policy"::"Lot-for-Lot", Item."Replenishment System"::"Prod. Order");
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', '10', "Capacity Type Routing"::"Work Center", WorkCenterCode);
+        RoutingLine.Validate("Setup Time", SetupTime);
+        RoutingLine.Validate("Run Time", RunTime);
+        RoutingLine.Validate("Wait Time", WaitTime);
+        RoutingLine.Validate("Move Time", MoveTime);
+        RoutingLine.Modify(true);
+        UpdateStatusOnRoutingHeader(RoutingHeader, "Routing Status"::Certified);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateCapacityConstrainedResourceForWorkCenter(WorkCenterNo: Code[20]; CriticalLoadPct: Decimal)
+    var
+        CapacityConstrainedResource: Record "Capacity Constrained Resource";
+    begin
+        CapacityConstrainedResource.Init();
+        CapacityConstrainedResource.Validate("Capacity Type", "Capacity Type"::"Work Center");
+        CapacityConstrainedResource.Validate("Capacity No.", WorkCenterNo);
+        CapacityConstrainedResource.Validate("Critical Load %", CriticalLoadPct);
+        CapacityConstrainedResource.Insert(true);
     end;
 
     local procedure UpdateItemBlocked(var Item: Record Item)
@@ -3544,6 +3933,16 @@
         ManufacturingSetup.Modify(true);
     end;
 
+    local procedure UpdateManufacturingSetupNormalStartingEndingTime(StartingTime: Time; EndingTime: Time)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate("Normal Starting Time", StartingTime);
+        ManufacturingSetup.Validate("Normal Ending Time", EndingTime);
+        ManufacturingSetup.Modify(true);
+    end;
+
     local procedure UpdateLocationMandatory(NewLocationMandatory: Boolean)
     var
         InvtSetup: Record "Inventory Setup";
@@ -3619,6 +4018,18 @@
         OldBaseCalendarCode := CompanyInformation."Base Calendar Code";
         CompanyInformation.Validate("Base Calendar Code", NewBaseCalendarCode);
         CompanyInformation.Modify(true);
+    end;
+
+    local procedure UpdateStatusOnRoutingHeader(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
+    begin
+        RoutingHeader.Validate(Status, Status);
+        RoutingHeader.Modify(true);
+    end;
+
+    local procedure UpdateManufacturingPolicyOnItem(var Item: Record Item; ManufacturingPolicy: Enum "Manufacturing Policy")
+    begin
+        Item.Validate("Manufacturing Policy", ManufacturingPolicy);
+        Item.Modify(true);
     end;
 
     local procedure VerifyReservationEntryPairInsideProductionOrder(Level1ItemNo: Code[20]; Level2ItemNo: Code[20]; LocationCode: Code[10])
@@ -3835,6 +4246,18 @@
         RequisitionLine.TestField("Due Date", ExpDueDate);
         RequisitionLine.TestField("Starting Date", ExpStartDate);
         RequisitionLine.TestField("Ending Date", ExpEndDate);
+    end;
+
+    local procedure VerifyRequisitionLineStartEndDateTime(ItemNo: Code[20]; RefOrderType: Option; ActionMessage: Enum "Action Message Type"; ExpStartingDateTime: DateTime; ExpEndingDateTime: DateTime)
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        FilterOnRequisitionLine(RequisitionLine, ItemNo);
+        RequisitionLine.SetRange("Ref. Order Type", RefOrderType);
+        RequisitionLine.SetRange("Action Message", ActionMessage);
+        RequisitionLine.FindFirst();
+        RequisitionLine.TestField("Starting Date-Time", ExpStartingDateTime);
+        RequisitionLine.TestField("Ending Date-Time", ExpEndingDateTime);
     end;
 
     local procedure VerifyPurchaseLineReceiptDates(DocType: Enum "Purchase Document Type"; VendorNo: Code[20]; ItemNo: Code[20]; PlannedReceiptDate: Date; ExpectedReceiptDate: Date)

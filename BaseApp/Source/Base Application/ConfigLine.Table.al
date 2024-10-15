@@ -26,7 +26,7 @@ table 8622 "Config. Line"
         {
             Caption = 'Table ID';
             TableRelation = IF ("Line Type" = CONST(Table)) AllObjWithCaption."Object ID" WHERE("Object Type" = CONST(Table),
-                                                                                               "Object ID" = FILTER(.. 1260 | 1262 .. 99000999 | 2000000004 | 2000000005));
+                                                                                               "Object ID" = FILTER(.. 1260 | 1262 .. 99999999 | 2000000004 | 2000000005));
 
             trigger OnLookup()
             var
