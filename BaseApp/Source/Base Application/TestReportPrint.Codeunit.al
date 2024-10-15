@@ -61,13 +61,18 @@ codeunit 228 "Test Report-Print"
     end;
 
     procedure PrintVATStmtLine(var NewVATStatementLine: Record "VAT Statement Line")
+    var
+        IsHandled: Boolean;
     begin
         VATStmtLine.Copy(NewVATStatementLine);
         VATStmtLine.SetRange("Statement Template Name", VATStmtLine."Statement Template Name");
         VATStmtLine.SetRange("Statement Name", VATStmtLine."Statement Name");
         VATStmtTmpl.Get(VATStmtLine."Statement Template Name");
         VATStmtTmpl.TestField("VAT Statement Report ID");
-        REPORT.Run(VATStmtTmpl."VAT Statement Report ID", true, false, VATStmtLine);
+        IsHandled := false;
+        OnPrintVATStmtLineOnBeforeReportRun(VATStmtTmpl, VATStmtLine, IsHandled);
+        if not IsHandled then
+            REPORT.Run(VATStmtTmpl."VAT Statement Report ID", true, false, VATStmtLine);
     end;
 
     procedure PrintItemJnlBatch(ItemJnlBatch: Record "Item Journal Batch")
@@ -367,6 +372,11 @@ codeunit 228 "Test Report-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnPrintGenJnlLineOnAfterGenJnlLineCopy(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintVATStmtLineOnBeforeReportRun(VATStatementTemplate: Record "VAT Statement Template"; VATStatementLine: Record "VAT Statement Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -83,5 +83,14 @@ table 15000300 "Recurring Group"
     fieldgroups
     {
     }
+
+    trigger OnInsert()
+    begin
+        FeatureTelemetry.LogUptake('1000HV1', NORecurringOrderTok, Enum::"Feature Uptake Status"::"Set up");
+    end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NORecurringOrderTok: Label 'NO Recurring Order', Locked = true;
 }
 

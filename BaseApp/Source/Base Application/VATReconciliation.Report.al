@@ -196,9 +196,16 @@ report 10630 "VAT Reconciliation"
     {
     }
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUsage('1000HT9', NOVATPrinttTok, 'NO VAT Reconciliation Reports Printed');
+    end;
+
     var
         GLAccount: Record "G/L Account";
         VATEntry: Record "VAT Entry";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NOVATPrinttTok: Label 'NO Print VAT Reconciliation Report', Locked = true;
         ShowDetails: Boolean;
         ShowTransWithoutVAT: Boolean;
         BaseAmountSalesVAT: Decimal;

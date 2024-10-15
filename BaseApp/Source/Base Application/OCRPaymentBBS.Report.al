@@ -64,6 +64,7 @@ report 15000064 "OCR Payment - BBS"
 
     trigger OnPostReport()
     begin
+        FeatureTelemetry.LogUptake('1000HU7', NOOCRReportTok, Enum::"Feature Uptake Status"::"Used");
         if BalEntrySum <> 0 then
             CreateBalEntry;
 
@@ -73,6 +74,7 @@ report 15000064 "OCR Payment - BBS"
             Message(Text10619, MessageText, NumberOfWarnings)
         else
             Message(MessageText);
+        FeatureTelemetry.LogUsage('1000HU8', NOOCRReportTok, 'NO OCR Set Up Payments Completed');
     end;
 
     trigger OnPreReport()
@@ -140,6 +142,8 @@ report 15000064 "OCR Payment - BBS"
         Reminder: Record "Issued Reminder Header";
         GenJnlLine: Record "Gen. Journal Line";
         FileMgt: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NOOCRReportTok: Label 'NO OCR Set Up Payments', Locked = true;
         TxtFile: File;
         Bbsdate: Date;
         LatestBBSDate: Date;

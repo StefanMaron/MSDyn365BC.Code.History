@@ -16,6 +16,7 @@ report 7305 "Whse.-Source - Create Document"
                 TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
                 WMSMgt: Codeunit "WMS Management";
                 ItemTrackingManagement: Codeunit "Item Tracking Management";
+                IsHandled: Boolean;
             begin
                 WMSMgt.CheckOutboundBlockedBin("Location Code", "Bin Code", "Item No.", "Variant Code", "Unit of Measure Code");
 
@@ -34,11 +35,14 @@ report 7305 "Whse.-Source - Create Document"
                             PostedWhseReceiptLine2."Qty. (Base)" /
                             PostedWhseReceiptLine2."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
 
-                        if ItemTrackingManagement.GetWhseItemTrkgSetup("Item No.") then
-                            ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
-                                "Warehouse Worksheet Document Type"::Receipt, PostedWhseReceiptLine2."No.", PostedWhseReceiptLine2."Line No.",
-                                PostedWhseReceiptLine2."Source Type", PostedWhseReceiptLine2."Source Subtype",
-                                PostedWhseReceiptLine2."Source No.", PostedWhseReceiptLine2."Source Line No.", 0);
+                        IsHandled := false;
+                        OnPostedWhseReceiptLineOnAfterGetRecordOnBeforeGetWhseItemTrkgSetup(WhseWkshLine, "Posted Whse. Receipt Line", IsHandled);
+                        if not IsHandled then
+                            if ItemTrackingManagement.GetWhseItemTrkgSetup("Item No.") then
+                                ItemTrackingManagement.InitItemTrackingForTempWhseWorksheetLine(
+                                    "Warehouse Worksheet Document Type"::Receipt, PostedWhseReceiptLine2."No.", PostedWhseReceiptLine2."Line No.",
+                                    PostedWhseReceiptLine2."Source Type", PostedWhseReceiptLine2."Source Subtype",
+                                    PostedWhseReceiptLine2."Source No.", PostedWhseReceiptLine2."Source Line No.", 0);
 
                         CreatePutAway.SetCrossDockValues(PostedWhseReceiptLine2."Qty. Cross-Docked" <> 0);
                         CreatePutAwayFromDiffSource(PostedWhseReceiptLine2, DATABASE::"Posted Whse. Receipt Line");
@@ -1348,6 +1352,11 @@ report 7305 "Whse.-Source - Create Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetQuantityOnAfterWhseItemTrackingLineSetFilters(var WhseItemTrackingLine: Record "Whse. Item Tracking Line"; var PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostedWhseReceiptLineOnAfterGetRecordOnBeforeGetWhseItemTrkgSetup(WhseWorksheetLine: Record "Whse. Worksheet Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -482,6 +482,7 @@
             ReminderEntry.SetRange("Customer Entry No.", CustLedgEntry."Entry No.");
             ReminderEntry.SetRange(Type, ReminderEntry.Type::Reminder);
             ReminderEntry.SetRange("Reminder Level", CustLedgEntry."Last Issued Reminder Level");
+            ReminderEntry.SetRange(Canceled, false);
             OnSetReminderLineOnAfterSetFilters(ReminderEntry);
             if ReminderEntry.FindLast() then begin
                 ReminderDueDate2 := ReminderEntry."Due Date";

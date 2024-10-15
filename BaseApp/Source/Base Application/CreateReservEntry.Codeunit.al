@@ -1082,7 +1082,7 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeClearTracking(var ReservEntry: Record "Reservation Entry"; IsHandled: Boolean)
+    local procedure OnBeforeClearTracking(var ReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
     begin
     end;
 

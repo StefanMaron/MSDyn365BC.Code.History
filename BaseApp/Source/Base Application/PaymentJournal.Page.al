@@ -855,9 +855,11 @@ page 256 "Payment Journal"
                     var
                         GenJnlLine: Record "Gen. Journal Line";
                     begin
+                        FeatureTelemetry.LogUptake('1000HU3', NORemittanceAgreementTok, Enum::"Feature Uptake Status"::"Used");
                         GenJnlLine.CopyFilters(Rec);
                         GenJnlLine.FindFirst();
                         CODEUNIT.Run(CODEUNIT::"Export Payment File (Yes/No)", GenJnlLine);
+                        FeatureTelemetry.LogUsage('1000HU4', NORemittanceAgreementTok, 'NO Set Up Remittance Agreement Completed');
                     end;
                 }
                 action(ImportReturnData)
@@ -1770,8 +1772,10 @@ page 256 "Payment Journal"
         CheckManagement: Codeunit CheckManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
+        NORemittanceAgreementTok: Label 'NO Set Up Remittance Agreement', Locked = true;
         CurrentJnlBatchName: Code[10];
         AccName: Text[100];
         BalAccName: Text[100];

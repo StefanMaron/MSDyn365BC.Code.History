@@ -47,5 +47,14 @@ page 15000301 "Recurring Group Overview"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('1000HV0', NORecurringOrderTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NORecurringOrderTok: Label 'NO Recurring Order', Locked = true;
 }
 

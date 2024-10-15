@@ -158,6 +158,12 @@ page 9303 "Blanket Sales Orders"
                     ToolTip = 'Specifies the currency of amounts on the sales document.';
                     Visible = false;
                 }
+                field(Status; Status)
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies whether the record is open, waiting to be approved, invoiced for prepayment, or released to the next stage of processing.';
+                    StyleExpr = StatusStyleTxt;
+                }
             }
         }
         area(factboxes)
@@ -417,6 +423,11 @@ page 9303 "Blanket Sales Orders"
         }
     }
 
+    trigger OnAfterGetRecord()
+    begin
+        StatusStyleTxt := Rec.GetStatusStyleText();
+    end;
+
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance;
@@ -434,6 +445,8 @@ page 9303 "Blanket Sales Orders"
         CreateRecurringOrderQst: Label 'This is a Recurring Order.\Do you whish to create a Sales Order?';
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
+        [InDataSet]
+        StatusStyleTxt: Text;
 
     local procedure SetControlAppearance()
     var

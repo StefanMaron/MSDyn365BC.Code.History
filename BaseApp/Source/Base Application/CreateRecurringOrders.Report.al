@@ -124,10 +124,18 @@ report 15000300 "Create Recurring Orders"
         HideError := true;
     end;
 
+    trigger OnPostReport()
+    begin
+        FeatureTelemetry.LogUptake('1000HV2', NORecurringOrderTok, Enum::"Feature Uptake Status"::"Used");
+        FeatureTelemetry.LogUsage('1000HV3', NORecurringOrderTok, 'NO Recurring Order Created');
+    end;
+
     var
         RecurringGroup: Record "Recurring Group";
         BlanketOrderToOrder: Codeunit "Repeating Order to Order";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         OrderOverview: Page "Recurring Orders Overview";
+        NORecurringOrderTok: Label 'NO Recurring Order', Locked = true;
         OrderCounter: Integer;
         ErrorCounter: Integer;
         ProcessingDate: Date;

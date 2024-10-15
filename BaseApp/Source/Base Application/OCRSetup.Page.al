@@ -82,11 +82,13 @@ page 15000100 "OCR Setup"
 
     trigger OnAfterGetRecord()
     begin
+        FeatureTelemetry.LogUptake('0000HU6', NOOCRReportTok, Enum::"Feature Uptake Status"::"Set up");
         OCRSetupFileName := FileMgt.GetFileName(FileName);
     end;
 
     trigger OnOpenPage()
     begin
+        FeatureTelemetry.LogUptake('0000HU5', NOOCRReportTok, Enum::"Feature Uptake Status"::Discovered);
         Reset;
         if not Get then begin
             Init;
@@ -96,6 +98,8 @@ page 15000100 "OCR Setup"
 
     var
         FileMgt: Codeunit "File Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NOOCRReportTok: Label 'NO OCR Set Up Payments', Locked = true;
         ComDlgFilename: Text[200];
         OCRSetupFileName: Text;
 }

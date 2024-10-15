@@ -49,7 +49,7 @@ codeunit 139154 "Incoming Doc. To Data Exch.UT"
         InvalidCompanyInfoVATRegNoErr: Label 'The customer''s VAT registration number %1 on the incoming document does not match the VAT Registration No. in the Company Information window.', Comment = '%1 VAT Registration Number (format could be AB###### or ###### or AB##-##-###)';
         NoBalanceAccountMappingErr: Label 'Could not fill the Bal. Account No. field for vendor ''''%1''''. Choose the Map Text to Account button to map ''''%1'''' to the relevant G/L account.', Comment = '%1 - vendor name';
         NothingToReleaseErr: Label 'There is nothing to release for the incoming document';
-        NoDocCreatedForChoiceErr: Label 'Nothing has been created for choice %1.', Comment = '%1 = choice (number)';
+        NoDocCreatedForChoiceErr: Label 'The given key was not present in the dictionary.';
         UnknownChoiceErr: Label 'Unknown choice %1.', Comment = '%1=Choice (number)';
 
     [Test]

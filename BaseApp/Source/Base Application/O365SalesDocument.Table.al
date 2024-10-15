@@ -290,6 +290,7 @@ table 2103 "O365 Sales Document"
         "Sales Amount" := SalesHeader."Amount Including VAT";
         "Payment Method" := SalesHeader."Payment Method Code";
         "Outstanding Amount" := 0;
+        OnAfterGetAmountsUnposted(Rec, SalesHeader);
     end;
 
     local procedure GetAmountsPosted()
@@ -727,6 +728,11 @@ table 2103 "O365 Sales Document"
 
     [IntegrationEvent(false, false)]
     procedure OnAfterCopySalesInvoiceHeaderFilters(var O365SalesDocument: Record "O365 Sales Document"; SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAmountsUnposted(var O365SalesDocument: Record "O365 Sales Document"; SalesHeader: Record "Sales Header")
     begin
     end;
 }

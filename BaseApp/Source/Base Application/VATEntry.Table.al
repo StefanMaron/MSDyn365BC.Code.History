@@ -650,7 +650,7 @@ table 254 "VAT Entry"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSetGLAccountNo(Rec, IsHandled, Response);
+        OnBeforeSetGLAccountNo(Rec, IsHandled, Response, WithUI, ShowConfirm);
         if IsHandled then
             exit;
 
@@ -678,7 +678,7 @@ table 254 "VAT Entry"
             Window.Close();
 
         IsHandled := false;
-        OnAfterSetGLAccountNo(Rec, IsHandled);
+        OnAfterSetGLAccountNo(Rec, IsHandled, WithUI);
         if IsHandled then
             exit;
 
@@ -791,12 +791,12 @@ table 254 "VAT Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSetGLAccountNo(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean; var Response: Boolean)
+    local procedure OnBeforeSetGLAccountNo(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean; var Response: Boolean; WithUI: Boolean; ShowConfirm: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetGLAccountNo(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean)
+    local procedure OnAfterSetGLAccountNo(var VATEntry: Record "VAT Entry"; var IsHandled: Boolean; WithUI: Boolean)
     begin
     end;
 }

@@ -142,6 +142,7 @@ codeunit 760 "Trailing Sales Orders Mgt."
             SalesHeader.SetRange("Shipment Date");
         SalesHeader.SetRange(Status, Status);
         SalesHeader.SetRange("Document Date", FromDate, ToDate);
+        OnGetSalesOrderCountOnAfterSetFilters(SalesHeader);
         exit(SalesHeader.Count);
     end;
 
@@ -153,6 +154,11 @@ codeunit 760 "Trailing Sales Orders Mgt."
         Map[2] := SalesHeader.Status::"Pending Prepayment".AsInteger();
         Map[3] := SalesHeader.Status::"Pending Approval".AsInteger();
         Map[4] := SalesHeader.Status::Open.AsInteger();
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetSalesOrderCountOnAfterSetFilters(var SalesHeader: Record "Sales Header")
+    begin
     end;
 }
 

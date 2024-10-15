@@ -19,6 +19,11 @@ page 15000010 "Remittance Agreement Overview"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Sets a unique ID for the remittance agreement.';
+
+                    trigger OnValidate()
+                    begin
+                        FeatureTelemetry.LogUptake('1000HU2', NORemittanceAgreementTok, Enum::"Feature Uptake Status"::"Set up");
+                    end;
                 }
                 field(Description; Description)
                 {
@@ -37,5 +42,14 @@ page 15000010 "Remittance Agreement Overview"
     actions
     {
     }
+
+    trigger OnOpenPage()
+    begin
+        FeatureTelemetry.LogUptake('1000HU1', NORemittanceAgreementTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
+
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        NORemittanceAgreementTok: Label 'NO Set Up Remittance Agreement', Locked = true;
 }
 

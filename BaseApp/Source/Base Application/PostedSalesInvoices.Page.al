@@ -393,10 +393,13 @@ page 143 "Posted Sales Invoices"
                     trigger OnAction()
                     var
                         SalesInvHeader: Record "Sales Invoice Header";
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        NOEHFTok: Label 'NO Set Up EHF', Locked = true;
                     begin
                         SalesInvHeader := Rec;
                         SalesInvHeader.SetRecFilter;
                         REPORT.RunModal(REPORT::"Create Electronic Invoices", true, false, SalesInvHeader);
+                        FeatureTelemetry.LogUsage('1000HU0', NOEHFTok, 'NO EHF Set Up Completed');
                     end;
                 }
                 action(IncomingDoc)

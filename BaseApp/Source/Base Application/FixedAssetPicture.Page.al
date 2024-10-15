@@ -90,6 +90,7 @@ page 5620 "Fixed Asset Picture"
 
                     ToFile := StrSubstNo('%1 %2.jpg', "No.", Description);
                     ExportPath := TemporaryPath + "No." + Format(Image.MediaId);
+                    OnExportFileActionOnAfterExportPath(Rec, ToFile, ExportPath);
                     Image.ExportFile(ExportPath);
 
                     FileManagement.ExportImage(ExportPath, ToFile);
@@ -159,6 +160,11 @@ page 5620 "Fixed Asset Picture"
     local procedure SetEditableOnPictureActions()
     begin
         DeleteExportEnabled := Image.HasValue;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportFileActionOnAfterExportPath(FixedAsset: Record "Fixed Asset"; var ToFile: Text; var ExportPath: Text)
+    begin
     end;
 }
 

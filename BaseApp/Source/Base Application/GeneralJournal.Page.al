@@ -1268,6 +1268,7 @@ page 39 "General Journal"
                         GeneralLedgerSetup.TestField("Payroll Trans. Import Format");
                         if FindLast() then;
                         ImportPayrollTransaction.SelectAndImportPayrollDataToGL(Rec, GeneralLedgerSetup."Payroll Trans. Import Format");
+                        FeatureTelemetry.LogUsage('1000HU9', NOImportPayrollTok, 'NO Payroll Transaction Imported');
                     end;
                 }
                 action(ImportPayrollTransactions)
@@ -1841,6 +1842,7 @@ page 39 "General Journal"
         NoSeriesMgt: Codeunit NoSeriesManagement;
         JournalErrorsMgt: Codeunit "Journal Errors Mgt.";
         BackgroundErrorHandlingMgt: Codeunit "Background Error Handling Mgt.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         ChangeExchangeRate: Page "Change Exchange Rate";
         GLReconcile: Page Reconciliation;
         CurrentJnlBatchName: Code[10];
@@ -1853,6 +1855,7 @@ page 39 "General Journal"
         ShowTotalBalance: Boolean;
         Text000: Label 'General Journal lines have been successfully inserted from Standard General Journal %1.';
         Text001: Label 'Standard General Journal %1 has been successfully created.';
+        NOImportPayrollTok: Label 'NO Import Payroll Transaction', Locked = true;
         HasIncomingDocument: Boolean;
         ApplyEntriesActionEnabled: Boolean;
         [InDataSet]
