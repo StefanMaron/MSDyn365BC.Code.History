@@ -251,10 +251,10 @@ page 6306 "Power BI Report FactBox"
                 var
                     PowerBiReportDialog: Page "Power BI Report Dialog";
                 begin
-                    PowerBiReportDialog.SetUrl(GetEmbedUrlWithNavigationWithFilters, PowerBiEmbedHelper.GetLoadReportMessage());
+                    PowerBiReportDialog.SetReportUrl(GetEmbedUrlWithNavigationWithFilters());
                     PowerBiReportDialog.Caption(TempPowerBiReportBuffer.ReportName);
-                    PowerBiReportDialog.SetFilter(messagefilter, CurrentReportFirstPage);
-                    PowerBiReportDialog.Run;
+                    PowerBiReportDialog.SetFilterValue(CurrentListSelection, CurrentReportFirstPage);
+                    PowerBiReportDialog.Run();
                 end;
             }
             action("Previous Report")
@@ -371,7 +371,6 @@ page 6306 "Power BI Report FactBox"
         IsGetReportsVisible: Boolean;
         CurrentListSelection: Text;
         LatestReceivedFilterInfo: Text;
-        messagefilter: Text;
         CurrentReportFirstPage: Text;
         TimerDelay: Integer;
         CurrentTimerCount: Integer;
