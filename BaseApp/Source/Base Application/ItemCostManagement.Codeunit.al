@@ -228,6 +228,8 @@
             "Rolled-up Subcontracted Cost" := 0;
             "Rolled-up Cap. Overhead Cost" := 0;
         end;
+
+        OnAfterRecalcStdCostItem(Item);
     end;
 
     local procedure CalcLastAdjEntryAvgCost(var Item: Record Item; var AverageCost: Decimal; var AverageCostACY: Decimal)
@@ -551,6 +553,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterExcludeOpenOutbndCosts(var Item: Record Item; var CostAmt: Decimal; var CostAmtACY: Decimal; var Quantity: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecalcStdCostItem(var Item: Record Item)
     begin
     end;
 

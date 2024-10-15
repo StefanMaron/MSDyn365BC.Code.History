@@ -105,6 +105,8 @@ codeunit 10821 "Export DEB DTI"
     end;
 
     local procedure ValidateJnlLine(IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    var
+        IsHandled: Boolean;
     begin
         IntrastatJnlLine.TestField("Journal Template Name");
         IntrastatJnlLine.TestField("Journal Batch Name");
@@ -113,10 +115,14 @@ codeunit 10821 "Export DEB DTI"
             if CopyStr(IntrastatJnlLine."Transaction Type", 1, 1) = '0' then
                 IntrastatJnlLine.FieldError("Transaction Type", Text003);
 
-        if IntrastatJnlLine."Statistical Value" <= 0 then
-            IntrastatJnlLine.FieldError("Statistical Value", Text002);
-        if IntrastatJnlLine.Quantity <= 0 then
-            IntrastatJnlLine.FieldError(Quantity, Text002);
+        IsHandled := false;
+        OnValidateJnlLineOnBeforeCheckValue(IntrastatJnlLine, IsHandled);
+        if not IsHandled then begin
+            if IntrastatJnlLine."Statistical Value" <= 0 then
+                IntrastatJnlLine.FieldError("Statistical Value", Text002);
+            if IntrastatJnlLine.Quantity <= 0 then
+                IntrastatJnlLine.FieldError(Quantity, Text002);
+        end;
     end;
 
     local procedure InsertTempJnlLines(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
@@ -274,7 +280,13 @@ codeunit 10821 "Export DEB DTI"
     local procedure AddItems(var XMLNode: DotNet XmlNode; IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
     var
         ItemNumberXML: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAddItems(XMLNode, TempIntrastatJnlLine, IntrastatJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
         TempIntrastatJnlLine.SetCurrentKey(Type);
         TempIntrastatJnlLine.SetRange("Journal Template Name", IntrastatJnlBatch."Journal Template Name");
         TempIntrastatJnlLine.SetRange("Journal Batch Name", IntrastatJnlBatch.Name);
@@ -288,13 +300,20 @@ codeunit 10821 "Export DEB DTI"
     end;
 
     local procedure AddItem(var XMLNode: DotNet XmlNode; IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemNumberXML: Integer)
+    var
+        IsHandled: Boolean;
     begin
         XMLDomMgt.AddGroupNode(XMLNode, 'Item');
         XMLDomMgt.AddNode(XMLNode, 'itemNumber', FormatExtendNumberToXML(ItemNumberXML, 6));
         if IntrastatJnlLine."Tariff No." <> '' then begin
             XMLDomMgt.AddGroupNode(XMLNode, 'CN8');
-            XMLDomMgt.AddLastNode(XMLNode, 'CN8Code', IntrastatJnlLine."Tariff No.");
+            IsHandled := false;
+            OnAddItemOnBeforeAddTariffNo(XMLNode, XMLDomMgt, IntrastatJnlLine, IsHandled);
+            if not IsHandled then
+                XMLDomMgt.AddLastNode(XMLNode, 'CN8Code', IntrastatJnlLine."Tariff No.");
         end;
+        OnAddItemOnAfterAddItemInfo(XMLNode, XMLDomMgt, IntrastatJnlLine);
+
         if IntrastatJnlLine."Country/Region of Origin Code" <> '' then
             XMLDomMgt.AddNode(XMLNode, 'countryOfOriginCode', IntrastatJnlLine."Country/Region of Origin Code");
         if IntrastatJnlLine."Entry/Exit Point" <> '' then
@@ -303,8 +322,12 @@ codeunit 10821 "Export DEB DTI"
             XMLDomMgt.AddNode(XMLNode, 'departement', IntrastatJnlLine.Area);
         if IntrastatJnlLine."Total Weight" <> 0 then
             XMLDomMgt.AddNode(XMLNode, 'netMass', FormatToXML(IntrastatJnlLine."Total Weight"));
-        if IntrastatJnlLine.Quantity <> 0 then
-            XMLDomMgt.AddNode(XMLNode, 'quantityInSU', FormatToXML(IntrastatJnlLine.Quantity));
+
+        IsHandled := false;
+        OnAddItemOnBeforeAddQuantityNode(XMLNode, XMLDomMgt, IntrastatJnlLine, IsHandled);
+        if not IsHandled then
+            if IntrastatJnlLine.Quantity <> 0 then
+                XMLDomMgt.AddNode(XMLNode, 'quantityInSU', FormatToXML(IntrastatJnlLine.Quantity));
         XMLDomMgt.AddNode(XMLNode, 'invoicedAmount', FormatToXML(IntrastatJnlLine."Statistical Value"));
         if IntrastatJnlLine."Cust. VAT Registration No." <> '' then
             XMLDomMgt.AddNode(XMLNode, 'partnerId', IntrastatJnlLine."Cust. VAT Registration No.");
@@ -320,6 +343,8 @@ codeunit 10821 "Export DEB DTI"
 
         if IntrastatJnlLine."Transport Method" <> '' then
             XMLDomMgt.AddNode(XMLNode, 'modeOfTransportCode', IntrastatJnlLine."Transport Method");
+
+        OnAfterAddNode(XMLNode, XMLDomMgt, CompanyInfo);
     end;
 
     local procedure FormatExtendNumberToXML(Value: Integer; Length: Integer): Text
@@ -327,6 +352,36 @@ codeunit 10821 "Export DEB DTI"
         exit(
           Format(
             Value, 0, StrSubstNo('<Integer,%1><Filler Character,0>', Length)));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAddNode(var XMLNode: DotNet XMLNode; var XMLDomMgt: Codeunit "XML DOM Management"; var CompanyInfo: Record "Company Information")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddItemOnAfterAddItemInfo(var XMLNode: DotNet XmlNode; var XMLDomMgt: Codeunit "XML DOM Management"; IntrastatJnlLine: Record "Intrastat Jnl. Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddItemOnBeforeAddQuantityNode(var XMLNode: DotNet XmlNode; var XMLDomMgt: Codeunit "XML DOM Management"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAddItemOnBeforeAddTariffNo(var XMLNode: DotNet XmlNode; var XMLDomMgt: Codeunit "XML DOM Management"; IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAddItems(var XMLNode: DotNet XmlNode; var TempIntrastatJnlLine: Record "Intrastat Jnl. Line" temporary; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateJnlLineOnBeforeCheckValue(IntrastatJnlLine: Record "Intrastat Jnl. Line"; var IsHandled: Boolean)
+    begin
     end;
 }
 

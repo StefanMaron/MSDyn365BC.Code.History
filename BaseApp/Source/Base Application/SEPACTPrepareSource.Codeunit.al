@@ -1,4 +1,4 @@
-codeunit 1222 "SEPA CT-Prepare Source"
+﻿codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 
@@ -74,6 +74,7 @@ codeunit 1222 "SEPA CT-Prepare Source"
                 if StrLen(AppliedDocNoList) > DescriptionLen then
                     TempGenJnlLine."Message to Recipient" :=
                       CopyStr(AppliedDocNoList, DescriptionLen + 1, MaxStrLen(TempGenJnlLine."Message to Recipient"));
+                OnCreateTempJnlLinesOnBeforeInsertTempGenJnlLine(TempGenJnlLine, PaymentLine);
                 TempGenJnlLine.Insert();
             until PaymentLine.Next = 0;
 
@@ -87,6 +88,11 @@ codeunit 1222 "SEPA CT-Prepare Source"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateTempJnlLines(var FromGenJnlLine: Record "Gen. Journal Line"; var TempGenJnlLine: Record "Gen. Journal Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempJnlLinesOnBeforeInsertTempGenJnlLine(var TempGenJnlLine: Record "Gen. Journal Line" temporary; var PaymentLine: Record "Payment Line")
     begin
     end;
 }

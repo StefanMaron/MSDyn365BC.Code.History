@@ -1,4 +1,4 @@
-codeunit 5639 "FA Get Journal"
+﻿codeunit 5639 "FA Get Journal"
 {
 
     trigger OnRun()
@@ -103,7 +103,7 @@ codeunit 5639 "FA Get Journal"
         end;
     end;
 
-    local procedure CalcGLIntegration(BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type"): Boolean
+    local procedure CalcGLIntegration(BudgetAsset: Boolean; FAPostingType: Enum "FA Journal Line FA Posting Type") Result: Boolean
     begin
         if BudgetAsset then
             exit(false);
@@ -130,6 +130,13 @@ codeunit 5639 "FA Get Journal"
                 FAPostingType::Derogatory:
                     exit("G/L Integration - Derogatory");
             end;
+
+        OnAfterCalcGLIntegration(DeprBook, FAPostingType, Result);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcGLIntegration(DeprBook: Record "Depreciation Book"; var FAPostingType: Enum "FA Journal Line FA Posting Type"; var Result: Boolean)
+    begin
     end;
 }
 

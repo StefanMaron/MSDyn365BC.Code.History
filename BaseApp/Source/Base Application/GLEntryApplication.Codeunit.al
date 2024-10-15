@@ -54,7 +54,7 @@ codeunit 10842 "G/L Entry Application"
         if GLEntry."Applies-to ID" = '' then
             exit;
         MarkEntries;
-        GetLetter;
+        GetLetter();
         if SumPos + SumNeg <> 0 then
             LetterToSet := LowerCase(LetterToSet)
         else
@@ -129,19 +129,32 @@ codeunit 10842 "G/L Entry Application"
     procedure GetLetter()
     var
         GLEntry2: Record "G/L Entry";
+        IsHandled: Boolean;
     begin
         if LetterToSet <> '' then
             exit;
-        GLEntry2.SetFilter("G/L Account No.", GLEntry."G/L Account No.");
+
         GLEntry2.SetCurrentKey("G/L Account No.", Letter);
-        if GLEntry2.FindLast then
-            LetterToSet := UpperCase(GLEntry2.Letter);
-        NextLetter(LetterToSet);
+        GLEntry2.SetFilter("G/L Account No.", GLEntry."G/L Account No.");
+        IsHandled := false;
+        OnGetLetterOnAfterSetFilters(GLEntry2, LetterToSet, IsHandled);
+        if not IsHandled then begin
+            if GLEntry2.FindLast() then
+                LetterToSet := UpperCase(GLEntry2.Letter);
+            NextLetter(LetterToSet);
+        end;
     end;
 
     [Scope('OnPrem')]
     procedure NextLetter(var Letter: Text[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeNextLetter(Letter, IsHandled);
+        if IsHandled then
+            exit;
+
         case Letter of
             '':
                 Letter := 'AAA';
@@ -172,6 +185,16 @@ codeunit 10842 "G/L Entry Application"
                 String[i] := TempChar;
                 break;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetLetterOnAfterSetFilters(var GLEntry2: Record "G/L Entry"; var LetterToSet: Text[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNextLetter(var Letter: Text[10]; var IsHandled: Boolean)
+    begin
     end;
 }
 

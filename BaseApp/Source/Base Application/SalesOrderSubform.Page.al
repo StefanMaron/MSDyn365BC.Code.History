@@ -842,7 +842,7 @@
                     field("TotalSalesLine.""Line Amount"""; TotalSalesLine."Line Amount")
                     {
                         ApplicationArea = Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalLineAmountWithVATAndCurrencyCaption(Currency.Code, TotalSalesHeader."Prices Including VAT");
                         Caption = 'Subtotal Excl. VAT';
@@ -852,12 +852,12 @@
                     field("Invoice Discount Amount"; InvoiceDiscountAmount)
                     {
                         ApplicationArea = Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetInvoiceDiscAmountWithVATAndCurrencyCaption(FieldCaption("Inv. Discount Amount"), Currency.Code);
                         Caption = 'Invoice Discount Amount';
                         Editable = InvDiscAmountEditable;
-                        ToolTip = 'Specifies a discount amount that is deducted from the value in the Total Incl. VAT field. You can enter or change the amount manually.';
+                        ToolTip = 'Specifies a discount amount that is deducted from the value of the Total Incl. VAT field, based on sales lines where the Allow Invoice Disc. field is selected. You can enter or change the amount manually.';
 
                         trigger OnValidate()
                         begin
@@ -871,7 +871,7 @@
                         Caption = 'Invoice Discount %';
                         DecimalPlaces = 0 : 3;
                         Editable = InvDiscAmountEditable;
-                        ToolTip = 'Specifies a discount percentage that is granted if criteria that you have set up for the customer are met.';
+                        ToolTip = 'Specifies a discount percentage that is applied to the invoice, based on sales lines where the Allow Invoice Disc. field is selected. The percentage and criteria are defined in the Customer Invoice Discounts page, but you can enter or change the percentage manually.';
 
                         trigger OnValidate()
                         begin
@@ -888,7 +888,7 @@
                     field("Total Amount Excl. VAT"; TotalSalesLine.Amount)
                     {
                         ApplicationArea = Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalExclVATCaption(Currency.Code);
                         Caption = 'Total Amount Excl. VAT';
@@ -899,7 +899,7 @@
                     field("Total VAT Amount"; VATAmount)
                     {
                         ApplicationArea = Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalVATCaption(Currency.Code);
                         Caption = 'Total VAT';
@@ -909,7 +909,7 @@
                     field("Total Amount Incl. VAT"; TotalSalesLine."Amount Including VAT")
                     {
                         ApplicationArea = Basic, Suite;
-                        AutoFormatExpression = "Currency Code";
+                        AutoFormatExpression = Currency.Code;
                         AutoFormatType = 1;
                         CaptionClass = DocumentTotals.GetTotalInclVATCaption(Currency.Code);
                         Caption = 'Total Amount Incl. VAT';
@@ -1449,7 +1449,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeAfterGetCurrRecord(Rec, IsHandled);
+        OnBeforeAfterGetCurrRecord(Rec, IsHandled, TotalSalesHeader, Currency);
         if IsHandled then
             exit;
 
@@ -1627,11 +1627,18 @@
     var
         PurchHeader: Record "Purchase Header";
         PurchOrder: Page "Purchase Order";
+        IsHandled: Boolean;
+        PageEditable: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenPurchOrderForm(Rec, PageEditable, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Purchase Order No.");
         PurchHeader.SetRange("No.", "Purchase Order No.");
         PurchOrder.SetTableView(PurchHeader);
-        PurchOrder.Editable := false;
+        PurchOrder.Editable := PageEditable;
         PurchOrder.Run();
     end;
 
@@ -1640,12 +1647,19 @@
         PurchHeader: Record "Purchase Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchOrder: Page "Purchase Order";
+        IsHandled: Boolean;
+        PageEditable: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOpenSpecialPurchOrderForm(Rec, PageEditable, IsHandled);
+        if IsHandled then
+            exit;
+
         TestField("Special Order Purchase No.");
         PurchHeader.SetRange("No.", "Special Order Purchase No.");
         if not PurchHeader.IsEmpty then begin
             PurchOrder.SetTableView(PurchHeader);
-            PurchOrder.Editable := false;
+            PurchOrder.Editable := PageEditable;
             PurchOrder.Run();
         end else begin
             PurchRcptHeader.SetRange("Order No.", "Special Order Purchase No.");
@@ -1853,7 +1867,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCalculateTotals(Rec, IsHandled);
+        OnBeforeCalculateTotals(Rec, IsHandled, DocumentTotals);
         if IsHandled then
             exit;
 
@@ -2035,12 +2049,22 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeAfterGetCurrRecord(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeAfterGetCurrRecord(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var TotalSalesHeader: Record "Sales Header"; var Currency: Record Currency)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalculateTotals(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCalculateTotals(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var DocumentTotals: Codeunit "Document Totals")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPurchOrderForm(SalesOrderLine: Record "Sales Line"; var PageEditable: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenSpecialPurchOrderForm(SalesOrderLine: Record "Sales Line"; var PageEditable: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

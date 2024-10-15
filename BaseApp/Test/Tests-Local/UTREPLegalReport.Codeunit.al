@@ -110,7 +110,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountNoCap: Label 'Bank_Account__No__';
         CustomerNoCap: Label 'Customer__No__';
         DialogErr: Label 'Dialog';
-        DotNetVariableNotCreatedCap: Label 'DotNetVariableNotCreated';
+        IndexOutOfBounds: Label 'IndexOutOfBounds';
         FilterCap: Label 'Filter';
         FilterValueTxt: Label 'No.: %1, Global Dimension 1 Code: %2, Date Filter: %3';
         GLAccountNoCap: Label 'No_GLAcc';
@@ -255,7 +255,7 @@ codeunit 144036 "UT REP Legal Report"
         asserterror LibraryReportDataset.CurrentRowHasElement(CustomerNoCap);
 
         // Verify: Verify that no record is available after running report Customer Detail Trial Balance without Balance.
-        Assert.ExpectedErrorCode(DotNetVariableNotCreatedCap);
+        Assert.ExpectedErrorCode(IndexOutOfBounds);
     end;
 
     [Test]
@@ -478,7 +478,7 @@ codeunit 144036 "UT REP Legal Report"
         asserterror LibraryReportDataset.CurrentRowHasElement(VendorNoCap);
 
         // Verify: Verify that no record is available after running report Vendor Detail Trial Balance without Balance.
-        Assert.ExpectedErrorCode(DotNetVariableNotCreatedCap);
+        Assert.ExpectedErrorCode(IndexOutOfBounds);
     end;
 
     [Test]

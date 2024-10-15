@@ -1130,13 +1130,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Legal Report - NamedType DialogErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2179731365 - NamedType 1633109651" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 2179731365 - NamedType 212343020" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[DotNetVariableNotCreated]]></Val>
+      <Val><![CDATA[IndexOutOfBounds]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Legal Report - NamedType DotNetVariableNotCreatedCap)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit UT REP Legal Report - NamedType IndexOutOfBounds)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2179731365 - NamedType 3106259582" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

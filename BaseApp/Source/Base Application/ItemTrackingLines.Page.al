@@ -2055,23 +2055,10 @@
     local procedure CollectPostedOutputEntries(TrackingSpecification: Record "Tracking Specification"; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
-        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
-        BackwardFlushing: Boolean;
     begin
         // Used for collecting information about posted prod. order output from the created Item Ledger Entries.
         if TrackingSpecification."Source Type" <> DATABASE::"Prod. Order Line" then
             exit;
-
-        if (TrackingSpecification."Source Type" = DATABASE::"Prod. Order Line") and
-           (TrackingSpecification."Source Subtype" = 3)
-        then begin
-            ProdOrderRoutingLine.SetRange(Status, TrackingSpecification."Source Subtype");
-            ProdOrderRoutingLine.SetRange("Prod. Order No.", TrackingSpecification."Source ID");
-            ProdOrderRoutingLine.SetRange("Routing Reference No.", TrackingSpecification."Source Prod. Order Line");
-            if ProdOrderRoutingLine.FindLast then
-                BackwardFlushing :=
-                  ProdOrderRoutingLine."Flushing Method" = ProdOrderRoutingLine."Flushing Method"::Backward;
-        end;
 
         ItemLedgerEntry.SetCurrentKey("Order Type", "Order No.", "Order Line No.", "Entry Type");
         ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
@@ -2079,7 +2066,7 @@
         ItemLedgerEntry.SetRange("Order Line No.", TrackingSpecification."Source Prod. Order Line");
         ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
 
-        if ItemLedgerEntry.Find('-') then
+        if ItemLedgerEntry.Find('-') then begin
             repeat
                 TempTrackingSpecification := TrackingSpecification;
                 TempTrackingSpecification."Entry No." := ItemLedgerEntry."Entry No.";
@@ -2092,14 +2079,12 @@
                 TempTrackingSpecification.InitQtyToShip;
                 OnBeforeCollectTempTrackingSpecificationInsert(TempTrackingSpecification, ItemLedgerEntry, TrackingSpecification);
                 TempTrackingSpecification.Insert();
-
-                if BackwardFlushing then begin
-                    SourceQuantityArray[1] += ItemLedgerEntry.Quantity;
-                    SourceQuantityArray[2] += ItemLedgerEntry.Quantity;
-                    SourceQuantityArray[3] += ItemLedgerEntry.Quantity;
-                end;
-
             until ItemLedgerEntry.Next() = 0;
+
+            ItemLedgerEntry.CalcSums(Quantity);
+            if ItemLedgerEntry.Quantity > SourceQuantityArray[1] then
+                SourceQuantityArray[1] := ItemLedgerEntry.Quantity;
+        end;
     end;
 
     procedure ZeroLineExists() OK: Boolean

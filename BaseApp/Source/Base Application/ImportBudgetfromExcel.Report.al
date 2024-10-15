@@ -516,11 +516,17 @@ report 81 "Import Budget from Excel"
     begin
         if DimCode2 <> BusUnitDimCode then begin
             DimValue.Get(DimCode2, DimValCode2);
-            TempDimSetEntry.Init();
-            TempDimSetEntry.Validate("Dimension Code", DimCode2);
-            TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
-            TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
-            TempDimSetEntry.Insert();
+            if TempDimSetEntry.Get(TempDimSetEntry."Dimension Set ID", DimCode2) then begin
+                TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
+                TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
+                TempDimSetEntry.Modify(true);
+            end else begin
+                TempDimSetEntry.Init();
+                TempDimSetEntry.Validate("Dimension Code", DimCode2);
+                TempDimSetEntry.Validate("Dimension Value Code", DimValCode2);
+                TempDimSetEntry.Validate("Dimension Value ID", DimValue."Dimension Value ID");
+                TempDimSetEntry.Insert();
+            end;
         end;
         case DimCode2 of
             BusUnitDimCode:

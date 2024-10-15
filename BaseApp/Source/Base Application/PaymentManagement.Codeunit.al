@@ -64,7 +64,8 @@
         PaymentStatus: Record "Payment Status";
         ActionValidated: Boolean;
     begin
-        OnBeforeProcessPaymentStep(PaymentHeaderNo, PaymentStep);
+        OnBeforeProcessPaymentStep(PaymentHeaderNo, PaymentStep, PaymentLine);
+
         PaymentHeader.Get(PaymentHeaderNo);
         PaymentHeader.SetRange("No.", PaymentHeader."No.");
 
@@ -257,6 +258,7 @@
                     "Archiving Authorized" := PaymentStatus."Archiving Authorized";
                     "Currency Code" := FromPaymentLine."Currency Code";
                     "Currency Factor" := FromPaymentLine."Currency Factor";
+                    OnCopyLigBorOnBeforeInitHeader(ToBord, Process, i);
                     InitHeader;
                     Insert;
                 end else begin
@@ -278,12 +280,13 @@
                 ToPaymentLine.Posted := false;
                 ToPaymentLine."Created from No." := FromPaymentLine."No.";
                 ToPaymentLine."Dimension Set ID" := FromPaymentLine."Dimension Set ID";
+                OnCopyLigBorOnBeforeToPaymentLineInsert(ToPaymentLine, Process);
                 ToPaymentLine.Insert(true);
                 FromPaymentLine."Copied To No." := ToPaymentLine."No.";
                 FromPaymentLine."Copied To Line" := ToPaymentLine."Line No.";
                 FromPaymentLine.Modify();
                 i += 10000;
-            until FromPaymentLine.Next = 0;
+            until FromPaymentLine.Next() = 0;
             PayNum := ToBord."No.";
         end;
     end;
@@ -307,7 +310,7 @@
                     ToPaymentLine."Copied To Line" := 0;
                     ToPaymentLine.Modify();
                     FromPaymentLine.Delete(true);
-                until FromPaymentLine.Next = 0;
+                until FromPaymentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -380,8 +383,7 @@
                         InvPostingBuffer[1]."Applies-to ID" := PaymentLine."Applies-to ID";
                     InvPostingBuffer[1]."Created from No." := PaymentLine."Created from No.";
                 end;
-                Description :=
-                  StrSubstNo(StepLedger.Description, PaymentLine."Due Date", PaymentLine."Account No.", PaymentLine."Document No.");
+                Description := GetDescriptionForInvPostingBuffer();
                 InvPostingBuffer[1].Description := CopyStr(Description, 1, 50);
                 InvPostingBuffer[1]."Source Type" := PaymentLine."Account Type";
                 InvPostingBuffer[1]."Source No." := PaymentLine."Account No.";
@@ -393,9 +395,17 @@
                     PaymentLine."Entry No. Debit" := InvPostingBuffer[1]."GL Entry No."
                 else
                     PaymentLine."Entry No. Credit" := InvPostingBuffer[1]."GL Entry No.";
-            until StepLedger.Next = 0;
+            until StepLedger.Next() = 0;
             NoSeriesMgt.SaveNoSeries;
         end;
+    end;
+
+    local procedure GetDescriptionForInvPostingBuffer() Description: Text[98]
+    begin
+        Description :=
+            StrSubstNo(StepLedger.Description, PaymentLine."Due Date", PaymentLine."Account No.", PaymentLine."Document No.");
+
+        OnAfterGetDescriptionForInvPostingBuffer(StepLedger, PaymentLine, Description);
     end;
 
     [Scope('OnPrem')]
@@ -611,6 +621,8 @@
                 InvPostingBuffer[1]."Due Date" := PaymentLine."Due Date" // FR Payment due date
         end else
             InvPostingBuffer[1]."Due Date" := PaymentLine."Due Date"; // FR Payment due date
+
+        OnAfterApplication(StepLedger, InvPostingBuffer, PaymentHeader, PaymentLine);
     end;
 
     [Scope('OnPrem')]
@@ -673,6 +685,7 @@
                 GenJnlLine."Source Code" := PaymentHeader."Source Code";
                 GenJnlLine."Reason Code" := Step."Reason Code";
                 GenJnlLine."Document Date" := PaymentHeader."Document Date";
+                OnGenerEntriesOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, PaymentHeader, StepLedger);
                 GenJnlPostLine.RunWithCheck(GenJnlLine);
             end;
         end;
@@ -819,7 +832,7 @@
                         Options := PaymentClass.Code
                     else
                         Options := Options + ',' + PaymentClass.Code;
-                until PaymentClass.Next = 0;
+                until PaymentClass.Next() = 0;
             if i > 0 then
                 Choice := StrMenu(Options, 1);
             i := 1;
@@ -848,7 +861,7 @@
                         Options := Step.Name
                     else
                         Options := Options + ',' + Step.Name;
-                until Step.Next = 0;
+                until Step.Next() = 0;
                 if i > 0 then begin
                     Choice := StrMenu(Options, 1);
                     i := 1;
@@ -902,7 +915,7 @@
         if PaymentLine.FindSet then
             repeat
                 CheckDimCombAndValue(PaymentLine);
-            until PaymentLine.Next = 0;
+            until PaymentLine.Next() = 0;
     end;
 
     local procedure TypeToTableID(Type: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset"): Integer
@@ -980,7 +993,7 @@
                 ArchiveLine.TransferFields(PaymentLine);
                 ArchiveLine.Insert();
                 PaymentLine.Delete();
-            until PaymentLine.Next = 0;
+            until PaymentLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -994,7 +1007,7 @@
             SetRange("Payment Class", PaymentHeader."Payment Class");
             SetRange("Previous Status", PaymentHeader."Status No.");
             FilterGroup(0);
-            if IsEmpty then
+            if IsEmpty() then
                 exit(false);
 
             if Count = 1 then begin
@@ -1002,7 +1015,7 @@
                 exit(Confirm(Name, true));
             end;
 
-            FindSet;
+            FindSet();
         end;
         PaymentSteps.LookupMode(true);
         PaymentSteps.SetTableView(PaymentStep);
@@ -1018,7 +1031,7 @@
     [Scope('OnPrem')]
     procedure ProcessPaymentSteps(PaymentHeader: Record "Payment Header"; var PaymentStep: Record "Payment Step")
     begin
-        PaymentHeader.TestNbOfLines;
+        PaymentHeader.TestNbOfLines();
         if PickPaymentStep(PaymentHeader, PaymentStep) then
             ProcessPaymentStep(PaymentHeader."No.", PaymentStep);
     end;
@@ -1044,6 +1057,7 @@
         GenJnlLine.SetRange("Journal Template Name", '');
         GenJnlLine.SetRange("Journal Batch Name", '');
         GenJnlLine.SetRange("Document No.", PaymentHeader."No.");
+        OnExportSEPACreditTransferOnAfterGenJnlLineSetFilters(GenJnlLine, XMLPortId, PaymentHeader);
         if SEPACTExportFile.Export(GenJnlLine, XMLPortId) then begin
             PaymentHeader."File Export Completed" := true;
             PaymentHeader.Modify();
@@ -1131,6 +1145,7 @@
             "Dimension Set ID" := InvPostingBuffer[1]."Dimension Set ID";
         end;
 
+        OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(GenJnlLine, PaymentHeader);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
         GLEntry.SetRange("Document Type", GenJnlLine."Document Type");
         GLEntry.SetRange("Document No.", GenJnlLine."Document No.");
@@ -1140,7 +1155,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
+    local procedure OnAfterApplication(StepLedger: Record "Payment Step Ledger"; var InvPostingBuffer: array[2] of Record "Payment Post. Buffer" temporary; PaymentHeader: Record "Payment Header"; PaymentLine: Record "Payment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDescriptionForInvPostingBuffer(var StepLedger: Record "Payment Step Ledger"; var PaymentLine: Record "Payment Line"; var Description: Text[98])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step"; PaymentLine: Record "Payment Line")
     begin
     end;
 
@@ -1150,12 +1175,37 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCopyLigBorOnBeforeInitHeader(var ToBord: Record "Payment Header"; var Process: Record "Payment Class"; var i: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopyLigBorOnBeforeToPaymentLineInsert(var ToPaymentLine: Record "Payment Line"; var Process: Record "Payment Class")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnGenerEntriesOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; PaymentHeader: Record "Payment Header"; StepLedger: Record "Payment Step Ledger")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExportSEPACreditTransferOnAfterGenJnlLineSetFilters(var GenJnlLine: Record "Gen. Journal Line"; var XMLPortId: Integer; var PaymentHeader: Record "Payment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGenerInvPostingBufferOnBeforeUpdtBuffer(var InvPostingBuffer: array[2] of Record "Payment Post. Buffer" temporary; PaymentLine: Record "Payment Line"; StepLedger: Record "Payment Step Ledger")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostInvPostingBufferOnBeforeGenJnlPostLineRunWithCheck(var GenJnlLine: Record "Gen. Journal Line"; PaymentHeader: Record "Payment Header")
     begin
     end;
 

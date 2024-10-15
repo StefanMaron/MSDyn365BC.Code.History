@@ -2100,23 +2100,7 @@
                 if "Job Task No." <> xRec."Job Task No." then
                     Validate("Job Planning Line No.", 0);
                 if "Job Task No." = '' then begin
-                    "Job Quantity" := 0;
-                    "Job Currency Factor" := 0;
-                    "Job Currency Code" := '';
-                    "Job Unit Price" := 0;
-                    "Job Total Price" := 0;
-                    "Job Line Amount" := 0;
-                    "Job Line Discount Amount" := 0;
-                    "Job Unit Cost" := 0;
-                    "Job Total Cost" := 0;
-                    "Job Line Discount %" := 0;
-
-                    "Job Unit Price (LCY)" := 0;
-                    "Job Total Price (LCY)" := 0;
-                    "Job Line Amount (LCY)" := 0;
-                    "Job Line Disc. Amount (LCY)" := 0;
-                    "Job Unit Cost (LCY)" := 0;
-                    "Job Total Cost (LCY)" := 0;
+                    ClearJobRelatedAmounts();
                     exit;
                 end;
 
@@ -3196,7 +3180,7 @@
             Error(DocNoFilterErr);
         Clear(NoSeriesMgt);
         FirstDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
-        FirstTempDocNo := 'RENUMBERED-000000001';
+        FirstTempDocNo := GetTempRenumberDocumentNo();
         // step1 - renumber to non-existing document number
         DocNo := FirstTempDocNo;
         GenJnlLine2 := Rec;
@@ -3225,6 +3209,7 @@
         GenJnlLine3: Record "Gen. Journal Line";
         PrevDocNo: Code[20];
         FirstDocNo: Code[20];
+        TempFirstDocNo: Code[20];
         First: Boolean;
         IsHandled: Boolean;
     begin
@@ -3242,6 +3227,16 @@
             First := true;
             if FindSet then begin
                 repeat
+                    if FirstDocNo <> GetTempRenumberDocumentNo() then begin
+                        Commit();
+                        Clear(NoSeriesMgt);
+                        TempFirstDocNo := NoSeriesMgt.TryGetNextNo(GenJnlBatch."No. Series", "Posting Date");
+                        if (FirstDocNo <> TempFirstDocNo) AND (FirstDocNo <> IncStr(TempFirstDocNo)) then begin
+                            DocNo := TempFirstDocNo;
+                            FirstDocNo := DocNo;
+                            First := true;
+                        end;
+                    end;
                     if "Document No." = FirstDocNo then
                         exit;
                     if not First and (("Document No." <> PrevDocNo) or ("Bal. Account No." <> '')) and not LastGenJnlLine.EmptyLine then
@@ -3260,7 +3255,14 @@
                     LastGenJnlLine := GenJnlLine2
                 until Next = 0
             end
-        end
+        end;
+
+        OnAfterRenumberDocNoOnLines(DocNo, GenJnlLine2);
+    end;
+
+    local procedure GetTempRenumberDocumentNo(): Code[20]
+    begin
+        exit('RENUMBERED-000000001');
     end;
 
     local procedure RenumberAppliesToID(GenJnlLine2: Record "Gen. Journal Line"; OriginalAppliesToID: Code[50]; NewAppliesToID: Code[50])
@@ -3509,6 +3511,34 @@
         OnAfterGetVATPostingSetup(VATPostingSetup);
     end;
 
+    local procedure ClearJobRelatedAmounts()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeClearJobRelatedAmounts(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        "Job Quantity" := 0;
+        "Job Currency Factor" := 0;
+        "Job Currency Code" := '';
+        "Job Unit Price" := 0;
+        "Job Total Price" := 0;
+        "Job Line Amount" := 0;
+        "Job Line Discount Amount" := 0;
+        "Job Unit Cost" := 0;
+        "Job Total Cost" := 0;
+        "Job Line Discount %" := 0;
+
+        "Job Unit Price (LCY)" := 0;
+        "Job Total Price (LCY)" := 0;
+        "Job Line Amount (LCY)" := 0;
+        "Job Line Disc. Amount (LCY)" := 0;
+        "Job Unit Cost (LCY)" := 0;
+        "Job Total Cost (LCY)" := 0;
+    end;
+
     procedure ClearCustVendApplnEntry()
     var
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
@@ -3624,7 +3654,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateDim(Rec, IsHandled);
+        OnBeforeCreateDim(Rec, IsHandled, CurrFieldNo);
         if IsHandled then
             exit;
 
@@ -4599,10 +4629,11 @@
         DocGenJournalLine: Record "Gen. Journal Line";
     begin
         DocGenJournalLine.CopyFilters(GenJournalLine);
-        DocGenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
         DocGenJournalLine.SetRange("Posting Date", GenJournalLine."Posting Date");
-        if GenJnlTemplate.Get(GenJournalLine."Journal Template Name") and GenJnlTemplate."Force Doc. Balance" then
+        if GenJnlTemplate.Get(GenJournalLine."Journal Template Name") and GenJnlTemplate."Force Doc. Balance" then begin
+            DocGenJournalLine.SetRange("Document No.", GenJournalLine."Document No.");
             DocGenJournalLine.SetRange("Document Type", GenJournalLine."Document Type");
+        end;
         DocGenJournalLine.CalcSums("Balance (LCY)");
         exit(DocGenJournalLine."Balance (LCY)");
     end;
@@ -7684,6 +7715,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRenumberDocNoOnLines(var DocNo: Code[20]; var GenJnlLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
@@ -7754,7 +7790,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCreateDim(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7770,6 +7806,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckSetCurrencyCodeForBankVendLine(var GenJournalLine: Record "Gen. Journal Line"; Vendor: Record Vendor; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClearJobRelatedAmounts(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

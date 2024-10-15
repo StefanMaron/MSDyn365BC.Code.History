@@ -227,6 +227,8 @@
                     "Part of Book Value" := FAPostingTypeSetup."Part of Book Value";
             end;
         end;
+
+        OnAfterSetFAPostingType(FALedgEntry, FAPostingTypeSetup);
     end;
 
     local procedure GetExchangeRate(ExchangeRate: Decimal): Decimal
@@ -686,6 +688,11 @@
                 "Debit Amount" := 0;
                 "Credit Amount" := -Amount;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFAPostingType(var FALedgEntry: Record "FA Ledger Entry"; FAPostingTypeSetup: Record "FA Posting Type Setup")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

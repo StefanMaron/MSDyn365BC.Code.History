@@ -107,7 +107,7 @@
 
         OnAfterCreateTempLineCheckReservation(
             LocationCode, ItemNo, VariantCode, UnitofMeasureCode, QtyPerUnitofMeasure, TotalQtytoPick, TotalQtytoPickBase,
-            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, LastWhseItemTrkgLineNo, TempWhseItemTrackingLine);
+            SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSubLineNo, LastWhseItemTrkgLineNo, TempWhseItemTrackingLine, WhseShptLine);
 
         RemQtyToPick := TotalQtytoPick;
         RemQtyToPickBase := TotalQtytoPickBase;
@@ -370,8 +370,6 @@
     var
         WhseSource2: Option;
         ToBinCode: Code[20];
-        DefaultBin: Boolean;
-        CrossDockBin: Boolean;
         IsHandled: Boolean;
     begin
         // Basic warehousing
@@ -396,6 +394,26 @@
                 WhseSource::Assembly:
                     ToBinCode := AssemblyLine."Bin Code";
             end;
+
+        RunFindBWPickBinLoop(
+            LocationCode, ItemNo, VariantCode,
+            ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure,
+            TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine, WhseItemTrackingSetup);
+    end;
+
+    local procedure RunFindBWPickBinLoop(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20];
+        UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal;
+        var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    var
+        DefaultBin: Boolean;
+        CrossDockBin: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunFindBWPickBinLoop(LocationCode, ItemNo, VariantCode, ToBinCode, UnitofMeasureCode, QtyPerUnitofMeasure,
+            TotalQtyToPick, TotalQtytoPickBase, TempWhseItemTrackingLine, WhseItemTrackingSetup, IsHandled);
+        if IsHandled then
+            exit;
 
         for CrossDockBin := true downto false do
             for DefaultBin := true downto false do
@@ -1278,6 +1296,7 @@
         WhseActivLine: Record "Warehouse Activity Line";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         LineNo: Integer;
+        IsHandled: Boolean;
     begin
         TempWhseActivLine.SetRange("Breakbulk No.", 0);
         TempWhseActivLine.Find('-');
@@ -1300,10 +1319,13 @@
         then
             WhseActivLine."Source Document" := WhseMgt.GetWhseActivSourceDocument(WhseActivLine."Source Type", WhseActivLine."Source Subtype");
 
-        if Location."Bin Mandatory" and (not WhseItemTrackingSetup."Serial No. Required") then
-            CreateWhseDocTakeLine(WhseActivLine, LineNo)
-        else
-            TempWhseActivLine.Delete();
+        IsHandled := false;
+        OnBeforeCreateWhseDocTakeLine(WhseActivLine, Location, IsHandled);
+        if not IsHandled then
+            if Location."Bin Mandatory" and (not WhseItemTrackingSetup."Serial No. Required") then
+                CreateWhseDocTakeLine(WhseActivLine, LineNo)
+            else
+                TempWhseActivLine.Delete();
 
         if WhseActivLine."Qty. (Base)" <> 0 then begin
             WhseActivLine."Line No." := LineNo;
@@ -1350,7 +1372,7 @@
         TempWhseActivLine.SetRange("Zone Code");
         TempWhseActivLine.SetRange("Breakbulk No.", 0);
         TempWhseActivLine.SetTrackingFilterFromWhseActivityLine(TempWhseActivLine2);
-        OnCreateWhseDocTakeLineOnAfterSetFilters(TempWhseActivLine, TempWhseActivLine2);
+        OnCreateWhseDocTakeLineOnAfterSetFilters(TempWhseActivLine, TempWhseActivLine2, WhseActivLine);
         if TempWhseActivLine.Find('-') then begin
             repeat
                 WhseActivLine.Quantity := WhseActivLine.Quantity + TempWhseActivLine.Quantity;
@@ -3377,7 +3399,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateTempLineCheckReservation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var LastWhseItemTrkgLineNo: Integer; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    local procedure OnAfterCreateTempLineCheckReservation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; var TotalQtytoPick: Decimal; var TotalQtytoPickBase: Decimal; SourceType: Integer; SourceSubType: Option; SourceNo: Code[20]; SourceLineNo: Integer; SourceSubLineNo: Integer; var LastWhseItemTrkgLineNo: Integer; var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; var WhseShptLine: Record "Warehouse Shipment Line")
     begin
     end;
 
@@ -3499,6 +3521,13 @@
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeInsertTempItemTrkgLine(var EntrySummary: Record "Entry Summary"; RemQtyToPickBase: Decimal; var TotalAvailQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunFindBWPickBinLoop(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; ToBinCode: Code[20];
+        UnitofMeasureCode: Code[10]; QtyPerUnitofMeasure: Decimal; var TotalQtyToPick: Decimal; var TotalQtyToPickBase: Decimal;
+        var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary; WhseItemTrackingSetup: Record "Item Tracking Setup"; var IsHandled: Boolean)
     begin
     end;
 
@@ -3638,7 +3667,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateWhseDocTakeLineOnAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line")
+    local procedure OnCreateWhseDocTakeLineOnAfterSetFilters(var TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary; WarehouseActivityLine: Record "Warehouse Activity Line"; var WhseActivLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -3679,6 +3708,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateWhseActivHeaderOnAfterWhseActivHeaderInsert(var WhseActivHeader: Record "Warehouse Activity Header"; var TempWhseActivLine: Record "Warehouse Activity Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateWhseDocTakeLine(var WhseActivLine: Record "Warehouse Activity Line"; Location: Record Location; var IsHandled: Boolean)
     begin
     end;
 }
