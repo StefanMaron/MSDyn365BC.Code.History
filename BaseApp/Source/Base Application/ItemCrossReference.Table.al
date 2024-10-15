@@ -173,8 +173,8 @@ table 5717 "Item Cross Reference"
     begin
         if not MultipleCrossReferencesExist(ItemCrossReference) then
             if ItemVend.Get(ItemCrossReference."Cross-Reference Type No.", ItemCrossReference."Item No.", ItemCrossReference."Variant Code") then begin
-                ItemVend.Validate("Vendor Item No.", NewCrossRefNo);
-                ItemVend.Modify;
+                ItemVend."Vendor Item No." := NewCrossRefNo;
+                ItemVend.Modify();
             end;
     end;
 
