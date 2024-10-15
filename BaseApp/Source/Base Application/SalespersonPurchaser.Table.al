@@ -381,17 +381,23 @@ table 13 "Salesperson/Purchaser"
     var
         TeamSalesperson: Record "Team Salesperson";
         TodoTask: Record "To-do";
+        Opportunity: Record Opportunity;
     begin
-        TodoTask.Reset;
+        TodoTask.Reset();
         TodoTask.SetCurrentKey("Salesperson Code", Closed);
         TodoTask.SetRange("Salesperson Code", Code);
         TodoTask.SetRange(Closed, false);
-        if not TodoTask.IsEmpty then
+        if not TodoTask.IsEmpty() then
             Error(CannotDeleteBecauseActiveTasksErr, Code);
 
-        TeamSalesperson.Reset;
+        Opportunity.SetRange("Salesperson Code", Code);
+        Opportunity.SetRange(Closed, false);
+        if not Opportunity.IsEmpty() then
+            Error(CannotDeleteBecauseActiveOpportunitiesErr, Code);
+
+        TeamSalesperson.Reset();
         TeamSalesperson.SetRange("Salesperson Code", Code);
-        TeamSalesperson.DeleteAll;
+        TeamSalesperson.DeleteAll();
         DimMgt.DeleteDefaultDim(DATABASE::"Salesperson/Purchaser", Code);
     end;
 
@@ -422,6 +428,7 @@ table 13 "Salesperson/Purchaser"
         CannotDeleteBecauseActiveTasksErr: Label 'You cannot delete the salesperson/purchaser with code %1 because it has open tasks.', Comment = '%1 = Salesperson/Purchaser code.';
         BlockedSalesPersonPurchErr: Label 'You cannot %1 this document because %2 %3 is blocked due to privacy.', Comment = '%1 = post or create, %2 = Salesperson / Purchaser, %3 = salesperson / purchaser code.';
         PrivacyBlockedGenericTxt: Label 'Privacy Blocked must not be true for %1 %2.', Comment = '%1 = Salesperson / Purchaser, %2 = salesperson / purchaser code.';
+        CannotDeleteBecauseActiveOpportunitiesErr: Label 'You cannot delete the salesperson/purchaser with code %1 because it has open opportunities.', Comment = '%1 = Salesperson/Purchaser code.';
 
     procedure CreateInteraction()
     var

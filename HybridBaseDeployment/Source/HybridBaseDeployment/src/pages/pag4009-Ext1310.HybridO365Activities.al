@@ -4,14 +4,21 @@ pageextension 4009 "Hybrid O365 Activities" extends "O365 Activities"
     {
         addlast(Control54)
         {
-            field("Replication Success Rate"; "Replication Success Rate")
+            field("Replication Success Rate"; ReplicationSuccessRate)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Table Migration Success Rate';
                 DrillDownPageId = "Intelligent Cloud Management";
                 StyleExpr = CueStyle;
+                AutoFormatType = 11;
+                AutoFormatExpression = '<Precision,0:0><Standard Format,9>%';
                 ToolTip = 'Specifies the percentage rate for the number of tables successfully migrated.';
                 Visible = IsIntelligentCloudEnabled;
+
+                trigger OnDrillDown()
+                begin
+                    Page.Run(Page::"Intelligent Cloud Management");
+                end;
             }
         }
     }
@@ -19,21 +26,17 @@ pageextension 4009 "Hybrid O365 Activities" extends "O365 Activities"
     trigger OnOpenPage()
     var
         PermissionManager: Codeunit "Permission Manager";
-    begin
-        IsIntelligentCloudEnabled := PermissionManager.IsIntelligentCloud();
-    end;
-
-    trigger OnAfterGetRecord()
-    var
         HybridCueSetupManagement: Codeunit "Hybrid Cue Setup Management";
     begin
-        if FieldActive("Replication Success Rate") then begin
-            "Replication Success Rate" := HybridCueSetupManagement.GetReplicationSuccessRateCueValue();
-            CueStyle := Format(HybridCueSetupManagement.GetReplicationSuccessRateCueStyle("Replication Success Rate"));
+        IsIntelligentCloudEnabled := PermissionManager.IsIntelligentCloud();
+        if IsIntelligentCloudEnabled then begin
+            ReplicationSuccessRate := HybridCueSetupManagement.GetReplicationSuccessRateCueValue();
+            CueStyle := Format(HybridCueSetupManagement.GetReplicationSuccessRateCueStyle(ReplicationSuccessRate));
         end;
     end;
 
     var
+        ReplicationSuccessRate: Decimal;
         CueStyle: Text;
         IsIntelligentCloudEnabled: Boolean;
 }

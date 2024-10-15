@@ -109,6 +109,12 @@
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the credit memo was posted.';
                 }
+                field("Your Reference"; "Your Reference")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the customer''s reference. The contents will be printed on sales documents.';
+                }
                 field("Document Date"; "Document Date")
                 {
                     ApplicationArea = Basic, Suite;

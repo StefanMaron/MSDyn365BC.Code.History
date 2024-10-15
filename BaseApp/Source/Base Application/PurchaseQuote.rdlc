@@ -722,7 +722,7 @@
                                     <Group Name="Table1_Group1">
                                       <GroupExpressions>
                                         <GroupExpression>=Fields!PurchHeadNo.Value</GroupExpression>
-                                        <GroupExpression>=Fields!No_PurchLine.Value</GroupExpression>
+                                        <GroupExpression>=Fields!LineNo_PurchLine.Value</GroupExpression>
                                         <GroupExpression>=Fields!OutpuNo.Value</GroupExpression>
                                       </GroupExpressions>
                                     </Group>
@@ -3332,6 +3332,9 @@ End Function</Code>
         </Field>
         <Field Name="VendorItemNo_PurchLine">
           <DataField>VendorItemNo_PurchLine</DataField>
+        </Field>
+        <Field Name="LineNo_PurchLine">
+          <DataField>LineNo_PurchLine</DataField>
         </Field>
         <Field Name="ExpectedDate1Caption">
           <DataField>ExpectedDate1Caption</DataField>

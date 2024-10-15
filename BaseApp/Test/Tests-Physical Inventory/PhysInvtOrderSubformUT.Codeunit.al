@@ -10,6 +10,7 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
 
     var
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -370,6 +371,181 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         VerifyItemPhysicalInventory(Item."No.", LotNos[2], WorkDate + 2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CopyingShelfNoFromPhysInvtLineToRecordingLine()
+    var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        MakePhysInvtRecording: Report "Make Phys. Invt. Recording";
+    begin
+        // [FEATURE] [Phys. Inventory Recording] [Shelf] [UT]
+        // [SCENARIO 335399] "Shelf No." is copied from Phys. Inventory Order Line to Phys. Inventory Recording Line.
+        Initialize;
+
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo);
+        PhysInvtOrderLine."Shelf No." := LibraryUtility.GenerateGUID;
+        PhysInvtOrderLine.Modify;
+
+        MakePhysInvtRecording.InsertRecordingHeader(PhysInvtOrderHeader);
+        MakePhysInvtRecording.InsertRecordingLine(PhysInvtOrderLine);
+
+        PhysInvtRecordLine.SetRange("Item No.", PhysInvtOrderLine."Item No.");
+        PhysInvtRecordLine.FindFirst;
+        PhysInvtRecordLine.TestField("Shelf No.", PhysInvtOrderLine."Shelf No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PopulatingUseItemTrackingAndShelfNoWhenCreatePhysInvtRecordingLine()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        SKU: Record "Stockkeeping Unit";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+    begin
+        // [FEATURE] [Phys. Inventory Recording] [Shelf]
+        // [SCENARIO 335399] "Shelf No." and "Use Item Tracking" are filled from SKU when you manually add phys. inventory recording line.
+        Initialize;
+
+        // [GIVEN] Lot-tracked item "I" with Shelf No. = "A".
+        CreateItemWithLotExpirationTracking(Item);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+
+        // [GIVEN] Create SKU for item "I" on location "L". Set Shelf No. = "B" on the SKU.
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, Item."No.", '');
+        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        SKU.Modify(true);
+
+        // [GIVEN] Create phys. inventory order.
+        // [GIVEN] Create phys. inventory recording from the order. Set location code = "L".
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
+        PhysInvtRecordHeader.Validate("Location Code", Location.Code);
+        PhysInvtRecordHeader.Modify(true);
+
+        // [WHEN] Create phys. inventory recording line with item "I".
+        LibraryInventory.CreatePhysInvtRecordLine(
+          PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", LibraryRandom.RandInt(10));
+
+        // [THEN] "Shelf No." = "B" on the phys. inventory recording line.
+        // [THEN] "Use Item Tracking" = TRUE on the line.
+        PhysInvtRecordLine.TestField("Shelf No.", SKU."Shelf No.");
+        PhysInvtRecordLine.TestField("Use Item Tracking", true);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingLocationOrVariantOnPhysInvtOrderLineLooksForProperSKU()
+    var
+        Item: Record Item;
+        SKU: array[2] of Record "Stockkeeping Unit";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+    begin
+        // [FEATURE] [Shelf] [SKU] [UT]
+        // [SCENARIO 335399] Shelf No. from a proper stockkeeping unit is picked on phys. inventory order line when you change item no., location code and variant code.
+        Initialize;
+
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+
+        CreateSKU(SKU[1], Item."No.");
+        CreateSKU(SKU[2], Item."No.");
+
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        PhysInvtOrderLine.TestField("Shelf No.", Item."Shelf No.");
+
+        PhysInvtOrderLine.Validate("Location Code", SKU[1]."Location Code");
+        PhysInvtOrderLine.TestField("Shelf No.", Item."Shelf No.");
+
+        PhysInvtOrderLine.Validate("Variant Code", SKU[1]."Variant Code");
+        PhysInvtOrderLine.TestField("Shelf No.", SKU[1]."Shelf No.");
+
+        PhysInvtOrderLine.Validate("Variant Code", SKU[2]."Variant Code");
+        PhysInvtOrderLine.TestField("Shelf No.", Item."Shelf No.");
+
+        PhysInvtOrderLine.Validate("Location Code", SKU[2]."Location Code");
+        PhysInvtOrderLine.TestField("Shelf No.", SKU[2]."Shelf No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangingLocationOrVariantOnPhysInvtRecordingLineLooksForProperSKU()
+    var
+        Item: Record Item;
+        SKU: array[2] of Record "Stockkeeping Unit";
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+    begin
+        // [FEATURE] [Phys. Inventory Recording] [Shelf] [SKU] [UT]
+        // [SCENARIO 335399] Shelf No. from a proper stockkeeping unit is picked on phys. inventory recording line when you change item no., location code and variant code.
+        Initialize;
+
+        CreateItemWithLotExpirationTracking(Item);
+        Item.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        Item.Modify(true);
+
+        CreateSKU(SKU[1], Item."No.");
+        CreateSKU(SKU[2], Item."No.");
+
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", Item."No.");
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
+        LibraryInventory.CreatePhysInvtRecordLine(
+          PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", LibraryRandom.RandInt(10));
+        PhysInvtRecordLine.TestField("Shelf No.", Item."Shelf No.");
+
+        PhysInvtRecordLine.Validate("Location Code", SKU[1]."Location Code");
+        PhysInvtRecordLine.TestField("Shelf No.", Item."Shelf No.");
+
+        PhysInvtRecordLine.Validate("Variant Code", SKU[1]."Variant Code");
+        PhysInvtRecordLine.TestField("Shelf No.", SKU[1]."Shelf No.");
+
+        PhysInvtRecordLine.Validate("Variant Code", SKU[2]."Variant Code");
+        PhysInvtRecordLine.TestField("Shelf No.", Item."Shelf No.");
+
+        PhysInvtRecordLine.Validate("Location Code", SKU[2]."Location Code");
+        PhysInvtRecordLine.TestField("Shelf No.", SKU[2]."Shelf No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure UseItemTrackingEditableOnPhysInvtRecordingLine()
+    var
+        PhysInvtOrderHeader: Record "Phys. Invt. Order Header";
+        PhysInvtOrderLine: Record "Phys. Invt. Order Line";
+        PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
+        PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+        PhysInventoryRecording: TestPage "Phys. Inventory Recording";
+    begin
+        // [FEATURE] [Phys. Inventory Recording]
+        // [SCENARIO 335399] "Use Item Tracking" field is editable on phys. inventory recording line.
+        Initialize;
+
+        LibraryInventory.CreatePhysInvtOrderHeader(PhysInvtOrderHeader);
+        LibraryInventory.CreatePhysInvtOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.", LibraryInventory.CreateItemNo);
+        LibraryInventory.CreatePhysInvtRecordHeader(PhysInvtRecordHeader, PhysInvtOrderHeader."No.");
+        LibraryInventory.CreatePhysInvtRecordLine(
+          PhysInvtRecordLine, PhysInvtOrderLine, PhysInvtRecordHeader."Recording No.", LibraryRandom.RandInt(10));
+
+        PhysInventoryRecording.OpenEdit;
+        PhysInventoryRecording.FILTER.SetFilter("Order No.", PhysInvtRecordHeader."Order No.");
+        Assert.IsTrue(PhysInventoryRecording.Lines."Use Item Tracking".Editable, '');
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;
@@ -453,6 +629,18 @@ codeunit 137462 "Phys. Invt. Order Subform UT"
         ItemTrackingCode.Modify(true);
 
         LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+    end;
+
+    local procedure CreateSKU(var SKU: Record "Stockkeeping Unit"; ItemNo: Code[20])
+    var
+        Location: Record Location;
+        ItemVariant: Record "Item Variant";
+    begin
+        LibraryWarehouse.CreateLocation(Location);
+        LibraryInventory.CreateItemVariant(ItemVariant, ItemNo);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(SKU, Location.Code, ItemNo, ItemVariant.Code);
+        SKU.Validate("Shelf No.", LibraryUtility.GenerateGUID);
+        SKU.Modify(true);
     end;
 
     local procedure CreateDimension(var DimensionSetEntry: Record "Dimension Set Entry")

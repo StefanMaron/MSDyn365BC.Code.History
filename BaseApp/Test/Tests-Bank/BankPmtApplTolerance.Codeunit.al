@@ -15,8 +15,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
-        Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        Assert: Codeunit Assert;
         IsInitialized: Boolean;
 
     [Test]
@@ -1378,10 +1378,11 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 210865] "Applied Payment Entry" includes "Payment Tolerance Amount" confirmed when Posting Date of Bank Recon. Journal Line after "Pmt. Discount Date" of Customer Ledger Entry
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         TolerancePct := LibraryRandom.RandInt(10);
-        Initialize(true, false, TolerancePct);
+        SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo);
@@ -1423,10 +1424,11 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 210865] "Applied Payment Entry" includes "Payment Tolerance Amount" confirmed when Posting Date of Bank Recon. Journal Line after "Pmt. Discount Date" of Vendor Ledger Entry
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         TolerancePct := LibraryRandom.RandInt(10);
-        Initialize(true, false, TolerancePct);
+        SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01, Amount = 100
         PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo);
@@ -1467,10 +1469,11 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Sales] [Payment Tolerance]
         // [SCENARIO 213099] "Statement No." of "Bank Acc. Reconciliation" uses as "Document No." in "Payment Tolerance Warning" window when apply Bank Acc. Reconciliation Line to Sales Invoice with Payment Discount
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         TolerancePct := LibraryRandom.RandInt(10);
-        Initialize(true, false, TolerancePct);
+        SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Sales Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01
         PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo);
@@ -1502,10 +1505,11 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     begin
         // [FEATURE] [Purchase] [Payment Tolerance]
         // [SCENARIO 213099] "Statement No." of "Bank Acc. Reconciliation" uses as "Document No." in "Payment Tolerance Warning" window when apply Bank Acc. Reconciliation Line to Purchase Invoice with Payment Discount
+        Initialize();
 
         // [GIVEN] Payment Tolerance = 5%
         TolerancePct := LibraryRandom.RandInt(10);
-        Initialize(true, false, TolerancePct);
+        SetPmtDiscSetup(true, false, TolerancePct);
 
         // [GIVEN] Purchase Invoice with Posting Date = 01.01, "Pmt. Discount Date" = 10.01
         PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo);
@@ -1525,18 +1529,12 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         // Verification done in PmtTolWarningAssertDocModalPageHandler
     end;
 
-    local procedure Initialize(PaymentToleranceWarning: Boolean; PmtDiscToleranceWarning: Boolean; TolerancePct: Decimal)
+    local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
-        PmtDiscGracePeriod: DateFormula;
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Bank Pmt. Appl. Tolerance");
         LibraryVariableStorage.Clear;
-        LibraryPmtDiscSetup.SetPmtToleranceWarning(PaymentToleranceWarning);
-        LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(PmtDiscToleranceWarning);
-        Evaluate(PmtDiscGracePeriod, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
-        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(PmtDiscGracePeriod);
-        RunChangePaymentTolerance(true, TolerancePct, 0);
 
         if IsInitialized then
             exit;
@@ -1551,13 +1549,25 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Bank Pmt. Appl. Tolerance");
     end;
 
+    local procedure SetPmtDiscSetup(PaymentToleranceWarning: Boolean; PmtDiscToleranceWarning: Boolean; TolerancePct: Decimal)
+    var
+        PmtDiscGracePeriod: DateFormula;
+    begin
+        LibraryPmtDiscSetup.SetPmtToleranceWarning(PaymentToleranceWarning);
+        LibraryPmtDiscSetup.SetPmtDiscToleranceWarning(PmtDiscToleranceWarning);
+        Evaluate(PmtDiscGracePeriod, '<' + Format(LibraryRandom.RandInt(10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(PmtDiscGracePeriod);
+        RunChangePaymentTolerance(true, TolerancePct, 0);
+    end;
+
     local procedure SalesPmtToleranceScenario(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ToleranceAmount: Decimal; ManualApplication: Boolean; ConfirmPmtDisc: Boolean; Sign: Integer)
     var
         PaymentApplicationProposal: Record "Payment Application Proposal";
         TolerancePct: Decimal;
     begin
+        Initialize();
         TolerancePct := LibraryRandom.RandInt(10);
-        Initialize(true, false, TolerancePct);
+        SetPmtDiscSetup(true, false, TolerancePct);
         PostSalesInvoice(CustLedgerEntry, LibrarySales.CreateCustomerNo);
         ToleranceAmount := Round(CustLedgerEntry."Remaining Amount" * TolerancePct / 100);
         CreateBankReconciliationLine(
@@ -1573,7 +1583,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     var
         PaymentApplicationProposal: Record "Payment Application Proposal";
     begin
-        Initialize(false, true, 0);
+        Initialize();
+        SetPmtDiscSetup(false, true, 0);
         PostSalesInvoice(CustLedgerEntry, CreateCustWithPmtDisc);
         CreateBankReconciliationLine(
           BankAccReconciliationLine, CustLedgerEntry."Pmt. Disc. Tolerance Date",
@@ -1589,8 +1600,9 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         PaymentApplicationProposal: Record "Payment Application Proposal";
         TolerancePct: Decimal;
     begin
+        Initialize();
         TolerancePct := LibraryRandom.RandInt(10);
-        Initialize(true, false, TolerancePct);
+        SetPmtDiscSetup(true, false, TolerancePct);
         PostPurchInvoice(VendLedgerEntry, LibraryPurchase.CreateVendorNo);
         ToleranceAmount := Round(VendLedgerEntry."Remaining Amount" * TolerancePct / 100);
         CreateBankReconciliationLine(
@@ -1606,7 +1618,8 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     var
         PaymentApplicationProposal: Record "Payment Application Proposal";
     begin
-        Initialize(false, true, 0);
+        Initialize();
+        SetPmtDiscSetup(false, true, 0);
         PostPurchInvoice(VendLedgerEntry, CreateVendWithPmtDisc);
         CreateBankReconciliationLine(
           BankAccReconciliationLine, VendLedgerEntry."Pmt. Disc. Tolerance Date",

@@ -14,6 +14,7 @@ codeunit 134281 "VAT Return Period UT"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
+        LibraryVATReport: Codeunit "Library - VAT Report";
         IsInitialized: Boolean;
         CreateVATReturnQst: Label 'VAT Return %1 has been created. Do you want to open the VAT return card?', Comment = '1 - VAT Return No.';
         NoVATReturnQst: Label 'There is no VAT return for this period. Do you want to create a new one?';
@@ -1560,18 +1561,6 @@ codeunit 134281 "VAT Return Period UT"
         Commit;
     end;
 
-    local procedure CreateVATReportConfiguration(): Code[10]
-    var
-        VATReportsConfiguration: Record "VAT Reports Configuration";
-    begin
-        with VATReportsConfiguration do begin
-            "VAT Report Type" := "VAT Report Type"::"VAT Return";
-            "VAT Report Version" := LibraryUtility.GenerateGUID;
-            Insert;
-            exit("VAT Report Version");
-        end;
-    end;
-
     local procedure MockOpenVATReturnPeriod(var VATReturnPeriod: Record "VAT Return Period"; NewDueDate: Date)
     var
         DummyVATReturnPeriod: Record "VAT Return Period";
@@ -1678,7 +1667,7 @@ codeunit 134281 "VAT Return Period UT"
             "VAT Return No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
             "VAT Return Period No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
             Evaluate("Period Reminder Calculation", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(10, 20)));
-            "Report Version" := CreateVATReportConfiguration;
+            "Report Version" := LibraryVATReport.CreateVATReportConfigurationNo();
             "Update Period Job Frequency" := "Update Period Job Frequency"::Never;
             "Manual Receive Period CU ID" := 0;
             "Receive Submitted Return CU ID" := 0;

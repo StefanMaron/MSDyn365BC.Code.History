@@ -3960,39 +3960,6 @@
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.70556cm</Height>
-                                    <TablixCells>
-                                      <TablixCell>
-                                        <CellContents>
-                                          <Textbox Name="Textbox44">
-                                            <CanGrow>true</CanGrow>
-                                            <KeepTogether>true</KeepTogether>
-                                            <Paragraphs>
-                                              <Paragraph>
-                                                <TextRuns>
-                                                  <TextRun>
-                                                    <Value />
-                                                    <Style>
-                                                      <FontStyle>Normal</FontStyle>
-                                                      <FontFamily>Segoe UI</FontFamily>
-                                                      <FontSize>8pt</FontSize>
-                                                    </Style>
-                                                  </TextRun>
-                                                </TextRuns>
-                                                <Style />
-                                              </Paragraph>
-                                            </Paragraphs>
-                                            <rd:DefaultName>Textbox44</rd:DefaultName>
-                                            <Style>
-                                              <VerticalAlign>Top</VerticalAlign>
-                                              <PaddingRight>5pt</PaddingRight>
-                                            </Style>
-                                          </Textbox>
-                                        </CellContents>
-                                      </TablixCell>
-                                    </TablixCells>
-                                  </TablixRow>
-                                  <TablixRow>
                                     <Height>0.35278cm</Height>
                                     <TablixCells>
                                       <TablixCell>
@@ -4033,9 +4000,6 @@
                               <TablixRowHierarchy>
                                 <TablixMembers>
                                   <TablixMember>
-                                    <KeepWithGroup>After</KeepWithGroup>
-                                  </TablixMember>
-                                  <TablixMember>
                                     <Group Name="table4_Details_Group">
                                       <GroupExpressions>
                                         <GroupExpression>=Fields!LineNo_IssuedReminderLine.Value</GroupExpression>
@@ -4049,9 +4013,9 @@
                                 </TablixMembers>
                               </TablixRowHierarchy>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>10.50605cm</Top>
+                              <Top>4.5053cm</Top>
                               <Left>0.00287cm</Left>
-                              <Height>1.05834cm</Height>
+                              <Height>0.35278cm</Height>
                               <Width>7.06092in</Width>
                               <ZIndex>3</ZIndex>
                               <Style>
@@ -5960,8 +5924,8 @@ End Function
         <Field Name="ReminderCaption">
           <DataField>ReminderCaption</DataField>
         </Field>
-        <Field Name="CompanyVATRegistrationNo_Lbl">
-          <DataField>CompanyVATRegistrationNo_Lbl</DataField>
+        <Field Name="CompanyVATRegistrationNoCaption">
+          <DataField>CompanyVATRegistrationNoCaption</DataField>
         </Field>
         <Field Name="DimText">
           <DataField>DimText</DataField>

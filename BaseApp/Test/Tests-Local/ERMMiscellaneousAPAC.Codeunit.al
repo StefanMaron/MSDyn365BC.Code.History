@@ -152,7 +152,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [GIVEN] Create and post Sales Invoice. Create General Journal line. Apply Invoice to Payment on Cash Receipt Journal with Payment Tolerance and Post it.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
         UpdatePaymentToleranceOnGeneralLedgerSetup(true, true, true);  // True for AdjustForPaymentDisc, PmtDiscToleranceWarning and PmtToleranceWarning.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
@@ -204,7 +204,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
         // [GIVEN] Create and post Purchase Invoice. Create General Journal line. Apply Invoice to Payment on Payment Journal with Payment Tolerance and Post it.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
         UpdatePaymentToleranceOnGeneralLedgerSetup(true, true, true);  // True for AdjustForPaymentDisc, PmtDiscToleranceWarning and PmtToleranceWarning.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
@@ -437,7 +437,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [FEATURE] [Sales] [GST] [Deferrals]
         // [SCENARIO 221286] When Sales Invoice with Item and Deferral Code is posted, a GST Entry is created.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Sales Invoice "SI" with Item in the Sales Line.
         CreateItemWithUnitPrice(Item);
@@ -445,13 +445,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, Item."No.", WorkDate);
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
-        UpdateSalesLineWithDeferral(SalesHeader);
+        UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] "SI" is posted.
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] GST Sales Entries created for the posted "SI".
-        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::Invoice);
+        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::Invoice, 1);
     end;
 
     [Test]
@@ -466,7 +466,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [FEATURE] [Sales] [GST] [Deferrals]
         // [SCENARIO 221286] When Sales Invoice with GL Account and Deferral Code is posted, a GST Entry is created.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Sales Invoice "SI" with GLAccount in the Sales Line.
         CreateSalesDocWithLine(
@@ -474,13 +474,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate);
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
-        UpdateSalesLineWithDeferral(SalesHeader);
+        UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] "SI" is posted.
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] GST Sales Entries created for the posted "SI".
-        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::Invoice);
+        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::Invoice, 1);
     end;
 
     [Test]
@@ -496,7 +496,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [FEATURE] [Sales] [GST] [Deferrals]
         // [SCENARIO 221286] When Sales Credit Memo with Item and Deferral Code is posted, a GST Entry is created.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Sales Credit Memo "SC" with Item in the Sales Line.
         CreateItemWithUnitPrice(Item);
@@ -505,13 +505,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           SalesLine.Type::Item, Item."No.", WorkDate);
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
-        UpdateSalesLineWithDeferral(SalesHeader);
+        UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] "SI" is posted.
         PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [THEN] GST Sales Entries created for the posted "SC".
-        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::"Credit Memo");
+        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::"Credit Memo", 1);
     end;
 
     [Test]
@@ -527,7 +527,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [FEATURE] [Purchase] [GST] [Deferrals]
         // [SCENARIO 221286] When Purchase Invoice with Item and Deferral Code is posted, a GST Purchase Entry is created.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Purchase Invoice "PI" with Item in the Purchase Line.
         CreateItemWithUnitPrice(Item);
@@ -536,13 +536,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           PurchaseLine.Type::Item, Item."No.", WorkDate);
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Purchase Line.
-        UpdatePurchaseLineWithDeferral(PurchaseHeader);
+        UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] "PI" is posted.
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] GST Purchase Entries created for the posted "PI".
-        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::Invoice);
+        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::Invoice, 1);
     end;
 
     [Test]
@@ -557,7 +557,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [FEATURE] [Purchase] [GST] [Deferrals]
         // [SCENARIO 221286] When Purchase Invoice with GL Account and Deferral Code is posted, a GST Purchase Entry is created.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Purchase Invoice "PI" with Item in the Purchase Line.
         CreatePurchDocWithLine(
@@ -565,13 +565,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate);
 
         // [GIVEN] Deferral Template "DF" is applied for "PI" Purchase Line.
-        UpdatePurchaseLineWithDeferral(PurchaseHeader);
+        UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] "PI" is posted.
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] GST Purchase Entries created for the posted "PI".
-        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::Invoice);
+        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::Invoice, 1);
     end;
 
     [Test]
@@ -587,7 +587,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [FEATURE] [Purchase] [GST] [Deferrals]
         // [SCENARIO 221286] When Purchase Credit Memo with Item and Deferral Code is posted, a GST Purchase Entry is created.
         Initialize;
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Purchase Credit Memo "PI" with Item in the Purchase Line.
         CreateItemWithUnitPrice(Item);
@@ -596,13 +596,13 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           PurchaseLine.Type::Item, Item."No.", WorkDate);
 
         // [GIVEN] Deferral Template "DF" is applied for "PI" Purchase Line.
-        UpdatePurchaseLineWithDeferral(PurchaseHeader);
+        UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] "PI" is posted.
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] GST Purchase Entries created for the posted "PI".
-        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::"Credit Memo");
+        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::"Credit Memo", 1);
     end;
 
     [Test]
@@ -772,7 +772,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [SCENARIO 321551] Vendor Exchange rate in Purchase Order is used for Additional-Currency Amount Calculation.
         Initialize;
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
-        UpdateGeneralLedgerSetupGSTReport;
+        UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Currency.
         CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
@@ -802,6 +802,76 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         GLEntry.TestField(
           "Additional-Currency Amount",
           PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost" * PurchaseHeader."Vendor Exchange Rate (ACY)");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithTwoLinesAndDeferralCreatesSingleGSTSalesEntry()
+    var
+        Item: Record Item;
+        GSTSalesEntry: Record "GST Sales Entry";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [GST] [Deferrals]
+        // [SCENARIO xxxxxx] When Sales Order with two lines and deferral setup, a single GST Sales Entry is created.
+        Initialize();
+        UpdateGeneralLedgerSetupGSTReport();
+
+        // [GIVEN] Sales Order "SO" with two item lines
+        CreateItemWithUnitPrice(Item);
+        CreateSalesDocWithLine(SalesHeader, SalesLine,
+          SalesHeader."Document Type"::Order, SalesLine.Type::Item, Item."No.", WorkDate);
+
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        SalesLine.Modify(true);
+
+        // [GIVEN] Deferral Template "DF" with 3 "No. Of Periods" is applied for second "SO" line.
+        UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
+
+        // [WHEN] "SO" is posted.
+        PostedDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] 2 GST Sales Entries created for the posted "SO".
+        VerifyGSTSalesEntryExists(PostedDocNo, GSTSalesEntry."Document Type"::Invoice, 2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchaseOrderWithTwoLinesAndDeferralCreatesSingleGSTSalesEntry()
+    var
+        Item: Record Item;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GSTPurchaseEntry: Record "GST Purchase Entry";
+        PostedDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [GST] [Deferrals]
+        // [SCENARIO xxxxxx] When Purchase Order with two lines and deferral setup, a single GST Sales Entry is created.
+        Initialize();
+        UpdateGeneralLedgerSetupGSTReport();
+
+        // [GIVEN] Purchase Order "PO" with two item lines
+        CreateItemWithUnitPrice(Item);
+        CreatePurchDocWithLine(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
+          PurchaseLine.Type::Item, Item."No.", WorkDate);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Deferral Template "DF" with "No. Of Periods" is applied for second "SO" Line.
+        UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
+
+        // [WHEN] "PO" is posted.
+        PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] 2 GST Purchase Entries created for the posted "PO".
+        VerifyGSTPurchaseEntryExists(PostedDocNo, GSTPurchaseEntry."Document Type"::Invoice, 2);
     end;
 
     local procedure Initialize()
@@ -1040,8 +1110,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
-        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(1000, 2));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Modify(true);
     end;
 
@@ -1050,8 +1120,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchLineType, No, 2);
-        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchLineType, No, 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
         PurchaseLine.Modify(true);
     end;
 
@@ -1061,16 +1131,16 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLineType, No);
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
-        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
+        ServiceLine.Validate(Quantity, LibraryRandom.RandIntInRange(10, 100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
         ServiceLine.Modify(true);
     end;
 
     local procedure CreateItemWithUnitPrice(var Item: Record Item)
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item,
-          LibraryRandom.RandDec(1000, 2),
-          LibraryRandom.RandDec(1000, 2));
+          LibraryRandom.RandDecInRange(100, 1000, 2),
+          LibraryRandom.RandDecInRange(100, 1000, 2));
     end;
 
     local procedure CreateGLAccountNo(): Code[20]
@@ -1200,7 +1270,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure UpdateSalesLineWithDeferral(SalesHeader: Record "Sales Header")
+    local procedure UpdateSalesLineWithDeferral(SalesHeader: Record "Sales Header"; NoOfPeriods: Integer)
     var
         SalesLine: Record "Sales Line";
         DeferralTemplate: Record "Deferral Template";
@@ -1208,16 +1278,16 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         DeferralTemplateCode :=
           LibraryERM.CreateDeferralTemplateCode(
-            DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Posting Date", 3);
+            DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Posting Date", NoOfPeriods);
 
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
-        SalesLine.FindFirst;
+        SalesLine.FindLast();
         SalesLine.Validate("Deferral Code", DeferralTemplateCode);
         SalesLine.Modify(true);
     end;
 
-    local procedure UpdatePurchaseLineWithDeferral(PurchaseHeader: Record "Purchase Header")
+    local procedure UpdatePurchaseLineWithDeferral(PurchaseHeader: Record "Purchase Header"; NoOfPeriods: Integer)
     var
         PurchaseLine: Record "Purchase Line";
         DeferralTemplate: Record "Deferral Template";
@@ -1225,31 +1295,31 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         DeferralTemplateCode :=
           LibraryERM.CreateDeferralTemplateCode(
-            DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Posting Date", 3);
+            DeferralTemplate."Calc. Method"::"Straight-Line", DeferralTemplate."Start Date"::"Posting Date", NoOfPeriods);
 
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-        PurchaseLine.FindFirst;
+        PurchaseLine.FindLast();
         PurchaseLine.Validate("Deferral Code", DeferralTemplateCode);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure VerifyGSTSalesEntryExists(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyGSTSalesEntryExists(DocumentNo: Code[20]; DocumentType: Option; ExpectedNoOfEntries: Integer)
     var
-        DummyGSTSalesEntry: Record "GST Sales Entry";
+        GSTSalesEntry: Record "GST Sales Entry";
     begin
-        DummyGSTSalesEntry.SetRange("Document Type", DocumentType);
-        DummyGSTSalesEntry.SetRange("Document No.", DocumentNo);
-        Assert.RecordIsNotEmpty(DummyGSTSalesEntry);
+        GSTSalesEntry.SetRange("Document Type", DocumentType);
+        GSTSalesEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(GSTSalesEntry, ExpectedNoOfEntries);
     end;
 
-    local procedure VerifyGSTPurchaseEntryExists(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyGSTPurchaseEntryExists(DocumentNo: Code[20]; DocumentType: Option; ExpectedNoOfEntries: Integer)
     var
-        DummyGSTPurchaseEntry: Record "GST Purchase Entry";
+        GSTPurchaseEntry: Record "GST Purchase Entry";
     begin
-        DummyGSTPurchaseEntry.SetRange("Document Type", DocumentType);
-        DummyGSTPurchaseEntry.SetRange("Document No.", DocumentNo);
-        Assert.RecordIsNotEmpty(DummyGSTPurchaseEntry);
+        GSTPurchaseEntry.SetRange("Document Type", DocumentType);
+        GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
+        Assert.RecordCount(GSTPurchaseEntry, ExpectedNoOfEntries);
     end;
 
     local procedure VerifyAmountOnGLEntry(DocumentNo: Code[20]; SourceCode: Code[10]; GLAccountNo: Code[20]; Amount: Decimal)

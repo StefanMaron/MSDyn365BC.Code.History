@@ -56,7 +56,8 @@ table 210 "Job Journal Line"
 
             trigger OnValidate()
             begin
-                TestField("Posting Date");
+                if not IsTemporary then
+                    TestField("Posting Date");
                 Validate("Document Date", "Posting Date");
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;

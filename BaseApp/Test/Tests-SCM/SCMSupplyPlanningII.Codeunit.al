@@ -2687,6 +2687,57 @@ codeunit 137071 "SCM Supply Planning -II"
         RequisitionLine.TestField(Quantity, Qty);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure OrderReorderingPolicyRespectedWhenSupplyCreatedForIntermdTransfer()
+    var
+        Item: Record Item;
+        TransferSKU: Record "Stockkeeping Unit";
+        PurchaseSKU: Record "Stockkeeping Unit";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        RequisitionLine: Record "Requisition Line";
+        NoOfSalesOrders: Integer;
+        i: Integer;
+    begin
+        // [FEATURE] [Stockkeeping Unit] [Transfer] [Order-to-Order Binding] [Purchase]
+        // [SCENARIO 333528] Reordering policy "Order" is respected when a planned supply is planned to fulfill an intermediate requisition line for transfer.
+        Initialize;
+        NoOfSalesOrders := LibraryRandom.RandIntInRange(2, 4);
+
+        SelectTransferRoute(LocationRed.Code, LocationBlue.Code);
+
+        // [GIVEN] Item with two stockeeping units -
+        // [GIVEN] "SKU-T" on location "Blue" is replenished with transfer from location "Red".
+        // [GIVEN] "SKU-P" on location "Red" is replenished with purchase.
+        // [GIVEN] Both SKUs are set up for "Order" reordering policy.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(PurchaseSKU, LocationRed.Code, Item."No.", '');
+        PurchaseSKU.Validate("Replenishment System", PurchaseSKU."Replenishment System"::Purchase);
+        PurchaseSKU.Validate("Reordering Policy", PurchaseSKU."Reordering Policy"::Order);
+        PurchaseSKU.Modify(true);
+
+        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(TransferSKU, LocationBlue.Code, Item."No.", '');
+        TransferSKU.Validate("Replenishment System", TransferSKU."Replenishment System"::Transfer);
+        TransferSKU.Validate("Transfer-from Code", LocationRed.Code);
+        TransferSKU.Validate("Reordering Policy", TransferSKU."Reordering Policy"::Order);
+        TransferSKU.Modify(true);
+
+        // [GIVEN] Create 3 sales order on location "Blue".
+        for i := 1 to NoOfSalesOrders do
+            CreateSalesOrderWithLocation(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandInt(10), LocationBlue.Code);
+
+        // [WHEN] Calculate regenerative plan.
+        Item.SetRecFilter;
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate, WorkDate);
+
+        // [THEN] 3 planning lines are created on location "Red".
+        // [THEN] Each planning line on "Red" is a supply for transfer from "Red" to "Blue" to cover the sales demand.
+        RequisitionLine.SetRange("Location Code", LocationRed.Code);
+        SelectRequisitionLine(RequisitionLine, Item."No.");
+        Assert.RecordCount(RequisitionLine, NoOfSalesOrders);
+    end;
+
     local procedure Initialize()
     var
         RequisitionLine: Record "Requisition Line";

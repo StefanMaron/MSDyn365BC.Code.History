@@ -87,9 +87,11 @@ codeunit 96 "Purch.-Quote to Order"
             PurchOrderHeader.Status := PurchOrderHeader.Status::Open;
             PurchOrderHeader."No." := '';
             PurchOrderHeader."Quote No." := "No.";
-            PurchOrderHeader.InitRecord;
 
-            PurchOrderLine.LockTable;
+            OnCreatePurchHeaderOnBeforeInitRecord(PurchOrderHeader, PurchHeader);
+            PurchOrderHeader.InitRecord();
+
+            PurchOrderLine.LockTable();
             PurchOrderHeader.Insert(true);
 
             PostCodeCheck.MoveAllAddressID(
@@ -212,6 +214,11 @@ codeunit 96 "Purch.-Quote to Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTransferQuoteLineToOrderLineLoop(var PurchQuoteLine: Record "Purchase Line"; var PurchQuoteHeader: Record "Purchase Header"; var PurchOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchHeaderOnBeforeInitRecord(var PurchOrderHeader: Record "Purchase Header"; var PurchHeader: Record "Purchase Header")
     begin
     end;
 }

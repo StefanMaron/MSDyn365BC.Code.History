@@ -10,7 +10,7 @@ codeunit 416 "Release Service Document"
     end;
 
     var
-        Text001: Label 'There is nothing to release for %1 %2.', Comment = 'Example: There is nothing to release for Order 12345.';
+        NothingToReleaseErr: Label 'There is nothing to release for %1 %2.', Comment = 'Example: There is nothing to release for Order 12345.';
         ServiceHeader: Record "Service Header";
         InvtSetup: Record "Inventory Setup";
         WhseServiceRelease: Codeunit "Whse.-Service Release";
@@ -20,6 +20,7 @@ codeunit 416 "Release Service Document"
         ServLine: Record "Service Line";
         TempVATAmountLine0: Record "VAT Amount Line" temporary;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
+        IsHandled: Boolean;
     begin
         with ServiceHeader do begin
             if "Release Status" = "Release Status"::"Released to Ship" then
@@ -29,12 +30,18 @@ codeunit 416 "Release Service Document"
 
             if "Document Type" = "Document Type"::Quote then
                 TestField("Bill-to Customer No.");
-            ServLine.SetRange("Document Type", "Document Type");
-            ServLine.SetRange("Document No.", "No.");
-            ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
-            ServLine.SetFilter(Quantity, '<>0');
-            if ServLine.IsEmpty then
-                Error(Text001, "Document Type", "No.");
+
+            IsHandled := FALSE;
+            OnBeforeNothingToReleaseErr(ServiceHeader, IsHandled);
+            if not IsHandled then begin
+                ServLine.SetRange("Document Type", "Document Type");
+                ServLine.SetRange("Document No.", "No.");
+                ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
+                ServLine.SetFilter(Quantity, '<>0');
+                if ServLine.IsEmpty then
+                    Error(NothingToReleaseErr, "Document Type", "No.");
+            end;
+
             InvtSetup.Get;
             if InvtSetup."Location Mandatory" then begin
                 ServLine.SetCurrentKey(Type);
@@ -115,6 +122,11 @@ codeunit 416 "Release Service Document"
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterCheck(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNothingToReleaseErr(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 

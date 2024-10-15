@@ -20,6 +20,8 @@ report 6651 "Delete Invd Sales Ret. Orders"
                 PostSalesDelete: Codeunit "PostSales-Delete";
                 PostCodeCheck: Codeunit "Post Code Check";
             begin
+                OnSalesHeaderOnBeforeOnAfterGetRecord("Sales Header");
+
                 Window.Update(1, "No.");
 
                 AllLinesDeleted := true;
@@ -144,6 +146,11 @@ report 6651 "Delete Invd Sales Ret. Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteSalesOrderLine(var SalesOrderLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSalesHeaderOnBeforeOnAfterGetRecord(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

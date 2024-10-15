@@ -749,6 +749,8 @@ table 7311 "Warehouse Journal Line"
             SetUpAdjustmentBin;
         end else
             "Entry Type" := "Entry Type"::Movement;
+
+        OnAfterSetupNewLine(Rec, LastWhseJnlLine, WhseJnlTemplate);
     end;
 
     procedure SetUpAdjustmentBin()
@@ -897,13 +899,16 @@ table 7311 "Warehouse Journal Line"
                       WhseJnlLine.Cubage, WhseJnlLine.Weight, Cubage, Weight, false, false);
                 end;
             end else begin
-                BinContent.Get(
-                  "Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code");
-                if BinContent."Block Movement" in [
-                                                   BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]
-                then
-                    if not StockProposal then
-                        BinContent.FieldError("Block Movement");
+                IsHandled := false;
+                OnCheckBinOnBeforeCheckOutboundBin(Rec, IsHandled);
+                if not IsHandled then begin
+                    BinContent.Get("Location Code", BinCode, "Item No.", "Variant Code", "Unit of Measure Code");
+                    if BinContent."Block Movement" in [
+                                                    BinContent."Block Movement"::Outbound, BinContent."Block Movement"::All]
+                    then
+                        if not StockProposal then
+                            BinContent.FieldError("Block Movement");
+                end;
             end;
             BinContent.SetProposalMode(false);
         end;
@@ -1257,6 +1262,26 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromItemLedgEntry(var WhseJnlLine: Record "Warehouse Journal Line"; ItemLedgEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseEntry(var WarehouseJournalLine: Record "Warehouse Journal Line"; WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetupNewLine(var WarehouseJournalLine: Record "Warehouse Journal Line"; var LastWhseJnlLine: Record "Warehouse Journal Line"; WarehouseJournalTemplate: Record "Warehouse Journal Template");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBin(WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -1278,6 +1303,11 @@ table 7311 "Warehouse Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOpenItemTrackingLines(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckBinOnBeforeCheckOutboundBin(var WarehouseJournalLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

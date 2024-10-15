@@ -1,4 +1,4 @@
-codeunit 365 "Format Address"
+﻿codeunit 365 "Format Address"
 {
 
     trigger OnRun()
@@ -396,7 +396,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchHeaderBuyFrom(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchHeaderBuyFrom(AddrArray, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             FormatAddr(
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
@@ -408,7 +415,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchHeaderPayTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchHeaderPayTo(AddrArray, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             FormatAddr(
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
@@ -420,7 +434,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchHeaderShipTo(var AddrArray: array[8] of Text[100]; var PurchHeader: Record "Purchase Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchHeaderShipTo(AddrArray, PurchHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -432,7 +453,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesShptSellTo(var AddrArray: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesShptSellTo(AddrArray, SalesShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesShptHeader do begin
             FormatAddr(
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
@@ -444,7 +472,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesShptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var SalesShptHeader: Record "Sales Shipment Header"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesShptBillTo(AddrArray, ShipToAddr, SalesShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesShptHeader do begin
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
@@ -480,7 +515,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesInvSellTo(var AddrArray: array[8] of Text[100]; var SalesInvHeader: Record "Sales Invoice Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesInvSellTo(AddrArray, SalesInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesInvHeader do begin
             FormatAddr(
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
@@ -534,7 +576,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesCrMemoSellTo(var AddrArray: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesCrMemoSellTo(AddrArray, SalesCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesCrMemoHeader do begin
             FormatAddr(
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
@@ -547,10 +596,11 @@ codeunit 365 "Format Address"
 
     procedure SalesCrMemoBillTo(var AddrArray: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
-        Handled: Boolean;
+        IsHandled: Boolean;
     begin
-        OnBeforeSalesCrMemoBillTo(AddrArray, SalesCrMemoHeader, Handled);
-        if Handled then
+        IsHandled := false;
+        OnBeforeSalesCrMemoBillTo(AddrArray, SalesCrMemoHeader, IsHandled);
+        if IsHandled then
             exit;
 
         with SalesCrMemoHeader do begin
@@ -564,7 +614,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesCrMemoShipTo(AddrArray, CustAddr, SalesCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with SalesCrMemoHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -582,7 +639,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesRcptSellTo(var AddrArray: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesRcptSellTo(AddrArray, ReturnRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnRcptHeader do begin
             FormatAddr(
               AddrArray, "Sell-to Customer Name", "Sell-to Customer Name 2", "Sell-to Contact", "Sell-to Address", "Sell-to Address 2",
@@ -594,7 +658,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesRcptBillTo(var AddrArray: array[8] of Text[100]; ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"): Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesRcptBillTo(AddrArray, ShipToAddr, ReturnRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnRcptHeader do begin
             FormatAddr(
               AddrArray, "Bill-to Name", "Bill-to Name 2", "Bill-to Contact", "Bill-to Address", "Bill-to Address 2",
@@ -612,7 +683,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure SalesRcptShipTo(var AddrArray: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesRcptShipTo(AddrArray, ReturnRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnRcptHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -624,7 +702,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchRcptBuyFrom(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchRcptBuyFrom(AddrArray, PurchRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchRcptHeader do begin
             FormatAddr(
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
@@ -636,7 +721,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchRcptPayTo(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchRcptPayTo(AddrArray, PurchRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchRcptHeader do begin
             FormatAddr(
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
@@ -648,7 +740,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchRcptShipTo(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchRcptShipTo(AddrArray, PurchRcptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchRcptHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -660,7 +759,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchInvBuyFrom(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchInvBuyFrom(AddrArray, PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchInvHeader do begin
             FormatAddr(
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
@@ -672,7 +778,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchInvPayTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchInvPayTo(AddrArray, PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchInvHeader do begin
             FormatAddr(
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
@@ -684,7 +797,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchInvShipTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchInvShipTo(AddrArray, PurchInvHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchInvHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -696,7 +816,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchCrMemoBuyFrom(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchCrMemoBuyFrom(AddrArray, PurchCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchCrMemoHeader do begin
             FormatAddr(
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
@@ -708,7 +835,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchCrMemoPayTo(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchCrMemoPayTo(AddrArray, PurchCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchCrMemoHeader do begin
             FormatAddr(
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
@@ -720,7 +854,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchCrMemoShipTo(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchCrMemoShipTo(AddrArray, PurchCrMemoHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with PurchCrMemoHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -732,7 +873,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchShptBuyFrom(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchShptBuyFrom(AddrArray, ReturnShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnShptHeader do begin
             FormatAddr(
               AddrArray, "Buy-from Vendor Name", "Buy-from Vendor Name 2", "Buy-from Contact", "Buy-from Address", "Buy-from Address 2",
@@ -744,7 +892,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchShptPayTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchShptPayTo(AddrArray, ReturnShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnShptHeader do begin
             FormatAddr(
               AddrArray, "Pay-to Name", "Pay-to Name 2", "Pay-to Contact", "Pay-to Address", "Pay-to Address 2",
@@ -756,7 +911,14 @@ codeunit 365 "Format Address"
     end;
 
     procedure PurchShptShipTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePurchShptShipTo(AddrArray, ReturnShptHeader, IsHandled);
+        if IsHandled then
+            exit;
+
         with ReturnShptHeader do begin
             FormatAddr(
               AddrArray, "Ship-to Name", "Ship-to Name 2", "Ship-to Contact", "Ship-to Address", "Ship-to Address 2",
@@ -1485,6 +1647,76 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderBuyFrom(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderPayTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchRcptBuyFrom(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchRcptPayTo(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchRcptShipTo(var AddrArray: array[8] of Text[100]; var PurchRcptHeader: Record "Purch. Rcpt. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvBuyFrom(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvPayTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchInvShipTo(var AddrArray: array[8] of Text[100]; var PurchInvHeader: Record "Purch. Inv. Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchCrMemoBuyFrom(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchCrMemoPayTo(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchCrMemoShipTo(var AddrArray: array[8] of Text[100]; var PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchShptBuyFrom(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchShptPayTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchShptShipTo(var AddrArray: array[8] of Text[100]; var ReturnShptHeader: Record "Return Shipment Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderBillTo(var AddrArray: array[8] of Text[100]; var SalesHeader: Record "Sales Header"; var Handled: Boolean)
     begin
     end;
@@ -1495,7 +1727,7 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSalesHeaderShipTo(var AddrArray: array[8] of Text[100]; CustAddr: array[8] of Text[100]; var SalesHeader: Record "Sales Header"; var Handled: Boolean; var Result: Boolean)
+    local procedure OnBeforeSalesHeaderShipTo(var AddrArray: array[8] of Text[100]; var CustAddr: array[8] of Text[100]; var SalesHeader: Record "Sales Header"; var Handled: Boolean; var Result: Boolean)
     begin
     end;
 
@@ -1515,12 +1747,57 @@ codeunit 365 "Format Address"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesCrMemoSellTo(var AddrArray: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesCrMemoShipTo(var AddrArray: array[8] of Text[100]; var CustAddr: array[8] of Text[100]; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesShptShipTo(var AddrArray: array[8] of Text[100]; var SalesShipmentHeader: Record "Sales Shipment Header"; var Handled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; ServiceContractHeader: Record "Service Contract Header")
+    local procedure OnBeforeSalesShptBillTo(var AddrArray: array[8] of Text[100]; var ShipToAddr: array[8] of Text[100]; var SalesShipmentHeader: Record "Sales Shipment Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesShptSellTo(var AddrArray: array[8] of Text[100]; var SalesShipmentHeader: Record "Sales Shipment Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesRcptSellTo(var AddrArray: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesRcptShipTo(var AddrArray: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesRcptBillTo(var AddrArray: array[8] of Text[100]; var ShipToAddr: array[8] of Text[100]; var ReturnRcptHeader: Record "Return Receipt Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesInvSellTo(var AddrArray: array[8] of Text[100]; var SalesInvoiceHeader: Record "Sales Invoice Header"; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePurchHeaderShipTo(var AddrArray: array[8] of Text[100]; var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeServContractShipTo(var AddrArray: array[8] of Text[100]; var ServiceContractHeader: Record "Service Contract Header")
     begin
     end;
 

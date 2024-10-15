@@ -63,18 +63,6 @@ codeunit 144001 "Tax Document Report Caption"
     end;
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure T021_DefaultTaxInvoiceThresholdAmountIs1000()
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-    begin
-        GeneralLedgerSetup.DeleteAll;
-        GeneralLedgerSetup.Init;
-        GeneralLedgerSetup.TestField("Tax Invoice Renaming Threshold", 1000.0);
-    end;
-
-    [Test]
     [HandlerFunctions('SalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure T100_CaptionSalesInvoiceIfAmountIs1000()

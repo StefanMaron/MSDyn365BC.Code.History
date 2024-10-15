@@ -7,11 +7,9 @@ codeunit 2503 "Extension Operation Impl"
 {
     Access = Internal;
     SingleInstance = false;
-    Permissions = Tabledata "NAV App" = r;
 
     var
         DotNetALNavAppOperationInvoker: DotNet ALNavAppOperationInvoker;
-        DotNetALPackageDeploymentSchedule: DotNet ALPackageDeploymentSchedule;
         DotNetNavAppALInstaller: DotNet NavAppALInstaller;
         OperationInvokerHasBeenCreated: Boolean;
         InstallerHasBeenCreated: Boolean;
@@ -32,9 +30,7 @@ codeunit 2503 "Extension Operation Impl"
         end;
     end;
 
-    procedure DeployExtension(AppId: GUID; lcid: Integer; IsUIEnabled: Boolean)
-    var
-        NavApp: Record "NAV App";
+    procedure DeployExtension(AppId: Guid; lcid: Integer; IsUIEnabled: Boolean)
     begin
         CheckPermissions();
         InitializeOperationInvoker();
@@ -45,6 +41,8 @@ codeunit 2503 "Extension Operation Impl"
 
 
     procedure UploadExtension(PackageStream: InStream; lcid: Integer)
+    var
+        DotNetALPackageDeploymentSchedule: DotNet ALPackageDeploymentSchedule;
     begin
         CheckPermissions();
         DotNetALPackageDeploymentSchedule := DotNetALPackageDeploymentSchedule.Immediate;
@@ -273,7 +271,6 @@ codeunit 2503 "Extension Operation Impl"
     procedure GetCurrentlyInstalledVersionPackageIdByAppId(AppId: Guid): Guid
     var
         NavAppInstalledApp: Record "NAV App Installed App";
-        ExtensionInstallationImpl: Codeunit "Extension Installation Impl";
         NullGuid: Guid;
     begin
         if NavAppInstalledApp.Get(AppId) then

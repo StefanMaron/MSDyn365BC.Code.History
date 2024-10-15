@@ -239,8 +239,9 @@ codeunit 414 "Release Sales Document"
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
     begin
         SalesLine.SetSalesHeader(SalesHeader);
-        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine0);
-        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine1);
+        // 0 = General, 1 = Invoicing, 2 = Shipping
+        SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, TempVATAmountLine0, false);
+        SalesLine.CalcVATAmountLines(1, SalesHeader, SalesLine, TempVATAmountLine1, false);
         LinesWereModified :=
           SalesLine.UpdateVATOnLines(0, SalesHeader, SalesLine, TempVATAmountLine0) or
           SalesLine.UpdateVATOnLines(1, SalesHeader, SalesLine, TempVATAmountLine1);

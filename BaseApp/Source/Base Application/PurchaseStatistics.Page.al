@@ -274,6 +274,8 @@ page 161 "Purchase Statistics"
               CurrExchRate.ExchangeAmtFCYToLCY(
                 UseDate, "Currency Code", TotalPurchLineLCY.Amount, "Currency Factor");
         end;
+
+        OnAfterUpdateHeaderInfo();
     end;
 
     local procedure GetVATSpecification()
@@ -405,6 +407,11 @@ page 161 "Purchase Statistics"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateTotals(var PurchHeader: Record "Purchase Header"; var TotalPurchLine: Record "Purchase Line"; var TotalPurchLineLCY: Record "Purchase Line"; var TempVATAmountLine: Record "VAT Amount Line" temporary; var TotalAmt1: Decimal; var TotalAmt2: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateHeaderInfo()
     begin
     end;
 

@@ -524,13 +524,17 @@ page 189 "Incoming Document"
 
                 trigger OnAction()
                 var
-                    CameraOptions: DotNet CameraOptions;
+                    IncomingDocumentAttachment: Record "Incoming Document Attachment";
+                    InStr: InStream;
                 begin
                     if not HasCamera then
                         exit;
-                    CameraOptions := CameraOptions.CameraOptions;
-                    CameraOptions.Quality := 100; // 100%
-                    CameraProvider.RequestPictureAsync(CameraOptions);
+
+                    Camera.SetQuality(100); // 100%
+                    Camera.RunModal();
+                    Camera.GetPicture(InStr);
+                    AddAttachmentFromStream(IncomingDocumentAttachment, 'Incoming Document', '', InStr);
+                    Clear(Camera);
                 end;
             }
             action(TextToAccountMapping)
@@ -558,7 +562,7 @@ page 189 "Incoming Document"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Release the incoming document to indicate that it has been approved by the incoming document approver. Note that this is not related to approval workflows.';
+                    ToolTip = 'Release the incoming document to indicate that it has been approved by the incoming document approver.';
 
                     trigger OnAction()
                     var
@@ -577,7 +581,7 @@ page 189 "Incoming Document"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Reopen the incoming document record after it has been approved by the incoming document approver. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reopen the incoming document record after it has been approved by the incoming document approver.';
 
                     trigger OnAction()
                     var
@@ -596,7 +600,7 @@ page 189 "Incoming Document"
                     PromotedCategory = Category4;
                     PromotedIsBig = true;
                     PromotedOnly = true;
-                    ToolTip = 'Reject to approve the incoming document. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reject to approve the incoming document.';
 
                     trigger OnAction()
                     var
@@ -676,7 +680,7 @@ page 189 "Incoming Document"
                     Promoted = true;
                     PromotedCategory = Category8;
                     PromotedIsBig = true;
-                    ToolTip = 'Reject to approve the incoming document. Note that this is not related to approval workflows.';
+                    ToolTip = 'Reject to approve the incoming document.';
                     Visible = OpenApprovalEntriesExistForCurrUser;
 
                     trigger OnAction()
@@ -1040,10 +1044,7 @@ page 189 "Incoming Document"
 
     trigger OnOpenPage()
     begin
-        HasCamera := CameraProvider.IsAvailable;
-        if HasCamera then
-            CameraProvider := CameraProvider.Create;
-
+        HasCamera := Camera.IsAvailable();
         UpdateOCRSetupVisibility;
     end;
 
@@ -1051,9 +1052,8 @@ page 189 "Incoming Document"
         IncomingDocumentsSetup: Record "Incoming Documents Setup";
         AutomaticProcessingQst: Label 'The Data Exchange Type field is filled on at least one of the selected Incoming Documents.\\Are you sure you want to create documents manually?', Comment = '%1 is Data Exchange Type';
         ClientTypeManagement: Codeunit "Client Type Management";
-        [RunOnClient]
-        [WithEvents]
-        CameraProvider: DotNet CameraProvider;
+        Camera: Page Camera;
+        [InDataSet]
         HasCamera: Boolean;
         URL: Text;
         AttachmentFileName: Text;
@@ -1147,11 +1147,6 @@ page 189 "Incoming Document"
     begin
         OCRServiceIsEnabled := OCRIsEnabled;
         ShowOCRSetup := not OCRServiceIsEnabled;
-    end;
-
-    trigger CameraProvider::PictureAvailable(PictureName: Text; PictureFilePath: Text)
-    begin
-        AddAttachmentFromServerFile(PictureName, PictureFilePath);
     end;
 }
 

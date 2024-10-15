@@ -71,7 +71,7 @@ codeunit 378 "Transfer Extended Text"
                 SalesLine."Document Type"::"Credit Memo":
                     ExtTextHeader.SetRange("Sales Credit Memo", true);
             end;
-            OnSalesCheckIfAnyExtTextAutoText(ExtTextHeader, SalesHeader, SalesLine, Unconditionally);
+            OnSalesCheckIfAnyExtTextAutoText(ExtTextHeader, SalesHeader, SalesLine, Unconditionally, MakeUpdateRequired);
             exit(ReadLines(ExtTextHeader, SalesHeader."Document Date", SalesHeader."Language Code"));
         end;
     end;
@@ -102,7 +102,7 @@ codeunit 378 "Transfer Extended Text"
             ExtTextHeader.SetRange("Table Name", ReminderLine.Type);
             ExtTextHeader.SetRange("No.", ReminderLine."No.");
             ExtTextHeader.SetRange(Reminder, true);
-            OnReminderCheckIfAnyExtTextAutoText(ExtTextHeader, ReminderHeader, ReminderLine, Unconditionally);
+            OnReminderCheckIfAnyExtTextAutoText(ExtTextHeader, ReminderHeader, ReminderLine, Unconditionally, MakeUpdateRequired);
             exit(ReadLines(ExtTextHeader, ReminderHeader."Document Date", ReminderHeader."Language Code"));
         end;
     end;
@@ -133,7 +133,7 @@ codeunit 378 "Transfer Extended Text"
             ExtTextHeader.SetRange("Table Name", FinChrgMemoLine.Type);
             ExtTextHeader.SetRange("No.", FinChrgMemoLine."No.");
             ExtTextHeader.SetRange("Finance Charge Memo", true);
-            OnFinChrgMemoCheckIfAnyExtTextAutoText(ExtTextHeader, FinChrgMemoHeader, FinChrgMemoLine, Unconditionally);
+            OnFinChrgMemoCheckIfAnyExtTextAutoText(ExtTextHeader, FinChrgMemoHeader, FinChrgMemoLine, Unconditionally, MakeUpdateRequired);
             exit(ReadLines(ExtTextHeader, FinChrgMemoHeader."Document Date", FinChrgMemoHeader."Language Code"));
         end;
     end;
@@ -188,7 +188,7 @@ codeunit 378 "Transfer Extended Text"
                 PurchLine."Document Type"::"Credit Memo":
                     ExtTextHeader.SetRange("Purchase Credit Memo", true);
             end;
-            OnPurchCheckIfAnyExtTextAutoText(ExtTextHeader, PurchHeader, PurchLine, Unconditionally);
+            OnPurchCheckIfAnyExtTextAutoText(ExtTextHeader, PurchHeader, PurchLine, Unconditionally, MakeUpdateRequired);
             exit(ReadLines(ExtTextHeader, PurchHeader."Document Date", PurchHeader."Language Code"));
         end;
     end;
@@ -517,6 +517,8 @@ codeunit 378 "Transfer Extended Text"
                 Result := true;
             end;
         until ExtTextHeader.Next = 0;
+
+        OnAfterReadLines(TempExtTextLine, ExtTextHeader, LanguageCode);
     end;
 
     procedure ServCheckIfAnyExtText(var ServiceLine: Record "Service Line"; Unconditionally: Boolean): Boolean
@@ -602,7 +604,7 @@ codeunit 378 "Transfer Extended Text"
                     ExtTextHeader.SetRange("Service Credit Memo", true);
             end;
             ServHeader.Get(ServiceLine."Document Type", ServiceLine."Document No.");
-            OnServCheckIfAnyExtTextAutoText(ExtTextHeader, ServHeader, ServiceLine, Unconditionally);
+            OnServCheckIfAnyExtTextAutoText(ExtTextHeader, ServHeader, ServiceLine, Unconditionally, MakeUpdateRequired);
             exit(ReadLines(ExtTextHeader, ServHeader."Order Date", ServHeader."Language Code"));
         end;
     end;
@@ -678,6 +680,11 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterReadLines(var TempExtendedTextLine: Record "Extended Text Line" temporary; var ExtendedTextHeader: Record "Extended Text Header"; LanguageCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeReadLines(var ExtendedTextHeader: Record "Extended Text Header"; DocDate: Date; LanguageCode: Code[10]; var IsHandled: Boolean; var Result: Boolean)
     begin
     end;
@@ -713,7 +720,7 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFinChrgMemoCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Unconditionally: Boolean)
+    local procedure OnFinChrgMemoCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
@@ -728,22 +735,22 @@ codeunit 378 "Transfer Extended Text"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPurchCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Unconditionally: Boolean)
+    local procedure OnPurchCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReminderCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; Unconditionally: Boolean)
+    local procedure OnReminderCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var ReminderHeader: Record "Reminder Header"; var ReminderLine: Record "Reminder Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSalesCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Unconditionally: Boolean)
+    local procedure OnSalesCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnServCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Unconditionally: Boolean)
+    local procedure OnServCheckIfAnyExtTextAutoText(var ExtendedTextHeader: Record "Extended Text Header"; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Unconditionally: Boolean; var MakeUpdateRequired: Boolean)
     begin
     end;
 

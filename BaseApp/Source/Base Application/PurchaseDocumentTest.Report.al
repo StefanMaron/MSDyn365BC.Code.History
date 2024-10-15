@@ -423,7 +423,7 @@ report 402 "Purchase Document - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if Number = 1 then begin
-                            if not DimSetEntry1.FindFirst then
+                            if not DimSetEntry1.FindSet then
                                 CurrReport.Break;
                         end else
                             if not Continue then
@@ -443,7 +443,7 @@ report 402 "Purchase Document - Test"
                                 Continue := true;
                                 exit;
                             end;
-                        until (DimSetEntry1.Next = 0);
+                        until DimSetEntry1.Next = 0;
                     end;
 
                     trigger OnPreDataItem()
@@ -692,7 +692,7 @@ report 402 "Purchase Document - Test"
                             trigger OnAfterGetRecord()
                             begin
                                 if Number = 1 then begin
-                                    if not DimSetEntry2.FindFirst then
+                                    if not DimSetEntry2.FindSet then
                                         CurrReport.Break;
                                 end else
                                     if not Continue then
@@ -712,7 +712,7 @@ report 402 "Purchase Document - Test"
                                         Continue := true;
                                         exit;
                                     end;
-                                until (DimSetEntry2.Next = 0);
+                                until DimSetEntry2.Next = 0;
                             end;
 
                             trigger OnPostDataItem()
@@ -768,8 +768,8 @@ report 402 "Purchase Document - Test"
                                    ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT")
                                 then
                                     TempPurchLine."Line Amount" := 0;
-                                DimSetEntry2.SetRange("Dimension Set ID", "Purchase Line"."Dimension Set ID");
-                                DimMgt.GetDimensionSet(TempDimSetEntry, "Purchase Line"."Dimension Set ID");
+                                DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
+                                DimMgt.GetDimensionSet(TempDimSetEntry, "Dimension Set ID");
 
                                 if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"]
                                 then begin
@@ -906,12 +906,12 @@ report 402 "Purchase Document - Test"
 
                                 if "Line No." > OrigMaxLineNo then begin
                                     AddDimToTempLine("Purchase Line", TempDimSetEntry);
-                                    if not DimMgt.CheckDimIDComb("Purchase Line"."Dimension Set ID") then
+                                    if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                         AddError(DimMgt.GetDimCombErr);
-                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Purchase Line"."Dimension Set ID") then
+                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                                         AddError(DimMgt.GetDimValuePostingErr);
                                 end else begin
-                                    if not DimMgt.CheckDimIDComb("Purchase Line"."Dimension Set ID") then
+                                    if not DimMgt.CheckDimIDComb("Dimension Set ID") then
                                         AddError(DimMgt.GetDimCombErr);
 
                                     TableID[1] := DimMgt.TypeToTableID3(Type);
@@ -920,11 +920,12 @@ report 402 "Purchase Document - Test"
                                     No[2] := "Job No.";
                                     TableID[3] := DATABASE::"Work Center";
                                     No[3] := "Work Center No.";
-                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Purchase Line"."Dimension Set ID") then
+                                    OnBeforeCheckDimValuePostingLine("Purchase Line", TableID, No);
+                                    if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                                         AddError(DimMgt.GetDimValuePostingErr);
                                 end;
 
-                                AllowInvDisctxt := Format("Purchase Line"."Allow Invoice Disc.");
+                                AllowInvDisctxt := Format("Allow Invoice Disc.");
                             end;
                         end;
 
@@ -1404,7 +1405,7 @@ report 402 "Purchase Document - Test"
                 TableID: array[10] of Integer;
                 No: array[10] of Code[20];
             begin
-                DimSetEntry1.SetRange("Dimension Set ID", "Purchase Header"."Dimension Set ID");
+                DimSetEntry1.SetRange("Dimension Set ID", "Dimension Set ID");
 
                 FormatAddr.PurchHeaderPayTo(PayToAddr, "Purchase Header");
                 FormatAddr.PurchHeaderBuyFrom(BuyFromAddr, "Purchase Header");
@@ -1620,7 +1621,7 @@ report 402 "Purchase Document - Test"
                 No[4] := "Campaign No.";
                 TableID[5] := DATABASE::"Responsibility Center";
                 No[5] := "Responsibility Center";
-
+                OnBeforeCheckDimValuePostingHeader("Purchase Header", TableID, No);
                 if not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID") then
                     AddError(DimMgt.GetDimValuePostingErr);
 
@@ -1749,7 +1750,7 @@ report 402 "Purchase Document - Test"
         Text004: Label 'Total %1';
         Text005: Label 'Total %1 Incl. VAT';
         Text006: Label '%1 must be specified.';
-        Text007: Label '%1 must be %2 for %3 %4.';
+        MustBeForErr: Label '%1 must be %2 for %3 %4.', Comment = '%1 = field caption, %2 = value, %3 = table caption, %4 = No.)';
         Text008: Label '%1 %2 does not exist.';
         Text009: Label '%1 must not be a closing date.';
         Text010: Label '%1 is not within your allowed range of posting dates.';
@@ -1924,12 +1925,12 @@ report 402 "Purchase Document - Test"
                                 if GLAcc.Blocked then
                                     AddError(
                                       StrSubstNo(
-                                        Text007,
+                                        MustBeForErr,
                                         GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "No."));
                                 if not GLAcc."Direct Posting" and ("Line No." <= OrigMaxLineNo) then
                                     AddError(
                                       StrSubstNo(
-                                        Text007,
+                                        MustBeForErr,
                                         GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "No."));
                             end else
                                 AddError(
@@ -1947,7 +1948,7 @@ report 402 "Purchase Document - Test"
                                 if Item.Blocked then
                                     AddError(
                                       StrSubstNo(
-                                        Text007,
+                                        MustBeForErr,
                                         Item.FieldCaption(Blocked), false, Item.TableCaption, "No."));
                                 if Item."Costing Method" = Item."Costing Method"::Specific then
                                     if Item.Reserve = Item.Reserve::Always then begin
@@ -1974,12 +1975,12 @@ report 402 "Purchase Document - Test"
                                 if FA.Blocked then
                                     AddError(
                                       StrSubstNo(
-                                        Text007,
+                                        MustBeForErr,
                                         FA.FieldCaption(Blocked), false, FA.TableCaption, "No."));
                                 if FA.Inactive then
                                     AddError(
                                       StrSubstNo(
-                                        Text007,
+                                        MustBeForErr,
                                         FA.FieldCaption(Inactive), false, FA.TableCaption, "No."));
                             end else
                                 AddError(
@@ -2021,7 +2022,7 @@ report 402 "Purchase Document - Test"
                     repeat
                         DimMgt.GetDimensionSet(TempPostedDimSetEntry, PurchRcptLine."Dimension Set ID");
                         if not DimMgt.CheckDimIDConsistency(
-                          TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Purchase Line", DATABASE::"Purch. Rcpt. Line")
+                             TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Purchase Line", DATABASE::"Purch. Rcpt. Line")
                         then
                             AddError(DimMgt.GetDocDimConsistencyErr);
                         if PurchRcptLine."Buy-from Vendor No." <> "Buy-from Vendor No." then
@@ -2112,7 +2113,7 @@ report 402 "Purchase Document - Test"
                     repeat
                         DimMgt.GetDimensionSet(TempPostedDimSetEntry, ReturnShptLine."Dimension Set ID");
                         if not DimMgt.CheckDimIDConsistency(
-                          TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Purchase Line", DATABASE::"Return Shipment Line")
+                             TempDimSetEntry, TempPostedDimSetEntry, DATABASE::"Purchase Line", DATABASE::"Return Shipment Line")
                         then
                             AddError(DimMgt.GetDocDimConsistencyErr);
 
@@ -2256,7 +2257,7 @@ report 402 "Purchase Document - Test"
 
             "Dimension Set ID" :=
               DimMgt.GetDefaultDimID(TableID, No, SourceCodesetup.Purchases, "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code",
-                PurchLine."Dimension Set ID", DATABASE::Vendor);
+                "Dimension Set ID", DATABASE::Vendor);
         end;
     end;
 
@@ -2336,6 +2337,16 @@ report 402 "Purchase Document - Test"
                               StrSubstNo(Text010, Format("Posting Date")))
                     end;
                 end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePostingHeader(var PurchaseHeader: Record "Purchase Header"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDimValuePostingLine(var PurchaseLine: Record "Purchase Line"; TableID: array[10] of Integer; No: array[10] of Code[20]);
+    begin
     end;
 
     [IntegrationEvent(false, false)]

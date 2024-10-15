@@ -454,7 +454,8 @@ codeunit 5790 "Available to Promise"
           "Reserved Qty. on Purch. Orders",
           "Res. Qty. on Inbound Transfer",
           "Res. Qty. on Assembly Order",
-          "Res. Qty. on Sales Returns");
+          "Res. Qty. on Sales Returns",
+          "Reserved Qty. on Prod. Order");
 
         AllFieldCalculated := true;
         PrevItemNo := Item."No.";

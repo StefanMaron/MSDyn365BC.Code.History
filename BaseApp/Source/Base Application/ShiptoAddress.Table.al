@@ -59,11 +59,15 @@ table 222 "Ship-to Address"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupCity(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidateCity(Rec, PostCode);
+
                 PostCodeCheck.ValidateCity(
                   CurrFieldNo, DATABASE::"Ship-to Address", Rec.GetPosition, 0,
                   Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
@@ -155,11 +159,15 @@ table 222 "Ship-to Address"
 
             trigger OnLookup()
             begin
+                OnBeforeLookupPostCode(Rec, PostCode);
+
                 PostCode.LookupPostCode(City, "Post Code", County, "Country/Region Code");
             end;
 
             trigger OnValidate()
             begin
+                OnBeforeValidatePostCode(Rec, PostCode);
+
                 PostCodeCheck.ValidatePostCode(
                   CurrFieldNo, DATABASE::"Ship-to Address", Rec.GetPosition, 0,
                   Name, "Name 2", Contact, Address, "Address 2", City, "Post Code", County, "Country/Region Code");
@@ -277,6 +285,26 @@ table 222 "Ship-to Address"
         if GetFilter("Customer No.") <> '' then
             if GetRangeMin("Customer No.") = GetRangeMax("Customer No.") then
                 exit(GetRangeMax("Customer No."));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupPostCode(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCity(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePostCode(ShipToAddress: Record "Ship-to Address"; var PostCodeRec: Record "Post Code");
+    begin
     end;
 }
 

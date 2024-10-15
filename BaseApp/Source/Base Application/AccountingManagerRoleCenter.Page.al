@@ -1157,6 +1157,14 @@ page 9001 "Accounting Manager Role Center"
                     RunObject = Page "BAS Setup Preview";
                     ToolTip = 'See a preview of the BAS. Optionally, export the preview to Excel for manual adjustments.';
                 }
+                action(BASReports)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'BAS Reports';
+                    Image = Report2;
+                    RunObject = Page "VAT Report List";
+                    ToolTip = 'Prepare the BAS report so you can submit VAT amounts to the tax authorities.';
+                }
             }
             separator(Action1500123)
             {

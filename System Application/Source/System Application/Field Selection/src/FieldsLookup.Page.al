@@ -3,6 +3,9 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 
+/// <summary>
+/// List page that contains table fields.
+/// </summary>
 page 9806 "Fields Lookup"
 {
     Extensible = false;
@@ -17,6 +20,13 @@ page 9806 "Fields Lookup"
             repeater(Control2)
             {
                 ShowCaption = false;
+                field(TableNo; TableNo)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Table No.';
+                    ToolTip = 'Specifies the number of the table this field belongs to.';
+                    Visible = false;
+                }
                 field(TableName; TableName)
                 {
                     ApplicationArea = All;
@@ -63,6 +73,10 @@ page 9806 "Fields Lookup"
     var
         TableNameVisible: Boolean;
 
+    /// <summary>
+    /// Gets the currently selected fields.
+    /// </summary>
+    /// <param name="SelectedField">A record that contains the currently selected fields</param>
     [Scope('OnPrem')]
     procedure GetSelectedFields(var SelectedField: Record "Field")
     var
