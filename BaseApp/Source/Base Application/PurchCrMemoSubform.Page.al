@@ -132,18 +132,33 @@
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        DeltaUpdateTotals();
+                    end;
                 }
                 field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        DeltaUpdateTotals();
+                    end;
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the vendor''s VAT specification to link transactions made for this vendor with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        DeltaUpdateTotals();
+                    end;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
@@ -1333,7 +1348,7 @@
             CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
             (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
-        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
+        OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber, InvDiscAmountEditable, CurrPageIsEditable, PurchasesPayablesSetup, TotalPurchaseHeader);
     end;
 
     procedure UpdateTypeText()
@@ -1396,7 +1411,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean);
+    local procedure OnAfterUpdateEditableOnRow(PurchaseLine: Record "Purchase Line"; var IsCommentLine: Boolean; var IsBlankNumber: Boolean; var InvDiscAmountEditable: Boolean; CurrPageIsEditable: Boolean; var PurchasesPayablesSetup: Record "Purchases & Payables Setup"; var TotalPurchaseHeader: Record "Purchase Header");
     begin
     end;
 

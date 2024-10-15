@@ -815,7 +815,7 @@ table 700 "Error Message"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLogIfEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; IsHandled: Boolean)
+    local procedure OnLogIfEmptyOnAfterCheckEmptyValue(FieldRef: FieldRef; EmptyFieldRef: FieldRef; var IsHandled: Boolean)
     begin
     end;
 }

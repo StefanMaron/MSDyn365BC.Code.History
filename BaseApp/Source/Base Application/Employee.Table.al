@@ -1,4 +1,4 @@
-table 5200 Employee
+﻿table 5200 Employee
 {
     Caption = 'Employee';
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";
@@ -567,6 +567,7 @@ table 5200 Employee
     var
         TransactionMode: Record "Transaction Mode";
         AccountType: Option Customer,Vendor,Employee;
+        IsHandled: Boolean;
     begin
         "Last Modified Date Time" := CurrentDateTime;
         "Last Date Modified" := Today;
@@ -576,8 +577,11 @@ table 5200 Employee
         if not TransactionMode.CheckTransactionModePartnerType(AccountType::Employee, "Transaction Mode Code", "Partner Type"::" ") then
             Error(PartnerTypeMismatchErr);
 
-        if SalespersonPurchaser.ReadPermission then
-            EmployeeSalespersonUpdate.HumanResToSalesPerson(xRec, Rec);
+        IsHandled := false;
+        OnModifyOnBeforeEmployeeSalespersonUpdate(Rec, xRec, IsHandled);
+        if not IsHandled then
+            if SalespersonPurchaser.ReadPermission then
+                EmployeeSalespersonUpdate.HumanResToSalesPerson(xRec, Rec);
         UpdateSearchName();
     end;
 
@@ -748,6 +752,11 @@ table 5200 Employee
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckBlockedEmployee(Employee: Record Employee; IsPosting: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyOnBeforeEmployeeSalespersonUpdate(var Employee: Record "Employee"; xEmployee: Record "Employee"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -8,7 +8,6 @@
         PurchCommentLine: Record "Purch. Comment Line";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
-        ArchiveManagement: Codeunit ArchiveManagement;
         RecordLinkManagement: Codeunit "Record Link Management";
         ShouldRedistributeInvoiceAmount: Boolean;
         IsHandled: Boolean;
@@ -33,12 +32,7 @@
         OnAfterInsertAllPurchOrderLines(PurchOrderLine, Rec);
 
         PurchSetup.Get();
-        case PurchSetup."Archive Quotes" of
-            PurchSetup."Archive Quotes"::Always:
-                ArchiveManagement.ArchPurchDocumentNoConfirm(Rec);
-            PurchSetup."Archive Quotes"::Question:
-                ArchiveManagement.ArchivePurchDocument(Rec);
-        end;
+        ArchivePurchaseQuote(Rec);
 
         if PurchSetup."Default Posting Date" = PurchSetup."Default Posting Date"::"No Date" then begin
             PurchOrderHeader."Posting Date" := 0D;
@@ -111,6 +105,24 @@
         end;
 
         OnAfterCreatePurchHeader(PurchOrderHeader, PurchHeader);
+    end;
+
+    local procedure ArchivePurchaseQuote(var PurchaseHeader: Record "Purchase Header")
+    var
+        ArchiveManagement: Codeunit ArchiveManagement;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeArchivePurchaseQuote(PurchaseHeader, PurchOrderHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        case PurchSetup."Archive Quotes" of
+            PurchSetup."Archive Quotes"::Always:
+                ArchiveManagement.ArchPurchDocumentNoConfirm(PurchaseHeader);
+            PurchSetup."Archive Quotes"::Question:
+                ArchiveManagement.ArchivePurchDocument(PurchaseHeader);
+        end;
     end;
 
     local procedure AssignItemCharges(FromDocType: Enum "Purchase Document Type"; FromDocNo: Code[20]; ToDocType: Enum "Purchase Applies-to Document Type"; ToDocNo: Code[20])
@@ -190,6 +202,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var PurchaseHeader: Record "Purchase Header"; PurchOrderHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeArchivePurchaseQuote(var PurchaseHeader: Record "Purchase Header"; PurchaseOrderHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
