@@ -979,6 +979,7 @@
                                         AddError(InclInVATReportErrorLogTemp."Error Message");
                                     until InclInVATReportErrorLogTemp.Next() = 0;
                             end;
+                            OnRoundLoopOnAfterGetRecord("Purchase Line", ErrorText, ErrorCounter);
                         end;
 
                         trigger OnPreDataItem()
@@ -2382,6 +2383,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckPurchLineCaseTypeElse(LineType: Option; "No.": Code[20]; var ErrorText: Text[250])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRoundLoopOnAfterGetRecord(var PurchaseLine: Record "Purchase Line"; var ErrorText: array[99] of Text[250]; var ErrorCounter: Integer)
     begin
     end;
 

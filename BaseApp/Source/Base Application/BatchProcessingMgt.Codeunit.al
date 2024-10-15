@@ -173,7 +173,7 @@ codeunit 1380 "Batch Processing Mgt."
     begin
         ErrorMessage.SetRange("Context Table Number", Database::"Gen. Journal Line");
         if ErrorMessage.FindLast() then
-            ErrorMessageTxt := ErrorMessage.Description;
+            ErrorMessageTxt := ErrorMessage."Message";
         Dimensions.Add('Category', TelemetryCategoryTxt);
         Dimensions.Add('Error', ErrorMessageTxt);
         Session.LogMessage('0000F9J', StrSubstNo(GenJournalPostFailedTxt, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name"), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);

@@ -71,7 +71,7 @@ table 12137 "Purch. Withh. Contribution"
                 GetHeader();
 
                 if Vend.Resident = Vend.Resident::Resident then
-                    if not Confirm(ResidentVendorWarningQst) then
+                    if not Confirm(ResidentVendorWarningQst, false, Vend."No.") then
                         "Non Taxable Amount By Treaty" := xRec."Non Taxable Amount By Treaty";
 
                 ValorizzaRitenute();

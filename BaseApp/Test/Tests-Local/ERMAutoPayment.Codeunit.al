@@ -1112,6 +1112,38 @@ codeunit 144050 "ERM Auto Payment"
         DetailedCustLedgEntry.TestField("Cust. Ledger Entry No.", PaymentEntryNo);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestVendorBillLineAndVerifyWithWithholdingTaxAmount()
+    var
+        VendorBillHeader: Record "Vendor Bill Header";
+        VendorBillHeader2: Record "Vendor Bill Header";
+        VendorBillLine: Record "Vendor Bill Line";
+        Vendor: Record Vendor;
+        WithholdCode: Code[20];
+        DocumentDate: Date;
+    begin
+        // [SCENARIO 454727]: Witholding tax amount is wrongly calculate when you have multiple payment installments in the Italian localization
+
+        // [GIVEN] Setup: Create vendor, post Purchase Invoice, Issue Vendor Bill and delete Issued Vendor Bill Line, Create new Vendor Bill Header.
+        Initialize();
+        LibraryPurchase.CreateVendor(Vendor);
+        WithholdCode := CreateWithholdCodeWithLine();
+        Vendor.Validate("Withholding Tax Code", WithholdCode);
+        Vendor.Validate("Payment Method Code", FindPaymentMethodAndBill());
+        Vendor.Modify(true);
+
+        // [GIVEN] Create and post Purchase Invoice and create vendor bill header
+        CreateAndPostPurchaseInvoiceWithGL(Vendor, LibraryRandom.RandDec(10, 2));
+        CreateAndModifyVendorBillHeaderWithPaymentMenthod(VendorBillHeader2, Vendor."Payment Method Code");
+
+        // [THEN] Exercise: Run Suggest Vendor Bills line
+        RunSuggestVendorBills(VendorBillHeader2, Vendor."No.");
+
+        // [VERIFY] Verify: Vendor Bill Line Amount
+        FindAndVerifyVendorBillLinesAmount(Vendor."No.");
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -2014,6 +2046,74 @@ codeunit 144050 "ERM Auto Payment"
         PaymentLines.SetRange(Code, PaymentTermsCode);
         PaymentLines.FindFirst();
         PaymentLines.Delete(true);
+    end;
+
+    local procedure CreateAndPostPurchaseInvoiceWithGL(Vendor: Record Vendor; DirectUnitCost: Decimal): Code[20]
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WithholdCodeLine: Record "Withhold Code Line";
+        WithholdingContribution: Codeunit "Withholding - Contribution";
+    begin
+        WithholdCodeLine.SetRange("Withhold Code", Vendor."Withholding Tax Code");
+        WithholdCodeLine.FindFirst();
+
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+        PurchaseHeader."Check Total" := DirectUnitCost + DirectUnitCost * WithholdCodeLine."Withholding Tax %" / 100;
+        PurchaseHeader.Validate("Payment Method Code", Vendor."Payment Method Code");
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(1));  // Using random Quantity.
+        PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
+        PurchaseLine.Modify(true);
+        WithholdingContribution.CalculateWithholdingTax(PurchaseHeader, true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
+    end;
+
+    local procedure FindPaymentMethodAndBill(): Code[10]
+    var
+        PaymentMethod: Record "Payment Method";
+    begin
+        PaymentMethod.SetRange("Bill Code", FindPaymentMethodBillCode);
+        LibraryERM.FindPaymentMethod(PaymentMethod);
+        exit(PaymentMethod.Code);
+    end;
+
+    local procedure FindPaymentMethodBillCode(): Code[20]
+    var
+        Bill: Record Bill;
+    begin
+        Bill.FindFirst();
+        Bill.Validate("Vendor Bill No.", Bill."List No.");
+        Bill.Validate("Vendor Bill List", Bill."List No.");
+        Bill.Modify(true);
+        exit(Bill.Code);
+    end;
+
+    local procedure CreateAndModifyVendorBillHeaderWithPaymentMenthod(var VendorBillHeader: Record "Vendor Bill Header"; PaymentMethodCode: Code[10])
+    var
+        BillPostingGroup: Record "Bill Posting Group";
+    begin
+        LibraryITLocalization.CreateBillPostingGroup(BillPostingGroup, CreateBankAccount(''), PaymentMethodCode);  // Blank value for Currency Code.
+        LibraryITLocalization.CreateVendorBillHeader(VendorBillHeader);
+        VendorBillHeader.Validate("Bank Account No.", BillPostingGroup."No.");
+        VendorBillHeader.Validate("Payment Method Code", BillPostingGroup."Payment Method");
+        VendorBillHeader.Modify(true);
+    end;
+
+    local procedure FindAndVerifyVendorBillLinesAmount(VendorNo: Code[20])
+    var
+        Vendor: Record Vendor;
+        VendorBillLine: Record "Vendor Bill Line";
+    begin
+        Vendor.Get(VendorNo);
+        Vendor.CalcFields(Balance);
+        FindVendorBillLine(VendorBillLine, Vendor."No.");
+        Assert.AreEqual(
+          VendorBillLine."Remaining Amount",
+          VendorBillLine."Amount to Pay" + VendorBillLine."Withholding Tax Amount",
+          StrSubstNo(AmountErr, VendorBillLine.FieldCaption("Amount to Pay"), VendorBillLine."Remaining Amount", VendorBillLine.TableCaption()));
     end;
 
     [ModalPageHandler]

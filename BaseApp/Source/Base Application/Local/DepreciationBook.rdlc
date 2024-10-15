@@ -13197,7 +13197,7 @@
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=First(Fields!CompanyName.Value, "DataSet_Result") + "    " + First(Fields!CompanyAddress.Value, "DataSet_Result") + "    " + First(Fields!CompanyPostCodeCityCounty.Value, "DataSet_Result") + "    " + First(Fields!VATRegNoCaption.Value, "DataSet_Result") + " " + First(Fields!CompanyVATRegNo.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!CompanyName.Value, "DataSet_Result") + "     " + First(Fields!CompanyAddress.Value, "DataSet_Result") + "     " + First(Fields!CompanyPostCodeCityCounty.Value, "DataSet_Result") + "     " + First(Fields!VATRegNoCaption.Value, "DataSet_Result") + " " + First(Fields!CompanyVATRegNo.Value, "DataSet_Result") + "     " + First(Fields!FiscalCodeCaption.Value, "DataSet_Result") + " " + First(Fields!CompanyFiscalCode.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontSize>7pt</FontSize>
                       </Style>

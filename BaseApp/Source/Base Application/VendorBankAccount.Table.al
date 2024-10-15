@@ -119,7 +119,7 @@
             begin
                 ConvertBankAccNo();
                 GetBBAN();
-		        OnValidateBankAccount(Rec, 'Bank Account No.');
+                OnValidateBankAccount(Rec, 'Bank Account No.');
             end;
         }
         field(15; "Transit No."; Text[20])
@@ -339,7 +339,7 @@
         else
             BBAN := '';
         IBAN := '';
-        OnAfterGetBBAN(IBAN);
+        OnAfterGetBBAN(IBAN, Rec);
     end;
 
     [Scope('OnPrem')]
@@ -392,7 +392,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetBBan(var IBAN: Code[50])
+    local procedure OnAfterGetBBan(var IBAN: Code[50]; var VendorBankAccount: Record "Vendor Bank Account")
     begin
     end;
 

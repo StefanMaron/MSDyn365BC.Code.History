@@ -12,7 +12,13 @@ codeunit 12179 "Export FatturaPA Document"
         HeaderRecRef: RecordRef;
         InStr: InStream;
         OutStr: OutStream;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Session.LogMessage('0000CQ6', ExportFatturaMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
         HeaderRecRef.Get(RecordID);
@@ -173,6 +179,7 @@ codeunit 12179 "Export FatturaPA Document"
             AddGroupElement('DatiBeniServizi');
             TempFatturaLine.Reset();
             TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
+            OnTryCreateFatturaElettronicaBodyOnAfterTempFatturaLineSetFiltersForDocument(TempFatturaLine, TempFatturaHeader);
             if TempFatturaLine.FindSet() then
                 repeat
                     PopulateLineData(TempFatturaLine);
@@ -830,12 +837,22 @@ codeunit 12179 "Export FatturaPA Document"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var RecordExportBuffer: Record "Record Export Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePopulatePaymentData(var TempFatturaLine: Record "Fattura Line"; TempFatturaHeader: Record "Fattura Header"; var TempXMLBuffer: record "XML Buffer"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePopulateOrderData(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary; var TempXMLBuffer: Record "XML Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTryCreateFatturaElettronicaBodyOnAfterTempFatturaLineSetFiltersForDocument(var TempFatturaLine: Record "Fattura Line" temporary; TempFatturaHeader: Record "Fattura Header" temporary)
     begin
     end;
 

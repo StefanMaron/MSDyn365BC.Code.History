@@ -33,7 +33,7 @@ codeunit 86 "Sales-Quote to Order"
 
         CheckInProgressOpportunities(Rec);
 
-        CreateSalesHeader(Rec, Cust."Prepayment %");
+        CreateSalesHeader(Rec, Cust);
 
         TransferQuoteToOrderLines(SalesQuoteLine, Rec, SalesOrderLine, SalesOrderHeader, Cust);
         OnAfterInsertAllSalesOrderLines(SalesOrderLine, Rec, SalesOrderHeader);
@@ -92,7 +92,7 @@ codeunit 86 "Sales-Quote to Order"
             ApprovalsMgmt.CopyApprovalEntryQuoteToOrder(SalesHeader.RecordId, SalesOrderHeader."No.", SalesOrderHeader.RecordId);
     end;
 
-    local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; PrepmtPercent: Decimal)
+    local procedure CreateSalesHeader(SalesHeader: Record "Sales Header"; Customer: Record Customer)
     var
         GlSetup: Record "General Ledger Setup";
     begin
@@ -123,9 +123,12 @@ codeunit 86 "Sales-Quote to Order"
             SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
             SalesOrderHeader.Reserve := Reserve;
 
-            SalesOrderHeader."Prepayment %" := PrepmtPercent;
+            SalesOrderHeader."Prepayment %" := Customer."Prepayment %";
             if SalesOrderHeader."Posting Date" = 0D then
                 SalesOrderHeader."Posting Date" := WorkDate();
+
+            if SalesOrderHeader."VAT Registration No." = '' then
+                SalesOrderHeader."VAT Registration No." := Customer."VAT Registration No.";
 
             SalesOrderHeader."VAT Reporting Date" := GlSetup.GetVATDate(SalesOrderHeader."Posting Date", SalesOrderHeader."Document Date");
 

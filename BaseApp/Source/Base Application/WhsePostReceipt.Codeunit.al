@@ -211,6 +211,7 @@ codeunit 5760 "Whse.-Post Receipt"
         PurchRelease: Codeunit "Release Purchase Document";
         ModifyHeader: Boolean;
     begin
+        OnBeforeInitSourceDocumentHeader(WhseRcptLine);
         with WhseRcptLine do
             case "Source Type" of
                 DATABASE::"Purchase Line":
@@ -278,6 +279,7 @@ codeunit 5760 "Whse.-Post Receipt"
                 else
                     OnInitSourceDocumentHeader(WhseRcptHeader, WhseRcptLine);
             end;
+        OnAfterInitSourceDocumentHeader(WhseRcptLine);
     end;
 
     local procedure InitSourceDocumentLines(var WhseRcptLine: Record "Warehouse Receipt Line")
@@ -1152,6 +1154,16 @@ codeunit 5760 "Whse.-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitSourceDocumentHeader(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitSourceDocumentHeader(var WarehouseReceiptLine: Record "Warehouse Receipt Line")
     begin
     end;
 

@@ -49,14 +49,7 @@ table 12113 "Tmp Withholding Contribution"
 
             trigger OnValidate()
             begin
-                CalculateWithholdingTax();
-                if "Social Security Code" <> '' then
-                    CalculateSocialSecurity("Taxable Base");
-
-                // INAIL START
-                if "INAIL Code" <> '' then
-                    CalcolaINAIL("Taxable Base");
-                // INAIL END
+                CalculateAll(Rec.FieldNo("Base - Excluded Amount"));
             end;
         }
         field(16; "Non Taxable Amount By Treaty"; Decimal)
@@ -67,14 +60,7 @@ table 12113 "Tmp Withholding Contribution"
 
             trigger OnValidate()
             begin
-                CalculateWithholdingTax();
-                if "Social Security Code" <> '' then
-                    CalculateSocialSecurity("Taxable Base");
-
-                // INAIL START
-                if "INAIL Code" <> '' then
-                    CalcolaINAIL("Taxable Base");
-                // INAIL END
+                CalculateAll(Rec.FieldNo("Non Taxable Amount By Treaty"));
             end;
         }
         field(30; "Withholding Tax Code"; Code[20])
@@ -84,14 +70,7 @@ table 12113 "Tmp Withholding Contribution"
 
             trigger OnValidate()
             begin
-                CalculateWithholdingTax();
-                if "Social Security Code" <> '' then
-                    CalculateSocialSecurity("Taxable Base");
-
-                // INAIL START
-                if "INAIL Code" <> '' then
-                    CalcolaINAIL("Taxable Base");
-                // INAIL END
+                CalculateAll(Rec.FieldNo("Withholding Tax Code"));
             end;
         }
         field(31; "Related Date"; Date)
@@ -104,14 +83,7 @@ table 12113 "Tmp Withholding Contribution"
 
             trigger OnValidate()
             begin
-                CalculateWithholdingTax();
-                if "Social Security Code" <> '' then
-                    CalculateSocialSecurity("Taxable Base");
-
-                // INAIL START
-                if "INAIL Code" <> '' then
-                    CalcolaINAIL("Taxable Base");
-                // INAIL END
+                CalculateAll(Rec.FieldNo("Payment Date"));
             end;
         }
         field(34; "Non Taxable %"; Decimal)
@@ -148,7 +120,14 @@ table 12113 "Tmp Withholding Contribution"
             TableRelation = "Contribution Code".Code WHERE("Contribution Type" = FILTER(INPS));
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSocialSecurityCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CalculateSocialSecurity("Taxable Base");
             end;
         }
@@ -159,7 +138,14 @@ table 12113 "Tmp Withholding Contribution"
             Caption = 'Gross Amount';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateGrossAmount(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 CalculateSocialSecurity("Gross Amount");
             end;
         }
@@ -404,6 +390,25 @@ table 12113 "Tmp Withholding Contribution"
         Vend: Record Vendor;
         WithholdingSocSec: Codeunit "Withholding - Contribution";
 
+    local procedure CalculateAll(CallingFieldNo: Integer)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalculateAll(Rec, xRec, CallingFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        CalculateWithholdingTax();
+        if "Social Security Code" <> '' then
+            CalculateSocialSecurity("Taxable Base");
+
+        // INAIL START
+        if "INAIL Code" <> '' then
+            CalcolaINAIL("Taxable Base");
+        // INAIL END
+    end;
+
     [Scope('OnPrem')]
     procedure CalculateWithholdingTax()
     begin
@@ -575,6 +580,21 @@ table 12113 "Tmp Withholding Contribution"
             Modify(true);
         end;
         SetRange("Payment Line-Soc. Sec.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateAll(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; var xTmpWithholdingContribution: Record "Tmp Withholding Contribution"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateGrossAmount(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; var xTmpWithholdingContribution: Record "Tmp Withholding Contribution"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSocialSecurityCode(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; var xTmpWithholdingContribution: Record "Tmp Withholding Contribution"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

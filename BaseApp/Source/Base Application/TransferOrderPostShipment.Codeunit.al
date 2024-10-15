@@ -33,9 +33,7 @@
                 WhseReference := "Posting from Whse. Ref.";
                 "Posting from Whse. Ref." := 0;
 
-                if "Shipping Advice" = "Shipping Advice"::Complete then
-                    if not GetShippingAdvice() then
-                        Error(Text008);
+                CheckShippingAdvice(TransHeader);
 
                 CheckDim();
                 TransLine.Reset();
@@ -736,6 +734,20 @@
         until TransLine2.Next() = 0;
     end;
 
+    local procedure CheckShippingAdvice(var TransferHeader: Record "Transfer Header")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckHeaderShippingAdvice(TransferHeader, IsHandled);
+        if IsHandled then
+            exit;
+
+        if TransferHeader."Shipping Advice" = TransferHeader."Shipping Advice"::Complete then
+            if not GetShippingAdvice() then
+                Error(Text008);
+    end;
+
     local procedure LockTables(AutoCostPosting: Boolean)
     var
         GLEntry: Record "G/L Entry";
@@ -1071,6 +1083,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostWhseJnlLine(ItemJnlLine: Record "Item Journal Line"; OriginalQuantity: Decimal; OriginalQuantityBase: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckHeaderShippingAdvice(var TransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
     begin
     end;
 }

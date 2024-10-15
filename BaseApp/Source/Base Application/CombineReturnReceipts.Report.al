@@ -215,6 +215,7 @@ report 6653 "Combine Return Receipts"
         SalesPost: Codeunit "Sales-Post";
         DimMgt: Codeunit DimensionManagement;
         Window: Dialog;
+        HideDialog: Boolean;
         NoOfSalesInvErrors: Integer;
         NoOfSalesInv: Integer;
         OperationType: Record "No. Series";
@@ -332,19 +333,26 @@ report 6653 "Combine Return Receipts"
         PostInv := NewPostCreditMemo;
     end;
 
+    procedure SetHideDialog(NewHideDialog: Boolean)
+    begin
+        HideDialog := NewHideDialog;
+    end;
+
     local procedure ShowResult()
     begin
         OnBeforeShowResult(SalesHeader, NoOfSalesInvErrors, PostInv);
 
         if SalesHeader."No." <> '' then begin // Not the first time
             FinalizeSalesInvHeader();
-            OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv);
-            if NoOfSalesInvErrors = 0 then
-                Message(Text010, NoOfSalesInv)
-            else
-                Message(Text007, NoOfSalesInvErrors)
+            OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(SalesHeader, NoOfSalesInvErrors, PostInv, HideDialog);
+            if not HideDialog then
+                if NoOfSalesInvErrors = 0 then
+                    Message(Text010, NoOfSalesInv)
+                else
+                    Message(Text007, NoOfSalesInvErrors)
         end else
-            Message(Text008);
+            if not HideDialog then
+                Message(Text008);
     end;
 
     local procedure ShouldFinalizeSalesInvHeader(SalesOrderHeader: Record "Sales Header"; SalesHeader: Record "Sales Header"; ReturnReceiptLine: Record "Return Receipt Line") Finalize: Boolean
@@ -418,7 +426,7 @@ report 6653 "Combine Return Receipts"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header"; var NoOfSalesCrMemoErrors: Integer; PostInv: Boolean)
+    local procedure OnReturnReceiptHeaderOnAfterFinalizeSalesInvHeader(var SalesHeader: Record "Sales Header"; var NoOfSalesCrMemoErrors: Integer; PostInv: Boolean; HideDialog: Boolean)
     begin
     end;
 }

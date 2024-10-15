@@ -1069,6 +1069,7 @@ permissionset 7931 "D365 TEAM MEMBER"
                   tabledata "Put-away Template Header" = RM,
                   tabledata "Put-away Template Line" = RM,
                   tabledata Qualification = RM,
+                  tabledata "Query Metadata" = m,
                   tabledata "RapidStart Services Cue" = RM,
                   tabledata Rating = RM,
                   tabledata "RC Headlines User Data" = RIMD,

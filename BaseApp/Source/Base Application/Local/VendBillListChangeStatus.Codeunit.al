@@ -70,6 +70,7 @@ codeunit 12171 "Vend. Bill List-Change Status"
                     VendLedgEntry.Modify();
                 end;
                 VendorBillLine."Vendor Bill No." := NextVendBillNo;
+                OnFromOpenToSentOnBeforeVendorBillLineModify(VendorBillLine);
                 VendorBillLine.Modify();
             until VendorBillLine.Next() = 0;
         end;
@@ -127,6 +128,11 @@ codeunit 12171 "Vend. Bill List-Change Status"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFromSentToOpen(var VendorBillHeader: Record "Vendor Bill Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFromOpenToSentOnBeforeVendorBillLineModify(var VendorBillLine: Record "Vendor Bill Line")
     begin
     end;
 }

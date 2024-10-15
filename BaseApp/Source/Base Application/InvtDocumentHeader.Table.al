@@ -274,8 +274,6 @@ table 5850 "Invt. Document Header"
 
         "Posting Description" := Format("Document Type") + ' ' + "No.";
 
-        if "Posting No. Series" = '' then
-            "Posting No. Series" := "No. Series";
 
         "Posting Date" := WorkDate();
         "Document Date" := "Posting Date";

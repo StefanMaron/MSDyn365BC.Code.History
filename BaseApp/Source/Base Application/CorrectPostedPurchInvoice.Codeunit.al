@@ -142,7 +142,7 @@
 
         CopyDocMgt.CopyPurchaseDocForInvoiceCancelling(PurchInvHeader."No.", PurchaseHeader);
 
-        OnAfterCreateCopyDocument(PurchaseHeader);
+        OnAfterCreateCopyDocument(PurchaseHeader, SkipCopyFromDescription, PurchInvHeader);
     end;
 
     procedure CreateCreditMemoCopyDocument(var PurchInvHeader: Record "Purch. Inv. Header"; var PurchaseHeader: Record "Purchase Header"): Boolean
@@ -884,7 +884,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCreateCopyDocument(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnAfterCreateCopyDocument(var PurchaseHeader: Record "Purchase Header"; SkipCopyFromDescription: Boolean; PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 

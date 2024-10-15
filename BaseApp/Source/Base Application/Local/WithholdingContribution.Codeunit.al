@@ -22,7 +22,13 @@
         CurrencyExchRate: Record "Currency Exchange Rate";
         EntryNo: Integer;
         InsertRec: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostPayments(TempWithholdingSocSec, GenJnlLine, CalledFromVendBillLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with TempWithholdingSocSec do begin
             if WithholdApplicable(TempWithholdingSocSec, CalledFromVendBillLine) then begin
                 if ComputedWithholdingTax.Get("Vendor No.", "Document Date", "Invoice No.") then begin
@@ -288,7 +294,13 @@
         PurchWithSoc: Record "Purch. Withh. Contribution";
         PurchLine: Record "Purchase Line";
         TotalAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalculateWithholdingTax(PurchHeader, Recalculate, IsHandled);
+        if IsHandled then
+            exit;
+
         PurchLine.Reset();
         PurchLine.SetRange("Document Type", PurchHeader."Document Type");
         PurchLine.SetRange("Document No.", PurchHeader."No.");
@@ -320,7 +332,13 @@
         CurrencyExchRate: Record "Currency Exchange Rate";
         TmpWithholdingSocSec: Record "Tmp Withholding Contribution";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTmpWithhSocSec(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with GenJnlLine do begin
             if ("Document Type" <> "Document Type"::Payment) and
                ("Document Type" <> "Document Type"::Refund)
@@ -624,8 +642,15 @@
         end;
     end;
 
-    procedure WithholdApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean): Boolean
+    procedure WithholdApplicable(TempWithholdingSocSec: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeWithholdApplicable(TempWithholdingSocSec, CalledFromVendBillLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if TempWithholdingSocSec."Withholding Tax Code" = '' then
             exit(false);
         if TempWithholdingSocSec."Non Taxable %" = 100 then
@@ -700,6 +725,21 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalculateWithholdingTax(var PurchaseHeader: Record "Purchase Header"; Recalculate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTmpWithhSocSec(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPayments(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; GenJournalLine: Record "Gen. Journal Line"; CalledFromVendBillLine: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTmpWithholdingSocSecInsert(var TmpWithholdingContribution: Record "Tmp Withholding Contribution"; ComputedWithholdingTax: Record "Computed Withholding Tax"; GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
@@ -710,10 +750,15 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeWithholdApplicable(TmpWithholdingContribution: Record "Tmp Withholding Contribution"; CalledFromVendBillLine: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeWithholdLineFilter(var WithholdCodeLine: Record "Withhold Code Line"; WithholdCode: Code[20]; ValidityDate: Date; var IsHandled: Boolean)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnCalculateWithholdingTaxOnRecalculate(var PurchWithhContribution: Record "Purch. Withh. Contribution"; PurchaseHeader: Record "Purchase Header"; var TotAmount: Decimal)
     begin
@@ -728,7 +773,7 @@
     local procedure OnGetRemainingWithhTaxAmountOnAfterVendLedgEntrySetFilters(var VendLedgEntry: Record "Vendor Ledger Entry"; CreateVendLedgEntry: Record "Vendor Ledger Entry"; ComputedWithholdingTax: Record "Computed Withholding Tax"; AppliestoOccurrenceNo: Integer)
     begin
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnPostPaymentsOnBeforeComputedWithholdingTaxModify(var TempWithholdingSocSec: Record "Tmp Withholding Contribution"; var ComputedWithholdingTax: Record "Computed Withholding Tax")
     begin

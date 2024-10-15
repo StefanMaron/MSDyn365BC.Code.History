@@ -409,7 +409,13 @@ codeunit 12131 "Spesometro Export"
     local procedure WriteRecordBIntermediaryValues()
     var
         IDFileOffset: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeWriteRecordBIntermediaryValues(VATReportSetup, FlatFileManagement, IsHandled);
+        if IsHandled then
+            exit;
+
         IDFileOffset := 12;
         if VATReportSetup."Intermediary VAT Reg. No." <> '' then begin
             WritePositionalValue(571 + IDFileOffset, 16, ConstFormat::CF, VATReportSetup."Intermediary VAT Reg. No.", false); //B52
@@ -455,6 +461,11 @@ codeunit 12131 "Spesometro Export"
         WritePositionalValue(376 + IDFileOffset, 4, ConstFormat::DA, FormatDate(StartDate, ConstFormat::DA), false);
         if PeriodType <> PeriodType::Hide then
             WritePositionalValue(380 + IDFileOffset, 2, ConstFormat::AN, DateRef, false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeWriteRecordBIntermediaryValues(var VATReportSetup: Record "VAT Report Setup"; var FlatFileManagement: Codeunit "Flat File Management"; var IsHandled: Boolean)
+    begin
     end;
 }
 

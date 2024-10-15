@@ -309,7 +309,7 @@
 
         // [THEN] Error message buffer contains error "Check unhandled error"
         TempErrorMessage.FindFirst();
-        TempErrorMessage.TestField(Description, CheckUnhandledErrorTxt);
+        TempErrorMessage.TestField("Message", CheckUnhandledErrorTxt);
         UnBindSubscription(DocBackgrErrorHandling);
     end;
 

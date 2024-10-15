@@ -84,6 +84,8 @@ codeunit 12184 "Fattura Doc. Helper"
 
         CollectDocLinesInformation(TempFatturaLine, LineRecRef, TempFatturaHeader, PricesIncludingVAT);
         CollectPaymentInformation(TempFatturaLine, TempFatturaHeader);
+
+        OnAfterCollectDocumentInformation(TempFatturaHeader, TempFatturaLine, HeaderRecRef);
     end;
 
     [Scope('OnPrem')]
@@ -1607,6 +1609,11 @@ codeunit 12184 "Fattura Doc. Helper"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckMandatoryFields(HeaderRecRef: RecordRef; var ErrorMessage: Record "Error Message")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCollectDocumentInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var TempFatturaLine: Record "Fattura Line" temporary; HeaderRecordRef: RecordRef)
     begin
     end;
 

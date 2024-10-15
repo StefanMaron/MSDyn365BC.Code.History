@@ -1624,7 +1624,7 @@ codeunit 135007 "Error Message Posting Setup"
     begin
         TempErrorMessage.FindFirst();
         TempErrorMessage.TestField(
-            Description,
+            "Message",
             LibraryErrorMessage.GetMissingAccountErrorMessage(FieldCaption, VariantRec));
         TempErrorMessage.TestField("Support Url", 'https://go.microsoft.com/fwlink/?linkid=2157418');
     end;

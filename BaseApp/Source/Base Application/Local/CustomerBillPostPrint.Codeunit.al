@@ -7,7 +7,13 @@ codeunit 12172 "Customer Bill - Post + Print"
     trigger OnRun()
     var
         HideDialog: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         HideDialog := false;
 
         OnBeforeConfirmPost(Rec, HideDialog);
@@ -306,6 +312,7 @@ codeunit 12172 "Customer Bill - Post + Print"
     [Scope('OnPrem')]
     procedure SetHidePrintDialog(NewHidePrintDialog: Boolean)
     begin
+        OnBeforeSetHidePrintDialog(HidePrintDialog, NewHidePrintDialog);
         HidePrintDialog := NewHidePrintDialog;
     end;
 
@@ -321,6 +328,11 @@ codeunit 12172 "Customer Bill - Post + Print"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var CustomerBillHeader: Record "Customer Bill Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePost(var CustomerBillHeader: Record "Customer Bill Header")
     begin
     end;
@@ -332,6 +344,11 @@ codeunit 12172 "Customer Bill - Post + Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCustomerBillLine(var GenJournalLine: Record "Gen. Journal Line"; CustomerBillHeader: Record "Customer Bill Header"; CustomerBillLine: Record "Customer Bill Line"; CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetHidePrintDialog(HidePrintDialog: Boolean; var NewHidePrintDialog: Boolean)
     begin
     end;
 

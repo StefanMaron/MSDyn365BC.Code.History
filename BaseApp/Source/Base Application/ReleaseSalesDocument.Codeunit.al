@@ -8,6 +8,7 @@
     begin
         OnBeforeOnRun(Rec);
         SalesHeader.Copy(Rec);
+        SalesHeader.SetHideValidationDialog(Rec.GetHideValidationDialog());
         Code();
         Rec := SalesHeader;
     end;
@@ -99,6 +100,8 @@
                 OnAfterReleaseSalesDoc(SalesHeader, PreviewMode, LinesWereModified);
                 exit;
             end;
+
+            OnCodeOnBeforeSetStatusReleased(SalesHeader);
             Status := Status::Released;
 
             LinesWereModified := LinesWereModified or CalcAndUpdateVATOnLines(SalesHeader, SalesLine);
@@ -532,7 +535,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckMandatoryFields(SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckMandatoryFields(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnBeforeSetStatusReleased(var SalesHeader: Record "Sales Header")
     begin
     end;
 }

@@ -320,7 +320,7 @@
                                     Item."Rolled-up Material Cost" += ComponentQuantity * CompItem."Unit Cost";
                                     Item."Single-Level Material Cost" += ComponentQuantity * CompItem."Unit Cost"
                                 end;
-                            OnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem);
+                            OnCalcAssemblyItemOnAfterCalcItemCost(Item, CompItem, BOMComp, ComponentQuantity);
                         end;
                     BOMComp.Type::Resource:
                         begin
@@ -1080,7 +1080,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCalcAssemblyItemOnAfterCalcItemCost(var Item: Record Item; CompItem: Record Item)
+    local procedure OnCalcAssemblyItemOnAfterCalcItemCost(var Item: Record Item; CompItem: Record Item; BOMComponent: Record "BOM Component"; ComponentQuantity: Decimal)
     begin
     end;
 

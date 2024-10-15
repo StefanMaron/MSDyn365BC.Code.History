@@ -143,7 +143,13 @@ codeunit 12174 "Incl. in VAT Report Validation"
     procedure ValidateSalesHeader(SalesHeader: Record "Sales Header"; var IncludeVATReportErrorLogParam: Record "Incl. in VAT Report Error Log" temporary)
     var
         SalesLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateSalesHeader(SalesHeader, IncludeVATReportErrorLogParam, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesLine.Reset();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
@@ -502,6 +508,11 @@ codeunit 12174 "Incl. in VAT Report Validation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckVATRegistrationNoInGenJnl(GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSalesHeader(SalesHeader: Record "Sales Header"; var TempInclinVATReportErrorLog: Record "Incl. in VAT Report Error Log" temporary; var IsHandled: Boolean)
     begin
     end;
 }

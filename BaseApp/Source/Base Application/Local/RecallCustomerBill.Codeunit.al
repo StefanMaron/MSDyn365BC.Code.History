@@ -4,7 +4,14 @@ codeunit 12170 "Recall Customer Bill"
     TableNo = "Customer Bill Header";
 
     trigger OnRun()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnRun(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if not Confirm(Text1130001) then
             exit;
 
@@ -156,7 +163,13 @@ codeunit 12170 "Recall Customer Bill"
         IssuedCustomerBillHeader: Record "Issued Customer Bill Header";
         BillPostingGroup: Record "Bill Posting Group";
         BalanceAccountNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRecallIssuedBill(IssuedCustomerBillLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesSetup.Get();
         IssuedCustomerBillHeader.Get(IssuedCustomerBillLine."Customer Bill No.");
         GetBillCode(IssuedCustomerBillHeader."Payment Method Code");
@@ -261,6 +274,16 @@ codeunit 12170 "Recall Customer Bill"
     begin
         PaymentMethod.Get(PaymentMethodCode);
         BillCode.Get(PaymentMethod."Bill Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var CustomerBillHeader: Record "Customer Bill Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecallIssuedBill(var IssuedCustomerBillLine: Record "Issued Customer Bill Line"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

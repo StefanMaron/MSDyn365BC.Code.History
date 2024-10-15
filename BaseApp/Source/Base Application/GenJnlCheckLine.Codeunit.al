@@ -1,6 +1,8 @@
 ﻿codeunit 11 "Gen. Jnl.-Check Line"
 {
-    Permissions = TableData "General Posting Setup" = rimd;
+    Permissions = tabledata "General Posting Setup" = rimd,
+                  tabledata "Cost Accounting Setup" = R,
+                  tabledata "Payment Terms" = R;
     TableNo = "Gen. Journal Line";
 
     trigger OnRun()
@@ -344,14 +346,17 @@
     end;
 
     local procedure CheckOperationOccurredDate(var GenJnlLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeCheckOperationOccurredDate(GenJnlLine);
-
-        if GenJnlLine."Operation Occurred Date" = 0D then
-            GenJnlLine."Operation Occurred Date" := GenJnlLine."Posting Date";
-        if (GenJnlLine."Operation Occurred Date" < GLSetup."Last Gen. Jour. Printing Date") and (GenJnlLine.Amount <> 0) then
-            GenJnlLine.FieldError("Operation Occurred Date", ErrorInfo.Create(StrSubstNo(Text12001, GLSetup."Last Gen. Jour. Printing Date")));
-
+        IsHandled := false;
+        OnBeforeCheckOperationOccurredDate(GenJnlLine, IsHandled);
+        if not IsHandled then begin
+            if GenJnlLine."Operation Occurred Date" = 0D then
+                GenJnlLine."Operation Occurred Date" := GenJnlLine."Posting Date";
+            if (GenJnlLine."Operation Occurred Date" < GLSetup."Last Gen. Jour. Printing Date") and (GenJnlLine.Amount <> 0) then
+                GenJnlLine.FieldError("Operation Occurred Date", ErrorInfo.Create(StrSubstNo(Text12001, GLSetup."Last Gen. Jour. Printing Date")));
+        end;
         OnAfterCheckOperationOccurredDate(GenJnlLine);
     end;
 
@@ -613,15 +618,21 @@
     end;
 
     [Scope('OnPrem')]
-    procedure ValidateIncludeInVATReport(GenJnlLineParam: Record "Gen. Journal Line")
+    procedure ValidateIncludeInVATReport(GenJournalLine: Record "Gen. Journal Line")
     var
-        InclInVATReportErrorLogTemp: Record "Incl. in VAT Report Error Log" temporary;
+        TempInclInVATReportErrorLog: Record "Incl. in VAT Report Error Log" temporary;
         InclInVATReportValidation: Codeunit "Incl. in VAT Report Validation";
+        IsHandled: Boolean;
     begin
-        InclInVATReportErrorLogTemp.DeleteAll();
-        InclInVATReportValidation.ValidateGeneralJournalLine(GenJnlLineParam, InclInVATReportErrorLogTemp);
-        if InclInVATReportErrorLogTemp.FindFirst() then
-            Error(InclInVATReportErrorLogTemp."Error Message" + ' ' + StrSubstNo(Text12000, GenJnlLineParam."Line No."));
+        IsHandled := false;
+        OnBeforeValidateIncludeInVATReport(GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TempInclInVATReportErrorLog.DeleteAll();
+        InclInVATReportValidation.ValidateGeneralJournalLine(GenJournalLine, TempInclInVATReportErrorLog);
+        if TempInclInVATReportErrorLog.FindFirst() then
+            Error(TempInclInVATReportErrorLog."Error Message" + ' ' + StrSubstNo(Text12000, GenJournalLine."Line No."));
     end;
 
     procedure CheckDocType(GenJnlLine: Record "Gen. Journal Line")
@@ -1049,7 +1060,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeCheckOperationOccurredDate(var GenJournalLine: Record "Gen. Journal Line")
+    local procedure OnBeforeCheckOperationOccurredDate(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -1125,6 +1136,11 @@
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeIsVendorPaymentToCrMemo(GenJnlLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateIncludeInVATReport(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -973,6 +973,7 @@
     var
         Cust: Record Customer;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        IsHandled: Boolean;
     begin
         DtldCustLedgEntry.SetCurrentKey("Transaction No.", "Customer No.", "Entry Type");
         DtldCustLedgEntry.SetFilter(
@@ -981,8 +982,11 @@
             repeat
                 DtldCustLedgEntry.SetRange("Transaction No.", CustLedgEntry."Transaction No.");
                 DtldCustLedgEntry.SetRange("Customer No.", CustLedgEntry."Customer No.");
-                if (not DtldCustLedgEntry.IsEmpty) and (RevType = RevType::Register) then
-                    Error(PostedAndAppliedSameTransactionErr, Number);
+                IsHandled := false;
+                OnInsertFromCustLedgEntryOnBeforeCheckSameTransaction(CustLedgEntry, DtldCustLedgEntry, IsHandled);
+                if not IsHandled then
+                    if (not DtldCustLedgEntry.IsEmpty) and (RevType = RevType::Register) then
+                        Error(PostedAndAppliedSameTransactionErr, Number);
 
                 Clear(TempReversalEntry);
                 if RevType = RevType::Register then
@@ -1013,6 +1017,7 @@
     var
         Vend: Record Vendor;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        IsHandled: Boolean;
     begin
         DtldVendLedgEntry.SetCurrentKey("Transaction No.", "Vendor No.", "Entry Type");
         DtldVendLedgEntry.SetFilter(
@@ -1021,8 +1026,11 @@
             repeat
                 DtldVendLedgEntry.SetRange("Transaction No.", VendLedgEntry."Transaction No.");
                 DtldVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
-                if (not DtldVendLedgEntry.IsEmpty) and (RevType = RevType::Register) then
-                    Error(PostedAndAppliedSameTransactionErr, Number);
+                IsHandled := false;
+                OnInsertFromVendLedgEntryOnBeforeCheckSameTransaction(VendLedgEntry, DtldVendLedgEntry, IsHandled);
+                if not IsHandled then
+                    if (not DtldVendLedgEntry.IsEmpty) and (RevType = RevType::Register) then
+                        Error(PostedAndAppliedSameTransactionErr, Number);
 
                 Clear(TempReversalEntry);
                 if RevType = RevType::Register then
@@ -1702,6 +1710,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCCheckDtldVendLedgEntry(VendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromVendLedgEntryOnBeforeCheckSameTransaction(VendLedgEntry: Record "Vendor Ledger Entry"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertFromCustLedgEntryOnBeforeCheckSameTransaction(CustLedgEntry: Record "Cust. Ledger Entry"; var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
     begin
     end;
 }

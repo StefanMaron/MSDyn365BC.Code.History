@@ -6,7 +6,9 @@
     LookupPageID = "Customer Lookup";
     Permissions = TableData "Cust. Ledger Entry" = r,
                   TableData Job = r,
+                  tabledata "VAT Business Posting Group" = R,
                   TableData "VAT Registration Log" = rd,
+                  tabledata "Payment Terms" = R,
                   TableData "Service Header" = r,
                   TableData "Service Ledger Entry" = r,
                   TableData "Service Item" = rm,

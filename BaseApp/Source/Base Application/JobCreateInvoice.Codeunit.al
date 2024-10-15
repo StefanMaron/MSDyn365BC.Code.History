@@ -28,6 +28,7 @@ codeunit 1002 "Job Create-Invoice"
         Text010: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the job. Do you want to continue?';
         Text011: Label 'The currency exchange rate on all planning lines will be updated based on the exchange rate on the sales invoice. Do you want to continue?';
         Text012: Label 'The %1 %2 does not exist anymore. A printed copy of the document was created before the document was deleted.', Comment = 'The Sales Invoice Header 103001 does not exist in the system anymore. A printed copy of the document was created before deletion.';
+        QuantityNegativeErr: Label 'must be positive to create Sales Invoice';
 
     procedure CreateSalesInvoice(var JobPlanningLine: Record "Job Planning Line"; CrMemo: Boolean)
     var
@@ -159,6 +160,9 @@ codeunit 1002 "Job Create-Invoice"
 
                     OnCreateSalesInvoiceLinesOnBeforeCreateSalesLine(
                       JobPlanningLine, SalesHeader, SalesHeader2, NewInvoice, NoOfSalesLinesCreated);
+                    if not CreditMemo then
+                        CheckJobPlanningLineIsNegative(JobPlanningLine);
+
                     CreateSalesLine(JobPlanningLine);
 
                     JobPlanningLineInvoice.InitFromJobPlanningLine(JobPlanningLine);
@@ -255,7 +259,7 @@ codeunit 1002 "Job Create-Invoice"
             Cust.Get(Job."Bill-to Customer No.");
             NoOfInvoices := NoOfInvoices + 1;
             SalesHeader2."Document Type" := SalesHeader2."Document Type"::Invoice;
-            CreateSalesHeader(Job, PostingDate, JobPlanningLine);
+            CreateSalesHeader(Job, PostingDate, TempJobPlanningLine);
             OnCreateSalesInvoiceJobTaskOnBeforeTempJobPlanningLineFind(JobTask, SalesHeader, InvoicePerTask, TempJobPlanningLine);
             if TempJobPlanningLine.Find('-') then
                 repeat
@@ -932,6 +936,18 @@ codeunit 1002 "Job Create-Invoice"
         end;
     end;
 
+    local procedure CheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line")
+    var
+        IsHandled: Boolean;
+    begin
+        OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        if JobPlanningLine.Quantity < 0 then
+            JobPlanningLine.FieldError(Quantity, QuantityNegativeErr);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreateSalesInvoiceLines(SalesHeader: Record "Sales Header"; NewInvoice: Boolean)
     begin
@@ -1170,6 +1186,11 @@ codeunit 1002 "Job Create-Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateSalesLineDimension(var SalesLine: Record "Sales Line"; JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJobPlanningLineIsNegative(JobPlanningLine: Record "Job Planning Line"; var IsHandled: Boolean)
     begin
     end;
 }

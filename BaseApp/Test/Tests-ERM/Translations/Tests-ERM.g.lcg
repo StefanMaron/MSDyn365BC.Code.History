@@ -6359,6 +6359,15 @@
       <Cmt Name="Dev"><![CDATA[%1 = external document no.]D;]A;(LookupHint=Codeunit External Document No. Tests - NamedType PurchInvExistsInRepErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 389218127 - NamedType 3776478098" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Contact E-Mail is not carried over to the document]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit New Document from CustomerCard - NamedType ContactEmailNotCarriedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2240216850 - NamedType 3770914415" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The fiscal year does not exist.]]></Val>
@@ -7799,6 +7808,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType ItemDiscGroupMustNotBePurchaseErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 2244547033" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Invalid %1]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Price List Header Field Caption]D;]A;(LookupHint=Codeunit Price List Line UT - NamedType JobPriceListFieldErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 3463416082" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[cannot be set to %1 if the header's source type is %2.]]></Val>
@@ -7905,6 +7923,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1 and %2 - dates]D;]A;(LookupHint=Codeunit Price List Line UT - NamedType StartingDateErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2479071172 - NamedType 3932484724" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Product Posting Group are not equal.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Price List Line UT - NamedType VATProdPostingGroupErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2479071172 - NamedType 436135240" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12242,7 +12269,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocMsg)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number]D;]A;(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3359274847 - NamedType 1122546544" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12251,7 +12278,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocQst)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 is a document number]D;]A;(LookupHint=Codeunit Test Reten. Pol. Doc. Arch. - NamedType ArchiveSalesDocQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3571738936 - NamedType 2120421046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

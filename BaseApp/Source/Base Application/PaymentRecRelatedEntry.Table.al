@@ -41,7 +41,7 @@ table 184 "Payment Rec. Related Entry"
         {
             Caption = 'To Reverse';
         }
-   }
+    }
     keys
     {
         key(Key1; "Entry No.", "Entry Type", "Bank Account No.", "Statement No.", "Statement Line No.")
