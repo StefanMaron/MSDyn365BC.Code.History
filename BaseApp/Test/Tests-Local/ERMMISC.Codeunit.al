@@ -101,7 +101,7 @@ codeunit 144018 "ERM MISC"
           IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, CountryCode);
 
         // [WHEN] Create Intrastat Declaration Disc
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] We have LAST 12 characters "VAT Registration No." from 5 position in Header and from 8 position in lines in intrastat declaration file.
         FileTempBlob.CreateInStream(FileInStream);
@@ -403,7 +403,7 @@ codeunit 144018 "ERM MISC"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Create Intrastat Declaration Disc
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] "Entry/Exit Point" in reported file equals '00'
         Assert.AreEqual('00', GetEntryExitPointFromDeclarationFile(FileTempBlob), EntryExitPointErr);
@@ -430,7 +430,7 @@ codeunit 144018 "ERM MISC"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Create Intrastat Declaration Disc
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] "Entry/Exit Point" in reported file equals 'XX'
         Assert.AreEqual(
@@ -446,6 +446,7 @@ codeunit 144018 "ERM MISC"
     var
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         FileTempBlob: Codeunit "Temp Blob";
+        CountryRegion: Record "Country/Region";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Shipment]
         // [SCENARIO 376893] Create Intrastat Decl. with "Partner VAT ID" in shipment Intrastat Jnl. Line when Counterparty = false
@@ -456,10 +457,13 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(FileTempBlob, '', '', '  ', IntrastatJnlLine."Transaction Type", '+');
+        CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
+        VerifyTransactionAndPatnerIDInDeclarationFile(
+          FileTempBlob, PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+          CountryRegion."Intrastat Code", '+');
     end;
 
     [Test]
@@ -482,15 +486,15 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
         // [THEN] Intrastat Code is exported as Country of Origin (TFS 391822)
         CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
         VerifyTransactionAndPatnerIDInDeclarationFile(
-            FileTempBlob, IntrastatJnlLine."Transaction Specification",
-            PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
-            CountryRegion."Intrastat Code", ' ', '+');
+          FileTempBlob,
+          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+          CountryRegion."Intrastat Code", '+');
     end;
 
     [Test]
@@ -521,7 +525,7 @@ codeunit 144018 "ERM MISC"
         CountryRegion."Intrastat Code" := ''; // TFS 394821
         CountryRegion.Modify();
 
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         FileTempBlob.CreateInStream(FileInstream);
         FileInstream.ReadText(LineContent);
@@ -531,9 +535,9 @@ codeunit 144018 "ERM MISC"
           StrSubstNo('%1 %2', CountryRegion."Intrastat Code", IntrastatJnlLine."Country/Region Code"),
           LineContent);
         VerifyTransactionAndPatnerIDInDeclarationFile(
-          FileTempBlob, IntrastatJnlLine."Transaction Specification",
-          PadStr('', 17 - STRLEN(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
-          IntrastatJnlLine."Country/Region of Origin Code", ' ', '+');
+          FileTempBlob,
+          PadStr('', 17 - StrLen(IntrastatJnlLine."Partner VAT ID"), ' ') + IntrastatJnlLine."Partner VAT ID",
+          IntrastatJnlLine."Country/Region of Origin Code", '+');
     end;
 
     [Test]
@@ -553,10 +557,10 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = false
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
-        // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = 'NL23456789456'
-        VerifyTransactionAndPatnerIDInDeclarationFile(FileTempBlob, '', '', '  ', IntrastatJnlLine."Transaction Type", '+');
+        // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '                 '
+        VerifyTransactionAndPatnerIDInDeclarationFile(FileTempBlob, '                 ', '  ', '+');
     end;
 
     [Test]
@@ -578,15 +582,15 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Intrastat Declaration is created with Transaction = '12' and 'Partner ID' = '     NL0123456789'
         // [THEN] Blanked Intrastat Code is exported as Country of Origin (TFS 391822)
         CountryRegion.Get(IntrastatJnlLine."Country/Region of Origin Code");
         VerifyTransactionAndPatnerIDInDeclarationFile(
-          FileTempBlob, '  ',
+          FileTempBlob,
           PadStr('', 17, ' '),
-          '  ', IntrastatJnlLine."Transaction Type", '+');
+          '  ', '+');
     end;
 
     [Test]
@@ -604,7 +608,7 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        asserterror RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Testfield error occurs: "Transaction Specification must have a value"
 #if CLEAN19
@@ -614,30 +618,6 @@ codeunit 144018 "ERM MISC"
 #endif
     end;
 
-    [Test]
-    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
-    procedure TransactionTypeIsCheckedForShipmentIntrastatFileCounterpartyTrue()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        FileTempBlob: Codeunit "Temp Blob";
-    begin
-        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Export] [Receipt]
-        // [SCENARIO 391946] Report 11413 "Create Intrastat Decl. Disk" checks for "Transaction Type" for receipts when Counterparty = true
-        Initialize();
-
-        // [GIVEN] Prepare receipt intrastat journal line with blanked "Transaction Type"
-        PrepareIntrastatJnlLineWithBlankedTransactionType(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
-
-        // [WHEN] Run Create Intrastat Declaration Disc with Counterparty = true
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
-
-        // [THEN] Testfield error occurs: "Transaction Type must have a value"
-#if CLEAN19
-        VerifyAdvanvedChecklistError(IntrastatJnlLine,IntrastatJnlLine.FieldName("Transaction Type"));
-#else
-        VerifyTestfieldChecklistError(IntrastatJnlLine.FieldName("Transaction Type"));
-#endif
-    end;
 
     [Test]
     [HandlerFunctions('IntrastatChecklistRPH')]
@@ -931,7 +911,7 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Shipment);
 
         // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        asserterror RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
         VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Specification"));
@@ -953,7 +933,7 @@ codeunit 144018 "ERM MISC"
         PrepareIntrastatJnlLineWithBlankedTransactionSpecification(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
 
         // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true)
-        asserterror RunIntrastatMakeDiskTaxAuth(FileTempBlob, true);
+        asserterror RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
         // [THEN] Error log contains 1 error: "Transaction Specification must have a value"
         VerifyBatchError(IntrastatJnlLine, IntrastatJnlLine.FIELDNAME("Transaction Specification"));
@@ -968,7 +948,7 @@ codeunit 144018 "ERM MISC"
         FileTempBlob: Codeunit "Temp Blob";
     begin
         // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Shipment] [Correction]
-        // [SCENARIO 402687] Report 11413 "Create Intrastat Decl. Disk" prints "-0" for the special units in case of correction
+        // [SCENARIO 431037] Report 11413 "Create Intrastat Decl. Disk" prints "+0" for the special units in case of correction
         Initialize();
 
         // [GIVEN] Intrastat journal line for shipment correction and "Supplementary Units" = false
@@ -977,13 +957,14 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine."Transport Method" := LibraryUtility.GenerateGUID();
         IntrastatJnlLine."Transaction Type" := 'X';
         IntrastatJnlLine."Entry/Exit Point" := LibraryUtility.GenerateGUID();
+        IntrastatJnlLine."Transaction Specification" := Format(LibraryRandom.RandIntInRange(10, 99));
         IntrastatJnlLine.Modify();
 
         // [WHEN] Run "Create Intrastat Decl. Disk" report
-        RunIntrastatMakeDiskTaxAuth(FileTempBlob, false);
+        RunIntrastatMakeDiskTaxAuth2022(FileTempBlob, true);
 
-        // [THEN] Special Unit value is exposted as "-0"
-        VerifyTransactionAndPatnerIDInDeclarationFile(FileTempBlob, '', '', '  ', 'X', '-');
+        // [THEN] Special Unit value is exposted as "+0"
+        VerifyTransactionAndPatnerIDInDeclarationFile(FileTempBlob, '                 ', '  ', '+');
     end;
 
     [Test]
@@ -1008,7 +989,7 @@ codeunit 144018 "ERM MISC"
 
         // [THEN] "Transaction Specification" is exported
         VerifyTransactionAndPatnerIDInDeclarationFile(
-            FileTempBlob, IntrastatJnlLine."Transaction Specification", PadStr('', 17, ' '), '  ', ' ', '+');
+          FileTempBlob, PadStr('', 17, ' '), '  ', '+');
     end;
 
     local procedure Initialize()
@@ -1071,12 +1052,6 @@ codeunit 144018 "ERM MISC"
         IntrastatJnlLine.Modify();
     end;
 
-    local procedure PrepareIntrastatJnlLineWithBlankedTransactionType(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
-    begin
-        PrepareIntrastatJournalLine(IntrastatJnlLine, Type);
-        IntrastatJnlLine."Transaction Type" := '';
-        IntrastatJnlLine.Modify();
-    end;
 
     local procedure PrepareIntrastatJournalLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option)
     var
@@ -1547,6 +1522,7 @@ codeunit 144018 "ERM MISC"
         LibraryERM.CreateIntrastatJnlLine(IntrastatJnlLine, IntrastatJnlTemplateName, IntrastatJnlBatchName);
         IntrastatJnlLine.Validate("Transport Method", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transport Method"));
         IntrastatJnlLine.Validate("Transaction Type", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Transaction Type"));
+        IntrastatJnlLine."Transaction Specification" := Format(LibraryRandom.RandIntInRange(10, 99));
         IntrastatJnlLine.Validate("Entry/Exit Point", LibraryUtility.FindOrCreateCodeRecord(DATABASE::"Entry/Exit Point"));
         IntrastatJnlLine.Validate(Date, WorkDate);
         IntrastatJnlLine.Validate("Item No.", CreateItemForIntrastat);
@@ -1578,18 +1554,6 @@ codeunit 144018 "ERM MISC"
           StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntry.Amount, GLEntry.TableCaption));
     end;
 
-    local procedure RunIntrastatMakeDiskTaxAuth(var FileTempBlob: Codeunit "Temp Blob"; Counterparty: Boolean)
-    var
-        CreateIntrastatDeclDisk: Report "Create Intrastat Decl. Disk";
-        ExportFormat: Enum "Intrastat Export Format";
-        FileOutStream: OutStream;
-    begin
-        Commit();
-        LibraryVariableStorage.Enqueue(Counterparty);
-        FileTempBlob.CreateOutStream(FileOutStream);
-        CreateIntrastatDeclDisk.InitializeRequest(FileOutStream, ExportFormat::"2021");
-        CreateIntrastatDeclDisk.Run();
-    end;
 
     local procedure RunIntrastatMakeDiskTaxAuth2022(var FileTempBlob: Codeunit "Temp Blob"; Counterparty: Boolean)
     var
@@ -1646,7 +1610,7 @@ codeunit 144018 "ERM MISC"
         CustLedgerEntry.TestField("Recipient Bank Account", ServiceHeader."Bank Account Code");
     end;
 
-    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(var FileTempBlob: Codeunit "Temp Blob"; ExpectedTransaction: Text; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text; ExpectedTransactionType: Text; ExpectedSpecialUnitSign: Text)
+    local procedure VerifyTransactionAndPatnerIDInDeclarationFile(var FileTempBlob: Codeunit "Temp Blob"; ExpectedPartnedID: Text; ExpectedCountryOfOrigin: Text; ExpectedSpecialUnitSign: Text)
     var
         FileInStream: InStream;
         DeclarationString: Text[256];
@@ -1654,12 +1618,10 @@ codeunit 144018 "ERM MISC"
         FileTempBlob.CreateInStream(FileInStream);
         FileInStream.ReadText(DeclarationString);
         FileInStream.ReadText(DeclarationString);
-        Assert.AreEqual(ExpectedTransaction, CopyStr(DeclarationString, 116, 2), 'Transaction');
         Assert.AreEqual(ExpectedPartnedID, CopyStr(DeclarationString, 118, 17), 'Partner ID');
         Assert.AreEqual(ExpectedCountryOfOrigin, CopyStr(DeclarationString, 25, 2), 'Country of Origin');
-        Assert.AreEqual(ExpectedTransactionType, CopyStr(DeclarationString, 37, 1), 'Transaction Type');
-        Assert.AreEqual(ExpectedSpecialUnitSign, CopyStr(DeclarationString, 59, 1), 'Special Unit + sign'); // TFS 400682, 402687
-        Assert.AreEqual('         0', CopyStr(DeclarationString, 60, 10), 'Special Unit value');
+        Assert.AreEqual(ExpectedSpecialUnitSign, CopyStr(DeclarationString, 81, 1), 'Special Unit + sign'); // TFS 400682
+        Assert.AreEqual('         0', CopyStr(DeclarationString, 82, 10), 'Special Unit value');
     end;
 
     local procedure VerifyTestfieldChecklistError(FieldName: Text)

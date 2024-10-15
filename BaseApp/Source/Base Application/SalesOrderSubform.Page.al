@@ -85,6 +85,7 @@ page 46 "Sales Order Subform"
                         CrossReferenceNoLookUp();
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -111,6 +112,7 @@ page 46 "Sales Order Subform"
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec, SalesHeader);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnReferenceNoOnAfterLookup(Rec);
                     end;
 
@@ -1370,6 +1372,7 @@ page 46 "Sales Order Subform"
                             trigger OnAction()
                             begin
                                 RollupAsmPrice();
+                                CalculateTotals();
                             end;
                         }
                         action("Roll Up &Cost")
@@ -1383,6 +1386,7 @@ page 46 "Sales Order Subform"
                             trigger OnAction()
                             begin
                                 RollUpAsmCost();
+                                CalculateTotals();
                             end;
                         }
                     }

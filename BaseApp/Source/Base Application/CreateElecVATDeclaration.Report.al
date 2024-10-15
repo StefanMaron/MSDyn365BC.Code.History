@@ -102,8 +102,6 @@ report 11403 "Create Elec. VAT Declaration"
                 InsertDataLine("Elec. Tax Declaration Header", 1, 'bd-i:InstallationDistanceSalesWithinTheEC',
                   CalcVATAmount(9, 9), 'INF', 'Msg', 'EUR');
                 InsertDataLine("Elec. Tax Declaration Header", 1, 'bd-i:MessageReferenceSupplierVAT', "Our Reference", '', 'Msg', '');
-                InsertDataLine("Elec. Tax Declaration Header", 1, 'bd-i:SmallEntrepreneurProvisionReduction',
-                  CalcVATAmount(18, 9), 'INF', 'Msg', 'EUR');
 
                 InsertDataLine("Elec. Tax Declaration Header", 1, 'bd-i:SoftwarePackageName', 'Microsoft Dynamics NAV', '', 'Msg', '');
                 InsertDataLine("Elec. Tax Declaration Header", 1, 'bd-i:SoftwarePackageVersion',

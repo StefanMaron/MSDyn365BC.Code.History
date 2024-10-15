@@ -274,6 +274,7 @@
                     var
                         IntrastatJnlLine: Record "Intrastat Jnl. Line";
                     begin
+		    	        FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
                         ReportPrint.PrintIntrastatJnlLine(Rec);
                         if ErrorsExistOnCurrentBatch(true) then
                             Error('');
@@ -283,6 +284,7 @@
                         IntrastatJnlLine.SetRange("Journal Template Name", "Journal Template Name");
                         IntrastatJnlLine.SetRange("Journal Batch Name", "Journal Batch Name");
                         REPORT.RunModal(REPORT::"Create Intrastat Decl. Disk", true, false, IntrastatJnlLine);
+			            FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                     end;
                 }
             }
@@ -426,6 +428,8 @@
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
+        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
@@ -449,7 +453,9 @@
         ReportPrint: Codeunit "Test Report-Print";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         LineStyleExpression: Text;
+        IntrastatTok: Label 'Intrastat', Locked = true;
         StatisticalValue: Decimal;
         TotalStatisticalValue: Decimal;
         CurrentJnlBatchName: Code[10];

@@ -1113,7 +1113,8 @@
         IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
 
         // [WHEN] Fixing the error
-        TransactionType.FindFirst;
+        TransactionType.Code := LibraryUtility.GenerateGUID();
+        TransactionType.Insert();
         IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
         // [WHEN] Running Checklist
         IntrastatJournalPage.ChecklistReport.Invoke;
@@ -1170,7 +1171,8 @@
         OpenIntrastatJournalAndGetEntries(IntrastatJournalPage, IntrastatJnlBatch."Journal Template Name");
 
         // [GIVEN] A Receipt with all values
-        TransactionType.FindFirst;
+        TransactionType.Code := LibraryUtility.GenerateGUID();
+        TransactionType.Insert();
         IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
         ShipmentMethod.FindFirst;
         IntrastatJournalPage."Shpt. Method Code".Value(ShipmentMethod.Code);
