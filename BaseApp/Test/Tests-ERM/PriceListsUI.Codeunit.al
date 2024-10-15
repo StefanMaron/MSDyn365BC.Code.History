@@ -27,7 +27,6 @@ codeunit 134117 "Price Lists UI"
         CreateNewTxt: Label 'Create New...';
         ViewExistingTxt: Label 'View Existing Prices and Discounts...';
         AllLinesVerifiedMsg: Label 'All price list lines are verified.';
-        AssetTypeMustNotBeAllErr: Label 'Product Type must not be (All)';
 
     [Test]
     procedure T000_SalesPriceListsPageIsNotEditable()
@@ -208,9 +207,10 @@ codeunit 134117 "Price Lists UI"
         PriceListLineReview.Trap();
         CustomerCard.PriceLines.Invoke();
 
-        // [THEN] There is 1 price line - #2
+        // [THEN] There is 1 price line - #2, "Price List Description" is '002'
         Assert.IsTrue(PriceListLineReview.First(), 'not found first');
-        PriceListLineReview."Price List Code".AssertEquals('002');
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[2]."Price List Code");
+        PriceListLineReview.PriceListDescription.AssertEquals(PriceListLine[2].FieldName(Description) + PriceListLine[2]."Price List Code");
         Assert.IsFalse(PriceListLineReview.Next(), 'found 2th');
     end;
 
@@ -244,7 +244,8 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] There is 1 price line - #4
         Assert.IsTrue(PriceListLineReview.First(), 'not found first');
-        PriceListLineReview."Price List Code".AssertEquals('004');
+        PriceListLineReview."Price List Code".AssertEquals(PriceListLine[4]."Price List Code");
+        PriceListLineReview.PriceListDescription.AssertEquals(PriceListLine[4].FieldName(Description) + PriceListLine[4]."Price List Code");
         Assert.IsFalse(PriceListLineReview.Next(), 'found 2th');
     end;
 
@@ -753,6 +754,7 @@ codeunit 134117 "Price Lists UI"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmYesHandler')]
     procedure T016_SalesStatusFromDraftToActiveWithBlankAssetNo()
     var
         PriceListHeader: Record "Price List Header";
@@ -768,15 +770,18 @@ codeunit 134117 "Price Lists UI"
         // [GIVEN] Price line, where "Asset No." is <blank>.
         LibraryPriceCalculation.CreatePriceListLine(
             PriceListLine, PriceListHeader, "Price Amount Type"::Price, "Price Asset Type"::"G/L Account", LibraryERM.CreateGLAccountNo());
-        PriceListLine.Validate("Asset Type", "Price Asset Type"::" "); // All
+        PriceListLine.Validate("Asset Type", "Price Asset Type"::" "); // converted to Item
         PriceListLine.Modify();
         SalesPriceList.OpenEdit();
 
         // [WHEN] Change Status to 'Active' (answer 'Yes' to confirmation)
-        asserterror SalesPriceList.Status.SetValue(PriceListHeader.Status::Active);
+        SalesPriceList.Status.SetValue(PriceListHeader.Status::Active);
 
-        // [THEN] Error: "Product Type must not be (All)"
-        Assert.ExpectedError(AssetTypeMustNotBeAllErr);
+        // [THEN] The price list line is active, where "Asset Type" is Item, "Asset No." is <blank>
+        PriceListLine.Find();
+        PriceListLine.TestField(Status, "Price Status"::Active);
+        PriceListLine.TestField("Asset Type", "Price Asset Type"::Item);
+        PriceListLine.TestField("Asset No.", '');
     end;
 
     [Test]
@@ -1107,7 +1112,7 @@ codeunit 134117 "Price Lists UI"
         SalesPriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
         SalesPriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
 
-        // [THEN] Price list line added, where "Applies-To No." is 'L', "Currency Code" is 'EUR'
+        // [THEN] Price list line added, where "Assign-to" is 'L', "Currency Code" is 'EUR'
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
@@ -1159,7 +1164,7 @@ codeunit 134117 "Price Lists UI"
         PurchasePriceList.Lines."Asset Type".SetValue("Price Asset Type"::"G/L Account");
         PurchasePriceList.Lines."Asset No.".SetValue(LibraryERM.CreateGLAccountNo());
 
-        // [THEN] Price list line added, where "Applies-To No." is 'L', "Currency Code" is 'EUR'
+        // [THEN] Price list line added, where "Assign-to" is 'L', "Currency Code" is 'EUR'
         PriceListLine.SetRange("Price List Code", PriceListHeader.Code);
         PriceListLine.SetRange("Asset Type", "Price Asset Type"::"G/L Account");
         PriceListLine.FindFirst();
@@ -1192,7 +1197,7 @@ codeunit 134117 "Price Lists UI"
         SalesPriceList.OpenEdit();
         SalesPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
-        // [THEN] "Applie-to Type", "Applies-to No.", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        // [THEN] "Applie-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
         Assert.IsTrue(SalesPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
         Assert.IsTrue(SalesPriceList.Lines.SourceNo.Visible(), 'SourceType.No');
         Assert.IsTrue(SalesPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
@@ -1224,7 +1229,7 @@ codeunit 134117 "Price Lists UI"
         PurchPriceList.OpenEdit();
         PurchPriceList.Filter.SetFilter(Code, PriceListHeader.Code);
 
-        // [THEN] "Applie-to Type", "Applies-to No.", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
+        // [THEN] "Applie-to Type", "Assign-to", "Currency Code",  "Starting/Ending Date", "Price Includes VAT" are visible and editable
         Assert.IsTrue(PurchPriceList.Lines.SourceType.Visible(), 'SourceType.Visible');
         Assert.IsTrue(PurchPriceList.Lines.SourceNo.Visible(), 'SourceType.No');
         Assert.IsTrue(PurchPriceList.Lines.CurrencyCode.Visible(), 'CurrencyCode.Visible');
@@ -1418,9 +1423,10 @@ codeunit 134117 "Price Lists UI"
         Assert.IsFalse(PriceListLineReview."Source No.".Visible(), 'Source No.Visible');
         Assert.IsTrue(PriceListLineReview."Asset Type".Visible(), 'Asset Type.Visible');
         Assert.IsTrue(PriceListLineReview."Asset No.".Visible(), 'Asset No.Visible');
-        // [THEN] PriceListLineReview page open, where are 1 price line - #2
+        // [THEN] PriceListLineReview page open, where are 1 price line - #2, PriceListDescription is <blank>
         Assert.IsTrue(PriceListLineReview.First(), 'not found first price');
         PriceListLineReview."Price List Code".AssertEquals('002');
+        PriceListLineReview.PriceListDescription.AssertEquals('');
         Assert.IsFalse(PriceListLineReview.Next(), 'found second price');
         PriceListLineReview.Close();
     end;
@@ -3007,8 +3013,10 @@ codeunit 134117 "Price Lists UI"
 
         // [THEN] "Status" is 'Active' in 2 modified lines
         Assert.AreEqual('Active', PriceListLineReview.Status.Value, 'Status.Value #1');
+        PriceListLineReview.PriceListDescription.AssertEquals(PriceListHeader[1].FieldName(Description) + PriceListHeader[1].Code);
         Assert.IsTrue(PriceListLineReview.Next(), 'not found 2nd line');
         Assert.AreEqual('Active', PriceListLineReview.Status.Value, 'Status.Value #2');
+        PriceListLineReview.PriceListDescription.AssertEquals(PriceListHeader[2].FieldName(Description) + PriceListHeader[2].Code);
         Assert.IsFalse(PriceListLineReview.Next(), 'found 3rd line');
     end;
 
@@ -3464,25 +3472,31 @@ codeunit 134117 "Price Lists UI"
     end;
 
     local procedure CreateSalesPriceLinesForCustomers(Customer: Array[2] of Record Customer; var PriceListLine: Array[4] of Record "Price List Line")
+    var
+        PriceListHeader: Record "Price List Header";
     begin
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::"All Customers", '');
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[1], '001', "Price Source Type"::"All Customers", '',
+            PriceListLine[1], PriceListHeader.Code, "Price Source Type"::"All Customers", '',
             "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
         PriceListLine[1]."Amount Type" := "Price Amount Type"::Any;
         PriceListLine[1].Modify();
 
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer[1]."No.");
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[2], '002', "Price Source Type"::Customer, Customer[1]."No.",
+            PriceListLine[2], PriceListHeader.Code, "Price Source Type"::Customer, Customer[1]."No.",
             "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
 
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer[2]."No.");
         LibraryPriceCalculation.CreateSalesPriceLine(
-            PriceListLine[3], '003', "Price Source Type"::Customer, Customer[2]."No.",
+            PriceListLine[3], PriceListHeader.Code, "Price Source Type"::Customer, Customer[2]."No.",
             "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
         PriceListLine[3]."Amount Type" := "Price Amount Type"::Any;
         PriceListLine[3].Modify();
 
+        LibraryPriceCalculation.CreatePriceHeader(PriceListHeader, "Price Type"::Sale, "Price Source Type"::Customer, Customer[1]."No.");
         LibraryPriceCalculation.CreateSalesDiscountLine(
-            PriceListLine[4], '004', "Price Source Type"::Customer, Customer[1]."No.",
+            PriceListLine[4], PriceListHeader.Code, "Price Source Type"::Customer, Customer[1]."No.",
             "Price Asset Type"::Item, LibraryInventory.CreateItemNo());
     end;
 

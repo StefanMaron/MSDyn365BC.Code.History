@@ -218,6 +218,7 @@ codeunit 130510 "Library - Price Calculation"
     begin
         PriceListHeader.Init();
         PriceListHeader.Code := LibraryUtility.GenerateGUID();
+        PriceListHeader.Description := StrSubstNo('%1%2', PriceListHeader.FieldName(Description), PriceListHeader.Code);
         PriceListHeader."Price Type" := PriceType;
         PriceListHeader.Validate("Source Type", SourceType);
         PriceListHeader.Validate("Source No.", SourceNo);
@@ -228,6 +229,7 @@ codeunit 130510 "Library - Price Calculation"
     begin
         PriceListHeader.Init();
         PriceListHeader.Code := LibraryUtility.GenerateGUID();
+        PriceListHeader.Description := StrSubstNo('%1%2', PriceListHeader.FieldName(Description), PriceListHeader.Code);
         PriceListHeader."Price Type" := PriceType;
         PriceListHeader.Validate("Source Type", SourceType);
         PriceListHeader.Validate("Parent Source No.", ParentSourceNo);

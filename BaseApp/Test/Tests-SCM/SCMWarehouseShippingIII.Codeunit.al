@@ -1405,6 +1405,134 @@ codeunit 137162 "SCM Warehouse - Shipping III"
         Item.TestField("Qty. Picked", PickBinQty);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerAsTrue')]
+    procedure UndoShipmentWithWarehouseEntries()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Undo Shipment] [Invoice] [Sales]
+        // [SCENARIO 410025] Undo Shipment posts warehouse entries if the shipment has not been invoiced.
+        Initialize();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Location with mandatory bin.
+        CreateAndUpdateLocation(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Post 10 pcs to inventory.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, 2 * Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for 10 pcs, set "Qty. to Ship" = 5.
+        // [GIVEN] Ship 5 pcs, do not invoice.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, Location.Code, WorkDate());
+        SalesLine.Validate("Qty. to Ship", Qty);
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Ensure the item's inventory = warehouse = 5 pcs.
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, Qty);
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", Qty);
+
+        // [WHEN] Locate the sales shipment line and invoke "Undo Shipment".
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] The sales line is not shipped or invoiced.
+        SalesLine.Find();
+        SalesLine.TestField("Qty. to Ship", Salesline.Quantity);
+        SalesLine.TestField("Quantity Shipped", 0);
+
+        // [THEN] The item's both inventory and warehouse are back 10 pcs.
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 2 * Qty);
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 2 * Qty);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerAsTrue')]
+    procedure UndoShipmentWithWarehouseEntriesAfterCancelInvoice()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        WarehouseEntry: Record "Warehouse Entry";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Undo Shipment] [Invoice] [Sales]
+        // [SCENARIO 410025] Undo Shipment does not post excessive warehouse entries if they were previously created by cancelling invoice.
+        Initialize();
+        LibrarySales.SetDefaultCancelReasonCodeForSalesAndReceivablesSetup();
+        Qty := LibraryRandom.RandIntInRange(20, 40);
+
+        // [GIVEN] Location with mandatory bin.
+        CreateAndUpdateLocation(Location, false, false, false, false, true);
+        LibraryWarehouse.CreateBin(Bin, Location.Code, LibraryUtility.GenerateGUID(), '', '');
+
+        // [GIVEN] Post 10 pcs to inventory.
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, Bin.Code, 2 * Qty);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Sales order for 10 pcs, set "Qty. to Ship" = 5.
+        // [GIVEN] Ship and invoice 5 pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", 2 * Qty, Location.Code, WorkDate());
+        SalesLine.Validate("Qty. to Ship", Qty);
+        SalesLine.Modify(true);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Cancel the posted invoice. That action reverses the shipment too.
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [GIVEN] Ensure the item's inventory = warehouse = 10 pcs.
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 2 * Qty);
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 2 * Qty);
+
+        // [WHEN] Locate the sales shipment line and invoke "Undo Shipment".
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] The sales line is not shipped or invoiced.
+        SalesLine.Find();
+        SalesLine.TestField("Qty. to Ship", Salesline.Quantity);
+        SalesLine.TestField("Qty. to Invoice", SalesLine.Quantity);
+        SalesLine.TestField("Quantity Shipped", 0);
+        SalesLine.TestField("Quantity Invoiced", 0);
+
+        // [THEN] The item's both inventory and warehouse remain 10 pcs.
+        Item.CalcFields(Inventory);
+        Item.TestField(Inventory, 2 * Qty);
+        WarehouseEntry.SetRange("Item No.", Item."No.");
+        WarehouseEntry.CalcSums("Qty. (Base)");
+        WarehouseEntry.TestField("Qty. (Base)", 2 * Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1,4 +1,4 @@
-codeunit 5704 "TransferOrder-Post Shipment"
+﻿codeunit 5704 "TransferOrder-Post Shipment"
 {
     Permissions = TableData "Item Entry Relation" = i;
     TableNo = "Transfer Header";
@@ -97,7 +97,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
                     if TransLine."Item No." <> '' then begin
                         Item.Get(TransLine."Item No.");
-                        Item.TestField(Blocked, false);
+                        CheckItemNotBlocked(Item);
                     end;
 
                     OnCheckTransLine(TransLine, TransHeader, Location, WhseShip, TransShptLine);
@@ -272,6 +272,18 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
 
         OnAfterCreateItemJnlLine(ItemJnlLine, TransferLine, TransShptHeader2, TransShptLine2);
+    end;
+
+    local procedure CheckItemNotBlocked(var Item: Record Item)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckItemNotBlocked(TransLine, Item, Transheader, Location, WhseShip, IsHandled);
+        if IsHandled then
+            exit;
+
+        Item.TestField(Blocked, false);
     end;
 
     local procedure ReserveItemJnlLine(var ItemJnlLine: Record "Item Journal Line"; var TransferLine: Record "Transfer Line"; WhseShip: Boolean; WhseShptHeader2: Record "Warehouse Shipment Header")
@@ -461,12 +473,12 @@ codeunit 5704 "TransferOrder-Post Shipment"
         end;
 
         IsHandled := false;
-        OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, IsHandled);
+        OnBeforeInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, IsHandled, TransShptHeader);
         if IsHandled then
             exit;
 
         TransShptLine.Insert();
-        OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit);
+        OnAfterInsertTransShptLine(TransShptLine, TransLine, SuppressCommit, TransShptHeader);
     end;
 
     local procedure TransferTracking(var FromTransLine: Record "Transfer Line"; var ToTransLine: Record "Transfer Line"; TransferQty: Decimal)
@@ -713,6 +725,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckItemNotBlocked(TransferLine: Record "Transfer Line"; Item: Record Item; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckInvtPostingSetup(var TransferHeader: Record "Transfer Header"; var TempWhseShipmentHeader: Record "Warehouse Shipment Header" temporary; var SourceCode: Code[10])
     begin
     end;
@@ -753,7 +770,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean)
+    local procedure OnAfterInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; TransShptHeader: Record "Transfer Shipment Header")
     begin
     end;
 
@@ -783,7 +800,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeInsertTransShptLine(var TransShptLine: Record "Transfer Shipment Line"; TransLine: Record "Transfer Line"; CommitIsSuppressed: Boolean; var IsHandled: Boolean; TransShptHeader: Record "Transfer Shipment Header")
     begin
     end;
 

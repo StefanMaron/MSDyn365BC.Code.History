@@ -1213,10 +1213,11 @@ codeunit 134015 "ERM Unreal VAT Option Last"
         VATEntry.SetRange("Bill-to/Pay-to No.", GenJournalLine."Account No.");
         VATEntry.SetRange("Document No.", GenJournalLine."Document No.");
         VATEntry.SetRange("Document Type", GenJournalLine."Document Type");
-        VATEntry.FindFirst;
+        VATEntry.FindFirst();
         Assert.AreNearlyEqual(
           Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountError, VATEntry.FieldCaption(Amount),
             VATEntry.TableCaption, VATEntry.FieldCaption("Entry No."), VATEntry."Entry No."));
+        VATEntry.TestField("G/L Acc. No.");
     end;
 
     local procedure VerifyNoVATEntry(GenJournalLine: Record "Gen. Journal Line")

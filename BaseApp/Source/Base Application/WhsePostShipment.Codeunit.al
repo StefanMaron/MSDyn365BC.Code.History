@@ -125,6 +125,7 @@ codeunit 5763 "Whse.-Post Shipment"
 
                 OnBeforePostSourceDocument(WhseShptLine, PurchHeader, SalesHeader, TransHeader, ServiceHeader);
                 PostSourceDocument(WhseShptLine);
+                WhseJnlRegisterLine.LockTables();
 
                 if FindLast then;
                 SetRange("Source Type");
@@ -136,6 +137,7 @@ codeunit 5763 "Whse.-Post Shipment"
 
         OnAfterPostWhseShipment(WhseShptHeader);
 
+        Commit();
         PrintDocuments();
 
         Clear(WMSMgt);
@@ -215,7 +217,7 @@ codeunit 5763 "Whse.-Post Shipment"
                 DATABASE::"Sales Line":
                     begin
                         IsHandled := false;
-                        OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(SalesHeader, WhseShptLine, ValidatePostingDate, IsHandled);
+                        OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(SalesHeader, WhseShptLine, ValidatePostingDate, IsHandled, ModifyHeader);
                         if not IsHandled then
                             if (SalesHeader."Posting Date" = 0D) or
                             (SalesHeader."Posting Date" <> WhseShptHeader."Posting Date") or ValidatePostingDate
@@ -269,18 +271,21 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                 DATABASE::"Purchase Line": // Return Order
                     begin
-                        if (PurchHeader."Posting Date" = 0D) or
-                           (PurchHeader."Posting Date" <> WhseShptHeader."Posting Date")
-                        then begin
-                            OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(WhseShptLine, PurchHeader);
-                            PurchRelease.Reopen(PurchHeader);
-                            PurchRelease.SetSkipCheckReleaseRestrictions;
-                            PurchHeader.SetHideValidationDialog(true);
-                            PurchHeader.SetCalledFromWhseDoc(true);
-                            PurchHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
-                            PurchRelease.Run(PurchHeader);
-                            ModifyHeader := true;
-                        end;
+                        IsHandled := false;
+                        OnInitSourceDocumentHeaderOnBeforePurchaseHeaderUpdatePostingDate(PurchHeader, WhseShptHeader, WhseShptLine, ValidatePostingDate, ModifyHeader, IsHandled);
+                        if not IsHandled then
+                            if (PurchHeader."Posting Date" = 0D) or
+                               (PurchHeader."Posting Date" <> WhseShptHeader."Posting Date")
+                            then begin
+                                OnInitSourceDocumentHeaderOnBeforeReopenPurchHeader(WhseShptLine, PurchHeader);
+                                PurchRelease.Reopen(PurchHeader);
+                                PurchRelease.SetSkipCheckReleaseRestrictions;
+                                PurchHeader.SetHideValidationDialog(true);
+                                PurchHeader.SetCalledFromWhseDoc(true);
+                                PurchHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
+                                PurchRelease.Run(PurchHeader);
+                                ModifyHeader := true;
+                            end;
                         if (WhseShptHeader."Shipment Date" <> 0D) and
                            (WhseShptHeader."Shipment Date" <> PurchHeader."Expected Receipt Date")
                         then begin
@@ -303,13 +308,16 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                 DATABASE::"Transfer Line":
                     begin
-                        if (TransHeader."Posting Date" = 0D) or
-                           (TransHeader."Posting Date" <> WhseShptHeader."Posting Date")
-                        then begin
-                            TransHeader.CalledFromWarehouse(true);
-                            TransHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
-                            ModifyHeader := true;
-                        end;
+                        IsHandled := false;
+                        OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(TransHeader, WhseShptHeader, WhseShptLine, ValidatePostingDate, ModifyHeader, IsHandled);
+                        if not IsHandled then
+                            if (TransHeader."Posting Date" = 0D) or
+                               (TransHeader."Posting Date" <> WhseShptHeader."Posting Date")
+                            then begin
+                                TransHeader.CalledFromWarehouse(true);
+                                TransHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
+                                ModifyHeader := true;
+                            end;
                         if (WhseShptHeader."Shipment Date" <> 0D) and
                            (TransHeader."Shipment Date" <> WhseShptHeader."Shipment Date")
                         then begin
@@ -347,13 +355,16 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                 DATABASE::"Service Line":
                     begin
-                        if (ServiceHeader."Posting Date" = 0D) or (ServiceHeader."Posting Date" <> WhseShptHeader."Posting Date") then begin
-                            ReleaseServiceDocument.Reopen(ServiceHeader);
-                            ServiceHeader.SetHideValidationDialog(true);
-                            ServiceHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
-                            ReleaseServiceDocument.Run(ServiceHeader);
-                            ServiceHeader.Modify();
-                        end;
+                        IsHandled := false;
+                        OnInitSourceDocumentHeaderOnBeforeServiceHeaderUpdatePostingDate(ServiceHeader, WhseShptHeader, WhseShptLine, ValidatePostingDate, ModifyHeader, IsHandled);
+                        if not IsHandled then
+                            if (ServiceHeader."Posting Date" = 0D) or (ServiceHeader."Posting Date" <> WhseShptHeader."Posting Date") then begin
+                                ReleaseServiceDocument.Reopen(ServiceHeader);
+                                ServiceHeader.SetHideValidationDialog(true);
+                                ServiceHeader.Validate("Posting Date", WhseShptHeader."Posting Date");
+                                ReleaseServiceDocument.Run(ServiceHeader);
+                                ServiceHeader.Modify();
+                            end;
                         if (WhseShptHeader."Shipping Agent Code" <> '') and
                            (WhseShptHeader."Shipping Agent Code" <> ServiceHeader."Shipping Agent Code")
                         then begin
@@ -499,6 +510,7 @@ codeunit 5763 "Whse.-Post Shipment"
                     end;
                 DATABASE::"Transfer Line":
                     begin
+                        OnPostSourceDocumentOnBeforeCaseTransferLine(TransHeader, WhseShptLine);
                         TransferPostShipment.SetWhseShptHeader(WhseShptHeader);
                         case WhseSetup."Shipment Posting Policy" of
                             WhseSetup."Shipment Posting Policy"::"Posting errors are not processed":
@@ -1147,10 +1159,11 @@ codeunit 5763 "Whse.-Post Shipment"
                     OnBeforeSalesLineModify(SalesLine, WhseShptLine, ModifyLine, Invoice);
                     if ModifyLine then
                         SalesLine.Modify();
+                    OnHandleSalesLineOnAfterSalesLineModify(SalesLine, ModifyLine);
                 until SalesLine.Next() = 0;
         end;
 
-        OnAfterHandleSalesLine(WhseShptLine, SalesHeader);
+        OnAfterHandleSalesLine(WhseShptLine, SalesHeader, Invoice);
     end;
 
     local procedure UpdateSaleslineQtyToShip(var SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line"; var ATOWhseShptLine: Record "Warehouse Shipment Line"; var NonATOWhseShptLine: Record "Warehouse Shipment Line"; var ATOLineFound: Boolean; var NonATOLineFound: Boolean; SumOfQtyToShip: Decimal; SumOfQtyToShipBase: Decimal)
@@ -1261,7 +1274,7 @@ codeunit 5763 "Whse.-Post Shipment"
                         OnAfterFindWhseShptLineForTransLine(WhseShptLine, TransLine);
                         ModifyLine := TransLine."Qty. to Ship" <> "Qty. to Ship";
                         if ModifyLine then
-                            TransLine.Validate("Qty. to Ship", "Qty. to Ship");
+                            ValidateTransferLineQtyToShip(TransLine, WhseShptLine);
                         if (WhseShptHeader."Shipment Date" <> 0D) and
                            (TransLine."Shipment Date" <> WhseShptHeader."Shipment Date") and
                            ("Qty. to Ship" = "Qty. Outstanding")
@@ -1285,6 +1298,18 @@ codeunit 5763 "Whse.-Post Shipment"
                         TransLine.Modify();
                 until TransLine.Next() = 0;
         end;
+    end;
+
+    local procedure ValidateTransferLineQtyToShip(var TransferLine: Record "Transfer Line"; WarehouseShipmentLine: Record "Warehouse Shipment Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateTransferLineQtyToShip(TransferLine, WarehouseShipmentLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        TransferLine.Validate("Qty. to Ship", WarehouseShipmentLine."Qty. to Ship");
     end;
 
     local procedure HandleServiceLine(var WhseShptLine: Record "Warehouse Shipment Line")
@@ -1364,6 +1389,11 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTransferLineQtyToShip(var TransferLine: Record "Transfer Line"; WarehouseShipmentLine: Record "Warehouse Shipment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCheckWhseShptLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
@@ -1414,7 +1444,7 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterHandleSalesLine(var WhseShipmentLine: Record "Warehouse Shipment Line"; SalesHeader: Record "Sales Header")
+    local procedure OnAfterHandleSalesLine(var WhseShipmentLine: Record "Warehouse Shipment Line"; SalesHeader: Record "Sales Header"; var Invoice: Boolean)
     begin
     end;
 
@@ -1529,7 +1559,27 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforePurchaseHeaderUpdatePostingDate(var PurchaseHeader: Record "Purchase Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyHeader: Boolean; var ValidatePostingDate: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeTransferHeaderUpdatePostingDate(var TransferHeader: Record "Transfer Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyHeader: Boolean; var ValidatePostingDate: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitSourceDocumentHeaderOnBeforeServiceHeaderUpdatePostingDate(var ServiceHeader: Record "Service Header"; var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ModifyHeader: Boolean; var ValidatePostingDate: Boolean; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostSourceDocument(var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line"; var CounterDocOK: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostSourceDocumentOnBeforeCaseTransferLine(TransferHeader: Record "Transfer Header"; WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
     end;
 
@@ -1649,12 +1699,17 @@ codeunit 5763 "Whse.-Post Shipment"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(var SalesHeader: Record "Sales Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ValidatePostingDate: Boolean; var IsHandled: Boolean);
+    local procedure OnInitSourceDocumentHeaderOnBeforeValidatePostingDate(var SalesHeader: Record "Sales Header"; var WarehouseShipmentLine: Record "Warehouse Shipment Line"; var ValidatePostingDate: Boolean; var IsHandled: Boolean; var ModifyHeader: Boolean);
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnHandleSalesLineOnAfterValidateRetQtytoReceive(var SalesLine: Record "Sales Line"; var WhseShptLine: Record "Warehouse Shipment Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHandleSalesLineOnAfterSalesLineModify(var SalesLine: Record "Sales Line"; ModifyLine: Boolean)
     begin
     end;
 
