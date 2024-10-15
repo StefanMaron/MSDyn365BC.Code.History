@@ -453,11 +453,14 @@ table 363 "Analysis View"
     var
         AnalysisViewEntry: Record "Analysis View Entry";
     begin
-        AnalysisViewEntry.SetRange("Analysis View Code", Code);
-        AnalysisViewEntry.DeleteAll;
+        AnalysisviewBudgetReset();
+
         "Last Entry No." := 0;
         "Last Date Updated" := 0D;
-        AnalysisviewBudgetReset;
+        Modify();
+
+        AnalysisViewEntry.SetRange("Analysis View Code", Code);
+        AnalysisViewEntry.DeleteAll();
 
         OnAfterAnalysisViewReset(Rec);
     end;
