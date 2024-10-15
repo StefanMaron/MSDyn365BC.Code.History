@@ -13,9 +13,11 @@ codeunit 10751 "SII Job Management"
     var
         TempJobQueueEntry: Record "Job Queue Entry" temporary;
     begin
-        if JobQueueEntryExists(JobType, TempJobQueueEntry) then
-            if not TempJobQueueEntry.Scheduled then
-                JobQueueManagement.DeleteJobQueueEntries(TempJobQueueEntry."Object Type to Run", TempJobQueueEntry."Object ID to Run");
+        if JobQueueEntryExists(JobType, TempJobQueueEntry) then begin
+            if TempJobQueueEntry.Scheduled then
+                exit;
+            JobQueueManagement.DeleteJobQueueEntries(TempJobQueueEntry."Object Type to Run", TempJobQueueEntry."Object ID to Run");
+        end;
         CreateJobQueueEntry(JobType);
     end;
 

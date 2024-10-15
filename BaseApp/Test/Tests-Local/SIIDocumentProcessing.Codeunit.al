@@ -1038,6 +1038,7 @@ codeunit 147522 "SII Document Processing"
     procedure SIIHistoryMarkAsAccepted_Negative()
     var
         SIIHistory: Record "SII History";
+        SIIManagement: Codeunit "SII Management";
         StatusCollection: array[2] of Enum "SII Document Status";
         i: Integer;
     begin
@@ -1051,8 +1052,10 @@ codeunit 147522 "SII Document Processing"
         StatusCollection[2] := SIIHistory.Status::"Accepted With Errors";
 
         for i := 1 to ArrayLen(StatusCollection) do begin
+            Clear(SIIHistory);
             LibrarySII.MockHistoryEntry(SIIHistory, StatusCollection[i]);
-            asserterror SIIHistory.MarkAsAccepted;
+            SIIHistory.SetRecFilter();
+            asserterror SIIManagement.MarkAsAccepted(SIIHistory);
             Assert.ExpectedErrorCode('TableError');
             Assert.ExpectedError(StrSubstNo(FieldMustNotBeErr, SIIHistory.FieldCaption(Status), SIIHistory.Status));
         end;
@@ -1063,6 +1066,7 @@ codeunit 147522 "SII Document Processing"
     procedure SIIHistoryMarkAsNotAccepted_Negative()
     var
         SIIHistory: Record "SII History";
+        SIIManagement: Codeunit "SII Management";
         StatusCollection: array[5] of Enum "SII Document Status";
         i: Integer;
     begin
@@ -1079,8 +1083,10 @@ codeunit 147522 "SII Document Processing"
         StatusCollection[5] := SIIHistory.Status::Pending;
 
         for i := 1 to ArrayLen(StatusCollection) do begin
+            Clear(SIIHistory);
             LibrarySII.MockHistoryEntry(SIIHistory, StatusCollection[i]);
-            asserterror SIIHistory.MarkAsNotAccepted;
+            SIIHistory.SetRecFilter();
+            asserterror SIIManagement.MarkAsNotAccepted(SIIHistory);
             Assert.ExpectedErrorCode('TableError');
             Assert.ExpectedError(StrSubstNo(FieldMustNotBeErr, SIIHistory.FieldCaption(Status), SIIHistory.Status));
         end;
@@ -1091,6 +1097,7 @@ codeunit 147522 "SII Document Processing"
     procedure SIIHistoryMarkAsAccepted()
     var
         SIIHistory: Record "SII History";
+        SIIManagement: Codeunit "SII Management";
     begin
         // [FEATURE] [Advanced Mark]
         // [SCENARIO 253910] "Mark As Accepted" history "Failed" entry
@@ -1099,9 +1106,10 @@ codeunit 147522 "SII Document Processing"
 
         // [GIVEN] History "Failed" entry
         LibrarySII.MockHistoryEntry(SIIHistory, SIIHistory.Status::Failed);
+        SIIHistory.SetRecFilter();
 
         // [WHEN] Mark As Accepted
-        SIIHistory.MarkAsAccepted;
+        SIIManagement.MarkAsAccepted(SIIHistory);
 
         // [THEN] An existing history entry has status "Accepted With Errors"
         // TFS 292525: SII Entry marked as accepted does not different from accepted by system
@@ -1115,6 +1123,7 @@ codeunit 147522 "SII Document Processing"
     procedure SIIHistoryMarkAsNotAccepted()
     var
         SIIHistory: Record "SII History";
+        SIIManagement: Codeunit "SII Management";
     begin
         // [FEATURE] [Advanced Mark]
         // [SCENARIO 253910] "Mark As Not Accepted" history "Accepted" entry
@@ -1125,7 +1134,8 @@ codeunit 147522 "SII Document Processing"
         LibrarySII.MockHistoryEntry(SIIHistory, SIIHistory.Status::Accepted);
 
         // [WHEN] Mark As Not Accepted
-        SIIHistory.MarkAsNotAccepted;
+        SIIHistory.SetRecFilter();
+        SIIManagement.MarkAsNotAccepted(SIIHistory);
 
         // [THEN] An existing history entry has status "Accepted With Errors"
         // TFS 292525: SII Entry marked as accepted does not different from accepted by system
@@ -1768,7 +1778,71 @@ codeunit 147522 "SII Document Processing"
           SIIDocUploadState."Document Type"::Invoice, CustLedgerEntry."Document No.",
           SIIDocUploadState."Document Source"::"Customer Ledger");
     end;
-    
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleSIIHistoryMarkAsAccepted()
+    var
+        SIIHistory: array[2] of Record "SII History";
+        SIIHistoryToMark: Record "SII History";
+        SIIManagement: Codeunit "SII Management";
+    begin
+        // [FEATURE] [Advanced Mark]
+        // [SCENARIO 476403] Stan can "Mark As Accepted" multiple SII history entries
+
+        LibrarySII.InitSetup(true, false);
+        LibrarySII.ShowAdvancedActions(true);
+
+        // [GIVEN] SII History Entry "A" with "Failed status
+        LibrarySII.MockHistoryEntry(SIIHistory[1], SIIHistory[1].Status::Failed);
+        // [GIVEN] SII History Entry "B" with "Failed status
+        LibrarySII.MockHistoryEntry(SIIHistory[2], SIIHistory[2].Status::Failed);
+        SIIHistoryToMark.SetFilter(Id, '%1|%2', SIIHistory[1].Id, SIIHistory[2].Id);
+
+        // [WHEN] Mark As Accepted both
+        SIIManagement.MarkAsAccepted(SIIHistoryToMark);
+
+        // [THEN] The SII History Entry "A" has status "Accepted With Errors"
+        VerifyHistoryAndDocUploadValuesAfterMark(
+          SIIHistory[1]."Document State Id", SIIHistory[1].Status::"Accepted With Errors", MarkAsAcceptedErr,
+          SIIHistory[1]."Upload Type"::Regular, false);
+        // [THEN] The SII History Entry "B" has status "Accepted With Errors"
+        VerifyHistoryAndDocUploadValuesAfterMark(
+          SIIHistory[2]."Document State Id", SIIHistory[2].Status::"Accepted With Errors", MarkAsAcceptedErr,
+          SIIHistory[2]."Upload Type"::Regular, false);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultipleSIIHistoryMarkAsNotAccepted()
+    var
+        SIIHistory: array[2] of Record "SII History";
+        SIIHistoryToMark: Record "SII History";
+        SIIManagement: Codeunit "SII Management";
+    begin
+        // [FEATURE] [Advanced Mark]
+        // [SCENARIO 476403] Stan can "Mark As Not Accepted" multiple SII history entries
+
+        LibrarySII.InitSetup(true, false);
+        LibrarySII.ShowAdvancedActions(true);
+
+        // [GIVEN] SII History Entry "A" with "Accepted status
+        LibrarySII.MockHistoryEntry(SIIHistory[1], SIIHistory[1].Status::Accepted);
+        // [GIVEN] SII History Entry "B" with "Accepted status
+        LibrarySII.MockHistoryEntry(SIIHistory[2], SIIHistory[2].Status::Accepted);
+        SIIHistoryToMark.SetFilter(Id, '%1|%2', SIIHistory[1].Id, SIIHistory[2].Id);
+
+        // [WHEN] Mark As Not Accepted
+        SIIManagement.MarkAsNotAccepted(SIIHistoryToMark);
+
+        // [THEN] The SII History Entry "A" has status "Failed"
+        VerifyHistoryAndDocUploadValuesAfterMark(
+          SIIHistory[1]."Document State Id", SIIHistory[1].Status::Failed, MarkAsNotAcceptedErr, SIIHistory[1]."Upload Type"::Regular, false);
+        // [THEN] The SII History Entry "B" has status "Failed"
+        VerifyHistoryAndDocUploadValuesAfterMark(
+          SIIHistory[2]."Document State Id", SIIHistory[2].Status::Failed, MarkAsNotAcceptedErr, SIIHistory[1]."Upload Type"::Regular, false);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

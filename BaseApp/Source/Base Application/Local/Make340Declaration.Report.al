@@ -71,11 +71,7 @@ report 10743 "Make 340 Declaration"
                             if HasBeenRealized("Entry No.") or ("Unrealized VAT Entry No." <> 0) then
                                 NewEntry := CheckVLEApplication(VATEntry2);
 
-                            case VATDateType of 
-                                VATDateType::"VAT Reporting Date": VATEntryTemporary.SetRange("VAT Reporting Date", "VAT Reporting Date");
-                                VATDateType::"Posting Date": VATEntryTemporary.SetRange("Posting Date", "Posting Date");
-                                VATDateType::"Document Date": VATEntryTemporary.SetRange("Document Date", "Document Date");
-                            end;
+                            VATEntryTemporary.SetRange("VAT Reporting Date", "VAT Reporting Date");
                             VATEntryTemporary.SetRange("Document No.", "Document No.");
                             VATEntryTemporary.SetRange("Document Type", "Document Type");
                             VATEntryTemporary.SetRange(Type, Type);
@@ -118,11 +114,7 @@ report 10743 "Make 340 Declaration"
                         VATEntryTemporary.Reset();
                         VATEntryTemporary.DeleteAll();
                         TempGLEntryVATEntryLink.DeleteAll(); // Used for collect Unrealized VAT buffer per VATEntryTemporary
-                        case VATDateType of 
-                            VATDateType::"VAT Reporting Date": SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-                            VATDateType::"Posting Date": SetFilter("Posting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-                            VATDateType::"Document Date": SetFilter("Document Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-                        end;
+                        SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
                         case VATEntry.Type of
                             VATEntry.Type::Sale:
                                 begin
@@ -281,11 +273,7 @@ report 10743 "Make 340 Declaration"
 
                 trigger OnPreDataItem()
                 begin
-                    case VATDateType of 
-                        VATDateType::"VAT Reporting Date": SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-                        VATDateType::"Posting Date": SetFilter("Posting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-                        VATDateType::"Document Date": SetFilter("Document Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-                    end;
+                    SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
                     if Counter = 1 then begin
                         SetFilter(Type, '%1' + VATEntryTypeFilter, Type::Sale);
                         CreateTempDeclarationLineForSalesInvNoTaxVAT();
@@ -473,12 +461,18 @@ report 10743 "Make 340 Declaration"
                                 Error(WrongPreviousDeclarationNoErr, MaxStrLen(PrevDeclareNum));
                         end;
                     }
+#if not CLEAN23
                     field(VATDateTypeField; VATDateType)
                     {
                         ApplicationArea = VAT;
                         Caption = 'Period Date Type';
                         ToolTip = 'Specifies the type of date used for the report period.';
+                        Visible = false;
+                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '23.0';
                     }
+#endif
                 }
             }
         }
@@ -562,12 +556,8 @@ report 10743 "Make 340 Declaration"
         VATEntryTypeFilter := VATEntry.GetFilter(Type);
         if VATEntryTypeFilter <> '' then
             VATEntryTypeFilter := '&' + VATEntryTypeFilter;
-        
-        case VATDateType of 
-            VATDateType::"VAT Reporting Date": VATEntryDateFilter := VATEntry.GetFilter("VAT Reporting Date");
-            VATDateType::"Posting Date": VATEntryDateFilter := VATEntry.GetFilter("Posting Date");
-            VATDateType::"Document Date": VATEntryDateFilter := VATEntry.GetFilter("Document Date");
-        end;
+
+        VATEntryDateFilter := VATEntry.GetFilter("VAT Reporting Date");
         if VATEntryDateFilter <> '' then
             VATEntryDateFilter := '&' + VATEntryDateFilter;
 
@@ -680,7 +670,9 @@ report 10743 "Make 340 Declaration"
         FileHeaderCreated: Boolean;
         [InDataSet]
         PrevDeclarationNumEnable: Boolean;
+#if not CLEAN23
         VATDateType: Enum "VAT Date Type";
+#endif
         FileFilterTxt: Label 'Text files (*.txt)|*.txt|All files (*.*)|*.*';
         FileNameTxt: Label 'Declaration 340 year %1 month %2.txt', Comment = '%1=declaration year,%2=declaration month';
         MissingContactNameErr: Label 'Contact Name must be entered.';
@@ -1207,14 +1199,7 @@ report 10743 "Make 340 Declaration"
         else
             VATEntry6.SetFilter("Document Type", '%1|%2|%3|%4', VATEntry6."Document Type"::Invoice, VATEntry6."Document Type"::"Credit Memo",
               VATEntry6."Document Type"::Payment, VATEntry6."Document Type"::Refund);
-        case VATDateType of
-            VATDateType::"Posting Date":
-                VATEntry6.SetFilter("Posting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-            VATDateType::"Document Date":
-                VATEntry6.SetFilter("Document Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-            VATDateType::"VAT Reporting Date":
-                VATEntry6.SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
-        end;
+        VATEntry6.SetFilter("VAT Reporting Date", '%1..%2' + VATEntryDateFilter, FromDate, ToDate);
         if VATEntry.GetFilter("Document No.") <> '' then
             VATEntry6.SetFilter("Document No.", VATEntry.GetFilter("Document No."));
         if VATEntry6.FindSet() then
@@ -1639,7 +1624,6 @@ report 10743 "Make 340 Declaration"
         ReplaceDeclaration := NewReplacementDeclaration;
         PrevDeclareNum := NewPreviousDeclarationNumber;
         FileName := NewFileName;
-        VATDateType := VATDateType::"Posting Date";
     end;
 
     local procedure PopulateAppliedPayments()

@@ -14,6 +14,8 @@
         SetupNotificationTxt: Label 'Do you want to setup SII Document Transmission?';
         YesTxt: Label 'Yes';
         NoSIIStateErr: Label 'The document has not been transmitted and hence has no status.';
+        MarkAsNotAcceptedErr: Label 'Marked as not accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
+        MarkAsAcceptedErr: Label 'Marked as accepted by %1 on %2.', Comment = '%1 = user id;%2 = date time of mark';
 
     [EventSubscriber(ObjectType::Page, Page::"Sales Invoice", 'OnOpenPageEvent', '', false, false)]
     local procedure OnSalesInvoicePageOpen(var Rec: Record "Sales Header")
@@ -894,6 +896,52 @@
         if not SIISetup.Get() then
             exit(false);
         exit(SIISetup."Do Not Export Negative Lines");
+    end;
+
+    procedure MarkAsAccepted(var SIIHistory: Record "SII History")
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        if not SIIHistory.FindSet() then
+            exit;
+
+        repeat
+            if SIIHistory.Status in [SIIHistory.Status::Accepted, SIIHistory.Status::"Accepted With Errors"] then
+                SIIHistory.FieldError(Status);
+
+            SIIDocUploadState.Get(SIIHistory."Document State Id");
+            SIIDocUploadState.Validate(Status, SIIDocUploadState.Status::"Accepted With Errors");
+            SIIDocUploadState.Validate("Accepted By User ID", UserId);
+            SIIDocUploadState.Validate("Accepted Date Time", CurrentDateTime);
+            SIIDocUploadState.Modify();
+
+            SIIHistory.Status := SIIHistory.Status::"Accepted With Errors";
+            SIIHistory."Error Message" := StrSubstNo(MarkAsAcceptedErr, UserId, CurrentDateTime);
+            SIIHistory.Modify();
+        until SIIHistory.Next() = 0;
+    end;
+
+    procedure MarkAsNotAccepted(var SIIHistory: Record "SII History")
+    var
+        SIIDocUploadState: Record "SII Doc. Upload State";
+    begin
+        if not SIIHistory.FindSet() then
+            exit;
+
+        repeat
+            if not (SIIHistory.Status in [SIIHistory.Status::Accepted, SIIHistory.Status::"Accepted With Errors"]) then
+                SIIHistory.FieldError(Status);
+
+            SIIDocUploadState.Get(SIIHistory."Document State Id");
+            SIIDocUploadState.Validate(Status, SIIDocUploadState.Status::Failed);
+            SIIDocUploadState.Validate("Accepted By User ID", '');
+            SIIDocUploadState.Validate("Accepted Date Time", 0DT);
+            SIIDocUploadState.Modify();
+
+            SIIHistory.Status := SIIHistory.Status::Failed;
+            SIIHistory."Error Message" := StrSubstNo(MarkAsNotAcceptedErr, UserId, CurrentDateTime);
+            SIIHistory.Modify();
+        until SIIHistory.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
