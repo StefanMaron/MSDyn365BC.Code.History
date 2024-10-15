@@ -16,6 +16,7 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryPatterns: Codeunit "Library - Patterns";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryUtility: Codeunit "Library - Utility";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
@@ -740,6 +741,70 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         ItemLedgerEntry[2].TestField("Cost Amount (Actual)", -NewCost);
     end;
 
+    [Test]
+    [HandlerFunctions('ProductionJournalModalPageHandler,ConfirmYesHandler,MessageHandler')]
+    procedure RevalOfOutputWithLaterValuationDate()
+    var
+        ProdItem: Record Item;
+        CompItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+        UnitAmount: Decimal;
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Output]
+        // [SCENARIO 418069] Calculate Inventory Value in revaluation journal recognizes cost of output with Valuation Date > Posting Date.
+        Initialize();
+        UnitAmount := LibraryRandom.RandDec(100, 2);
+        Qty := LibraryRandom.RandIntInRange(10, 20);
+
+        // [GIVEN] Component item "C" set up for backward flushing.
+        LibraryInventory.CreateItem(CompItem);
+        CompItem.Validate("Flushing Method", CompItem."Flushing Method"::Backward);
+        CompItem.Modify(true);
+        LibraryManufacturing.CreateCertifiedProductionBOM(ProductionBOMHeader, CompItem."No.", 1);
+
+        // [GIVEN] Production item "P".
+        LibraryInventory.CreateItem(ProdItem);
+        ProdItem.Validate("Replenishment System", ProdItem."Replenishment System"::"Prod. Order");
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Post the component "C" to inventory, unit cost = 50 LCY.
+        CreateAndPostItemJnlLine(CompItem."No.", '', LibraryRandom.RandIntInRange(50, 100), UnitAmount);
+
+        // [GIVEN] Production order for 10 pcs of item "P".
+        // [GIVEN] Post output on WORKDATE.
+        LibraryManufacturing.CreateAndRefreshProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ProdItem."No.", Qty);
+        ProdOrderLine.SetRange("Item No.", ProdItem."No.");
+        ProdOrderLine.FindFirst();
+        LibraryManufacturing.OpenProductionJournal(ProductionOrder, ProdOrderLine."Line No.");
+
+        // [GIVEN] Finish the production order with posting date = WORKDATE + 30 days.
+        // [GIVEN] The consumption of component "C" is thereby posted later than output.
+        LibraryManufacturing.ChangeProdOrderStatus(
+          ProductionOrder, ProductionOrder.Status::Finished, LibraryRandom.RandDate(30), false);
+
+        // [GIVEN] Adjust cost.
+        LibraryCosting.AdjustCostItemEntries(StrSubstNo('%1|%2', CompItem."No.", ProdItem."No."), '');
+
+        // [WHEN] Calculate Inventory Value for item "P" in revaluation journal on WORKDATE.
+        LibraryPatterns.CalculateInventoryValueRun(
+          ItemJournalBatch, ProdItem, WorkDate(), CalculatePer::Item, false, false, false, CalculationBase::" ", false, '', '');
+
+        // [THEN] The batch job recognizes the cost of components.
+        // [THEN] A revaluation journal line for item "P" with quantity = 10 and calculated unit cost = 50 LCY is created.
+        ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
+        ItemJournalLine.SetRange("Item No.", ProdItem."No.");
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.TestField(Quantity, Qty);
+        ItemJournalLine.TestField("Unit Cost (Calculated)", UnitAmount);
+    end;
+
     local procedure TestRevalueExistingInv(CostingMethod: Enum "Costing Method"; StandardCost: Decimal; CalcPer: Option; FilterByLocation: Boolean)
     var
         Item: Record Item;
@@ -1323,6 +1388,23 @@ codeunit 137603 "SCM CETAF Costing Revaluation"
         FindFirstItemJnlLine(ItemJnlLine, ItemJnlBatch);
         ItemJnlLine.TestField(Quantity, ExpectedQty);
         ItemJnlLine.TestField("Inventory Value (Calculated)", ExpectedInvValue);
+    end;
+
+    [ModalPageHandler]
+    procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
+    begin
+        ProductionJournal.Post.Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmYesHandler(Question: Text; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [MessageHandler]
+    procedure MessageHandler(Message: Text)
+    begin
     end;
 }
 
