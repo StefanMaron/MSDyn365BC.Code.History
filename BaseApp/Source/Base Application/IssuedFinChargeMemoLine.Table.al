@@ -143,6 +143,12 @@ table 305 "Issued Fin. Charge Memo Line"
             Caption = 'VAT Identifier';
             Editable = false;
         }
+        field(25; "Line Type"; Option)
+        {
+            Caption = 'Line Type';
+            OptionCaption = 'Finance Charge Memo Line,Beginning Text,Ending Text,Rounding';
+            OptionMembers = "Finance Charge Memo Line","Beginning Text","Ending Text",Rounding;
+        }
         field(26; "VAT Clause Code"; Code[20])
         {
             Caption = 'VAT Clause Code';
