@@ -15,295 +15,382 @@ page 5077 "Create Interaction"
         {
             group(General)
             {
-                Caption = 'General';
                 Visible = Step = Step::"Step 1";
-
-                field("Wizard Contact Name";
-                Rec."Wizard Contact Name")
+                group(Step1)
                 {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Contact';
-                    Editable = IsContactEditable;
-                    Lookup = false;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the contact that you are interacting with.';
 
-                    trigger OnAssistEdit()
-                    var
-                        Contact: Record Contact;
-                    begin
-                        if IsContactEditable then begin
-                            if Contact.Get("Contact No.") then;
-                            if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
-                                SetContactNo(Contact);
+                    Caption = 'What is the type of interaction?';
+                    ShowCaption = true;
+
+                    field(Note1; Step1InstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        MultiLine = true;
+                        ShowCaption = false;
+                    }
+
+                    field("Wizard Contact Name"; Rec."Wizard Contact Name")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Contact';
+                        Editable = IsContactEditable;
+                        Lookup = false;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the contact that you are interacting with.';
+
+                        trigger OnAssistEdit()
+                        var
+                            Contact: Record Contact;
+                        begin
+                            if IsContactEditable then begin
+                                if Contact.Get("Contact No.") then;
+                                if PAGE.RunModal(0, Contact) = ACTION::LookupOK then
+                                    SetContactNo(Contact);
+                            end;
                         end;
-                    end;
 
-                    trigger OnValidate()
-                    var
-                        Contact: Record Contact;
-                        FilterWithoutQuotes: Text;
-                    begin
-                        "Wizard Contact Name" := DelChr("Wizard Contact Name", '<>');
-                        if "Wizard Contact Name" = "Contact Name" then
-                            exit;
-                        if "Wizard Contact Name" = '' then
-                            Clear(Contact)
-                        else begin
-                            FilterWithoutQuotes := ConvertStr("Wizard Contact Name", '''', '?');
-                            Contact.SetFilter(Name, '''@*' + FilterWithoutQuotes + '*''');
-                            if not Contact.FindFirst() then
-                                Clear(Contact);
+                        trigger OnValidate()
+                        var
+                            Contact: Record Contact;
+                            FilterWithoutQuotes: Text;
+                        begin
+                            "Wizard Contact Name" := DelChr("Wizard Contact Name", '<>');
+                            if "Wizard Contact Name" = "Contact Name" then
+                                exit;
+                            if "Wizard Contact Name" = '' then
+                                Clear(Contact)
+                            else begin
+                                FilterWithoutQuotes := ConvertStr("Wizard Contact Name", '''', '?');
+                                Contact.SetFilter(Name, '''@*' + FilterWithoutQuotes + '*''');
+                                if not Contact.FindFirst() then
+                                    Clear(Contact);
+                            end;
+                            SetContactNo(Contact)
                         end;
-                        SetContactNo(Contact)
-                    end;
-                }
-                field("Interaction Template Code"; Rec."Interaction Template Code")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Importance = Promoted;
-                    NotBlank = true;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the type of the interaction.';
+                    }
+                    field("Interaction Template Code"; Rec."Interaction Template Code")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Importance = Promoted;
+                        NotBlank = true;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies the type of the interaction.';
 
-                    trigger OnValidate()
-                    var
-                    begin
-                        UpdateUIFlags();
+                        trigger OnValidate()
+                        var
+                        begin
+                            UpdateUIFlags();
 
-                        if Campaign.Get(Rec."Campaign No.") then
-                            Rec."Campaign Description" := Campaign.Description;
+                            if Campaign.Get(Rec."Campaign No.") then
+                                Rec."Campaign Description" := Campaign.Description;
 
-                        if Rec."Attachment No." <> xRec."Attachment No." then
-                            AttachmentReload();
+                            if Rec."Attachment No." <> xRec."Attachment No." then
+                                AttachmentReload();
 
-                        InteractionTemplate.Get(Rec."Interaction Template Code");
-                        Rec."Correspondence Type" := InteractionTemplate."Correspondence Type (Default)";
-                    end;
-                }
-                field(Description; Rec.Description)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Description';
-                    Importance = Promoted;
-                    NotBlank = true;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies what the interaction is about.';
-                }
-                field("Salesperson Code"; Rec."Salesperson Code")
-                {
-                    ApplicationArea = Suite, RelationshipMgmt;
-                    Caption = 'Salesperson';
-                    Editable = SalespersonCodeEditable;
-                    ShowMandatory = true;
-                    ToolTip = 'Specifies the salesperson who is responsible for this interaction.';
-                }
-                field("Language Code"; Rec."Language Code")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
+                            InteractionTemplate.Get(Rec."Interaction Template Code");
+                            Rec."Correspondence Type" := InteractionTemplate."Correspondence Type (Default)";
+                        end;
+                    }
+                    field(Description; Rec.Description)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Description';
+                        Importance = Promoted;
+                        NotBlank = true;
+                        ShowMandatory = true;
+                        ToolTip = 'Specifies what the interaction is about.';
+                    }
+                    field(ShowMoreLess1; GetShowMoreLessLbl(ShowLessStep1))
+                    {
+                        ShowCaption = false;
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Show more/fewer fields.';
 
-                    trigger OnLookup(var Text: Text): Boolean
-                    begin
-                        LanguageCodeOnLookup();
-                        if "Attachment No." <> xRec."Attachment No." then
-                            AttachmentReload();
-                    end;
+                        trigger OnDrillDown()
+                        begin
+                            ShowLessStep1 := not ShowLessStep1;
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    group(AdditionalFieldsStep1)
+                    {
+                        ShowCaption = false;
+                        Visible = ShowLessStep1;
 
-                    trigger OnValidate()
-                    begin
-                        if "Attachment No." <> xRec."Attachment No." then
-                            AttachmentReload();
-                    end;
-                }
-            }
-            group(BodyContent)
-            {
-                Caption = 'Content';
-                Visible = HTMLAttachment;
-                field(HTMLContentBodyText; HTMLContentBodyText)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    MultiLine = true;
-                    ShowCaption = false;
+                        field("Salesperson Code"; Rec."Salesperson Code")
+                        {
+                            ApplicationArea = Suite, RelationshipMgmt;
+                            Caption = 'Salesperson';
+                            Editable = SalespersonCodeEditable;
+                            ShowMandatory = true;
+                            ToolTip = 'Specifies the salesperson who is responsible for this interaction.';
+                        }
+                        field("Language Code"; Rec."Language Code")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            ToolTip = 'Specifies the language that is used when translating specified text on documents to foreign business partner, such as an item description on an order confirmation.';
 
-                    trigger OnValidate()
-                    begin
-                        UpdateContentBodyTextInCustomLayoutAttachment(HTMLContentBodyText);
-                    end;
+                            trigger OnLookup(var Text: Text): Boolean
+                            begin
+                                LanguageCodeOnLookup();
+                                if "Attachment No." <> xRec."Attachment No." then
+                                    AttachmentReload();
+                            end;
+
+                            trigger OnValidate()
+                            begin
+                                if "Attachment No." <> xRec."Attachment No." then
+                                    AttachmentReload();
+                            end;
+                        }
+                        field(Date; Rec.Date)
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Date of Interaction';
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies the date when the interaction took place.';
+                        }
+                        field("Time of Interaction"; Rec."Time of Interaction")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies the time when the interaction took place';
+                        }
+                        field("Correspondence Type"; Rec."Correspondence Type")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies the type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
+
+                            trigger OnValidate()
+                            begin
+                                Rec.ValidateCorrespondenceType();
+                            end;
+                        }
+                        field("Information Flow"; Rec."Information Flow")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies the direction of the interaction, inbound or outbound.';
+                        }
+                        field("Initiated By"; Rec."Initiated By")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies if the interaction was initiated by your company or by one of your contacts. The Us option indicates that your company was the initiator; the Them option indicates that a contact was the initiator.';
+                        }
+                    }
                 }
             }
             group(MidDetails)
             {
-                ShowCaption = false;
                 Visible = Step = Step::"Step 2";
+                group(Step2)
+                {
 
-                field(Step2InstructionTxt; Step2InstructionTxt)
-                {
-                    ApplicationArea = All;
-                    ShowCaption = false;
-                }
-                field(Step2OpenInstructionTxt; Step2OpenInstructionTxt)
-                {
-                    ApplicationArea = All;
-                    ShowCaption = false;
-                }
-                field(Step2ImportInstructionTxt; Step2ImportInstructionTxt)
-                {
-                    ApplicationArea = All;
-                    ShowCaption = false;
-                }
-                field(Step2MergeInstructionTxt; Step2MergeInstructionTxt)
-                {
-                    ApplicationArea = All;
-                    ShowCaption = false;
-                }
-                field("Wizard Action"; InteractionTemplate."Wizard Action")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Wizard Action';
-                    Editable = false;
-                    ToolTip = 'Specifies the action that is performed for the interaction.';
+                    Caption = 'What content will be used for this interaction?';
+                    ShowCaption = true;
+
+                    field(Step2InstructionTxt; Step2InstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        MultiLine = true;
+                        ShowCaption = false;
+                    }
+                    field(Step2OpenInstructionTxt; Step2OpenInstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        ShowCaption = false;
+                    }
+                    field(Step2ImportInstructionTxt; Step2ImportInstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        ShowCaption = false;
+                    }
+                    field(Step2MergeInstructionTxt; Step2MergeInstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        ShowCaption = false;
+                    }
+                    field("Wizard Action"; InteractionTemplate."Wizard Action")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Wizard Action';
+                        Editable = false;
+                        ToolTip = 'Specifies the action that is performed for the interaction.';
+                    }
+                    group(BodyContent)
+                    {
+                        Caption = 'Content';
+                        Visible = HTMLAttachment;
+
+                        field(HTMLContentBodyText; HTMLContentBodyText)
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            MultiLine = true;
+                            ShowCaption = false;
+
+                            trigger OnValidate()
+                            begin
+                                UpdateContentBodyTextInCustomLayoutAttachment(HTMLContentBodyText);
+                            end;
+                        }
+                    }
                 }
             }
             group(InteractionDetails)
             {
-                Caption = 'Interaction Details';
-                Enabled = IsMainInfoSet;
                 Visible = Step = Step::"Step 3";
+                group(Step3)
+                {
 
-                field("Correspondence Type"; Rec."Correspondence Type")
-                {
-                    ApplicationArea = RelationshipMgmt;
+                    ShowCaption = true;
+                    Caption = 'What is the interaction related to?';
                     Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the type of correspondence for the interaction. NOTE: If you use the Web client, you must not select the Hard Copy option because printing is not possible from the web client.';
 
-                    trigger OnValidate()
-                    begin
-                        ValidateCorrespondenceType();
-                    end;
-                }
-                field(Date; Date)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Date of Interaction';
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the date when the interaction took place.';
-                }
-                field("Time of Interaction"; Rec."Time of Interaction")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the time when the interaction took place';
-                }
-                field("Information Flow"; Rec."Information Flow")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the direction of the interaction, inbound or outbound.';
-                }
-                field("Initiated By"; Rec."Initiated By")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies if the interaction was initiated by your company or by one of your contacts. The Us option indicates that your company was the initiator; the Them option indicates that a contact was the initiator.';
-                }
-                field(Evaluation; Evaluation)
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
-                }
-                field("Interaction Successful"; Rec."Interaction Successful")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Was Successful';
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies if the interaction was successful. Clear this check box to indicate that the interaction was not a success.';
-                }
-                field("Cost (LCY)"; Rec."Cost (LCY)")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the cost of the interaction with the contact that this segment line applies to.';
-                }
-                field("Duration (Min.)"; Rec."Duration (Min.)")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies the duration of the interaction with the contact.';
-                }
-                field("Campaign Description"; Rec."Campaign Description")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Campaign';
-                    Editable = CampaignDescriptionEditable;
-                    Enabled = IsMainInfoSet;
-                    Importance = Promoted;
-                    Lookup = false;
-                    TableRelation = Campaign;
-                    ToolTip = 'Specifies the campaign that is related to the segment. The description is copied from the campaign card.';
+                    field(Step3InstructionTxt; Step3InstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        MultiLine = true;
+                        ShowCaption = false;
+                    }
+                    field("Campaign Description"; Rec."Campaign Description")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'What campaign is this interaction linked to?';
+                        Editable = CampaignDescriptionEditable;
+                        Enabled = IsMainInfoSet;
+                        Importance = Promoted;
+                        Lookup = false;
+                        TableRelation = Campaign;
+                        ToolTip = 'Specifies the campaign that is related to the segment. The description is copied from the campaign card.';
 
-                    trigger OnAssistEdit()
-                    var
-                        Campaign: Record Campaign;
-                    begin
-                        if GetFilter("Campaign No.") = '' then begin
-                            if Campaign.Get("Campaign No.") then;
-                            if PAGE.RunModal(0, Campaign) = ACTION::LookupOK then begin
-                                Validate("Campaign No.", Campaign."No.");
-                                "Campaign Description" := Campaign.Description;
+                        trigger OnAssistEdit()
+                        var
+                            Campaign: Record Campaign;
+                        begin
+                            if GetFilter("Campaign No.") = '' then begin
+                                if Campaign.Get("Campaign No.") then;
+                                if PAGE.RunModal(0, Campaign) = ACTION::LookupOK then begin
+                                    Validate("Campaign No.", Campaign."No.");
+                                    "Campaign Description" := Campaign.Description;
+                                end;
                             end;
                         end;
-                    end;
-                }
-                field("Campaign Target"; Rec."Campaign Target")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Contact is Targeted';
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies that the segment involved in this interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
-                }
-                field("Campaign Response"; Rec."Campaign Response")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Campaign Response';
-                    Enabled = IsMainInfoSet;
-                    Importance = Additional;
-                    ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
-                }
-                field("Opportunity Description"; Rec."Opportunity Description")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Opportunity';
-                    Editable = OpportunityDescriptionEditable;
-                    Enabled = IsMainInfoSet;
-                    Importance = Promoted;
-                    Lookup = false;
-                    TableRelation = Opportunity;
-                    ToolTip = 'Specifies a description of the opportunity that is related to the segment. The description is copied from the opportunity card.';
+                    }
+                    field("Campaign Target"; Rec."Campaign Target")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'This contact is being targeted as part of campaign';
+                        Enabled = IsMainInfoSet;
+                        Importance = Additional;
+                        ToolTip = 'Specifies that the segment involved in this interaction is the target of a campaign. This is used to measure the response rate of a campaign.';
+                    }
+                    field("Campaign Response"; Rec."Campaign Response")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'This interaction is a response to a campaign';
+                        Enabled = IsMainInfoSet;
+                        Importance = Additional;
+                        ToolTip = 'Specifies that the interaction created for the segment is the response to a campaign. For example, coupons that are sent as a response to a campaign.';
+                    }
+                    field("Opportunity Description"; Rec."Opportunity Description")
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'What is the opportunity';
+                        Editable = OpportunityDescriptionEditable;
+                        Enabled = IsMainInfoSet;
+                        Importance = Promoted;
+                        Lookup = false;
+                        TableRelation = Opportunity;
+                        ToolTip = 'Specifies a description of the opportunity that is related to the segment. The description is copied from the opportunity card.';
 
-                    trigger OnAssistEdit()
-                    var
-                        Opportunity: Record Opportunity;
-                    begin
-                        FilterContactCompanyOpportunities(Opportunity);
-                        if PAGE.RunModal(0, Opportunity) = ACTION::LookupOK then begin
-                            Rec.Validate("Opportunity No.", Opportunity."No.");
-                            Rec."Opportunity Description" := Opportunity.Description;
+                        trigger OnAssistEdit()
+                        var
+                            Opportunity: Record Opportunity;
+                        begin
+                            FilterContactCompanyOpportunities(Opportunity);
+                            if PAGE.RunModal(0, Opportunity) = ACTION::LookupOK then begin
+                                Rec.Validate("Opportunity No.", Opportunity."No.");
+                                Rec."Opportunity Description" := Opportunity.Description;
+                            end;
                         end;
-                    end;
+                    }
+                }
+            }
+            group(InteractionFinishedDetails)
+            {
+                Visible = Step = Step::"Step 4";
+                group(Step4)
+                {
+                    ShowCaption = true;
+                    Caption = 'What was the result of is the interaction?';
+
+                    field(Note4; Step4InstructionTxt)
+                    {
+                        ApplicationArea = All;
+                        MultiLine = true;
+                        ShowCaption = false;
+                    }
+                    field("Interaction Description"; InteractionLogEntry.Description)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Caption = 'Interaction Result Description';
+                        ToolTip = 'Specifies a description of the interaction.';
+                    }
+                    field(Evaluation; Evaluation)
+                    {
+                        ApplicationArea = RelationshipMgmt;
+                        Enabled = IsMainInfoSet;
+                        Importance = Additional;
+                        ToolTip = 'Specifies the evaluation of the interaction involving the contact in the segment.';
+                    }
+                    field(ShowMoreLess4; GetShowMoreLessLbl(ShowLessStep4))
+                    {
+                        ShowCaption = false;
+                        ApplicationArea = RelationshipMgmt;
+                        ToolTip = 'Show more/fewer fields.';
+
+                        trigger OnDrillDown()
+                        begin
+                            ShowLessStep4 := not ShowLessStep4;
+                            CurrPage.Update(true);
+                        end;
+                    }
+                    group(AdditionalFieldsStep4)
+                    {
+                        ShowCaption = false;
+                        Visible = ShowLessStep4;
+
+                        field("Interaction Successful"; Rec."Interaction Successful")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Caption = 'Was Successful';
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies if the interaction was successful. Clear this check box to indicate that the interaction was not a success.';
+                        }
+                        field("Cost (LCY)"; Rec."Cost (LCY)")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies the cost of the interaction with the contact that this segment line applies to.';
+                        }
+                        field("Duration (Min.)"; Rec."Duration (Min.)")
+                        {
+                            ApplicationArea = RelationshipMgmt;
+                            Enabled = IsMainInfoSet;
+                            Importance = Additional;
+                            ToolTip = 'Specifies the duration of the interaction with the contact.';
+                        }
+                    }
                 }
             }
         }
@@ -347,6 +434,7 @@ page 5077 "Create Interaction"
                 Caption = 'Cancel';
                 ToolTip = 'Cancel the interaction';
                 InFooterBar = true;
+                Visible = Step <> Step::"Step 4";
 
                 trigger OnAction()
                 begin
@@ -359,7 +447,7 @@ page 5077 "Create Interaction"
                 ApplicationArea = All;
                 Caption = 'Back';
                 ToolTip = 'Go back to the previous step';
-                Visible = Step <> Step::"Step 1";
+                Visible = (Step <> Step::"Step 1") and (Step <> Step::"Step 4");
                 InFooterBar = true;
 
                 trigger OnAction()
@@ -368,7 +456,10 @@ page 5077 "Create Interaction"
                         Step := Step::"Step 1"
                     else
                         if Step = Step::"Step 3" then
-                            Step := Step::"Step 2";
+                            if InteractionTemplate."Wizard Action" = InteractionTemplate."Wizard Action"::" " then
+                                Step := Step::"Step 1"
+                            else
+                                Step := Step::"Step 2";
                 end;
             }
             action(NextInteraction)
@@ -376,24 +467,13 @@ page 5077 "Create Interaction"
                 ApplicationArea = All;
                 Caption = 'Next';
                 ToolTip = 'Go to the next step';
-                Visible = Step <> Step::"Step 3";
+                Visible = (Step <> Step::"Step 4");
                 InFooterBar = true;
 
                 trigger OnAction()
                 var
                 begin
-                    case Step of
-                        Step::"Step 1":
-                            begin
-                                ValidateStep1();
-                                Step := Step::"Step 2";
-                            end;
-                        Step::"Step 2":
-                            begin
-                                ProcessStep();
-                                Step := Step::"Step 3";
-                            end;
-                    end;
+                    ProcessStep();
                 end;
             }
             action(FinishInteraction)
@@ -402,7 +482,7 @@ page 5077 "Create Interaction"
                 Caption = 'Finish';
                 Image = Approve;
                 ToolTip = 'Finish the interaction.';
-                Visible = Step = Step::"Step 3";
+                Visible = Step = Step::"Step 4";
                 InFooterBar = true;
 
                 trigger OnAction()
@@ -418,6 +498,7 @@ page 5077 "Create Interaction"
                 ApplicationArea = RelationshipMgmt;
                 Caption = 'Co&mments';
                 Image = ViewComments;
+                InFooterBar = true;
                 ToolTip = 'View or add comments for the record.';
 
                 trigger OnAction()
@@ -470,17 +551,18 @@ page 5077 "Create Interaction"
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        if IsFinished then
-            ProcessStep3();
+        if UpdateLogEntry then
+            InteractionLogEntry.Modify();
     end;
 
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Campaign: Record Campaign;
         InteractionTemplate: Record "Interaction Template";
+        InteractionLogEntry: Record "Interaction Log Entry";
         ToDoTask: Record "To-do";
         ClientTypeManagement: Codeunit "Client Type Management";
-        Step: Option "Step 1","Step 2","Step 3";
+        Step: Option "Step 1","Step 2","Step 3","Step 4";
         HTMLContentBodyText: Text;
         [InDataSet]
         CampaignDescriptionEditable: Boolean;
@@ -492,13 +574,20 @@ page 5077 "Create Interaction"
         UntitledTxt: Label 'untitled';
         IsOnMobile: Boolean;
         IsContactEditable: Boolean;
-        IsFinished: Boolean;
-        Step2InstructionTxt: Label 'When you click Next, if your interaction template is set up to:';
-        Step2OpenInstructionTxt: Label '- Open, then the relevant attachment is opened.';
-        Step2ImportInstructionTxt: Label '- Import, then the Import File dialog box is displayed.';
-        Step2MergeInstructionTxt: Label '- Merge, then the Word Template will be merged without opening.';
+        ShowLessStep1: Boolean;
+        ShowLessStep4: Boolean;
+        UpdateLogEntry: Boolean;
+        Step1InstructionTxt: Label 'This wizard helps you to create interactions and record information regarding their cost, duration, connection to a campaign and eventually create opportunity in last step.';
+        Step2InstructionTxt: Label 'Depending on wizard action set on interaction template, when you choose Next wizard will:';
+        Step2OpenInstructionTxt: Label 'Open - opens attachment added to interaction template for your review';
+        Step2ImportInstructionTxt: Label 'Import  -  attachment you want to add to interaction you''re creating';
+        Step2MergeInstructionTxt: Label 'Merge - merge interaction template defined data to Word document';
+        Step3InstructionTxt: Label 'Following fields are optional.\\NOTE: Pressing Next will log the interaction.';
+        Step4InstructionTxt: Label 'Following fields are optional.\\NOTE: You can always evaluate interaction later using Evaluate Interaction action.';
         InteractionTemplateCodeMandatoryErr: Label 'Interaction Template Code is mandatory.';
         DescriptionMandatoryErr: Label 'Description is mandatory.';
+        ShowLessLbl: Label 'Show less';
+        ShowMoreLbl: Label 'Show more';
 
     protected var
         IsMainInfoSet: Boolean;
@@ -534,9 +623,9 @@ page 5077 "Create Interaction"
     procedure AttachmentReload()
     begin
         LoadSegLineAttachment(true);
-        HTMLAttachment := IsHTMLAttachment();
+        HTMLAttachment := Rec.IsHTMLAttachment();
         if HTMLAttachment then
-            HTMLContentBodyText := LoadContentBodyTextFromCustomLayoutAttachment();
+            HTMLContentBodyText := Rec.LoadContentBodyTextFromCustomLayoutAttachment();
     end;
 
     local procedure SetContactNo(Contact: Record Contact)
@@ -559,17 +648,26 @@ page 5077 "Create Interaction"
                 begin
                     ValidateStep1();
                     Step := Step::"Step 2";
+
+                    if InteractionTemplate."Wizard Action" = InteractionTemplate."Wizard Action"::" " then
+                        ProcessStep();
                 end;
             Step::"Step 2":
                 begin
-                    Rec.HandleTrigger();
+                    if not HTMLAttachment then
+                        Rec.HandleTrigger();
                     Step := Step::"Step 3";
                 end;
             Step::"Step 3":
                 begin
-                    IsFinished := true;
-                    CurrPage.Close();
+                    Rec.FinishSegLineWizard(true);
+                    if Rec.GetInteractionLogEntryNo() <> 0 then begin
+                        InteractionLogEntry.Get(Rec.GetInteractionLogEntryNo());
+                        Step := Step::"Step 4";
+                    end
                 end;
+            Step::"Step 4":
+                CurrPage.Close();
         end;
     end;
 
@@ -581,10 +679,11 @@ page 5077 "Create Interaction"
             Error(DescriptionMandatoryErr);
     end;
 
-    local procedure ProcessStep3()
-    var
+    local procedure GetShowMoreLessLbl(ShowLess: Boolean): Text;
     begin
-        Rec.FinishSegLineWizard(true);
+        if ShowLess then
+            exit(ShowLessLbl);
+        exit(ShowMoreLbl);
     end;
 
     [IntegrationEvent(false, false)]

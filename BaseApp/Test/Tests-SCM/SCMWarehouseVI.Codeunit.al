@@ -2679,6 +2679,93 @@ codeunit 137408 "SCM Warehouse VI"
     end;
 
     [Test]
+    [HandlerFunctions('ItemTrackingLinesHandler2,CreateInvtPickRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckAvailQtyOnPostingWhsePickLineWithItemTracking()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        ItemJournalLine: Record "Item Journal Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        WhseActivityPost: Codeunit "Whse.-Activity-Post";
+        Qty1: Decimal;
+        Qty2: Decimal;
+        NewLotNo1: Code[50];
+        NewLotNo2: Code[50];
+    begin
+        // [FEATURE] [Pick] [Item Tracking] [Reservation]
+        // [SCENARIO 477719] Lot availability is checked when user post Inv. Pick.
+        Initialize();
+        Qty1 := LibraryRandom.RandIntInRange(50, 100);
+        NewLotNo1 := LibraryUtility.GenerateGUID();
+        Qty2 := LibraryRandom.RandIntInRange(50, 100);
+        NewLotNo2 := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Lot-tracked item.
+        CreateItemWithItemTrackingCodeForLot(Item);
+
+        // [GIVEN] Location set up for required shipment and pick.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, false);
+
+        // [GIVEN] Post x pcs of the item with lot "L1" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty1);
+        LibraryVariableStorage.Enqueue(TrackingActionStr::AssignGivenLotNo);
+        LibraryVariableStorage.Enqueue(NewLotNo1);
+        LibraryVariableStorage.Enqueue(Qty1);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Post y pcs of the item with lot "L2" to inventory.
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, '', Qty2);
+        LibraryVariableStorage.Enqueue(TrackingActionStr::AssignGivenLotNo);
+        LibraryVariableStorage.Enqueue(NewLotNo2);
+        LibraryVariableStorage.Enqueue(Qty2);
+        ItemJournalLine.OpenItemTrackingLines(false);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create and release sales order for x+y pcs.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty1 + Qty2, Location.Code, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        Commit();
+
+        // [GIVEN] Create invt. pick. and find a pick line.
+        SalesHeader.CreateInvtPutAwayPick();
+        LibraryWarehouse.FindWhseActivityLineBySourceDoc(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityLine.TestField("Lot No.", '');
+        WarehouseActivityLine.TestField(Quantity, Qty1 + Qty2);
+
+
+        // [WHEN] Set lot no. "L1" on the pick line for total qty. and update qty to handle.
+        WarehouseActivityLine.Validate("Lot No.", NewLotNo1);
+        WarehouseActivityLine.Modify();
+
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+        LibraryWarehouse.SetQtyToHandleWhseActivity(WarehouseActivityHeader, WarehouseActivityLine.Quantity);
+
+        // [THEN] During the posting of the Inventory Pick, the error is thrown
+        WhseActivityPost.SetInvoiceSourceDoc(false);
+        WhseActivityPost.PrintDocument(false);
+        WhseActivityPost.SetSuppressCommit(false);
+        WhseActivityPost.ShowHideDialog(false);
+        WhseActivityPost.SetIsPreview(false);
+        asserterror WhseActivityPost.Run(WarehouseActivityLine);
+        Assert.ExpectedError(StrSubstNo(LotNoNotAvailableInInvtErr, NewLotNo1));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CreateInvtPickRequestPageHandler(var CreateInvtPutawayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutawayPickMvmt.CInvtPick.SetValue(true);
+        CreateInvtPutawayPickMvmt.OK.Invoke;
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure NotesTransferredToPostedWhseShipment()
     var

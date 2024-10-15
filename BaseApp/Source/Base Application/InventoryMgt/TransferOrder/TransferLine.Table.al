@@ -1851,9 +1851,6 @@
 
                     TestField("Quantity Shipped", "Quantity Received");
                     TestField("Qty. Shipped (Base)", "Qty. Received (Base)");
-                    if not CalledFromHeader then
-                        TestField("Qty. Shipped (Base)", 0);
-
                     CalcFields("Reserved Qty. Inbnd. (Base)", "Reserved Qty. Outbnd. (Base)");
                     TestField("Reserved Qty. Inbnd. (Base)", 0);
                     TestField("Reserved Qty. Outbnd. (Base)", 0);

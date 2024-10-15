@@ -602,6 +602,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                         AdvanceLetterApplicationCZZ."Document Type", AdvanceLetterApplicationCZZ."Document No.") then begin
                         if TempAdvanceLetterApplicationCZZ.Amount <> AdvanceLetterApplicationCZZ.Amount then begin
                             AdvanceLetterApplicationCZZ.Amount := TempAdvanceLetterApplicationCZZ.Amount;
+                            AdvanceLetterApplicationCZZ."Amount (LCY)" := TempAdvanceLetterApplicationCZZ."Amount (LCY)";
                             ModifyRecord := true;
                         end;
                         OnLinkAdvanceLetterOnBeforeModifyAdvanceLetterApplication(AdvanceLetterApplicationCZZ, TempAdvanceLetterApplicationCZZ, ModifyRecord);
@@ -621,6 +622,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                     AdvanceLetterApplicationCZZ."Document Type" := AdvLetterUsageDocTypeCZZ;
                     AdvanceLetterApplicationCZZ."Document No." := DocumentNo;
                     AdvanceLetterApplicationCZZ.Amount := TempAdvanceLetterApplicationCZZ.Amount;
+                    AdvanceLetterApplicationCZZ."Amount (LCY)" := TempAdvanceLetterApplicationCZZ."Amount (LCY)";
                     OnLinkAdvanceLetterOnBeforeInsertAdvanceLetterApplication(AdvanceLetterApplicationCZZ, TempAdvanceLetterApplicationCZZ);
                     AdvanceLetterApplicationCZZ.Insert();
                 until TempAdvanceLetterApplicationCZZ.Next() = 0;
@@ -845,6 +847,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
             TempAdvanceLetterApplicationCZZ.Init();
             TempAdvanceLetterApplicationCZZ."Advance Letter No." := AdvanceLetterApplicationCZZ."Advance Letter No.";
             TempAdvanceLetterApplicationCZZ.Amount := AdvanceLetterApplicationCZZ.Amount;
+            TempAdvanceLetterApplicationCZZ."Amount (LCY)" := AdvanceLetterApplicationCZZ."Amount (LCY)";
             TempAdvanceLetterApplicationCZZ.Insert();
         until AdvanceLetterApplicationCZZ.Next() = 0;
 
@@ -868,6 +871,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                     ReverseAdvancePayment(PurchAdvLetterEntryCZZ, PurchInvHeader, UseAmount, UseAmountLCY, VendorLedgerEntry, GenJnlPostLine, Preview);
                     AmountToUse -= UseAmount;
                     TempAdvanceLetterApplicationCZZ.Amount -= UseAmount;
+                    TempAdvanceLetterApplicationCZZ."Amount (LCY)" -= UseAmountLCY;
                     TempAdvanceLetterApplicationCZZ.Modify();
 
                     if not Preview then

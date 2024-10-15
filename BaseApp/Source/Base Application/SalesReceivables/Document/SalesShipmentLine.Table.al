@@ -1211,7 +1211,7 @@ table 111 "Sales Shipment Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertInvLineFromShptLineOnAfterCalcQuantities(var SalesLine: Record "Sales Line"; SalesOrderLine: Record "Sales Line")
+    local procedure OnInsertInvLineFromShptLineOnAfterCalcQuantities(var SalesLine: Record "Sales Line"; var SalesOrderLine: Record "Sales Line")
     begin
     end;
 

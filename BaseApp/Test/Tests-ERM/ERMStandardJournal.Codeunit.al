@@ -391,7 +391,6 @@ codeunit 134921 "ERM Standard Journal"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
         StandardGeneralJournal: Record "Standard General Journal";
-        StandardGeneralJournalLine: Record "Standard General Journal Line";
         PaymentTerms: Record "Payment Terms";
         PaymentMethod: Record "Payment Method";
         Vendor: Record Vendor;
@@ -399,12 +398,12 @@ codeunit 134921 "ERM Standard Journal"
         // [SCENARIO 458858] "Payment Terms Code" and "Payment Method Code" passed to gen. jnl. line when create it from standard gen. jnl. line
         Initialize();
 
-        // Create Vendor with "Payment Terms" and "Payment Method"
+        // [GIVEN] Create Vendor with "Payment Terms" and "Payment Method"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         Vendor.Validate("Payment Method Code", PaymentMethod.Code);
         LibraryERM.CreatePaymentTerms(PaymentTerms);
-        Vendor.validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
         Vendor.Modify();
 
         // [GIVEN] Standard gen. jnl. line with Vendor payment
@@ -423,6 +422,51 @@ codeunit 134921 "ERM Standard Journal"
 
         GenJournalLine.TestField("Payment Method Code", PaymentMethod.Code);
         GenJournalLine.TestField("Payment Terms Code", PaymentTerms.Code);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    [Scope('OnPrem')]
+    procedure S478445_GetStandardJournalWithPaymentTermsAndMethodFromBalAccount()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        StandardGeneralJournal: Record "Standard General Journal";
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        Vendor: Record Vendor;
+        GLAccountNo: Code[20];
+    begin
+        // [SCENARIO 478445] "Payment Terms Code" and "Payment Method Code" passed to General Journal Line created from Standard General Journal Line from Balancing Account.
+        Initialize();
+
+        // [GIVEN] Create G/L Account with Direct Posting
+        GLAccountNo := LibraryERM.CreateGLAccountNoWithDirectPosting();
+
+        // [GIVEN] Create Vendor with "Payment Terms" and "Payment Method"
+        LibraryPurchase.CreateVendor(Vendor);
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        Vendor.Validate("Payment Method Code", PaymentMethod.Code);
+        LibraryERM.CreatePaymentTerms(PaymentTerms);
+        Vendor.Validate("Payment Terms Code", PaymentTerms.Code);
+        Vendor.Modify();
+
+        // [GIVEN] Create Standard General Journal Line with G/L Account as "Account No." and Vendor as "Bal. Account No."
+        CreateGeneralJournalBatch(GenJournalBatch);
+        CreateGeneralJournalLine(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccountNo, GenJournalLine."Bal. Account Type"::"Vendor", Vendor."No.", '');
+        CreateSaveStandardJournal(StandardGeneralJournal, GenJournalBatch);
+
+        // [WHEN] Create General Journal Line from Standard General Journal Line
+        DeleteGeneralJournalLine(GenJournalBatch.Name);
+        StandardGeneralJournal.CreateGenJnlFromStdJnl(StandardGeneralJournal, GenJournalBatch.Name);
+
+        // [THEN] Verify "Payment Terms Code" and "Payment Method Code" transferred from Vendor as "Bal. Account No."
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+
+        GenJournalLine.TestField("Payment Method Code", Vendor."Payment Method Code");
+        GenJournalLine.TestField("Payment Terms Code", Vendor."Payment Terms Code");
     end;
 
     [Test]
@@ -585,6 +629,21 @@ codeunit 134921 "ERM Standard Journal"
 
         // The value of Document No. is not important.
         GenJournalLine.Validate("Document No.", GenJournalLine."Journal Batch Name" + Format(GenJournalLine."Line No."));
+        GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; CurrencyCode: Code[10])
+    begin
+        // Using the random Amount because value is not important.
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          AccountType, AccountNo, LibraryRandom.RandDec(100, 2));
+
+        // The value of Document No. is not important.
+        GenJournalLine.Validate("Document No.", GenJournalLine."Journal Batch Name" + Format(GenJournalLine."Line No."));
+        GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
         GenJournalLine.Validate("Currency Code", CurrencyCode);
         GenJournalLine.Modify(true);

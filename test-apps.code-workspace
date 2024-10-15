@@ -226,6 +226,9 @@
       "path": "./Email - SMTP API/Test/Email - SMTP API Tests"
     },
     {
+      "path": "./saf-t/test/SAF-T Tests"
+    },
+    {
       "path": "./statisticalaccounts/test/Statistical Accounts Tests"
     },
     {

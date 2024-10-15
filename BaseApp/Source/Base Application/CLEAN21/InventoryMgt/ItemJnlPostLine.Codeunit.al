@@ -1,4 +1,4 @@
-﻿#if CLEAN21
+#if CLEAN21
 codeunit 22 "Item Jnl.-Post Line"
 {
     Permissions = TableData Item = rimd,
@@ -354,6 +354,9 @@ codeunit 22 "Item Jnl.-Post Line"
             SetRange("Item No.", ItemJnlLine."Item No.");
             if ItemJnlLine."Prod. Order Comp. Line No." <> 0 then
                 SetRange("Line No.", ItemJnlLine."Prod. Order Comp. Line No.");
+            if ItemJnlLine."Variant Code" <> '' then
+                SetRange("Variant Code", ItemJnlLine."Variant Code");
+
             LockTable();
 
             RemQtyToPost := ItemJnlLine.Quantity;
@@ -3422,13 +3425,17 @@ codeunit 22 "Item Jnl.-Post Line"
                 not (ItemLedgEntry.Positive or
                     (ValueEntry."Document Type" = ValueEntry."Document Type"::"Transfer Receipt"));
         end else begin
-            CalcAdjustedCost(
-                OldItemLedgEntry, ValueEntry."Valued Quantity",
-                AdjCostInvoicedLCY, AdjCostInvoicedACY, DiscountAmount);
-            ValueEntry."Cost Amount (Actual)" := AdjCostInvoicedLCY;
-            ValueEntry."Cost Amount (Actual) (ACY)" := AdjCostInvoicedACY;
-            ValueEntry."Cost per Unit" := 0;
-            ValueEntry."Cost per Unit (ACY)" := 0;
+            IsHandled := false;
+            OnInitTransValueEntryOnBeforeCalcAdjustedCost(OldItemLedgEntry, ValueEntry, AdjCostInvoicedLCY, AdjCostInvoicedACY, DiscountAmount, IsHandled);
+            if not IsHandled then begin
+                CalcAdjustedCost(
+                    OldItemLedgEntry, ValueEntry."Valued Quantity",
+                    AdjCostInvoicedLCY, AdjCostInvoicedACY, DiscountAmount);
+                ValueEntry."Cost Amount (Actual)" := AdjCostInvoicedLCY;
+                ValueEntry."Cost Amount (Actual) (ACY)" := AdjCostInvoicedACY;
+                ValueEntry."Cost per Unit" := 0;
+                ValueEntry."Cost per Unit (ACY)" := 0;
+            end;
 
             GlobalValueEntry."Cost Amount (Actual)" := GlobalValueEntry."Cost Amount (Actual)" - ValueEntry."Cost Amount (Actual)";
             if GLSetup."Additional Reporting Currency" <> '' then
@@ -3470,7 +3477,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     end else
                         "Cost per Unit" := ItemJnlLine."Unit Cost";
 
-                    OnValuateAppliedAvgEntryOnAfterSetCostPerUnit(ValueEntry, ItemJnlLine, InvtSetup, SKU, SKUExists);
+                    OnValuateAppliedAvgEntryOnAfterSetCostPerUnit(ValueEntry, ItemJnlLine, InvtSetup, SKU, SKUExists, Item);
 
                     if GLSetup."Additional Reporting Currency" <> '' then begin
                         if (ItemJnlLine."Source Currency Code" = GLSetup."Additional Reporting Currency") and
@@ -3734,7 +3741,7 @@ codeunit 22 "Item Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeRoundAmtValueEntry(ValueEntry, IsHandled);
+        OnBeforeRoundAmtValueEntry(ValueEntry, Currency, Item, IsHandled);
         if IsHandled then
             exit;
 
@@ -4533,6 +4540,7 @@ codeunit 22 "Item Jnl.-Post Line"
         if not ItemJnlLine.IsATOCorrection() then begin
             ApplyItemLedgEntry(NewItemLedgEntry, OldItemLedgEntry2, NewValueEntry, false);
             AutoTrack(NewItemLedgEntry, IsReserved);
+            OnUndoQuantityPostingOnAfterAutoTrack(NewItemLedgEntry, NewValueEntry, ItemJnlLine, Item);
         end;
 
         NewItemLedgEntry.Modify();
@@ -5073,7 +5081,13 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry3: Record "Value Entry";
         RevExpCostToBalance: Decimal;
         RevExpCostToBalanceACY: Decimal;
+        IsHandled: Boolean;        
     begin
+        IsHandled := false;
+        OnBeforeInsertBalanceExpCostRevEntry(GlobalItemLedgEntry, ValueEntry, ValueEntryNo, GLSetup, Currency, GLSetupRead, IsHandled);
+        if IsHandled then
+            exit;
+
         if GlobalItemLedgEntry.Quantity - (GlobalItemLedgEntry."Invoiced Quantity" - ValueEntry."Invoiced Quantity") = 0 then
             exit;
         with ValueEntry2 do begin
@@ -5955,7 +5969,7 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckRunItemValuePosting(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
@@ -6341,7 +6355,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRoundAmtValueEntry(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    local procedure OnBeforeRoundAmtValueEntry(var ValueEntry: Record "Value Entry"; Currency: Record Currency; Item: Record Item; var IsHandled: Boolean)
     begin
     end;
 
@@ -6653,7 +6667,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValuateAppliedAvgEntryOnAfterSetCostPerUnit(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; InventorySetup: Record "Inventory Setup"; SKU: Record "Stockkeeping Unit"; SKUExists: Boolean)
+    local procedure OnValuateAppliedAvgEntryOnAfterSetCostPerUnit(var ValueEntry: Record "Value Entry"; ItemJournalLine: Record "Item Journal Line"; InventorySetup: Record "Inventory Setup"; SKU: Record "Stockkeeping Unit"; SKUExists: Boolean; Item: Record Item)
     begin
     end;
 
@@ -7674,6 +7688,21 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnAfterTestFirstApplyItemLedgEntry(OldItemLedgerEntry: Record "Item Ledger Entry"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertBalanceExpCostRevEntry(var GlobalItemLedgEntry: Record "Item Ledger Entry"; ValueEntry: Record "Value Entry"; var ValueEntryNo: Integer; var GLSetup: Record "General Ledger Setup"; var Currency: Record Currency; var GLSetupRead: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUndoQuantityPostingOnAfterAutoTrack(var NewItemLedgEntry: Record "Item Ledger Entry"; var NewValueEntry: Record "Value Entry"; ItemJnlLine: Record "Item Journal Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitTransValueEntryOnBeforeCalcAdjustedCost(OldItemLedgEntry: Record "Item Ledger Entry"; var ValueEntry: Record "Value Entry"; var AdjCostInvoicedLCY: Decimal; var AdjCostInvoicedACY: Decimal; var DiscountAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 }
